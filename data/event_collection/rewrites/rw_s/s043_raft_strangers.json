@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Raft of Strangers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s043_raft_strangers",
+  "source": "rewrites",
+  "lines": [
+   2031,
+   2074
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2031",
+  "ledger": [
+   {
+    "src": "L2032",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2033",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2041",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2050",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2038",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2039",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2042",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2051",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2044",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2047",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2053",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2056",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2059-2074",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There's a young woman lying on it, curled up, burning with fever.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After a night of howling wind, (name) goes down to the beach to check on the canoes and finds a small raft of lashed bamboo wedged among the rocks. There's a young woman lying on it, curled up, burning with fever. In her arms is a baby, wide awake, red in the face, and screaming at the sea.\n(Name) wades out and helps them ashore. The woman can barely stand. She looks at (name) with glazed, exhausted eyes and holds out the baby. \"Please,\" she says. \"Just while I rest. Just a little while.\"\n(Name) takes the baby. The baby stops screaming at once and stares up at (him/her), very seriously. The mother closes her eyes, and sleeps. And sleeps. (Name) knows nothing about babies. Should (he/she) look after the baby (himself/herself), or find a nursing mother in the village?",
+   "choices": [
+    {
+     "label": "Take the Baby",
+     "next": "c1",
+     "src": "L2038"
+    },
+    {
+     "label": "Find a Nursing Mother in the Village",
+     "next": "c2",
+     "src": "L2039"
+    }
+   ],
+   "src": "L2034-2036"
+  },
+  "c1o1": {
+   "text": "The fever breaks on the fifth day. The mother recovers slowly, a little stronger every morning, and as soon as she can walk she asks to stay in the village. But until she is well, (name) looks after the baby day and night, and by the time the mother is strong enough to take her child back, it's clear to everyone that it's too late. The baby screams whenever (name) leaves the hut, and (name) can't sleep unless the baby is beside (him/her). The two of them have adopted each other. The mother just laughs, and says the baby has two parents now, and that's twice as lucky.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "sex": "female"
+    }
+   ],
+   "src": "L2045",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The healers do everything they know. They sit with the mother night and day. But the fever is too deep, and she has come too far, and on the third night, without ever waking, she slips away. The village buries her on the hill above the beach, looking out to sea, and lays shells on the grave, though nobody ever learns her name. (Name) stands there with the baby in (his/her) arms through the whole ceremony. Afterwards, (he/she) doesn't hand the baby to anyone. (He/She) takes (him/her) home, and raises (him/her) as (his/her) own.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2048",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The healers carry the mother to the hospital. (Name) carries the baby home and sits up all night with (him/her), rocking, walking, singing every song (he/she) knows, while the healers come and go with cool water and bitter tea and worried faces...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2042"
+  },
+  "c2o1": {
+   "text": "A young mother in the village, still nursing her own little one, takes the baby without a second thought. She tucks (him/her) in beside her own, and both babies fall asleep at once. The healers bring the stranger round over the following week, and when she wakes and finds her child warm and fed and sleeping, she weeps for a whole morning. She asks to stay. Nobody even thinks about saying no.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "sex": "female"
+    }
+   ],
+   "src": "L2054",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The baby will not be held by anyone but (name). Not the nursing mothers, not the healers, not the elders, not the gentlest grandmother in the village. The moment anyone else takes (him/her), the baby screams the roof off. The moment (name) takes (him/her) back, silence, and a very satisfied look. After an hour of this, (name) gives in. \"Fine,\" (he/she) says to the baby. \"Fine. You win.\" The baby goes to sleep on (his/her) shoulder, and that, it turns out, is that.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2057",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) knows nothing about babies. (He/She) hurries up the beach to the village, holding the baby out in front of (him/her) like a very fragile, very loud pot, calling for anyone who's nursing a little one of their own...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2051"
+  }
+ }
+}

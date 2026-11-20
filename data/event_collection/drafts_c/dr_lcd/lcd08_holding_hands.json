@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Holding Hands at the Festival",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd08_holding_hands",
+  "source": "draft_lcd",
+  "lines": [
+   106,
+   117
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L106",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens)"
+   },
+   {
+    "src": "L113",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two teens want to hold hands at the festival in front of everyone: do it, or keep it secret a little longer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been sweethearts for a month, but only their closest friends know. Tonight is the moon festival, and (subject) wants to hold (friend)'s hand in the dance, in front of everyone. (friend) is terrified of being teased by (friend.his/her) older cousins. What should they do?",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Hold Hands at the Dance",
+     "next": "o1",
+     "src": "L111"
+    },
+    {
+     "label": "Keep It Secret",
+     "next": "o2",
+     "src": "L115"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They walk into the dance holding hands. The older cousins whoop and tease, exactly as (friend) feared. Then one of them pats (friend) on the back and says it is about time. (friend) goes red and stays red, and does not let go.",
+   "src": "L113"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They dance apart, catching each other's eye across the fire. Later, when everyone is watching the fireworks of sparks from the bonfire, they hold hands in the dark at the back. Nobody sees. It feels like the best secret in the world.",
+   "src": "L117"
+  }
+ }
+}

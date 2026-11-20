@@ -94,21 +94,147 @@
    ]
   },
   "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "An elder teaches (Name1) to splice two lengths of rope. The learner asks to see the movement one more time.",
+   "src": "L771",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L771"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
    "name": "Ending 1",
    "text": "An elder teaches (Name1) to splice two lengths of rope. The learner asks to see the movement one more time.",
    "src": "L771"
   },
-  "e2": {
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "An elder teaches (Name1) to splice two lengths of rope. (Name1) is proud when the hands finally remember the steps.",
+   "src": "L775",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L775"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L775"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Ending 2",
    "text": "An elder teaches (Name1) to splice two lengths of rope. (Name1) is proud when the hands finally remember the steps.",
    "src": "L775"
   },
-  "e3": {
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "An elder teaches (Name1) to splice two lengths of rope. The elder admits the technique took years to master.",
+   "src": "L779",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L779"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "An elder teaches (Name1) to splice two lengths of rope. The elder admits the technique took years to master.",
    "src": "L779"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "An elder teaches (Name1) to splice two lengths of rope. A small mistake becomes a reason to try again, not a scolding.",
+   "src": "L783",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L783"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "An elder teaches (Name1) to splice two lengths of rope. A small mistake becomes a reason to try again, not a scolding.",
    "src": "L783"

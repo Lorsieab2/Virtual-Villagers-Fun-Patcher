@@ -178,6 +178,69 @@ class TemplateRow:
     context: str = ""
 
 
+# Fix Vanilla Bugs (all five games): "VVFP Text Fixes.dll" (native/vvfp_text_fixes) fixes some of the games' own texts
+# as the game fills its string table, before VVFP Translations.dll looks at them: the owner's approved typos
+# (data/vanilla_text_fixes.json; a fix only when the text is exactly the stock one) and, in The Tree of Life and New
+# Believers, the Food Mastery tech's Level 2 line.  The template follows it when the game has that companion, so a
+# translator gets the English the game shows, and the row's key the hash the DLL compares.
+TEXT_FIXES_DLL = "VVFP Text Fixes.dll"
+TEXT_FIXES_DATA = ROOT / "data" / "vanilla_text_fixes.json"
+FOOD_MASTERY_STEM = "sm/eTechFoodMasteryInfo"
+FOOD_MASTERY_OLD = "At Level 2 your tribe gets a 50 percent bonus."
+FOOD_MASTERY_NEW = "At Level 2 your tribe gets a 50 percent bonus to collected food."
+FOOD_MASTERY_GAMES = (4, 5)
+
+
+def food_mastery_fixed(text: str) -> str:
+    """The description as VVFP Text Fixes.dll leaves it: the first time the whole line appears (followed by a line
+    break or the end)."""
+    at = text.find(FOOD_MASTERY_OLD)
+    end = at + len(FOOD_MASTERY_OLD)
+    if at < 0 or (end < len(text) and text[end] != "\n"):
+        return text
+    return text[:at] + FOOD_MASTERY_NEW + text[end:]
+
+
+def text_fixes(number: int) -> dict[str, tuple[str, str]]:
+    """`<source>/<id>` -> (the exact stock text, the fixed text) for game `number`."""
+    data = json.loads(TEXT_FIXES_DATA.read_text(encoding="utf-8"))
+    return {f["stem"]: (f["old"], f["new"]) for f in data["fixes"] if int(f["game"]) == number}
+
+
+def apply_text_fixes(number: int, out: dict[str, str]) -> None:
+    """`out` (a game_english result) as the game shows it with VVFP Text Fixes.dll."""
+    for stem, (old, new) in text_fixes(number).items():
+        if out.get(stem) == old:
+            out[stem] = new
+    if number in FOOD_MASTERY_GAMES and FOOD_MASTERY_STEM in out:
+        out[FOOD_MASTERY_STEM] = food_mastery_fixed(out[FOOD_MASTERY_STEM])
+
+
+def text_fixes_installed(number: int, exe: Path) -> bool:
+    """True when the game `exe` starts VVFP Text Fixes.dll: the companion is in its patcher folder and the patcher's
+    log of the run that made this exe (when there is one) lists the game's Fix Vanilla Bugs."""
+    exe = Path(exe)
+    folder = exe.parent / PATCHER_FILES
+    if not 1 <= number <= 5 or not (folder / TEXT_FIXES_DLL).is_file():
+        return False
+    import hashlib
+    for log in (folder / "VVFP Patch Log.json", folder / f"{exe.stem}.patch-log.json"):
+        try:
+            data = json.loads(log.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(data, dict):
+            continue
+        try:
+            digest = hashlib.sha256(exe.read_bytes()).hexdigest()
+        except OSError:
+            return False
+        if str(data.get("output_sha256", "")).lower() != digest:
+            continue                       # a log of another run: the companion file alone decides
+        return f"vv{number}_fix_vanilla_bugs" in data.get("fun_patches", [])
+    return True
+
+
 def game_english(game, exe: Path, sm_xml: Path | None = None) -> dict[str, str]:
     """`<source>/<id>` -> the English this executable (and its Assets\\sm.xml) shows, for every inventory row."""
     number = game_number(game)
@@ -223,6 +286,8 @@ def game_english(game, exe: Path, sm_xml: Path | None = None) -> dict[str, str]:
         raw = image.cstring(int(lit["va"], 16))
         if raw is not None:
             out[f"exe/{lit['va'].lower()}"] = decode_game_text(raw)
+    if text_fixes_installed(number, Path(exe)):
+        apply_text_fixes(number, out)
     return out
 
 

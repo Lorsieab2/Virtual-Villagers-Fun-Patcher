@@ -506,8 +506,15 @@ SKILL = {25739: ["Building"], 25813: ["Building"], 26501: ["Building"], 26511: [
          26573: ["Building"], 26575: ["Building"], 26595: "any"}
 CELEBRATE = {25919, 25923, 25981, 26331}
 HEALTH = {26440, 26444}
+# The owner, 2026-11-17: an outcome whose words give or take The Tree of Life's cloth (a sack is a cloth bolt), soap
+# or cutting tools makes it ("supply", docs/event-collection/cie-v6-binary.md 38; scripts/supply_effects.py has the
+# collection's).  "A weaver exchanges useful cloth for the fish." / "... ruins a test cloth."
+SUPPLY = {25711: ("cloth", 1), 26006: ("cloth", -1)}
 
 def mc_effects(n):
+    if n in SUPPLY:
+        item, delta = SUPPLY[n]
+        return [eff(do="supply", item=item, min=delta, max=delta)]
     if n in FOOD_LOSS:
         return [eff(do="food", size="small", scaled=True, loss=True)]
     if n in FOOD_GAIN:

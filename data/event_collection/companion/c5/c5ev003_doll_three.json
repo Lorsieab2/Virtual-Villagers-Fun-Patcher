@@ -71,6 +71,34 @@
    "src": "L3340"
   },
   "e2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The doll becomes a comfort object for a homesick child.",
+   "src": "L3341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L3341"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
    "name": "Outcome B",
    "popup": "append",
    "join": "paragraph",

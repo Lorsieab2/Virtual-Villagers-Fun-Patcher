@@ -1,0 +1,330 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Seat at the Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my036_empty_seat_feast",
+  "source": "rewrites",
+  "lines": [
+   11939,
+   11994
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L11939",
+  "ledger": [
+   {
+    "src": "L11940",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11941",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11950",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11957",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11964",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11971",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11945",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11946",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11947",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11948",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11951",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11958",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11965",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11972",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11952",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11954",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11959",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11961",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11966",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11968",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11973",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11975",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11978-11994",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The whole village is gathered for the feast, and the food is piled high on banana leaves all around the fire.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The whole village is gathered for the feast, and the food is piled high on banana leaves all around the fire. In the middle of the laughter and chatter, (subject) notices something odd. There's an extra place set at the end of the row: a fresh banana leaf heaped with food and a cup of coconut milk. Nobody is sitting there.\n\"Who set that?\" (subject) asks. Nobody knows. Nobody remembers doing it. And every time (subject) looks back at it, there's a little less food on the leaf than before. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Leave the Seat Undisturbed",
+     "next": "c1",
+     "src": "L11945"
+    },
+    {
+     "label": "Invite the Unseen Guest",
+     "next": "c2",
+     "src": "L11946"
+    },
+    {
+     "label": "Watch the Plate",
+     "next": "c3",
+     "src": "L11947"
+    },
+    {
+     "label": "Remove the Setting",
+     "next": "c4",
+     "src": "L11948"
+    }
+   ],
+   "src": "L11942-11943",
+   "text_only": [
+    {
+     "src": "L11942",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    },
+    {
+     "src": "L11943",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The feast goes on late into the night. In the morning, the extra leaf is spotless, licked clean, and the cup is dry. Nobody saw anyone eat. Nobody heard a thing. The villagers quietly wonder about it for a long time, and at the next feast, without anyone saying a word, somebody sets an extra place again.",
+   "src": "L11953"
+  },
+  "c1o2": {
+   "text": "Later in the evening, (child), very small and very sticky, is found sitting behind the cooking pots with an entire mango in each hand and a coconut-milk moustache. (Child) had set the extra place \"for the spirits\" and then got hungry waiting for them. (Child) looks extremely guilty. Everyone laughs until they cry, and (child) gets a second mango.",
+   "src": "L11955"
+  },
+  "c1": {
+   "text": "(subject) decides it's not (subject.his/her) place to clear someone else's seat, whoever they are. (subject.He/She) goes back to (subject.his/her) own food, trying not to stare...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11951",
+   "text_only": [
+    {
+     "src": "L11951",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "For a moment, everything goes quiet. Then a soft, warm breeze passes through the gathering, stirring hair and leaves, and every torch around the feast flares up brighter, all at once. People gasp, then cheer. It's the best feast anyone can remember, and nobody can quite explain why everyone feels so happy.",
+   "src": "L11960"
+  },
+  "c2o2": {
+   "text": "\"Thank you,\" says a voice from the dark, and a tired traveler steps hesitantly into the firelight. The traveler had been standing at the edge of the trees for an hour, too shy to ask to join. The traveler gratefully takes the empty seat, eats every scrap, and tells funny stories until the fire dies. Nobody ever finds out who set the place.",
+   "src": "L11962",
+   "text_only": [
+    {
+     "src": "L11962",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) stands up, faces the empty seat, and says loudly, \"Whoever you are, you're welcome at our fire. Eat, and be our guest.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11958"
+  },
+  "c3o1": {
+   "text": "For ages, nothing. Then (subject) glances away for half a second, and there's a flapping of leathery wings: a fruit bat swoops down from the trees, grabs a whole mango off the leaf and flaps off into the night, squeaking with triumph. (subject) leaps up, shouting. Everyone laughs. It's been doing it all evening, apparently.",
+   "src": "L11967"
+  },
+  "c3o2": {
+   "text": "(subject) points it out, and soon the whole feast is watching the empty seat in silence. And as everyone watches, the food simply... goes. A little at a time. Bite by bite, it vanishes, until the leaf is bare and the cup is empty. No hands. No mouth. Nothing. Nobody says anything for a long time. Then somebody starts the drums again, a bit too loudly.",
+   "src": "L11969",
+   "text_only": [
+    {
+     "src": "L11969",
+     "what": "\"food\", \"vanishes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(subject) moves to sit right across from the empty seat and fixes (subject.his/her) eyes on the leaf of food, determined not to blink...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11965",
+   "text_only": [
+    {
+     "src": "L11965",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o1": {
+   "text": "The feast carries on normally. The music, the dancing, the stories. Nothing strange happens at all. By the end of the night, (subject) has completely forgotten about it.",
+   "src": "L11974"
+  },
+  "c4o2": {
+   "text": "In the morning, (subject) opens (subject.his/her) door and nearly trips over something. The missing cup and banana leaf sit neatly on the step outside (subject.his/her) hut, leaf folded, cup turned upside down, the way someone would return a borrowed dish. (subject) did not put them there. (subject.He/She) takes them inside without telling anyone.",
+   "src": "L11976"
+  },
+  "c4": {
+   "text": "\"It's just a mistake,\" (subject) says, and clears the extra leaf and cup away, tipping the food into the shared pot...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11972",
+   "text_only": [
+    {
+     "src": "L11972",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

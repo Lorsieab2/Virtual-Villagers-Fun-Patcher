@@ -83,11 +83,15 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    When Complete" (off by default, also in New Believers: the science
    collection adds to research only once it is complete) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
-   (Experimental)". VV4 remains the untouched vanilla Breeding and Embracing
-   reference unless you check "Manual Drop-Breeding overrides Birth Control"
-   (step 8), which changes only the manual drop's 50-and-over refusal; the
-   historical Birth Control candidate is rejected/superseded and is not
-   offered or applied.
+   (Experimental)". "Manual Drop-Breeding overrides Birth Control" (step 8)
+   changes only the manual drop's 50-and-over refusal.
+   Also optional for The Tree of Life and New Believers, and off by default
+   (on in Owner's Defaults): "Birth Control". While the game is closed (and
+   during a Time Warp), a villager with Parenting ticked tries for a baby as
+   often as other villagers do their jobs, instead of on 6 job turns in 100.
+   The game's own chances, the population limit and huts still decide; live
+   play is unchanged. In A New Home, The Lost Children and The Secret City
+   their "Birth Control" does this too.
    Also optional for The Tree of Life and New Believers, and off by default:
    "Food Gains are Flat, like VV1-3 (Harder Games)". A blackberry pick (The
    Tree of Life) or a noni pick (New Believers) pays a flat 7, 3 or 2 food on
@@ -180,6 +184,13 @@ A question with two choices still needs someone to ask. It comes before a new
 village's two opening island events too (the visitor in A New Home and The Lost
 Children); they still come after it, unchanged. One Custom Island Event is queued
 at a time: the next can be bought once the last has come (within seconds).
+
+In The Tree of Life, an island event whose story gives or takes cutting tools,
+bars of soap or cloth bolts (a sack is a cloth bolt) really changes them:
+cutting tools and cloth stay between 0 and 6 (0 and 99 with "Up to 99 Cutting
+Tools/Soap/Cloth"), soap between 0 and 99, never below 0. Until the village has
+invented the item (The Cutting Tool, Soap Invented, Cloth Invented), the words
+are only part of the story.
 
 BACK UP SAVES
 
@@ -619,6 +630,36 @@ Virtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
 saves; the save itself is never changed, so without the patch the tree is
 unlimited again. Not yet tested in a running game.
 
+CLOTH SACKS FOR YELLOW FRUIT (THE TREE OF LIFE)
+
+On by default. Once the Clothing Hut is finished
+and the Cooking Pit is restored, drop an adult on the left side of the
+Clothing Hut, under its awning. The villager takes one cloth bolt, makes a
+sack ("Making a sack out of cloth"), carries the empty sack to the yellow
+fruit trees ("Gathering food in cloth sack"), shakes down and cooks the fruit
+as on any fruit trip, and carries the full sack to the food bin: 30 food
+before Food Mastery. It works like the cutting tool on the blackberries: the
+cloth is used when the villager starts (a failed Farming check loses it),
+with no cloth the villager refuses ("They need cloth for this!"), and Food
+Mastery multiplies the food. While the stew pot is making The Grand Feast
+and still needs its fruit, the sack goes into the stew instead, as any fruit
+trip does then, and counts as the feast's fruit (no food from that sack). With
+Fix Vanilla Bugs, a cutting-tool harvest does the same with the feast's
+berries. With Yellow
+Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30,
+or what is left, even none, as a cutting tool harvests a nearly bare bush);
+without it every sack holds 30. Only villagers you drop make sacks: farmers
+never do on their own. The sacks are new pictures (art by Lorsieab2). Not yet
+tested in a running game.
+
+UP TO 99 CUTTING TOOLS/SOAP/CLOTH (THE TREE OF LIFE)
+
+Off by default; Owner's Defaults ticks it. Cutting tools and cloth bolts can
+be stored up to 99 instead of 6. They are still made 3 at a time and each use
+takes one. Soap was never limited to 6. The stacked pictures still show at
+most 6 (soap at most 3 bars); point at them to see the real count. Not yet
+tested in a running game.
+
 PICTURE STUDIO
 
 On the Tools tab, click Picture Studio... It draws villagers exactly as the
@@ -991,7 +1032,7 @@ the game's own study (without it, only a villager you dropped on the cactus
 does that). It works in normal play and during time catch-up and Time Warp,
 so doctors keep training Healing while you are away. Nothing is written to
 the villager's record. Normal healing, sickness, food and the study's own
-skill gains are unchanged. With Builders and Healers Work First also
+skill gains are unchanged. With Villagers Work Their Own Job First also
 selected, healers are given healing work more often, so they study more.
 
 VV1 REENABLE F6 CLOTHING CHANGE CHEAT
@@ -1318,8 +1359,8 @@ MOVE THE "PLAYING IN THE DIRT" SPOT (NEW BELIEVERS)
 In the stock game a child who plays in the dirt walks to a strip of ground
 that runs from the rainbow totem's side down across the river, so the child
 wanders through the water and ends up on the bank behind the research
-shelves. This patch makes it the flower patch east of the dirt path (the
-worn ground with the flowers, west of the flower rock; about 305 by 205, and
+shelves. This patch makes it the grass above the lake's north-west edge
+(never in the lake water, never on the Hollow Totem; about 256 by 205, and
 the child takes six random steps inside it). The game's own routine is
 recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is
@@ -1436,16 +1477,37 @@ convert's original look is the head and body they had with the mask they wore.
 Heathens who joined before this patch keep the look they have now. Runs on the
 Origins upgrades, which the patcher adds with it.
 
+FOG OF DOOM LETS EVERY HEATHEN LISTEN (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults. Cast the Fog of Doom God Power, then,
+while its thick fog lasts, drag a believer of 14 or more onto a Heathen in an
+orange or red mask. If that Heathen's Faith is below -10 they listen just as a
+blue-masked Heathen does: the believer is "Explaining the truth", the Heathen
+is "Listening" when the believer's Devotion check passes, and their Faith
+rises by the normal game's 3 to 5. From Faith -10 up they will not listen:
+only the Earthquake God Power raises their Faith further; the first time that
+happens in a village a popup says so (once per village, until Start Over;
+it needs Story / Cheat Upgrades, on by default). A Heathen joins the tribe the normal way, when their Faith rises above
+0. Natural fog and every
+other weather do nothing; blue-masked Heathens are unchanged.
+
+NO RESTRICTIONS ON FOG OF DOOM CONVERSIONS (NEW BELIEVERS)
+
+Off by default. Needs Fog of Doom Lets Every Heathen Listen (ticked with it).
+In the Fog of Doom, Heathens in orange and red masks listen whatever their
+Faith, so no Earthquake is needed. Natural fog still does nothing.
+
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
 When it rains, children play in the puddles of the dry lake bed. Once The
 Lake holds water the normal game stops this, because they cannot swim. With
-this patch they keep playing when it rains, on the lake's north-west sandy
-shore (between the lake's west tip and the rocks with the red flower), never
-in the water. Before The Lake is filled nothing changes. Children "Playing
-in the dirt" play on that same sandy shore too, always, before and after
-The Lake is filled: each of their six steps goes to a random point along
-it. No other action changes. On by default. Cannot be used with Move the
+this patch they keep playing when it rains, on the big grass field above
+the lake's north-west edge and the sandy strip along its shore (between the
+river, the Hollow Totem and the lake), never in the water and never on the
+Hollow Totem. Before The Lake is filled nothing changes: they play in the
+dry lake bed's puddles. Children "Playing in the dirt" play on that same
+ground too, always, before and after The Lake is filled: each of their six
+steps goes to a random point of it. No other action changes. On by default. Cannot be used with Move the
 "Playing in the dirt" Spot (ticking one unticks the other).
 
 GUARDIANS OF ISOLA REWRITE (NEW BELIEVERS)
@@ -1548,6 +1610,27 @@ follows the villager; Start Over clears it. On in Owner's Defaults only (off
 in the normal defaults and in Select All). Runs on the Origins-exclusive
 base, which the patcher installs automatically with it. Not yet seen in a
 running game.
+
+VILLAGE SOLIDARITY (ALL FIVE GAMES)
+
+Each village gets a Village Solidarity score from 0 to 100, starting at 50.
+The patcher's new island events can mark a page as raising it (songs and
+gatherings, fair resolutions, mutual aid, welcoming newcomers, happiness,
+trust, gratitude, hope), lowering it (unresolved conflicts, unfairness,
+broken promises, tension, distrust, fear) or leaving it (solemn remembrance,
+quiet reflection). Every raise and every lower moves it by 5. The score only
+changes odds: the higher it is, the more likely the new cooperative and
+celebration events and the cooperative endings; the lower it is, the more
+likely the new repair, peace and apology events and the tense endings. At
+the normal strength each point away from 50 adds 2% to the favoured event's
+or ending's own chance (double at 0 or 100); nothing is forced. The game's
+own island events, work, skills and health never change. The "Village
+Solidarity strength" slider sets the strength, 0.1x to 10x (1x is normal).
+The Tech screen shows "Village Solidarity: 62 / 100"; so does the Game
+Mechanics page. The score is kept in the save's own Village Scores file and
+every change in its Village Solidarity log; Start Over clears both. Needs
+Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
+defaults and in Select All). Not yet seen in a running game.
 
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 

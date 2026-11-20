@@ -392,7 +392,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("expanded-256", contract["status"])
         self.assertEqual(
             contract["exclusions"],
-            ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
+            [
+                "Island Event tech-point and food-point gain",
+                "Reward tech-point and food-point gain",
+                "Purchases and cheats",
+            ],
         )
         self.assertEqual(
             manifest["doubler_purchase_status"]["new_purchase"],
@@ -403,7 +407,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             "full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases",
         )
 
-    def test_tech_wrapper_exact_stock_bytes_and_three_return_whitelist(self) -> None:
+    def test_tech_wrapper_exact_stock_bytes_and_whitelist(self) -> None:
         evidence = self.feature["doubler_evidence"]["tech_writer_hook"]
         self.assertEqual(evidence["virtual_address"], "0x4237B0")
         self.assertEqual(evidence["file_offset"], "0x237B0")
@@ -411,26 +415,27 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(evidence["after"], "E94BF23800")
         self.assertEqual(evidence["wrapper_virtual_address"], "0x7B2A00")
         self.assertEqual(evidence["wrapper_file_offset"], "0xDBA00")
+        # Research, the second set's bonus, the fire's point and the three duplicate-collectible returns
+        # (the owner's scope, 2026-11-17); tests/test_doubler_scope.py runs it.
         expected = (
-            "8B44240485C07E2BF70588D3510001000000741F"
-            "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
-            "D1642404568B7424080131E9780DC7FF"
+            "8B44240485C07E48F70588D3510001000000743C"
+            "813C244DDE4600742F813C247CDE46007426813C24A5DE4600741D"
+            "813C24BE4741007414813C24DD474100740B813C24F94741007402EB04"
+            "D1642404568B7424080131E95B0DC7FF"
         )
         wrapper = bytes.fromhex(evidence["wrapper_bytes"])
         self.assertEqual(wrapper.hex().upper(), expected)
-        self.assertEqual(len(wrapper), 63)
+        self.assertEqual(len(wrapper), 92)
         self.assertEqual(evidence["ownership_mask"], "0x1")
         self.assertEqual(
             evidence["eligible_returns"],
-            ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            ["0x46DE4D", "0x46DE7C", "0x46DEA5", "0x4147BE", "0x4147DD", "0x4147F9"],
         )
         self.assertEqual(evidence["excluded_refund_return"], "0x419EA3")
-        self.assertEqual(evidence["branch_destinations"], ["0x7B2A4A", "0x7B2A4E", "0x4237B7"])
         self.assertEqual(
             self.feature["doubler_evidence"]["tech_exclusions"],
             [
                 "all 16 Island Event outcomes",
-                "Duplicate Collectibles (returns 0x4147BE, 0x4147DD, and 0x4147F9)",
                 "all eight writer tail paths",
                 "technology purchase/spending/deduction paths",
                 "zero and negative deltas",
@@ -438,7 +443,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             ],
         )
         payload_offset = 0xDB000 + (0x7B2A00 - 0x7B2000)
-        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 63], wrapper)
+        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 92], wrapper)
 
     def test_tech_mode_marker_and_purchase_matrix(self) -> None:
         self.assertIn("tech_not_owned", self.task9_source)
@@ -474,8 +479,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 self.assertEqual(bytes(rendered[0x1F1E6 : 0x1F1EA]).hex().upper(), expected_marker)
 
     def test_tech_positive_whitelist_reference_matrix(self) -> None:
-        eligible = {0x46DE4D, 0x46DE7C, 0x46DEA5}
-        excluded = {0x4147BE, 0x4147DD, 0x4147F9, 0x419EA3, 0x420000, 0x46CED1}
+        eligible = {0x46DE4D, 0x46DE7C, 0x46DEA5, 0x4147BE, 0x4147DD, 0x4147F9}
+        excluded = {0x419EA3, 0x420000, 0x46CED1}
 
         def adjusted(owner: bool, return_va: int, delta: int) -> int:
             if not owner or delta <= 0 or return_va not in eligible:
@@ -490,7 +495,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             with self.subTest(return_va=hex(return_va)):
                 self.assertEqual(adjusted(True, return_va, 5), 5)
         for delta in (0, -1, -500000):
-            self.assertEqual(adjusted(True, 0x4147BE, delta), delta)
+            self.assertEqual(adjusted(True, 0x46DE4D, delta), delta)
         # The wrapper receives the final positive delta and doubles only once.
         self.assertEqual(adjusted(True, 0x46DE4D, 5), 10)
 
@@ -503,16 +508,24 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(evidence["wrapper_virtual_address"], "0x7B2B00")
         self.assertEqual(evidence["wrapper_file_offset"], "0xDBB00")
         wrapper = bytes.fromhex(evidence["wrapper_bytes"])
+        # Noni, crops, lake fish, the mushroom and the five food jobs inherited from The Tree of Life (the
+        # owner's scope, 2026-11-17); tests/test_doubler_scope.py runs it.
         self.assertEqual(
             wrapper.hex().upper(),
-            "85F67E18F70588D3510002000000740C817C240870494100750201F685F67E0656E94EC0C6FFE97CC0C6FF",
+            "85F67E6AF70588D3510002000000745E817C240800D046007452817C240813D146007448817C2408A1D74600743E"
+            "817C2408704941007434817C2408A1CF4600742A817C240879D046007420817C240864D746007416817C2408DED7"
+            "4600740C817C240825DB46007402EB0201F685F67E0656E9FCBFC6FFE92AC0C6FF",
         )
-        self.assertEqual(len(wrapper), 43)
+        self.assertEqual(len(wrapper), 125)
         self.assertEqual(evidence["branch_destinations"], ["0x41EB74", "0x41EBA7"])
-        self.assertEqual(evidence["eligible_return"], "0x414970")
+        self.assertEqual(
+            evidence["eligible_returns"],
+            ["0x46D000", "0x46D113", "0x46D7A1", "0x414970", "0x46CFA1", "0x46D079", "0x46D764", "0x46D7DE",
+             "0x46DB25"],
+        )
         self.assertEqual(evidence["ownership_mask"], "0x2")
         payload_offset = 0xDB000 + (0x7B2B00 - 0x7B2000)
-        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 43], wrapper)
+        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 125], wrapper)
 
     def test_food_mode_marker_and_purchase_matrix(self) -> None:
         self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.task9_source)
@@ -615,9 +628,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         # Re-pinned when the unreachable legacy menus, helpers and the
         # 0x94B32/0x94B37/0x94EA0 caves were removed from the base payload.
+        # Re-pinned for the owner's doubler scope (2026-11-17): only the two
+        # doubler wrappers (0x7B2A00, 0x7B2B00) became longer whitelists.
         self.assertEqual(
             digest,
-            "16891ED0ECF4166941A95993B6196FC22ED1A448306467E1DAC92AC88D8D0F61",
+            "FCF2E722055273C5DEDB3B6490811C6A15981C960DD371D90FE3B965A6B9FF17",
         )
         # The base record no longer lists the sourceless legacy
         # assets/origins/VVFP Origins Icons.dll: the shipped VV5 record is the

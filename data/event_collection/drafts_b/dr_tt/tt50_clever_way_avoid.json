@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) unblocks the top end. Water rushes all the way down the bamboo, past the water jar, through the doorway and straight into (subject.his/her) hut. (subject) stands in a puddle, delighted that it works, and then, while the floor dries, picks up the jar and walks to the stream after all.",
-   "src": "L602"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) stops to admire it and asks how long it took. \"Three days.\" \"To save a short walk?\" (subject) does the sum, very slowly. \"...It'll have paid for itself by about... next year.\" The channel works perfectly. (subject) uses it every day, and refuses to do any more sums about it.",
    "src": "L605"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) unblocks the top end. Water rushes all the way down the bamboo, past the water jar, through the doorway and straight into (subject.his/her) hut. (subject) stands in a puddle, delighted that it works, and then, while the floor dries, picks up the jar and walks to the stream after all.",
+   "src": "L602",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L602"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) unblocks the top end. Water rushes all the way down the bamboo, past the water jar, through the doorway and straight into (subject.his/her) hut. (subject) stands in a puddle, delighted that it works, and then, while the floor dries, picks up the jar and walks to the stream after all.",
+   "src": "L602"
   }
  }
 }

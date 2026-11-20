@@ -79,9 +79,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The village shares one joyful gathering.",
-   "src": "L29181"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -160,6 +167,24 @@
    "name": "Outcome D2",
    "text": "A few neighbors organize a spontaneous dance anyway.",
    "src": "L29191"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The village shares one joyful gathering.",
+   "src": "L29181",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L29181"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The village shares one joyful gathering.",
+   "src": "L29181"
   }
  }
 }

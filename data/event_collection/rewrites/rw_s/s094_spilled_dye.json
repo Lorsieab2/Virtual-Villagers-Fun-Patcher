@@ -1,0 +1,275 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spilled Dye",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s094_spilled_dye",
+  "source": "rewrites",
+  "lines": [
+   4398,
+   4440
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4398",
+  "ledger": [
+   {
+    "src": "L4399",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4400",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4408",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4417",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4405",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4406",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4409",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4418",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4420",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4423",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4426-4440",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L4412",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L4415",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L4421",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L4424",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A villager was carrying a pot of dark purple dye across the research hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) was carrying a pot of dark purple dye across the research hut. It was going to the weavers. It was only going to the weavers. And then (his/her) foot caught on the leg of a stool.\nThe whole pot has gone over. All of it, in one great purple wave, across the long table where the research notes were laid out to dry. All of the notes. The ones from this season, the ones from last season, and the big chart of the river that took four researchers a whole year.\nThe notes are now very pretty, and a lovely deep colour, and completely unreadable. (Name)'s hands are purple to the wrists. And so, somehow, is (his/her) nose. Should (name) try to wash the dye out, or start again from scratch?",
+   "choices": [
+    {
+     "label": "Try to Wash It Off",
+     "next": "c1",
+     "src": "L4405"
+    },
+    {
+     "label": "Start Again",
+     "next": "c2",
+     "src": "L4406"
+    }
+   ],
+   "src": "L4401-4403"
+  },
+  "c1o1": {
+   "text": "Some of the notes come clean, or clean enough, the dye washing out in long purple streams to show the faint charcoal marks still there underneath. Most of them don't. The dye has soaked right into the bark, and no amount of scrubbing will shift it. The researchers sit on the bank with the river running purple past them, sorting what can be saved from what can't, and nobody says very much. The river runs purple for three days, and the fish look worried.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L4412"
+  },
+  "c1o2": {
+   "text": "The washing makes it worse. Much worse. The water makes the dye spread, and run, and soak deeper, and the soft wet bark starts falling apart in their hands. The charcoal marks wash away completely, leaving the notes just plain purple, beautiful and blank. By the time they give up, there's almost nothing left. (Name) sits in the river with purple water up to (his/her) waist and purple hands over (his/her) purple face, and the other researchers, very kindly, leave (him/her) alone for a while.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L4415"
+  },
+  "c1": {
+   "text": "(Name) grabs an armful of dripping purple notes and runs for the river, and the other researchers grab the rest and run after (him/her), and they all kneel in the shallows together, dipping and rinsing and scrubbing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4409"
+  },
+  "c2o1": {
+   "text": "(Name) writes for days. (He/She) remembers far more than (he/she) expected. And as (he/she) goes, (he/she) finds that a lot of the old notes were muddled, and out of order, and repeated themselves, and some of them were simply wrong. This time (he/she) puts it all in order, clear and neat. When (he/she) finally finishes, the new notes are better than the old ones ever were, and (name) understands the whole subject far better than before. A few things are lost for good, but not many.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Research"
+     ],
+     "role": "subject"
+    }
+   ],
+   "auto_text": true,
+   "src": "L4421"
+  },
+  "c2o2": {
+   "text": "(Name) starts again. (He/She) writes all day, and all the next day. But halfway through, (he/she) comes to the big chart of the river, a whole year's work by four people, and realises (he/she) can't remember any of it. Not one measurement. And something in (him/her) just gives up. (He/She) puts the charcoal down, and walks out of the research hut, and doesn't go back for a long time. When (he/she) finally does, (he/she) can't stand being there any more.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L4424"
+  },
+  "c2": {
+   "text": "(Name) looks at the purple ruin for a long time. Then (he/she) takes a deep breath, wipes (his/her) hands on (his/her) wrap \\(making it purple too\\), sits down at a clean corner of the table with fresh bark, and starts writing everything out again, from memory...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4418"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -88,14 +88,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(elder), an elder, walks up and down the slope, following the channel, and suggests turning it at the bottom so the water runs into the gardens instead. (subject) and (friend) dig the new bend together. The water goes to the beans. The beans are delighted. Nobody is wet.",
-   "src": "L326"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) climbs the hill with (friend.his/her) wet mat over (friend.his/her) shoulder. (subject) looks at the mat, then at the channel, and says, \"Oh no.\" (subject.He/she) fills in the bottom of the channel that same morning and spends the afternoon helping (friend) dry everything in the sun. The next time it rains, both huts get a little wet. That, they agree, is fair.",
    "src": "L329"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, walks up and down the slope, following the channel, and suggests turning it at the bottom so the water runs into the gardens instead. (subject) and (friend) dig the new bend together. The water goes to the beans. The beans are delighted. Nobody is wet.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L326"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, walks up and down the slope, following the channel, and suggests turning it at the bottom so the water runs into the gardens instead. (subject) and (friend) dig the new bend together. The water goes to the beans. The beans are delighted. Nobody is wet.",
+   "src": "L326"
   }
  }
 }

@@ -1,0 +1,5 @@
+LIBRARY "VVFP No Safeguards"
+EXPORTS
+    VvfpStartup
+    VvfpNoSafeguardsInstalled
+    VvfpNoSafeguardsSites

@@ -77,11 +77,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "It becomes a surprise favorite.",
-   "src": "L2807"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -96,6 +101,29 @@
    "join": "paragraph",
    "text": "A researcher demands to know why it tastes so good.",
    "src": "L2809"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It becomes a surprise favorite.",
+   "src": "L2807",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L2807"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It becomes a surprise favorite.",
+   "src": "L2807"
   }
  }
 }

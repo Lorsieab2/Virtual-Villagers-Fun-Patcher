@@ -64,14 +64,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) stays all afternoon. (He/she) swims, sleeps, eats a coconut and walks round the whole island eleven times. At sunset (he/she) watches the village lights come on across the water, small and warm. (He/she) paddles back in the dusk. (He/she) still wants the little island. Just not every day.",
-   "src": "L362"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "After an hour, (name1) has seen everything there is to see. Twice. The palms are nice. The beach is nice. It is extremely quiet. (He/she) paddles home in time for dinner, a little puzzled. (He/she) might go back. It was lovely. It was also lonely in a way (he/she) hadn't expected, and (he/she) is still thinking about that.",
    "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) stays all afternoon. (He/she) swims, sleeps, eats a coconut and walks round the whole island eleven times. At sunset (he/she) watches the village lights come on across the water, small and warm. (He/she) paddles back in the dusk. (He/she) still wants the little island. Just not every day.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) stays all afternoon. (He/she) swims, sleeps, eats a coconut and walks round the whole island eleven times. At sunset (he/she) watches the village lights come on across the water, small and warm. (He/she) paddles back in the dusk. (He/she) still wants the little island. Just not every day.",
+   "src": "L362"
   }
  }
 }

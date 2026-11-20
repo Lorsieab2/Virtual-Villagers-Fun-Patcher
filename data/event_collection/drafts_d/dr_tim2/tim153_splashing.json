@@ -99,14 +99,40 @@
    "src": "L199,L201"
   },
   "e3": {
+   "type": "branch",
    "name": "Ending 3",
-   "text": "Two friends splash each other while washing in the stream. They come out soaked and laughing, cleaner than they have been in days.",
-   "src": "L199,L202"
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
   },
   "e4": {
    "name": "Ending 4",
    "text": "Two friends splash each other while washing in the stream. A startled frog leaps between them, and both shriek.",
    "src": "L199,L203"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two friends splash each other while washing in the stream. They come out soaked and laughing, cleaner than they have been in days.",
+   "src": "L199,L202",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L199,L202"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two friends splash each other while washing in the stream. They come out soaked and laughing, cleaner than they have been in days.",
+   "src": "L199,L202"
   }
  }
 }

@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor at the Door at Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b317_visitor_door",
+  "source": "balance",
+  "lines": [
+   14684,
+   14724
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14684",
+  "ledger": [
+   {
+    "src": "L14685",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14686",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14693",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14702",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14690",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14691",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14694",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14703",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14696",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14699",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14705",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14708",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14711-14724",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Late at night there is a knock at a villager's door.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Late at night there is a knock at (name)'s door. When (he/she) opens it, a figure is standing there in a long cloak of woven grass, face hidden. \"I've come a long way,\" it says, in a voice like wind in dry leaves. \"I'm looking for someone who'll walk with me to the end of the beach and back. Just that. I'm afraid of the dark.\"\nThe elders tell of night walkers who come to the villages once in a generation, and that what happens at the end of the beach is different every time. Should (name) go with it, or offer it a place by the fire instead?",
+   "choices": [
+    {
+     "label": "Walk With It",
+     "next": "c1",
+     "src": "L14690"
+    },
+    {
+     "label": "Offer It the Fire",
+     "next": "c2",
+     "src": "L14691"
+    }
+   ],
+   "src": "L14687-14688"
+  },
+  "c1o1": {
+   "text": "At the end of the beach, the figure turns and holds out its hand. \"Further,\" it says. \"Just a little further.\" In the morning, the torch is found burnt out on the rocks, and two sets of footprints lead down to the water's edge, and stop. The elders say (name) was kind enough to walk the walker home. Nobody knows where home is.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L14697",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "At the end of the beach, the figure lowers its hood, and (name) sees a face (he/she) knows: (his/her) grandparent's, long dead, smiling. \"Thank you for coming,\" it says. \"It's time.\" (Name) is found in the morning, sitting peacefully against the rocks with the torch burnt out beside (him/her). The village buries (him/her) beside that grandparent's grave.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L14700",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) takes a torch and walks beside the cloaked figure down to the beach, and along it, under the stars. It doesn't speak. At the end of the beach, where the rocks begin, it stops...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14694"
+  },
+  "c2o1": {
+   "text": "It sits by the fire until dawn, saying nothing, warming its hands, which are thin and grey as old driftwood. At first light it stands, bows, and walks out, and is gone. On the floor where it sat is a small bundle of tools, very old and very fine, exactly suited to (name)'s best work. (Name) has never worked so well as (he/she) does with them.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14706",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The figure stops at the threshold, as if it has walked into a wall. \"Not in,\" it whispers. \"Never in.\" It turns and walks away down the beach alone. In the morning there is a line of small grey stones across (name)'s doorway that wasn't there before. (Name) leaves them where they are.",
+   "src": "L14709"
+  },
+  "c2": {
+   "text": "\"Come in and sit by the fire instead,\" says (name). \"It's not dark in here.\" The figure hesitates, and then steps over the threshold...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14703"
+  }
+ }
+}

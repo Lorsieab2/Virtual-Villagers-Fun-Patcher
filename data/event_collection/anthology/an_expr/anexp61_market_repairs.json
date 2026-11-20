@@ -125,7 +125,17 @@
   "a2": {
    "name": "Outcome A2",
    "text": "One damaged blade is retired for safety.",
-   "src": "L32213"
+   "src": "L32213",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": -1,
+     "max": -1,
+     "src": "L32213"
+    }
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -140,9 +150,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(child) learns to patch a tear.",
-   "src": "L32215"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -184,14 +201,63 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Villagers learn how to prevent wear.",
-   "src": "L32221"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The day ends with fewer discarded objects.",
    "src": "L32222"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(child) learns to patch a tear.",
+   "src": "L32215",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L32215"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(child) learns to patch a tear.",
+   "src": "L32215"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Villagers learn how to prevent wear.",
+   "src": "L32221",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L32221"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Villagers learn how to prevent wear.",
+   "src": "L32221"
   }
  }
 }

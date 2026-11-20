@@ -129,11 +129,14 @@
    ]
   },
   "b2": {
-   "src": "L8227",
-   "text": "Both meals are excellent and the Chief orders a shared feast.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "u"
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
     }
    ]
   },
@@ -170,7 +173,8 @@
     {
      "next": "u"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "src": "L8229-8230",
@@ -444,6 +448,47 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "b2__fx": {
+   "src": "L8227",
+   "text": "Both meals are excellent and the Chief orders a shared feast.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ],
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L8227"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8227"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "src": "L8227",
+   "text": "Both meals are excellent and the Chief orders a shared feast.",
+   "children": [
+    {
+     "next": "u"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L8227"
+    }
+   ],
+   "auto_text": true
   }
  },
  "include_pools": [

@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Golden Moths",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b342_golden_moths",
+  "source": "balance",
+  "lines": [
+   15795,
+   15835
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15795",
+  "ledger": [
+   {
+    "src": "L15796",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15797",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15804",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15813",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15801",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15802",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15805",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15814",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15807",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15810",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15816",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15819",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15822-15835",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Their wings shed a fine gold dust that glitters on everything it touches.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once in a long while, on the first warm night of the year, a cloud of golden moths rises out of the jungle and drifts over the village. Their wings shed a fine gold dust that glitters on everything it touches. The healers say the dust is harmless. The elders say it changes faces, and cover theirs with cloth.\nTonight the moths are thick in the air, and (name) is outside, finishing the washing. Gold dust is already settling on (his/her) arms. Should (name) cover (his/her) face and run inside, or stand and watch them?",
+   "choices": [
+    {
+     "label": "Cover Up and Run Inside",
+     "next": "c1",
+     "src": "L15801"
+    },
+    {
+     "label": "Stand and Watch",
+     "next": "c2",
+     "src": "L15802"
+    }
+   ],
+   "src": "L15798-15799"
+  },
+  "c1o1": {
+   "text": "(Name) gets inside with the washing over (his/her) head and slams the door. In the morning the village is covered in gold dust, the paths glitter, and (name)'s face is exactly as it was. (His/her) washing, however, is gold, and stays gold forever. (He/She) is the best-dressed villager on the island for a year.",
+   "src": "L15808"
+  },
+  "c1o2": {
+   "text": "The cloth was wet, and the dust soaked right through it. In the morning, (name)'s face is different: lined and grey-browed, like an old carving, though (his/her) age is the same. The elders, who covered their faces with dry cloth, look at (him/her) sadly and say that's what happens when the moths are in a hurry.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15811",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) throws the wet washing over (his/her) head and runs for the door. Moths bump against the cloth like soft raindrops...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15805"
+  },
+  "c2o1": {
+   "text": "The moths settle on (name)'s face like a mask, all over, for one long, tickling moment, and then lift away all at once. When (name) goes inside and looks in the water jar, (his/her) face is different: not younger, not older, just someone new. The gold dust stays in (his/her) eyebrows for a week. The face stays for good.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L15817",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "One by one, other villagers come out to watch, until half the village is standing in the paths with gold dust in their hair, laughing. Nobody's face changes. The children chase the moths until midnight. In the morning everyone is gold from head to foot, and nobody can stop smiling at each other.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L15820",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) puts down the washing and stands in the middle of the path, face turned up, while the golden cloud drifts down around (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15814"
+  }
+ }
+}

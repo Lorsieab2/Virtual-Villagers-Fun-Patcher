@@ -189,13 +189,14 @@
    ]
   },
   "o1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L2846-2847",
-   "text": "The child finds the stone beneath a basket. The elder thanks (child.him/her) and tells the story of the day it was found.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "sunset"
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
     }
    ]
   },
@@ -222,13 +223,14 @@
    ]
   },
   "o4": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L2852-2854",
-   "text": "Nobody finds the stone. The elder is disappointed, but the child offers a different one. The elder accepts it without pretending that it is the same.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "sunset"
+     "next": "o4__fx"
+    },
+    {
+     "next": "o4__text"
     }
    ]
   },
@@ -264,6 +266,68 @@
      "src": "L2863",
      "what": "no skill or item reward",
      "reason": "the source asks for no reward; the vignette has no effect"
+    }
+   ]
+  },
+  "o1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2846-2847",
+   "text": "The child finds the stone beneath a basket. The elder thanks (child.him/her) and tells the story of the day it was found.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L2846-2847"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2846-2847",
+   "text": "The child finds the stone beneath a basket. The elder thanks (child.him/her) and tells the story of the day it was found.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ]
+  },
+  "o4__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2852-2854",
+   "text": "Nobody finds the stone. The elder is disappointed, but the child offers a different one. The elder accepts it without pretending that it is the same.",
+   "children": [
+    {
+     "next": "sunset"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "bad",
+     "src": "L2852-2854"
+    }
+   ],
+   "auto_text": true
+  },
+  "o4__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L2852-2854",
+   "text": "Nobody finds the stone. The elder is disappointed, but the child offers a different one. The elder accepts it without pretending that it is the same.",
+   "children": [
+    {
+     "next": "sunset"
     }
    ]
   }

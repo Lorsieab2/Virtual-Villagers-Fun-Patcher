@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Agreement of Many Voices",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce20_agreement_many",
+  "source": "draft_lce",
+  "lines": [
+   274,
+   285
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L274",
+  "ledger": [
+   {
+    "src": "L275",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L281",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L285",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Rival fishing crews must agree on new rules: draft them together, or let the strongest crew decide.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The three fishing crews, led by (subject), (friend) and (third), keep fighting over the best spots, and the village has asked them to write rules together. (subject)'s crew is the biggest, and (subject) thinks that should count for more. The other two disagree. What should happen?",
+   "src": "L277",
+   "choices": [
+    {
+     "label": "Draft Them Together",
+     "next": "o1",
+     "src": "L279"
+    },
+    {
+     "label": "Let the Biggest Crew Decide",
+     "next": "o2",
+     "src": "L283"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They argue for a week. Every rule is fought over. The final agreement gives each crew the best spot two days in six, and no crew is happy. But they all sign it with their marks, and the fights stop. Mostly.",
+   "src": "L281"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village lets (subject)'s crew set the rules. The rules suit (subject)'s crew very well. The other two crews keep them, sullenly, and start fishing further out. The village's catches drop. The question is reopened next season.",
+   "src": "L285"
+  }
+ }
+}

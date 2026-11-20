@@ -435,6 +435,19 @@ int __stdcall VvfpOnePopupPick(const void *popup, int k) {
     return 0;
 }
 
+/* For Scrolling Popups (native/shared/one_popup.h): the whole text of this companion's one-popup event in The Secret
+   City, The Tree of Life and New Believers when `shown` (the dialog's 2,000-byte field) holds only its start, else
+   NULL (the field is the whole text). */
+const char *__stdcall VvfpPopupWholeText(const char *shown) {
+    const char *whole = NULL;
+    __try {
+        whole = t_op_whole(shown);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        whole = NULL;
+    }
+    return whole;
+}
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {

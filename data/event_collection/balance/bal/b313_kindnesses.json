@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day of Small Kindnesses",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b313_kindnesses",
+  "source": "balance",
+  "lines": [
+   14505,
+   14546
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14505",
+  "ledger": [
+   {
+    "src": "L14520",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'every child gains 5 in a random skill'"
+   },
+   {
+    "src": "L14506",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14507",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14514",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14523",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14511",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14512",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14515",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14524",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14517",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14520",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14526",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14529",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14532-14546",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For one day, everyone must do one kind thing for someone they don't usually talk to.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(chief) has noticed the village has been grumpy lately: short tempers at the cooking fire, sulking over chores, two shouting matches in one week. So (subject.he/she) announces a Day of Small Kindnesses. For one day, everyone must do one kind thing for someone they don't usually talk to. (chief) puts (subject) in charge of making sure everyone does it.\nHalf the village rolls its eyes. Should (subject) go round gently reminding people, or set a good example and just start being kind, loudly, so everyone can see?",
+   "choices": [
+    {
+     "label": "Gently Remind Everyone",
+     "next": "c1",
+     "src": "L14511"
+    },
+    {
+     "label": "Set a Loud Example",
+     "next": "c2",
+     "src": "L14512"
+    }
+   ],
+   "src": "L14508-14509"
+  },
+  "c1o1": {
+   "text": "By noon, it has caught on. A fisher fixes a farmer's basket. A child shares a mango with an elder (subject.he/she) has always been scared of. Two people who had a shouting match last week end up mending a fence together, still grumbling, but laughing too. By evening the village is warmer than it has been for months, and (chief) declares it a yearly event.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L14518",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The adults mostly roll their eyes and forget. But the children take it very seriously. Each of them picks someone to help, and spends the whole day following them around, learning: a child helps the potter and learns to shape a bowl, another helps the healers and learns which leaves to crush. By evening, every child in the village has learned something new.",
+   "src": "L14521"
+  },
+  "c1": {
+   "text": "(subject) walks from hut to hut all morning, quietly reminding people. \"Just one kind thing. Anyone. It doesn't have to be big...\"",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14515"
+  },
+  "c2o1": {
+   "text": "By noon (subject) has carried water, fixed stools, swept paths, minded children, and sung the whole time, and everyone is sick of (subject.him/her). \"We get it,\" someone says. By evening (subject) is so tired and so embarrassed that (subject.he/she) goes to bed without joining the games at the fire, and never quite enjoys them again. The village, meanwhile, is a lot tidier.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "playing",
+     "role": "subject"
+    }
+   ],
+   "src": "L14527",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Somewhere in the middle of the day, (subject) ends up minding three small children for a tired neighbour, though (subject.he/she) has never been able to stand the noise little ones make. By the time the neighbour comes back, all three children are asleep on (subject), and (subject) is very surprised to find that (subject.he/she) doesn't want to move them.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L14530"
+  },
+  "c2": {
+   "text": "(subject) starts the morning by carrying water for three different huts, singing, and then fixes a neighbour's broken stool in the middle of the path where everyone can see...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14524"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "children",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

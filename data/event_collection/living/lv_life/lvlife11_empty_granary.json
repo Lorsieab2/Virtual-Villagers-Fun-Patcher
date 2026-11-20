@@ -104,7 +104,8 @@
      "loss": true,
      "src": "L20775"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -120,6 +121,12 @@
      "min": 5,
      "max": 10,
      "src": "L20776"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20776"
     }
    ],
    "text_only": [
@@ -128,7 +135,8 @@
      "reason": "the lesson is how to protect drying food; nothing is gained or lost",
      "src": "L20776"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -163,7 +171,8 @@
      "reason": "some villagers, not a cast one: no preference changes",
      "src": "L20778"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -177,7 +186,8 @@
      "loss": true,
      "src": "L20779"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",
@@ -205,6 +215,12 @@
      "min": 5,
      "max": 10,
      "src": "L20781"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20781"
     }
    ],
    "text_only": [
@@ -213,7 +229,8 @@
      "reason": "the village learns which method suits each food; nothing is gained or lost",
      "src": "L20781"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",

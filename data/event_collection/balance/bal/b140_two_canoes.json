@@ -1,0 +1,271 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Canoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b140_two_canoes",
+  "source": "balance",
+  "lines": [
+   6429,
+   6473
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6429",
+  "ledger": [
+   {
+    "src": "L6430",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6431",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6439",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6448",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6436",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6437",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6440",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6449",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6442",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6445",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6454",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6457-6473",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Their island has been running out of fresh water for three seasons, they say, and this season the spring dried up altogether.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two canoes come in to the beach at sunset, tied together with rope and loaded with everything their people own: sleeping mats, cooking pots, a goat that is very unhappy about the whole thing. Their island has been running out of fresh water for three seasons, they say, and this season the spring dried up altogether.\nIn the first canoe is a woman with a baby and her husband, who has a bandaged leg. In the second is an old man, his grown granddaughter and a small boy who will not let go of the goat. They don't ask for anything. They just stand on the sand looking at (name), because (name) is the first one there.\nShould (name) welcome them all, or send for the {@chief} first?",
+   "choices": [
+    {
+     "label": "Welcome Them All",
+     "next": "c1",
+     "src": "L6436"
+    },
+    {
+     "label": "Send for the {@Chief}",
+     "next": "c2",
+     "src": "L6437"
+    }
+   ],
+   "src": "L6432-6434"
+  },
+  "c1o1": {
+   "text": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay, and so does the old man}. His granddaughter and the boy move on to a cousin's island after a month. The old man and turns out to know how to find water in places nobody else would look. The goat comes back three days later and moves into the {@chief}'s hut.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    },
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L6443",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The couple and their baby are on their way to family further along the coast, and leave after a few days rest. {#made:The second canoe stays, though the village has room for only one of them|The second canoe stays, though the village has room for only two of them|The second canoe stays}: the old man's granddaughter, her teenage cousin who turns up from under a pile of mats, and the small boy with the goat. The old man goes on with the couple. \"Too old to start again,\" he says. \"But they're not.\"",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L6446",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) holds out both hands, the old way, and says the words of welcome (his/her) grandmother taught (him/her). The old man starts to cry. The small boy lets go of the goat, and it runs off immediately...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6440"
+  },
+  "c2o1": {
+   "text": "The {@chief} listens to everything, then nods and says yes. The village holds a welcome feast that same night. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay}. The others go on to a cousin's island a few days later, loaded with food. The husband's leg heals, and he turns out to be a very good cook, which the village appreciates more every day.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6452",
+   "text_only": [
+    {
+     "src": "L6452",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The {@chief} is worried about food and says they may rest for a week, but no more. (Name) argues. The {@chief} argues back. The strangers listen to all of it, very politely, and slip away before dawn to avoid causing trouble. They leave a cooking pot on (name)'s doorstep as thanks. (Name) uses it every day, and every time, (he/she) thinks of them.",
+   "src": "L6455",
+   "text_only": [
+    {
+     "src": "L6455",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(Name) runs to fetch the {@chief}, who comes down the beach very slowly, looking at the canoes, the people, the goat. (He/She) asks a lot of questions. The strangers answer every one...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6449"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L6443",
+   "before": "The couple and their baby stay, and so does the old man.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay, and so does the old man}."
+  },
+  {
+   "src": "L6446",
+   "before": "The second canoe stays:",
+   "after": "{#made:The second canoe stays, though the village has room for only one of them|The second canoe stays, though the village has room for only two of them|The second canoe stays}:"
+  },
+  {
+   "src": "L6452",
+   "before": "The couple and their baby stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|The couple and their baby stay}."
+  }
+ ]
+}

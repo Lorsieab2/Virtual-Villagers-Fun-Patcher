@@ -106,7 +106,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "An apparent failure yields a surprisingly effective clay sealant. The judges argue whether accidents count as discoveries.",
@@ -130,7 +131,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "A pompous researcher makes a foul-smelling paste. The crowd retreats, and the judges award no prize.",
@@ -163,7 +165,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "The most colorful demonstration is exposed as trickery; the least impressive one is scientifically sound.",
@@ -187,7 +190,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "The finalists disagree about the cause of a reaction and devise a fair experiment instead of quarreling.",
@@ -211,7 +215,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "p1": {
    "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",

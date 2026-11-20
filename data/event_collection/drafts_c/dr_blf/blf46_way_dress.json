@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Why green?\" asks (friend). \"Because I like green,\" says (subject). \"That's it?\" \"That's it.\" (friend) thinks about it, then shrugs. \"Fair enough.\" By the next festival, three other villagers are wearing green too. (subject) is delighted, and slightly annoyed. (subject.He/she) is thinking about switching to blue.",
+   "src": "L548",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L548"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Why green?\" asks (friend). \"Because I like green,\" says (subject). \"That's it?\" \"That's it.\" (friend) thinks about it, then shrugs. \"Fair enough.\" By the next festival, three other villagers are wearing green too. (subject) is delighted, and slightly annoyed. (subject.He/she) is thinking about switching to blue.",
    "src": "L548"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) just smiles and says, \"You look nice.\" (subject) beams. They dance together all evening, red and white beside green, and nobody makes anything of it. It's a festival. People wear what they like. Some of the elders do raise an eyebrow, but the elders raise an eyebrow at most things.",
+   "src": "L551",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L551"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L551"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) just smiles and says, \"You look nice.\" (subject) beams. They dance together all evening, red and white beside green, and nobody makes anything of it. It's a festival. People wear what they like. Some of the elders do raise an eyebrow, but the elders raise an eyebrow at most things.",
    "src": "L551"

@@ -1,0 +1,317 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Beggar's Last Request",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my058_beggar_request",
+  "source": "rewrites",
+  "lines": [
+   13237,
+   13292
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13237",
+  "ledger": [
+   {
+    "src": "L13238",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13239",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13248",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13255",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13262",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13269",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13243",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13244",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13245",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13246",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13249",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13256",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13263",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13270",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13250",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13252",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13257",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13259",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13264",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13271",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13273",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13276-13292",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L13272",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "I don't need much, the beggar tells a villager.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An elderly beggar arrives at the village boundary at dusk, so exhausted (subject.he/she) can barely stand. The old one's legs are trembling and dusty from the road, and (subject.his/her) voice is thin as paper.\n\"I don't need much,\" the beggar tells (subject). \"Only to sit beneath that tree until morning.\" (subject.He/She) points at the old flame tree by the path, whose red blossoms carpet the ground. \"Just until morning.\" The beggar's eyes are tired, very tired, as if they've seen a lifetime of roads. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Offer a Bed and Food",
+     "next": "c1",
+     "src": "L13243"
+    },
+    {
+     "label": "Sit and Listen",
+     "next": "c2",
+     "src": "L13244"
+    },
+    {
+     "label": "Ask Someone Else to Help",
+     "next": "c3",
+     "src": "L13245"
+    },
+    {
+     "label": "Send the Beggar Away",
+     "next": "c4",
+     "src": "L13246"
+    }
+   ],
+   "src": "L13240-13241"
+  },
+  "c1o1": {
+   "text": "The old beggar sleeps for a day and a night, eats three bowls of stew, and slowly gets (subject.his/her) strength back. Before leaving, (subject.he/she) watches the villagers storing grain and shakes (subject.his/her) head, smiling. \"No, no. Like this.\" The old one shows them a long-forgotten method: dried in the smoke, sealed in clay with ash and bay leaves, stacked off the ground. The grain keeps far longer than ever before. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13251",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The beggar eats a little, thanks (subject) with a soft squeeze of the hand, and falls asleep by the fire, smiling. In the night, very quietly, the old one passes away. There's no pain on (subject.his/her) face, only peace, as if (subject.he/she) had finally reached the end of a very long road and been glad of a warm place to stop. The villagers arrange a respectful burial beneath the flame tree. They lay red blossoms on the grave and promise to remember the stranger's face, though no one ever learns (subject.his/her) name.",
+   "src": "L13253"
+  },
+  "c1": {
+   "text": "\"A tree is no place to sleep,\" (subject) says gently. \"Come inside. There's a mat and a fire and a bowl of something hot.\" (subject.He/She) helps the old one to (subject.his/her) hut...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13249"
+  },
+  "c2o1": {
+   "text": "The beggar talks for hours, as the stars come out. (subject.He/She) tells (subject) about a family left behind on another shore, long, long ago: a beloved partner, three children, a little house with a red door. A quarrel, a boat, a storm, a lifetime of trying to find the way back. (subject) listens to every word. By dawn, the beggar is asleep, and (subject) has a story (subject.he/she) will carry for the rest of (subject.his/her) life.",
+   "src": "L13258"
+  },
+  "c2o2": {
+   "text": "At dawn, the beggar stands up, stiffly, and presses something into (subject)'s palm: a little wooden fish with a hole for a cord, worn smooth by many fingers. \"You listened when I had nothing to give,\" (subject.he/she) says. \"Now I have something.\" Then the old one walks off down the road into the morning light. (subject) wears the fish on a cord for the rest of (subject.his/her) days.",
+   "src": "L13260"
+  },
+  "c2": {
+   "text": "(subject) helps the old one to the flame tree, brings a blanket, and sits down beside (subject.him/her) on the carpet of red blossoms. \"Tell me about yourself,\" (subject.he/she) says...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13256"
+  },
+  "c3o1": {
+   "text": "(friend), a neighbor with a big hut and a bigger heart, welcomes the old beggar in at once, and soon half the village is helping: one brings food, one brings a blanket, one brings a healer's tea. The beggar is overwhelmed. \"So many kind people,\" (subject.he/she) keeps saying. The village shares the responsibility together, and the old one stays a few days before going on, much stronger.",
+   "src": "L13265",
+   "text_only": [
+    {
+     "src": "L13265",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o2": {
+   "text": "Everyone is tired. Everyone has an excuse. Someone says they'll help in the morning. Someone says someone else will do it. Nobody acts quickly. And by the time (subject) goes back to the flame tree before dawn with a blanket, the beggar is gone. Only a little hollow in the red blossoms shows where the old one sat. (subject) feels sick about it for a long time.",
+   "src": "L13267"
+  },
+  "c3": {
+   "text": "(subject) doesn't have room in (subject.his/her) hut, so (subject.he/she) runs to knock on the neighbors' doors. \"There's an old traveler at the boundary. Can anyone help?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13263"
+  },
+  "c4o1": {
+   "text": "The next morning, the storehouse is crawling. Tiny black weevils have got into the stored grain overnight, basket after basket, and a whole great heap of it has to be thrown away. The healers say weevils come with the damp. But some of the villagers whisper the word \"curse\", and remember the old beggar, and look at (subject) out of the corners of their eyes.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L13272"
+  },
+  "c4o2": {
+   "text": "The old beggar finds shelter at the next village along the coast, where (subject.he/she) is welcomed in and cared for. No curse follows. No weevils, no storms, no strange winds. Nothing at all happens to (subject)'s village. But when word of it comes back along the coast, (subject) feels ashamed, and that, in the end, is punishment enough.",
+   "src": "L13274"
+  },
+  "c4": {
+   "text": "\"We can't take in every stranger who comes along,\" (subject) says, not unkindly, but firmly. \"You'll have to move on.\" The beggar nods slowly and shuffles away into the dusk...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13270"
+  }
+ }
+}

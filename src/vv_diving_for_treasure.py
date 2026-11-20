@@ -41,8 +41,8 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("INTRO", "{n} is a diver. {He} regularly swims around the sea using a complex setup of reeds and animal skins to "
               "carry air. During one of {his} dives, {he} sees something shimmering deep down in the bottom of the "
               "reef. Should {he} swim down and look?"),
-    ("LABEL_DEEPER", "Swim deeper"),
-    ("LABEL_NOT", "Better not"),
+    ("LABEL_DEEPER", "Swim Deeper"),
+    ("LABEL_NOT", "Better Not"),
     ("DEEPER", "{n} swims deeper towards the shimmering object. {He} can feel the pressure of the ocean getting heavier "
                "and heavier all around {him}. Just a little bit closer, and..."),
     ("FIND_A", "It's an abandoned net wrapped around a seaweed-encrusted crate. When {n} surfaces, {he} cracks it open "

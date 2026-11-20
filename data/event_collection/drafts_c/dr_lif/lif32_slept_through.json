@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"I'm a very good sleeper,\" (subject) says, with dignity. \"It's my gift.\" (friend) laughs so hard (friend.he/she) chokes. (subject) explains that (subject.he/she) has missed every wonder of the night for twenty years and does not regret a single moment of rest. Everyone agrees, laughing, that next time something wonderful happens, they will NOT wake (subject). (subject) says thank you.",
-   "src": "L374"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) asks them to describe every one of the nights (subject.he/she) missed, properly, with all the details. They do. It takes all evening. (subject) lies back and listens with (subject.his/her) eyes closed, imagining it all. \"That's lovely,\" (subject.he/she) says at the end. \"And I didn't even have to get up.\" Somebody throws a nut at (subject.him/her).",
    "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm a very good sleeper,\" (subject) says, with dignity. \"It's my gift.\" (friend) laughs so hard (friend.he/she) chokes. (subject) explains that (subject.he/she) has missed every wonder of the night for twenty years and does not regret a single moment of rest. Everyone agrees, laughing, that next time something wonderful happens, they will NOT wake (subject). (subject) says thank you.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm a very good sleeper,\" (subject) says, with dignity. \"It's my gift.\" (friend) laughs so hard (friend.he/she) chokes. (subject) explains that (subject.he/she) has missed every wonder of the night for twenty years and does not regret a single moment of rest. Everyone agrees, laughing, that next time something wonderful happens, they will NOT wake (subject). (subject) says thank you.",
+   "src": "L374"
   }
  }
 }

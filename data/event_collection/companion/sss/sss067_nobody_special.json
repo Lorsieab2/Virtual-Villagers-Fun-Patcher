@@ -68,9 +68,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "The village ends the day fed, tired, and mostly content.",
-   "src": "L6752"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -81,6 +88,25 @@
    "name": "Answer C",
    "text": "A historian notes that ordinary days are most of a community's life.",
    "src": "L6756"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The village ends the day fed, tired, and mostly content.",
+   "src": "L6752",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "baker",
+     "mood": "good",
+     "src": "L6752"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The village ends the day fed, tired, and mostly content.",
+   "src": "L6752"
   }
  }
 }

@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "When the song ends, (subject) turns to (friend). \"You know it?\" \"Since I was small.\" (subject) laughs and covers (subject.his/her) face. \"I was so proud of it.\" \"You should be,\" says (friend). \"You remembered it better than any of us. I'd lost the second verse years ago.\"",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "When the song ends, (subject) turns to (friend). \"You know it?\" \"Since I was small.\" (subject) laughs and covers (subject.his/her) face. \"I was so proud of it.\" \"You should be,\" says (friend). \"You remembered it better than any of us. I'd lost the second verse years ago.\"",
    "src": "L278"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Mine has a different ending,\" says (subject). Everyone waits. (subject) sings an ending that (subject.he/she) is making up right there and then. It's actually rather good. (friend) nods slowly. \"That part's new,\" (friend.he/she) admits. From then on, the village sings the old song with (subject)'s ending.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Mine has a different ending,\" says (subject). Everyone waits. (subject) sings an ending that (subject.he/she) is making up right there and then. It's actually rather good. (friend) nods slowly. \"That part's new,\" (friend.he/she) admits. From then on, the village sings the old song with (subject)'s ending.",
    "src": "L281"

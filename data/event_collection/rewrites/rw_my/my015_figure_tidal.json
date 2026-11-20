@@ -1,0 +1,305 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Figure in the Tidal Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my015_figure_tidal",
+  "source": "rewrites",
+  "lines": [
+   10700,
+   10755
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10700",
+  "ledger": [
+   {
+    "src": "L10701",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10702",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10711",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10718",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10725",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10732",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10706",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10707",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10708",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10709",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10712",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10719",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10726",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10733",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10713",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10715",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10720",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10722",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10727",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10729",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10734",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10736",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10739-10755",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Little crabs scuttle at its edges.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Down on the rocks at low tide, (subject) glances into a shallow tidal pool and sees someone standing in it: ankle-deep, very still, looking at (subject.him/her). (subject) jerks (subject.his/her) head up. The pool is empty. Little crabs scuttle at its edges. Nobody is there.\nBut when (subject.he/she) looks down again, the reflection is still in the water: a person standing where no person stands, with a patient face, as if it has been waiting a long time for (subject) to notice it. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Speak to the Reflection",
+     "next": "c1",
+     "src": "L10706"
+    },
+    {
+     "label": "Touch the Water",
+     "next": "c2",
+     "src": "L10707"
+    },
+    {
+     "label": "Fetch a Witness",
+     "next": "c3",
+     "src": "L10708"
+    },
+    {
+     "label": "Leave Quietly",
+     "next": "c4",
+     "src": "L10709"
+    }
+   ],
+   "src": "L10703-10704"
+  },
+  "c1o1": {
+   "text": "The reflection's lips move, and somehow (subject) understands: the baskets. Move the baskets. (subject) looks over at the rocks where the fishers have left the morning's catch in baskets above the tideline, and runs. (subject.He/She) hauls them all up onto the high rocks, grumbling at (subject.himself/herself). An hour later, a freak tide floods the spot where they stood. Every basket of fish is saved. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10714",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The reflection's mouth moves. It's saying something, slowly, carefully, over and over. But no sound comes out, and (subject) can't read the words. (subject.He/She) stays there until the tide comes back in and fills the pool, and the face finally breaks up into ripples. (subject) never does find out what it was trying to say.",
+   "src": "L10716"
+  },
+  "c1": {
+   "text": "\"H-hello?\" (subject) whispers to the water, feeling very foolish. The face in the pool tilts, as if listening...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10712"
+  },
+  "c2o1": {
+   "text": "The image shatters into ripples, and as the water settles, (subject) sees that the \"figure\" was a school of little silver fish, darting about in a dark crack at the bottom of the pool in the shape of... well, sort of a person. (subject) laughs out loud, mostly from relief. Mostly.",
+   "src": "L10721"
+  },
+  "c2o2": {
+   "text": "The moment (subject)'s finger breaks the surface, the world tips sideways. The sky spins, the rocks lurch, and (subject) sits down hard on the barnacles with a horrible ringing in (subject.his/her) ears. Some gatherers find (subject.him/her) there a little later, white-faced and dizzy, and have to help (subject.him/her) home. The healers say it's too much sun. (subject) isn't so sure.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L10723",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Slowly, (subject) reaches out one finger and touches the surface of the pool, right where the reflection's face is...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10719"
+  },
+  "c3o1": {
+   "text": "(friend) peers into the pool for a long moment. \"I see sky,\" (friend.he/she) says flatly. \"And a crab. And you, being ridiculous.\" (friend.He/She) is convinced it's a prank, and spends the walk home telling (subject) it wasn't funny. (subject) keeps looking back over (subject.his/her) shoulder the whole way.",
+   "src": "L10728"
+  },
+  "c3o2": {
+   "text": "(friend) leans over the pool, and every bit of colour drains from (friend.his/her) face. \"That's my grandmother,\" (friend.he/she) whispers. (subject)'s grandmother? No. (friend)'s, who has been dead for years. (subject) looks, and sees the same stranger as before. Neither of them says anything for a long time. Then they walk back to the village together, very close, shoulders touching.",
+   "src": "L10730"
+  },
+  "c3": {
+   "text": "(subject) scrambles up the rocks, grabs (friend) by the arm, and drags (friend.him/her) down to the pool. \"Look! Look in there! Tell me you see it!\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10726"
+  },
+  "c4o1": {
+   "text": "As the clouds roll over and the light changes, the reflection slowly fades, until there is only sky and rock in the water. (subject) goes home and makes (subject.himself/herself) a very large, very hot cup of tea.",
+   "src": "L10735"
+  },
+  "c4o2": {
+   "text": "That evening, (subject) reaches into (subject.his/her) pocket and pulls out a small shell (subject.he/she) never picked up. It's still wet. It smells of the deep sea, and carved into it is a tiny symbol no one in the village recognizes. (subject) puts it on (subject.his/her) shelf. Then, after a sleepless hour, (subject.he/she) puts it outside the door.",
+   "src": "L10737"
+  },
+  "c4": {
+   "text": "(subject) decides not to disturb whatever is in the pool. (subject.He/She) backs away across the rocks, carefully, without turning (subject.his/her) back on it...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10733"
+  }
+ }
+}

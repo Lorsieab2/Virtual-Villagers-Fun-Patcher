@@ -36,12 +36,14 @@ COUNTS = {"seeds": 120, "roles": 30, "personalities": 24, "approaches": 34, "arc
 FRAME_RE = re.compile(r"^(?P<seed>.+?) \(first\), (?P<a>.+?), and \(second\), (?P<b>.+?), "
                       + re.escape(mx.FRAME_TAIL) + "$")
 SUPPORTED = {"skill", "food", "tech", "mood", "celebrate", "health_change", "kill", "vanish", "die_unrecovered",
-             "preference", "appearance", "old_look", "sick", "baby_lost"}
+             "preference", "appearance", "old_look", "sick", "baby_lost",
+             "supply"}            # The Tree of Life's cutting tools, soap, cloth (cie-v6-binary.md 38; the owner, 2026-11-17)
 STRANGER_SAFE = {"food", "tech", "celebrate"}
 
 
-def pack_path(game: int) -> Path:
-    return ASSETS / f"vv{game}" / "living.pak"
+def pack_paths(game: int) -> list[Path]:
+    """The game's living packs: one per living series (living-pack.md 1)."""
+    return sorted((ASSETS / f"vv{game}").glob("living-*.pak"))
 
 
 def source_lines() -> list[str]:
@@ -140,11 +142,13 @@ def check_le(bank: mx.Bank, idx: Index, seed: dict, v: dict, d: dict, game: int,
         cast = bank.role[rid]["cast"]
         if role["kind"] != cast["kind"]:
             out.append(f"{where}: {spec_key} is not cast as the bank says")
-        elif cast["kind"] == "villager":
+        elif cast["kind"] == "villager" and rid not in mx.LEADER_ROLES:   # a leader can be anyone (owner, 2026-11-16)
             if role["min_age"] < cast.get("min_age", 14) or (cast.get("max_age") and role["max_age"] != cast["max_age"]) \
                     or role.get("special") != cast.get("special"):
                 out.append(f"{where}: {spec_key}'s cast differs from the bank's")
     for c in start["choices"]:
+        if c.get("if") == mx.GUARDIANS_IF:
+            continue            # the Guardians of Isola twin of the choice before it (vv_living_mixer.guardians_bank)
         label = expand_words(c["label"], words, game)
         hit = None
         for text, ident in idx.choice.items():
@@ -291,25 +295,29 @@ def check_common(d: dict, game: int, where: str, out: list[str]) -> None:
 # ---- Everything -----------------------------------------------------------------------------------------------------
 
 
-def check_packs(packs: dict[int, bytes] | None = None, bank: mx.Bank | None = None) -> tuple[list[str], dict]:
-    """(problems, stats) over every pack.  `packs` defaults to the shipped ones."""
+def check_packs(packs: dict | None = None, bank: mx.Bank | None = None) -> tuple[list[str], dict]:
+    """(problems, stats) over every pack ({game: pack bytes or a list of them}).  `packs` defaults to the shipped
+    ones.  The static events' mixer versions (bank 2) are those events, checked by scripts/collection_check.py."""
     bank = bank or mx.Bank()
     idx = Index(bank)
     if packs is None:
-        packs = {g: pack_path(g).read_bytes() for g in mx.GAMES}
+        packs = {g: [q.read_bytes() for q in pack_paths(g)] for g in mx.GAMES}
     out: list[str] = []
     stats = {"variants": {}, "bytes": {}, "seeds": {}}
     decoded: dict[str, dict] = {}
     validated: set[str] = set()
     per_seed_k: dict[str, set] = defaultdict(set)
-    for game, data in packs.items():
+    for game, datas in packs.items():
+      for data in ([datas] if isinstance(datas, (bytes, bytearray)) else datas):
         p = mx.read_pack(data)
-        stats["variants"][game] = len(p["variants"])
-        stats["bytes"][game] = len(data)
-        stats["seeds"][game] = len(p["seeds"])
+        stats["variants"][game] = stats["variants"].get(game, 0) + len(p["variants"])
+        stats["bytes"][game] = stats["bytes"].get(game, 0) + len(data)
+        stats["seeds"][game] = stats["seeds"].get(game, 0) + len(p["seeds"])
         if p["game"] != game:
             out.append(f"vv{game}: the pack says game {p['game']}")
         for si, s in enumerate(p["seeds"]):
+            if s["bank"] == 2:
+                continue
             if s["bank"] == 0:
                 seed = bank.seeds[s["index"]]
                 want_id = "living_" + seed["id"]

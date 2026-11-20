@@ -102,7 +102,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "A hoop escapes downhill and leads half the village on an absurd chase.",
@@ -144,7 +145,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "A master athlete misses every peg; a laughing child lands the winning ring.",
@@ -177,7 +179,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "p1": {
    "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",

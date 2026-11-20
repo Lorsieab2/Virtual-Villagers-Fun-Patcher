@@ -1,0 +1,34 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #774 (feat/97-round6) and #813 (feat/97-traders-effects) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+balance/bal/b036_festival_lanterns.json | c1o1 | GROUP song (everyone) (50%) | "someone starts the old song, and everyone joins in" | {"do":"group","kind":"song","who":"all"}
+balance/bal/b041_dance_shared.json | c1o2 | GROUP dance (everyone) (50%) | "The dance goes on till dawn" | {"do":"group","kind":"dance","who":"all"}
+balance/bal/b107_festival_masks.json | c1o2 | GROUP dance (everyone) (50%) | "the whole village gets up to dance with them" | {"do":"group","kind":"dance","who":"all"}
+balance/bal/b167_elders_dance.json | c2o2 | GROUP dance (everyone) (50%) | "then everyone does, round and round the fire" | {"do":"group","kind":"dance","who":"all"}
+balance/bal/b204_scroll_bit.json | c1o2 | GROUP CURE (50%) | "By the end of the week every sick villager is well" | {"do":"group","kind":"cure"}
+balance/bal/b211_frog_dance.json | c1o2 | GROUP dance (everyone) (50%) | "It is the best harvest dance anyone can remember" | {"do":"group","kind":"dance","who":"all"}
+balance/bal/b216_apprentice.json | c2o1 | GROUP CURE (50%) | "nobody in the village is sick" | {"do":"group","kind":"cure"}
+balance/bal/b222_singing_boat.json | c1o1 | GROUP song (everyone) (50%) | "teach the whole village their songs, and learn the village's" | {"do":"group","kind":"song","who":"all"}
+balance/bal/b232_healing_rain.json | c1o1 | GROUP CURE (50%) | "the coughs have stopped and the fevers have gone" | {"do":"group","kind":"cure"}
+balance/bal/b232_healing_rain.json | c2o1 | GROUP CURE (50%) | "by evening every one of them is well" | {"do":"group","kind":"cure"}
+balance/bal/b237_mud_bath.json | c1o1 | GROUP relax (everyone) (50%) | "Half the village is in the mud by nightfall" | {"do":"group","kind":"relax","who":"all"}
+balance/bal/b255_coughing_season.json | c1o1 | GROUP CURE (50%) | "By the next week the village is quiet at night again" | {"do":"group","kind":"cure"}
+balance/bal/b276_swamp_fever.json | c1o1 | GROUP CURE (50%) | "There is enough bark left over for every other sick person in the village" | {"do":"group","kind":"cure"}
+balance/bal/b329_elder_last_story.json | c1o2 | GROUP stories (everyone) (50%) | "the whole village gathers at the fire every evening to hear it" | {"do":"group","kind":"stories","who":"all"}
+balance/bal/b334_fever_ward.json | c1o1 | GROUP CURE (50%) | "Within a week, every patient is back on their feet" | {"do":"group","kind":"cure"}
+balance/bal/b334_fever_ward.json | c1o2 | GROUP CURE (50%) | "The fevers break anyway, in the end" | {"do":"group","kind":"cure"}
+balance/bal/b334_fever_ward.json | c2o1 | GROUP CURE (50%) | "one by one the fevers break" | {"do":"group","kind":"cure"}
+rewrites/rw_my/my007_mask_changes.json | c1o1 | GROUP dance (everyone) (50%) | "half the village is dancing behind (subject.him/her) in a long, giddy line" | {"do":"group","kind":"dance","who":"all"}
+rewrites/rw_my/my049_hollow_tree.json | c1o1 | GROUP song (child) (50%) | "Soon all the children in the village are singing" | {"do":"group","kind":"song","who":"child"}
+rewrites/rw_my/my061_sleeper_beneath.json | c4o1 | GROUP song (everyone) (50%) | "The children sing it while they work, the elders hum it while they weave" | {"do":"group","kind":"song","who":"all"}
+rewrites/rw_my/my112_guest_old_song.json | c1o2 | GROUP song (everyone) (50%) | "this time the whole fire sings it with them" | {"do":"group","kind":"song","who":"all"}
+rewrites/rw_new/new131_elder_garden.json | c2o2 | GROUP song (subject) (50%) | "and sing it, badly, as the sapling goes in" | {"do":"group","kind":"song","who":"subject"}
+rewrites/rw_new/new132_forgotten_path.json | c1o2 | GROUP stories (subject) (50%) | "(subject) tells stories about every bend" | {"do":"group","kind":"stories","who":"subject"}
+rewrites/rw_new/new179_old_songbook.json | c3o1 | GROUP song (everyone) (50%) | "the old songs are being sung all over the village again" | {"do":"group","kind":"song","who":"all"}
+rewrites/rw_s/s014_fog_walker.json | c2o1 | GROUP song (everyone) (50%) | "by the end of the week the whole village is singing it" | {"do":"group","kind":"song","who":"all"}
+rewrites/rw_s/s081_feast_elders.json | c1o1 | GROUP stories (everyone) (50%) | "the elders start telling stories" | {"do":"group","kind":"stories","who":"all"}
+rewrites/rw_s/s100_last_sunset_year.json | c2o1 | GROUP song (everyone) (50%) | "The whole village sings the old songs" | {"do":"group","kind":"song","who":"all"}
+rewrites/rw_s/s100_last_sunset_year.json | c2o2 | GROUP song (everyone) (50%) | "And then everybody does, the whole village, at the top of their lungs" | {"do":"group","kind":"song","who":"all"}
+mie/mie/mie_troubling_signs.json | decree1 | GROUP pray (everyone) (50%) | "the tribe prays for a whole week" | {"do":"group","kind":"pray","who":"all"}
+rewrites/rw_my/my106_circle_unseen.json | c2o1 | GROUP dance (everyone) (50%) | "everyone is dancing in the glowing circle together" | {"do":"group","kind":"dance","who":"all"}

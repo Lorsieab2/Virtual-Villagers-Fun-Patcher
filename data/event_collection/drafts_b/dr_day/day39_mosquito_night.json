@@ -74,6 +74,33 @@
    "src": "L470"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) goes to work as usual and is useless. (subject.He/she) yawns through everything. (subject.He/she) scratches through everything. (friend) finally sends (subject.him/her) home. \"Go to sleep,\" (friend.he/she) says. (subject) sleeps all afternoon. The mosquito, somewhere, is presumably also asleep, full and content.",
+   "src": "L473",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L473"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) goes to work as usual and is useless. (subject.He/she) yawns through everything. (subject.He/she) scratches through everything. (friend) finally sends (subject.him/her) home. \"Go to sleep,\" (friend.he/she) says. (subject) sleeps all afternoon. The mosquito, somewhere, is presumably also asleep, full and content.",
    "src": "L473"

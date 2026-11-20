@@ -881,11 +881,11 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn('"always_clear_running_dislike": True', source.split('"vv1": {', 1)[1].split('"vv2": {', 1)[0])
 
-    def test_rejected_vv4_birth_control_is_not_selectable(self) -> None:
-        self.assertNotIn(
-            "vv4_birth_control",
-            [patch.id for patch in load_fun_patches()],
-        )
+    def test_vv4_and_vv5_birth_control_are_selectable(self) -> None:
+        # The owner (2026-11-19): catch-up babies are part of Birth Control in all five games.
+        ids = [patch.id for patch in load_fun_patches()]
+        self.assertIn("vv4_birth_control", ids)
+        self.assertIn("vv5_birth_control", ids)
 
     def test_vv1_and_vv3_birth_control_are_exposed_as_independent_patches(self) -> None:
         ids = {patch.id for patch in load_fun_patches()}
@@ -1027,7 +1027,7 @@ class ManifestTests(unittest.TestCase):
             expected_safety_counts = {
                 "vv1": 24,
                 "vv2": 29,   # + the babies still owed (Codex, #543); + the Esteemed Elder totem guard (v1.35.77)
-                "vv3": 22,
+                "vv3": 20,   # v1.35.97: the misplaced Crystal rows retired (its condition asks the room predicate)
                 "vv4": 18,
                 "vv5": 21,
             }
@@ -1147,8 +1147,8 @@ class ManifestTests(unittest.TestCase):
         # 13 with Builders Fix Huts When Idle (vv2_builders_fix_huts), the same;
         # 14 with Teaching Children Stops at 50 (vv2_teaching_children_cap_50),
         # the same again; 15 with Healers Study Plants Regardless of Food
-        # (vv2_healers_study_regardless_of_food), the same; 16 with Builders and
-        # Healers Work First (vv2_builders_and_healers_work_first), the same;
+        # (vv2_healers_study_regardless_of_food), the same; 16 with Villagers Work Their Own
+        # Job First (vv2_builders_and_healers_work_first), the same;
         # 17 with VV1 Mushroom/Collectible Duplication Cheat
         # (vv2_everyone_collects_like_vv1), two jumps in the pickup callbacks;
         # 18 with Super-Secret Golden Mushroom (vv2_super_secret_golden_mushroom),
@@ -1192,10 +1192,10 @@ class ManifestTests(unittest.TestCase):
         # companion detours the SDL_KEYDOWN case at run time; 37 with Skip All on the Intro
         # Story (vv2_skip_all_intro), no executable byte -- its companion replaces story page
         # vtable slots at run time; 38 with Children's Graves Say Apprentice
-        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 2-10x Tech Cost
+        # (vv2_apprentice_graves), the grave rank pick re-encoded in place; 39 with 0.1-10x Tech Cost
         # (vv2_tech_cost_multiplier), its 35 price immediates only; 40 with Checked Skill Preferences are listed
         # as Jobs on Graves (vv2_preferred_job_graves), the burial writer re-encoded in place; 41 with Hungrier
-        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 2-10x Sickness
+        # Villagers (vv2_hungrier_villagers), the meal's two one-byte immediates in place; 42 with 0.1-10x Sickness
         # (vv2_sickness_multiplier), no render byte -- its four moduli are written when the build is published;
         # 43 with Picked Up Collectibles Stay Collected When Dropped (vv2_collectibles_stay_collected), no executable
         # byte -- its companion moves the pickup jobs' award steps at run time; 44 with Scrolling Popups
@@ -1208,8 +1208,16 @@ class ManifestTests(unittest.TestCase):
         # writes the adult dispatcher's Confused call at run time; 49 with Children Play Tag and Build Sandcastles
         # (vv2_children_play), no executable byte -- its companion writes its sites at run time; 50 with Change Sex
         # and Gender Presentation (vv2_gender_presentation), no executable byte -- its companion writes its draw and
-        # conception sites at run time.
-        self.assertEqual(len(feature_ids), 50)
+        # conception sites at run time; 51-80 the island events' content controls -- Content Notes for Island
+        # Events, the 28 content filters (vv2_island_event_filter_f01 .. f28) and No Safeguards for Island Events
+        # (vv2_island_events_any_time) -- no executable byte: names in the installed patches' list the Story / Cheat
+        # Upgrades companion reads; 81 with More Frequent Island Events (vv2_more_frequent_island_events), no
+        # executable byte -- its companion writes the trigger's three wait draws at run time; 82-86 the five
+        # 0.1x-10x sliders (vv2_collectible_frequency, _food_gain, _tech_gain, _skill_success, _age_speed),
+        # no executable byte -- each companion writes its sites at run time; 87 with Every Island Event Can Happen
+        # (vv2_every_island_event_can_happen), two technology tests and two raises re-encoded in place; 88 with Village
+        # Solidarity (vv2_village_solidarity, #804), no executable byte -- its companion writes its sites at run time.
+        self.assertEqual(len(feature_ids), 88)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2639,6 +2647,7 @@ class StockIntegrationTests(unittest.TestCase):
                 # Require Story / Cheat Upgrades, excluded above.
                 "vv1_more_island_events",
                 "vv1_isola_grand_event_collection",
+                "vv1_village_solidarity",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -3125,14 +3134,15 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x604AD:0x604B6]),
             bytes.fromhex("E9EE37010090909090"),
         )
-        # A villager checked on Healing (+0x7F8 = 3) studies as before; any
-        # other only when rand(100) < 14 (the owner, 2026-10-20), else the
-        # stock no-patient exit (al = 0) in the second cave.
+        # One rand(100): a villager checked on Healing (+0x7F8 = 3) studies
+        # when it is below 75 (the owner, 2026-11-15: healers still do other
+        # things), any other only below 14 (2026-10-20); else the stock
+        # no-patient exit (al = 0) in the second cave.
         self.assertEqual(
-            bytes(rendered[0x73CA0:0x73CCE]),
+            bytes(rendered[0x73CA0:0x73CD0]),
             bytes.fromhex(
-                "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E7335"
-                "6A098F87E00700005589F1E8C4C8FEFFEB26"
+                "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E"
+                "7D336A098F87E00700005589F1E8C2C8FEFFEB24"
             ),
         )
         self.assertEqual(bytes(rendered[0x73CF1:0x73CFB]), bytes.fromhex("5930C05F5D5B5EC20800"))
@@ -3257,9 +3267,9 @@ class StockIntegrationTests(unittest.TestCase):
             + 2
             + feature_patch_count,
         )
-        self.assertEqual(bytes(rendered[0x73CA0:0x73CCE]), bytes.fromhex(
-            "69FD8CE4000001F76A6483BFF8070000037409E8E8F4F8FF3C0E7335"
-            "6A098F87E00700005589F1E8C4C8FEFFEB26"
+        self.assertEqual(bytes(rendered[0x73CA0:0x73CD0]), bytes.fromhex(
+            "69FD8CE4000001F76A64E8F1F4F8FF83BFF80700000375022C3D3C0E"
+            "7D336A098F87E00700005589F1E8C2C8FEFFEB24"
         ))
         self.assertEqual(bytes(rendered[0x73CF1:0x73CFB]), bytes.fromhex("5930C05F5D5B5EC20800"))
         self.assertEqual(bytes(rendered[0x73CD0:0x73CF1]), bytes.fromhex(
@@ -4155,6 +4165,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_fix_vanilla_bugs",
                 "vv2_cause_of_death",
                 "vv2_restore_missing_island_events",
+                "vv2_every_island_event_can_happen",
                 "vv2_last_names",
                 "vv2_details_full_names",
                 "vv2_island_events",
@@ -4171,7 +4182,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_copy_paste",
             # Skip All on the Intro Story: companion only, no executable bytes.
             "vv2_skip_all_intro",
-            # 2-10x Tech Cost: the Tech screen's price immediates, x 3.
+            # 0.1-10x Tech Cost: the Tech screen's price immediates, x 3.
             "vv2_tech_cost_multiplier",
             "vv2_hungrier_villagers",
             "vv2_sickness_multiplier",
@@ -4192,7 +4203,21 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_adult_confused",
             # Children Play Tag and Build Sandcastles: companion only, no executable bytes.
             "vv2_children_play",
-            },
+            # The island events' content controls: names in the installed patches' list, no executable bytes.
+            "vv2_island_event_content_notes",
+            "vv2_island_events_any_time",
+            # More Frequent Island Events: companion only, no executable bytes.
+            "vv2_more_frequent_island_events",
+            # The 0.1x-10x sliders: companions only, no executable bytes.
+            "vv2_collectible_frequency",
+            "vv2_food_gain",
+            "vv2_tech_gain",
+            "vv2_skill_success",
+            "vv2_age_speed",
+            # Village Solidarity (#804): companion only, needs Story / Cheat Upgrades (selected above).
+            "vv2_village_solidarity",
+            }
+            | {f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)},
         )
         for mode in ALL_MODES:
             with self.subTest(mode=mode):

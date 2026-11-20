@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Could Not Sleep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci25_healer_could",
+  "source": "draft_lci",
+  "lines": [
+   344,
+   355
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two healers)"
+   },
+   {
+    "src": "L351",
+    "kind": "instruction",
+    "text": "[effect: (name1) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L351",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L355",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L355",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A healer is overwhelmed after a hard season and cannot sleep: make them rest, or let them talk it through.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a season of sickness, (subject) cannot sleep. (subject.He/she) lies awake thinking of the patients (subject.he/she) could not save. (subject.He/she) is still working every day, but (friend) can see (subject.him/her) fraying. (subject) has not asked for help. What should (friend) do?",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Make (subject) Rest",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Let (subject) Talk",
+     "next": "o2",
+     "src": "L353"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) takes over (subject)'s patients and tells (subject.him/her) to rest for a week. (subject) argues, then gives in. The rest helps a little. The nights are still hard. (friend) checks on (subject.him/her) every evening.",
+   "src": "L351",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 30,
+     "src": "L351"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sits with (subject) one evening and asks how (subject.he/she) really is. (subject) talks, slowly at first, then all at once. It does not fix anything. But (subject) sleeps that night, a little.",
+   "src": "L355",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L355"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,257 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spring That Reflected Tomorrow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new101_spring",
+  "source": "rewrites",
+  "lines": [
+   4712,
+   4757
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L4712",
+  "ledger": [
+   {
+    "src": "L4713",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4714",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4722",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4729",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4736",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4718",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4719",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4720",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4723",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4730",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4737",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4724",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4726",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4733",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4738",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4743-4757",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "And a long scar across the cheek that a villager has definitely not earned yet.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) kneels to drink at the little spring behind the waterfall rocks and freezes, cupped hands halfway to (subject.his/her) mouth. The face looking back up out of the water is (subject.his/hers)... but older. Grey at the temples. Deep laugh lines. And a long scar across the cheek that (subject) has definitely not earned yet.\nA leaf drifts down and lands on the surface. The water does not even ripple. The older face just keeps looking at (subject.him/her), patient, as if it has been waiting a long time for (subject) to show up.\nBy supper, half the village has found some excuse to \"fetch water\" from that spring. Nobody comes back with any water. (subject) can't stop thinking about that scar. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Sketch the Older Face",
+     "next": "c1",
+     "src": "L4718"
+    },
+    {
+     "label": "Let Someone Take a Long Look",
+     "next": "c2",
+     "src": "L4719"
+    },
+    {
+     "label": "Ask the Oldest Villager",
+     "next": "c3",
+     "src": "L4720"
+    }
+   ],
+   "src": "L4715-4717"
+  },
+  "c1o1": {
+   "text": "...and draws until the light fails. The finished sketch is unsettlingly good. Studying it later with the researchers, (subject) works out that still water under that rock bends light in strange ways, and that some of the \"age\" may be shadow. Some. The scar, (subject.he/she) decides, is a problem for later. Much later.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4725",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "...but by the time (subject.he/she) has the charcoal sharpened, a breeze wrinkles the water. The older face breaks into a hundred wobbling pieces and never comes back together. The spring is just a spring again. (subject) sits there for a long while holding a blank piece of bark, feeling oddly as if (subject.he/she) missed an appointment.",
+   "src": "L4727"
+  },
+  "c1": {
+   "text": "(subject) runs for bark and charcoal, telling (subject.himself/herself) that this is science and not at all because (subject.he/she) wants to know how (subject.he/she) gets that scar. (subject.He/She) settles at the edge of the spring, notes the hour, the angle of the sun, the way the light slants through the waterfall spray...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4723"
+  },
+  "c2o1": {
+   "text": "(friend) stares down for a long, long moment. Then (subject.he/she) straightens up, blinking, and someone in the crowd shrieks. (subject.His/Her) face and hair have changed for good, as if the water lent (subject.him/her) a little of whoever was looking back. (subject.He/She) still sounds the same and still laughs the same, but (subject.his/her) own friends need a long moment, and several confused questions, before they are sure it is really (subject.him/her).",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    }
+   ],
+   "src": "L4732",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Just as (friend) bends over the spring, (subject.he/she) remembers an urgent net that needs mending. So does everyone else, all at once. The crowd melts away into the trees with remarkable speed. Nobody is pushed to look, nobody is teased for running, and the spring is left alone to reflect the sky.",
+   "src": "L4734"
+  },
+  "c2": {
+   "text": "Nobody wants to go first. Finally (friend) rolls up (subject.his/her) sleeves. \"If it shows me with no teeth, I don't want to hear about it.\" (subject.He/She) leans out over the water, and the whole crowd leans with (subject.him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4730"
+  },
+  "c3o1": {
+   "text": "\"...although,\" (elder) adds with a shrug, \"she mostly said it to keep us children from falling in. It worked. I never went near it.\" The elder cannot say if any of it is true, and seems to find the whole affair very funny. (subject) goes to bed with more questions than (subject.he/she) started with.",
+   "src": "L4739"
+  },
+  "c3o2": {
+   "text": "\"...and she taught me how to watch it properly.\" (elder) shows (subject) how to visit the spring at dawn and dusk and tie a knot in a cord for every change seen in the water: big knots, small knots, double knots. It is an old way of keeping records that the village had half forgotten, and the researchers are delighted to have it back.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4741",
+   "auto_text": true
+  },
+  "c3": {
+   "text": "(elder) listens to the whole story without interrupting, then laughs a creaky laugh. \"Ah. That spring. My grandmother used to talk about a pool that remembers forward...\"",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4737"
+  }
+ }
+}

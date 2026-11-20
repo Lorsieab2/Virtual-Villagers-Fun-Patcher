@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blank Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s056_blank_morning",
+  "source": "rewrites",
+  "lines": [
+   2655,
+   2699
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2655",
+  "ledger": [
+   {
+    "src": "L2656",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2657",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2665",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2674",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2662",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2663",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2666",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2675",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2668",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2671",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2677",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2680",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2683-2699",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Like a word on the tip of the tongue that won't come.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) wakes up, sits up, yawns, and goes to say good morning to (himself/herself) the way (he/she) always does. And stops. Where (his/her) name should be, there's nothing at all. A blank. Like a word on the tip of the tongue that won't come.\n(He/She) checks under the mat. It isn't there. (He/She) checks behind the water jar, which is silly, but (he/she) checks anyway. Not there either. Everything else is exactly where it should be: (his/her) sandals, (his/her) basket, (his/her) memories of yesterday, all of it. Just not the name.\nIt must have slipped out in a big yawn in the night, (he/she) decides, and the breeze through the doorway carried it off. It is the season of the thieving breeze, which the elders say steals anything said, or yawned, too carelessly. Outside, a rooster crows three times, loudly, as if it's trying to help. Should (name) go and ask the elders, or carry on without it?",
+   "choices": [
+    {
+     "label": "Go Ask the Elders",
+     "next": "c1",
+     "src": "L2662"
+    },
+    {
+     "label": "Carry On Without It",
+     "next": "c2",
+     "src": "L2663"
+    }
+   ],
+   "src": "L2658-2660"
+  },
+  "c1o1": {
+   "text": "The elders have seen this before. Several times, they say. \"Names that slip out in a yawn blow away with the breeze,\" the oldest one explains. \"They do. There's no getting them back, once the wind's had them.\" They're very kind about it. But the breeze has taken the name out of every head in the village, theirs included, and nothing they try in its place will stick. (Name) is left with no name at all: just \"?\". A proper one never turns up. (Name) gets used to \"?\" eventually, and even starts to like the way people say it, with a little lift at the end.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L2669",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "\"Which way was the breeze blowing last night?\" asks the oldest elder. \"Towards the sea,\" says (name). \"Then go to the beach,\" says the elder. \"Quickly.\" (Name) runs. And there on the wet sand, right at the edge of the water, the breeze has dropped (his/her) name and traced it out in long, curling letters, the way a finger would. (He/She) reads it, and it all comes back with a rush, just as a wave comes in and washes the letters away.",
+   "src": "L2672"
+  },
+  "c1": {
+   "text": "(Name) goes to the elders' hut and explains, feeling very foolish. The elders don't laugh. They look at each other, and nod slowly, and one of them says, \"Ah. A yawner.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2666"
+  },
+  "c2o1": {
+   "text": "(He/She) gets along fine without one. Better than fine. The breeze took the name out of everyone's head, not just (his/hers), so (he/she) is simply \"?\" now, and (he/she) answers to a shrug and a smile, and that's that. After a while, nobody even remembers that (he/she) used to have a different name. Children who are born later never know there was one. (Name) sometimes wonders, on windy days, where the old name blew to. But (he/she) never wonders very hard.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L2678",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At lunchtime, (name) is sitting in the doorway eating, and the breeze turns round. It comes back in off the sea, warm and salty, and blows right in through the doorway past (his/her) ear. And there, on it, like something carried on the wind, is (his/her) name. (He/She) remembers it with such a start that (he/she) drops (his/her) bowl. (He/She) says it out loud, three times, to make sure it stays. Then (he/she) shuts the door tight every night for a month, just in case.",
+   "src": "L2681"
+  },
+  "c2": {
+   "text": "(Name) decides a name is not that important, really. (He/She) still knows how to farm and cook and build. So (he/she) gets up, eats breakfast, and goes off to work as if nothing has happened. People wave and open their mouths to say hello, and then look confused...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2675"
+  }
+ }
+}

@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Painter's Pot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b144_painter_pot",
+  "source": "balance",
+  "lines": [
+   6622,
+   6666
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6622",
+  "ledger": [
+   {
+    "src": "L6623",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6624",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6632",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6641",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6629",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6630",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6633",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6642",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6635",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6644",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6647",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6650-6666",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Should a villager sit for the portrait, or ask for something else?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "painter": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A visiting painter has set up on the beach: a cheerful, paint-stained stranger with a pot of colour made from crushed shells and the ink of a certain squid that, (painter) says, lives only in the deepest water off (subject.his/her) own island. \"What I paint in this,\" (painter) says, \"stays painted. Very long-lasting.\"\n(painter) wants to paint (subject). (subject.He/She) says (subject) has an interesting face. It's not clear whether (subject.he/she) means it as a compliment. (subject.He/She) has a wide flat stone ready, and a brush made of (subject.his/her) own hair.\nShould (subject) sit for the portrait, or ask for something else?",
+   "choices": [
+    {
+     "label": "Sit for the Portrait",
+     "next": "c1",
+     "src": "L6629"
+    },
+    {
+     "label": "Ask to Be Painted Instead",
+     "next": "c2",
+     "src": "L6630"
+    }
+   ],
+   "src": "L6625-6627"
+  },
+  "c1o1": {
+   "text": "When (painter) finishes the last eyelash, the painted (subject) blinks. Then it sits up out of the stone, as if climbing out of a pool, and there are two of (subject) on the beach. The squid ink, it turns out, really is very long-lasting. (painter) looks delighted and a little scared. \"That's never happened before,\" (subject.he/she) says. \"Well. Twice.\" The copy takes the name (made1), and stays.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L6636",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The painted face climbs out of the stone, looks (subject) up and down, and says, \"I don't like your clothes.\" It has (subject)'s face, and nothing else of (subject)'s: different likes, different dislikes, a different laugh. (painter) admits (subject.he/she) got bored halfway through and painted the inside \"from imagination.\" The copy takes the name (made1), and moves in with the painter's other mistakes, which is to say, into the village.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L6639",
+   "text_only": [
+    {
+     "src": "L6639",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) sits on a rock in the sun while (painter) paints, humming, glancing up and down. The colours on the stone glisten. As the face takes shape, (subject) starts to feel very odd, as if (subject.he/she) is being looked at from two directions...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6633"
+  },
+  "c2o1": {
+   "text": "(painter) paints swirls of blue and gold across (subject)'s cheeks and brow, the pattern of (subject.his/her) own island's sea. It is beautiful. It is also, as promised, very long-lasting. It doesn't come off in the sea or the rain or with (healer)'s scrubbing brush. (subject) gets used to it, and then gets very fond of it.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L6645",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(painter) paints (subject)'s face, then the faces of half the village, then all the canoes, then the {@chief}'s door. By the end of the week (subject.he/she) has run out of paint and doesn't want to leave. \"I like it here,\" (subject.he/she) says. \"People sit still.\" (subject.He/She) stays, and the village is a great deal more colourful from then on.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6648",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Paint ME,\" says (subject). \"On my face. Not on a stone.\" (painter) looks at (subject.him/her), thinks about it, and then dips the brush...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6642"
+  }
+ }
+}

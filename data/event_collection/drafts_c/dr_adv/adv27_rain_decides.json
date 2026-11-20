@@ -64,11 +64,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fish don't care about rain,\" says (name1), and goes fishing. (He/she) gets soaked. (He/she) catches four fish. (He/she) also sees a pod of dolphins, close, playing in the rain. (He/she) comes home soaking and happier than (he/she) has been all week. The garden waits. It's good at that.",
+   "src": "L320",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L320"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L320"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Fish don't care about rain,\" says (name1), and goes fishing. (He/she) gets soaked. (He/she) catches four fish. (He/she) also sees a pod of dolphins, close, playing in the rain. (He/she) comes home soaking and happier than (he/she) has been all week. The garden waits. It's good at that.",
    "src": "L320"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The rain has made the choice for (him/her): neither. (name1) sits in (his/her) hut and listens to the rain on the roof, mending a basket that didn't really need mending. It's a lovely quiet day. Tomorrow, (he/she) will have the same problem. Today, (he/she) doesn't.",
+   "src": "L323",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L323"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The rain has made the choice for (him/her): neither. (name1) sits in (his/her) hut and listens to the rain on the roof, mending a basket that didn't really need mending. It's a lovely quiet day. Tomorrow, (he/she) will have the same problem. Today, (he/she) doesn't.",
    "src": "L323"

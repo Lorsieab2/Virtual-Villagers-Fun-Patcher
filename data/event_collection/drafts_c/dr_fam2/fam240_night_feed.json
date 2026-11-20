@@ -73,14 +73,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) gets up, makes (subject) a warm drink, sits beside (subject.him/her) and keeps (subject.him/her) company while the baby feeds. Then (friend.he/she) takes the baby and walks up and down, humming, while (subject) sleeps. In the morning they're both exhausted. They look at each other over breakfast. \"Same again tonight?\" \"Same again tonight.\" They laugh weakly. The baby is fine. So are they, more or less.",
-   "src": "L482"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) whispers, \"Go back to sleep, I've got this.\" (friend) does. (subject) feeds the baby and sits watching the stars through the doorway, so tired that everything feels soft and strange. The baby falls asleep. (subject) sits a while longer. It's lonely and lovely at the same time. In the morning (friend) brings (subject.him/her) breakfast in bed. Fair's fair.",
    "src": "L485"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) gets up, makes (subject) a warm drink, sits beside (subject.him/her) and keeps (subject.him/her) company while the baby feeds. Then (friend.he/she) takes the baby and walks up and down, humming, while (subject) sleeps. In the morning they're both exhausted. They look at each other over breakfast. \"Same again tonight?\" \"Same again tonight.\" They laugh weakly. The baby is fine. So are they, more or less.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L482"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) gets up, makes (subject) a warm drink, sits beside (subject.him/her) and keeps (subject.him/her) company while the baby feeds. Then (friend.he/she) takes the baby and walks up and down, humming, while (subject) sleeps. In the morning they're both exhausted. They look at each other over breakfast. \"Same again tonight?\" \"Same again tonight.\" They laugh weakly. The baby is fine. So are they, more or less.",
+   "src": "L482"
   }
  }
 }

@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Meddling Cousins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd43_meddling_cousins",
+  "source": "draft_lcd",
+  "lines": [
+   596,
+   607
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L603",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L607",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The cousins keep spying on a couple's walks: ignore them, or play a trick on them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every time (subject) and (friend) go for a walk together, (subject)'s cousins follow them, hiding very badly behind trees and giggling. (friend) thinks it is funny. (subject) is losing patience. What should they do?",
+   "src": "L599",
+   "choices": [
+    {
+     "label": "Ignore Them",
+     "next": "o1",
+     "src": "L601"
+    },
+    {
+     "label": "Play a Trick on Them",
+     "next": "o2",
+     "src": "L605"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They ignore the cousins entirely. After a week, the cousins get bored and stop. Then (subject) and (friend) miss them a bit, and invite them to come along openly. The walks become very loud.",
+   "src": "L603"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) lead the cousins on a long walk through the swamp, chatting cheerfully, and then hide. The cousins come home muddy to the knees and sheepish. They stop following. Everyone laughs about it at the next feast, including the cousins.",
+   "src": "L607"
+  }
+ }
+}

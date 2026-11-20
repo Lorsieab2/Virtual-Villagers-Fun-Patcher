@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Recipe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce21_stolen_recipe",
+  "source": "draft_lce",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wins the cooking contest with a dish that is clearly a neighbor's family recipe: confront them, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) won the cooking contest with a fish stew with mashed taro on top. (friend) nearly dropped (friend.his/her) bowl: that is (friend.his/her) grandmother's recipe, exactly, and (subject) had dinner at (friend.his/her) hut last month. Everyone is congratulating (subject). What should (friend) do?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Confront (subject)",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks (subject), privately, where the recipe came from. (subject) goes red and admits it. (subject.He/she) gives the prize to (friend)'s grandmother, at the next gathering, in front of everyone. The grandmother is delighted and makes (subject.him/her) cook the stew for the whole family.",
+   "src": "L295"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing. It eats at (friend.him/her) for weeks. Then, at the next contest, (friend) cooks the stew (friend.him/her)self, better, and wins. (subject) looks at the bowl and says nothing. (friend) feels much better.",
+   "src": "L299"
+  }
+ }
+}

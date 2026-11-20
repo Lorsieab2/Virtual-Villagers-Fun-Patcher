@@ -318,7 +318,8 @@
      "role": "accused",
      "src": "L9273"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_b": {
    "type": "branch",
@@ -343,18 +344,14 @@
    ]
   },
   "c1": {
-   "text": "The accusation collapses; (Accused) receives public thanks for the discovery.",
-   "src": "L9277-9278",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "coda"
-    }
-   ],
-   "text_only": [
+     "next": "c1__fx"
+    },
     {
-     "src": "L9277",
-     "what": "collapses",
-     "reason": "narrative: the accusation collapses; no structure is involved"
+     "next": "c1__text"
     }
    ]
   },
@@ -459,6 +456,47 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "c1__fx": {
+   "text": "The accusation collapses; (Accused) receives public thanks for the discovery.",
+   "src": "L9277-9278",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9277",
+     "what": "collapses",
+     "reason": "narrative: the accusation collapses; no structure is involved"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "accused",
+     "mood": "good",
+     "src": "L9277-9278"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "text": "The accusation collapses; (Accused) receives public thanks for the discovery.",
+   "src": "L9277-9278",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9277",
+     "what": "collapses",
+     "reason": "narrative: the accusation collapses; no structure is involved"
+    }
+   ]
   }
  },
  "requirement": {

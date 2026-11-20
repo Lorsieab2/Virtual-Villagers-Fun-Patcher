@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song for a Retiring Leader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca48_song_retiring",
+  "source": "draft_lca",
+  "lines": [
+   670,
+   681
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L670",
+  "ledger": [
+   {
+    "src": "L671",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L677",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L677",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L681",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L681",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A respected elder steps down from leading the fishing crews: hold a farewell song, or ask them to stay as an adviser.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has led the fishing crews for twenty-five years, and today (subject.he/she) announced that (subject.he/she) is stepping down: (subject.his/her) eyes are not what they were, and it is time. (friend) will lead the crews now. (friend) is not sure (friend.he/she) is ready. How should the village mark (subject)'s stepping down?",
+   "src": "L673",
+   "choices": [
+    {
+     "label": "Sing a Farewell Song",
+     "next": "o1",
+     "src": "L675"
+    },
+    {
+     "label": "Ask (subject) to Stay as an Adviser",
+     "next": "o2",
+     "src": "L679"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The crews sing (subject) out at the evening fire, a song full of storms and enormous fish, most of which (subject) insists were not that big. (subject) hands (friend) the steering paddle and tells (friend.him/her) not to lose it. (friend) holds it all night.",
+   "src": "L677",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L677"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks (subject) to stay on, not leading, just advising. (subject) agrees. For a while it is awkward: the crews keep looking at (subject) instead of (friend). Then (subject) starts staying on the beach in the mornings, and the crews start looking at (friend).",
+   "src": "L681",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L681"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

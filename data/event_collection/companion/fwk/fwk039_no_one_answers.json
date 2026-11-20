@@ -116,15 +116,14 @@
    ]
   },
   "b": {
+   "type": "branch",
    "name": "Answer B",
-   "text": "They find comfort in the cycle of life and decay.",
-   "src": "L5838",
    "children": [
     {
-     "next": "r2"
+     "next": "b__fx"
     },
     {
-     "next": "r3"
+     "next": "b__text"
     }
    ]
   },
@@ -167,6 +166,41 @@
    "join": "paragraph",
    "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
    "src": "L5843"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They find comfort in the cycle of life and decay.",
+   "src": "L5838",
+   "children": [
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L5838"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They find comfort in the cycle of life and decay.",
+   "src": "L5838",
+   "children": [
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
   }
  }
 }

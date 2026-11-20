@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Healer's Last Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b265_healer_season",
+  "source": "balance",
+  "lines": [
+   12354,
+   12395
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12354",
+  "ledger": [
+   {
+    "src": "L12355",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12356",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12364",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12373",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12361",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12362",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12365",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12374",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12370",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12376",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12379",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12382-12395",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been a healer for fifty years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been a healer for fifty years. (He/She) has set the bones of half the village and delivered the other half. But (his/her) hands have started to shake, and last week (he/she) mixed up two jars of leaves and gave a fisher a tea that made (him/her) sneeze for a day.\nThe other healers are too polite to say anything. The {@chief} isn't. \"You've earned a rest,\" the {@chief} says. \"Sit in the sun. Tell stories. Let the young ones do the work.\"\n(Name) loves the work. Should (he/she) keep going, or step aside?",
+   "choices": [
+    {
+     "label": "Keep Working",
+     "next": "c1",
+     "src": "L12361"
+    },
+    {
+     "label": "Step Aside",
+     "next": "c2",
+     "src": "L12362"
+    }
+   ],
+   "src": "L12357-12359"
+  },
+  "c1o1": {
+   "text": "One afternoon (name) sits down on the bench outside the healers' hut to rest (his/her) eyes, with a half-ground bowl of leaves in (his/her) lap, and doesn't get up again. The other healers find (him/her) there, peaceful, looking as if (he/she) has just dozed off in the sun. The whole village comes to the burial. Half of them were delivered by (him/her), and one after another, they say so.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L12368",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Knowing (his/her) time is short, (name) spends the season teaching. Every healer in the village gets dragged into the hut for lessons, every afternoon, whether they like it or not. (Name) is a strict and impatient teacher. By the end of the season, the young healers grumble that their heads are full. They are also much better healers.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L12371",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"I'll rest when I'm dead,\" says (name), and goes back to the healers' hut. (He/She) works the whole season, slowly, carefully, double-checking every jar...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12365"
+  },
+  "c2o1": {
+   "text": "(Name) expected to miss it terribly. Instead, after a week of sitting in the sun, (he/she) finds (he/she) doesn't miss it at all. Not the smells, not the blood, not the night calls. When a young healer comes asking for advice, (name) waves (him/her) off. \"Ask someone who still cares,\" (he/she) says, and goes back to dozing. The healers are a little hurt.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "medicine",
+     "role": "subject"
+    }
+   ],
+   "src": "L12377",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) takes to sitting at the cooking fire in the evenings and telling the stories of every birth, every broken bone, every fever (he/she) has seen in fifty years. It turns out (he/she) remembers them all, and most of them are funny, especially the ones about the people sitting right there. The village has never laughed so much.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L12380",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) hangs (his/her) healer's bag on the hook by the door and walks out into the sun. The first morning, (he/she) doesn't know what to do with (his/her) hands...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12374"
+  }
+ }
+}

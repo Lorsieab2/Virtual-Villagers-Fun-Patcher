@@ -69,11 +69,71 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) wades in every morning, shrieking a little each time, and paddles about for as long as (subject.he/she) can bear. A few weeks later (subject.his/her) back is moving more easily, though it still aches after a long day. (subject.He/she) has also, quite against (subject.his/her) will, started to look forward to the shriek. Nobody is more surprised than (subject).",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L329"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) wades in every morning, shrieking a little each time, and paddles about for as long as (subject.he/she) can bear. A few weeks later (subject.his/her) back is moving more easily, though it still aches after a long day. (subject.He/she) has also, quite against (subject.his/her) will, started to look forward to the shriek. Nobody is more surprised than (subject).",
    "src": "L329"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Is there something that doesn't involve freezing?\" asks (subject). (friend) thinks. \"A warm stone and slow stretches. It'll probably take longer. It might not help as much. Or it might help just as much. Backs are like that.\" (subject) chooses the warm stone. (subject.His/her) back improves, slowly, a bit. (subject.He/she) is never cold once. (subject.He/she) considers this a total victory.",
+   "src": "L332",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 20,
+     "src": "L332"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L332"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Is there something that doesn't involve freezing?\" asks (subject). (friend) thinks. \"A warm stone and slow stretches. It'll probably take longer. It might not help as much. Or it might help just as much. Backs are like that.\" (subject) chooses the warm stone. (subject.His/her) back improves, slowly, a bit. (subject.He/she) is never cold once. (subject.He/she) considers this a total victory.",
    "src": "L332"

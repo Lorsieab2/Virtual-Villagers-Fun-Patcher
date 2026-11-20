@@ -1,0 +1,284 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chore Spirit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b169_chore_spirit",
+  "source": "balance",
+  "lines": [
+   7815,
+   7860
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7815",
+  "ledger": [
+   {
+    "src": "L7816",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7817",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7825",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7834",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7822",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7823",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7826",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7835",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7828",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7840",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7843-7860",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager loves learning more than anything.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) loves learning more than anything. (subject.He/She) would sit in the research hut all day with the bark scrolls if (subject.he/she) could, and does, and the other jobs pile up beside (subject.his/her) hut, undone, until somebody shouts. Today somebody has shouted. Several somebodies.\nThat evening, (subject) finds a little carved figure on (subject.his/her) doorstep, with a frowning face and a broom in its hand. (elder) says it's a chore spirit, and that someone in the village must have asked it to visit. \"They take away what a person loves too much,\" (elder) says, \"so the rest gets done.\" The figure is warm, and very faintly humming.\nShould (subject) keep the figure, or take it to the shrine and ask the spirit to leave?",
+   "choices": [
+    {
+     "label": "Keep the Figure",
+     "next": "c1",
+     "src": "L7822"
+    },
+    {
+     "label": "Take It to the Shrine",
+     "next": "c2",
+     "src": "L7823"
+    }
+   ],
+   "src": "L7818-7820"
+  },
+  "c1o1": {
+   "text": "In the morning, (subject) sits down with a scroll, and finds the marks on it are just marks. The wonder has gone out of them. So (subject.he/she) reads for a while, and then goes and does the other jobs, which have been waiting for weeks. The village is very pleased. (subject) is not sure how (subject.he/she) feels. The figure is gone from the shelf.",
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L7829"
+  },
+  "c1o2": {
+   "text": "The chore spirit is very thorough. In the morning (subject) doesn't care about the scrolls, or about the morning run along the beach that (subject.he/she) has never missed, and can't think why. (subject.He/She) does all the jobs, evenly, without complaining, and without much joy, walking everywhere. After a while (subject.his/her) friends start to worry, and take (subject.him/her) out singing and dancing until (subject.he/she) laughs again.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L7832",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) puts it on the shelf in (subject.his/her) hut, facing the wall. In the night, (subject.he/she) hears it humming louder, and then a soft sweeping sound, as if someone is tidying the floor...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7826"
+  },
+  "c2o1": {
+   "text": "(subject) keeps the promise. (subject.He/She) does the other jobs first, every morning, quickly, and saves the scrolls for the afternoon, as a reward. Coming to (subject.his/her) own work fresh makes (subject.him/her) even better at it. The chore spirit, if it was a spirit, never comes back.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L7838",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "On the way down, (subject) meets (friend) coming up, looking guilty. (friend) asked the spirit to visit (subject). \"I wanted help with the chores,\" (friend.he/she) admits. The spirit, it seems, decided (friend) was the one who needed a lesson. From that day (friend) can't sit still and can't settle to a job either, and fidgets about the village, and (subject) does (subject.his/her) share of the chores and a bit of (friend)'s too.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "work"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "resting"
+    }
+   ],
+   "src": "L7841",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) carries the figure up the hill to the shrine and sets it down with a flower. \"I'll do the other jobs,\" (subject.he/she) says. \"I promise. You don't need to stay.\" The humming stops...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7835"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

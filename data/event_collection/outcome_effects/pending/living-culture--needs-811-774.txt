@@ -1,0 +1,11 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #811 (feat/97-living-culture) and #774 (feat/97-round6) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+drafts_c/dr_lcg/lcg42_house_many_hands.json | o1 | HUTS REPAIRED (50%) | "By sunset, the hut is standing, bigger than before." | {"do":"repair"}
+drafts_c/dr_lcg/lcg42_house_many_hands.json | o2 | HUTS REPAIRED (50%) | "(friend)'s family rebuilds with just a few friends." | {"do":"repair"}
+drafts_c/dr_lch/lch31_day_many_hands.json | o1 | HUTS REPAIRED (50%) | "By sunset every hut has a roof." | {"do":"repair"}
+drafts_c/dr_lch/lch31_day_many_hands.json | o2 | HUTS REPAIRED (50%) | "The village fixes the roofless huts first." | {"do":"repair"}
+drafts_c/dr_lci/lci26_after_storm.json | o2 | HUTS REPAIRED (50%) | "everyone helps rebuild, quietly" | {"do":"repair"}
+drafts_c/dr_lci/lci30_nest_beneath.json | o1 | HUTS REPAIRED (50%) | "The roof is fixed the next day." | {"do":"repair"}
+drafts_c/dr_lci/lci30_nest_beneath.json | o2 | HUTS REPAIRED (50%) | "The roof is fixed." | {"do":"repair"}

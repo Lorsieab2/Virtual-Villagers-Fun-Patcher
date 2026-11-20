@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Researcher's Promise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci11_researcher",
+  "source": "draft_lci",
+  "lines": [
+   148,
+   159
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L148",
+  "ledger": [
+   {
+    "src": "L149",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and a farmer)"
+   },
+   {
+    "src": "L155",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2); small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L155",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A researcher wants to study the families' medicine plants: agree on how the findings are shared first, or let the study begin.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), a researcher from another island, wants to study the plants (friend)'s family and others have grown for generations. (friend) wants to know first who will learn the results and what they will be used for. (subject) is impatient to begin. What should happen?",
+   "src": "L151",
+   "choices": [
+    {
+     "label": "Agree First",
+     "next": "o1",
+     "src": "L153"
+    },
+    {
+     "label": "Let the Study Begin",
+     "next": "o2",
+     "src": "L157"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They sit down and agree: the families hear the results first, nothing is taken without asking, and anything learned is shared. It takes a week. The study takes a year. The families learn which of their plants work best, and why.",
+   "src": "L155",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L155"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L155"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The study begins at once. (subject) works quickly and leaves with the results. The families hear nothing for a year. Then a trader mentions that (subject)'s island now sells a medicine made from one of their plants. (friend) is angry.",
+   "src": "L159"
+  }
+ }
+}

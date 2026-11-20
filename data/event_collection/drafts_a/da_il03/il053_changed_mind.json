@@ -71,6 +71,44 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"That never happened,\" (subject) says, and puts the half-eaten mango down very calmly. (friend) raises an eyebrow. The next morning, though, the mango is gone, and (subject) has juice on (subject.his/her) chin.",
+   "src": "L155"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Fine,\" says (subject), mouth full. \"They're good. Mangoes are good.\" (friend) is delighted. By evening the whole village knows, and three different people have brought (subject) a mango. (subject.He/She) eats all three.",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "fruit",
+     "src": "L152"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L152"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "\"Fine,\" says (subject), mouth full. \"They're good. Mangoes are good.\" (friend) is delighted. By evening the whole village knows, and three different people have brought (subject) a mango. (subject.He/She) eats all three.",
    "src": "L152",
@@ -82,12 +120,8 @@
      "preference": "fruit",
      "src": "L152"
     }
-   ]
-  },
-  "b": {
-   "name": "Answer B",
-   "text": "\"That never happened,\" (subject) says, and puts the half-eaten mango down very calmly. (friend) raises an eyebrow. The next morning, though, the mango is gone, and (subject) has juice on (subject.his/her) chin.",
-   "src": "L155"
+   ],
+   "auto_text": true
   }
  }
 }

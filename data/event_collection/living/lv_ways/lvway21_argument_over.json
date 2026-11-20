@@ -130,8 +130,15 @@
   },
   "c1": {
    "name": "Outcome C1",
-   "text": "The expedition improves the map and preserves the story.",
-   "src": "L23033"
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -159,6 +166,25 @@
    "name": "Outcome D2",
    "text": "Conflicting directions confuse a traveler.",
    "src": "L23037"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The expedition improves the map and preserves the story.",
+   "src": "L23033",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23033"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The expedition improves the map and preserves the story.",
+   "src": "L23033"
   }
  }
 }

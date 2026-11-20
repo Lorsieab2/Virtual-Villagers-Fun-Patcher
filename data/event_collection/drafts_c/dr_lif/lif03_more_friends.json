@@ -70,14 +70,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) gets up to a surprising number before (subject.he/she) loses track. Some of them (subject.he/she) hadn't thought of in that way before. Some of them might be surprised to be on the list. (subject.He/she) sits back, listening to the rain, feeling oddly rich. Two pots, one bad knife, and all those people. (subject.He/she) decides that's a good inventory.",
-   "src": "L38"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(subject) gets up, goes through the rain, and knocks on (friend)'s door, just to see. \"Is something wrong?\" asks (friend). \"No,\" says (subject), dripping. \"I was counting things. You're on the list.\" (friend) has no idea what (subject.he/she) is talking about, but lets (subject.him/her) in and gives (subject.him/her) something warm to drink. That's exactly what the list was for.",
    "src": "L41"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) gets up to a surprising number before (subject.he/she) loses track. Some of them (subject.he/she) hadn't thought of in that way before. Some of them might be surprised to be on the list. (subject.He/she) sits back, listening to the rain, feeling oddly rich. Two pots, one bad knife, and all those people. (subject.He/she) decides that's a good inventory.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) gets up to a surprising number before (subject.he/she) loses track. Some of them (subject.he/she) hadn't thought of in that way before. Some of them might be surprised to be on the list. (subject.He/she) sits back, listening to the rain, feeling oddly rich. Two pots, one bad knife, and all those people. (subject.He/she) decides that's a good inventory.",
+   "src": "L38"
   }
  }
 }

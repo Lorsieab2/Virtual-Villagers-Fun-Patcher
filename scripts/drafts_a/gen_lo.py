@@ -190,7 +190,7 @@ def run(review: str | None) -> int:
             patch(doc)
             p = c.lib.DRAFTS_A_DIR / SOURCE / f"{r['id']}.json"
             p.parent.mkdir(parents=True, exist_ok=True)
-            p.write_text(c.cc.canonical(doc), encoding="utf-8", newline="\n")
+            p.write_text(c.cc.canonical(c.cc.with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
             paths.append(str(p))
             reports.append(c.pron_report(r, doc))
     if review:

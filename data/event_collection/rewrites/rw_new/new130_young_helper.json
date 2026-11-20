@@ -1,0 +1,258 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Young Helper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new130_young_helper",
+  "source": "rewrites",
+  "lines": [
+   6097,
+   6142
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6097",
+  "ledger": [
+   {
+    "src": "L6098",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6099",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6107",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6114",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6121",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6103",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6104",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6105",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6108",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6115",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6122",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6109",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6111",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6116",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6118",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6123",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6125",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6128-6142",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The builders are working on a new hut, and little a villager has decided to help.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The builders are working on a new hut, and little (subject) has decided to help.\nSpecifically, (subject.he/she) has decided to carry a log. One of the big logs. A log about three times (subject.his/her) own size.\n(subject.He/She) is dragging it across the clearing inch by inch, red-faced, grunting, heels dug into the dirt, refusing every single offer of help with a furious \"I CAN DO IT.\" The builders have stopped working to watch. So far (subject) has moved the log about the length of (subject.his/her) own foot. It has taken all morning. How can (adult) help without hurting (subject.his/her) pride?",
+   "choices": [
+    {
+     "label": "Ask Why It Matters to Them",
+     "next": "c1",
+     "src": "L6103"
+    },
+    {
+     "label": "Lift the Other End",
+     "next": "c2",
+     "src": "L6104"
+    },
+    {
+     "label": "Let the Child Try Rollers",
+     "next": "c3",
+     "src": "L6105"
+    }
+   ],
+   "src": "L6100-6102"
+  },
+  "c1o1": {
+   "text": "(subject) explains, between gasps, that (subject.he/she) wants to be useful like the builders. Everybody's always too busy to let (subject.him/her) help with anything real. (adult) takes this completely seriously, and talks with (subject) about which jobs are real builder jobs. (subject) ends the day carrying bindings and fetching water, feeling very much part of the crew.",
+   "src": "L6110"
+  },
+  "c1o2": {
+   "text": "(subject) starts to explain, looks at the log, looks at the enormous pile of thatch bundles waiting by the hut, and changes (subject.his/her) mind. \"Actually, can I carry THOSE?\" (subject.He/She) can, and they're exactly what the builders need. (subject) carries bundles of thatch for the rest of the afternoon, and is far more help than the log ever was.",
+   "src": "L6112"
+  },
+  "c1": {
+   "text": "(adult) crouches down beside the log and the very sweaty child. \"That's a big log. Why this one?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6108"
+  },
+  "c2o1": {
+   "text": "As they carry it together, (adult) shows (subject) a builder's trick: lay a smaller round log underneath, and push, and the big log rolls along on top almost by itself. (subject) is astonished. (subject.He/She) learns a little about using a roller to move heavy things, and spends the rest of the day rolling everything (subject.he/she) can find.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L6117",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "After a few steps, (subject) asks (adult) to please put it down, because (subject.he/she) wants to finish alone. (adult) does, and hovers close by, just in case. The log reaches the hut at sunset. Every builder cheers. (subject) collapses on the grass and sleeps right there.",
+   "src": "L6119",
+   "text_only": [
+    {
+     "src": "L6119",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "Without asking, (adult) quietly picks up the other end of the log. (subject) glares at (subject.him/her), but doesn't tell (subject.him/her) to put it down...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6115"
+  },
+  "c3o1": {
+   "text": "(subject) sits down to rest, looks at the sticks, looks at the log, and frowns. Then (subject.he/she) lays the sticks out in a row, heaves the end of the log onto them, and pushes. It rolls! (subject.He/She) proudly runs to show the builders, who've been carrying their logs the hard way for this hut, and they use the trick for all the rest of it. It is \"(subject)'s trick\" forever after.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6124",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "(subject) tries the sticks, but they all roll out sideways, and the log won't budge an inch more. At last (subject.he/she) gives up, flops down on the log, and declares, \"I'm going to move it tomorrow.\" (subject.He/She) says it with such confidence that the builders decide to leave the log exactly where it is.",
+   "src": "L6126"
+  },
+  "c3": {
+   "text": "(adult) doesn't help. Instead, (subject.he/she) leaves a row of short, round sticks lying on the ground near the log, and walks away whistling...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6122"
+  }
+ }
+}

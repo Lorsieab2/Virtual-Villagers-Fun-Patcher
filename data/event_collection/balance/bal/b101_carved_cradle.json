@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Carved Cradle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b101_carved_cradle",
+  "source": "balance",
+  "lines": [
+   4562,
+   4604
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4562",
+  "ledger": [
+   {
+    "src": "L4563",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4564",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4572",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4581",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4569",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4570",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4573",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4582",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4575",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4578",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4584",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4587",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4590-4604",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The old carvers say that's bad luck.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have decided they want a child, and (friend), who is good with wood, has started carving a cradle before there's any baby to put in it. The old carvers say that's bad luck. The old healers say it's good luck. Everyone else has an opinion too.\nThe cradle is half finished. (friend) can finish it now, or put it away until a baby is on the way.\nWhat should they do?",
+   "choices": [
+    {
+     "label": "Finish It Now",
+     "next": "c1",
+     "src": "L4569"
+    },
+    {
+     "label": "Put It Away for Now",
+     "next": "c2",
+     "src": "L4570"
+    }
+   ],
+   "src": "L4565-4567"
+  },
+  "c1o1": {
+   "text": "The cradle is finished on a full-moon night. A month later, a baby is expected. The old healers say \"told you so\" to the old carvers, who mutter. (subject) and (friend) don't care who was right. They sit by the cradle in the evenings and talk about names.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4576",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "A baby is expected. Then the healer listens again: {#babies:\"Just the one, and the cradle is just right\"|\"Two, you'll need a wider cradle\"|\"Three, you'll need a much wider cradle\"} (friend) goes back to the carving fire that same evening, laughing, to start again.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4579",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(friend) carves every evening by the fire, with (subject) sitting beside (friend.him/her), sanding the edges smooth with a piece of coral...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4573"
+  },
+  "c2o1": {
+   "text": "A few months later, it's time. A baby is expected. (friend) takes the cradle down from the roof, and finishes it in three evenings, faster and better than before. \"It needed to wait,\" (friend.he/she) says, and nobody argues.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L4585",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "No baby comes that season. But when a neighbour's baby arrives early, with no cradle ready, (friend) takes the half-carved one down and finishes it overnight, and gives it away. (subject) and (friend) are the baby's favourite visitors. \"Ours can have the next one,\" (subject) says, and means it.",
+   "src": "L4588"
+  },
+  "c2": {
+   "text": "(friend) wraps the half-carved cradle in a mat and puts it up in the roof beams. \"When it's time,\" (friend.he/she) says...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4582"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L4579",
+   "before": "{#babies:\"Just the one, and the cradle is just right.\"|\"Two. You'll need a wider cradle.\"|\"Three. You'll need a much wider cradle.\"}",
+   "after": "{#babies:\"Just the one, and the cradle is just right\"|\"Two, you'll need a wider cradle\"|\"Three, you'll need a much wider cradle\"}"
+  }
+ ]
+}

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pattern of Our People",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj30_pattern_our",
+  "source": "draft_lcj",
+  "lines": [
+   418,
+   429
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L418",
+  "ledger": [
+   {
+    "src": "L419",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a weaver and an elder)"
+   },
+   {
+    "src": "L425",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L425",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L429",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A weaver's new pattern tells the village's year: hang it in the meeting hut, or give it to the family who inspired it.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has woven a pattern that tells the village's whole year: the storm, the great catch, the new babies, the quarrel over the fence. (friend), an old weaver, says it is the best thing anyone has woven in a generation. Where should it go?",
+   "src": "L421",
+   "choices": [
+    {
+     "label": "Hang It in the Meeting Hut",
+     "next": "o1",
+     "src": "L423"
+    },
+    {
+     "label": "Give It Away",
+     "next": "o2",
+     "src": "L427"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "It hangs in the meeting hut. People find their own part of the year in it and point it out to each other. Children try to count the fish. (subject) is asked to weave next year's too.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives it to the family who lost their hut in the storm, because the pattern begins with their loss and ends with their new roof. They hang it over the door. It is the first thing visitors see.",
+   "src": "L429"
+  }
+ }
+}

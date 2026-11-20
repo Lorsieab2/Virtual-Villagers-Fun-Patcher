@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift of Song at Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd36_gift_song_dawn",
+  "source": "draft_lcd",
+  "lines": [
+   498,
+   509
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L498",
+  "ledger": [
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L505",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager wants to sing to their partner at dawn on their wedding day: sing it, or write it on bark.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On Isola, there is an old custom: on the morning of a wedding, one partner sings to the other at dawn. (subject) has a song ready for (friend), but (subject.his/her) voice has been hoarse for a week with a cold. The wedding is tomorrow. What should (subject) do?",
+   "src": "L501",
+   "choices": [
+    {
+     "label": "Sing It Anyway",
+     "next": "o1",
+     "src": "L503"
+    },
+    {
+     "label": "Write It on Bark",
+     "next": "o2",
+     "src": "L507"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At dawn, (subject) croaks the song outside (friend)'s door. It sounds like a frog with a broken heart. (friend) comes out in tears, laughing and crying, and says it is the best thing (friend.he/she) has ever heard. Several neighbors disagree, loudly.",
+   "src": "L505"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) carves the song on a strip of bark and leaves it at (friend)'s door at dawn. (friend) reads it in the doorway, slowly. Years later, it still hangs in their hut, the carving a little faded.",
+   "src": "L509"
+  }
+ }
+}

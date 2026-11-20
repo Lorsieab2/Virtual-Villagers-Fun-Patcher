@@ -645,13 +645,14 @@
    ]
   },
   "s2": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L4670-4671",
-   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "unresolved"
+     "next": "s2__fx"
+    },
+    {
+     "next": "s2__text"
     }
    ]
   },
@@ -712,7 +713,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "u_plain": {
    "name": "Unresolved",
@@ -750,7 +752,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "reconcile": {
    "type": "branch",
@@ -798,7 +801,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "r_plain": {
    "name": "Reconciliation",
@@ -836,7 +840,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_r1": {
    "popup": "append",
@@ -990,6 +995,43 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "s2__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4670-4671",
+   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L4670-4671"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L4670-4671"
+    }
+   ],
+   "auto_text": true
+  },
+  "s2__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L4670-4671",
+   "text": "The culprit refuses to apologize; the leader imposes proportionate restitution, and the rivals remain angry.",
+   "children": [
+    {
+     "next": "unresolved"
+    }
+   ]
   }
  }
 }

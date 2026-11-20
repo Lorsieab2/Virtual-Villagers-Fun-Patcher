@@ -1,0 +1,283 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor at the Cradle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my051_visitor_cradle",
+  "source": "rewrites",
+  "lines": [
+   12824,
+   12879
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12824",
+  "ledger": [
+   {
+    "src": "L12825",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12826",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12835",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12842",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12849",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12856",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12830",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12831",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12832",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12833",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12836",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12843",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12850",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12857",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12837",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12839",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12844",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12846",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12851",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12853",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12858",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12863-12879",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "And the moment the stranger appears, the baby, who has been crying for an hour, goes perfectly quiet.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Just a few days after the new baby is born, (subject) sees a quiet stranger standing in the shade under the eaves of the family hut. Wrapped in grey. Very still. Watching the doorway. And the moment the stranger appears, the baby, who has been crying for an hour, goes perfectly quiet.\n\"Who's that?\" (subject) whispers to the family. They look where (subject.he/she) is pointing. \"Who's what?\" Nobody else can see anyone there. The stranger hasn't moved. What should (subject) do?",
+   "choices": [
+    {
+     "label": "Invite the Stranger to Speak",
+     "next": "c1",
+     "src": "L12830"
+    },
+    {
+     "label": "Ask What the Visitor Wants",
+     "next": "c2",
+     "src": "L12831"
+    },
+    {
+     "label": "Keep Watch Together",
+     "next": "c3",
+     "src": "L12832"
+    },
+    {
+     "label": "Leave a Small Gift",
+     "next": "c4",
+     "src": "L12833"
+    }
+   ],
+   "src": "L12827-12828"
+  },
+  "c1o1": {
+   "text": "The stranger steps forward and speaks, very softly, in a language (subject) has never heard: a sound like water running over stones. (subject) doesn't understand a word of it, but somehow it feels like a blessing. When the stranger finishes, (subject.he/she) bows to the doorway and steps back into the shade. By dawn, the stranger is gone, and the baby sleeps more peacefully than ever.",
+   "src": "L12838"
+  },
+  "c1o2": {
+   "text": "The stranger steps out of the shadows and lowers a grey shawl, and it's (friend), an old neighbor from the far end of the village, who looks rather startled to be spoken to so seriously. \"I just wanted to check on the little one,\" (friend) says. \"I didn't want to bother anyone.\" (subject) laughs out of sheer relief. Why nobody else could see (friend.him/her) standing there, (subject) decides not to ask.",
+   "src": "L12840"
+  },
+  "c1": {
+   "text": "(subject) steps out into the shade, heart thumping, and says softly, \"You're welcome here. Is there something you'd like to say?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12836"
+  },
+  "c2o1": {
+   "text": "The stranger turns, and (subject.his/her) face is gentle and very old. \"Nothing,\" (subject.he/she) says. \"Only this: teach the child kindness. And curiosity. Those two, together. Promise me.\" (subject) promises. The stranger smiles, and when (subject) blinks, the shade under the eaves is empty. The family keeps that promise, as best any family can.",
+   "src": "L12845"
+  },
+  "c2o2": {
+   "text": "The stranger leans close to the doorway and whispers a name. Just one name, soft and clear. Nobody in the household recognizes it. It isn't anyone in the family, living or dead. It isn't the baby's name. Then the stranger is gone. The family argues about it for days, and in the end, they keep the name, just in case, written on a piece of bark above the cradle.",
+   "src": "L12847"
+  },
+  "c2": {
+   "text": "(subject) walks over to the grey figure and asks, as politely as (subject.he/she) can, \"Excuse me. What do you want with our baby?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12843"
+  },
+  "c3o1": {
+   "text": "Nothing happens. No stranger appears. The baby sleeps soundly, the family takes turns dozing, and in the morning everyone is tired and stiff and very relieved. The stranger never comes back. The family enjoys the quietest, most peaceful first month any new parents could wish for.",
+   "src": "L12852"
+  },
+  "c3o2": {
+   "text": "Late at night, it's the turn of (friend), (subject)'s cousin, to watch. In the morning, (friend) is pale. \"I heard footsteps,\" (friend.he/she) whispers. \"Outside the door. Walking back and forth, all night, like someone pacing. Like someone guarding.\" No one was there. (friend) looked. The baby slept through all of it.",
+   "src": "L12854"
+  },
+  "c3": {
+   "text": "(subject) and the rest of the family take turns staying up through the night beside the cradle, keeping watch for the grey stranger...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12850"
+  },
+  "c4o1": {
+   "text": "In the morning, the gift is still there, untouched. The stranger is gone. But somehow, the gesture brings the family comfort. They leave a little something under the eaves every morning after that, for the baby's first year, and they always feel a little better for doing it.",
+   "src": "L12859"
+  },
+  "c4o2": {
+   "text": "In the morning, the fruit and the flower are gone. In their place lies a smooth white shell, pure white, without a single mark on it. When (subject) brings it inside, the baby reaches out and grabs it, and it fits perfectly in that tiny palm. The baby won't let go of it. The family decides the baby doesn't have to.",
+   "src": "L12861"
+  },
+  "c4": {
+   "text": "(subject) decides that whoever the visitor is, they're welcome. (subject.He/She) leaves a small bowl of fruit and a woven flower in the shade under the eaves...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12857"
+  }
+ }
+}

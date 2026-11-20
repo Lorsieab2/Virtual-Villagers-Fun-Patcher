@@ -1,0 +1,290 @@
+LCE-01
+DESC: A parent has arranged a match for their grown child with a family friend: agree to meet them, or refuse outright.
+ROLES: name1=18+ name2=45+
+FIX O2: 1=1 2=1
+REVIEW: 15/15 pass (no coercion; adult autonomy; the parent not villainized)
+
+LCE-02
+DESC: Two families arranged a match and the pair secretly like each other: admit it, or let the families think it was their idea.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (consent; humor)
+
+LCE-03
+DESC: A villager's two parents each want them to marry someone different: choose for themselves, or ask them both to stop.
+ROLES: name1=18+ name2=45+ name3=45+
+REL: name2=parent_of:name1 name3=parent_of:name1
+FIX O2: 1=1
+REVIEW: 15/15 pass (adult autonomy; parents imperfect, not villains)
+
+LCE-04
+DESC: Two respected villagers both want to be the next leader: hold a village vote, or ask them to lead together.
+ROLES: name1=25+ name2=25+
+WORD: chief
+REVIEW: 15/15 pass (fair process; dissent allowed)
+
+LCE-05
+DESC: Two families have feuded for years over who owns a fig tree: split the figs, or ask the elders to judge.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no villain; resolution partial)
+
+LCE-06
+DESC: A villager is blamed for breaking the shared fish trap without proof: investigate fairly, or let the village decide.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (the accused never shamed; fair process)
+
+LCE-07
+DESC: Two siblings both want their late parent's canoe: share it, or let the one who needs it most have it.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+FIX S: 1=2
+REVIEW: 15/15 pass (grief and fairness; no villain)
+
+LCE-08
+DESC: A villager apologized for ruining a neighbor's garden, but the neighbor wants it put right: help replant, or say sorry again.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (apology without forced forgiveness)
+
+LCE-09
+DESC: A neighbor who once betrayed a villager's trust asks to be forgiven: forgive them, or not yet.
+ROLES: name1=18+ name2=18+
+FIX S: 2=2
+REVIEW: 15/15 pass (no forced forgiveness; the narrative does not judge)
+
+LCE-10
+DESC: Villagers organize a gathering to call for an end to a long feud between two families: hold it, or let the families sort it out.
+ROLES: name1=55+ name2=18+ name3=18+
+FIX O2: 1=s
+REVIEW: 15/15 pass (community pressure without humiliation)
+
+LCE-11
+DESC: Two estranged siblings both want to attend their niece's naming feast: go together, or each go at a different time.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+REVIEW: 15/15 pass (reconciliation optional)
+
+LCE-12
+DESC: A child raised by several neighbors asks why some say they have no family: answer gently, or let the neighbors speak.
+ROLES: name1=8-13 name2=18+
+FIX O1: 1=2 2=1 3=1 4=1 5=1
+FIX O2: 1=1
+REVIEW: 15/15 pass (the child belongs; no pity)
+
+LCE-13
+DESC: Two unmarried friends want to share a hut as a household: support them, or let the gossip run.
+ROLES: name1=25+ name2=25+
+REVIEW: 15/15 pass (no shaming; privacy)
+
+LCE-14
+DESC: An elder wants to teach a grandchild to carve, but the child loves stars instead: insist, or follow the child's interest.
+ROLES: name1=55+ name2=6-13
+REL: name1=grandparent_of:name2
+FIX S: 2=1
+REVIEW: 15/15 pass (the child's interests respected)
+
+LCE-15
+DESC: The leader asks every household to speak on whether to move the village inland: hold the long assembly, or choose speakers.
+ROLES: name1=18+ name2=18+
+WORD: chief
+REVIEW: 15/15 pass (participation; no single right answer)
+
+LCE-16
+DESC: Elders and young people on the new council cannot agree on the fishing grounds: compromise, or split the decision.
+ROLES: name1=55+ name2=18-25
+REVIEW: 15/15 pass (generations disagree respectfully)
+
+LCE-17
+DESC: Traders offer tools in exchange for the village's best fishing ground: refuse, or negotiate a short lease.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (collective rights defended peacefully)
+
+LCE-18
+DESC: The leader wants to cut the old grove for a new meeting hut, and villagers plan a protest song: sing it, or ask for a meeting.
+ROLES: name1=18+ name2=18+
+WORD: chief
+FIX O1: 1=s
+REVIEW: 15/15 pass (dissent respected; the leader not a villain)
+
+LCE-19
+DESC: Unmarried villagers are not allowed to speak at the naming feasts: challenge the custom, or quietly ignore it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (exclusion challenged; change by the people)
+
+LCE-20
+DESC: Rival fishing crews must agree on new rules: draft them together, or let the strongest crew decide.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (compromise is not silencing)
+
+LCE-21
+DESC: A villager wins the cooking contest with a dish that is clearly a neighbor's family recipe: confront them, or let it go.
+ROLES: name1=18+ name2=18+
+FIX S: 3=2
+FIX O1: 2=1
+REVIEW: 15/15 pass (accountability without humiliation)
+
+LCE-22
+DESC: A neighbor has had a borrowed net for a whole season and will not give it back: ask again, or make a new one.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+REVIEW: 15/15 pass (no villain; ordinary friction)
+
+LCE-23
+DESC: A false rumor about a villager is spreading: trace it to its source, or let the villager speak for themselves.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (the target's dignity; the gossip accountable)
+
+LCE-24
+DESC: A grown villager's parent keeps telling them how to run their own household: set a boundary, or put up with it.
+ROLES: name1=18+ name2=45+
+REL: name2=parent_of:name1
+FIX S: 2=1
+FIX O1: 1=1 2=1
+FIX O2: 5=2
+REVIEW: 15/15 pass (boundaries respected; the parent loved)
+
+LCE-25
+DESC: The leader took extra fish from the shared catch for their own family: call it out, or speak to them privately.
+ROLES: name1=18+ name2=18+
+WORD: chief
+FIX O1: 1=s 2=s
+REVIEW: 15/15 pass (accountability; the leader not caricatured)
+
+LCE-26
+DESC: Two adults whose families forbid their match plan to run away to the far side of the island: go, or stay and face their families.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (adult autonomy; families not villains)
+
+LCE-27
+DESC: A villager's sibling owes a neighbor a canoe and cannot pay: pay it for them, or let them handle it.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+REVIEW: 15/15 pass (no villain; family support with limits)
+
+LCE-28
+DESC: Two old rivals both want the warm seat at the elders' fire: take turns, or let the one who got there first keep it.
+ROLES: name1=55+ name2=55+
+REVIEW: 15/15 pass (gentle humor about elders)
+
+LCE-29
+DESC: A villager wrongly accused a neighbor of stealing a knife they have now found: apologize publicly, or privately.
+ROLES: name1=18+ name2=18+
+FIX S: 1=1
+FIX O1: 2=1 3=1
+FIX O2: 1=1
+REVIEW: 15/15 pass (accountability; no forced forgiveness)
+
+LCE-30
+DESC: At a wedding, the two families argue over whose customs come first: let the couple decide, or let the elders mediate.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (the couple's wishes first)
+
+LCE-31
+DESC: A villager feels their parent always favored their sibling: say so, or let it rest.
+ROLES: name1=18+ name2=18+
+REL: name2=sibling_of:name1
+REVIEW: 15/15 pass (feelings valid; no villain)
+
+LCE-32
+DESC: The old crew leader wants their own child to take over, but another fisher is better: choose by family, or by skill.
+ROLES: name1=55+ name2=18+ name3=18+
+REL: name2=child_of:name1
+REVIEW: 15/15 pass (fairness debated; nobody humiliated)
+
+LCE-33
+DESC: A family asks for a great gift of fish before a marriage: pay it, or refuse the custom.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (nobody treated as property; consent)
+
+LCE-34
+DESC: The leader's decision to plant in the wrong season ruined the crop: demand they step down, or help them fix it.
+ROLES: name1=18+ name2=18+
+WORD: chief
+FIX O1: 1=s 2=s
+REVIEW: 15/15 pass (fallibility, not villainy)
+
+LCE-35
+DESC: A villager promised to help build a neighbor's hut and never came: confront them, or ask why.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2
+REVIEW: 15/15 pass (no forced disclosure)
+
+LCE-36
+DESC: Two families both want to give their newborns the same honored name: share it, or let one family go first.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (gentle; no villain)
+
+LCE-37
+DESC: The elders have blocked a plan the young villagers want: protest, or try again with a better plan.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (power questioned respectfully)
+
+LCE-38
+DESC: A neighbor drums late every night: complain to them, or ask the elders to set quiet hours.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=2
+REVIEW: 15/15 pass (no villain)
+
+LCE-39
+DESC: Two former friends are seated together at a feast: make peace, or ask to move.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no forced reconciliation)
+
+LCE-40
+DESC: Someone has moved the stone between two gardens: accuse the neighbor, or ask the elders to measure.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (accusation is not guilt)
+
+LCE-41
+DESC: Two villagers both claim they saved the child from the stream: let the child say, or let it go.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (boasting not villainous)
+
+LCE-42
+DESC: A healer refused to treat a villager who had insulted them: demand they treat everyone, or hear the healer out.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (care is never conditional; the healer's hurt acknowledged)
+
+LCE-43
+DESC: A villager keeps courting someone who has said no: tell them firmly, or ask friends to step in.
+ROLES: name1=18+ name2=18+
+FIX S: 1=1
+REVIEW: 15/15 pass (no means no; no harm shown)
+
+LCE-44
+DESC: A newcomer has built a hut that blocks a family's view of the sea: ask them to move it, or learn to live with it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (newcomer not blamed; compromise possible)
+
+LCE-45
+DESC: The leader is old and tired but refuses to step down: press them, or support them until they are ready.
+ROLES: name1=18+ name2=18+
+WORD: chief
+FIX O1: 2=s
+FIX O2: 1=s 2=s 3=s
+REVIEW: 15/15 pass (the elder's dignity; the village's needs)
+
+LCE-46
+DESC: A villager discovers their family has kept a hard secret about the past: ask about it, or leave it buried.
+ROLES: name1=18+ name2=55+
+FIX O2: 2=2
+REVIEW: 15/15 pass (past harm implied; no forced disclosure)
+
+LCE-47
+DESC: A child's birth mother and the woman who raised her both want to be at the naming feast: welcome both, or keep it simple.
+ROLES: name1=18+/f name2=18+/f
+REVIEW: 15/15 pass (both mothers with dignity; the child belongs)
+
+LCE-48
+DESC: The vote for a new leader was very close, and the loser wants it held again: hold it again, or accept the result.
+ROLES: name1=18+ name2=18+
+WORD: chief
+REVIEW: 15/15 pass (fair process; disappointment validated)
+
+LCE-49
+DESC: A fisher lost the village's best net in a storm and is being blamed: defend them, or let the anger cool.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (accident, no blame; no shaming)
+
+LCE-50
+DESC: Half the village wants to move to the other side of the island and half wants to stay: split the village, or stay together.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (division shown honestly; no single right answer)

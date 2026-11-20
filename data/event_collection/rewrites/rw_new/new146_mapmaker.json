@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mapmaker's Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new146_mapmaker",
+  "source": "rewrites",
+  "lines": [
+   6924,
+   6979
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6924",
+  "ledger": [
+   {
+    "src": "L6925",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6926",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6942",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6949",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6956",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6930",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6931",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6932",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6933",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6936",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6943",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6950",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6957",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6937",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6939",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6944",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6946",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6951",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6953",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6958",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6960",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6963-6979",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A young traveller walks into the village carrying a map drawn on a stretched hide.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A young traveller walks into the village carrying a map drawn on a stretched hide. It's half finished. The island's coast is drawn in, wobbly but recognizable. The inland is entirely blank, except for one word in the middle: \"?\"\n\"I'm a mapmaker,\" the traveller says. \"Well. An apprentice. Well. I'm trying.\" (He/She) asks (name) for work, any work at all, in exchange for being allowed to walk every trail on the island.\n(Name) looks at the map. (His/Her) own hut, (he/she) notices, is drawn as a small blob labelled \"goat?\" (Name) isn't sure whether to be insulted or amused. Should (he/she) give this hopeful apprentice a chance?",
+   "choices": [
+    {
+     "label": "Offer Them Water and Shade",
+     "next": "c1",
+     "src": "L6930"
+    },
+    {
+     "label": "Ask About Their Map",
+     "next": "c2",
+     "src": "L6931"
+    },
+    {
+     "label": "Ask If They Want to Stay On",
+     "next": "c3",
+     "src": "L6932"
+    },
+    {
+     "label": "Swap Trail Walks for Harvest Help",
+     "next": "c4",
+     "src": "L6933"
+    }
+   ],
+   "src": "L6927-6929"
+  },
+  "c1o1": {
+   "text": "The apprentice is given water, shade and a meal, and falls asleep almost at once, with the map clutched to (his/her) chest like a baby. (Name) gently corrects \"goat?\" to \"hut\" while (he/she) sleeps.",
+   "src": "L6938"
+  },
+  "c1o2": {
+   "text": "The apprentice shares a pouch of smoked eel from (his/her) travels, which is chewy, strange and delicious. It adds a little food, and the children dare each other to eat it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6940",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) decides that, before anything else, this sunburned person needs a drink...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6936"
+  },
+  "c2o1": {
+   "text": "The apprentice shows how (he/she) measures distance by counting paces, and tying a knot in the cord every hundred steps, so (he/she) always knows how far (he/she) has walked. It's a simple, clever method, and it teaches the village something useful about maps. The builders start using it to lay out new huts.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6945",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When (name) asks who taught (him/her) to make maps, the apprentice goes evasive. (He/She) won't say, and nobody insists. \"Someone very good,\" is all (he/she) offers, \"who didn't want to be found.\"",
+   "src": "L6947"
+  },
+  "c2": {
+   "text": "(Name) asks how the apprentice is making the map. The apprentice brightens immediately and pulls out a long knotted cord...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6943"
+  },
+  "c3o1": {
+   "text": "The apprentice decides to finish the map from here, using the village as a base, and joins the village permanently as a new adult villager. The finished map, some seasons later, is hung in pride of place. (Name)'s hut is correctly labelled. Mostly.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6952",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The apprentice thanks them, but there is so much inland left to map, and (he/she) can't bear to stop. (He/She) walks on in the morning to map the next stretch, promising to bring back a copy.",
+   "src": "L6954"
+  },
+  "c3": {
+   "text": "Seeing how happy the apprentice is walking the trails, (name) asks whether (he/she) might want to stay a while...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6950"
+  },
+  "c4o1": {
+   "text": "Between trail walks, the apprentice helps with the harvest, and adds a good amount of food to the stores. (He/She) also maps every field in the village, which the farmers find extremely useful for arguing about who owns what.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L6959",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "On the second day, rain warps the hide map badly, and the apprentice is in despair. The villagers help restretch it on a frame by the fire, slowly, until it's flat again, and send (him/her) onward with it, dry.",
+   "src": "L6961"
+  },
+  "c4": {
+   "text": "(Name) agrees to the deal: help with the work in the mornings, walk the trails in the afternoons...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6957"
+  }
+ }
+}

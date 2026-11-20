@@ -1,0 +1,279 @@
+LCA-01
+DESC: The village has a new leader: sing the old welcome song, write a new one, or give every family a verse.
+ROLES: name1=55+ name2=18+
+WORD: chief
+FIX S: 1=s
+FIX O1: 4=s 5=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (no harm; dissent respected; no single right answer)
+
+LCA-02
+DESC: A new family has arrived on Isola: teach them the village's welcome song, or ask them to share one of their own.
+ROLES: name1=18+ name2=5-13
+REVIEW: 15/15 pass (newcomers keep their own identity; no assimilation pressure)
+
+LCA-03
+DESC: The fishing canoes are coming home late: sing them in from the shore, or light fires along the beach.
+ROLES: name1=18+ name2=55+
+FIX O2: 1=s
+REVIEW: 15/15 pass (worry shown honestly; safe return not guaranteed by the choice itself)
+
+LCA-04
+DESC: Every family is adding a verse to a village song, and two of them want the same rhyme: share it, or settle it with a contest.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (gentle rivalry; no humiliation)
+
+LCA-05
+DESC: The village wants to give a villager an honor name in a song: accept it, or ask for the song without a new name.
+ROLES: name1=18+ name2=55+
+FIX O2: 1=1
+REVIEW: 15/15 pass (the villager's own wishes decide; declining respected)
+
+LCA-06
+DESC: The village wants a festival for small, everyday victories: let everyone name their own, or let the village choose.
+ROLES: name1=18+ name2=18+ name3=5-13
+REVIEW: 15/15 pass (no ranking of people; ordinary achievements honored)
+
+LCA-07
+DESC: The neighbors want to sing a welcome song for a new baby: sing it at the hut door, or wait until the parent is rested.
+ROLES: name1=18+/nursing name2=55+
+FIX S: 1=2
+REVIEW: 15/15 pass (the tired parent's needs come first; tiredness is not neglect)
+
+LCA-08
+DESC: An apprentice has learned all a master can teach: sing a song of completion, or give a quiet gift instead.
+ROLES: name1=55+ name2=18+
+FIX S: 1=2
+FIX O2: 1=1 2=1
+REVIEW: 15/15 pass (the elder's choice of expression respected)
+
+LCA-09
+DESC: Two neighbors who have not spoken in a month both start humming the same old song: keep singing, or walk away.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (reconciliation not forced; walking away allowed)
+
+LCA-10
+DESC: Villagers from different families want to share their own songs at a feast: let each sing alone, or weave them into one.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (distinct identities kept; no forced blending)
+
+LCA-11
+DESC: Two explorers leave for a far shore at dawn: send them off with the village chant, or with a quiet farewell.
+ROLES: name1=18+ name2=18+ name3=55+
+REVIEW: 15/15 pass (safe return not promised; both send-offs respected)
+
+LCA-12
+DESC: The builders lift heavy timber to a chant, but one says the rhythm makes it harder: keep the old chant, or try a new one.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: 15/15 pass (an expert can be wrong; nobody humiliated)
+
+LCA-13
+DESC: A family has been treated unfairly at the sharing of the catch: sing for them at the gathering, or speak for them instead.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (unfairness named; the wrongdoer's correction is not forced; outcome mixed)
+
+LCA-14
+DESC: A big storm is coming and the children are frightened: chant together while tying down the huts, or tell storm stories inside.
+ROLES: name1=18+ name2=5-13
+FIX O2: 1=1
+REVIEW: 15/15 pass (fear validated; no promise that nothing will break)
+
+LCA-15
+DESC: A villager has not come back from gathering: search with a calling chant, or search in silence to listen better.
+ROLES: name1=18+ name2=18+
+FIX S: 1=2
+REVIEW: 15/15 pass (found safe in both endings, but the worry and the injury are real)
+
+LCA-16
+DESC: The young people have made up a chant asking the elders to listen: hear them at the gathering, or tell them to wait their turn.
+ROLES: name1=14-17 name2=55+
+REVIEW: 15/15 pass (young people's voices taken seriously; elders not caricatured)
+
+LCA-17
+DESC: The harvesters sing in rhythm, but the new song is so catchy everyone keeps stopping to dance: keep it, or go back to the old one.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (pure joy; mild cost)
+
+LCA-18
+DESC: A powerful visitor says the village must leave its best fishing cove: stand on the beach together, or bargain.
+ROLES: name1=55+ name2=18+
+FIX S: 1=s
+FIX O1: 1=s 2=s
+REVIEW: 15/15 pass (peaceful; the village keeps its agency; bargain ending mixed)
+
+LCA-19
+DESC: The healers are worn out after a long sickness: sing for them, or take over their chores for a while.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (exhaustion is not weakness; practical help valued)
+
+LCA-20
+DESC: An argument at the village gathering is turning ugly: start the old circle chant, or let the argument run its course.
+ROLES: name1=18+ name2=18+ name3=55+
+REVIEW: 15/15 pass (disagreement is allowed to continue; no forced harmony)
+
+LCA-21
+DESC: A very quiet villager asks to speak at the gathering: give them the floor, or let them write it down instead.
+ROLES: name1=18+ name2=18+
+FIX S: 2=1
+REVIEW: 15/15 pass (quietness respected, not "fixed")
+
+LCA-22
+DESC: Two teens ask for a seat at the elders' council: give them one, or set up a council of their own.
+ROLES: name1=14-17 name2=14-17 name3=55+
+REVIEW: 15/15 pass (teens' autonomy; elders not mocked)
+
+LCA-23
+DESC: An elder says an old custom has become unfair to younger families: change the custom, or keep it for now.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (change is the community's choice; keeping it is not villainous)
+
+LCA-24
+DESC: A visiting trader mocks the village's customs: answer with a speech, or answer with silence and a fair trade.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+FIX O1: 1=s
+FIX O2: 2=s
+REVIEW: 15/15 pass (dignity kept; the insult is wrong and treated as wrong)
+
+LCA-25
+DESC: A villager who uses a walking frame asks for the dance ground to be made level: rebuild it, or move the dances somewhere flatter.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (accommodation is not a favor; the villager's full personhood)
+
+LCA-26
+DESC: The leader closed the reef to fishing without explaining why: demand an explanation, or wait and trust.
+ROLES: name1=18+ name2=18+
+WORD: chief
+REVIEW: 15/15 pass (accountability without humiliation; leader not a villain)
+
+LCA-27
+DESC: A newly arrived family mourns their dead in a different way: make room for their custom, or ask them to join the village's.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (the family's custom respected; no pressure to assimilate)
+
+LCA-28
+DESC: An elder asked to praise the ancestors wants to mention their mistakes too: speak honestly, or keep it to praise.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (history not erased; nobody's descendants shamed)
+
+LCA-29
+DESC: A villager does not want to join the village's blessing ceremony: respect it, or ask them to come and simply stand.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (declining respected; no pressure; no belief ranked)
+
+LCA-30
+DESC: A traveler has been telling strange, wrong stories about Isola: tell the village's own story to the next visitors, or ignore it.
+ROLES: name1=55+ name2=14-17
+FIX O1: 1=s 2=s
+REVIEW: 15/15 pass (self-representation; no outsider confirmed beyond "visitors")
+
+LCA-31
+DESC: The new leader has to make a first speech and is terrified: help write it, or tell them to speak from the heart.
+ROLES: name1=18+ name2=55+
+WORD: chief
+FIX S: 1=s
+FIX O1: 1=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (nerves validated; no humiliation)
+
+LCA-32
+DESC: A villager sets off alone to fetch healing herbs from the mountain: sing them a luck song, or send a friend with them.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (risk is real; both choices reasonable)
+
+LCA-33
+DESC: A villager comes home after a long time away and seems changed: welcome them with a song, or give them quiet time first.
+ROLES: name1=18+ name2=55+
+FIX S: 5=1
+REVIEW: 15/15 pass (no forced disclosure; both welcomes respectful)
+
+LCA-34
+DESC: A child has recovered from a long fever and wants a dance in their honor: hold the dance, or a quiet celebration.
+ROLES: name1=18+ name2=5-13
+FIX S: 3=2
+REVIEW: 15/15 pass (the child's wishes heard; recovery not miraculous)
+
+LCA-35
+DESC: The new meeting hut is finished: sing the roof-raising song, or hold off until it survives the first storm.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (humor; no harm)
+
+LCA-36
+DESC: A villager must decide whether to leave Isola to look after a relative far away: sing for them, or just listen.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (the decision is (name1)'s own; no outcome forced)
+
+LCA-37
+DESC: A grieving villager has stopped coming to the evening fire: sing outside their hut, or simply sit with them.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (grief validated; no "move on")
+
+LCA-38
+DESC: The harvest is in: hold a thanksgiving feast, or store the extra for the dry season.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (real tradeoff; neither choice wrong)
+
+LCA-39
+DESC: A teen's voice cracks in the middle of a solo at the festival: keep singing, or let the choir take over.
+ROLES: name1=14-17 name2=18+
+FIX S: 3=1
+REVIEW: 15/15 pass (embarrassment yes, humiliation no)
+
+LCA-40
+DESC: An elder insists on the full blessing chant before every meal, and it takes forever: shorten it, or keep it as it is.
+ROLES: name1=55+ name2=5-13
+REVIEW: 15/15 pass (gentle humor; the elder's dignity kept)
+
+LCA-41
+DESC: A villager gives an important speech on a very windy day and nobody hears a word: give it again, or pass it along hut by hut.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (harmless humor)
+
+LCA-42
+DESC: Two drummers disagree about who keeps the beat at the dances: take turns, or drum together.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (rivalry without cruelty)
+
+LCA-43
+DESC: The north huts and the south huts challenge each other to a singing contest: let the children judge, or let the elders judge.
+ROLES: name1=18+ name2=18+ name3=5-13
+REVIEW: 15/15 pass (friendly rivalry; no shaming)
+
+LCA-44
+DESC: Two parents' babies will only sleep to each other's lullabies: swap songs, or teach each other.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (tired parents are good parents)
+
+LCA-45
+DESC: The fishers have an old call-and-response across the water: teach it to a newcomer, or keep it among the crews.
+ROLES: name1=18+ name2=18+
+FIX O1: 2=2
+REVIEW: 15/15 pass (gatekeeping and sharing both understandable)
+
+LCA-46
+DESC: A shy villager is caught singing beautifully alone in the forest: ask them to sing at the festival, or keep their secret.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (no forced performance; privacy kept)
+
+LCA-47
+DESC: The well is low and one family takes more than their share: speak to them privately, or bring it to the gathering.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (accountability without public shaming; the reason is understandable)
+
+LCA-48
+DESC: A respected elder steps down from leading the fishing crews: hold a farewell song, or ask them to stay as an adviser.
+ROLES: name1=55+ name2=18+
+FIX O1: 1=2
+REVIEW: 15/15 pass (aging with dignity; the elder's choice)
+
+LCA-49
+DESC: A young villager tells the leader an important worry has been ignored: the leader can listen now, or ask them to prove it.
+ROLES: name1=18-25 name2=55+
+WORD: chief
+REVIEW: 15/15 pass (the young are heard; the leader errs without being a villain)
+
+LCA-50
+DESC: A villager criticizes a popular decision at the gathering: hear them out, or ask them to accept the vote.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (dissent respected; the majority not villainous)

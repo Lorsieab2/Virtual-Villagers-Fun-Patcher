@@ -623,20 +623,14 @@
    ]
   },
   "x1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L5451-5452",
-   "text": "The village celebrates the discovery, but (Subject) does not feel ready to celebrate with them.",
-   "effects": [
-    {
-     "do": "celebrate",
-     "who": "all",
-     "src": "L5451"
-    }
-   ],
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "aftermath"
+     "next": "x1__fx"
+    },
+    {
+     "next": "x1__text"
     }
    ]
   },
@@ -748,13 +742,14 @@
    ]
   },
   "wd1": {
-   "popup": "append",
-   "join": "paragraph",
-   "src": "L5466",
-   "text": "(subject.He/She) repairs the damage and loses the competition prize.",
+   "type": "branch",
+   "name": "The 50 percent chance",
    "children": [
     {
-     "next": "account"
+     "next": "wd1__fx"
+    },
+    {
+     "next": "wd1__text"
     }
    ]
   },
@@ -961,6 +956,81 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "x1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5451-5452",
+   "text": "The village celebrates the discovery, but (Subject) does not feel ready to celebrate with them.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L5451"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L5451-5452"
+    }
+   ],
+   "children": [
+    {
+     "next": "aftermath"
+    }
+   ],
+   "auto_text": true
+  },
+  "x1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5451-5452",
+   "text": "The village celebrates the discovery, but (Subject) does not feel ready to celebrate with them.",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L5451"
+    }
+   ],
+   "children": [
+    {
+     "next": "aftermath"
+    }
+   ],
+   "auto_text": true
+  },
+  "wd1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5466",
+   "text": "(subject.He/She) repairs the damage and loses the competition prize.",
+   "children": [
+    {
+     "next": "account"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L5466"
+    }
+   ],
+   "auto_text": true
+  },
+  "wd1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "src": "L5466",
+   "text": "(subject.He/She) repairs the damage and loses the competition prize.",
+   "children": [
+    {
+     "next": "account"
+    }
+   ]
   }
  }
 }

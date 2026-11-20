@@ -93,7 +93,8 @@
      "scaled": true,
      "src": "L21507"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -107,7 +108,8 @@
      "loss": true,
      "src": "L21508"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -124,7 +126,16 @@
   "b1": {
    "name": "Outcome B1",
    "text": "Birds and insects feast, while the village keeps a smaller share.",
-   "src": "L21510"
+   "src": "L21510",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21510"
+    }
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -146,7 +157,16 @@
   "c1": {
    "name": "Outcome C1",
    "text": "The village adapts its harvest to the year's abundance.",
-   "src": "L21513"
+   "src": "L21513",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21513"
+    }
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",

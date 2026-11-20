@@ -93,7 +93,8 @@
      "max": 10,
      "src": "L10509"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "name": "Outcome C",

@@ -1,0 +1,294 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Shrine's Strange Guest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my047_shrine_guest",
+  "source": "rewrites",
+  "lines": [
+   12588,
+   12643
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12588",
+  "ledger": [
+   {
+    "src": "L12589",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12590",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12599",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12606",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12613",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12620",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12594",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12595",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12596",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12597",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12600",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12607",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12614",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12621",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12601",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12603",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12608",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12610",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12615",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12617",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12622",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12624",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12627-12643",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager goes to the village memorial to leave some flowers for the people who came before.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) goes to the village memorial to leave some flowers for the people who came before. It's a quiet place, all stones and blossoms, where nobody ever raises their voice.\nToday there's someone there. An old, old elder nobody in the village knows, sitting cross-legged among the flowers, speaking softly. Nodding now and then. Pausing, as if listening to an answer. But there's no one else there. Whoever the elder is talking to, (name) can't see them. What should (name) do?",
+   "choices": [
+    {
+     "label": "Sit Beside the Elder",
+     "next": "c1",
+     "src": "L12594"
+    },
+    {
+     "label": "Ask Who Is Being Addressed",
+     "next": "c2",
+     "src": "L12595"
+    },
+    {
+     "label": "Offer Flowers",
+     "next": "c3",
+     "src": "L12596"
+    },
+    {
+     "label": "Invite the Elder Home",
+     "next": "c4",
+     "src": "L12597"
+    }
+   ],
+   "src": "L12591-12592"
+  },
+  "c1o1": {
+   "text": "After a while, the elder turns to (name) and starts talking, gently, about remembering the dead without forgetting the living. About laughter at funerals. About keeping a place at the fire for those still here. About how grief is just love with nowhere to go, so it must be given somewhere. (Name) listens until the sun goes down, and walks home with tears on (his/her) cheeks and a lighter heart.",
+   "src": "L12602"
+  },
+  "c1o2": {
+   "text": "The elder doesn't say anything to (name). Doesn't even look at (him/her). They just sit together among the flowers, side by side, in silence, while the wind moves through the memorial stones. It should be awkward. It isn't. It feels companionable, like sitting with an old friend. When (name) finally gets up to go, the elder pats (his/her) hand once, without looking.",
+   "src": "L12604"
+  },
+  "c1": {
+   "text": "(Name) quietly sits down in the flowers beside the old one, not wanting to interrupt...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12600"
+  },
+  "c2o1": {
+   "text": "The elder smiles and begins to name them, one after another: names (name) has never heard, names of people who lived and loved and died on this island long ago, whose stories have nearly been forgotten. \"Someone has to talk to them,\" the elder says. \"Or they'll fade entirely.\" (Name) memorizes as many names as (he/she) can, and tells them to the children that night.",
+   "src": "L12609"
+  },
+  "c2o2": {
+   "text": "The elder looks a little embarrassed. \"Oh, nobody, really,\" (he/she) says. \"My partner, my brother, my friends. They're all gone now. I just talk to them. It helps. It makes the days less quiet.\" (Name) understands completely. (He/She) sits down and talks about (his/her) own lost ones for a while, and the elder listens.",
+   "src": "L12611"
+  },
+  "c2": {
+   "text": "\"Excuse me,\" (name) says softly. \"I'm sorry to interrupt. But who are you talking to?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12607"
+  },
+  "c3o1": {
+   "text": "The elder takes the flowers with trembling hands and lays them carefully on the stones, one by one, murmuring something over each. \"They thank you,\" the elder says. (Name) doesn't know whether that's true. (He/She) decides it doesn't matter.",
+   "src": "L12616"
+  },
+  "c3o2": {
+   "text": "(Name) sets the flowers down and turns to say something to the elder, but the elder is gone. No footsteps, no rustle. Just gone. When (name) looks back at the flowers, they have been arranged in a careful circle on the stones. (Name) didn't do that. Nobody saw who did.",
+   "src": "L12618"
+  },
+  "c3": {
+   "text": "(Name) holds out the bundle of flowers (he/she) brought. \"For whoever you're speaking with,\" (he/she) says...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12614"
+  },
+  "c4o1": {
+   "text": "The old one blinks, surprised, then smiles so wide (his/her) whole face crinkles. \"I'd like that,\" the elder says. \"I'd like that very much.\" The newcomer joins the village and takes up looking after the memorial, tending the flowers, sweeping the stones and telling the children the names of those who came before. The memorial has never looked so lovely.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    }
+   ],
+   "src": "L12623",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The elder smiles kindly and shakes (his/her) head. \"Thank you, child. But my journey is nearly finished. I only stopped here to say goodbye to some old friends.\" (He/She) stands up, slowly, leaning on a stick, and walks off down the path toward the sea. (Name) watches until the elder is out of sight.",
+   "src": "L12625"
+  },
+  "c4": {
+   "text": "\"You shouldn't be out here on your own,\" (name) says. \"Come back to the village with me. There's food, and a fire, and people.\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12621",
+   "text_only": [
+    {
+     "src": "L12621",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

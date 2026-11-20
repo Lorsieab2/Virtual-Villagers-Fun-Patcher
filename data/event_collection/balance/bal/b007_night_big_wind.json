@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of the Big Wind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b007_night_big_wind",
+  "source": "balance",
+  "lines": [
+   299,
+   341
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L299",
+  "ledger": [
+   {
+    "src": "L300",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L301",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L309",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L318",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L306",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L307",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L310",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L319",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L312",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L315",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L321",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L324",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L327-341",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The wind came in after dark, and it hasn't stopped.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The wind came in after dark, and it hasn't stopped. It screams over the roofs and tears at the thatch, and every few minutes something cracks out in the dark: a branch, a fence, a whole palm. Nobody is asleep.\n(builder), the best builder in the village, is going hut to hut with a lamp, checking roof poles. (builder.He/She) stops at old (subject)'s door. The roof there is sagging badly in the middle, and (subject) won't leave. \"I was born in this hut,\" (subject) says, \"and the roof has held for sixty years.\"\nShould (builder) start propping roofs now, in the storm, or get everyone into the strong storehouse and fix what's left in the morning?",
+   "choices": [
+    {
+     "label": "Prop the Roofs Now",
+     "next": "c1",
+     "src": "L306"
+    },
+    {
+     "label": "Everyone into the Storehouse",
+     "next": "c2",
+     "src": "L307"
+    }
+   ],
+   "src": "L302-304"
+  },
+  "c1o1": {
+   "text": "They work all night. By morning everyone is soaked, scratched and too tired to talk, but every hut in the village is still standing, propped up like an old person on crutches. The builders go round again in the daylight, fixing properly what they wedged in the dark, and by the next evening it is hard to tell there was a storm at all. (builder) sleeps for a whole day, and wakes up famous.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L313",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They save most of the roofs. But in the worst of it, while (builder) is running for another pole, the middle beam of (subject)'s hut gives way. The neighbours dig (subject.him/her) out together, by lamplight, in the rain, as fast as they can. They are too late. In the morning the village stands around the broken hut in silence. They bury (subject) at the edge of the village, where (subject.he/she) could see (subject.his/her) hut, and they rebuild it exactly as it was, with a new, stronger beam.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L316",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(builder) shouts for every pair of hands that can hold a pole. In the howling dark, the villagers stagger from hut to hut, wedging posts under the worst roofs while the rain comes sideways...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L310"
+  },
+  "c2o1": {
+   "text": "It is a long, cramped, noisy night, with forty people and three dogs in one room, and somebody's baby screaming at the thunder. But everyone is there in the morning. Half the roofs in the village are on the ground, and old (subject)'s hut has folded flat. The whole village gets to work, and within a few days every hut is back up, stronger than before. (subject) inspects (subject.his/her) new roof and declares it acceptable.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L322",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Everyone is safe inside. But in the middle of the night, a palm comes down across the back of the storehouse, and the corner where the village keeps its notes, carvings and half-finished experiments takes the worst of the water. In the morning, the scholars pick through soggy bark scrolls and split tablets, saying very little. The huts can be rebuilt. Some of what was written down can't.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L325",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The storehouse has thick walls and a low, heavy roof. (builder) bangs on every door and herds the whole village inside, children and elders and dogs, and even old (subject), grumbling, carried the last few steps...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L319"
+  }
+ }
+}

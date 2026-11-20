@@ -137,6 +137,32 @@
    "src": "L491"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L495",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L495"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. (Name1) is amazed by a pattern almost invisible from afar.",
    "src": "L495"

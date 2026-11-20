@@ -69,14 +69,50 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) looks at the broken comb, looks at (subject)'s hair, and says, \"Ah. Wrong comb.\" (friend.He/she) comes back that evening with a new one carved from hard dark wood: long, strong, widely spaced teeth. It slides through (subject)'s hair like a fish through water. (subject) closes (subject.his/her) eyes in bliss. (friend) is soon carving them for half the village.",
-   "src": "L230"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "First things first. (friend) carefully works the broken comb out, tooth by tooth, while (subject) sits on the step and complains about every comb ever made. It takes a long time. \"Who carves these?\" asks (subject), finally. (friend) clears (friend.his/her) throat. \"I do.\" There's a long pause. \"Well,\" says (subject), \"you can carve me a better one.\" (friend) does.",
    "src": "L233"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) looks at the broken comb, looks at (subject)'s hair, and says, \"Ah. Wrong comb.\" (friend.He/she) comes back that evening with a new one carved from hard dark wood: long, strong, widely spaced teeth. It slides through (subject)'s hair like a fish through water. (subject) closes (subject.his/her) eyes in bliss. (friend) is soon carving them for half the village.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) looks at the broken comb, looks at (subject)'s hair, and says, \"Ah. Wrong comb.\" (friend.He/she) comes back that evening with a new one carved from hard dark wood: long, strong, widely spaced teeth. It slides through (subject)'s hair like a fish through water. (subject) closes (subject.his/her) eyes in bliss. (friend) is soon carving them for half the village.",
+   "src": "L230"
   }
  }
 }

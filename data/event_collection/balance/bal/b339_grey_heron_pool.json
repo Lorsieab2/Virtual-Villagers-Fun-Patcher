@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Heron at the Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b339_grey_heron_pool",
+  "source": "balance",
+  "lines": [
+   15661,
+   15701
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15661",
+  "ledger": [
+   {
+    "src": "L15662",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15663",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15670",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15679",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15667",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15668",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15671",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15680",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15673",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15676",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15682",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15685",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15688-15701",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A tall grey heron has been standing in the shallow pool below the waterfall every morning for a week, perfectly still, watching.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A tall grey heron has been standing in the shallow pool below the waterfall every morning for a week, perfectly still, watching. The elders say the heron is the spirit of the pool, and that she trades in time: those she likes she gives a little back, and those she doesn't, she takes a little from. Nobody knows what she likes.\nThis morning the heron is standing right where (name) usually fills the water jars. She doesn't move when (name) comes close. Should (name) bow to her, or splash her away?",
+   "choices": [
+    {
+     "label": "Bow to Her",
+     "next": "c1",
+     "src": "L15667"
+    },
+    {
+     "label": "Splash Her Away",
+     "next": "c2",
+     "src": "L15668"
+    }
+   ],
+   "src": "L15664-15665"
+  },
+  "c1o1": {
+   "text": "The heron dips her beak into the pool and flicks a single drop of water onto (name)'s cheek. Then she flies away, slowly. When (name) looks into the pool, a younger face looks back, the face (he/she) had years ago, bright and unlined. (His/her) age is the same. (Name) bows to every heron (he/she) sees from then on.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15674",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The heron steps aside to let (name) fill the jars, and then steps back in and stands beside (him/her) the whole time, as if keeping (him/her) company. When (name) looks into the water, (his/her) face is young again. (Name), who has never liked the water, wades in up to (his/her) waist that afternoon, just to stand where the heron stands.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L15677",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) puts down the jars and bows, feeling silly. The heron tilts her head and looks at (him/her) with one yellow eye for a long moment...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15671"
+  },
+  "c2o1": {
+   "text": "When (name) bends to fill the jars, the face in the water is older: grey at the temples, lined around the eyes. (His/her) age hasn't changed, but the face has. The heron never comes back to the pool. (Name) waits there every morning for a month to apologise, but she has gone somewhere else, to someone with better manners.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15683",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The heron lands on the other side of the pool, folds her wings, and goes on watching, as if (name) is too small to worry about. (Name) fills the jars and leaves. The next morning, the heron is back in the usual spot. (Name) fills the jars from the other side of the pool from then on. It seems simplest.",
+   "src": "L15686"
+  },
+  "c2": {
+   "text": "(Name) kicks water at the heron. \"Shoo!\" The heron opens her wings and rises out of the pool with a slow, offended croak...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15680"
+  }
+ }
+}

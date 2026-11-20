@@ -88,9 +88,15 @@ class Placement(unittest.TestCase):
                 mock.patch.object(gm, "catchup_facts", return_value=[]), \
                 mock.patch.object(gm, "farmers_facts", return_value=[]), \
                 mock.patch.object(gm, "chances_facts", return_value=[]), \
+                mock.patch.object(gm, "carried_facts", return_value=[]), \
+                mock.patch.object(gm, "training_facts", return_value=[]), \
                 mock.patch.object(gm, "items_facts", return_value=[]), \
                 mock.patch.object(gm, "hidden_facts", return_value=[]), \
+                mock.patch.object(gm, "carried_facts", return_value=[]), \
+                mock.patch.object(gm, "training_facts", return_value=[]), \
                 mock.patch.object(gm, "time_units_lines", return_value=[]):     # the clock key (its own test)
+            # Babies being carried (b3de44db2) and Jobs and training (0053ebe1a) are groups found by name through
+            # importlib too: left out, or the stand-in module answers for them as well.
             kept = gm.general(3, T0)
         self.assertEqual([fact.text for fact in kept], ["Honey refills every 3 hours."])
 

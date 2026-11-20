@@ -1,0 +1,239 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Soft Yams",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s061_soft_yams",
+  "source": "rewrites",
+  "lines": [
+   2896,
+   2939
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2896",
+  "ledger": [
+   {
+    "src": "L2897",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2898",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2906",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2915",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2903",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2904",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2907",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2916",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2909",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2912",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2918",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2921",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2924-2939",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L2910",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L2913",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L2922",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Somebody opens the yam store first thing in the morning, takes one breath, and slams the door shut again.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Somebody opens the yam store first thing in the morning, takes one breath, and slams the door shut again. Then they stagger backwards, eyes watering, and sit down on the ground.\nInside, the yams have gone soft. And black. And wet. And they smell like something died in there. Probably several things, possibly on purpose. Rainwater has been seeping in under the back wall for days, and nobody noticed until now. The smell drifts out under the door and across the village, and people come out of their huts with their hands over their noses, asking what happened.\nThe flies have already moved in. Hundreds of them. They seem to be holding a meeting. Is any of it worth saving, or should the whole lot go?",
+   "choices": [
+    {
+     "label": "Throw Them Out",
+     "next": "c1",
+     "src": "L2903"
+    },
+    {
+     "label": "Try to Save Some",
+     "next": "c2",
+     "src": "L2904"
+    }
+   ],
+   "src": "L2899-2901"
+  },
+  "c1o1": {
+   "text": "Every yam is thrown out. Every single one, even the ones that look all right, because nobody wants to risk it. The store is scrubbed out with sand and seawater and left open to the wind for three days. The smell lingers a little longer than that. Nobody in the village eats a yam for a month afterwards, and, rather surprisingly, nobody complains about it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2910"
+  },
+  "c1o2": {
+   "text": "They work their way down through the pile, throwing out the bad ones, gagging, passing them along. And then, right at the very bottom, under the slimiest layer of all, somebody gives a muffled shout through their cloth. The bottom yams are fine. Dry, firm, perfect. They were packed down in cool sand when the store was built, and the rot never reached them. It isn't much, but it's something.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2913"
+  },
+  "c1": {
+   "text": "Nobody wants to do it. In the end, the whole village draws straws, ties wet cloths over their faces, and goes in together in a long chain, passing out the slimy black yams hand over hand to be dumped far away beyond the gardens...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2907"
+  },
+  "c2o1": {
+   "text": "The researchers spend all day cutting away the bad parts, slicing the good parts thin, and laying them out on hot rocks in the sun until they're dry and hard as bark. It's a new method, and they write down every step. The dried yam isn't tasty. It's leathery and chewy and tastes of nothing very much. But it's food, and it keeps for months, and that's more than anyone expected. Your village loses (award) food. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2919",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "\"How do we know which ones are still good?\" somebody asks. (Name) says (he/she) knows exactly how, picks up one of the soft ones that doesn't look too bad, and takes a bite before anyone can stop (him/her). (He/She) chews thoughtfully. \"Seems all right,\" (he/she) says. By the evening (he/she) is very, very sick, and stays that way for a week in the healers' hut, and everything in the store is thrown out after all.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "auto_text": true,
+   "src": "L2922"
+  },
+  "c2": {
+   "text": "\"Wait,\" say the researchers. \"Not all of it's gone. If we cut out the bad parts...\" Everyone looks at them as if they're mad. The researchers tie cloths over their faces, take their sharpest knives, and go in...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2916"
+  }
+ }
+}

@@ -107,6 +107,32 @@
    "src": "L5028"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "The master discovers an unexpected teaching talent.",
+   "src": "L5029",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "master",
+     "mood": "good",
+     "src": "L5029"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "The master discovers an unexpected teaching talent.",
    "src": "L5029"

@@ -85,9 +85,43 @@
      "max": 30,
      "src": "L593"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"What did I miss?\" asks (subject), panicking. \"Let me think,\" says (friend). \"The goat got into the storehouse again. Someone burnt the fish. And that's it.\" (subject) sits down. \"That's it?\" \"That's it. The island went on without you for one night. It'll do it again if you need it to.\" (subject) laughs. Then (subject.he/she) goes back to bed for another hour, on purpose this time.",
+   "src": "L596",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L596"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L596"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"What did I miss?\" asks (subject), panicking. \"Let me think,\" says (friend). \"The goat got into the storehouse again. Someone burnt the fish. And that's it.\" (subject) sits down. \"That's it?\" \"That's it. The island went on without you for one night. It'll do it again if you need it to.\" (subject) laughs. Then (subject.he/she) goes back to bed for another hour, on purpose this time.",
    "src": "L596"

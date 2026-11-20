@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Breakup",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd21_breakup",
+  "source": "draft_lcd",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager realizes they no longer love their partner: tell them gently now, or wait for a better time.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for two years. Lately, (subject) has realized that (subject.he/she) does not feel the same anymore. Nothing went wrong. It just faded. (friend) still seems happy. (subject) does not know how to say it, or when. What should (subject) do?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Tell (friend) Now, Gently",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "Wait for a Better Time",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) that evening, as gently as (subject.he/she) can. (friend) cries, and asks why, and (subject) does not have a good answer. They part kindly, and painfully. For a long time, they nod to each other at gatherings and do not talk. Then, one day, they do.",
+   "src": "L295"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) waits. There is never a better time. Weeks pass, and (friend) begins to feel something is wrong anyway, and finally asks. (subject) tells the truth. (friend) is hurt by the waiting more than anything. They part. Both of them wish it had been sooner.",
+   "src": "L299"
+  }
+ }
+}

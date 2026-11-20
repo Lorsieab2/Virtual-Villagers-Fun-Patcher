@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song of the Voyagers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj44_song_voyagers",
+  "source": "draft_lcj",
+  "lines": [
+   614,
+   625
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L614",
+  "ledger": [
+   {
+    "src": "L615",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a navigator and a child)"
+   },
+   {
+    "src": "L621",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L625",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L625",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A navigator wants to teach the children to read the stars and swells: teach on the beach, or take them out on the water.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), the village's best navigator, wants the children to learn the old way of finding islands: the stars, the swells, the birds. (friend) and the others are thrilled. The question is where to teach them. What should (subject) do?",
+   "src": "L617",
+   "choices": [
+    {
+     "label": "Teach on the Beach",
+     "next": "o1",
+     "src": "L619"
+    },
+    {
+     "label": "Take Them Out",
+     "next": "o2",
+     "src": "L623"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) draws the stars in the sand and has the children lie on their backs to name them. They learn to feel the swells by lying in the shallows. It is slow, and very sandy, and they remember all of it.",
+   "src": "L621",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L621"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "On a calm day, (subject) takes them out in the big canoe. (friend) feels the swell under the hull and suddenly understands everything (subject) has been saying. Two children are seasick. (friend) is not, and is very proud.",
+   "src": "L625",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L625"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

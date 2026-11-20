@@ -70,11 +70,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Gladly,\" says (subject). \"A walking race. No running. Fastest walker wins.\" (friend) agrees, a bit suspiciously. It turns out that (subject) is a tremendously fast walker, with a long, swinging stride, and wins by three steps. The children demand a running race next time. (subject) says (subject.he/she) will consider it.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L338"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Gladly,\" says (subject). \"A walking race. No running. Fastest walker wins.\" (friend) agrees, a bit suspiciously. It turns out that (subject) is a tremendously fast walker, with a long, swinging stride, and wins by three steps. The children demand a running race next time. (subject) says (subject.he/she) will consider it.",
    "src": "L338"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) runs. (subject.He/she) is not the fastest any more: (friend) is round the palm and back while (subject) is still on the way out. (subject) arrives a while later, puffing and laughing, and lifts (friend)'s arm into the air. \"The fastest runner in the village,\" (subject.he/she) announces. \"I'm only passing it on.\"",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) runs. (subject.He/she) is not the fastest any more: (friend) is round the palm and back while (subject) is still on the way out. (subject) arrives a while later, puffing and laughing, and lifts (friend)'s arm into the air. \"The fastest runner in the village,\" (subject.he/she) announces. \"I'm only passing it on.\"",
    "src": "L341"

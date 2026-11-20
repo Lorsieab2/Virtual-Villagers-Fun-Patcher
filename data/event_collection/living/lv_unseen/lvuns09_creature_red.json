@@ -85,14 +85,14 @@
    "src": "L22287"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "The hunter vanishes overnight and returns shaken, unable to explain what happened.",
-   "src": "L22288",
-   "text_only": [
+   "children": [
     {
-     "what": "vanishes overnight",
-     "reason": "the hunter returns: nobody is lost",
-     "src": "L22288"
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
     }
    ]
   },
@@ -139,6 +139,39 @@
    "name": "Outcome C2",
    "text": "The hunter feels dismissed and refuses to discuss the sighting.",
    "src": "L22294"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The hunter vanishes overnight and returns shaken, unable to explain what happened.",
+   "src": "L22288",
+   "text_only": [
+    {
+     "what": "vanishes overnight",
+     "reason": "the hunter returns: nobody is lost",
+     "src": "L22288"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "hunter",
+     "mood": "bad",
+     "src": "L22288"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The hunter vanishes overnight and returns shaken, unable to explain what happened.",
+   "src": "L22288",
+   "text_only": [
+    {
+     "what": "vanishes overnight",
+     "reason": "the hunter returns: nobody is lost",
+     "src": "L22288"
+    }
+   ]
   }
  }
 }

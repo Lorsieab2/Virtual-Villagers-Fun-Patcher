@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) unwraps it, takes one look and washes it off at once. \"You're one of the people that leaf doesn't agree with,\" (friend.he/she) says. \"I should have tried a little patch first. That's my mistake, not yours.\" (friend.He/she) puts on cool mud instead. The itching stops by evening. (friend) adds a note to (friend.his/her) carvings: TRY A SMALL PATCH FIRST. Then underlines it twice.",
-   "src": "L38"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"But the ache is better!\" says (subject). (friend) shakes (friend.his/her) head. \"Better shoulder, worse skin is not a good trade. We'll find something else for the ache.\" (subject) grumbles but lets it be washed off. The rash fades over two days. The ache comes back a little. They try a warm stone and gentle stretching instead, which is slower, and doesn't itch at all.",
    "src": "L41"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) unwraps it, takes one look and washes it off at once. \"You're one of the people that leaf doesn't agree with,\" (friend.he/she) says. \"I should have tried a little patch first. That's my mistake, not yours.\" (friend.He/she) puts on cool mud instead. The itching stops by evening. (friend) adds a note to (friend.his/her) carvings: TRY A SMALL PATCH FIRST. Then underlines it twice.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) unwraps it, takes one look and washes it off at once. \"You're one of the people that leaf doesn't agree with,\" (friend.he/she) says. \"I should have tried a little patch first. That's my mistake, not yours.\" (friend.He/she) puts on cool mud instead. The itching stops by evening. (friend) adds a note to (friend.his/her) carvings: TRY A SMALL PATCH FIRST. Then underlines it twice.",
+   "src": "L38"
   }
  }
 }

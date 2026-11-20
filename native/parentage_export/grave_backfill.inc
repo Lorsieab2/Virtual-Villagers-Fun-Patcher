@@ -159,7 +159,7 @@ static int death_reader_line(struct death_reader *r, char *line) {
 static int read_deaths_folder(const struct game_layout *g, const wchar_t *folder, const char *village,
                               int old_folder) {
     wchar_t path[MAX_LOG_PATH];
-    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
+    char line[8192];   /* a log line: a Likes list can run to hundreds of characters, a Custom Island Event's own cause words to 4,095 */
     struct death_reader reader;
     const wchar_t *stem = family_stem(g, LOG_DEATHS);
     int ceiling;
@@ -214,7 +214,7 @@ static int read_village_deaths(const struct game_layout *g, int game_id, const c
     wchar_t folder[MAX_PATH];
     wchar_t slot_folder[MAX_PATH];
     wchar_t own_folder[MAX_PATH];      /* the save's own folder of the same log (per_save.h) */
-    char line[2048];   /* a log line: a Likes list can run to hundreds of characters */
+    char line[8192];   /* a log line: a Likes list can run to hundreds of characters, a Custom Island Event's own cause words to 4,095 */
     struct death_reader reader;
     int i;
 

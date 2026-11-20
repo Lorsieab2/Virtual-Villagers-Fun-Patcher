@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I didn't like you at first, you know,\" says (subject). (friend) laughs. \"I know. I didn't like you either. You were so serious.\" They compare notes on what they used to think of each other. It's very rude and very funny. \"Well,\" says (friend), \"we were both wrong.\" \"Were we?\" says (subject). \"You ARE very loud.\" \"And you ARE very serious.\" They clink cups.",
+   "src": "L248",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L248"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L248"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"I didn't like you at first, you know,\" says (subject). (friend) laughs. \"I know. I didn't like you either. You were so serious.\" They compare notes on what they used to think of each other. It's very rude and very funny. \"Well,\" says (friend), \"we were both wrong.\" \"Were we?\" says (subject). \"You ARE very loud.\" \"And you ARE very serious.\" They clink cups.",
    "src": "L248"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't say anything. (subject.He/she) just listens to (friend)'s terrible story and laughs. Somewhere over the years (subject.he/she) stopped minding the loudness, and started liking it, and then started missing it on quiet days. It's one of the nicest surprises of (subject.his/her) life. (friend) will probably never know. That seems fine.",
+   "src": "L251",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L251"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) doesn't say anything. (subject.He/she) just listens to (friend)'s terrible story and laughs. Somewhere over the years (subject.he/she) stopped minding the loudness, and started liking it, and then started missing it on quiet days. It's one of the nicest surprises of (subject.his/her) life. (friend) will probably never know. That seems fine.",
    "src": "L251"

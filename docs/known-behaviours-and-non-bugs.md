@@ -690,8 +690,8 @@ was given.
 - **Game(s) / subsystem:** All five games. Catch-up, behaviour patches.
 - **Conditions:** Catch-up. Most births happen here too.
 - **Decision source:** Owner decisions, 2026-10-01 (project memory notes
-  "catch-up-design-decisions" and "catch-up-is-the-main-birth-path"): Builders
-  and Healers Work First acts in catch-up at about 3 in 4 for Building, Healing
+  "catch-up-design-decisions" and "catch-up-is-the-main-birth-path"): Villagers Work Their
+  Own Job First acts in catch-up at about 3 in 4 for Building, Healing
   and Devotion only; the "regardless of food" bypass stays stock in catch-up;
   Easier Devotee Training is live only; VV2 Healers Study continues in
   catch-up.

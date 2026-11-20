@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Glowing Berries",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s019_glowing_berries",
+  "source": "rewrites",
+  "lines": [
+   867,
+   912
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L867",
+  "ledger": [
+   {
+    "src": "L868",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L869",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L877",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L886",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L874",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L875",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L878",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L887",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L880",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L883",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L889",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L892",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L895-912",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At dusk, on the way home from the far gardens, a villager notices a faint light in the undergrowth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At dusk, on the way home from the far gardens, (subject) notices a faint light in the undergrowth. It's a bush, low and dark-leaved, covered in berries that glow. Not brightly. Just softly, from the inside, like coals in a fire that's nearly out. They hang in heavy clusters like tiny paper lanterns, and moths are already circling them in slow, dizzy loops.\nThey smell wonderful: sweet, sharp, a little like honey, a little like rain.\nNobody in the village has ever seen anything like them. Nobody knows if they're safe. Which, of course, is exactly why (subject) is tempted.",
+   "choices": [
+    {
+     "label": "Eat One",
+     "next": "c1",
+     "src": "L874"
+    },
+    {
+     "label": "Take Some to the Healers",
+     "next": "c2",
+     "src": "L875"
+    }
+   ],
+   "src": "L870-872"
+  },
+  "c1o1": {
+   "text": "It's the best thing (subject.he/she) has ever tasted. By the time (subject.he/she) gets home, (subject.his/her) fingertips are glowing faintly. By bedtime, so are (subject.his/her) ears. For two whole days (subject) glows softly in the dark, like a lamp turned down low, and feels absolutely fantastic. Nothing else happens. The healers can't find a thing wrong. The only trouble is the children, who follow (subject.him/her) around everywhere at night in a long giggling line, and a few very determined moths.",
+   "src": "L881"
+  },
+  "c1o2": {
+   "text": "It's the best thing (subject.he/she) has ever tasted, for about an hour. By midnight (subject) is burning with fever, shivering and sweating at once, and telling (subject.his/her) family about the colours. Colours that aren't there. Colours that don't have names, crawling on the roof, singing. The healers are fetched in a hurry. They keep (subject.him/her) in the healers' hut for a week, spooning bitter tea into (subject.him/her), until the colours fade and (subject.he/she) can tell the difference between the healers and the walls again. The healers pin a drawing of the glowing bush on the hut door, with a big cross through it.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L884",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) picks the biggest, brightest berry. It's warm in (subject.his/her) fingers. (subject.He/She) sniffs it, shrugs, and pops it into (subject.his/her) mouth. It bursts on (subject.his/her) tongue like a little star...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L878"
+  },
+  "c2o1": {
+   "text": "The healers spend three days with the berries, boiling them, drying them, crushing them, mixing them with this and that. (subject) helps with all of it. At the end of the third day, they have a thick golden paste that eases aches and stiff joints better than anything they've ever made. The elders rub it on their knees and sigh with relief. It's a real discovery, and the healers make sure everybody knows it was (subject) who found it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Healing"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L890",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The best healer in the village, (healer), turns one berry over and over in (subject.his/her) fingers and decides there's only one way to be sure. \"Just a small taste,\" (healer) says. \"For science.\" By morning (healer) is sick with a roaring fever and talking to the roof beams. With the best healer out of action, (subject) has to look after (subject.him/her), mixing teas, cooling (subject.his/her) forehead, sitting up through the nights. It takes a week. (Healer) gets better. And (subject) learns more about healing in that one week than (subject.he/she) ever expected to.",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "healer"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Healing"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L893",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) wraps a few clusters carefully in a leaf, trying not to squash them, and carries them home like something precious. The healers unwrap them by the fire and all lean in at once, faces lit green-gold...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L887"
+  }
+ }
+}

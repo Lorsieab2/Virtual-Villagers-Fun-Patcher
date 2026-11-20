@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Workers' Chorus",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj36_workers_chorus",
+  "source": "draft_lcj",
+  "lines": [
+   502,
+   513
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L502",
+  "ledger": [
+   {
+    "src": "L503",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks three adults)"
+   },
+   {
+    "src": "L509",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L513",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Farmers, builders and fishers want a song about their work, but each wants the most verses: share evenly, or let the song decide.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject), a farmer, (friend), a builder, and (third), a fisher, are writing a song about the village's work. Each thinks their own work deserves the most verses. They have been arguing for a week. What should they do?",
+   "src": "L505",
+   "choices": [
+    {
+     "label": "Share Evenly",
+     "next": "o1",
+     "src": "L507"
+    },
+    {
+     "label": "Let the Song Decide",
+     "next": "o2",
+     "src": "L511"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They agree: three verses each. The farmers' verses are slow, the builders' verses have hammering, and the fishers' verses are mostly about fish that got away. The song is sung at every work day.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They write until the song feels finished. In the end, the best verse is about the people who cook for all three. None of them saw that coming.",
+   "src": "L513"
+  }
+ }
+}

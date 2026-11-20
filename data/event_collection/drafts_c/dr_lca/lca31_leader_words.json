@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader's First Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca31_leader_words",
+  "source": "draft_lca",
+  "lines": [
+   432,
+   443
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L432",
+  "ledger": [
+   {
+    "src": "L433",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L443",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L443",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The new leader has to make a first speech and is terrified: help write it, or tell them to speak from the heart.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village's new {@chief} has to give a first speech tonight, and is so nervous (other.he/she) has not eaten all day. (subject) has offered to help. (friend), who has heard the first speeches of five chiefs, says the best ones were the short ones. How should (subject) help?",
+   "src": "L435",
+   "choices": [
+    {
+     "label": "Write It Down Together",
+     "next": "o1",
+     "src": "L437"
+    },
+    {
+     "label": "Speak From the Heart",
+     "next": "o2",
+     "src": "L441"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and the new {@chief} work all afternoon on a careful speech about fair shares and fixing the old well. That night, the {@chief} reads it out. It is stiff, but it is clear, and when (other.he/she) gets to the well, the village actually cheers.",
+   "src": "L439"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells the {@chief} to forget writing anything and just say what (other.he/she) hopes for. The {@chief} stands up, says, \"I hope we all have enough to eat, and I hope nobody falls down the well again,\" and sits down. (friend) laughs so hard (friend.he/she) has to be helped up. It is, everyone agrees, the best first speech in years.",
+   "src": "L443",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L443"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

@@ -56,7 +56,7 @@ T = {
         ("r6", {}, V("wrong_guilt"), False), ("r7", {}, V("found"), False), ("r9", {}, V("t1"), False),
         ("r10", {}, V("trial"), False), ("r11", {}, V("accountability"), True), ("r14", {}, None, False),
         ("r15", {}, V("witnesses"), False), ("r17", {}, None, False), ("r24", {}, V("compromise"), False)]),
-    "v9/vv3_chief_and_the_pearl.json": ("v9", [
+    "v9/vv3_chief_and_pearl.json": ("v9", [
         ("r4", {}, V("false"), False), ("r5", {}, V("false"), False), ("r10", {}, V("courtroom"), False),
         ("r15", {}, None, False), ("r16", {}, None, False), ("r25", {}, V("e2"), False)]),
     "v9/vv3_duel_terrible_inventors.json": ("v9", [

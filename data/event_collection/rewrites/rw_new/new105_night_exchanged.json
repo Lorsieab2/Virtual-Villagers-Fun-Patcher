@@ -1,0 +1,268 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of Exchanged Voices",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new105_night_exchanged",
+  "source": "rewrites",
+  "lines": [
+   4910,
+   4956
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L4910",
+  "ledger": [
+   {
+    "src": "L4911",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4912",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4921",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4928",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4935",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4917",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4918",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4919",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4922",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4929",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4936",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4925",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4930",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4932",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4937",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4939",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4942-4956",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager wake up in neighbouring huts, step outside, and wish each other good morning.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) wake up in neighbouring huts, step outside, and wish each other good morning.\nEach of them hears the other's voice come out of (subject.his/her) own mouth.\n(subject), who usually has a voice like a rumbling drum, now squeaks like a startled bird. (friend), who usually speaks so softly people lean in to hear, now BOOMS across the clearing loud enough to make the babies cry. They stare at each other. Then they both try to say \"what\" at the same time, and it comes out as a squeak and a boom.\nBreakfast is loud, confusing and very, very funny for everyone who is not them. (subject) and (friend) just want their own voices back. What should they do?",
+   "choices": [
+    {
+     "label": "Record How Each Voice Sounds",
+     "next": "c1",
+     "src": "L4917"
+    },
+    {
+     "label": "Have Someone Sleep Where They Slept",
+     "next": "c2",
+     "src": "L4918"
+    },
+    {
+     "label": "Ask the Elder Who Hears Spirits",
+     "next": "c3",
+     "src": "L4919"
+    }
+   ],
+   "src": "L4913-4916"
+  },
+  "c1o1": {
+   "text": "By noon the stick is covered in marks, and the researcher has learned a surprising amount about how high and low sounds carry across the clearing, and why a booming voice reaches the far huts while a squeaky one gets lost in the trees. It is useful knowledge. (subject) and (friend) are not consulted about whether they found it useful.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4924",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway through the third chant, (subject)'s voice drops back into a rumble, mid-note. (friend) gasps softly, in (subject.his/her) own soft voice. Both voices have slipped back to their owners as if nothing happened, and there is nothing left to study. The children are very disappointed. (subject) and (friend) are not.",
+   "src": "L4926"
+  },
+  "c1": {
+   "text": "A researcher sits the two of them down and has them sing the same chant over and over, marking each high and low note on a stick. (subject) squeaks. (friend) booms. The children gather to watch, giggling into their hands...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4922"
+  },
+  "c2o1": {
+   "text": "In the morning (name3) wakes up and says \"Well? Did it work?\" in (subject.his/her) own perfectly normal voice, and everyone is about to be disappointed... until they see (subject.his/her) face. Whatever did the swapping kept (subject.his/her) voice but changed everything else: a new face and new hair, changed for good. The village has to learn (subject.his/her) look all over again. (Name3) seems rather pleased about it.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "name3",
+     "head": "random"
+    }
+   ],
+   "src": "L4931",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name3) lies there for about as long as it takes to hear an owl hoot twice, then picks up the mat and goes home. \"I like my voice,\" (subject.he/she) explains the next day. Nobody presses anyone else to try, and the spot between the huts gets a lot of nervous looks.",
+   "src": "L4933"
+  },
+  "c2": {
+   "text": "(Name3) is curious, and possibly a little bored. \"If something swapped them in the night, I want to see it.\" (subject.He/She) drags a sleeping mat to the spot between the two huts and lies down, grinning at the stars...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4929"
+  },
+  "c3o1": {
+   "text": "\"Spirits sometimes play trading games with sleepers,\" (elder) says gravely, and then, less gravely: \"Or so I'm told. I've never seen one myself.\" (subject.He/She) suggests they each eat something they dislike, \"to show the spirits you mean business.\" They do. It does not help. By night the voices drift home on their own anyway.",
+   "src": "L4938",
+   "text_only": [
+    {
+     "src": "L4938",
+     "what": "\"dislike\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o2": {
+   "text": "(elder) presses an ear to the hut floor. \"Spirits move through hollow places. Listen.\" (subject.He/She) teaches (subject) an old way of tapping and listening for echoes through the floor. They find no spirits, but they do find two hollow, rotting floor posts that nobody knew about. The builders start using the trick everywhere. The voices come home that night.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L4940",
+   "auto_text": true
+  },
+  "c3": {
+   "text": "(elder) listens to (subject) squeak the story and (friend) boom the ending, and manages to keep a straight face for almost the whole thing...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4936"
+  }
+ }
+}

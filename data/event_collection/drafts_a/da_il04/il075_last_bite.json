@@ -65,14 +65,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) eats the last piece in two bites. (subject) watches with an expression nobody has ever seen on (subject.his/her) face before. \"Was that alright?\" asks (friend). \"That,\" says (subject), \"is the first time in years anyone has eaten it.\" \"Well, it was very good.\" (subject) is absurdly pleased about this all day.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) explains about whoever comes next. (friend) stops, fruit halfway to (friend.his/her) mouth. \"But I'm whoever comes next,\" (friend.he/she) says. (subject) has never thought of it that way. After a moment (subject.he/she) nods solemnly, and (friend) eats the fruit with great ceremony.",
    "src": "L185"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) eats the last piece in two bites. (subject) watches with an expression nobody has ever seen on (subject.his/her) face before. \"Was that alright?\" asks (friend). \"That,\" says (subject), \"is the first time in years anyone has eaten it.\" \"Well, it was very good.\" (subject) is absurdly pleased about this all day.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) eats the last piece in two bites. (subject) watches with an expression nobody has ever seen on (subject.his/her) face before. \"Was that alright?\" asks (friend). \"That,\" says (subject), \"is the first time in years anyone has eaten it.\" \"Well, it was very good.\" (subject) is absurdly pleased about this all day.",
+   "src": "L182"
   }
  }
 }

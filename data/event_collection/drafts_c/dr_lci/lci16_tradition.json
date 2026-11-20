@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tradition That Excluded",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci16_tradition",
+  "source": "draft_lci",
+  "lines": [
+   218,
+   229
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L225",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L229",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The families who clean fish are not invited to the great feast because of their work: change it, or make the feast open to all.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "By old custom, the families who gut and clean the fish eat separately from the great feast, because of the smell. (subject)'s family has cleaned fish for three generations. This year (subject.he/she) has asked why. (friend) has never thought about it before. What should the village do?",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Change the Custom",
+     "next": "o1",
+     "src": "L223"
+    },
+    {
+     "label": "Open the Feast to All",
+     "next": "o2",
+     "src": "L227"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village agrees the custom is unfair and ends it. At the great feast, the fish-cleaning families sit in the middle. Someone makes a joke about the smell, and (subject) makes a better one back. Everyone laughs.",
+   "src": "L225"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village makes the feast open to anyone who wants to come, without discussing the old custom. (subject)'s family comes, a little stiffly. Some people move away from them. Next year, fewer people do.",
+   "src": "L229"
+  }
+ }
+}

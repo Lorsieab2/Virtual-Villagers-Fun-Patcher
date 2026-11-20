@@ -115,9 +115,16 @@
    "src": "L31396"
   },
   "a2": {
+   "type": "branch",
    "name": "Outcome A2",
-   "text": "Neither remembers and both laugh at their certainty.",
-   "src": "L31397"
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
   },
   "b": {
    "type": "branch",
@@ -184,6 +191,31 @@
    "name": "Outcome D2",
    "text": "A villager asks whether personal hammocks deserve different treatment.",
    "src": "L31406"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "Neither remembers and both laugh at their certainty.",
+   "src": "L31397",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L31397"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L31397"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "Neither remembers and both laugh at their certainty.",
+   "src": "L31397"
   }
  }
 }

@@ -1,0 +1,5 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+all_v21_c1_potters	The Great Potters' Trial	1,2,3,4,5	1		CREDITS: Original requests for ceramic pottery/statue making and a crafts fair: Lorsieab2. New scenarios, choices, prose, and outcome branches: ChatGPT.	A villager enters a new clay vessel in the pottery contest, and the village decides how it is judged.				98
+all_v21_c2_divided	The Statue That Divided the Village	1,2,3,4,5	1		CREDITS: Original requests for ceramic pottery/statue making and a crafts fair: Lorsieab2. New scenarios, choices, prose, and outcome branches: ChatGPT.	A villager's new statue starts an argument, and the village decides what to do with it.				99
+all_v21_c3_crafts_fair	The Great Isolan Crafts Fair	1,2,3,4,5	1		CREDITS: Original requests for ceramic pottery/statue making and a crafts fair: Lorsieab2. New scenarios, choices, prose, and outcome branches: ChatGPT.	Makers gather for a great crafts fair, and the village decides what kind of fair it will be.				100

@@ -165,9 +165,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "(child) practices kneading with clean hands.",
-   "src": "L27818"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -217,6 +224,29 @@
    "name": "Outcome D2",
    "text": "A batch stays flat, prompting a new question.",
    "src": "L27825"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(child) practices kneading with clean hands.",
+   "src": "L27818",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L27818"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(child) practices kneading with clean hands.",
+   "src": "L27818"
   }
  }
 }

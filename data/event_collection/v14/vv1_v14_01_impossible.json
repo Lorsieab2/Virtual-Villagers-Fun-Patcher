@@ -42,7 +42,7 @@
   "scene": {
    "name": "The equation",
    "src": "L7652-7656",
-   "text": "Older pupils struggle over a problem of quantities, proportions and unknowns. The Golden Child borrows charcoal and fills a flat stone with careful marks. The researchers check his answer three times. It is correct. Asked to explain, he demonstrates with pebbles, then draws a flower beside the result.",
+   "text": "Older pupils struggle over a problem of quantities, proportions and unknowns. The Golden Child borrows charcoal and fills a flat stone with careful marks. The researchers check (child.his/her) answer three times. It is correct. Asked to explain, (child.he/she) demonstrates with pebbles, then draws a flower beside the result.",
    "effects": [
     {
      "do": "tech",
@@ -50,7 +50,8 @@
      "scaled": true,
      "src": "L7656"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx11_fever",
+  "source": "draft_vfx",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L134",
+    "kind": "instruction",
+    "text": "[effect: every villager is cured]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L137",
+    "kind": "instruction",
+    "text": "[effect: 15 in 100 villagers fall sick]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A mild fever goes around: rest and boiled water, or carry on working.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fever is going around the village: nothing serious, just aching heads and hot foreheads. (name1), who knows a little about healing, has to decide how to deal with it.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Rest and Boiled Water",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Carry On Working",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) has everyone drink boiled water and rest in the shade for a day. By morning the fever is gone, from everyone.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "cure",
+     "who": "all",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides there is too much to do to stop. The fever spreads a little further before it burns itself out.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "sick",
+     "who": "all",
+     "percent": 15,
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

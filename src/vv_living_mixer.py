@@ -1,5 +1,5 @@
 """The Living Event Engine's mixer: the owner's bank (data/living_events/bank.json) composed into ordinary version 6
-graphs at build time, and packed per game as "Island Event Collection\\living.pak" (docs/event-collection/
+graphs at build time, and packed per game as "Events\\<group>.pak" (docs/event-collection/
 living-pack.md, VLEP v1).
 
 * K variants per active seed (LE 120, MC 95; MJ is held), deterministic (each seed's own random stream, seeded from
@@ -41,9 +41,11 @@ K = 10
 MC_K = 1
 GAMES = (1, 2, 3, 4, 5)
 ALL_SKILLS = ("Parenting", "Building", "Farming", "Healing", "Research")
-W_GOOD, W_ADVERSE, W_RARE = 20, 20, 2           # per choice (living-events.md Q7)
+# per choice (living-events.md Q7); the owner, 2026-11-15 ("ignore weights"): the rare outcome is as likely as the others
+W_GOOD, W_ADVERSE, W_RARE = 20, 20, 20
 W_ALT = W_GOOD // 2                             # each of a MIX outcome's two equal alternatives (MIX_ALTERNATIVES)
 assert W_GOOD == W_ADVERSE == 2 * W_ALT
+LEADER_ROLES = ("le_role_council_member",)      # cast from any villager (the Chief role stays the Tribal Chief)
 FAMILIES = ("consult", "act", "relate", "withdraw", "play")
 FAM_BIT = {f: 1 << i for i, f in enumerate(FAMILIES)}
 FAM_CHOICE_SET = 1 << 5
@@ -385,6 +387,12 @@ def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> d
     if cast["kind"] == "stranger":
         return {"kind": "stranger", "sex": cast.get("sex", "random"), "named": True}
     spec = {k: (dict(v) if isinstance(v, dict) else v) for k, v in cast.items()}
+    if rid in LEADER_ROLES:
+        # The owner, 2026-11-15: "LEADERS ARE NOT THE SAME AS THE CHIEF. THE LEADER CAN BE ANYONE."
+        for k in ("max_age", "sex", "special"):
+            spec.pop(k, None)
+        spec["min_age"] = 0
+        allow = True
     if adults_only and not spec.get("special"):
         # S7: a romantic, secret-keeping or coercive frame casts adults only.
         if spec.get("max_age") and spec["max_age"] < ADULT_AGE:
@@ -395,6 +403,25 @@ def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> d
     if allow:
         spec["protected"] = "allow"
     return spec
+
+
+# Village Solidarity (the owner, 2026-11-20: "add tags to every single event"): each ending's tag -- an LE variant's
+# ending is an outcome archetype, an MC variant's an MC outcome -- from data/living_events/solidarity_tags.json
+# (scripts/tag_village_solidarity.py writes it by the owner's rule, src/vv_solidarity_endings.py).
+SOLIDARITY_TAGS = ROOT / "data" / "living_events" / "solidarity_tags.json"
+_SOLIDARITY: dict[str, str] | None = None
+
+
+def solidarity_tag(ident: str) -> str:
+    """The Village Solidarity tag of an archetype or an MC outcome (an untagged one fails the build)."""
+    global _SOLIDARITY
+    if _SOLIDARITY is None:
+        _SOLIDARITY = json.loads(SOLIDARITY_TAGS.read_text(encoding="utf-8")) if SOLIDARITY_TAGS.is_file() else {}
+    tag = _SOLIDARITY.get(ident)
+    if tag not in ("raise", "lower", "neutral"):
+        raise ValueError(f"{SOLIDARITY_TAGS.name}: {ident} has no Village Solidarity tag "
+                         f"(run python scripts/tag_village_solidarity.py)")
+    return tag
 
 
 def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: list[tuple[str, str]],
@@ -441,12 +468,14 @@ def compose_le(bank: Bank, seed: dict, a: str, b: str, pers_a, pers_b, choices: 
     allow = {"first": False, "second": False}
     for arc in used_arcs:
         effects = archetype_effects(bank, arc, a, b, games)
-        node = {"text": plain(bank.arc[arc]["text"])}
+        node = {"text": plain(bank.arc[arc]["text"]), "solidarity": solidarity_tag(arc)}
         if effects:
             node["effects"] = effects
             node["auto_text"] = True
             for e in effects:
-                if harmful(e) and e.get("role") in allow and bank.arc[arc]["protection"] == "allow":
+                # A death or disappearance can land on anyone, of any status (owner, 2026-11-15)
+                if harmful(e) and e.get("role") in allow and (bank.arc[arc]["protection"] == "allow"
+                                                             or e["do"] in ("kill", "vanish", "die_unrecovered")):
                     allow[e["role"]] = True
         nodes["o_" + arc[7:]] = node
     graph = {
@@ -787,7 +816,7 @@ def compose_mc(bank: Bank, sit: dict, order: tuple[int, ...]) -> tuple[dict, lis
         kids = []
         for j, o in enumerate(ap["outcomes"]):
             name = f"o_{ap['letter'].lower()}{j + 1}"
-            node = {"text": t(o["text"])}
+            node = {"text": t(o["text"]), "solidarity": solidarity_tag(o["id"])}
             effects = []
             for e in o["effects"]:
                 e = dict(e)
@@ -800,7 +829,7 @@ def compose_mc(bank: Bank, sit: dict, order: tuple[int, ...]) -> tuple[dict, lis
                 node["effects"] = effects
                 node["auto_text"] = True
             nodes[name] = node
-            kids.append({"next": name, "weight": int(o.get("weight", 1))})
+            kids.append({"next": name, "weight": 1})   # "ignore weights" (owner, 2026-11-15): all outcomes equal
             outs.append((name, 1 if j == 0 else 3, NONE8))
         nodes[f"c{ap['letter'].lower()}"] = {"type": "branch", "children": kids}
     subject = mc_subject(sit)
@@ -866,8 +895,48 @@ def generate(bank: Bank | None = None, k_total: int = K, mc: bool = True, mc_k: 
                 out += mc_variants(bank, sit, mc_k)
     for v in out:
         v.mood = mood_of(bank, v)
+        guardians_bank(v.graph)
         title_case_labels(v.graph)
     return out
+
+
+# New Believers with Guardians of Isola Rewrite (the owner, 2026-11-16; docs/event-collection/guardians-wording.md,
+# "Believers"): a bank line that says believer(s) shows its Guardians form with the patch.
+GUARDIANS_BANK = (("Two believers disagree", "Two villagers of faith disagree"),
+                  ("a skeptic and a believer", "a skeptic and a villager of faith"))
+GUARDIANS_IF = {"patch": "guardians_of_isola"}
+
+
+def guardians_form(text: str) -> str:
+    for before, after in GUARDIANS_BANK:
+        text = text.replace(before, after)
+    return text
+
+
+def guardians_bank(graph: dict) -> None:
+    """A page's Guardians form as its first variant; a label's as a twin choice shown only with the patch (the
+    label itself then only without it)."""
+    if 5 not in graph.get("games", []):
+        return
+    touched = False
+    for n in graph["nodes"].values():
+        text = n.get("text") or ""
+        if guardians_form(text) != text:
+            n["variants"] = [{"if": dict(GUARDIANS_IF), "text": guardians_form(text)}] + (n.get("variants") or [])
+            touched = True
+        choices = []
+        for c in n.get("choices") or []:
+            label = c["label"]
+            if guardians_form(label) != label and not c.get("if"):
+                choices.append(dict(c, **{"if": {"not": dict(GUARDIANS_IF)}}))
+                choices.append(dict(c, label=guardians_form(label), **{"if": dict(GUARDIANS_IF)}))
+                touched = True
+            else:
+                choices.append(c)
+        if n.get("choices"):
+            n["choices"] = choices
+    if touched and "guardians_of_isola" not in graph.get("patches", []):
+        graph["patches"] = graph.get("patches", []) + ["guardians_of_isola"]
 
 
 def title_case_labels(graph: dict) -> dict:
@@ -936,26 +1005,64 @@ def validate_variant(v: Variant) -> dict:
     return g
 
 
-def compile_all(variants: list[Variant]) -> None:
+def variant_tags(v: Variant, g: dict, bank: Bank | None = None) -> dict[str, list[str]]:
+    """A variant's node tags for the content controls (src/vv_event_content.py): its words and effects, and each
+    ending's archetype's filters (outcome_categories)."""
+    import vv_event_content as content
+    tags = {n: set(t) for n, t in content.tag_graph(g).items()}
+    by_index = _arc_filters(bank)
+    for name, _grp, arc in v.outcomes:
+        if name in g["nodes"]:
+            tags.setdefault(name, set()).update(by_index.get(arc, ()))
+    return {n: sorted(t) for n, t in tags.items() if t}
+
+
+_ARC_FILTERS: dict[int, list[str]] | None = None
+
+
+def _arc_filters(bank: Bank | None = None) -> dict[int, list[str]]:
+    global _ARC_FILTERS
+    if _ARC_FILTERS is None:
+        _ARC_FILTERS = {c["index"]: c["filters"] for c in outcome_categories(bank).values()}
+    return _ARC_FILTERS
+
+
+def compile_all(variants: list[Variant], bank: Bank | None = None) -> None:
+    import vv_event_content as content
     for v in variants:
         g = validate_variant(v)
+        g, _plan = content.inject(g, variant_tags(v, g, bank), {"speaks": content.speaking_roles(g)})
+        # A new event (the Story DLL's cg_is_collection_event: a "collection" block in the header).
+        g = dict(g, collection={"id": v.manifest_id, "source": "living_engine", "lines": [1, 1],
+                                "section": f"variant {v.k}"})
         v.cieg = cg.compile_graph(g)
         order = list(g["nodes"])
         v.outcomes = [(name, grp, arc) for name, grp, arc in v.outcomes]
         v.plan["node_index"] = {name: order.index(name) for name, _g, _a in v.outcomes}
 
 
-# ---- The pack (VLEP v1) ---------------------------------------------------------------------------------------------
+# ---- The pack (VLEP v2: living-pack.md 2; one pack per series group, "living-<group>.pak") ------------------------
 
-_HEADER = struct.Struct("<4sHHIIBBHHHIIIIIIIIHHHH")
-_SEED = struct.Struct("<HHHHBBHI")
-_VARIANT = struct.Struct("<IIHBBHHBBHHH")
+# v2 (the engine agent's layout, feat/97-island-events-ui 70df06497): a 72-byte header, 24-byte seeds, 32-byte
+# variants with 32-bit fields; outcomes unchanged.  Role, archetype and lens numbers are the bank's, in every pack.
+_HEADER = struct.Struct("<4sHHIIBBHIIIIIIIIIIHHHHI")
+_SEED = struct.Struct("<IIIIBBHB3s")
+_VARIANT = struct.Struct("<IIIHHBBBBIIHH")
 _OUTCOME = struct.Struct("<HBB")
-assert _HEADER.size == 64 and _SEED.size == 16 and _VARIANT.size == 24 and _OUTCOME.size == 4
+assert _HEADER.size == 72 and _SEED.size == 24 and _VARIANT.size == 32 and _OUTCOME.size == 4
+PACK_VERSION = 2
+PACK_MAX = 64 * 1024 * 1024      # a living-<group>.pak (the engine's limit)
+SEED_VARIANTS_MAX = 4096
+
+
+def group_of(v: Variant) -> str:
+    """The pack / manifest group of a variant: its series (living_le_per, living_mc_isl, living_st_<source>)."""
+    return v.series
 
 
 def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
-    """The game's living.pak: every compiled variant valid in `game`, grouped by seed in the given order."""
+    """A living pack for `game`: every compiled variant of `variants` valid in it, grouped by seed in the given order
+    (seeds and variants are local to the pack)."""
     bank = bank or Bank()
     mine = [v for v in variants if game in v.games]
     seeds: list[str] = []
@@ -972,8 +1079,6 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
         if text not in sidx:
             sidx[text] = len(strings)
             strings.extend(text.encode("ascii") + b"\0")
-        if sidx[text] > 0xFFFE:
-            raise ValueError("the pack's strings outgrow 64 KB")
         return sidx[text]
 
     seed_recs = bytearray()
@@ -983,9 +1088,11 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     vi = oi = 0
     for si, sid in enumerate(seeds):
         vs = by_seed[sid]
+        if len(vs) > SEED_VARIANTS_MAX:
+            raise ValueError(f"{sid}: more than {SEED_VARIANTS_MAX} variants")
         first = vs[0]
         seed_recs += _SEED.pack(s(sid), s(first.series), vi, len(vs), first.bank, first.cat_index, first.seed_index,
-                                first.mood)
+                                first.mood, b"\0\0\0")
         for v in vs:
             if not v.cieg:
                 raise ValueError(f"{sid} k={v.k} is not compiled")
@@ -993,15 +1100,13 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
                 blobs.append(0)
             mask = sum(1 << (g - 1) for g in v.games)
             outs = sorted(v.outcomes, key=lambda o: v.plan["node_index"][o[0]])
-            var_recs += _VARIANT.pack(len(blobs), len(v.cieg), si, v.k, v.flags, v.role_a, v.role_b, v.lens, v.family,
-                                      mask, oi, len(outs))
+            var_recs += _VARIANT.pack(len(blobs), len(v.cieg), si, v.role_a, v.role_b, v.lens, v.family, v.k,
+                                      v.flags, oi, len(outs), mask, 0)
             for name, grp, arc in outs:
                 out_recs += _OUTCOME.pack(v.plan["node_index"][name], grp, arc)
                 oi += 1
             blobs += v.cieg
             vi += 1
-    if len(seeds) > 2048 or vi > 0xFFFF or oi > 0xFFFF:
-        raise ValueError("the pack outgrows its counts")
     off_seeds = _HEADER.size
     off_vars = off_seeds + len(seed_recs)
     off_outs = off_vars + len(var_recs)
@@ -1009,25 +1114,37 @@ def pack(game: int, variants: list[Variant], bank: Bank | None = None) -> bytes:
     off_blobs = off_str + len(strings)
     off_blobs += (-off_blobs) % 4
     total = off_blobs + len(blobs)
+    if total > PACK_MAX:
+        raise ValueError(f"a living pack of {total} bytes passes {PACK_MAX}")
     body = bytes(seed_recs + var_recs + out_recs + strings) + bytes(off_blobs - off_str - len(strings)) + bytes(blobs)
 
     def header(crc: int) -> bytes:
-        return _HEADER.pack(b"VLEP", 1, _HEADER.size, total, crc, game, 0, len(seeds), vi, 0, off_seeds, off_vars,
-                            off_outs, oi, off_str, len(strings), off_blobs, len(blobs), len(bank.roles),
-                            len(bank.archetypes), len(bank.lenses), 0)
+        return _HEADER.pack(b"VLEP", PACK_VERSION, _HEADER.size, total, crc, game, 0, 0, len(seeds), vi, off_seeds,
+                            off_vars, off_outs, oi, off_str, len(strings), off_blobs, len(blobs), len(bank.roles),
+                            len(bank.archetypes), len(bank.lenses), 0, 0)
     crc = zlib.crc32(header(0) + body) & 0xFFFFFFFF
     data = header(crc) + body
     assert len(data) == total
     return data
 
 
+def packs(game: int, variants: list[Variant], bank: Bank | None = None) -> dict[str, bytes]:
+    """The game's living packs, one per group (series), in first-seen order: {group: pack bytes}."""
+    bank = bank or Bank()
+    groups: dict[str, list[Variant]] = {}
+    for v in variants:
+        if game in v.games:
+            groups.setdefault(group_of(v), []).append(v)
+    return {grp: pack(game, vs, bank) for grp, vs in groups.items()}
+
+
 def read_pack(data: bytes) -> dict:
     """The pack's tables (the engine's reading, for the tests and the native fixture)."""
     h = _HEADER.unpack_from(data, 0)
-    (magic, version, hbytes, total, crc, game, _z, n_seeds, n_vars, _z2, off_seeds, off_vars, off_outs, n_outs, off_str,
-     n_str, off_blobs, n_blobs, n_roles, n_arcs, n_lenses, _z3) = h
-    if magic != b"VLEP" or version != 1 or hbytes != 64 or total != len(data):
-        raise ValueError("not a VLEP v1 pack")
+    (magic, version, hbytes, total, crc, game, _z, _z2, n_seeds, n_vars, off_seeds, off_vars, off_outs, n_outs, off_str,
+     n_str, off_blobs, n_blobs, n_roles, n_arcs, n_lenses, _z3, _z4) = h
+    if magic != b"VLEP" or version != PACK_VERSION or hbytes != _HEADER.size or total != len(data):
+        raise ValueError("not a VLEP v2 pack")
     if zlib.crc32(data[:12] + b"\0\0\0\0" + data[16:]) & 0xFFFFFFFF != crc:
         raise ValueError("crc")
 
@@ -1036,12 +1153,13 @@ def read_pack(data: bytes) -> dict:
         return data[off_str + off:end].decode("ascii")
     seeds = []
     for i in range(n_seeds):
-        sid, ser, first, count, bank, cat, index, _ = _SEED.unpack_from(data, off_seeds + 16 * i)
+        sid, ser, first, count, bank, cat, index, mood, _pad = _SEED.unpack_from(data, off_seeds + _SEED.size * i)
         seeds.append({"id": string(sid), "series": string(ser), "first": first, "count": count, "bank": bank,
-                      "category": cat, "index": index, "mood": _ & 0xFF})
+                      "category": cat, "index": index, "mood": mood})
     variants = []
     for i in range(n_vars):
-        boff, bsize, si, k, flags, ra, rb, lens, fam, mask, of, oc = _VARIANT.unpack_from(data, off_vars + 24 * i)
+        (boff, bsize, si, ra, rb, lens, fam, k, flags, of, oc, mask, _z) = _VARIANT.unpack_from(
+            data, off_vars + _VARIANT.size * i)
         outs = [_OUTCOME.unpack_from(data, off_outs + 4 * j) for j in range(of, of + oc)]
         variants.append({"blob": data[off_blobs + boff:off_blobs + boff + bsize], "seed": si, "k": k, "flags": flags,
                          "role_a": ra, "role_b": rb, "lens": lens, "family": fam, "games": mask, "outcomes": outs})
@@ -1140,7 +1258,7 @@ def manifest_rows(game: int, variants: list[Variant], bank: Bank | None = None) 
     bank = bank or Bank()
     rows: dict[str, dict] = {}
     for v in variants:
-        if game not in v.games:
+        if game not in v.games or v.bank not in (0, 1):     # bank 2 (a static event's versions): its own row
             continue
         r = rows.get(v.manifest_id)
         if r is None:
@@ -1155,18 +1273,23 @@ def manifest_rows(game: int, variants: list[Variant], bank: Bank | None = None) 
                     text = text.replace("{@" + name + "}", vals["3" if game == 3 else "*"])
             r = rows[v.manifest_id] = {"id": v.manifest_id, "title": v.graph["title"], "games": set(),
                                        "weight": 1, "series": v.series, "credit": bank.credit, "description": text}
+            if game == 5 and guardians_form(text) != text:
+                r["guardians_description"] = guardians_form(text)     # the Guardians description column
         r["games"] |= set(v.games)
     for r in rows.values():
         r["games"] = sorted(r["games"])
     return list(rows.values())
 
 
-def build(bank: Bank | None = None, k_total: int = K) -> tuple[list[Variant], dict[int, bytes]]:
-    """Generate, validate, compile and pack: (the variants, {game: living.pak})."""
+def build(bank: Bank | None = None, k_total: int = K, extra: list[Variant] | None = None
+          ) -> tuple[list[Variant], dict[int, dict[str, bytes]]]:
+    """Generate, validate, compile and pack: (the variants, {game: {group: living-<group>.pak}}).  `extra`: variants
+    already compiled (the static events' versions, scripts/living_from_static.py), packed in their own groups."""
     bank = bank or Bank()
     variants = generate(bank, k_total)
-    compile_all(variants)
-    return variants, {game: pack(game, variants, bank) for game in GAMES}
+    compile_all(variants, bank)
+    variants += extra or []
+    return variants, {game: packs(game, variants, bank) for game in GAMES}
 
 
 # ---- The owner packet's table and the native agent's fixture --------------------------------------------------------
@@ -1233,9 +1356,10 @@ def main(argv: list[str] | None = None) -> None:
     le = sum(1 for v in variants if v.bank == 0)
     mc = sum(1 for v in variants if v.bank == 1)
     print(f"variants: LE {le}, MC {mc}, MIX changes {len(MIX_CHANGES)}")
-    for game, data in packs.items():
-        p = read_pack(data)
-        print(f"vv{game}: {len(p['seeds'])} seeds, {len(p['variants'])} variants, {len(data):,} bytes")
+    for game, groups in packs.items():
+        for grp, data in groups.items():
+            p = read_pack(data)
+            print(f"vv{game} {grp}: {len(p['seeds'])} seeds, {len(p['variants'])} variants, {len(data):,} bytes")
     if "--write-docs" in argv:
         write_docs()
         print(f"wrote {DOC.relative_to(ROOT)}")

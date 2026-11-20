@@ -18,6 +18,7 @@ import struct
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_children_play as children_play
+import vv_game_mechanics_solidarity as solidarity
 import vv_game_mechanics_death as death
 import vv_game_mechanics_events as events
 import vv_game_mechanics_faith_vv5 as faith
@@ -70,7 +71,8 @@ HIDDEN_LINES = (
      '7 at skill 0, then doubled for a villager who likes learning and halved for one who dislikes it; how often '
      'the check succeeds, liked or disliked, is under Chances.', gm.RUNNING),
     ('Parenting: a failed check gives 4 at any Parenting except 0, where the other skills give 4 only at 0 (at '
-     "Parenting 10: 55% fail for +4, 45% succeed for +6). This is the normal game's behaviour.", gm.RUNNING),
+     "Parenting 10 and Learning level 1: 56% fail for +4, 44% succeed for +6). This is the normal game's "
+     "behaviour.", gm.RUNNING),
     ('Liking work skips the 15% chance of doing nothing and keeps a player-given task 99% of the time (86% '
      'otherwise); disliking it, 70% of job picks end in doing nothing, a player-given task is kept 63% of the '
      'time, and while catching up 78% find no job (29% otherwise).', gm.RUNNING),
@@ -268,8 +270,12 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     add("Mushrooms", "Apart from fog's doubling, this is exactly The Secret City's timing (3 in 6,000 each update, a "
                      "second 3 in 6,000 above weather strength 50, at most 2 out at once), so New Believers needs no "
                      "\"Collectible Spawn Timing works like VV1-3\" patch.", gm.CODE)
-    add("Mushrooms", "That is about one thing a real-life minute at any speed if the village updates about 30 times a "
-                     "real-life second; the update rate was not read from the code, so this is an estimate.")
+    # The spawn 0x414550 is called once a frame from the village update (0x442B32, right after the villagers' update
+    # 0x471EB0); the frame limiter 0x40965B..0x409688 holds a frame to 1000 // 30 = 33 ms (vv_game_mechanics_farmers_vv5
+    # docstring).  30 x 60 x 18 / 32,768 = 0.99 a real-life minute.
+    add("Mushrooms", "That is about one thing a real-life minute at any speed (0.99 on average): the game makes this "
+                     "check once a frame and draws 30 frames a real-life second. A computer too slow to draw 30 "
+                     "frames a second makes the checks, and so the things, rarer.", gm.CODE)
     if village.has(GOLDEN):
         out.extend(gm.golden_lines(GOLDEN, 18.0, speed_value, "about one thing a real-life minute at every speed, 30% "
                                    "of them mushrooms in fair weather"))
@@ -339,9 +345,11 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each believer's meal, and the difficulty's extra, "
-                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
+                                        "take 0.1 to 10 times the food (the slider, 1 the normal game; at most 64 "
+                                        "times; a number like 0.3 on "
+                                        "average); food never goes below 0"))
     if village.has(CLASSIC) is not False:
-        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 2-10x "
+        add("Food earned", gm.patch_words(village, CLASSIC, "it ticks Food Gains are Flat, Hungrier Villagers, 0.1-10x "
                                          "Tech Cost, Science Collectibles Only Count When Complete and Faith Loss is Doubled/Gains Halved "
                                          "together; each one's own line on this page says what it changes"))
 
@@ -365,9 +373,28 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # (The age unit at each speed: Vital statistics' Time and units, on the save's page and the general one alike.)
     for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
+    for line, ok in solidarity.lines(village):      # Village Solidarity (vv_game_mechanics_solidarity)
+        add("Other", line, ok)
     add("Other", "Ages, pregnancies, noni, crops, weather and the fire follow the speed; mushrooms and collectibles "
                  "appearing, island events, God Power spells and a Heathen's 2-hour wait after preaching run on "
                  "real-life time at any speed.", gm.RUNNING)
+    # A villager's effects: the list +0x1D3C (12 entries of 0x1C, count +0x1E8C), each ending at +0x14 on the computer's
+    # clock 0x4036E0 (adder 0x467E20; the spells' callers 0x4215A7 / 0x421988: rand(20) + 20 s, 0x421D26: 15 s,
+    # 0x43A424: 5 s).  The save writer 0x46F9B0 ends them (0x46F9CF -> 0x4660C0) on every save, the autosave 0x424660
+    # (0x424684) too; the other saves call 0x424620 from 0x418CD1, 0x4194A3, 0x419775, 0x419BD1 and 0x424990.
+    # VVFP Speed Change Timers.dll: the clock's from-pause branch 0x41EE6E moves every set end on by the paused time,
+    # and the autosave's call runs with a flag that makes the writer skip 0x4660C0.
+    add("Other", "A villager's short effects (each kept on the villager's own list) last 5 to 39 real-life seconds "
+                 "(real time, the same at every speed). In the base game they also count while the game is paused, and every save (the "
+                 "10-minute autosave too) ends them. The short stop-and-wait in Hiding in the water (from the bees), "
+                 "Going indoors, Hiding from lightning, Escaping from foulness, Getting new clothes and a few other "
+                 "actions also ends every effect the villager has.", gm.CODE)
+    add("Other", gm.patch_words(village, "vv5_fix_vanilla_bugs",
+                                "those effects stop while the game is paused and go on when it runs again, and only "
+                                "the autosave (every 10 minutes of real time) keeps them: every other save (quitting, leaving the village "
+                                "for the slot menu, starting a new village, a menu's save) still ends them, and the "
+                                "save never holds them; and that stop-and-wait ends only the bees in Hiding in the "
+                                "water, and no effect in the other actions (each ends at its own time)"), gm.CODE)
     for line, ok in FIRE_LINES:
         add("Other", line, ok)
     for line, ok in PUDDLE_LINES:
@@ -393,16 +420,19 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                                     "and changes nothing by itself"))
     if village.has(PUDDLES) is not False:           # patch_words says when that could not be told
         add("Other", "Normally \"Playing in puddles\" stops once The Lake holds water. " + gm.patch_words(
-            # The patch's shore picker 0x494E00; the dirt's 0x494E44.
+            # The patch's shore cave 0x494E00 and the dirt's 0x494E27 call the point routine 0x494E39.
             village, PUDDLES, "with water in the lake the rain still brings it, and each of the five walks goes to a "
-                              "random point of the lake's north-west sandy shore, never in the water, between the "
-                              "lake's west tip and the rocks with the red flower; before The Lake has water, nothing "
-                              "changes. \"Playing in the dirt\" goes to that same shore always, before and after The "
-                              "Lake has water: each of its six steps to a random point along it"), gm.CODE)
+                              "random point of the grass above the lake's north-west edge and the sandy strip along "
+                              "its shore (1304..1599 by 1781..2127, less the corner by the Hollow Totem), never in "
+                              "the water and never on the Hollow Totem; before The Lake has water, nothing changes: "
+                              "the children play in the dry lake bed's puddles. \"Playing in the dirt\" goes to that "
+                              "same ground always, before and after The Lake has water: each of its six steps to a "
+                              "random point of it"), gm.CODE)
     if village.has(DIRT_SPOT) is not False:
         add("Other", gm.patch_words(
-            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the flower patch east "
-                                "of the dirt path, 1860..2164 by 1479..1683"), gm.CODE)
+            village, DIRT_SPOT, "\"Playing in the dirt\"'s six steps go to random points of the grass above the "
+                                "lake's north-west edge, 1304..1559 by 1855..2059, never in the water and never on "
+                                "the Hollow Totem"), gm.CODE)
     clock = gm.later_clock(data, CLOCK, base, speed_value, _i32(data, STATS))
     out.append(gm.started_line(clock.created))
     out.extend(f for f in [gm.warp_dates_note(village, "Other", "the village's start date is")] if f)
@@ -501,7 +531,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
     # of fish", 0x454130): the owner, 2026-11-08: fish never run out once their puzzle is done.
     lake = _i32(data, PROJECTS + 8 * 10) >= PUZZLE_THRESHOLDS[10]
     ctx = life.Context(
-        village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000,
+        village, speed_value, last, _i32(data, FOOD), low_food=500, extra_from=8000, created=clock.created,
         sources=[life.Source("Noni bushes", noni, NONI_CAP, 2.0, noni_at if noni_at and noni_at > village.now else None,
                              f"+2 {life.every_real(UNIT, speed_value)}", verified=gm.SAVE,
                              step=2, interval=gm.real_seconds(UNIT, speed_value), next_at=real(NONI_NEXT),
@@ -539,10 +569,13 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         trips=[("noni picks", (FLAT_PICK.get(speed, 3), FLAT_CATCH_UP) if village.has(FLAT) is True
                 else max(2, noni // 100), "Noni bushes"),
                ("crop harvests", harvest if farm else 0, "Hydroponic Farm crops"), ("fish", 4 if lake else 0, "Fishing at the lake")],
-        food_extra=bloom_lines)
+        food_extra=bloom_lines,
+        fishing_trip="fish",
+        fishing_unlock="fishing opens once The Lake is restored; it is not restored in this village yet.")
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE_LEVEL], speed_value=speed_value, base=base))
     out.extend(faith.lines(village))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 

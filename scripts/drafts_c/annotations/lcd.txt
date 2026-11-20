@@ -1,0 +1,294 @@
+LCD-01
+DESC: A villager wonders whether their friend likes them back: make a move, or stay friends.
+ROLES: name1=18+ name2=18+~15
+FIX S: 1=1
+FIX O1: 1=2
+REVIEW: 15/15 pass (consent and choice; either answer respected)
+
+LCD-02
+DESC: A teen has a crush on another teen: tell them, or write it in a song nobody knows is about them.
+ROLES: name1=14-17 name2=14-17~2
+FIX S: 4=1 5=1
+REVIEW: 15/15 pass (age-appropriate; teens only; nothing beyond romance)
+
+LCD-03
+DESC: Someone has been leaving flowers on a villager's doorstep every morning: try to catch them, or leave a note.
+ROLES: name1=18+ name2=18+~15
+FIX S: 2=2
+REVIEW: 15/15 pass (gentle; consent respected)
+
+LCD-04
+DESC: A villager has written a terrible love poem: recite it anyway, or ask a friend to help fix it.
+ROLES: name1=18+ name2=18+~15
+FIX S: 1=1 2=1
+REVIEW: 15/15 pass (gentle humor; no humiliation)
+
+LCD-05
+DESC: A villager plans to serenade their love under the window at night: sing it, or ask the drummers to help.
+ROLES: name1=18+ name2=18+~15
+FIX S: 2=1 3=1
+REVIEW: 15/15 pass (humor; nobody humiliated)
+
+LCD-06
+DESC: A couple's first date: watch the sunset from the cliffs, or go night fishing by torchlight.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (pure joy)
+
+LCD-07
+DESC: A couple's first kiss is about to happen when a goat interrupts: laugh it off, or try again.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (gentle romance; humor)
+
+LCD-08
+DESC: Two teens want to hold hands at the festival in front of everyone: do it, or keep it secret a little longer.
+ROLES: name1=14-17 name2=14-17~2
+REVIEW: 15/15 pass (teens only; age-appropriate)
+
+LCD-09
+DESC: A villager carved a gift for their sweetheart, but it looks nothing like intended: give it anyway, or carve another.
+ROLES: name1=18+ name2=18+~15
+FIX O1: 4=2 5=2
+FIX O2: 1=2 2=2
+REVIEW: 15/15 pass (humor; kindness)
+
+LCD-10
+DESC: Two villagers are both courting the same person: compete for them, or let them choose in peace.
+ROLES: name1=18+ name2=18+~15 name3=18+~15
+FIX O1: 1=1
+REVIEW: 15/15 pass (the courted person's choice; no pressure)
+
+LCD-11
+DESC: A shy villager asks a grandparent how to tell someone they love them: take the old advice, or find their own way.
+ROLES: name1=18+ name2=75+
+REL: name2=grandparent_of:name1
+FIX O1: 2=s
+REVIEW: 15/15 pass (advice is optional)
+
+LCD-12
+DESC: A friend knows two people like each other but neither will say: tell them, or stay out of it.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+REVIEW: 15/15 pass (no meddling forced; consent)
+
+LCD-13
+DESC: A villager sings a love song for someone at the gathering who may not feel the same: sing it, or sing it privately.
+ROLES: name1=18+ name2=18+~15
+FIX O1: 1=2
+REVIEW: 15/15 pass (unrequited love handled kindly; no humiliation)
+
+LCD-14
+DESC: A villager wants to marry and wonders whether to ask their love's family first: ask the family, or ask their love directly.
+ROLES: name1=18+ name2=18+~15 name3=55+
+REL: name3=grandparent_of:name2
+REVIEW: 15/15 pass (the partner's own consent decides)
+
+LCD-15
+DESC: A villager wants to propose with a carved ring hidden in a fruit: try the fruit plan, or simply ask.
+ROLES: name1=18+ name2=18+~15
+FIX O2: 1=2
+REVIEW: 15/15 pass (humor; consent)
+
+LCD-16
+DESC: A couple must decide on their wedding: a grand feast for the whole village, or a quiet promise on the beach.
+ROLES: name1=18+ name2=18+~15
+FIX O1: 1=2
+REVIEW: 15/15 pass (both weddings joyful)
+
+LCD-17
+DESC: Two partners from families with different wedding customs: blend both, or let each family hold its own.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (both families' customs honored)
+
+LCD-18
+DESC: A couple disagrees about how many children they want: talk it through, or wait and see.
+ROLES: name1=18+ name2=18+~15
+REL: name2=spouse_of:name1
+REVIEW: 15/15 pass (no pressure into parenthood; consent)
+
+LCD-19
+DESC: A couple has wonderful news for a grumpy grandparent: tell them at the feast, or tell them alone.
+ROLES: name1=18+ name2=18+~15 name3=55+
+REL: name3=grandparent_of:name1
+FIX S: 1=3 2=3 3=3
+FIX O1: 2=3
+FIX O2: 1=3
+REVIEW: 15/15 pass (gentle humor)
+
+LCD-20
+DESC: A villager must tell their partner they broke the canoe the couple built together: tell them now, or fix it first.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (honesty not automatically rewarded; mistakes forgiven at the partner's choice)
+
+LCD-21
+DESC: A villager realizes they no longer love their partner: tell them gently now, or wait for a better time.
+ROLES: name1=18+ name2=18+~15
+FIX O1: 1=1
+REVIEW: 15/15 pass (no villain; feelings change)
+
+LCD-22
+DESC: Two old friends start to wonder whether they are more than friends: talk about it, or let it grow on its own.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (gentle; consent)
+
+LCD-23
+DESC: A married couple has decided to part: tell the village together, or quietly live apart.
+ROLES: name1=18+ name2=18+~15
+REL: name2=spouse_of:name1
+REVIEW: 15/15 pass (no shaming; parting with dignity)
+
+LCD-24
+DESC: A villager who lost a partner long ago is being courted again: accept the courtship, or not yet.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (no pressure; grief and love coexist)
+
+LCD-25
+DESC: A villager announces they are happy staying single: the family accepts it, or keeps hoping.
+ROLES: name1=25+ name2=55+
+FIX O1: 1=2
+FIX O2: 1=1
+REVIEW: 15/15 pass (singlehood never pitied)
+
+LCD-26
+DESC: Two lifelong friends want a yearly custom of their own: climb the mountain together, or share a meal at the same spot.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (friendship valued in itself)
+
+LCD-27
+DESC: A grandmother is determined to match two villagers who have nothing in common: let her try, or ask her to stop.
+ROLES: name1=55+/f name2=18+ name3=18+~15
+REVIEW: 15/15 pass (nobody pushed into romance)
+
+LCD-28
+DESC: A teen's sweetheart has said they just want to be friends: give them space, or ask why.
+ROLES: name1=14-17 name2=14-17~2
+FIX S: 1=2
+FIX O1: 1=1
+FIX O2: 1=2
+REVIEW: 15/15 pass (teens only; feelings validated, no shaming)
+
+LCD-29
+DESC: A newly married couple must choose where to live: build a new hut, or move in with family.
+ROLES: name1=18+ name2=18+~15
+FIX O2: 1=2
+REVIEW: 15/15 pass (practical; joyful)
+
+LCD-30
+DESC: An old couple's fiftieth year together: renew their promise before the village, or sneak off for a quiet day.
+ROLES: name1=70+ name2=70+~15
+REL: name2=spouse_of:name1
+REVIEW: 15/15 pass (elders' love valued)
+
+LCD-31
+DESC: A villager wants to give their love a necklace made of rare red shells from the far reef: dive for them, or trade for them.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (gentle; small risk)
+
+LCD-32
+DESC: A villager is courting someone from the settlement across the bay: invite them to Isola, or paddle over to meet their family.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=s 2=s
+REVIEW: 15/15 pass (two communities respected)
+
+LCD-33
+DESC: A villager wants to ask someone to dance but cannot dance at all: learn first, or ask anyway.
+ROLES: name1=18+ name2=18+~15
+FIX O1: 1=1
+FIX O2: 1=2
+REVIEW: 15/15 pass (embarrassment, never humiliation)
+
+LCD-34
+DESC: A villager feels jealous when their partner laughs with someone else: talk about it, or keep it to themselves.
+ROLES: name1=18+ name2=18+~15
+REL: name2=spouse_of:name1
+FIX O1: 1=1
+REVIEW: 15/15 pass (jealousy as feeling, not control)
+
+LCD-35
+DESC: A villager's parent disapproves of their sweetheart: keep courting openly, or try to win the parent over.
+ROLES: name1=18+ name2=18+~15 name3=45+
+REL: name3=parent_of:name1
+FIX O1: 1=1 2=2
+REVIEW: 15/15 pass (adult autonomy; the parent not villainized)
+
+LCD-36
+DESC: A villager wants to sing to their partner at dawn on their wedding day: sing it, or write it on bark.
+ROLES: name1=18+ name2=18+
+REL: name2=spouse_of:name1
+FIX S: 1=1
+REVIEW: 15/15 pass (joyful)
+
+LCD-37
+DESC: A teen wants to give a gift to their sweetheart: make something, or find something special.
+ROLES: name1=14-17 name2=14-17~2
+FIX S: 1=1 2=1 3=1
+REVIEW: 15/15 pass (teens only; age-appropriate)
+
+LCD-38
+DESC: A villager's first love comes home after years away: rekindle it, or stay friends.
+ROLES: name1=25+ name2=25+~15
+FIX S: 2=2
+REVIEW: 15/15 pass (choices respected)
+
+LCD-39
+DESC: On the wedding day, a storm floods the feast: move it inside, or celebrate in the rain.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (joy despite mishap)
+
+LCD-40
+DESC: A nervous villager about to marry asks an old married elder for advice: take it, or laugh at it.
+ROLES: name1=18+ name2=60+
+REVIEW: 15/15 pass (advice optional)
+
+LCD-41
+DESC: On their wedding morning, a villager is suddenly unsure: talk it through with a friend, or ask for a little more time.
+ROLES: name1=18+ name2=18+
+FIX S: 6=1
+REVIEW: 15/15 pass (doubt valid; no pressure)
+
+LCD-42
+DESC: A couple asks for the wedding garlands to be woven in a new pattern of their own: weave it, or use the old pattern.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (every couple equal; customs adapt)
+
+LCD-43
+DESC: The cousins keep spying on a couple's walks: ignore them, or play a trick on them.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (harmless humor)
+
+LCD-44
+DESC: A heartbroken villager wants to sing a sad song about their breakup at the gathering: sing it, or sing something else.
+ROLES: name1=18+ name2=18+
+FIX S: 3=1 4=s
+REVIEW: 15/15 pass (grief over a breakup; nobody shamed)
+
+LCD-45
+DESC: A villager plans a grand public proposal at the festival: do it in public, or ask in private first.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (consent protected; pressure acknowledged)
+
+LCD-46
+DESC: The village wants to give a couple a wedding gift: build them a canoe, or plant them a garden.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (community care)
+
+LCD-47
+DESC: A couple has been engaged for three years and keeps putting the wedding off: set a date, or stop worrying about it.
+ROLES: name1=18+ name2=18+~15
+REVIEW: 15/15 pass (the couple's pace respected)
+
+LCD-48
+DESC: Two widowed elders have fallen in love and their grown children are surprised: tell the family, or keep it quiet.
+ROLES: name1=55+ name2=55+~15
+REVIEW: 15/15 pass (elders' autonomy; no ridicule)
+
+LCD-49
+DESC: A sweetheart says they will marry whoever wins the canoe race, as a joke: race for it, or race for fun.
+ROLES: name1=18+ name2=18+~15
+FIX S: 2=1
+REVIEW: 15/15 pass (nobody is a prize; consent)
+
+LCD-50
+DESC: The village gossips that a couple has been seen near the love hut: laugh it off, or ask for privacy.
+ROLES: name1=18+ name2=18+~15
+FIX O2: 1=2
+REVIEW: 15/15 pass (adults; privacy; nothing explicit)

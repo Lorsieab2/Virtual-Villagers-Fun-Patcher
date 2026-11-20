@@ -77,6 +77,44 @@
    "src": "L422"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"What if we do both?\" says (friend), suddenly. \"Coconut AND lime?\" (subject) stares at (friend.him/her) in horror. Then, slowly, curiosity. They try it. It's... actually good. Very good. A new family recipe is born. Both grandparents, if they could taste it, would probably be outraged. The cousins are delighted.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L425"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L425"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"What if we do both?\" says (friend), suddenly. \"Coconut AND lime?\" (subject) stares at (friend.him/her) in horror. Then, slowly, curiosity. They try it. It's... actually good. Very good. A new family recipe is born. Both grandparents, if they could taste it, would probably be outraged. The cousins are delighted.",
    "src": "L425"

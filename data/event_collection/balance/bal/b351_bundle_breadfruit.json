@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bundle in the Breadfruit Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b351_bundle_breadfruit",
+  "source": "balance",
+  "lines": [
+   16200,
+   16240
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16200",
+  "ledger": [
+   {
+    "src": "L16201",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16202",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16209",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16206",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16207",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16210",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16219",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16212",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16221",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16224",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16227-16240",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's a bundle of leaves, tied to a branch, and it's wriggling.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is picking breadfruit when (subject.he/she) notices that one of the big green fruits high in the tree isn't a fruit at all. It's a bundle of leaves, tied to a branch, and it's wriggling. A tiny fist pokes out of the top. The elders say the breadfruit tree was planted by a mother who lost her child at sea, and that she asked the tree to look after any child who needed it.\nThe branch is high and thin. Should (subject) climb up and bring the bundle down, or run for a ladder and help?",
+   "choices": [
+    {
+     "label": "Climb Up Now",
+     "next": "c1",
+     "src": "L16206"
+    },
+    {
+     "label": "Run for a Ladder",
+     "next": "c2",
+     "src": "L16207"
+    }
+   ],
+   "src": "L16203-16204"
+  },
+  "c1o1": {
+   "text": "The branch bends so low that the bundle almost lands in (subject)'s arms on its own. Inside is a baby, round-cheeked and sticky with breadfruit sap, gurgling. (subject) climbs down one-handed and carries the baby home, and raises it. The child grows up unable to walk past a breadfruit tree without patting its trunk.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L16213",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The branch snaps. (subject) falls with the bundle clutched to (subject.his/her) chest, twisting in the air to land on (subject.his/her) back so the baby lands on top. The baby is fine. (subject) is not, for a while. (subject.He/She) raises the child with a sore back and a stiff neck, and never once regrets it.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L16216",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) climbs, hugging the trunk, then edges out along the thin branch, which bends lower and lower under (subject.his/her) weight...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16210"
+  },
+  "c2o1": {
+   "text": "The builders hold the ladder, (subject) climbs, and (partner) waits at the bottom with (subject.his/her) arms out. The bundle is handed down, and (partner) unwraps it and laughs: a baby, sticky with sap and very pleased with itself. They take it home together. The breadfruit tree gets a ribbon tied around its trunk.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "partner",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L16222",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When they get the ladder up, the bundle is just leaves, rolled around a fat green caterpillar that wriggled its way in. (subject) is very embarrassed. But the tree, it seems, appreciates the visit: that season it bears more breadfruit than anyone has ever seen. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L16225",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) runs to the village shouting for a ladder. By the time (subject.he/she) comes back with two builders and a bamboo ladder, (subject.his/her) partner, (partner), is already standing under the tree...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16219"
+  }
+ }
+}

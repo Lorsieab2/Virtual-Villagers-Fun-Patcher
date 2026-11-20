@@ -284,7 +284,9 @@ def _puzzle_pokes(data: bytes, entries: list[int], base: int) -> list[bytes]:
 # the patcher's log of this exe (vv_game_mechanics.patch_source).
 HASH_LINE = ("Modified EXE: {name}.exe | size 2 | SHA-256 "
              "9b8db510ef42b8ed54a3712636fda55a4f8cfcd5493e20b74ab00cd4f3979f2d\n")
-NOWS = (1_790_000_000.0, NOW)                 # before and long after the fixtures were saved
+# before and long after the fixtures were saved, and more than a year after (the vital statistics' times since the
+# save was created and last played add "= # years" from a year on: src/vv_game_mechanics.hours_days_years)
+NOWS = (1_790_000_000.0, NOW, 1_850_000_000.0)
 
 
 def variants(game: int) -> list[tuple[bytes, list[str] | None]]:

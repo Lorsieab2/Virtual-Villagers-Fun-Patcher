@@ -69,14 +69,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) tries imagining the whole village as coconuts. It doesn't help at all. It makes it worse. Halfway through the first song, (subject.he/she) looks out at a sea of imaginary coconuts and starts laughing so hard (subject.he/she) can't sing. Then everyone starts laughing. It's the strangest and most fun harvest song anyone remembers. \"Did the coconuts help?\" asks (friend) afterwards. \"No,\" says (subject). \"Yes?\"",
-   "src": "L506"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"I don't think coconuts will work for me,\" says (subject). \"What helps you, then?\" asks (friend). (subject) thinks. \"Looking at one friendly face.\" So (friend) stands at the front, and (subject) sings to (friend.him/her) the whole time. The song goes fine. What worked for (friend) didn't work for (subject), and that turned out not to matter at all.",
    "src": "L509"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tries imagining the whole village as coconuts. It doesn't help at all. It makes it worse. Halfway through the first song, (subject.he/she) looks out at a sea of imaginary coconuts and starts laughing so hard (subject.he/she) can't sing. Then everyone starts laughing. It's the strangest and most fun harvest song anyone remembers. \"Did the coconuts help?\" asks (friend) afterwards. \"No,\" says (subject). \"Yes?\"",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L506"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tries imagining the whole village as coconuts. It doesn't help at all. It makes it worse. Halfway through the first song, (subject.he/she) looks out at a sea of imaginary coconuts and starts laughing so hard (subject.he/she) can't sing. Then everyone starts laughing. It's the strangest and most fun harvest song anyone remembers. \"Did the coconuts help?\" asks (friend) afterwards. \"No,\" says (subject). \"Yes?\"",
+   "src": "L506"
   }
  }
 }

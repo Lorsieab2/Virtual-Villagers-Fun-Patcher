@@ -86,14 +86,20 @@
      "max": 10,
      "src": "L10660"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
+   "type": "branch",
    "name": "Outcome B",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "They take a restorative break.",
-   "src": "L10661"
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
   },
   "c": {
    "name": "Outcome C",
@@ -101,6 +107,30 @@
    "join": "paragraph",
    "text": "They hide the doubt and make an avoidable mistake, requiring supervision.",
    "src": "L10662"
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They take a restorative break.",
+   "src": "L10661",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "healer",
+     "min": 15,
+     "max": 30,
+     "src": "L10661"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They take a restorative break.",
+   "src": "L10661"
   }
  }
 }

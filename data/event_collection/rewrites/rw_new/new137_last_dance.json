@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new137_last_dance",
+  "source": "rewrites",
+  "lines": [
+   6436,
+   6482
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6436",
+  "ledger": [
+   {
+    "src": "L6437",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6438",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6447",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6454",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6461",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6443",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6444",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6445",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6448",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6455",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6462",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6449",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6456",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6458",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6463",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6465",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6468-6482",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The festival drums have started.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The festival drums have started. The fire is roaring. The young people are already dancing, and the old people are already complaining that the young people dance wrong.\n(subject), whose legs have been unsteady for a while now, stands up from (subject.his/her) seat, slowly, and announces to (subject.his/her) whole family that (subject.he/she) is dancing tonight, whatever anyone says.\n(subject.His/Her) grandchildren exchange very worried looks. Someone starts to say \"Are you sure that's-\" and is silenced by a glare that could stop a charging boar.\n(subject) is already tapping one foot. Should (young) help (subject) dance (subject.his/her) way, or find a safer way for (subject.him/her) to join in?",
+   "choices": [
+    {
+     "label": "Ask How They Want to Dance",
+     "next": "c1",
+     "src": "L6443"
+    },
+    {
+     "label": "Learn the Old Steps",
+     "next": "c2",
+     "src": "L6444"
+    },
+    {
+     "label": "Dance from a Stool",
+     "next": "c3",
+     "src": "L6445"
+    }
+   ],
+   "src": "L6439-6442"
+  },
+  "c1o1": {
+   "text": "(subject) chooses to dance on (subject.his/her) own terms: slowly, carefully, and very, very proudly, right in the middle of the circle. No one tries to stop (subject.him/her). The young dancers make room, and then, one by one, start copying (subject.his/her) slow steps, until the whole circle is dancing (subject)'s way. (subject.He/She) is beaming when (subject.he/she) sits down.",
+   "src": "L6450"
+  },
+  "c1o2": {
+   "text": "(subject) holds out a hand. \"I'd like a partner. To steady me.\" (subject.His/Her) grandchildren, who were bracing for an argument, are so surprised that they almost knock each other over volunteering. (subject) picks the smallest one. They dance together, very slowly, and everyone watching gets a bit misty-eyed.",
+   "src": "L6452"
+  },
+  "c1": {
+   "text": "(young) steps forward before anyone can argue. \"How do you want to dance?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6448"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) the old harvest dance, step by step, and what each step once meant: this one is planting, this one is the rain coming, this one is chasing birds from the crops. It is a piece of the village's history the young people had nearly lost. By the end of the night, (young) is teaching it to the others, and (subject) is calling out corrections from (subject.his/her) seat.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6457",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Halfway through, (subject) stops in the middle of a turn, frowning. (subject.He/She) can't remember what comes next. (subject.He/She) calls over the other elders, who all remember it differently, and soon six elders are standing in the firelight arguing about feet. The young people think it is the best part of the whole festival.",
+   "src": "L6459"
+  },
+  "c2": {
+   "text": "(young) asks (subject) to teach (subject.him/her) the dances from (subject.his/her) youth, the ones nobody does anymore. (subject)'s eyes sparkle. \"The harvest dance? Nobody remembers the harvest dance!\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6455"
+  },
+  "c3o1": {
+   "text": "Sitting on the stool, (subject) dances with (subject.his/her) arms and shoulders, swaying and clapping and twirling (subject.his/her) hands. It is comfortable, and it is done with great style. By the end of the night, three other elders have stools of their own, and there is a whole row of seated dancers at the edge of the circle, putting the young people to shame.",
+   "src": "L6464"
+  },
+  "c3o2": {
+   "text": "(subject) sits on the stool, listens to the drums for a while, and decides (subject.he/she) would rather watch tonight. (subject.He/She) claps along from the best seat at the festival, calls out compliments and insults to the dancers in equal measure, and seems to have a wonderful time.",
+   "src": "L6466"
+  },
+  "c3": {
+   "text": "(young) fetches a sturdy stool and sets it at the edge of the dancing circle, right where the drums are loudest...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6462"
+  }
+ }
+}

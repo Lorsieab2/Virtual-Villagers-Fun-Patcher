@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Low-Key or Grand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd16_low_key_grand",
+  "source": "draft_lcd",
+  "lines": [
+   218,
+   229
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L225",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L225",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L229",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates; (name2) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L229",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A couple must decide on their wedding: a grand feast for the whole village, or a quiet promise on the beach.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are getting married. (subject) dreams of a grand wedding: the whole village, three days of feasting, drums until dawn. (friend) dreams of a quiet promise on the beach at sunrise with just their closest family. They love each other very much. They have been arguing about this for a week. What should they do?",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "A Grand Feast",
+     "next": "o1",
+     "src": "L223"
+    },
+    {
+     "label": "A Quiet Promise",
+     "next": "o2",
+     "src": "L227"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The wedding is enormous. There are three days of feasting, the drummers play until their hands are sore, and the whole village dances. On the second night, (subject) finds (friend) on the beach alone, watching the sunrise, and sits with (friend.him/her) in silence. That is the part they both remember best.",
+   "src": "L225",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L225"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L225"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They make their promise at sunrise on the beach, with their families and the sound of the waves. Afterwards, (subject) says it was perfect, and means it. That evening, the village throws them a party anyway, without asking. (friend) does not mind at all.",
+   "src": "L229",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L229"
+    },
+    {
+     "do": "celebrate",
+     "who": "friend",
+     "src": "L229"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

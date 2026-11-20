@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Village Divided",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce50_village_divided",
+  "source": "draft_lce",
+  "lines": [
+   694,
+   705
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L694",
+  "ledger": [
+   {
+    "src": "L695",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L701",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L705",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Half the village wants to move to the other side of the island and half wants to stay: split the village, or stay together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has been arguing for a season about moving to the other side of the island, where the soil is better. (subject) leads those who want to go. (friend) leads those who will never leave. Now some are talking about splitting the village in two. What should happen?",
+   "src": "L697",
+   "choices": [
+    {
+     "label": "Split the Village",
+     "next": "o1",
+     "src": "L699"
+    },
+    {
+     "label": "Stay Together",
+     "next": "o2",
+     "src": "L703"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "A group of families goes to the other side and builds a small settlement there. There are tears at the parting. The two villages trade, visit and marry back and forth. Whether it was right, nobody can say for many years.",
+   "src": "L701"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village stays together, and plants new gardens on the other side, a day's walk away. (subject)'s people go there to farm and come home to sleep. It is tiring and nobody is fully happy. But nobody had to say goodbye.",
+   "src": "L705"
+  }
+ }
+}

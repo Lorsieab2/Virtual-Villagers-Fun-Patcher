@@ -65,14 +65,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) marches over to (friend) and delivers the line. (friend) blinks. \"...About the basket? From Tuesday?\" \"Yes.\" (friend) thinks about it, then laughs. \"That's actually very good.\" (subject) feels tremendously satisfied, if slightly ridiculous.",
-   "src": "L206"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) tucks the comeback away for later. (subject.He/She) waits a whole week for (friend) to mention the basket again. (friend) never does. The perfect comeback lives on, unused, forever.",
    "src": "L209"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) marches over to (friend) and delivers the line. (friend) blinks. \"...About the basket? From Tuesday?\" \"Yes.\" (friend) thinks about it, then laughs. \"That's actually very good.\" (subject) feels tremendously satisfied, if slightly ridiculous.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) marches over to (friend) and delivers the line. (friend) blinks. \"...About the basket? From Tuesday?\" \"Yes.\" (friend) thinks about it, then laughs. \"That's actually very good.\" (subject) feels tremendously satisfied, if slightly ridiculous.",
+   "src": "L206"
   }
  }
 }

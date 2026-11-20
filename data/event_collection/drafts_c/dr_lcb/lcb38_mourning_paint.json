@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mourning Paint",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb38_mourning_paint",
+  "source": "draft_lcb",
+  "lines": [
+   526,
+   537
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L526",
+  "ledger": [
+   {
+    "src": "L527",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child)"
+   },
+   {
+    "src": "L533",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L537",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child wants to wear the white mourning paint for a friend who died: allow it, or explain it is only for family.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On Isola, the family of someone who has died paints their faces with white clay for the days of mourning. (friend)'s best friend died of fever last week, and (friend) has turned up with white clay all over (friend.his/her) face. (subject), who knows the custom well, knows it is meant for family only. What should (subject) do?",
+   "src": "L529",
+   "choices": [
+    {
+     "label": "Let (friend) Wear It",
+     "next": "o1",
+     "src": "L531"
+    },
+    {
+     "label": "Explain the Custom",
+     "next": "o2",
+     "src": "L535"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) helps (friend) fix the paint so it is even, and tells (friend.him/her) a friend can be family too. At the burial, the friend's mother sees (friend) and pulls (friend.him/her) into the family's circle. (friend) stands with them until the end.",
+   "src": "L533"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gently explains the custom and helps (friend) wash the paint off. (friend) cries the whole time. Afterwards, (subject) gives (friend.him/her) a small white shell to wear instead, on a string. (friend) wears it for a long time.",
+   "src": "L537"
+  }
+ }
+}

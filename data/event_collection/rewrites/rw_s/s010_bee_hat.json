@@ -1,0 +1,215 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bee Hat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s010_bee_hat",
+  "source": "rewrites",
+  "lines": [
+   438,
+   482
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L438",
+  "ledger": [
+   {
+    "src": "L439",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L440",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L448",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L457",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L445",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L446",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L449",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L458",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L451",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L454",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L460",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L463",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L466-482",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For days now, golden drips have been running down a fallen log by the stream, and the air around it hums like a whispered song.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For days now, golden drips have been running down a fallen log by the stream, and the air around it hums like a whispered song. (Name) has worked out what that means: a wild hive in the hollow log, full to bursting with honey.\n(He/She) has a clever plan. (He/She) has made a big hat out of leaves, so big it comes down past (his/her) shoulders. (He/She) will move slowly, like a bush. (He/She) will take only a little honey. The bees will never know.\nThe bees also have a plan. As soon as (name) reaches into the log, they pour out in a golden cloud and start circling (his/her) hat, slowly, thoughtfully, getting closer with every turn. (Name) is afraid of getting stung, but the honey...",
+   "choices": [
+    {
+     "label": "Move Very Slowly",
+     "next": "c1",
+     "src": "L445"
+    },
+    {
+     "label": "Forget It and Run",
+     "next": "c2",
+     "src": "L446"
+    }
+   ],
+   "src": "L441-443"
+  },
+  "c1o1": {
+   "text": "It works. The bees seem to decide that (name) is an unusually tall bush, and a not very interesting one. The cloud drifts back into the log, still grumbling, and (name) backs away one tiny step at a time with a dripping slab of honeycomb in (his/her) hands. (He/She) comes home with a full pot of honey and combs, sticky to the elbows and grinning, with a hat (he/she) now refuses to take off. \"It's lucky,\" (he/she) says. The children call (him/her) \"the walking bee-bush.\" Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L452",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "It works, right up until the leaves of the hat tickle (his/her) nose. (Name) tries to hold it in as long as possible. Until (he/she) can't. \"Ah... ahh... AHCHOO!\" Every bee in the log takes it personally. (Name) comes home very, very quickly, without honey, without the hat, and with stings in places (he/she) would rather not talk about. The healers pull the stingers out one at a time, counting out loud, and stop counting at thirty. (Name) never goes gathering in the woods again if (he/she) can help it.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "bees",
+     "role": "subject"
+    }
+   ],
+   "src": "L455",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) freezes. Then, slowly, so slowly it hurts, (he/she) starts drawing (his/her) hand out of the log, honeycomb and all. The humming gets louder. A bee lands on (his/her) nose and walks across it, considering (him/her) with its stinger...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L449"
+  },
+  "c2o1": {
+   "text": "(Name) reaches the river and jumps in, holding (his/her) breath under the water for as long as (he/she) can. When (he/she) finally comes up, gasping, the bees are circling over the hat on the bank, stinging it furiously. They give up eventually and go home. So does (name), soaked and shivering but almost unstung. (Name) gives up on beekeeping on the spot. The hat is never recovered. The bees, as far as anyone can tell, are still angry at it.",
+   "src": "L461"
+  },
+  "c2o2": {
+   "text": "(Name) runs, trips over a root, and goes headfirst into a big patch of thick bushes. The bees sweep straight over (him/her) and on towards the river, chasing the noise. (Name) lies very still, face down. Then (he/she) opens (his/her) eyes. The bushes are covered in ripe wild berries, more than (he/she) has ever seen in one place. It's not honey, but it's something. (He/She) fills (his/her) shirt and comes home stained purple from head to foot. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L464",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "No honey is worth some nasty stings. (Name) flings the hat at the bees and runs for (his/her) life, crashing through the bushes towards the stream with a roaring golden cloud right behind (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L458"
+  }
+ }
+}

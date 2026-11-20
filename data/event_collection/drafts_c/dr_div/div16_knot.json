@@ -75,6 +75,36 @@
    "src": "L194"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) keeps showing the usual way, slower and slower. (subject) keeps trying. On the twentieth try (subject.he/she) throws the net down and stomps off. Later (friend) finds (subject.him/her) by the canoes, tying the knot perfectly in a way (friend) has never seen before. \"I worked it out,\" says (subject), not looking up. \"My way.\" (friend) sits down and asks to be taught.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) keeps showing the usual way, slower and slower. (subject) keeps trying. On the twentieth try (subject.he/she) throws the net down and stomps off. Later (friend) finds (subject.him/her) by the canoes, tying the knot perfectly in a way (friend) has never seen before. \"I worked it out,\" says (subject), not looking up. \"My way.\" (friend) sits down and asks to be taught.",
    "src": "L197"

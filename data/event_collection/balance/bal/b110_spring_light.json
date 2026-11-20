@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spring of First Light",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b110_spring_light",
+  "source": "balance",
+  "lines": [
+   4971,
+   5012
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4971",
+  "ledger": [
+   {
+    "src": "L4972",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4973",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4981",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4990",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4978",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4979",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4982",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4991",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4984",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4987",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4993",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4996",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4999-5012",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "High on the mountain is a spring that runs only for an hour at dawn, the elders say, when the first light touches it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "High on the mountain is a spring that runs only for an hour at dawn, the elders say, when the first light touches it. The water is said to \"remember the morning,\" and anyone who washes their face in it looks the way they did in the morning of their life. Nobody has climbed up to it in years, because the path is long and the hour is short.\n(Name) has climbed all night to get there. The sky is turning grey. The spring is beginning to trickle. (Name) could wash (his/her) face now, in the grey, or wait for the first light to touch the water, which might come too late.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Wash Now",
+     "next": "c1",
+     "src": "L4978"
+    },
+    {
+     "label": "Wait for the First Light",
+     "next": "c2",
+     "src": "L4979"
+    }
+   ],
+   "src": "L4974-4976"
+  },
+  "c1o1": {
+   "text": "It works, a little. When (name) looks in the pool, (his/her) face is younger, by some years: not the morning of (his/her) life, maybe the late morning. \"Good enough,\" (name) says, and starts the long walk down, smiling.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4985",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Nothing happens. The water is just cold water, without the first light in it. (Name) sits by the spring as the sun comes up, and the water glows gold for an hour, and then dries up. (He/She) doesn't wash again. Watching it was enough, (he/she) decides, and climbs down with nothing but the memory.",
+   "src": "L4988"
+  },
+  "c1": {
+   "text": "(Name) cups the cold water in (his/her) hands and splashes it over (his/her) face. It's colder than snow-melt, and tastes of stone...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4982"
+  },
+  "c2o1": {
+   "text": "(Name) washes (his/her) face in the golden water. When (he/she) looks up, the face in the pool is (his/hers) from long ago, bright and new and hopeful. (He/She) walks down the mountain with the sun on (his/her) back, and the village doesn't recognise (him/her) until (he/she) laughs.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L4994",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The first light comes, but clouds have gathered over the mountain, and it comes thin and pale. The spring dries up before it's really bright. (Name) washes anyway, and nothing happens. (He/She) climbs down tired and disappointed, and then, halfway down, starts laughing at (himself/herself), and feels better.",
+   "src": "L4997"
+  },
+  "c2": {
+   "text": "(Name) kneels by the spring and waits. The sky goes from grey to pink to gold. The first ray of sun touches the water, and it lights up like a lamp...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4991"
+  }
+ }
+}

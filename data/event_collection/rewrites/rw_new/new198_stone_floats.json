@@ -1,0 +1,326 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Floats",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new198_stone_floats",
+  "source": "rewrites",
+  "lines": [
+   9674,
+   9730
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9674",
+  "ledger": [
+   {
+    "src": "L9675",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9676",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9686",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9693",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9700",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9707",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9681",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9682",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9683",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9684",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9687",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9694",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9701",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9708",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9688",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9690",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9695",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9697",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9702",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9704",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9709",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9711",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9714-9730",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Little a villager found a stone near the volcano: grey, light, full of tiny holes, like a sponge made of rock.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (subject) found a stone near the volcano: grey, light, full of tiny holes, like a sponge made of rock. (subject.He/She) brought it home and dropped it in the water bucket to wash it.\nIt floated.\nA STONE. That FLOATS.\n(subject) has been standing over the bucket for an hour now, poking the stone under with a finger and watching it bob straight back up, over and over and over, with a look of total wonder. (subject.He/She) has told everyone. Several adults have come to look and have also poked it. It bobbed back up for them too. How can a stone float? (subject) has to know.",
+   "choices": [
+    {
+     "label": "Float Every Volcano Stone",
+     "next": "c1",
+     "src": "L9681"
+    },
+    {
+     "label": "Test Air Against Magic",
+     "next": "c2",
+     "src": "L9682"
+    },
+    {
+     "label": "Ask Whether It Stays Afloat",
+     "next": "c3",
+     "src": "L9683"
+    },
+    {
+     "label": "Teach the Bucket Test",
+     "next": "c4",
+     "src": "L9684"
+    }
+   ],
+   "src": "L9677-9680"
+  },
+  "c1o1": {
+   "text": "They come back with a whole basket of volcano stones, and (subject) tests every one. Only the light, holey ones float. Every time. The heavy, solid black ones sink straight to the bottom. It's a repeatable pattern, and the builders get very interested in stones that are light enough to carry easily.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9689",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Some holey stones float, and some sink, and some float for a while and then sink. (subject) frowns at the bucket and admits (subject.he/she) is not sure why. It's the first time anyone has seen (subject.him/her) stumped, and (subject.he/she) seems to enjoy it.",
+   "src": "L9691"
+  },
+  "c1": {
+   "text": "(adult) suggests they find out if all volcano stones float. (subject) grabs a basket and drags (subject.him/her) off toward the volcano at a run...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9687"
+  },
+  "c2o1": {
+   "text": "They grind one stone into powder, very carefully, so all the little holes are crushed. The wet powder sinks to the bottom of the bucket like sand. The trapped air in the holes explains the floating far better than magic does. It's a useful discovery, and the boat builders start wondering whether trapped air could help their canoes float higher. (subject) is sad about the ground-up stone, and keeps the rest.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9696",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The ground powder sinks, but some of it floats on top for a while, which nobody can explain. Both air and a little volcano magic still seem possible, and more stones are needed. (subject) is delighted. (subject.He/She) was rooting for magic.",
+   "src": "L9698"
+  },
+  "c2": {
+   "text": "Half the village thinks the stone is full of air. The other half thinks it's a little bit of volcano magic. (adult) suggests a test...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9694"
+  },
+  "c3o1": {
+   "text": "Someone asks, \"Will it still float after a whole day in the water?\" Everyone had assumed floating was forever. So they leave it overnight. In the morning, the stone has sunk to the bottom: the water slowly crept into the holes. It's a hidden assumption, exposed, and the village learns that what's true for a moment isn't always true for a day.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9703",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The group argues about how to test \"floats.\" In the bucket? In the sea? Does bobbing halfway count? They finally agree on the big water jar, filled to the brim. (subject) has already floated the stone in every container in the village anyway.",
+   "src": "L9705"
+  },
+  "c3": {
+   "text": "(adult) asks everyone: \"What haven't we thought of?\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9701"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the floating test with a new basket of stones: one stone at a time, dry stones only, same bucket, write down what happens. (novice) is surprised to find (subject.himself/herself) learning a great deal from a small child, and runs the test perfectly.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9710",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "(novice) notices that some of the stones were still wet from the last test, so their holes were already full of water, and they sank because of that. The group revises its notes, and (subject) lays all the stones out in the sun to dry, in a very neat row.",
+   "src": "L9712"
+  },
+  "c4": {
+   "text": "(subject) decides (novice) needs to be taught the floating test, properly, by an expert. (subject) is the expert...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9708"
+  }
+ }
+}

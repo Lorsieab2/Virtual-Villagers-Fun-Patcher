@@ -125,9 +125,33 @@ typedef struct {
 
 #define ADV_ALLOW_TRIBAL_CHIEF 0x1u          /* The Secret City's Tribal Chief may be picked (the owner's exception) */
 
+/* Story / Cheat Upgrades' answers (its exports; -1 / 0 without it): the population its gate counts, and No
+   Safeguards for Island Events (and Additional Events too) (the owner, 2026-11-15). */
+typedef int (__stdcall *adv_story_int_fn)(int game);
+
+static int adv_story_int(const char *name, int game, int fallback) {
+    HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+    adv_story_int_fn fn = story != NULL ? (adv_story_int_fn)(void *)GetProcAddress(story, name) : NULL;
+    return fn != NULL ? fn(game) : fallback;
+}
+
+static int adv_no_safeguards(int game) {
+    return adv_story_int("VvfpStoryNoSafeguards", game, 0) != 0;
+}
+
 static int adv_is_protected_allowing(int game, const unsigned char *r, unsigned int allow) {
     if (r == NULL) {
         return 1;
+    }
+    if (adv_no_safeguards(game)) {
+        /* No Safeguards: only what is not a living villager stays out -- The Lost Children's totem statues, The Tree
+           of Life's bodies and ghosts, New Believers' Reanimate in progress. */
+        switch (game) {
+        case 2: return r[0x558] != 0;
+        case 4: return r[0x1CC7] != 0;
+        case 5: return r[0x1CE1] != 0;
+        default: return 0;
+        }
     }
     switch (game) {
     case 1:
@@ -663,9 +687,18 @@ static int adv_percent(const adv_game *g, int percent) {
    Lost Children's and The Secret City's own factors, Island Events Scale in the other three). */
 /* ... times `times` / `parts` (2: a SMALL award, half a normal one -- The Playful Dolphins), before the scaling. */
 static int adv_award_roll_part(const adv_game *g, int kind, int times, int parts) {
+    static const int SIZE[4][2] = { { 1, 2 }, { 1, 1 }, { 2, 1 }, { 3, 1 } };   /* small, normal, large, huge */
     int lo = kind == ADV_KIND_FOOD ? g->food_lo : g->tech_lo;
     int hi = kind == ADV_KIND_FOOD ? g->food_hi : g->tech_hi;
     int base = lo + (hi > lo ? g->rand_below(hi - lo + 1) : 0);
+    if (adv_story_int("VvfpStoryNewEventPopulation", g->game, -1) >= 61) {
+        /* The owner (2026-11-15): from 61 villagers a new event's food or tech points come in a random size --
+           small, normal, large or huge, equally likely -- in the game's own ranges (the population Story / Cheat
+           Upgrades' gate counts).  Below 61 the size the event names. */
+        int size = g->rand_below(4);
+        times = SIZE[size][0];
+        parts = SIZE[size][1];
+    }
     return g->award_amount(kind, base * times / (parts > 0 ? parts : 1));
 }
 
@@ -780,6 +813,29 @@ static void adv_tell_vanished(int game, int index, const char *what) {
     }
 }
 
+/* VILLAGE SOLIDARITY (the owner, 2026-11-20: "add tags to every single event"): each ending of this companion's
+   events carries a tag (src/vv_solidarity_endings.py, the owner's rule; the same as the event's collection form in
+   data/event_collection/mie/), passed on ONCE, with the ending's effects, to "VVFP Village Solidarity.dll" -- only
+   when that companion is loaded and started for this game (VvfpVillageScoreTag: -1 and nothing otherwise).  Without
+   it nothing is called and nothing changes. */
+#define ADV_SOL_RAISE 1
+#define ADV_SOL_LOWER 2
+#define ADV_SOL_NEUTRAL 3
+#define ADV_SOL_TITLE 160
+
+typedef int (__stdcall *adv_sol_tag_fn)(int game, int score_id, int tag, const char *title);
+
+static char adv_sol_title[ADV_SOL_TITLE];   /* the event's title as shown (adv_log_event), "" none */
+
+static void adv_solidarity(int game, int tag) {
+    HMODULE module = GetModuleHandleA("VVFP Village Solidarity.dll");
+    adv_sol_tag_fn tag_fn = module != NULL ? (adv_sol_tag_fn)(void *)GetProcAddress(module, "VvfpVillageScoreTag")
+                                           : NULL;
+    if (tag_fn != NULL && tag >= ADV_SOL_RAISE && tag <= ADV_SOL_NEUTRAL) {
+        (void)tag_fn(game, 0, tag, adv_sol_title[0] != '\0' ? adv_sol_title : NULL);
+    }
+}
+
 /* The adventurer is still who the popup is about (the popup freezes the village, so always, short of a fault). */
 static int adv_same_hero(void) {
     const unsigned char *r;
@@ -843,6 +899,11 @@ static void adv_make_effects(void) {
     default:
         break;
     }
+    /* Village Solidarity: an award raises; a death, a disappearance or a villager leaving for another tribe (VV5:
+       turning Heathen) lowers; the injury, a skill or nothing is the adventurer's own (neutral). */
+    adv_solidarity(g->game, adv.effect[choice] == ADV_FX_AWARD ? ADV_SOL_RAISE
+                            : (adv.effect[choice] == ADV_FX_DIES || adv.effect[choice] == ADV_FX_DISAPPEARS
+                               || adv.effect[choice] == ADV_FX_JOINS) ? ADV_SOL_LOWER : ADV_SOL_NEUTRAL);
 }
 
 /* The answer and its effects at once (A New Home, The Secret City, The Tree of Life, New Believers). */

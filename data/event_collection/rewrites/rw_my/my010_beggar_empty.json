@@ -1,0 +1,340 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beggar's Empty Bowl",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my010_beggar_empty",
+  "source": "rewrites",
+  "lines": [
+   10405,
+   10460
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10405",
+  "ledger": [
+   {
+    "src": "L10406",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10407",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10416",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10423",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10430",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10437",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10411",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10412",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10413",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10414",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10417",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10424",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10431",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10438",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10418",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10420",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10425",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10427",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10432",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10434",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10439",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10441",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10444-10460",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10440",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "It's been a lean season, and the storehouse is looking thin.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It's been a lean season, and the storehouse is looking thin. So when a tired old beggar shuffles up to (name) holding out an empty bowl, (name)'s stomach sinks. The bowl is carved from a coconut shell and polished by years of hands, and it is perfectly, painfully empty.\n\"Just one spoonful,\" the beggar says. \"That's all I ask.\" (Name) knows exactly how much is left in the stores. Everyone does. Still, the old one's eyes are kind, and very, very tired. What should (name) do?",
+   "choices": [
+    {
+     "label": "Share a Meal",
+     "next": "c1",
+     "src": "L10411"
+    },
+    {
+     "label": "Give the Beggar a Job",
+     "next": "c2",
+     "src": "L10412"
+    },
+    {
+     "label": "Offer Water but No Food",
+     "next": "c3",
+     "src": "L10413"
+    },
+    {
+     "label": "Turn the Beggar Away",
+     "next": "c4",
+     "src": "L10414"
+    }
+   ],
+   "src": "L10408-10409"
+  },
+  "c1o1": {
+   "text": "Between mouthfuls, the beggar watches the villagers laying fruit out to dry and clicks (his/her) tongue. \"You're losing half of it to the flies and the damp,\" the old one says. \"Slice it thinner. Hang it in the smoke, not the sun.\" The next day the beggar shows them exactly how. It works so well that the village wastes almost nothing for the rest of the season. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10419",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The beggar eats slowly, savouring every bite, then scrapes the bowl clean, bows once to (name), and walks on into the heat shimmer. No gift. No strange glow. No magic. Just a hungry old person who isn't hungry anymore. (Name) goes to bed with an empty stomach and finds, to (his/her) surprise, that (he/she) doesn't mind at all.",
+   "src": "L10421"
+  },
+  "c1": {
+   "text": "(Name) sighs, ladles (his/her) own supper into the coconut bowl, and sits down beside the old beggar to share what's left...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10417"
+  },
+  "c2o1": {
+   "text": "The old beggar turns out to have an uncanny nose for roots. (He/She) points at patches of ground the gatherers have walked past a hundred times, and every single one is thick with fat, edible tubers. By sunset the baskets are overflowing. That night the beggar eats a full bowl, and so does everyone else. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10426",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The old one tries, really tries, but after an hour (his/her) hands are shaking and (he/she) has to sit down in the shade. (Name) suddenly feels terrible. (He/She) brings the beggar a full bowl anyway and apologizes for making help depend on work. The beggar pats (his/her) hand. \"You're learning,\" the old one says, and eats.",
+   "src": "L10428"
+  },
+  "c2": {
+   "text": "\"We're short on food, but we're also short on hands,\" (name) says. \"Help us gather, and you'll eat with us tonight.\" The beggar nods and picks up a digging stick...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10424",
+   "text_only": [
+    {
+     "src": "L10424",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o1": {
+   "text": "The beggar drinks gratefully, thanks (name), and continues on down the road. (Name) watches the stooped figure dwindle into the distance and hopes the next village has more to give.",
+   "src": "L10433"
+  },
+  "c3o2": {
+   "text": "The beggar drinks, says nothing, and leaves. The next morning, villagers walking that path stop and stare. Between two stones that were bone dry yesterday, a little spring has bubbled up, clear and cold and sweet. Some say the rains have been heavy up the hill. Others say nothing, and leave a spoonful of food by the spring, just in case.",
+   "src": "L10435",
+   "text_only": [
+    {
+     "src": "L10435",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "\"I'm sorry. I can't spare food this season,\" (name) says. \"But you can have all the water you want.\" (He/She) fills the coconut bowl from the jar...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10431",
+   "text_only": [
+    {
+     "src": "L10431",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o1": {
+   "text": "A week later, a grey blight creeps over the crops. Leaves curl, stalks wilt, and the farmers lose a huge part of the coming harvest. The healers say blights happen. The rest of the village starts muttering about curses, and about a certain old beggar with an empty bowl, and they look at (name) when they do it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L10440"
+  },
+  "c4o2": {
+   "text": "Nothing happens. No blight, no curse, no strange wind. The crops grow, the rains come. But (name) can't stop thinking about those tired eyes and that empty bowl. For days afterward, (he/she) walks the road looking for the old beggar to make it right. (He/She) never finds (him/her).",
+   "src": "L10442"
+  },
+  "c4": {
+   "text": "\"We have nothing for you,\" (name) says shortly. \"Try somewhere else.\" The beggar lowers the empty bowl and turns away without a word...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10438"
+  }
+ }
+}

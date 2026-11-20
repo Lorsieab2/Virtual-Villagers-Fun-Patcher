@@ -86,6 +86,33 @@
    "src": "L38"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders send them off to agree on something. They argue. Then they agree: three nights a week, and only until the moon is over the big palm. It mostly works. On the quiet nights (friend) sleeps beautifully, and is surprised to find (friend.he/she) misses the drum a little.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 15,
+     "max": 30,
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders send them off to agree on something. They argue. Then they agree: three nights a week, and only until the moon is over the big palm. It mostly works. On the quiet nights (friend) sleeps beautifully, and is surprised to find (friend.he/she) misses the drum a little.",
    "src": "L41"

@@ -75,6 +75,45 @@
    "src": "L242"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is getting ready for a celebration, and has (subject.his/her) own idea: painted patterns, all over (subject.his/her) head. (subject.He/she) asks (friend) to help. (friend) paints spirals, stars, a fish and a slightly wobbly turtle. (subject) is delighted with it. At the celebration, three people ask who painted it, and (friend) explodes with pride.",
+   "src": "L245",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L245"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L245"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L245"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) is getting ready for a celebration, and has (subject.his/her) own idea: painted patterns, all over (subject.his/her) head. (subject.He/she) asks (friend) to help. (friend) paints spirals, stars, a fish and a slightly wobbly turtle. (subject) is delighted with it. At the celebration, three people ask who painted it, and (friend) explodes with pride.",
    "src": "L245",

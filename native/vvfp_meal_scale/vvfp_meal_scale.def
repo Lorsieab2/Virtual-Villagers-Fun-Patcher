@@ -1,0 +1,6 @@
+LIBRARY "VVFP Meal Scale"
+EXPORTS
+    VvfpStartup
+    VvfpMealScaleInstalled
+    VvfpMealScaleTenths
+    VvfpMealScaleNextMeal

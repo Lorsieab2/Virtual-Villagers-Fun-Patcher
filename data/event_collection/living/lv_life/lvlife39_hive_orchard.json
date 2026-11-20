@@ -128,7 +128,8 @@
      "loss": true,
      "src": "L21142"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",

@@ -20,6 +20,18 @@ from typing import Any, Iterable
 import patcher_files
 
 TRANSPARENCY_FILENAME = patcher_files.TRANSPARENCY_FILENAME
+# The 0.1x-10x sliders' multiplier lines, by row suffix: (the patch log's key, the slider, what N does) -- the same as
+# vv_fun_patcher.RUNTIME_SLIDERS (tests/test_new_sliders.py keeps them equal).
+RUNTIME_SLIDER_LINES = {
+    "_collectible_frequency": ("collectible_frequency", "Collectible and Mushroom Frequency",
+                               "mushrooms and collectibles appear on their own this many times as often"),
+    "_food_gain": ("food_gain", "Food Gained per Food Source", "each food source gives this many times its normal food"),
+    "_tech_gain": ("tech_gain", "Tech Point Gain Rate", "research brings this many times its normal tech points"),
+    "_skill_success": ("skill_success", "Skill Practice Success Chance",
+                       "each work-task skill roll passes this many times as often"),
+    "_age_speed": ("age_speed", "Age and Nursing Timer Speed",
+                   "villagers' age clock (growing up, pregnancy, nursing, old age) runs this many times as fast"),
+}
 # Both reports are in the patcher's folder beside the executable.
 TRANSPARENCY_RELATIVE_PATH = patcher_files.TRANSPARENCY_RELATIVE_PATH.as_posix()
 PATCHER_VERSION = "v1.35.97"
@@ -445,14 +457,23 @@ def render_transparency_text(
         if feature.get("partial_failure_limit"):
             lines.append(f"  Partial-write disclosure: {feature['partial_failure_limit']}")
         if feature["id"].endswith("_tech_cost_multiplier") and data.get("tech_cost_multiplier"):
-            lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 2-10x Tech Cost slider): every "
+            lines.append(f"  Multiplier: x{data['tech_cost_multiplier']} (the 0.1-10x Tech Cost slider): every "
                          "technology price is its normal price times this.")
         if feature["id"].endswith("_hungrier_villagers") and data.get("meal_multiplier"):
             lines.append(f"  Multiplier: x{data['meal_multiplier']} (the Hungrier Villagers slider): every villager "
                          "meal takes its normal food times this.")
         if feature["id"].endswith("_sickness_multiplier") and data.get("sickness_multiplier"):
-            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 2-10x Sickness slider): villagers fall "
+            lines.append(f"  Multiplier: x{data['sickness_multiplier']} (the 0.1-10x Sickness slider): villagers fall "
                          "sick that many times as often.")
+        if feature["id"].endswith("_more_frequent_island_events") and data.get("island_frequency_multiplier"):
+            lines.append(f"  Multiplier: x{data['island_frequency_multiplier']} (the More Frequent Island Events "
+                         "slider): the game's own island events come that many times as often.")
+        for suffix, (key, name, meaning) in RUNTIME_SLIDER_LINES.items():
+            if feature["id"].endswith(suffix) and data.get(f"{key}_multiplier"):
+                lines.append(f"  Multiplier: x{data[f'{key}_multiplier']} (the {name} slider): {meaning}.")
+        if feature["id"].endswith("_louder_wind_flutes") and data.get("louder_flutes_multiplier"):
+            lines.append(f"  Multiplier: x{data['louder_flutes_multiplier']} (the Louder Wind Flutes slider): the wind "
+                         "flutes are that many times louder, held under clipping.")
         if (
             "Cure all Villagers" in feature.get("description", "")
             and "Cured X villagers" not in feature.get("description", "")

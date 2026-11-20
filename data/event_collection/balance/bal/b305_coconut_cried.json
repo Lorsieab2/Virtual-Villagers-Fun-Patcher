@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut That Cried",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b305_coconut_cried",
+  "source": "balance",
+  "lines": [
+   14147,
+   14187
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14147",
+  "ledger": [
+   {
+    "src": "L14159",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a nursing baby for the healer (any birth sex)"
+   },
+   {
+    "src": "L14148",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14149",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14156",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14165",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14153",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14154",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14157",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14166",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14159",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14162",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14168",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14171",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14174-14187",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is gathering coconuts when one of them cries.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "partner": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "After the big storm, the beach is covered with things the sea has brought: driftwood, kelp, broken shells and a great many coconuts. (subject) is gathering coconuts when one of them cries. Not a coconut, (subject.he/she) realises, picking it up: a cradle carved out of half a giant coconut shell, with a lid, and a baby inside it, wet and very cross.\nSomebody far away carved that cradle with love, and the storm took it. Should (subject) take the baby straight to the healers to be warmed, or keep it tucked against (subject.his/her) own chest and carry it home?",
+   "choices": [
+    {
+     "label": "Straight to the Healers",
+     "next": "c1",
+     "src": "L14153"
+    },
+    {
+     "label": "Carry It Home",
+     "next": "c2",
+     "src": "L14154"
+    }
+   ],
+   "src": "L14150-14151"
+  },
+  "c1o1": {
+   "text": "The baby warms up and stops crying, and then won't let go of the head healer's finger. (healer) has delivered half the village's children and never had one of (subject.his/her) own. \"Well,\" (subject.he/she) says, looking down at the tiny hand. \"I suppose I'd better.\" The coconut cradle hangs over the healers' doorway after that.",
+   "src": "L14160",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "healer",
+     "any_birth_sex": true
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The healers warm the baby up and then hand it straight back to (subject). \"You found it,\" says the head healer. \"It's been looking at you the whole time.\" (subject) has never looked after a baby in (subject.his/her) life. (subject.He/She) takes it home in its coconut cradle and learns fast. Within a month, the baby can be soothed by nobody else.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14163",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) runs all the way to the healers' hut with the coconut cradle in (subject.his/her) arms. The healers wrap the baby in warm cloths and rub its hands and feet...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14157"
+  },
+  "c2o1": {
+   "text": "(subject)'s partner, (partner), opens the door, sees (subject) with a baby tucked against (subject.his/her) chest, and doesn't say anything at all for a while. Then (subject.he/she) puts some water on the fire to warm. They raise the storm child together. The coconut cradle is too small after a month, but they keep it on the shelf, lid and all.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "partner",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14169",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "On the way home (subject) meets a couple stumbling along the beach, soaked and bruised, calling out. Their canoe broke up on the reef in the storm, and the coconut cradle was torn from their arms. When (subject) opens (subject.his/her) wrap and shows them, they both sit down in the sand. {#made:Only one of them can stay in the village; there is no room for more|They stay in the village}. They carve (subject) a coconut cup to say thank you.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L14172",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) tucks the baby inside (subject.his/her) wrap, against (subject.his/her) chest, and walks home slowly, talking to it the whole way...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14166"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L14172",
+   "before": "They stay in the village.",
+   "after": "{#made:Only one of them can stay in the village; there is no room for more|They stay in the village}."
+  }
+ ]
+}

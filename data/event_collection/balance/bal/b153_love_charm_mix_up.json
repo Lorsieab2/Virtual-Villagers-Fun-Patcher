@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Love Charm Mix-Up",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b153_love_charm_mix_up",
+  "source": "balance",
+  "lines": [
+   7049,
+   7094
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7049",
+  "ledger": [
+   {
+    "src": "L7065",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'each now likes the thing the other liked best'"
+   },
+   {
+    "src": "L7050",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7059",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7068",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7056",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7057",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7060",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7069",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7062",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7065",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7071",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7074",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7077-7094",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "That's what the scroll says.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(apprentice), the healers' newest apprentice, has been trying to make a charm that helps two friends understand each other better. (subject.He/She) found it on an old bark scroll, under a smudge. The smudge was important. Nobody knows that yet.\n(subject) and (friend) have been arguing for a month about whose turn it is to fetch water, and (apprentice) has asked them, very nicely, to try the charm: a little bag of herbs each, worn round the neck for a night. \"It'll help you see it from each other's side,\" (apprentice) says. \"That's what the scroll says. Mostly.\"\nShould they wear the charms, or settle the argument the normal way?",
+   "choices": [
+    {
+     "label": "Wear the Charms",
+     "next": "c1",
+     "src": "L7056"
+    },
+    {
+     "label": "Settle It the Normal Way",
+     "next": "c2",
+     "src": "L7057"
+    }
+   ],
+   "src": "L7052-7054"
+  },
+  "c1o1": {
+   "text": "In the morning (subject) wakes up in (friend)'s hut, in (friend)'s body. (friend) wakes up in (subject)'s. The charm worked exactly as the scroll said. They are now seeing it from each other's side completely. (apprentice) looks at the smudge for a long time, then goes very pale. The healers try everything. Nothing undoes it. The argument about the water stops, though.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L7063",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They wake up in each other's bodies, and, stranger still, each liking the thing the other always loved best. (subject) is suddenly mad about (friend)'s favourite pastime, and (friend) about (subject)'s, which, since they are now in each other's bodies, works out very neatly. \"It's almost as if nothing happened,\" says (friend) in (subject)'s voice. \"Except everything did.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L7066",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They put the little bags round their necks, feeling silly, and go to sleep in their own huts. The herbs smell of mint and burnt hair. In the night, both of them dream of walking down to the stream with a heavy pot...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7060"
+  },
+  "c2o1": {
+   "text": "It takes until midnight, but they come up with a rota that's fair, and then, being very tired, they laugh about the whole thing for an hour. After that they get along much better, and both of them find they mind fetching water a lot less now that it's settled.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L7072",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They give the charms back to (apprentice), who, rather than waste them, puts both on (subject.himself/herself) to see what happens. Nothing happens, except that the two charms seem to argue with each other, and (apprentice) spends the night feeling pulled in two directions and wakes up with a very bad headache and a nosebleed. The healers take the scroll away.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "apprentice",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L7075",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"We'll sort it out ourselves,\" says (subject). (friend) agrees, for once. They sit down by the fire with a pile of shells to make a rota, which immediately starts a new argument about how many shells a day is worth...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7069"
+  }
+ }
+}

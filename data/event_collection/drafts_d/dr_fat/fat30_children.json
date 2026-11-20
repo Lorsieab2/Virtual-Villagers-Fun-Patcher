@@ -179,9 +179,16 @@
    "src": "L634"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "He confuses two childhood stories, and they correct him with affectionate laughter.",
-   "src": "L635"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -196,9 +203,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They tell him about the work they love, and he listens with pride.",
-   "src": "L637"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -226,6 +240,44 @@
    "name": "Outcome D2",
    "text": "He remembers moments when he was impatient or unsure, and hopes he has grown wiser since then.",
    "src": "L641"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "He confuses two childhood stories, and they correct him with affectionate laughter.",
+   "src": "L635",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L635"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "He confuses two childhood stories, and they correct him with affectionate laughter.",
+   "src": "L635"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They tell him about the work they love, and he listens with pride.",
+   "src": "L637",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L637"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They tell him about the work they love, and he listens with pride.",
+   "src": "L637"
   }
  }
 }

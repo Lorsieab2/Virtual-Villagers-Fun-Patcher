@@ -1,0 +1,29 @@
+# Text-implied outcome effects (the owner's outcomes pass, v1.35.97): scripts/outcome_effects.py.
+# <file under data/event_collection> | <node> | <OWNER WORDS> | "<the outcome's own words>" | <effect JSON>
+# PENDING: apply after #813 (feat/97-traders-effects) merge(s) into feat/v1.35.97: move this file up
+# to data/event_collection/outcome_effects/, then run python scripts/outcome_effects.py and collection_check.
+drafts_c/dr_sup/sup02_soap_smelled.json | o2 | HAPPIER (third) (50%) | "sniffs it, laughs" | {"do":"mood","role":"third","mood":"good"}
+drafts_c/dr_sup/sup03_bubbles_stream.json | o1 | HAPPIER (subject) (50%) | "very pleased with themselves" | {"do":"mood","role":"subject","mood":"good"}
+drafts_c/dr_sup/sup03_bubbles_stream.json | o1 | HAPPIER (friend) (50%) | "very pleased with themselves" | {"do":"mood","role":"friend","mood":"good"}
+drafts_c/dr_sup/sup03_bubbles_stream.json | o2 | HAPPIER (subject) (50%) | "says (subject), laughing" | {"do":"mood","role":"subject","mood":"good"}
+drafts_c/dr_sup/sup05_bundle_tide.json | o2 | HEALTH UP (subject) (50%) | "(He/she) sleeps well anyway." | {"do":"health_change","role":"subject","min":15,"max":30}
+drafts_c/dr_sup/sup08_torn_sail.json | o2 | SKILL + Building a lot (subject) (50%) | "(friend) shows (subject) how the old ones were made: palm leaves, split and woven tight" | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+drafts_c/dr_sup/sup09_first_bolt.json | o1 | HAPPIER (subject) (50%) | "(subject) goes home walking a little taller." | {"do":"mood","role":"subject","mood":"good"}
+drafts_c/dr_sup/sup09_first_bolt.json | o2 | SKILL + Building a lot (subject) (50%) | "The second one is much better." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+drafts_c/dr_sup/sup13_washing_day_pond.json | o1 | HAPPIER (subject) (50%) | "It is the most laughing anyone has done on washing day in years." | {"do":"mood","role":"subject","mood":"good"}
+drafts_c/dr_sup/sup13_washing_day_pond.json | o1 | HAPPIER (friend) (50%) | "It is the most laughing anyone has done on washing day in years." | {"do":"mood","role":"friend","mood":"good"}
+drafts_c/dr_trd/trd01_salt_trader.json | o1 | SKILL + Farming a lot (subject) (50%) | "telling (him/her) how to pack fish in it layer by layer" | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+drafts_c/dr_trd/trd02_star_path_keeper.json | o1 | SKILL + Research a lot (subject) (50%) | "learning the names of the bright stars and the paths between them" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+drafts_c/dr_trd/trd02_star_path_keeper.json | o2 | SKILL + Research a lot (subject) (50%) | "until (name1) knows more star paths than (he/she) can remember" | {"do":"skill","role":"subject","skills":["Research"],"min":20,"max":40}
+drafts_c/dr_trd/trd03_bush_mender.json | o1 | SKILL + Farming a great deal (subject) (50%) | "Mele and (name1) spend a whole day bent over the bushes, binding cuttings" | {"do":"skill","role":"subject","skills":["Farming"],"min":30,"max":60}
+drafts_c/dr_trd/trd04_net_weaver.json | o2 | SKILL + Building a great deal (subject) (50%) | "(name1) offers to help Rua repair a torn net" | {"do":"skill","role":"subject","skills":["Building"],"min":30,"max":60}
+drafts_c/dr_trd/trd05_shell_collector.json | o2 | HAPPIER (subject) (50%) | "they become friends" | {"do":"mood","role":"subject","mood":"good"}
+drafts_c/dr_trd/trd05_shell_collector.json | o2b | UNHAPPY (subject) (50%) | "(name1) pays it, slightly embarrassed." | {"do":"mood","role":"subject","mood":"bad"}
+drafts_c/dr_trd/trd06_honey_buyer.json | o1 | SKILL + Healing a lot (subject) (50%) | "showing (him/her) how honey cleans a cut and soothes a cough" | {"do":"skill","role":"subject","skills":["Healing"],"min":20,"max":40}
+drafts_c/dr_trd/trd06_honey_buyer.json | o3 | TECH GAIN normal (50%) | "writes down one remedy on a leaf as a gift" | {"do":"tech","size":"normal","scaled":true}
+drafts_c/dr_trd/trd06_honey_buyer.json | o2 | SKILL + Healing a lot (subject) (50%) | "adds three more remedies to the lesson" | {"do":"skill","role":"subject","skills":["Healing"],"min":20,"max":40}
+drafts_c/dr_trd/trd06_honey_buyer.json | nothing | SKILL + Healing a lot (subject) (50%) | "teaches (name1) one remedy for free" | {"do":"skill","role":"subject","skills":["Healing"],"min":20,"max":40}
+drafts_c/dr_trd/trd09_sailmaker.json | o2 | SKILL + Building a lot (subject) (50%) | "(name1) offers to help stitch the sail, too." | {"do":"skill","role":"subject","skills":["Building"],"min":20,"max":40}
+drafts_c/dr_trd/trd10_washerwoman.json | o3 | FOOD GAIN normal (50%) | "leaves the rest of the basket on the bank anyway" | {"do":"food","size":"normal","scaled":true}
+drafts_c/dr_trd/trd12_noni_planter.json | o1 | SKILL + Farming a lot (subject) (50%) | "(name1) helps Malu plant every one." | {"do":"skill","role":"subject","skills":["Farming"],"min":20,"max":40}
+drafts_c/dr_vfx/vfx12_dance_harvest.json | o2 | HAPPIER (subject) (50%) | "they go back to their huts, grateful" | {"do":"mood","role":"subject","mood":"good"}

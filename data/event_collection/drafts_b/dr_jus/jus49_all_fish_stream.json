@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The elders rule that a stream belongs to everyone who fishes it: traps may reach halfway across, never the whole way. (subject) moves half of them, a bit grudgingly. Within days (friend) is catching fish again, and (subject) is catching nearly as many as before, which surprises them both.",
-   "src": "L590"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"You've closed off the whole stream,\" says (friend). (subject) looks at the traps as if seeing them for the first time. \"...I never thought about downstream.\" (subject.He/she) opens a wide gap in the middle. A few days later, (friend) brings (subject.him/her) the first fish (friend.he/she) catches, out of a sort of fairness.",
    "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders rule that a stream belongs to everyone who fishes it: traps may reach halfway across, never the whole way. (subject) moves half of them, a bit grudgingly. Within days (friend) is catching fish again, and (subject) is catching nearly as many as before, which surprises them both.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L590"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders rule that a stream belongs to everyone who fishes it: traps may reach halfway across, never the whole way. (subject) moves half of them, a bit grudgingly. Within days (friend) is catching fish again, and (subject) is catching nearly as many as before, which surprises them both.",
+   "src": "L590"
   }
  }
 }

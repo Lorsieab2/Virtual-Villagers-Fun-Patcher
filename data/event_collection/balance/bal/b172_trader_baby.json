@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Trader's Baby",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b172_trader_baby",
+  "source": "balance",
+  "lines": [
+   7958,
+   8001
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7958",
+  "ledger": [
+   {
+    "src": "L7980",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the baby is a nursing baby of (name2) (any birth sex)"
+   },
+   {
+    "src": "L7959",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7960",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7968",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7977",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7965",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7966",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7969",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7978",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7971",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7974",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7980",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7983",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7986-8001",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The baby is not the trader's.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "trader": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A trader's canoe came in yesterday with a load of pots and a baby, and the trader, (trader), has been trying to sell the pots with the baby on (subject.his/her) back the whole time. The baby is not the trader's. (trader) found it a week ago in an empty village two islands away, where a sickness had passed through, and nobody was left to ask.\n\"I can't keep (subject.him/her),\" (trader) says to (subject), with tears in (subject.his/her) eyes. \"I'm on the sea all year. (subject.He/She) needs a home that doesn't move. You've got kind hands. I've been watching.\" The baby reaches for (subject)'s hair.\nShould (subject) take the baby, or help (trader) find someone else?",
+   "choices": [
+    {
+     "label": "Take the Baby",
+     "next": "c1",
+     "src": "L7965"
+    },
+    {
+     "label": "Find Someone Else",
+     "next": "c2",
+     "src": "L7966"
+    }
+   ],
+   "src": "L7961-7963"
+  },
+  "c1o1": {
+   "text": "The baby settles at once. (trader) sells the rest of the pots in an hour, very cheaply, and leaves the next morning, waving until the canoe is out of sight. Every year after that, when (subject.his/her) canoe comes in, there is a present in it for the baby: a carved fish, a little drum, a bag of sweets from far away.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L7972",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The next morning, (trader) doesn't leave. Or the morning after. \"I'll just make sure (subject.he/she) is settled,\" (subject.he/she) says, every day. After a month (subject.he/she) sells the canoe. (subject) and (trader) raise the baby together, in a hut full of pots that never sold.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "trader",
+     "any_birth_sex": true,
+     "role": "subject"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L7975",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) holds out (subject.his/her) arms. The trader unties the sling, slowly, and hands the baby over, and then stands with (subject.his/her) arms hanging empty, as if (subject.he/she) doesn't know what to do with them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7969"
+  },
+  "c2o1": {
+   "text": "(subject) brings back (friend), who has wanted a child for longer than anyone. (friend) takes one look at the baby and sits down in the sand. The trader puts the baby in (friend)'s lap. Nobody says anything for a while. The trader leaves the next morning with an empty canoe and a full heart.",
+   "src": "L7981",
+   "effects": [
+    {
+     "do": "nursing",
+     "role": "friend",
+     "any_birth_sex": true
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) brings back three different people who would make good parents, one after another. The baby screams at every one of them, and reaches for (subject). By the third one, everyone is laughing, except the third one. \"I think (subject.he/she)'s decided,\" says (trader).",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L7984",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) feels the baby's hand in (subject.his/her) hair and is very tempted. But (subject.he/she) knows someone who has been hoping for a baby for years. \"Wait here,\" (subject.he/she) says, and runs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7978"
+  }
+ }
+}

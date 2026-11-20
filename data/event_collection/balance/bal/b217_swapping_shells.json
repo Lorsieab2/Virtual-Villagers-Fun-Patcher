@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swapping Shells",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b217_swapping_shells",
+  "source": "balance",
+  "lines": [
+   10087,
+   10130
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10087",
+  "ledger": [
+   {
+    "src": "L10088",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10089",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10097",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10106",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10094",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10095",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10098",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10107",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10100",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10103",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10109",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10112",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10115-10130",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have found a pair of conch shells on the beach, perfect and pink, exactly alike.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have found a pair of conch shells on the beach, perfect and pink, exactly alike. When (subject) blows one, (friend)'s ears ring; when (friend) blows the other, (subject) feels it in (subject.his/her) teeth. The old fishers say these shells are \"the ones that talk to each other,\" and that people who blow them at the same time end up in a muddle.\nThey've each got one. They're standing on the beach, ten steps apart, grinning at each other. (friend) lifts (friend.his/her) shell to (friend.his/her) lips. \"On three,\" (friend.he/she) says.\nShould (subject) blow at the same time, or wait?",
+   "choices": [
+    {
+     "label": "Blow at the Same Time",
+     "next": "c1",
+     "src": "L10094"
+    },
+    {
+     "label": "Wait",
+     "next": "c2",
+     "src": "L10095"
+    }
+   ],
+   "src": "L10090-10092"
+  },
+  "c1o1": {
+   "text": "When the sound stops, they are each holding the other's shell, in the other's hands, standing in the other's footprints. \"Oh,\" says (subject), in (friend)'s voice. The muddle is complete. They try blowing the shells again, together and separately, at dawn, at dusk. The shells won't make a sound any more.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L10101",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When the sound stops, they're still themselves, but they've swapped hair. (subject)'s hair is (friend)'s, and (friend)'s is (subject)'s, exactly, down to the cowlick. Their families laugh for days. Neither of them can get the hair to do anything but what the other's always did.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    },
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    }
+   ],
+   "src": "L10104",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"One. Two. Three!\" They blow together, and the two notes meet in the air between them and twist round each other into one long, strange sound that makes the gulls go up off the sand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10098"
+  },
+  "c2o1": {
+   "text": "A long, low note comes back over the sea, from far beyond the horizon, the same as theirs. Then another. A conversation. They sit on the beach all evening listening to the shells talking to something out there, and when it gets dark, the shells go quiet. They put them on (subject)'s shelf, side by side.",
+   "src": "L10110"
+  },
+  "c2o2": {
+   "text": "(subject) blows (subject.his/her) shell a moment later, while (friend)'s note is still in the air. It's enough. The notes catch each other, and twist, and when they stop, (subject) is looking at (subject.his/her) own face. \"Close enough, apparently,\" says (friend), in (subject)'s voice, very crossly.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L10113",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Wait,\" says (subject), and (friend) blows on (friend.his/her) own. The note goes out over the sea, long and low, and (subject) feels it in (subject.his/her) teeth. Then, far out on the water, something answers...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10107"
+  }
+ }
+}

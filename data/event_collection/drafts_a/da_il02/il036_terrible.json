@@ -71,6 +71,32 @@
    "src": "L425"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) works, eats, talks with friends, and enjoys the afternoon breeze. Nothing extraordinary happens. Before bed (he/she) remembers the strange feeling and shrugs. Perhaps tomorrow will be more interesting.",
+   "src": "L429",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L429"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(name1) works, eats, talks with friends, and enjoys the afternoon breeze. Nothing extraordinary happens. Before bed (he/she) remembers the strange feeling and shrugs. Perhaps tomorrow will be more interesting.",
    "src": "L429"

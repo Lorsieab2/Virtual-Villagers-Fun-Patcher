@@ -78,11 +78,13 @@ SOURCE = ROOT / "native" / "vvfp_story_upgrades"
 TEN_MINUTES = 10 * 60 * 1000
 
 # Fixed emulator addresses the tests use for their own data.
-EVENT_BUF = HEAP + 0x3E00000 if HAVE_EMULATOR else 0
-# (An event is ~135 KB: the other buffers sit past its end.)
-RESULT_BUF = EVENT_BUF + 0x30000
-TEXT_BUF = EVENT_BUF + 0x31000
-SCRATCH = EVENT_BUF + 0x34000
+EVENT_BUF = HEAP + 0x3D00000 if HAVE_EMULATOR else 0
+# (An event is ~233 KB since its text field holds 100,000 bytes (story_custom.h CE_TEXT_STORE, 2026-11-17): the
+# other buffers sit past its end, below test_story_cie_graph_runtime.py's CIEG_BUF; a question (~1.9 MB) goes at
+# EVENT_BUF + 0x48000 and ends inside the emulated heap.)
+RESULT_BUF = EVENT_BUF + 0x3A800
+TEXT_BUF = EVENT_BUF + 0x3B000          # 9,000 bytes at most here
+SCRATCH = EVENT_BUF + 0x3D800
 
 
 @functools.lru_cache(maxsize=None)
@@ -232,8 +234,9 @@ class LayoutTests(unittest.TestCase):
         proc = Process(render("vv3", "stock"), TEST_DLL)
         proc.export("VvfpStoryProbeSizes", SCRATCH)
         sizes = struct.unpack("<7i", proc.read(SCRATCH, 28))
-        self.assertEqual(sizes, (Event.SIZE, Event.SPAWN_SIZE, Change.SIZE, RESULT_SIZE, 680,
-                                 680 + 8 * Event.SPAWN_SIZE, 684 + 8 * Event.SPAWN_SIZE))
+        self.assertEqual(sizes, (Event.SIZE, Event.SPAWN_SIZE, Change.SIZE, RESULT_SIZE, 80 + Event.TEXT_BYTES,
+                                 80 + Event.TEXT_BYTES + 8 * Event.SPAWN_SIZE,
+                                 84 + Event.TEXT_BYTES + 8 * Event.SPAWN_SIZE))
 
     def test_the_villager_list_scrolls_sideways_to_its_widest_row(self):
         # A long role label (VV2's "Esteemed Elder, totem: ...") is wider
@@ -503,7 +506,7 @@ class MergeTests(unittest.TestCase):
         for change, index in ((first, 0), (second, 0), (third, 3)):
             p.write(SCRATCH, change.pack())
             self.assertEqual(p.export("VvfpStoryProbeMerge", EVENT_BUF, SCRATCH, index, 0x1234), 1)
-        changes_at = 4 + 48 + 600 + 4 * 7 + 8 * Event.SPAWN_SIZE   # change_count, then the changes
+        changes_at = 4 + 48 + Event.TEXT_BYTES + 4 * 7 + 8 * Event.SPAWN_SIZE   # change_count, then the changes
         count = struct.unpack("<i", p.read(EVENT_BUF + changes_at, 4))[0]
         self.assertEqual(count, 2)
         entry = p.read(EVENT_BUF + changes_at + 4, Change.SIZE)
@@ -605,6 +608,7 @@ class VillageOptionTests(unittest.TestCase):
                 if game == "vv1":
                     p.put32(w + 0xA2F4, 10)
                     p.put32(w + 0xA2F8, 5)
+                    p.put32(w + 0xA2FC, 1234)   # the tech points (0xA2FC is the crops only in a SAVE FILE, state + 4)
                     story.apply(Event(refill=1))
                     # The game's own ceiling, 5000 -- not a new village's 1900 (the owner, 2026-10-14).
                     self.assertEqual(p.u32(w + 0xA2F4), 5000)
@@ -612,6 +616,7 @@ class VillageOptionTests(unittest.TestCase):
                     p.put32(w + 0xA2E4, 2)
                     story.apply(Event(refill=1))
                     self.assertEqual(p.u32(w + 0xA2F8), 800)
+                    self.assertEqual(p.u32(w + 0xA2FC), 1234, "the tech points are never touched")
                 elif game == "vv2":
                     # The game's field test 0x425AC0 queues "Birds found your
                     # field" as a side effect: the refill never calls it.

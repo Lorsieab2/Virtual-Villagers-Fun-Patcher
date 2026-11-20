@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Isolan Talent Show",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj40_isolan_talent",
+  "source": "draft_lcj",
+  "lines": [
+   558,
+   569
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L558",
+  "ledger": [
+   {
+    "src": "L559",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L565",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L565",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L569",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L569",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "At the talent show, one act is juggling coconuts while standing on a goat: allow it, or suggest a rock instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is holding its first talent show: singing, dancing, storytelling and increasingly questionable displays of skill. (subject)'s act is juggling three coconuts while standing on a goat. The goat has not been consulted. (friend) is in charge of the show. What should (friend) do?",
+   "src": "L561",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- the draft's notes: everything but the marked effects is story only",
+     "src": "L561"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Allow It",
+     "next": "o1",
+     "src": "L563"
+    },
+    {
+     "label": "Suggest a Rock Instead",
+     "next": "o2",
+     "src": "L567"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) climbs onto the goat. The goat walks away. (subject) juggles all three coconuts while falling, and catches them all, lying in the sand. The crowd goes wild. The goat is given an extra treat and a garland.",
+   "src": "L565",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L565"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) juggles on a rock instead. It is impressive. It is not a goat. The goat watches from the crowd, looking relieved. (subject) wins second place, behind a child who can whistle with a leaf.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L569"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

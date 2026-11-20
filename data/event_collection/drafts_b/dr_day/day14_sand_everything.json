@@ -74,6 +74,32 @@
    "src": "L170"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) takes everything outside, shakes it, washes it, dries it and brings it back. It takes all day. The hut is perfect. That night, the wind gets up again. (subject) lies in the dark listening to it, feeling the first grains settle on (subject.his/her) blanket, and laughs out loud, because what else can you do.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L173"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) takes everything outside, shakes it, washes it, dries it and brings it back. It takes all day. The hut is perfect. That night, the wind gets up again. (subject) lies in the dark listening to it, feeling the first grains settle on (subject.his/her) blanket, and laughs out loud, because what else can you do.",
    "src": "L173"

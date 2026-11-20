@@ -69,14 +69,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Did you know,\" says (friend), \"that crabs walk sideways because they're shy?\" \"Knew it,\" says (subject), instantly. Then (subject.he/she) pauses, looks at (friend), and sees the corner of (friend.his/her) mouth twitching. \"...I did not know that,\" (subject) admits, \"because it isn't true.\" They both laugh. (subject) says \"knew it\" a little less after that. Only a little.",
-   "src": "L50"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) decides that would be a little unkind, and tells (subject) a true fact instead: that the eels in the stream are born out in the sea. \"Knew it,\" says (subject). Then, after a moment: \"Wait. Really?\" (friend) decides this is a victory of sorts.",
    "src": "L53"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Did you know,\" says (friend), \"that crabs walk sideways because they're shy?\" \"Knew it,\" says (subject), instantly. Then (subject.he/she) pauses, looks at (friend), and sees the corner of (friend.his/her) mouth twitching. \"...I did not know that,\" (subject) admits, \"because it isn't true.\" They both laugh. (subject) says \"knew it\" a little less after that. Only a little.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L50"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Did you know,\" says (friend), \"that crabs walk sideways because they're shy?\" \"Knew it,\" says (subject), instantly. Then (subject.he/she) pauses, looks at (friend), and sees the corner of (friend.his/her) mouth twitching. \"...I did not know that,\" (subject) admits, \"because it isn't true.\" They both laugh. (subject) says \"knew it\" a little less after that. Only a little.",
+   "src": "L50"
   }
  }
 }

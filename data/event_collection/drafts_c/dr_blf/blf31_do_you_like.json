@@ -74,6 +74,38 @@
    "src": "L374"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Do YOU like anyone?\" asks (subject). (friend) goes very pink and suddenly finds the fire fascinating. (subject) laughs. \"See? It's not so easy to answer.\" \"Point taken,\" mutters (friend). They sit in comfortable silence. Neither of them tells. It's a much more pleasant evening that way.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L377"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L377"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"Do YOU like anyone?\" asks (subject). (friend) goes very pink and suddenly finds the fire fascinating. (subject) laughs. \"See? It's not so easy to answer.\" \"Point taken,\" mutters (friend). They sit in comfortable silence. Neither of them tells. It's a much more pleasant evening that way.",
    "src": "L377"

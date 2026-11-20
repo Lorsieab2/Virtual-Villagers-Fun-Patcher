@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Oldest Hut Falls Down",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b299_oldest_hut_falls",
+  "source": "balance",
+  "lines": [
+   13880,
+   13921
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13880",
+  "ledger": [
+   {
+    "src": "L13892",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'every elder gains 5 Building'"
+   },
+   {
+    "src": "L13881",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13882",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13889",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13898",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13886",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13887",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13890",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13899",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13892",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13895",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13901",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13904",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13907-13921",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Nobody is inside, thank goodness, but it brings down the walls of the two huts on either side of it as it goes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The oldest hut in the village has stood since the first people came to the island, and in the middle of a perfectly still afternoon, it simply sighs and lies down. Nobody is inside, thank goodness, but it brings down the walls of the two huts on either side of it as it goes.\n(builder) is all for clearing the old hut away and building three new ones. (subject), who grew up hearing stories about that hut, wants to rebuild it exactly as it was, with the old posts. Which should the village do?",
+   "choices": [
+    {
+     "label": "Rebuild It as It Was",
+     "next": "c1",
+     "src": "L13886"
+    },
+    {
+     "label": "Build New Ones",
+     "next": "c2",
+     "src": "L13887"
+    }
+   ],
+   "src": "L13883-13884"
+  },
+  "c1o1": {
+   "text": "The elders turn out to remember exactly how the old hut was built, and they tell (subject) and (builder), and then every builder in earshot, how it went: which post goes where, how the old knots were tied. It takes a month, but the old hut stands again, with its two neighbours repaired beside it, and the elders are so involved that by the end they have all learned a thing or two about building themselves.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L13893",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway through, two of the old posts crack, and then a third. The old hut can't be rebuilt as it was. (builder) quietly finishes the job with new wood, and the neighbouring huts are made good. (subject) is so disappointed that building loses all its pleasure for (subject.him/her). \"It's just wood now,\" (subject.he/she) says.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L13896",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) and (builder) sort through the wreckage, setting aside every old post that's still sound. The elders come to help, telling stories about every one...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13890"
+  },
+  "c2o1": {
+   "text": "In three weeks, three fine new huts stand where the old one and its neighbours stood. (subject) keeps one of the old posts and carves it into a bench outside the meeting hut, where the elders sit and tell the story of the oldest hut to anyone who will listen.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L13902",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Clearing the old floor, the builders find a stone box buried beneath it, full of carved tablets in the old people's marks: how they found the island, which plants they ate, which they didn't, and why. The scroll-keepers are beside themselves. The huts get built eventually. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L13905",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The village clears the old hut away, carefully, and (builder) marks out three new huts in the dirt with a stick...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13899"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

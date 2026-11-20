@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrestling Match",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b053_wrestling_match",
+  "source": "balance",
+  "lines": [
+   2388,
+   2430
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2388",
+  "ledger": [
+   {
+    "src": "L2389",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2390",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2398",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2407",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2395",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2396",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2399",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2408",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2401",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2404",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2410",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2413",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2416-2430",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every harvest there's a wrestling match on the beach, and every harvest another villager wins.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 16
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 16
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every harvest there's a wrestling match on the beach, and every harvest (friend) wins. This year (subject) has been training in secret for months, and has made it to the last round. The whole village is in a ring around them, chanting.\nHalfway through, (subject) has (friend) almost down, but (friend) has a grip on (subject.his/her) arm and is twisting it backwards, and it hurts, badly. One more push and (subject) might win. Or might do real damage to (subject.his/her) shoulder.\nShould (subject) push through it, or tap the sand and give up?",
+   "choices": [
+    {
+     "label": "Push Through It",
+     "next": "c1",
+     "src": "L2395"
+    },
+    {
+     "label": "Tap the Sand",
+     "next": "c2",
+     "src": "L2396"
+    }
+   ],
+   "src": "L2391-2393"
+  },
+  "c1o1": {
+   "text": "(subject) wins. And (subject.his/her) shoulder never works properly again. The healers do their best, but the arm won't lift above (subject.his/her) head, and it aches in the cold, and (subject.he/she) leaves the heavy lifting to others. (friend) visits every day while it heals, and feels terrible about it, though it was a fair fight. (subject) is the champion for exactly one year, and never wrestles again. (subject.He/She) becomes the best referee the beach has ever had.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "lifting",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2402",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The shoulder holds. (friend) hits the sand, and lies there, and then starts laughing, and holds up (subject)'s good arm to the crowd. \"Finally,\" (friend) says. \"Someone to train with.\" The confidence of that win carries over into everything (subject) does for the rest of the year.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2405",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) grits (subject.his/her) teeth and heaves. There's a sound from (subject.his/her) shoulder that the whole ring hears, and then (friend) is going over, and down, and the crowd roars...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2399"
+  },
+  "c2o1": {
+   "text": "All those months of training, and (subject.he/she) tapped out. (subject) smiles and bows and goes home, and doesn't come out for two days. When (subject.he/she) does, (subject.he/she) has lost all interest in wrestling, and even in the beach races (subject.he/she) used to love. \"I gave it everything,\" (subject.he/she) says. \"That's enough.\"",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "src": "L2411",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The village can't stop talking about it. It was the best match in years, and everyone saw how close it was. (friend) declares a rematch for next harvest, and the whole village starts training, children and elders and all, and for the next few weeks there are small wrestling matches breaking out in every corner of the village, and a lot of laughing.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L2414",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) slaps the sand three times. (friend) lets go at once, and helps (subject.him/her) up, and the crowd cheers for both of them...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2408"
+  }
+ }
+}

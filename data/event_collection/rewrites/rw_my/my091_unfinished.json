@@ -1,0 +1,291 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfinished Statue",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my091_unfinished",
+  "source": "rewrites",
+  "lines": [
+   15150,
+   15205
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15150",
+  "ledger": [
+   {
+    "src": "L15151",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15152",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15160",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15167",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15174",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15181",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15155",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15156",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15157",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15158",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15161",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15168",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15175",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15182",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15162",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15164",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15169",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15171",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15176",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15178",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15185",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15188-15205",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Clearing vines from the hillside, the villagers uncover a statue, half carved, its shoulders wrapped in creepers like a shawl.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "carver": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Clearing vines from the hillside, the villagers uncover a statue, half carved, its shoulders wrapped in creepers like a shawl. The stone is grey and pitted with great age; the moss on it is centuries thick. And its half-finished face is (subject)'s face. Not a bit like (subject.him/her). Exactly (subject.him/her). The same nose, the same brows, even (subject.his/her) crooked smile.\nEveryone turns slowly to look at (subject). (subject) stares at (subject.his/her) own stone face and feels a chill run all the way down to (subject.his/her) toes. \"Well,\" says someone at last, \"at least they got your good side.\" How could a statue this old have (subject)'s face? And what should the village do with it?",
+   "choices": [
+    {
+     "label": "Study the Statue",
+     "next": "c1",
+     "src": "L15155"
+    },
+    {
+     "label": "Finish the Carving",
+     "next": "c2",
+     "src": "L15156"
+    },
+    {
+     "label": "Ask the Elders",
+     "next": "c3",
+     "src": "L15157"
+    },
+    {
+     "label": "Leave It Untouched",
+     "next": "c4",
+     "src": "L15158"
+    }
+   ],
+   "src": "L15153-15154"
+  },
+  "c1o1": {
+   "text": "\"Look at these marks,\" says (carver), the head carver. \"They didn't chip the stone. They split it, along the grain, with wedges. You can see where they tapped them in.\" Nobody in the village has ever worked stone that way. The carvers try it on a boulder, and it works beautifully: clean, flat faces, in a fraction of the time. Within a season, their stonework is the finest it has ever been. As for the face, the carvers agree not to talk about the face.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15163",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The carvers study the face, and then, one by one, they start to laugh. \"It's not just (subject),\" one says. \"From this side it looks like my uncle.\" \"From here it's my grandmother!\" \"It's a bit like everyone, really.\" It turns out the half-finished face is so roughly worked that almost anyone can see themselves in it, if they want to. (subject) is enormously relieved, and also, oddly, a little disappointed.",
+   "src": "L15165"
+  },
+  "c1": {
+   "text": "The village carvers gather around the statue, running their hands over the stone, peering at the chisel marks, muttering to each other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15161"
+  },
+  "c2o1": {
+   "text": "The work takes a whole season. When it is done, the statue stands tall on the hillside, finished at last: half ancient stone, half new, with (subject)'s face looking out over the village. The villagers decide it stands for them, for this generation, the ones who found it. The children decorate it with flowers on the first day of every harvest. (subject) finds it very strange to walk past (subject.his/her) own face every morning, but (subject.he/she) gets used to it. Mostly.",
+   "src": "L15170"
+  },
+  "c2o2": {
+   "text": "On the third day of carving, the chisel strikes, and a sharp crack runs straight down the middle of the statue's face, splitting it in two. (carver) drops the chisel in horror. (subject) touches (subject.his/her) own cheek without meaning to. The statue is left where it stands, split and unfinished, and (carver) refuses to touch it again. (subject) is perfectly fine. (subject.He/she) checks, several times.",
+   "src": "L15172"
+  },
+  "c2": {
+   "text": "\"Someone started it,\" (subject) says. \"Someone should finish it.\" (carver), the best carver in the village, agrees, and with (subject) sitting as a model, (subject.he/she) picks up the chisel...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15168"
+  },
+  "c3o1": {
+   "text": "\"There's an old saying,\" the eldest says at last. \"Faces come back. The island remembers everyone who lived here, and every so often it gives one of them back, in a child born many generations later.\" (subject.He/she) looks at (subject) thoughtfully. \"Whoever this was, they were someone the island wanted to keep.\" (subject) does not know what to say to that. (subject.He/she) goes back to the statue alone that evening, and sits with it for a while.",
+   "src": "L15177"
+  },
+  "c3o2": {
+   "text": "\"Ah,\" says one of the elders, brightening. \"This is the work of the Old Carver. You can tell by the wedge marks. (subject.He/she) lived here long, long ago, and made statues of everyone (subject.he/she) loved, and died before (subject.he/she) could finish this one.\" The elder smiles at (subject). \"Maybe it was someone in your family. You might be (subject.his/her) great-great-great-great-grandchild, for all we know.\" (subject) decides (subject.he/she) likes that idea very much.",
+   "src": "L15179"
+  },
+  "c3": {
+   "text": "(subject) brings the eldest villagers up the hill to see the statue. They stand before it in silence for a very long time...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15175"
+  },
+  "c4o1": {
+   "text": "The statue stays where it is among the vines, and slowly becomes part of the hillside again: moss creeps back over its shoulders, birds nest in the crook of its arm, and a small fern takes root behind its ear. (subject) walks past it now and then, and sometimes nods to it. After a few seasons, (subject.he/she) realizes (subject.he/she) has started thinking of it as a quiet old friend.",
+   "src": "L15184"
+  },
+  "c4o2": {
+   "text": "The next morning, a villager passing the statue stops dead and calls everyone over. There is a fresh chisel mark on the statue's face, clean and pale against the old grey stone, right at the corner of the mouth. The chips lie in a neat little pile at its feet. The crooked smile is now very slightly more crooked. Exactly like (subject)'s. No one in the village admits to touching it.",
+   "src": "L15186"
+  },
+  "c4": {
+   "text": "(subject) has seen quite enough of (subject.his/her) own stone face. \"Leave it,\" (subject.he/she) says. \"It's been there this long. It's not hurting anyone.\" The others agree, and they let the vines fall back over it...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15182"
+  }
+ }
+}

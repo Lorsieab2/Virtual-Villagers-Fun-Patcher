@@ -2,6 +2,27 @@
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
   {
+   "reason": "The game-text fixes (Fix Vanilla Bugs, all five games; VVFP Text Fixes.dll): the games' own stock texts and their fixed versions (data/vanilla_text_fixes.json), and the Food Mastery line inside eTechFoodMasteryInfo. Each is the game's own string-table row, whose English src/vv_translations.py gives fixed when the companion is in the game; none is patcher text of its own (and the stock \"Harvesting blackberries\" the cutting-tool caption compares with, and the mark \"Harvesting berries with a cutting tool\" the harvest writes into the caption field, which is never shown: the Action line draws the full caption for it). Not the cutting-tool harvest caption itself (The Tree of Life): its own row is vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0.",
+   "files": ["native/vvfp_text_fixes/*"],
+   "match": "^(?!Harvesting blackberries with a cutting tool$)"
+  },
+  {
+   "reason": "Village Solidarity: its scores file, its log lines and its harness stay English (the patcher reads them back; logs are never translated). Only the Tech screen counter is drawn in the game, and it has its own row.",
+   "files": ["native/vvfp_village_solidarity/*"],
+   "match": "^(?!Village Solidarity: %d / 100$|Village Solidarity$|Village Solidarity shows how close)"
+  },
+  {
+   "reason": "Fog of Doom Lets Every Heathen Listen (VVFP Fog Listening.dll): the notice's mark file's line and folder and file names (never shown; files stay English) and the game's own Guardians of Isola words it looks for (\"left the tribe\", compared with the game's string, never shown). The status-line message has its own two rows.",
+   "files": ["native/vvfp_fog_listening/*"],
+   "functions": ["FL_NOTICE_LINE", "fl_isola", "fl_notice_path"]
+  },
+  {
+   "reason": "Village Solidarity: the score's own name in the companion's table is the scores file's and the log's word (English); the popup title with the same words has its own row.",
+   "files": ["native/vvfp_village_solidarity/vvfp_village_solidarity.c"],
+   "functions": ["VS_SCORES"],
+   "match": "^Village Solidarity$"
+  },
+  {
    "reason": "Log and export writers: the Births, Deaths, History, Arrived, Unaccounted and Statistics logs and the Family Tree / Statistics data the patcher's own tools read back. Logs and files stay in the game's English (src/vv_translations.py: never for logs or files the patcher writes) so the patcher can parse them and every language's logs match.",
    "files": ["native/parentage_export/*", "native/population_export/*", "native/statistics_export/*", "native/save_reset_export/*"]
   },
@@ -60,6 +81,11 @@
    "reason": "A branching Custom Island Event's one Island Events log entry (its Event / Choice header, each later answer's Choice line, Changes: none, the test build's page lines): log words, which stay English.",
    "files": ["native/vvfp_story_upgrades/story_graph.inc"],
    "functions": ["cg_entry_start", "cg_log_end", "cg_log_write", "cg_resolve"]
+  },
+  {
+   "reason": "The partner-carry setting's key in the installed patches' list (\"# partner_carry_percent=\"): a line of a file the patcher writes and the engine reads back, never shown.",
+   "files": ["native/vvfp_story_upgrades/story_graph.inc"],
+   "functions": ["cg_partner_carry_percent"]
   },
   {
    "reason": "The translation file format's own words (plural rule names, header names, game titles to check the @game row): compared with the file, never shown.",

@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) offers the last piece of honey cake, a turn in the best hammock, and to do (subject)'s washing for a week. (subject) accepts all three. At the back of the rope, (subject) digs in (subject.his/her) heels and simply doesn't move. The other team pulls until their faces go purple. (friend)'s team wins. (subject) collects the honey cake with great dignity.",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L254"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(friend) offers the last piece of honey cake, a turn in the best hammock, and to do (subject)'s washing for a week. (subject) accepts all three. At the back of the rope, (subject) digs in (subject.his/her) heels and simply doesn't move. The other team pulls until their faces go purple. (friend)'s team wins. (subject) collects the honey cake with great dignity.",
    "src": "L254"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) chooses the other team, because they asked more politely. (friend)'s team loses, three times in a row, mostly by being dragged slowly across the grass while (subject) leans back and smiles. Afterward (friend) comes over, out of breath. \"Next year,\" (friend.he/she) says, \"I'm asking politely.\" (subject) laughs. \"Next year I might be on your side.\"",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L257"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) chooses the other team, because they asked more politely. (friend)'s team loses, three times in a row, mostly by being dragged slowly across the grass while (subject) leans back and smiles. Afterward (friend) comes over, out of breath. \"Next year,\" (friend.he/she) says, \"I'm asking politely.\" (subject) laughs. \"Next year I might be on your side.\"",
    "src": "L257"

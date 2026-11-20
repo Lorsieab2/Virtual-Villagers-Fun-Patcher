@@ -1,0 +1,4 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+vv4_fruity_masterpiece	The Fruity Masterpiece	4	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	A huge breadfruit is harvested, and the village decides how it should be prepared.				4396
+vv4_quiet_gardener	The Quiet Gardener	4	1		CHATGPT-WRITTEN EVENTS — WITH LORSIEAB2 CREATIVE DIRECTION * V6–V8 additional VV1–VV5 event prose, variants and codas: ChatGPT, with Lorsieab2's canon guidance, character preferences, requests for emotional complexity and patcher constraints.	An elder tends a small garden near the Tree every morning: improve its path, or ask to hear its story.				4399

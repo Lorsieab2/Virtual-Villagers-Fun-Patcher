@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smoke on the Horizon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b029_smoke_horizon",
+  "source": "balance",
+  "lines": [
+   1298,
+   1339
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1298",
+  "ledger": [
+   {
+    "src": "L1299",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1300",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1308",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1317",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1305",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1306",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1309",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1318",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1311",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1314",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1320",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1323",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1326-1339",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They land at the far end of the beach and wait.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three days there's been a smudge of smoke on the horizon, where the fishers say there's a small island with a mountain that \"breathes.\" This morning, (name), on lookout, sees two canoes coming in, low and slow, the paddlers grey with ash from head to foot.\nThey land at the far end of the beach and wait. One of them calls out that their mountain woke up and covered their gardens in ash, and that they need somewhere to go.\nThe two canoes carry two families. (Name) can only bring the news to one of the elders before they land. Who should (he/she) run to?",
+   "choices": [
+    {
+     "label": "Run to the Healer",
+     "next": "c1",
+     "src": "L1305"
+    },
+    {
+     "label": "Run to the Head Cook",
+     "next": "c2",
+     "src": "L1306"
+    }
+   ],
+   "src": "L1301-1303"
+  },
+  "c1o1": {
+   "text": "The first canoe holds a tired parent, a teenager who paddled the whole way and won't admit how much their arms hurt, and a small child who coughs ash for two days and then never stops talking. They're given a hut by the stream. The teenager is out with the fishers within the week. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L1312",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The second canoe holds two adults and a baby, wrapped so tightly against the ash that only the baby's furious face shows. Once the healer has washed them all and the baby has been fed, everyone sleeps for a day and a night. When they wake, they ask where they can help. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}. The other canoe paddles on to family on another island.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L1315",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The healer comes down the beach at a run with a basket of water gourds and clean cloths, and starts washing the ash out of the newcomers' eyes before anyone has even said hello...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1309"
+  },
+  "c2o1": {
+   "text": "Both families eat like they haven't eaten in days, because they haven't. When they've rested, they thank everyone, and explain that they have relatives on a bigger island further south. The village loads the canoes with food and water and watches them go. The food store is lighter, and the cook is quietly pleased about every bowl.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L1321",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "\"Stay,\" says the head cook, filling the bowls for the third time. \"Stay until you're fat again, then decide.\" By the time they're fat again, one of the families has decided: two adults and their baby, who can't imagine getting back in a canoe. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}. The other family paddles on south with the village's blessing.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L1324",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The head cook takes one look at the grey, hollow faces and starts filling bowls. \"Talk later,\" the cook says. \"Eat first...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1318"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L1312",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  },
+  {
+   "src": "L1315",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  },
+  {
+   "src": "L1324",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
+}

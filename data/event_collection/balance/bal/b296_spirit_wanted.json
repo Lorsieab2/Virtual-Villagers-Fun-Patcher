@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spirit Who Wanted a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b296_spirit_wanted",
+  "source": "balance",
+  "lines": [
+   13746,
+   13787
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13746",
+  "ledger": [
+   {
+    "src": "L13747",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13748",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13756",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13765",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13753",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13754",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13757",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13766",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13759",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13762",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13768",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13771",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13774-13787",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For a month, something has been following a villager around.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a month, something has been following (name) around. Never seen, only heard: soft footsteps behind (him/her) on the path, a sigh at the window, a voice that says (his/her) name very quietly when (he/she) is alone. The elders say it is a little forest spirit, the kind that has no name of its own and grows lonely, and that it wants (name)'s.\nTonight the voice is right outside the door. \"Please,\" it whispers. \"Just borrow it. I'll give it back.\"\nShould (name) lend it (his/her) name, or offer it a different one?",
+   "choices": [
+    {
+     "label": "Lend It (His/Her) Name",
+     "next": "c1",
+     "src": "L13753"
+    },
+    {
+     "label": "Offer It a Different Name",
+     "next": "c2",
+     "src": "L13754"
+    }
+   ],
+   "src": "L13749-13751"
+  },
+  "c1o1": {
+   "text": "The footsteps go away, happily, down the path and into the trees. In the morning (name) can't remember (his/her) own name. Nobody can. The spirit has it now, and the spirit is somewhere in the forest, very pleased with itself. The village calls (name) \"?\". Some nights, out in the trees, someone can be heard trying the name out, over and over.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L13760",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The footsteps go away, and come back an hour later. Something small and smooth is left on the doorstep: a river pebble, with a name scratched on it that isn't (name)'s. The spirit has kept (his/her) old name, but it has given (him/her) a new one in exchange. From the next morning on, everyone, (name) included, calls (him/her) (made1), and nobody remembers why.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L13763",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) opens the door and says (his/her) own name, slowly and clearly, into the dark. Something warm brushes past (his/her) face, like a breath...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13757"
+  },
+  "c2o1": {
+   "text": "\"Ginger,\" says (name), after the root drying by the door. There is a long, delighted silence outside. Then the spirit says, \"Ginger. Ginger. And what's yours?\" and (name) is so flustered that (he/she) says \"Ginger\" too, or, being a man, stammers out \"Gin.\" The spirit laughs like rain on leaves and goes off into the forest. In the morning, the whole village is calling (name) by it, and (he/she) can't for the life of (him/her) remember what (he/she) used to be called.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L13769",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) gives it the name of (his/her) grandmother's favourite tree. The spirit is quiet for a moment, then whispers it back, delighted, and the footsteps go away down the path for good. (Name) sleeps soundly for the first time in a month. Now and then, the children say they hear something in the forest calling itself by that name.",
+   "src": "L13772"
+  },
+  "c2": {
+   "text": "\"Not mine,\" says (name) through the door. \"But you can have a name of your own. How about...\" (He/She) thinks hard...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13766"
+  }
+ }
+}

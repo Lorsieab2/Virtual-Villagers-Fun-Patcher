@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Would Not Sing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb27_child_would_sing",
+  "source": "draft_lcb",
+  "lines": [
+   372,
+   383
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L372",
+  "ledger": [
+   {
+    "src": "L373",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an adult)"
+   },
+   {
+    "src": "L379",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L379",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child refuses to sing at the festival but wants to drum: let them drum, or encourage them to try singing.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every child on Isola sings at the moon festival. (subject) will not. (subject.He/she) says singing makes (subject.his/her) stomach hurt. But (subject.he/she) has been drumming on every log in the village for weeks. (friend) leads the children's choir. What should (friend) do?",
+   "src": "L375",
+   "choices": [
+    {
+     "label": "Let (subject) Drum",
+     "next": "o1",
+     "src": "L377"
+    },
+    {
+     "label": "Encourage Singing",
+     "next": "o2",
+     "src": "L381"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) gives (subject) a small drum and puts (subject.him/her) at the front. (subject) keeps the beat for the whole choir, perfectly, with an expression of deep concentration. The children sing better than they have in years.",
+   "src": "L379",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L379"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) gently tells (subject) to just try. (subject) stands with the choir and moves (subject.his/her) mouth without making any sound. Afterwards, (subject.he/she) is very quiet. (friend) realizes it was the wrong call, and next festival, (subject) drums.",
+   "src": "L383"
+  }
+ }
+}

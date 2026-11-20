@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "To get some peace, (subject) tries the far rocks. (subject.He/she) does catch more fish. Bigger fish, too. (subject.He/she) goes back to (subject.his/her) old rock the next morning anyway. \"Why?\" asks (friend), baffled. \"Because I like it,\" says (subject). \"The fish there are mine. The view's mine. More isn't everything.\" (friend) doesn't understand. That's alright.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "To get some peace, (subject) tries the far rocks. (subject.He/she) does catch more fish. Bigger fish, too. (subject.He/she) goes back to (subject.his/her) old rock the next morning anyway. \"Why?\" asks (friend), baffled. \"Because I like it,\" says (subject). \"The fish there are mine. The view's mine. More isn't everything.\" (friend) doesn't understand. That's alright.",
    "src": "L578"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"No,\" says (subject). \"This is my rock.\" (friend) throws up (friend.his/her) hands and goes to the far rocks alone. (friend.He/she) catches lots of fish. (subject) catches fewer and has a lovely morning. They meet on the beach after and compare baskets. (friend) has more fish. (subject) has more sunrise. Both of them think they won.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L581"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"No,\" says (subject). \"This is my rock.\" (friend) throws up (friend.his/her) hands and goes to the far rocks alone. (friend.He/she) catches lots of fish. (subject) catches fewer and has a lovely morning. They meet on the beach after and compare baskets. (friend) has more fish. (subject) has more sunrise. Both of them think they won.",
    "src": "L581"

@@ -109,6 +109,32 @@
    "src": "L1703"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) checks whether a newly planted seed has sprouted. Someone proposes keeping notes on the next planting.",
+   "src": "L1707",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1707"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1) checks whether a newly planted seed has sprouted. Someone proposes keeping notes on the next planting.",
    "src": "L1707"

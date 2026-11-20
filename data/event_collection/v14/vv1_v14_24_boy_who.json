@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Griever",
    "src": "L7810-7812",
-   "text": "The Golden Child finds a mourner alone near the graves. He offers a flower and sits quietly. After a while, the villager begins sharing memories of someone lost. The boy listens until sunset.",
+   "text": "The Golden Child finds a mourner alone near the graves. (child.He/She) offers a flower and sits quietly. After a while, the villager begins sharing memories of someone lost. The (child.boy/girl) listens until sunset.",
    "text_only": [
     {
      "src": "L7812-7813",

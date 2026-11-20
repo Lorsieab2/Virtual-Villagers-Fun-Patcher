@@ -1,4 +1,4 @@
-# Living Event Engine: the pack (VLEP v1), the history sidecar (VLEH v1) and the manifest rows
+# Living Event Engine: the packs (VLEP v2), the history sidecar (VLEH v1) and the manifest rows
 
 This is the contract between the Python side (`src/vv_living_mixer.py`, which writes the packs, and
 `scripts/build_event_collection_features.py`, which ships them) and the engine
@@ -11,11 +11,29 @@ ASCII.
 
 ## 1. What ships
 
-- **One pack per game:** `assets/event_collection/vvN/living.pak`, installed as
-  `"<game folder>\Virtual Villagers Fun Patcher Files\Island Event Collection\living.pak"`, pinned in the game's
-  Isola Grand Event Collection row (`data/vvN_isola_grand_event_collection_feature.json`) like every other file.
-- **One manifest row per seed** in the game's `Island Event Collection\manifest.txt` (the collection's own file and
-  format, `story_collection.inc sc_scan`), only for the seeds the pack holds for that game:
+- **Split files (the owner, 2026-11-15; the engine's layout, feat/97-island-events-ui 70df06497).** In
+  `"<game folder>\Virtual Villagers Fun Patcher Files\Events\"` (short names, the owner 2026-11-19: no "Path too
+  long"; the repository keeps the long names under `assets/event_collection/`): every static event's
+  `<number>.cieg` (`data/event_collection/file_numbers.tsv`, named in its row's file column); one `<group>.lst`
+  (`manifest-<group>.txt` here) per source section and one per living series (the line format below,
+  `#` comments; at most 1 MB and 4,096 rows a file, a series never split across files); one `<group>.pak` (`living-<group>.pak` here)
+  per living series (`living_le_<cat>` -> `le_<cat>`, `living_mc_<cat>` -> `mc_<cat>`, `living_st_<source>` ->
+  `st_<source>`), its seeds and variants local to it; `Credits.txt` stays one file. A group is `[a-z0-9_]`, kept
+  short so every path stays inside VV1's deep-folder limit (a file name of at most 22 characters, as a `.cieg`'s
+  id: a manifest group of at most 9 characters, a living group of at most 11). All are pinned in the game's Isola
+  Grand Event Collection row (`data/vvN_isola_grand_event_collection_feature.json`;
+  `scripts/build_event_collection_features.py`).
+- **The static events' mixer versions** (`scripts/living_from_static.py`, bank 2): every static event gets up to
+  three versions -- its choices in other orders on every question page (each choice keeps its own follow-ups),
+  and on one of the three, where two cast villagers can disagree, the personality frame after its first page --
+  in the series `living_st_<source>` (one series per source: each counts as one event in the draw). Their rows
+  are the static event's own title, description, credit and games, with the seed's id (`living_st_<6 hex>`) and
+  series. They have no outcome records (2.4). An event with no choices to reorder and no page the strict frame fits
+  (the owner, 2026-11-16) gets up to three versions that recast its villagers and leave out a different one of its
+  random outcomes each (where a random page has three or more), the frame on one where it casts two villagers
+  outside a catalogue, nature, grief, loss, illness or death scene, or else one version that only recasts.
+- **One manifest row per seed** in its series' `<group>.lst` (the collection's own line format,
+  `story_collection.inc sc_scan`), only for the seeds the game's packs hold:
 
   | Field | Value |
   |---|---|
@@ -33,79 +51,84 @@ ASCII.
   no Guardians variants: an event reads the same with the patch on and off. A future line that needs it takes the
   collection's own Guardians variants (cie-v6-binary.md 18, guardians-wording.md);
   `tests/test_living_runtime.py GuardiansOfIsola` fails the day one appears without them.
-- **The id prefix `living_`** tells the engine that the row's event is in `living.pak`, not in `<id>.cieg`. No
+- **The id prefix `living_`** tells the engine that the row's event is in its series' `<group>.pak`, not in a `.cieg`. No
   `living_*.cieg` file ever ships. The manifest row's id equals the pack's seed id (2.2).
 - MJ (the 35 held seeds) has no rows and no variants until the owner's outcomes arrive.
 
-## 2. The pack: VLEP v1
+## 2. The pack: VLEP v2
 
-Section order in the file: header, seeds, variants, outcomes, strings, blobs. The engine must use the offsets, not the
-order. Every offset is from the start of the file.
+**v2 (2026-11-15, the engine agent's layout, feat/97-island-events-ui 70df06497).** One pack per living series
+(section 1), its seeds and variants local to it; every field that counts or indexes seeds and variants is 32 bits.
+Role, archetype and lens numbers are the Living bank's own in every pack. Section order in the file: header, seeds,
+variants, outcomes, strings, blobs. The engine must use the offsets, not the order. Every offset is from the start
+of the file. (v1, the single 64-byte-header `living.pak` per game, is retired.)
 
-### 2.1 Header (64 bytes)
+### 2.1 Header (72 bytes)
 
 | Offset | Type | Meaning |
 |---|---|---|
 | 0 | `4s` | magic `VLEP` |
-| 4 | `H` | version = 1 |
-| 6 | `H` | header bytes = 64 |
+| 4 | `H` | version = 2 |
+| 6 | `H` | header bytes = 72 |
 | 8 | `I` | file bytes |
 | 12 | `I` | crc32 (zlib) of the whole file with this field 0. The VLEH sidecar keeps it (section 3) |
 | 16 | `B` | game (1..5) |
 | 17 | `B` | 0 |
-| 18 | `H` | seed count S (1..2048) |
-| 20 | `H` | variant count V (1..65535) |
-| 22 | `H` | 0 |
-| 24 | `I` | seeds offset |
-| 28 | `I` | variants offset |
-| 32 | `I` | outcomes offset |
-| 36 | `I` | outcome count M |
-| 40 | `I` | strings offset |
-| 44 | `I` | strings bytes |
-| 48 | `I` | blobs offset (4-aligned) |
-| 52 | `I` | blobs bytes |
-| 56 | `H` | role count R of the Living bank (30): the role-pair keys' range |
-| 58 | `H` | archetype count A of the Living bank (38) |
-| 60 | `H` | lens count L of the Living bank (15) |
-| 62 | `H` | 0 |
+| 18 | `H` | 0 |
+| 20 | `I` | seed count S (1..8,192) |
+| 24 | `I` | variant count V (1..32,768) |
+| 28 | `I` | seeds offset |
+| 32 | `I` | variants offset |
+| 36 | `I` | outcomes offset |
+| 40 | `I` | outcome count M |
+| 44 | `I` | strings offset |
+| 48 | `I` | strings bytes |
+| 52 | `I` | blobs offset (4-aligned) |
+| 56 | `I` | blobs bytes |
+| 60 | `H` | role count R of the Living bank (30): the role-pair keys' range |
+| 62 | `H` | archetype count A of the Living bank (38) |
+| 64 | `H` | lens count L of the Living bank (15) |
+| 66 | `H` | 0 |
+| 68 | `I` | 0 |
 
 The loader refuses a pack whose magic, version, header bytes, file bytes, crc or any offset / count does not fit
-the file, or a seed's mood above 2. The engine's limits (static buffers, no heap): a pack of at most 8 MB, at most
-16,384 variants, 64 roles, 255 archetypes and 255 lenses (the packs hold about 1,250 variants, 30 roles, 38
-archetypes, 15 lenses).
+the file, or a seed's mood above 2. The engine's limits: a pack of at most 64 MB, at most 32,768 variants and 8,192
+seeds a pack, 64 roles, 255 archetypes and 255 lenses; at most 8,192 manifest rows a game (static events and living
+seeds together).
 
-### 2.2 Seed record (16 bytes, S of them)
+### 2.2 Seed record (24 bytes, S of them)
 
 | Offset | Type | Meaning |
 |---|---|---|
-| 0 | `H` | id string (byte offset into the strings): the manifest id, `living_le_per_01` |
-| 2 | `H` | series string: `living_le_per` |
-| 4 | `H` | first variant (index into the variants) |
-| 6 | `H` | variant count (1..255) |
-| 8 | `B` | bank: 0 Living Engine (LE), 1 MC |
-| 9 | `B` | category index within the bank (LE 0..11 in bank order PER, FAM, CEL, ART, ANI, BEL, GOV, OTH, FOO, EMO, RES, ODD; MC 0..5: ISL, DIS, AFT, LOS, TRA, BEL) |
-| 10 | `H` | the seed's index in the bank's own list (LE `seeds[]` 0..119, MC `mc.situations[]` 0..94) |
-| 12 | `B` | mood: 0 warm, 1 social, 2 serious -- its category's (`bank.json` `categories[].mood`, `mc.categories[].mood`; section 4.1a) |
-| 13 | `3s` | 0 |
+| 0 | `I` | id string (byte offset into the strings): the manifest id, `living_le_per_01`, `living_st_399ed1` |
+| 4 | `I` | series string: `living_le_per`, `living_st_companion` |
+| 8 | `I` | first variant (index into this pack's variants) |
+| 12 | `I` | variant count (1..4,096) |
+| 16 | `B` | bank: 0 Living Engine (LE), 1 MC, 2 a static event's mixer versions |
+| 17 | `B` | category index within the bank (LE 0..11 in bank order PER, FAM, CEL, ART, ANI, BEL, GOV, OTH, FOO, EMO, RES, ODD; MC 0..5: ISL, DIS, AFT, LOS, TRA, BEL; bank 2: 0) |
+| 18 | `H` | the seed's index in the bank's own list (LE `seeds[]` 0..119, MC `mc.situations[]` 0..94; bank 2: its number in its series) |
+| 20 | `B` | mood: 0 warm, 1 social, 2 serious -- its category's (`bank.json` `categories[].mood`, `mc.categories[].mood`; section 4.1a); bank 2: 2 for a grief, loss, illness or death scene, else 1 |
+| 21 | `3s` | 0 |
 
-Seeds are in manifest order (LE categories in bank order, then MC), each seed's variants consecutive, in `k` order.
+Seeds are in manifest order, each seed's variants consecutive, in `k` order.
 
-### 2.3 Variant record (24 bytes, V of them)
+### 2.3 Variant record (32 bytes, V of them)
 
 | Offset | Type | Meaning |
 |---|---|---|
 | 0 | `I` | blob offset, from the blobs offset (4-aligned) |
 | 4 | `I` | blob bytes (at most `CG_MAX_FILE`, 0x20000) |
-| 8 | `H` | seed index |
-| 10 | `B` | k, the variant's number within its seed (0..K-1; the same `k` in every game's pack) |
-| 11 | `B` | flags: 1 = the owner's MIX example (k = 0, section 5), 2 = its choices are the category's choice set, 4 = its choices are approaches |
-| 12 | `H` | role A: the first villager's role, index into the Living bank's `roles[]` (`NONE` for MC) |
-| 14 | `H` | role B: the second's (`NONE` for MC) |
-| 16 | `B` | lens: index into `lenses[]` (`NONE` for MC) |
-| 17 | `B` | family set: bit 0 consult, 1 act, 2 relate, 3 withdraw, 4 play (the approach families its choices come from), bit 5 the category's choice set, bit 6 an MC situation's own four approaches |
-| 18 | `H` | games mask (bit g-1): the games this variant is valid in (always holds this pack's game) |
-| 20 | `H` | outcome first (index into the outcomes) |
-| 22 | `H` | outcome count |
+| 8 | `I` | seed index (in this pack) |
+| 12 | `H` | role A: the first villager's role, index into the Living bank's `roles[]` (`NONE` for MC and bank 2) |
+| 14 | `H` | role B: the second's (`NONE` for MC and bank 2) |
+| 16 | `B` | lens: index into `lenses[]` (`NONE` for MC and bank 2) |
+| 17 | `B` | family set: bit 0 consult, 1 act, 2 relate, 3 withdraw, 4 play (the approach families its choices come from), bit 5 the category's choice set, bit 6 an MC situation's own four approaches (0 for bank 2) |
+| 18 | `B` | k, the variant's number within its seed (the same `k` in every game's pack) |
+| 19 | `B` | flags: 1 = the owner's MIX example (k = 0, section 5), 2 = its choices are the category's choice set, 4 = its choices are approaches |
+| 20 | `I` | outcome first (index into the outcomes) |
+| 24 | `I` | outcome count (0 allowed: bank 2 lists none) |
+| 28 | `H` | games mask (bit g-1): the games this variant is valid in (always holds this pack's game) |
+| 30 | `H` | 0 |
 
 The blob is the variant's `.cieg`, exactly as `cg_load` reads it (version 6, its own crc).
 
@@ -221,7 +244,7 @@ effects (`vv_living_mixer.outcome_categories`) for the same filters.
 A living row is possible when any of its variants for this game casts (strict casting for Pick, the library's own
 casting for a purchase). The variant used is chosen by 4.2 as well. In the library a living row's entry is named
 "Isola Grand Event Collection: <title>: <its sentence>" (the seeds of a category share a title); its internal path
-is `?living:<id>`, which no file can have. The library holds up to 1,024 entries (`CG_LIBRARY_MAX`).
+is `?living:<id>`, which no file can have. The Pick list and the library hold up to 8,192 entries each.
 
 ## 5. Variants (what the mixer writes)
 

@@ -1,0 +1,271 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mirror of Other Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new107_mirror_other",
+  "source": "rewrites",
+  "lines": [
+   5006,
+   5051
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5006",
+  "ledger": [
+   {
+    "src": "L5007",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5008",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5016",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5023",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5030",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5012",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5013",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5014",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5017",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5024",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5031",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5018",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5020",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5025",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5027",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5032",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5034",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5037-5051",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The bruise from falling out of that mango tree.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Builders clearing the rubble of the old healer's collapsed hut, empty since before most villagers were born, find a disc of polished black stone, perfectly round and cool to the touch. (subject) picks it up to brush off the dust and catches (subject.his/her) reflection.\nIt is (subject.him/her), all right... but much younger. Gap teeth and all. The haircut (subject.his/her) mother gave (subject.him/her) the year of the big storm. The bruise from falling out of that mango tree.\nStranger still: the longer (subject) looks, the less (subject.his/her) knees and back ache. (subject.He/She) has not felt this limber in years. What should (subject.he/she) do with the stone?",
+   "choices": [
+    {
+     "label": "Compare the Reflection",
+     "next": "c1",
+     "src": "L5012"
+    },
+    {
+     "label": "Gaze Into It Willingly",
+     "next": "c2",
+     "src": "L5013"
+    },
+    {
+     "label": "Wrap It and Set It Aside",
+     "next": "c3",
+     "src": "L5014"
+    }
+   ],
+   "src": "L5009-5011",
+   "text_only": [
+    {
+     "src": "L5009",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) notes every difference between the reflection and (subject.his/her) friends' memories. They match far too well. The researchers pore over the notes and the stone, and learn a little about how this strange black rock was polished and where it might have been quarried. Nobody can explain the knees.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5019",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway through, the stone clouds over like breath on a cold morning. When it clears, it shows only (subject)'s face as it is today, wrinkles and all. The young face never comes back. Neither does the feeling in (subject.his/her) knees. (subject.He/She) puts the stone down gently and goes for a walk, slowly.",
+   "src": "L5021"
+  },
+  "c1": {
+   "text": "(subject) sits down with a few old friends and the stone, and goes through it carefully: old scars, the missing tooth, the shape of that bruise. \"Was it the left knee or the right one?\" \"The right. You cried for a day.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5017"
+  },
+  "c2o1": {
+   "text": "The stone flashes white, bright enough that the others cry out and cover their eyes. When (subject)'s eyes clear, (subject.his/her) body is five years younger, with a little less grey and a lot more spring in (subject.his/her) step. (subject.His/Her) memories are all exactly the same, including every one of the jokes (subject.his/her) friends now make about it. (subject) celebrates by running up the hill to the fields. Just because (subject.he/she) can.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -5,
+      -5
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L5026",
+   "text_only": [
+    {
+     "src": "L5026",
+     "what": "\"celebrates\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "After a long while, (subject) blinks, sighs, and turns the stone face down on the ground. \"No,\" (subject.he/she) says. \"I've earned every one of my years. I'd like to keep them.\" (subject.His/Her) knees start aching again almost at once. (subject.He/She) does not seem to mind as much as everyone expected.",
+   "src": "L5028"
+  },
+  "c2": {
+   "text": "(subject) sits cross-legged in the shade and stares into the stone, deeper and deeper, ignoring the voices around (subject.him/her). The young face in the stone stares back, and slowly begins to grin...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5024"
+  },
+  "c3o1": {
+   "text": "\"Hmph. Nice work, whoever made it.\" (elder) refuses to look into it, but teaches (subject) the old way of polishing stone with wet sand and coconut oil, and how to tell good stone from bad by its sheen. The disc goes up on a high shelf, still wrapped, and the village's stone tools get noticeably shinier.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5033",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The stone is set on a high shelf, still wrapped, a thing to tell stories about rather than use. The next morning the bark cloth is empty and neatly folded. The stone is gone without a trace, and nobody, as far as anyone can tell, looks a day younger.",
+   "src": "L5035"
+  },
+  "c3": {
+   "text": "(subject) wraps the stone in bark cloth without looking at it again and carries it to (elder), who unwraps one corner, peers inside, and quickly wraps it up again...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5031"
+  }
+ }
+}

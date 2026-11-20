@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Promise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new119_broken_promise",
+  "source": "rewrites",
+  "lines": [
+   5573,
+   5619
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5573",
+  "ledger": [
+   {
+    "src": "L5574",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5575",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5584",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5591",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5598",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5580",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5581",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5582",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5585",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5592",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5599",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5586",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5588",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5593",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5595",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5600",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5602",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5605-5619",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They had had a hard season.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two moons ago, (leader) promised a family living at the far end of the island, past the swamp, a basket of dried fish and a new sleeping mat. They had had a hard season. It was the least the village could do.\nNothing ever arrived.\nToday, the family's eldest walked all the way in, through the swamp, on bad feet, to ask why. (subject.He/She) is standing at the edge of the village now, mud to the knees, leaning on a stick, not angry exactly, just tired. Very, very tired.\n(leader) feels (subject.his/her) face go hot. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Hear the Distant Family",
+     "next": "c1",
+     "src": "L5580"
+    },
+    {
+     "label": "Retrace the Delivery Route",
+     "next": "c2",
+     "src": "L5581"
+    },
+    {
+     "label": "Send Half Now and Half Later",
+     "next": "c3",
+     "src": "L5582"
+    }
+   ],
+   "src": "L5576-5579"
+  },
+  "c1o1": {
+   "text": "The eldest explains, without raising (subject.his/her) voice, that without the fish the family has been living on coconut alone for weeks. The children are thin. The gathering listens, ashamed. Before the night is over, three households have filled baskets of their own, and in the morning a party sets out with far more than was ever promised.",
+   "src": "L5587"
+  },
+  "c1o2": {
+   "text": "(subject), who carries messages for the village, goes pale and stands up. The swamp path flooded weeks ago. (subject.He/She) turned back with the basket and meant to tell someone, and then... didn't. Nobody ever told (leader). The talk changes completely. (subject) apologizes to the eldest in front of everyone, and offers to carry the basket personally.",
+   "src": "L5589"
+  },
+  "c1": {
+   "text": "(leader) gives the visitor (subject.his/her) own seat by the fire, a bowl of hot stew, and the whole village's attention...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5585"
+  },
+  "c2o1": {
+   "text": "Halfway around the swamp's edge, they find a ridge of firm, dry ground nobody had noticed before, curving neatly around the worst of the mud. It is a practical detail that will make every future delivery easier, and the runners mark it with stakes so they'll never get lost. The fish and the mat arrive two days later, dry.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5594",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At a little shelter on the path, they find the basket, still packed, with the mat rolled beside it. The runner who was carrying it fell ill on the way, had to be helped home, and was too feverish to remember the basket. No one was careless, and no one is punished. The basket goes the rest of the way that afternoon.",
+   "src": "L5596"
+  },
+  "c2": {
+   "text": "(leader) and a few villagers walk the route the basket was supposed to take, step by squelching step, looking for what went wrong...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5592"
+  },
+  "c3o1": {
+   "text": "It works well enough. The eldest goes home with a full basket and a promise, and next moon the rest arrives exactly when it should. The family sends back a carved bowl in thanks, which (leader) keeps on (subject.his/her) shelf as a reminder.",
+   "src": "L5601"
+  },
+  "c3o2": {
+   "text": "Two trips through the swamp turn out to be twice the trouble: the second runner sprains an ankle, and the mat falls in the mud. The plan is abandoned. In the end, (leader) walks the last delivery out personally, which is the least (subject.he/she) could do.",
+   "src": "L5603"
+  },
+  "c3": {
+   "text": "The stores are a little thin right now. (leader) proposes sending half the fish at once with the eldest, and the rest, with the mat, next moon...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5599"
+  }
+ }
+}

@@ -235,7 +235,7 @@ class VirtualPatchList(unittest.TestCase):
         cls.result = json.loads(completed.stdout.strip().splitlines()[-1])
 
     def test_one_list_per_game_and_the_target_row_is_found(self) -> None:
-        self.assertEqual(self.result["lists"], 5)
+        self.assertEqual(self.result["lists"], 10)   # each game's patch list and its Island Events list
         self.assertTrue(self.result["owner_found"])
         self.assertTrue(self.result["drawn_at_found"])
 

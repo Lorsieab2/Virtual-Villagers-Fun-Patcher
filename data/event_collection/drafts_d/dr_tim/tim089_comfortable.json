@@ -104,9 +104,16 @@
    "src": "L1491"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(subject) sits beside (friend) without feeling obliged to speak. Someone remembers an old joke, and the group starts laughing again.",
-   "src": "L1495"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -114,6 +121,51 @@
    "src": "L1499"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(subject) sits beside (friend) without feeling obliged to speak. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1495",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1495"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(subject) sits beside (friend) without feeling obliged to speak. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1495"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(subject) sits beside (friend) without feeling obliged to speak. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1503",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1503"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(subject) sits beside (friend) without feeling obliged to speak. The conversation is ordinary, which is exactly what feels comforting.",
    "src": "L1503"

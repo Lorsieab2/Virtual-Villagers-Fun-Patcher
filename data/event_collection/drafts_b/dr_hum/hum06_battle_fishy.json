@@ -81,14 +81,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"You're just floundering.\" \"I'd never stoop so eel-ow.\" \"Water you talking about?\" It goes on all afternoon. People avoid them, then gather to watch. At sunset (friend) says, \"I'll let minnow when I've had enough,\" and (subject) has no answer. (elder), an elder, declares (friend) the winner, and everyone else declares relief. (subject) wakes up in the night with the perfect reply and has to wait until morning.",
-   "src": "L74"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Shall we stop?\" says (subject). \"Water you mean?\" says (friend). (subject) walks away. (friend) follows, saying, \"Don't leave me, I'm drowning in sorrow. Get it? Sorrow? Sea?\" It doesn't stop. It never really stops. For weeks, every meal of fish comes with at least one of them saying something terrible about it.",
    "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"You're just floundering.\" \"I'd never stoop so eel-ow.\" \"Water you talking about?\" It goes on all afternoon. People avoid them, then gather to watch. At sunset (friend) says, \"I'll let minnow when I've had enough,\" and (subject) has no answer. (elder), an elder, declares (friend) the winner, and everyone else declares relief. (subject) wakes up in the night with the perfect reply and has to wait until morning.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"You're just floundering.\" \"I'd never stoop so eel-ow.\" \"Water you talking about?\" It goes on all afternoon. People avoid them, then gather to watch. At sunset (friend) says, \"I'll let minnow when I've had enough,\" and (subject) has no answer. (elder), an elder, declares (friend) the winner, and everyone else declares relief. (subject) wakes up in the night with the perfect reply and has to wait until morning.",
+   "src": "L74"
   }
  }
 }

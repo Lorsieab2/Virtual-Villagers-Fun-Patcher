@@ -69,14 +69,41 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) decides to sleep on it another night. And another. By the fourth morning (subject.he/she) still doesn't know, but (subject.he/she) has slept very well. (friend) asks how it's going. \"I'm well rested,\" says (subject). \"And undecided.\" (friend) nods sagely. \"That's allowed too.\" The apprentice question waits a while. Nobody minds.",
-   "src": "L140"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "At breakfast, halfway through a mango, (subject) suddenly says \"Yes\" out loud. Everyone looks at (subject.him/her). \"I'll take the apprentice,\" (subject.he/she) says. \"I just decided.\" Maybe it was the sleeping. Maybe it was the mango. (friend) takes credit anyway, and (subject) lets (friend.him/her).",
    "src": "L143"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) decides to sleep on it another night. And another. By the fourth morning (subject.he/she) still doesn't know, but (subject.he/she) has slept very well. (friend) asks how it's going. \"I'm well rested,\" says (subject). \"And undecided.\" (friend) nods sagely. \"That's allowed too.\" The apprentice question waits a while. Nobody minds.",
+   "src": "L140",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L140"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) decides to sleep on it another night. And another. By the fourth morning (subject.he/she) still doesn't know, but (subject.he/she) has slept very well. (friend) asks how it's going. \"I'm well rested,\" says (subject). \"And undecided.\" (friend) nods sagely. \"That's allowed too.\" The apprentice question waits a while. Nobody minds.",
+   "src": "L140"
   }
  }
 }

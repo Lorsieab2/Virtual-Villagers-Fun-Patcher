@@ -1,0 +1,287 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crown of Driftwood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my060_crown_driftwood",
+  "source": "rewrites",
+  "lines": [
+   13355,
+   13410
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13355",
+  "ledger": [
+   {
+    "src": "L13356",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13357",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13365",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13372",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13379",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13386",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13360",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13361",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13362",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13363",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13366",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13373",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13380",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13387",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13369",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13374",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13376",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13381",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13383",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13388",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13390",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13393-13410",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A traveler resting by the fire takes one look at it and goes pale.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Little (name) comes running up from the beach holding something above (his/her) head like a prize: a crown woven from grey driftwood, threaded with cowrie shells and strands of dried seaweed. It smells powerfully of the tide and is far too big for (him/her). A traveler resting by the fire takes one look at it and goes pale. \"Child,\" the stranger says slowly, \"that crown once belonged to a ruler of the sea. Be careful where you put it.\"\n(Name) looks at the crown. The crown, being made of driftwood, does not look back. Still, the other children have gone very quiet, and everyone is waiting to see what happens next. (Name) desperately wants to wear it. But should (he/she)?",
+   "choices": [
+    {
+     "label": "Let the Child Wear It",
+     "next": "c1",
+     "src": "L13360"
+    },
+    {
+     "label": "Ask for the Crown's History",
+     "next": "c2",
+     "src": "L13361"
+    },
+    {
+     "label": "Return It to the Sea",
+     "next": "c3",
+     "src": "L13362"
+    },
+    {
+     "label": "Preserve It",
+     "next": "c4",
+     "src": "L13363"
+    }
+   ],
+   "src": "L13358-13359"
+  },
+  "c1o1": {
+   "text": "Within the hour, (name) is leading a royal procession through the village. (His/her) loyal subjects consist of three children, two dogs and a very confused chicken, who did not volunteer. They march around every hut twice, demand tribute \\(a handful of berries each\\), and hold court on top of the woodpile until supper. The traveler watches the whole thing with a strange little smile. \"Perhaps,\" the stranger says to no one in particular, \"the sea has finally found a ruler who deserves it.\"",
+   "src": "L13368"
+  },
+  "c1o2": {
+   "text": "(Name) falls asleep that night still wearing the crown, and dreams of tall green halls beneath the waves, where fish swim between pillars of coral and someone sings in a voice like rushing water. (He/she) wakes before dawn, drags (his/her) parents out of bed, and announces that (he/she) must learn to swim. Right now. Today. (Name) spends the whole morning splashing in the shallows, swallowing seawater and grinning, and from then on, nobody can keep (him/her) out of the sea.",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L13370",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"It's just a crown,\" one of (name)'s parents says, and plonks it onto (name)'s head, where it promptly slides down over one ear. (Name) straightens it with great dignity and announces that (he/she) is now in charge...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13366"
+  },
+  "c2o1": {
+   "text": "The stranger tells of a proud ruler who commanded every wave and every fish, until one day a storm took the kingdom away and left the ruler with nothing but driftwood and shells. With those, the ruler wove a new crown and spent the rest of (his/her) days helping fishermen find their way home. \"A crown made from what is left,\" the stranger says, \"weighs more than one made of gold.\" The children are not entirely sure what that means. (Name) decides it means the crown is very important, and refuses to let anyone else touch it.",
+   "src": "L13375"
+  },
+  "c2o2": {
+   "text": "Before the stranger can say a word, one of the elders squints at the crown, and then bursts out laughing. \"The ruler of the sea? That's the decoration from last year's harvest festival! I made it myself! It blew off the top of the pole and we never found it.\" The stranger turns a deep shade of red, mumbles something about the light being bad, and leaves quite early the next morning. (Name) keeps the crown anyway. A festival crown is still a crown.",
+   "src": "L13377"
+  },
+  "c2": {
+   "text": "The villagers gather around the fire, and (name) sits right at the front, crown in (his/her) lap. \"Tell us,\" (he/she) says. \"Who was the ruler of the sea?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13373"
+  },
+  "c3o1": {
+   "text": "The crown bobs out past the breakers and is gone. Moments later, the next wave rolls in and leaves something at (name)'s feet: a pearly white shell, spiralled like a tiny staircase, unlike any shell the villagers have ever seen on that beach. (Name) holds it up to (his/her) ear and swears (he/she) can hear someone saying thank you. The other children all insist on listening too. They all hear the sea. (Name) still swears it said thank you.",
+   "src": "L13382"
+  },
+  "c3o2": {
+   "text": "The next morning, (name) goes down to the beach and finds the crown lying on the sand in exactly the same place (he/she) found it the first time, as neat as if someone had set it down on purpose. (He/she) throws it back. The morning after, it is there again. After the third time, the elders decide the sea has made its feelings very clear, and (name) is allowed to keep it. The traveler, when told, only nods, as if (he/she) had expected nothing else.",
+   "src": "L13384"
+  },
+  "c3": {
+   "text": "\"If it belongs to the sea,\" (name) says solemnly, \"then the sea should have it back.\" The whole village follows (him/her) down to the shore, where (he/she) wades out to (his/her) knees and lets a wave carry the crown away...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13380"
+  },
+  "c4o1": {
+   "text": "Over the next few days, villagers drop by to admire it. The weavers study how the driftwood was bent without breaking, and the shell-workers marvel at how each cowrie was threaded through a hole no wider than a hair. \"Whoever made this,\" one weaver says, \"knew more about their craft than all of us put together.\" The crown becomes a treasured example of fine island work, and (name) proudly tells anyone who will listen that (he/she) was the one who found it.",
+   "src": "L13389"
+  },
+  "c4o2": {
+   "text": "Out of the salty sea air, the crown begins to dry. Day by day the seaweed shrivels, the driftwood cracks, and one morning (name) finds nothing on the shelf but a little heap of grey splinters and loose shells. (He/she) is heartbroken and cries for most of the afternoon. That evening, the traveler helps (him/her) thread the loose shells onto a cord, and (name) wears them around (his/her) neck for many years after.",
+   "src": "L13391"
+  },
+  "c4": {
+   "text": "The villagers decide something this unusual should be kept safe. (Name) carries the crown to the driest hut in the village, and the craftspeople set it carefully on a high shelf, out of reach of goats and children \\(mostly children\\)...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13387"
+  }
+ }
+}

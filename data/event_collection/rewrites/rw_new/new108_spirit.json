@@ -1,0 +1,254 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spirit's Unfinished Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new108_spirit",
+  "source": "rewrites",
+  "lines": [
+   5053,
+   5098
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5053",
+  "ledger": [
+   {
+    "src": "L5054",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5055",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5063",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5070",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5077",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5059",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5060",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5061",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5064",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5071",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5078",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5065",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5067",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5072",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5074",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5079",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5081",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5084-5098",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For three nights now, a melody has drifted out of the empty hut at the edge of the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three nights now, a melody has drifted out of the empty hut at the edge of the village. Nobody lives there. Nobody has lived there for years.\nIt is a beautiful tune: slow, sweet, a little sad. And every time, it stops one note short of the end, like a question left hanging in the air.\n(subject), who has the best voice in the village, cannot stop humming it. While cooking. While fishing. While asleep, according to (subject.his/her) family, who are being driven slowly up the walls. \"Just FINISH it!\" one of them begged this morning. \"I CAN'T,\" (subject) said. \"I don't know the last note.\" What should (subject) do?",
+   "choices": [
+    {
+     "label": "Scratch the Tune Onto a Board",
+     "next": "c1",
+     "src": "L5059"
+    },
+    {
+     "label": "Sing the Missing Note",
+     "next": "c2",
+     "src": "L5060"
+    },
+    {
+     "label": "Ask Who Lived There",
+     "next": "c3",
+     "src": "L5061"
+    }
+   ],
+   "src": "L5056-5058"
+  },
+  "c1o1": {
+   "text": "By dawn (subject) has the whole melody on the board, every note except the last. It is the first time anyone in the village has written a song down this way, and the researchers are thrilled; other singers start copying the method for their own chants. (subject)'s family is less thrilled, because now (subject.he/she) can hum it while reading it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5066",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway through the copying, the song stops. Not at the usual place: in the middle. (subject) waits until the stars fade. It does not return, that night or ever. (subject.He/She) is left with half a song scratched on a board and a strange feeling of having interrupted someone.",
+   "src": "L5068"
+  },
+  "c1": {
+   "text": "That night (subject) sits outside the empty hut with a board and a sharp shell. As the song drifts out, (subject.he/she) scratches it down: a mark high for high notes, low for low ones, long for long ones...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5064"
+  },
+  "c2o1": {
+   "text": "The note rings out, clear and true, and the whole hut seems to sigh. The song does not answer. Instead it leaves its mark: when (subject) turns around, the villagers who came to watch gasp and point. (subject.His/Her) face and hair have changed for good. (subject.His/Her) voice is the same as ever, and (subject.he/she) looks rather pleased about the whole thing. The hut is silent from then on, and (subject) finally stops humming.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L5073",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "At the last moment, (subject) closes (subject.his/her) mouth. It does not feel like (subject.his/her) song to finish. The melody stops one note short, as always, and drifts away. The hut is left to its humming, and (subject) learns to hum something else. Mostly.",
+   "src": "L5075"
+  },
+  "c2": {
+   "text": "On the fourth night (subject) stands in the doorway of the empty hut, waits for the song to reach its unfinished end, takes a deep breath... and sings the note (subject.he/she) has been imagining for days...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5071"
+  },
+  "c3o1": {
+   "text": "\"...but whether it's truly her, or only the wind playing in the old thatch, I can't tell you.\" (elder) hums along for a few notes, then stops at the same place. \"She never finished that one either, you know.\" (subject) leaves flowers on the doorstep that evening, and keeps doing it.",
+   "src": "L5080"
+  },
+  "c3o2": {
+   "text": "\"...and she taught me this, before she died.\" (elder) shows (subject) the old breathing method that the hut's owner used to hold long notes: breathe low, into the belly, and let it out like a slow tide. (subject)'s chants grow steadier, and (subject.he/she) teaches it to the other singers. The song from the hut keeps playing, but somehow it sounds happier.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5082",
+   "auto_text": true
+  },
+  "c3": {
+   "text": "(elder) stops what (subject.he/she) is doing when (subject) hums the tune. \"Where did you hear that?\" (subject.He/She) sits down heavily. \"There was a singer who lived in that hut, when I was a child...\"",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5078"
+  }
+ }
+}

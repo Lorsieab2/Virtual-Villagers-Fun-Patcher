@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Signal Drums",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc44_signal_drums",
+  "source": "draft_lcc",
+  "lines": [
+   610,
+   621
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L610",
+  "ledger": [
+   {
+    "src": "L611",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L617",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L617",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A drummer proposes a drum code to warn the far gardens of raiders: learn it, or keep things simple.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has invented a drum code: different beats for raiders, fire, lost canoes, and dinner, so the people in the far gardens know what is happening without running back. (friend) points out that nobody can remember more than two beats. What should the village do?",
+   "src": "L613",
+   "choices": [
+    {
+     "label": "Learn the Drum Code",
+     "next": "o1",
+     "src": "L615"
+    },
+    {
+     "label": "Keep Things Simple",
+     "next": "o2",
+     "src": "L619"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village learns the code. For a while, it is chaos: someone drums fire when they mean dinner, and half the village runs for water. By the end of the season, everyone knows it, and the far gardens are never caught by surprise again.",
+   "src": "L617",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L617"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps it simple: fast drumming means come quick. (subject) is disappointed. Every time someone drums fast, everyone comes running, and they find out why when they get there. It works well enough.",
+   "src": "L621"
+  }
+ }
+}

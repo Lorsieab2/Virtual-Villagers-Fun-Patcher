@@ -178,18 +178,14 @@
    ]
   },
   "a1": {
-   "src": "L7118-7123",
-   "text": "The villagers cheer that (researcher) has created life like the spirits of old. The construct raises its arms in triumph, takes a fourth step, and collapses into an untidy pile of wood and clay. The researcher weeps over the pieces. An apprentice quietly asks whether this means the creature has died. Nobody knows how to answer.",
-   "text_only": [
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
     {
-     "src": "L7118",
-     "what": "THE COLLAPSE",
-     "reason": "the construct falls apart; no structure is involved"
+     "next": "a1__fx"
     },
     {
-     "src": "L7121",
-     "what": "collapses",
-     "reason": "the construct falls apart; no structure is involved"
+     "next": "a1__text"
     }
    ]
   },
@@ -207,7 +203,8 @@
      "mood": "bad",
      "src": "L7131-7135"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a4": {
    "src": "L7137-7141",
@@ -263,11 +260,20 @@
      "max": 10,
      "src": "L7169-7172"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
-   "src": "L7174-7177",
-   "text": "The figure moved because a strong gust filled a hidden sail and released a wooden catch. Its whispered words were wind through a reed. The researcher looks disappointed. The builders look delighted."
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "c3": {
    "src": "L7179-7183",
@@ -291,7 +297,8 @@
      "max": 20,
      "src": "L7198"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "set_a": {
    "type": "branch",
@@ -356,6 +363,64 @@
      "next": "c5"
     }
    ]
+  },
+  "a1__fx": {
+   "src": "L7118-7123",
+   "text": "The villagers cheer that (researcher) has created life like the spirits of old. The construct raises its arms in triumph, takes a fourth step, and collapses into an untidy pile of wood and clay. The researcher weeps over the pieces. An apprentice quietly asks whether this means the creature has died. Nobody knows how to answer.",
+   "text_only": [
+    {
+     "src": "L7118",
+     "what": "THE COLLAPSE",
+     "reason": "the construct falls apart; no structure is involved"
+    },
+    {
+     "src": "L7121",
+     "what": "collapses",
+     "reason": "the construct falls apart; no structure is involved"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "researcher",
+     "mood": "bad",
+     "src": "L7118-7123"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "src": "L7118-7123",
+   "text": "The villagers cheer that (researcher) has created life like the spirits of old. The construct raises its arms in triumph, takes a fourth step, and collapses into an untidy pile of wood and clay. The researcher weeps over the pieces. An apprentice quietly asks whether this means the creature has died. Nobody knows how to answer.",
+   "text_only": [
+    {
+     "src": "L7118",
+     "what": "THE COLLAPSE",
+     "reason": "the construct falls apart; no structure is involved"
+    },
+    {
+     "src": "L7121",
+     "what": "collapses",
+     "reason": "the construct falls apart; no structure is involved"
+    }
+   ]
+  },
+  "c2__fx": {
+   "src": "L7174-7177",
+   "text": "The figure moved because a strong gust filled a hidden sail and released a wooden catch. Its whispered words were wind through a reed. The researcher looks disappointed. The builders look delighted.",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "researcher",
+     "mood": "bad",
+     "src": "L7174-7177"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "src": "L7174-7177",
+   "text": "The figure moved because a strong gust filled a hidden sail and released a wooden catch. Its whispered words were wind through a reed. The researcher looks disappointed. The builders look delighted."
   }
  }
 }

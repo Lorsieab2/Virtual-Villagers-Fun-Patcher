@@ -84,9 +84,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The village imagines distant grandchildren groaning at the same moment in the joke; everyone laughs.",
-   "src": "L92"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -128,14 +135,59 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The elder tells it again, and everyone laughs harder because they knew it was coming.",
-   "src": "L98"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "A child tells it wrong, and the new version becomes funnier than the original.",
    "src": "L99"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The village imagines distant grandchildren groaning at the same moment in the joke; everyone laughs.",
+   "src": "L92",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L92"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The village imagines distant grandchildren groaning at the same moment in the joke; everyone laughs.",
+   "src": "L92"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The elder tells it again, and everyone laughs harder because they knew it was coming.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The elder tells it again, and everyone laughs harder because they knew it was coming.",
+   "src": "L98"
   }
  }
 }

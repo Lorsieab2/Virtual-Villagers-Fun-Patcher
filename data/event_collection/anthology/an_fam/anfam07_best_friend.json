@@ -179,9 +179,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(villager) discovers another friendship can be rewarding.",
-   "src": "L28399"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -209,6 +216,25 @@
    "name": "Outcome D2",
    "text": "The silence causes confusion until someone asks what happened.",
    "src": "L28403"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers another friendship can be rewarding.",
+   "src": "L28399",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L28399"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers another friendship can be rewarding.",
+   "src": "L28399"
   }
  }
 }

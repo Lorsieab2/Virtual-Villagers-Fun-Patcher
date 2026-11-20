@@ -37,7 +37,7 @@ comes from reading the program, not from watching it play.
 Patch status
   - "v1.35.44" means the release v1.35.44 (published), which includes the population-hut change.
   - "Catch-up update" means the catch-up work that also shipped in v1.35.44 (PR #494): the
-    catch-up boost of Builders and Healers Work First, The Lost Children's plant study during
+    catch-up boost of Villagers Work Their Own Job First, The Lost Children's plant study during
     catch-up, and the companions installed before the first catch-up. Both are in every release
     from v1.35.44 on.
 
@@ -74,7 +74,7 @@ S2. Only healthy, idle adults do anything while you are away
         Children never act.
   Tip   No lessons, no child play and no child mushroom-finding happen while the game is closed.
         Sick or weak adults also sit out.
-  Patch Builders and Healers Work First (catch-up update) makes builders and healers try their
+  Patch Villagers Work Their Own Job First (catch-up update) makes builders and healers try their
         own job first about 3 times in 4 during catch-up. Otherwise not changed.
   Tag   [code, re-traced]
 
@@ -236,7 +236,7 @@ BUILDING
           started them.
         - Below Construction level 3 the Building job gives up before it ever reaches hut fixing.
   Patch Builders Fix Huts When Idle (build first; idle builders fix huts at any Construction
-        level). Builders and Healers Work First raises the odds further.
+        level). Villagers Work Their Own Job First raises the odds further.
   Tag   [code]
 
 BREEDING
@@ -316,7 +316,7 @@ JOBS
         A skill of 0 or 1 therefore never works on its own, even with the preference ticked.
   Tip   Don't tick a preference for a skill the villager does not have. Drag them to the job
         first.
-  Patch Builders and Healers Work First and Builder Action Fixes raise the odds for building and
+  Patch Villagers Work Their Own Job First and Builder Action Fixes raise the odds for building and
         healing.
   Tag   [code]
 
@@ -475,7 +475,7 @@ BUILDING
         unlocked by Engineering levels 2 and 3). Each step goes ahead only on a roll above 20 out
         of 100 (79%). Below Engineering
         level 3 the Building job gives up before hut fixing.
-  Patch Builders Fix Huts When Idle and Builders and Healers Work First.
+  Patch Builders Fix Huts When Idle and Villagers Work Their Own Job First.
   Tag   [code]
 
 4. The Hospital needs Medicine 3 and Engineering 3, and your start
@@ -544,14 +544,14 @@ JOBS
         - A ticked preference wins 86% of the time.
         - The job starts only if the skill is above 5, and then with chance (skill + 40)%.
         A preference on a skill of 5 or less leaves the villager idle.
-  Patch Builders and Healers Work First (builders and healers only).
+  Patch Villagers Work Their Own Job First (builders and healers only).
   Tag   [code]
 
 13. The 300-food line
   What  Below 300 food every villager gets an extra job attempt, and healers carry on studying
         plants. At 300+ they lose that attempt, and healers stop plant study.
-  Patch Healers Study Plants Regardless of Food. Builders Fix Huts When Idle and Builders and
-        Healers Work First (for builders).
+  Patch Healers Study Plants Regardless of Food. Builders Fix Huts When Idle and Villagers Work Their Own
+        Job First (for builders).
   Tag   [code]
 
 14. Plenty of food makes villagers quit long jobs
@@ -689,7 +689,7 @@ BUILDING
   What  The Building job offers a hut or project only once its progress is above 1% (your drop
         puts it there) and it is not finished. There is no population test.
   Tip   Drop a builder on each new site once.
-  Patch Not changed by the patcher. Builders and Healers Work First does not lift the start gate;
+  Patch Not changed by the patcher. Villagers Work Their Own Job First does not lift the start gate;
         v1.35.44 deliberately leaves this game as it is.
   Tag   [code, re-traced]
 
@@ -759,7 +759,7 @@ JOBS
         - 84% chance per skill
         - preference wins 86%
         - skill must be above 5, then (skill + 40)%
-  Patch Builders and Healers Work First (builders and healers).
+  Patch Villagers Work Their Own Job First (builders and healers).
   Tag   [code]
 
 13. Dislikes make villagers refuse, and forget, their task
@@ -784,7 +784,7 @@ JOBS
 15. Low food (250 or less)
   What  Anyone with Farming 20+ farms first. Half of the other non-farm, non-heal picks become
         "worried about food".
-  Patch Builders Fix Huts When Idle (builders). Builders and Healers Work First (healers).
+  Patch Builders Fix Huts When Idle (builders). Villagers Work Their Own Job First (healers).
   Tag   [code]
 
 16. Unskilled villagers mostly stand still
@@ -986,7 +986,7 @@ JOBS
         - 84% chance per skill
         - preference wins 86%
         - skill must be above 5, then (skill + 40)%
-  Patch Builders and Healers Work First.
+  Patch Villagers Work Their Own Job First.
   Tag   [code]
 
 14. Dislikes veto work 60% of the time
@@ -997,7 +997,7 @@ JOBS
 15. Low food (250 or less)
   What  Anyone with Farming 20+ farms first (the 20 is exact). Otherwise half of the non-farm,
         non-heal picks become foraging.
-  Patch Builders Fix Huts When Idle and Builders and Healers Work First (builders and healers
+  Patch Builders Fix Huts When Idle and Villagers Work Their Own Job First (builders and healers
         skip it about 3 times in 4, while you play).
   Tag   [code, re-traced]
 
@@ -1142,7 +1142,7 @@ WORK AND JOBS
         - disliking "medicine" halves the chance of Healing
         - preference wins 86%
         - skill must be above 5, then (skill + 40)%
-  Patch Builders and Healers Work First (builders and healers). Easier Devotee Training
+  Patch Villagers Work Their Own Job First (builders and healers). Easier Devotee Training
         (devotees, live play only).
   Tag   [code]
 
@@ -1153,7 +1153,7 @@ WORK AND JOBS
 6. Low food (250 or less)
   What  Anyone with Farming 20+ farms first. Otherwise half of the non-farm, non-heal villagers
         just stand "Worried about food".
-  Patch Builders Fix Huts When Idle and Builders and Healers Work First (builders and healers,
+  Patch Builders Fix Huts When Idle and Villagers Work Their Own Job First (builders and healers,
         while you play).
   Tag   [code, re-traced]
 
@@ -1182,7 +1182,7 @@ WORK AND JOBS
 10. Healers treat only believers
   What  The patient search skips Heathens. With nobody sick and the Medicine Totem done, healers
         study instead.
-  Patch Builders and Healers Work First.
+  Patch Villagers Work Their Own Job First.
   Tag   [code]
 
 11. Pregnant and nursing mothers never work
@@ -1201,8 +1201,8 @@ DEVOTION AND CHIEFS
         50/50. Ordinary devotees honor only through the Devotion job. The Retired Chief is the
         converted Heathen Chief, who keeps his special type.
   Patch Easier Devotee Training (devotees with any Devotion may honor on their own, live only).
-        Statue Drops: Normal Action or Honoring (drops on the statue). Catch-up update: Builders
-        and Healers Work First gives devotees a catch-up boost.
+        Statue Drops: Normal Action or Honoring (drops on the statue). Catch-up update: Villagers Work Their
+        Own Job First gives devotees a catch-up boost.
   Tag   [code, re-traced]
 
 14. Divine energy depends on Devotion

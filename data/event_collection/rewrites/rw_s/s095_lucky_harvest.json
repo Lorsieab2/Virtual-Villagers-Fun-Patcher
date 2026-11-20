@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lucky Harvest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s095_lucky_harvest",
+  "source": "rewrites",
+  "lines": [
+   4443,
+   4485
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4443",
+  "ledger": [
+   {
+    "src": "L4444",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4445",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4453",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4462",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4450",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4451",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4454",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4463",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4456",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4465",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4468",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4471-4485",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everything has grown at once.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Everything has grown at once. Every field, every tree, every vine, every garden on the island, all ripe on the very same morning. The elders have never seen anything like it. The researchers think the long rains followed by the hot dry spell set everything off at once.\nThe fields are bursting. The fruit trees are bent so low with fruit that their branches touch the ground. Vines climb over the fences and across the paths, and fat gourds roll into the doorways. The air is thick and sweet and heavy, and humming. The bees are so busy and so happy that they can't even be bothered to sting anyone.\nIt's going to take everybody in the village to bring it all in. Maybe more than everybody. Should the village harvest everything, or leave some for the island?",
+   "choices": [
+    {
+     "label": "Harvest Everything",
+     "next": "c1",
+     "src": "L4450"
+    },
+    {
+     "label": "Share with the Island",
+     "next": "c2",
+     "src": "L4451"
+    }
+   ],
+   "src": "L4446-4448"
+  },
+  "c1o1": {
+   "text": "It takes a whole week, and every basket, pot, bowl, net, cloth and hat in the village, and in the end they're piling the harvest in heaps on the floor of the meeting hut because there's nowhere else to put it. The stores are full to the brim and overflowing. Nobody in the village has ever seen so much food in one place. The children lie on top of the pile of melons and refuse to get off. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "huge",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4457",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The village harvests so much, so fast, that they simply can't carry it all. Baskets fill up faster than anyone can take them to the store. Heaps of fruit sit waiting in the fields, and the birds come, in great happy flocks, and help themselves. By the time the last basket is carried in, the birds have had a good share. But even so, it's the biggest harvest the village has ever had. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4460",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Every single villager who can walk heads for the fields with a basket. Children, elders, healers, researchers, the {@chief}. They pick from dawn to dark, and carry, and pick again, singing to keep going...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4454"
+  },
+  "c2o1": {
+   "text": "They leave the rest for the animals. And the animals come: birds, pigs, goats, the little striped forest creatures nobody usually sees, all eating side by side in the fields as the sun goes down. It's a strange and lovely sight. And the animals seem grateful, in their way: the pigs root up the leftover stalks and turn the soil, the birds leave their droppings on the fields. The next harvest is just as good as this one. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4466",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They leave the rest for the spirits, the way the old stories say, with a little bowl of the best fruit placed at the edge of each field. In the morning the bowls are empty. And in each one, where the fruit was, there's something left behind. A smooth river stone with a hole in it. A carved bone hook, finer than anyone in the village can make. A shell full of seeds nobody recognises. Nobody knows who left them. Everybody agrees not to ask. Your villagers gain (award) food and (award) tech points.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L4469",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The elders say that a gift this big should be shared. So the village harvests what it needs, and then, on purpose, leaves the rest: whole rows in the fields, whole trees in the orchards, left standing, untouched...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4463"
+  }
+ }
+}

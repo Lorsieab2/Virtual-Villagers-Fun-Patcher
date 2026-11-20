@@ -51,18 +51,21 @@ typedef struct {
     int game;
     unsigned int dialog_vtable, click;
     unsigned int set_text, hide, show;
-    unsigned int alloc, images, image;
+    /* images_word: where the image manager's getter (0x42E9D0 / 0x44CCF0 / 0x44FBB0) keeps it -- read, never the
+       getter, which builds it when missing (a getter called from a hook can run inside a constructor: the New
+       Believers start-up crash, 2026-11-18).  The game has drawn its popup, so it is built; 0: no buttons. */
+    unsigned int alloc, images_word, image;
     int image_id;
     unsigned int button, label, colours;
     unsigned int holder, justify, font;
 } ma_game;
 
 static const ma_game MA_GAMES[3] = {
-    { 3, 0x47F28Cu, 0x419A00u, 0x4185A0u, 0x40C230u, 0x40C1F0u, 0x46EC93u, 0x42E9D0u, 0x42E8A0u, 4,
+    { 3, 0x47F28Cu, 0x419A00u, 0x4185A0u, 0x40C230u, 0x40C1F0u, 0x46EC93u, 0x592714u, 0x42E8A0u, 4,
       0x4019F0u, 0x401620u, 0x4A460Cu, 0x408940u, 0x40A0C0u, 0x4B3D60u },
-    { 4, 0x48D2C8u, 0x417EA0u, 0x416F60u, 0x40C210u, 0x40C190u, 0x470C5Cu, 0x44CCF0u, 0x44CB60u, 0x83,
+    { 4, 0x48D2C8u, 0x417EA0u, 0x416F60u, 0x40C210u, 0x40C190u, 0x470C5Cu, 0x4DEA0Cu, 0x44CB60u, 0x83,
       0x401C20u, 0x401600u, 0x4B8E34u, 0x408130u, 0x409C30u, 0x4CCAF0u },
-    { 5, 0x4984D8u, 0x418720u, 0x417700u, 0x40C700u, 0x40C680u, 0x47BBDCu, 0x44FBB0u, 0x44FA20u, 0x65,
+    { 5, 0x4984D8u, 0x418720u, 0x417700u, 0x40C700u, 0x40C680u, 0x47BBDCu, 0x52408Cu, 0x44FA20u, 0x65,
       0x401BD0u, 0x4015D0u, 0x4C6D24u, 0x4080C0u, 0x409F00u, 0x4DC930u },
 };
 
@@ -302,7 +305,10 @@ static int ma_attach(int game, const ma_client *client, void *dialog, int count,
     }
     g_ma.g = g;
     g_ma.c = client;
-    manager = ((ma_getter_fn)(uintptr_t)g->images)();
+    manager = *(void *volatile *)(uintptr_t)g->images_word;
+    if (manager == NULL) {
+        return 0;
+    }
     for (k = 0; k < count - 2; ++k) {
         void *image, *b = ((ma_new_fn)(uintptr_t)g->alloc)(0x14);
         if (b == NULL) {
@@ -491,7 +497,7 @@ static int ma_op_rows(const void *popup, op_rows *out) {
     int r = 0;
     __try {
         if (popup != NULL && popup == g_ma_op_dialog && g_ma_op != NULL && out != NULL
-            && out->size == (int)sizeof(op_rows)) {
+            && OP_ROWS_SIZE_OK(out)) {
             void *ok = g_ma_op_built ? ma_control(g_ma_op_dialog, 0x864u) : NULL;
             int h = ok != NULL ? ma_vcall(ok, 0x10) : 0;
             out->rows = ma_op_count(g_ma_op_dialog, out);

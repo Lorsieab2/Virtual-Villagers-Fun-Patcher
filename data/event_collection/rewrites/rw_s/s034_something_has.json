@@ -1,0 +1,272 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Something Has Been Eating the Scrolls",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s034_something_has",
+  "source": "rewrites",
+  "lines": [
+   1595,
+   1638
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1595",
+  "ledger": [
+   {
+    "src": "L1596",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1597",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1604",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1613",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1601",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1602",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1605",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1614",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1607",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1610",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1616",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1619",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1622-1638",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L1608",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L1611",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L1620",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The research hut is full of tiny holes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The research hut is full of tiny holes. Daylight comes in through the walls in little dots, like stars at noon. There are tiny holes in the scrolls. Tiny holes in the baskets. Tiny holes in the bark notes, the drawings, the maps, and the chart of the moon that took a whole year to make.\n(Name) follows the trail of holes along the shelves to the most important scroll of all, the one with the oldest notes in the village, and unrolls it with trembling hands. Right in the middle, curled up in a perfect round hole it has eaten for itself, is a very fat, very happy beetle, fast asleep. Should (name) get rid of it right now, or study it to find out why it's eating the scrolls?",
+   "choices": [
+    {
+     "label": "Evict the Beetle",
+     "next": "c1",
+     "src": "L1601"
+    },
+    {
+     "label": "Study the Beetle",
+     "next": "c2",
+     "src": "L1602"
+    }
+   ],
+   "src": "L1598-1599"
+  },
+  "c1o1": {
+   "text": "The beetle is gone. But it has been very busy. (Name) and the other researchers go through every scroll, one by one, and find that it has eaten its way through a whole season of notes, carefully and neatly, the way a person eats a good meal. Some of them have more hole than scroll. They patch what they can and copy out what they can still read, and for a month the researchers grumble every time they see a beetle anywhere.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1608"
+  },
+  "c1o2": {
+   "text": "The beetle goes. Its family stays. There are hundreds of them: in the shelves, in the walls, in the roof, in the baskets, all very fat and all very happy. It takes the researchers a whole month to get rid of them all, smoking them out, sweeping them out, moving every single scroll outside into the sun and brushing it off one at a time. By the end, a great many notes are gone for good.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L1611"
+  },
+  "c1": {
+   "text": "(Name) picks the beetle up between (his/her) finger and thumb, carries it outside at arm's length, and flicks it off into the bushes as hard as (he/she) can. Then (he/she) comes back in, rolls up (his/her) sleeves, and starts going through the shelves...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1605"
+  },
+  "c2o1": {
+   "text": "(Name) watches the beetle for three days. (He/She) offers it all kinds of things to eat: bark from every tree on the island, leaves, cloth, wood. It turns up its nose at all of them except one: the pale, soft bark of the paper tree that every scroll in the hut is made from. The researchers switch to a different, darker bark for all their new notes. The beetles never touch them again. They never lose another note, and (name) writes a very proud scroll about it, on the dark bark. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Research"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L1617",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) studies the beetle so closely, so happily, for so long, that (he/she) completely forgets about the rest of the hut. While (he/she) is watching one beetle eat one scroll, its whole family quietly eats an entire basket of notes on the other side of the room. When the other researchers find out, they are furious. (Name) doesn't mind much. (He/She) has fallen head over heels in love with learning, with watching and measuring and finding out, and (he/she) is already planning (his/her) next study.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L1620"
+  },
+  "c2": {
+   "text": "(Name) doesn't touch it. (He/She) pulls up a stool, sits down, and watches. The beetle wakes up, yawns, if beetles can yawn, and starts eating again, slowly. (Name) gets out a fresh piece of bark and starts taking notes, keeping it well out of the beetle's reach...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1614"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "learning",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

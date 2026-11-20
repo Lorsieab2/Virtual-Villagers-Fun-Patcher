@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) spends the morning thinking. A shelf. A better door. A garden outside the window. By lunchtime (he/she) has a whole new list. (He/she) enjoys the list very much. (He/she) suspects the list is the part (he/she) actually likes.",
-   "src": "L194"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) decides not to want anything else for a while. (He/she) just enjoys the window. Every morning the sun comes in. Some mornings (he/she) is irritated by it and pulls the blanket over (his/her) head. Most mornings (he/she) isn't. It's a window. It's a good one. That's enough.",
    "src": "L197"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) spends the morning thinking. A shelf. A better door. A garden outside the window. By lunchtime (he/she) has a whole new list. (He/she) enjoys the list very much. (He/she) suspects the list is the part (he/she) actually likes.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) spends the morning thinking. A shelf. A better door. A garden outside the window. By lunchtime (he/she) has a whole new list. (He/she) enjoys the list very much. (He/she) suspects the list is the part (he/she) actually likes.",
+   "src": "L194"
   }
  }
 }

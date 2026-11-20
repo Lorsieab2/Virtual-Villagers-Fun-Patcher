@@ -94,9 +94,36 @@
      "max": 10,
      "src": "L8724"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d__fx"
+    },
+    {
+     "next": "d__text"
+    }
+   ]
+  },
+  "d__fx": {
+   "name": "Answer D",
+   "text": "The village restricts disturbance and learns more about breeding.",
+   "src": "L8726",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8726"
+    }
+   ],
+   "auto_text": true
+  },
+  "d__text": {
    "name": "Answer D",
    "text": "The village restricts disturbance and learns more about breeding.",
    "src": "L8726"

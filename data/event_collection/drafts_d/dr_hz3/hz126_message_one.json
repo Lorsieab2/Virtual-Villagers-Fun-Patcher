@@ -111,9 +111,16 @@
    "src": "L564"
   },
   "b2": {
+   "type": "branch",
    "name": "Outcome B2",
-   "text": "It washes back ashore the next morning, and the child laughs and tries again another day.",
-   "src": "L565"
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
   },
   "c": {
    "type": "branch",
@@ -128,14 +135,59 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "The child imagines a distant child carving an answer, and smiles.",
-   "src": "L567"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "An elder reminds them that a reply might never come, and the child decides that is all right.",
    "src": "L568"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "It washes back ashore the next morning, and the child laughs and tries again another day.",
+   "src": "L565",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L565"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "It washes back ashore the next morning, and the child laughs and tries again another day.",
+   "src": "L565"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child imagines a distant child carving an answer, and smiles.",
+   "src": "L567",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L567"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child imagines a distant child carving an answer, and smiles.",
+   "src": "L567"
   }
  }
 }

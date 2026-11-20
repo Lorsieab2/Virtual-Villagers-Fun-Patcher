@@ -106,7 +106,8 @@
      "who": "all",
      "src": "L5187"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome 2",
@@ -119,7 +120,8 @@
      "scaled": true,
      "src": "L5188"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",

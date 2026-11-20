@@ -93,6 +93,25 @@ GAME_READS_IN_PLACE: dict[str, str] = {
     "Images/vvfp_fruit_tree_3.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_4.png": _GAME_IMAGE,
     "Images/vvfp_fruit_tree_5.png": _GAME_IMAGE,
+    # The Tree of Life's Cloth Sacks for Yellow Fruit: the sacks a villager carries; the game's sprite
+    # constructor is handed "vvfp_sack_empty.png", "vvfp_sack_yellow_fruit_raw.png" and "vvfp_sack_yellow_fruit.png"
+    # (vvfp_vv4_cloth_sacks.c).
+    "Images/vvfp_sack_empty.png": _GAME_IMAGE,
+    "Images/vvfp_sack_yellow_fruit_raw.png": _GAME_IMAGE,
+    "Images/vvfp_sack_yellow_fruit.png": _GAME_IMAGE,
+    # The Tree of Life's Fix Vanilla Bugs: the owner's redrawn broken-pier holes;
+    # the game's sprite table entries 104-113 are pointed at "vvfp_" + the stock
+    # name (vvfp_vv4_pier_holes.c).
+    "Images/vvfp_northPierHoleEast.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleMidNorth.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleMidSouth.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleSouthEast.png": _GAME_IMAGE,
+    "Images/vvfp_northPierHoleWest.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleEast.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleNorthEast.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleNorthWest.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleSouthEast.png": _GAME_IMAGE,
+    "Images/vvfp_southPierHoleSouthWest.png": _GAME_IMAGE,
     # The Tree of Life / New Believers text: the game's own string table.
     "Assets/sm.xml": "replaces the game's own string table, which the game opens from Assets\\",
     # New Believers' Guardians of Isola rewrite: stock art replaced in place.
@@ -131,10 +150,17 @@ PATCHER_READS: frozenset[str] = frozenset({
     # The Tree of Life's Yellow Breadfruit Refills Partially Every Time: a flag file whose presence beside the
     # companions tells "VVFP VV4 Fruit Supply.dll" to refill at The Secret City's pace (vvfp_vv4_fruit_supply.c).
     "VVFP VV4 Fruit Partial Refill.txt",
+    # New Believers' No Restrictions on Fog of Doom Conversions: a flag file whose presence beside the companions
+    # tells "VVFP Fog Listening.dll" to leave out the Faith limit (vvfp_fog_listening.c).
+    "VVFP Fog Listening No Restrictions.txt",
     # Island Events Scale With Stored Food and Tech Points (A New Home, The Tree of Life, New Believers): a flag file
     # whose presence beside the companions tells "VVFP Island Events Scale.dll" to scale by the stored food and tech
     # points instead of the population (vvfp_island_events_scale.c).
     "VVFP Island Events Scale Stored.txt",
+    # A New Home's The Golden Child May Be Born Female (50:50): a flag file whose presence beside the companions tells
+    # "VVFP Gender Presentation.dll" to keep the sex the creator draws for a new Golden Child
+    # (vvfp_gender_presentation.c).
+    "VVFP Golden Child Born Female.txt",
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.
@@ -154,14 +180,49 @@ PATCHER_READS: frozenset[str] = frozenset({
 
 # Folders of files only the companions read, whatever their names: everything in them goes in the patcher's folder.
 PATCHER_READ_FOLDERS: tuple[str, ...] = (
-    # The Isola Grand Event Collection: its events (.cieg), manifest.txt and credits, read by "VVFP Story
-    # Upgrades.dll" from "Island Event Collection\\" beside it (story_collection.inc;
-    # scripts/build_event_collection_features.py).
-    "Island Event Collection/",
+    # The Isola Grand Event Collection: its events ("<number>.cieg"), manifests ("<group>.lst"), living packs
+    # ("<group>.pak") and credits, read by "VVFP Story Upgrades.dll" from "Events\\" beside it (story_collection.inc;
+    # scripts/build_event_collection_features.py).  Short names (the owner, 2026-11-19): no "Path too long" when a
+    # patched game is copied or unzipped.
+    "Events/",
+    # Player Events (src/vv_player_events.py install): the AI prompt, the owner's reference files, the install report
+    # and copies of the player's event files, written there for the player to read.
+    "Player Events/",
 )
 
+# The same folder under its name up to v1.35.97's path fix, with the long file names it held ("<id>.cieg",
+# "manifest-<group>.txt", "living-<group>.pak", "pieces-<group>.pcb", Credits.txt and the companion's Problems.txt).
+# Nothing reads it any more: a re-patch removes those files from it (vv_fun_patcher._remove_legacy_collection_folder).
+LEGACY_COLLECTION_FOLDER = "Island Event Collection"
+
+# The budgets the tests hold every shipped name to (tests/test_path_lengths.py): a file inside a patched game folder,
+# relative to it, and an entry of the release zip.  With them a game folder up to 159 characters deep still copies
+# and unzips with Windows Explorer, whose limit is MAX_PATH.
+INSTALLED_RELATIVE_BUDGET = 100
+ZIP_ENTRY_BUDGET = 120
+
+# Setting files the patcher itself writes beside their companions (no catalog record ships them): the sliders'
+# numbers for Louder Wind Flutes ("VVFP VV4 Louder Flutes.dll") and More Frequent Island Events ("VVFP Island
+# Frequency.dll"), and Use Unicode Font's typeface ("VVFP Unicode Font.dll").  They go in the patcher's folder too.
+PATCHER_SETTINGS: frozenset[str] = frozenset({
+    "VVFP VV4 Louder Flutes.txt",
+    "VVFP Island Frequency.txt",
+    "VVFP Unicode Font.txt",
+    # Village Solidarity's strength (the row's slider), beside "VVFP Village Solidarity.dll".
+    "VVFP Village Solidarity.txt",
+    # Hungrier Villagers' meal multiplier ("VVFP Meal Scale.dll"), the third word's companion list ("VVFP More
+    # Companions.dll") and the 0.1x-10x sliders' numbers (src/vv_fun_patcher.py RUNTIME_SLIDERS).
+    "VVFP Meal Scale.txt",
+    "VVFP More Companions.txt",
+    "VVFP Collectible Frequency.txt",
+    "VVFP Food Gain.txt",
+    "VVFP Tech Gain.txt",
+    "VVFP Skill Success.txt",
+    "VVFP Age Speed.txt",
+})
+
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
-_PATCHER_READS = {key.casefold() for key in PATCHER_READS}
+_PATCHER_READS = {key.casefold() for key in PATCHER_READS | PATCHER_SETTINGS}
 _PATCHER_READ_FOLDERS = tuple(folder.casefold() for folder in PATCHER_READ_FOLDERS)
 
 # The patch log. Its name is short and the same in every build (the owner,

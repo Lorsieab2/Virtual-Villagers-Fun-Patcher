@@ -80,8 +80,9 @@
    "min_age": 14
   },
   "visitor": {
-   "kind": "stranger",
-   "sex": "random"
+   "kind": "villager",
+   "min_age": 14,
+   "heathen_ok": true
   },
   "coda1": {
    "kind": "stranger",
@@ -329,7 +330,8 @@
     {
      "next": "coda"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "coda_c10": {
    "popup": "append",

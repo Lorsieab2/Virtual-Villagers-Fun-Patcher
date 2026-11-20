@@ -99,9 +99,16 @@
    "src": "L163"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) watches a miniature fleet drift toward the shore. One boat spins in circles, to the delight of its maker.",
-   "src": "L167"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "(Name1) watches a miniature fleet drift toward the shore. A passing breeze changes everyone's predictions.",
    "src": "L175"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) watches a miniature fleet drift toward the shore. One boat spins in circles, to the delight of its maker.",
+   "src": "L167",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L167"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) watches a miniature fleet drift toward the shore. One boat spins in circles, to the delight of its maker.",
+   "src": "L167"
   }
  }
 }

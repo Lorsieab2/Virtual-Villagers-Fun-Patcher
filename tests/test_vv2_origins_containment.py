@@ -31,8 +31,16 @@ PUBLIC = {
 }
 REMAINING = {
     "vv2_last_names",
+    # Every Island Event Can Happen: the island event chooser's own conditions, nothing of Origins.
+    "vv2_every_island_event_can_happen",
+    # the island events' content controls: names in the installed patches' list, no executable byte
+    "vv2_island_event_content_notes",
+    "vv2_island_events_any_time",
+    *(f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)),
     # companion only: detours at run time, owns no executable bytes
     "vv2_totems_out_of_entries",
+    # companion only: detours the island event trigger's three wait draws at run time, owns no bytes
+    "vv2_more_frequent_island_events",
     # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes
     "vv2_unicode_text",
     # companion only: writes the string table and its sites at run time, only while a language is chosen;
@@ -42,11 +50,11 @@ REMAINING = {
     "vv2_copy_paste",
     # companion only: replaces the story pages' vtable slots at run time, owns no bytes
     "vv2_skip_all_intro",
-    # 2-10x Tech Cost: its price immediates only, nothing of Origins.
+    # 0.1-10x Tech Cost: its price immediates only, nothing of Origins.
     "vv2_tech_cost_multiplier",
     # Hungrier Villagers: the meal's two immediates only, nothing of Origins.
     "vv2_hungrier_villagers",
-    # 2-10x Sickness: no render byte (written at publish), nothing of Origins.
+    # 0.1-10x Sickness: no render byte (written at publish), nothing of Origins.
     "vv2_sickness_multiplier",
     "vv2_island_events",
     "vv2_storytelling",
@@ -66,6 +74,14 @@ REMAINING = {
     "vv2_adult_confused",
     # companion only (the children's pastime pick, at run time); owns no Origins bytes
     "vv2_children_play",
+    # companion only (the island event trigger's wait draws, at run time); owns no Origins bytes
+    "vv2_more_frequent_island_events",
+    # the 0.1x-10x sliders: companion only (call sites, at run time); own no Origins bytes
+    "vv2_collectible_frequency",
+    "vv2_food_gain",
+    "vv2_tech_gain",
+    "vv2_skill_success",
+    "vv2_age_speed",
     # the mushroom spawn roll and pickup; owns no Origins bytes
     "vv2_super_secret_golden_mushroom",
     "vv2_faster_village_scrolling",
@@ -95,6 +111,9 @@ REMAINING = {
     # Checked Skill Preferences are listed as Jobs on Graves: the burial writer
     # re-encoded in place; owns no Origins bytes
     "vv2_preferred_job_graves",
+    # Every Island Event Can Happen: the event conditions' technology tests and raises, in place; owns no Origins
+    # bytes
+    "vv2_every_island_event_can_happen",
 }
 
 
@@ -219,7 +238,7 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 "vv2_teaching_children_cap_50",
                 # Healers Study Plants Regardless of Food: loaded the same way.
                 "vv2_healers_study_regardless_of_food",
-                # Builders and Healers Work First: loaded by the fix-huts companion.
+                # Villagers Work Their Own Job First: loaded by the fix-huts companion.
                 "vv2_builders_and_healers_work_first",
                 # Story / Cheat Upgrades: loaded by the Origins companion, and
                 # it requires the Origins upgrades row itself.
@@ -230,6 +249,8 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Upgrades (the separate rare roll runs them), so selecting them resolves the Origins base in.
                 "vv2_more_island_events",
                 "vv2_isola_grand_event_collection",
+                # Village Solidarity: requires Story / Cheat Upgrades too, so the Origins base resolves in.
+                "vv2_village_solidarity",
                 # Show Cause of Death on Graves: loaded by the Origins
                 # companion, so it declares the Origins base.
                 "vv2_cause_of_death",
@@ -239,6 +260,9 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 # Change Sex and Gender Presentation: its choices are in the Origins Change Appearance
                 # window, so it declares the Origins base.
                 "vv2_gender_presentation",
+                # Village Solidarity: requires Story / Cheat Upgrades (the new events move it), so selecting it
+                # resolves the Origins base in.
+                "vv2_village_solidarity",
                 *PUBLIC,
             }
             # a catalog-wide selection leaves out each pair's alternative (Use Unicode Font)

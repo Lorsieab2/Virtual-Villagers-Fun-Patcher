@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bird That Steals Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b302_bird_steals_words",
+  "source": "balance",
+  "lines": [
+   14014,
+   14054
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14014",
+  "ledger": [
+   {
+    "src": "L14015",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14016",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14023",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14032",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14020",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14021",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14024",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14033",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14026",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14029",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14035",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14038",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14041-14054",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A black-and-gold bird has taken up residence in the palm above a villager's hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A black-and-gold bird has taken up residence in the palm above (name)'s hut. It can talk, which is unusual. It talks in other people's voices, which is worse. The elders say it's a word-thief, a bird from an old story that steals whatever it hears said most often, and keeps it in its nest.\nFor a week it has been sitting above (name)'s door saying (name)'s name, in (name)'s own voice, over and over. Each time, the name sounds a little more like the bird's and a little less like (name)'s. Should (name) climb up and chase it off, or leave it a gift of fruit to make it go away?",
+   "choices": [
+    {
+     "label": "Chase It Off",
+     "next": "c1",
+     "src": "L14020"
+    },
+    {
+     "label": "Leave It a Gift",
+     "next": "c2",
+     "src": "L14021"
+    }
+   ],
+   "src": "L14017-14018"
+  },
+  "c1o1": {
+   "text": "...and flies away with it. (Name) climbs down and finds (he/she) can't remember what the bird just said. Nobody can. They can all remember (name)'s face, (his/her) laugh, (his/her) terrible singing, but not (his/her) name. It's in the bird's nest now, somewhere in the hills. The village calls (him/her) \"?\" and keeps an eye out for black-and-gold feathers.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L14027",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "...and flies up into the hills. (Name) follows it all afternoon, and at last finds its nest in a crack in the rocks, lined with tiny scraps of bark. Each one, when (name) holds it to (his/her) ear, whispers a word. One of them whispers (his/her) own name. (He/She) takes it home and keeps it in a little pot on (his/her) shelf, just to be safe.",
+   "src": "L14030"
+  },
+  "c1": {
+   "text": "(Name) climbs the palm with a stick, yelling. The bird looks at (him/her) with one bright eye, and says (his/her) name one last time, very clearly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14024"
+  },
+  "c2o1": {
+   "text": "The bird says a new name, one (name) has never heard, in (name)'s own voice. Then it flies away for good. From that moment, the new name is (name)'s, as if it always had been. When anyone tries to remember the old one, all they can hear is a bird calling. (Name) becomes (made1), and leaves mangoes on the windowsill every spring, in case the bird comes back.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L14036",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The bird seems to decide it likes mango better than names. It stops saying (name)'s name and starts saying \"mango,\" in (name)'s voice, every morning at dawn, very loudly. It never stops. (Name) keeps (his/her) name, and loses a great deal of sleep.",
+   "src": "L14039"
+  },
+  "c2": {
+   "text": "(Name) leaves a ripe mango on the windowsill. The bird drops down, eats every bit of it, and looks at (name) thoughtfully...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14033"
+  }
+ }
+}

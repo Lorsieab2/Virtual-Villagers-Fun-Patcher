@@ -1,0 +1,314 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Woman's Empty Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my105_woman_empty",
+  "source": "rewrites",
+  "lines": [
+   15962,
+   16017
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15962",
+  "ledger": [
+   {
+    "src": "L15963",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15964",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15972",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15979",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15986",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15993",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15967",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15968",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15969",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15970",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15973",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15980",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15987",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15994",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15974",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15976",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15981",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15983",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15988",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15990",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15995",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15997",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16000-16017",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An elderly woman comes to a villager's door and asks for food.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An elderly woman comes to (name)'s door and asks for food. So (name) offers her some. She refuses. (Name) offers her something else. She refuses that too. Fruit, fish, bread, a blanket, a seat by the fire: she shakes her head at every single one, smiling. Her hands are thin and empty, her eyes are bright, and she smells faintly of the jasmine that grows along the coast road.\n\"I didn't come for the food,\" she says at last. \"I came to learn whether anyone would offer.\" (Name) stands in the doorway holding a bowl of stew, thoroughly confused. How should (he/she) respond?",
+   "choices": [
+    {
+     "label": "Ask What She Needs",
+     "next": "c1",
+     "src": "L15967"
+    },
+    {
+     "label": "Offer a Meal Anyway",
+     "next": "c2",
+     "src": "L15968"
+    },
+    {
+     "label": "Invite Her to Tell Her Story",
+     "next": "c3",
+     "src": "L15969"
+    },
+    {
+     "label": "Dismiss Her",
+     "next": "c4",
+     "src": "L15970"
+    }
+   ],
+   "src": "L15965-15966",
+   "text_only": [
+    {
+     "src": "L15965",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    },
+    {
+     "src": "L15966",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "\"I'm lonely,\" she says simply. \"That's all. Everyone I knew is gone.\" (Name) sits down on the step and pats the space beside (him/her), and after a moment, she sits too. They stay there until the stars come out, talking about nothing in particular: the weather, the price of fish, the noisy neighbours, the way the jasmine smells after rain. When she finally gets up to go, she squeezes (name)'s hand. She comes back to sit on the step every few days after that.",
+   "src": "L15975"
+  },
+  "c1o2": {
+   "text": "\"My grandson,\" she says. \"He went to live in a village on the other side of the hills, years ago, and I've lost the way. I'm too old to wander and search.\" (Name) asks around, and it turns out a trader knows the village and the grandson. The next week, (name) walks the old woman over the hills, very slowly. Her grandson nearly falls over when he sees her. She stays with him, and sends (name) a basket of jasmine every season after.",
+   "src": "L15977"
+  },
+  "c1": {
+   "text": "(Name) puts down the bowl. \"All right,\" (he/she) says gently. \"Then what is it you need?\" The old woman's smile softens...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15973"
+  },
+  "c2o1": {
+   "text": "...and then she laughs, a surprising, rusty laugh, and eats every bite. \"Well,\" she says, \"you passed.\" She reaches into her sleeve and presses a small packet into (name)'s hand: seeds, wrapped in a scrap of blue cloth tied with a perfect knot. \"Plant those by the water.\" Then she walks off down the coast road. (Name) plants the seeds, and they grow into a patch of sweet greens that feeds the household for weeks.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15982",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "...and gently hands it back. \"You're very kind,\" she says, and she really means it. \"That's all I needed to know.\" And she turns and walks away down the coast road, still smelling of jasmine, her hands still empty. (Name) stands holding the bowl and watching her go, wondering what exactly (he/she) had just been tested on, and whether (he/she) passed.",
+   "src": "L15984"
+  },
+  "c2": {
+   "text": "(Name) ignores the refusal completely, sets the bowl in her hands, puts a spoon in it, and says, \"Eat. I insist. Nobody leaves my door hungry.\" The old woman looks at the bowl for a long moment...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15980"
+  },
+  "c3o1": {
+   "text": "She tells a story about a great ruler who, once a year, put on rags and walked through her own lands as a beggar, knocking on doors to see which of her people would share what they had. \"The ones who shared,\" the old woman says, \"she remembered. The ones who didn't, she also remembered.\" She smiles at (name). \"Of course, that was a very long time ago.\" She leaves before (name) can ask her anything else, and (name) watches her walk away, very upright, like someone used to being obeyed.",
+   "src": "L15989"
+  },
+  "c3o2": {
+   "text": "She tells a simple story: about the hard years when she was young, when the crops failed three seasons running and her family nearly starved, and how a neighbour they barely knew left a little food at their door every week until the rains came back. \"We never found out who it was,\" she says. \"I've spent my life trying to pay it back. I ask at doors, now, to see who still does that kind of thing.\" She smiles. \"More people than you'd think.\"",
+   "src": "L15991",
+   "text_only": [
+    {
+     "src": "L15991",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "\"If you won't eat,\" (name) says, \"then at least come and sit by the fire and tell me who you are.\" The old woman considers this, then nods and steps inside...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15987"
+  },
+  "c4o1": {
+   "text": "She leaves without a trace of anger, walking slowly off down the coast road. Nothing unusual happens. No curse, no omen, no strange dream. (Name) goes back to work. Later that evening, though, (he/she) catches the smell of jasmine on the wind, and stops for a moment, and wishes, a little, that (he/she) had at least asked her name.",
+   "src": "L15996"
+  },
+  "c4o2": {
+   "text": "That night, (name) dreams of a stranger standing at (his/her) door with empty hands, asking the same question, over and over: \"Would you offer?\" Every time (name) tries to answer, the dream starts again. (He/she) wakes before dawn, tired and shaken. That morning, without quite knowing why, (he/she) leaves a bowl of food at the gate for anyone who might pass by, and keeps doing it.",
+   "src": "L15998",
+   "text_only": [
+    {
+     "src": "L15998",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4": {
+   "text": "(Name) has had enough. \"Look, if you don't want anything, then I have work to do.\" The old woman nods, unoffended...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15994"
+  }
+ }
+}

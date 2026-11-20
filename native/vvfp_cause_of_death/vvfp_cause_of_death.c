@@ -459,18 +459,35 @@ static int lost_babies(const unsigned char *record);
 static void lost_line(char *out, int babies);
 static void lost_record(const unsigned char *record, int babies, const char *how);
 
+/* `text` added to `out` (`cap` bytes, NUL included), cut to what fits. */
+static void cod_append(char *out, int cap, const char *text) {
+    int n = lstrlenA(out);
+    if (text != NULL && n < cap - 1) {
+        lstrcpynA(out + n, text, cap - n);
+    }
+}
+
 static int cod_log_death(const unsigned char *record, int cause, const char *grave,
                          const char *epitaph) {
-    char before[640];
+    /* The cause may be a Custom Island Event's own words, up to 4,095 characters with Scrolling Popups (the owner,
+       2026-11-17; cod_cie_words.inc CW_WORDS): built by parts, past wsprintf's 1,024 characters. */
+    static char before[640 + 4096];
+    char head[160];
     char carrying[96];
     int babies = lost_babies(record);
     int written;
     lost_line(carrying, babies);
-    wsprintfA(before,
-              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n%s",
-              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
-              cod_cause_words_of(cause, cod_record_fingerprint(record)), grave,
-              epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)", carrying);
+    wsprintfA(head, "  Age at death: %d\n  Sex: %s\n  Cause of death: ", rec_age(record),
+              roster_sex(*(const int *)(record + REC[g_game].sex)));
+    before[0] = '\0';
+    cod_append(before, (int)sizeof before, head);
+    cod_append(before, (int)sizeof before, cod_cause_words_of(cause, cod_record_fingerprint(record)));
+    cod_append(before, (int)sizeof before, "\n  Grave: ");
+    cod_append(before, (int)sizeof before, grave);
+    cod_append(before, (int)sizeof before, "\n  Epitaph: ");
+    cod_append(before, (int)sizeof before, epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)");
+    cod_append(before, (int)sizeof before, "\n");
+    cod_append(before, (int)sizeof before, carrying);
     written = cod_write(LOG_DEATH, record, 1, before, NULL, 1);
     lost_record(record, babies, "died");
     return written;

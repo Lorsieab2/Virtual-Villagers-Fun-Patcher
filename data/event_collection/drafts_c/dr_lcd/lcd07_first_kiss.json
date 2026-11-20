@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Kiss",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd07_first_kiss",
+  "source": "draft_lcd",
+  "lines": [
+   92,
+   103
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A couple's first kiss is about to happen when a goat interrupts: laugh it off, or try again.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been courting for a month. Tonight, walking back from the beach, (subject) stops, and (friend) stops, and they both lean in, and at that exact moment a goat walks between them and starts eating (friend)'s sash. What should they do?",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Laugh It Off",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Try Again",
+     "next": "o2",
+     "src": "L101"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They both burst out laughing. They chase the goat, rescue the sash, and laugh all the way home. At the door of (friend)'s hut, still laughing, (friend) kisses (subject) quickly on the cheek and goes in. (subject) walks home very slowly.",
+   "src": "L99"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) shoos the goat away, very firmly, and turns back. (friend) is already laughing. They try again. The kiss is short and a bit clumsy and they both remember it for the rest of their lives. The goat watches from a bush, chewing.",
+   "src": "L103"
+  }
+ }
+}

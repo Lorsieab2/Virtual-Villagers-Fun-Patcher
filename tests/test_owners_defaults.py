@@ -35,7 +35,7 @@ def _owner_keeps_off(patch_id: str) -> bool:
     Refill at the Same Time stays off."""
     # The owner (2026-11-01): "For Owner's Defaults, I'd like to have the ingame fonts toggled on" -- Use
     # Unicode Font, the alternative of Render Unicode with In-Game Fonts, stays off.
-    # 2-10x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
+    # 0.1-10x Tech Cost IS ticked (the owner, 2026-11-07: "sure, default them on in vv1-3 too!"); Story / Cheat
     # Upgrades cost Tech Points is not ("set "story upgrades cost tech points" default off in owner's defaults").
     # Move the "Playing in the dirt" Spot stays off (the owner, 2026-11-08): Puddle Play Moves to the Lake Shore,
     # ticked, moves "Playing in the dirt" to the lake shore, and the two untick each other.
@@ -44,9 +44,15 @@ def _owner_keeps_off(patch_id: str) -> bool:
             or patch_id == "vv5_playing_in_the_dirt_spot"
             # The owner (2026-11-11): Yellow Breadfruit Refills Partially Every Time is off in Owner's Defaults.
             or patch_id == "vv4_yellow_fruit_refills_partially"
+            # The owner (2026-11-19): No Restrictions on Fog of Doom Conversions is "default off" (off in Owner's
+            # Defaults too until the owner says otherwise).
+            or patch_id == "vv5_fog_of_doom_no_restrictions"
             # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
             # Owner's Defaults (Island Events Scale With Population is ticked there).
-            or patch_id.endswith("_island_events_scale_with_stored_amounts"))
+            or patch_id.endswith("_island_events_scale_with_stored_amounts")
+            # The owner (2026-11-15): the island events' content filters and No Safeguards for Island Events are
+            # off everywhere, Owner's Defaults too (Content Notes is ticked there).
+            or "_island_event_filter_f" in patch_id or patch_id.endswith("_island_events_any_time"))
 
 
 class OwnersDefaultsTests(unittest.TestCase):

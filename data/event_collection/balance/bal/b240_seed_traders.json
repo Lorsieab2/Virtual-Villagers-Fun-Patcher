@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seed Traders",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b240_seed_traders",
+  "source": "balance",
+  "lines": [
+   11170,
+   11212
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11170",
+  "ledger": [
+   {
+    "src": "L11171",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11172",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11180",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11189",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11177",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11178",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11181",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11190",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11183",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11186",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11192",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11195",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11198-11212",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They have laid out their seeds on mats on the beach: a hundred kinds, in little leaf packets, some the village has never seen.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two canoes of seed traders have come in from the south, a cheerful, noisy family who travel from island to island swapping seeds, cuttings and stories. They have laid out their seeds on mats on the beach: a hundred kinds, in little leaf packets, some the village has never seen. They want to trade for the village's own seeds, and for \"something to wear that we haven't got.\"\n(Name) has been sent to do the trading. The traders' grandmother, who does all the talking, is looking at (name)'s clothes with great interest. The grandmother's grandson, a tall teenager, is looking at the village as if he'd like to stay.\nShould (name) trade (his/her) clothes for the rarest seeds, or trade the village's spare seeds?",
+   "choices": [
+    {
+     "label": "Trade (His/Her) Clothes",
+     "next": "c1",
+     "src": "L11177"
+    },
+    {
+     "label": "Trade the Village's Seeds",
+     "next": "c2",
+     "src": "L11178"
+    }
+   ],
+   "src": "L11173-11175"
+  },
+  "c1o1": {
+   "text": "The grandmother gives (name) a packet of rare seeds, and then, so that (he/she) won't go home cold, her own spare clothes: bright, many-coloured, embroidered with seeds of every shape. (Name) wears them home. The seeds grow into a crop nobody has tasted before. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11184",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The trade is done, and as the canoes push off, the tall grandson jumps out into the shallows and wades back. \"I want to stay,\" he says. His grandmother laughs and waves. \"He's been saying that at every island for a year,\" she calls. \"Yours is the first he meant.\" He stays, and he knows a great deal about seeds.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "teen"
+    }
+   ],
+   "src": "L11187",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) takes off (his/her) outer wrap and holds it out. The grandmother claps her hands, delighted, and starts digging through the mats for her very best packets...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11181"
+  },
+  "c2o1": {
+   "text": "By sunset the village has a basket of new seeds, and the traders have a basket of the village's, and everyone has eaten far too much. The traders sail away singing. The new seeds grow well. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L11193",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The trading takes so long, and the village is so friendly, that by nightfall the traders are talking about it among themselves. In the morning, the grandmother sails on with one canoe, and {#made:only her son can stay, as the village has no room for more|only her son and his wife can stay, as the village has no room for more|her son, his wife and the tall grandson stay with the other}, to plant the new seeds and see them grow. \"Somebody has to,\" the grandmother says.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    }
+   ],
+   "src": "L11196",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) fetches baskets of the village's own seeds from the store, and the trading goes on all afternoon, with a lot of shouting and laughing and arguing about yams...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11190"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L11196",
+   "before": "and her son, his wife and the tall grandson stay with the other",
+   "after": "and {#made:only her son can stay, as the village has no room for more|only her son and his wife can stay, as the village has no room for more|her son, his wife and the tall grandson stay with the other}"
+  }
+ ]
+}

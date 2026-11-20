@@ -74,6 +74,32 @@
    "src": "L134"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides that if the idea was really that good, it'll come back. (subject.He/she) gets on with the day. That afternoon, mending a net, (subject.he/she) suddenly remembers. It was to put a little handle on the bottom of a basket so you can tip it out more easily. That's it. That's the brilliant idea. (subject) doesn't know whether to laugh or be disappointed. (subject.He/she) makes the handle anyway. It's quite good.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides that if the idea was really that good, it'll come back. (subject.He/she) gets on with the day. That afternoon, mending a net, (subject.he/she) suddenly remembers. It was to put a little handle on the bottom of a basket so you can tip it out more easily. That's it. That's the brilliant idea. (subject) doesn't know whether to laugh or be disappointed. (subject.He/she) makes the handle anyway. It's quite good.",
    "src": "L137"

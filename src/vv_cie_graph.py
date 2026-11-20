@@ -160,6 +160,7 @@ version 3 refuses it).
 """
 from __future__ import annotations
 
+import contextvars
 import copy
 import json
 import re
@@ -191,6 +192,35 @@ TITLE_BYTES = 47              # CE_TITLE_BYTES 48, NUL included
 BUTTON_BYTES = 39             # CE_BUTTON_BYTES 40, NUL included
 NODE_TEXT_MAX = 1990          # a node's text, bytes
 POPUP_TEXT_MAX = 1990         # a popup's text, bytes (the later games build the popup text in 2,000)
+# PRACTICALLY UNLIMITED TEXT (the owner, 2026-11-16: "With the scrollbar patch active, Custom Island Events should have
+# a practically unlimited character and word count for any text").  With Scrolling Popups (validate(scrolling=True))
+# a text, a title and a label are limited only by these sanity caps, sized to the file (story_custom.h
+# CE_LONG_TEXT_MAX, CE_LONG_LINE_BYTES; story_graph.inc CG_MAX_FILE 1 MiB): the dialog's field holds a long text's
+# start and Scrolling Popups draws the whole (native/shared/one_popup.h); a choice's row grows to as many lines as its
+# label needs and a long title wraps.  Without it the caps above stay (the engine refuses to queue an event whose
+# texts are longer than them where the popups do not scroll: story_graph.inc cg_refusal).
+LONG_TEXT_MAX = 100000        # a node's text and a popup's text, bytes, with scrolling
+LONG_LINE_BYTES = 4095        # a title or a label, bytes, with scrolling (CE_LONG_LINE_BYTES 4096, NUL included)
+MAX_FILE_BYTES = 0x1000000    # a compiled .cieg the game reads (story_graph.inc CG_MAX_FILE, 16 MiB)
+DISPLAY_BYTES = 0x100000      # every popup's words of one run, the engine keeps them (story_graph.inc CG_DISPLAY_BYTES)
+_SCROLL_CAPS: "contextvars.ContextVar[bool]" = contextvars.ContextVar("vv_cie_scroll_caps", default=False)
+
+
+def scroll_caps() -> bool:
+    """True inside validate(scrolling=True): the long caps apply."""
+    return _SCROLL_CAPS.get()
+
+
+def text_cap() -> int:
+    """A node's text at most this many bytes (NODE_TEXT_MAX, or LONG_TEXT_MAX with scrolling)."""
+    return LONG_TEXT_MAX if scroll_caps() else NODE_TEXT_MAX
+
+
+def cause_cap() -> int:
+    """A death's own cause words at most this many characters: CAUSE_BYTES, or LONG_LINE_BYTES with scrolling (the
+    owner, 2026-11-17: the grave's popup scrolls too; story_graph.inc cg_cause_bytes, "VVFP Cause of Death.dll" words
+    file version 2)."""
+    return LONG_LINE_BYTES if scroll_caps() else CAUSE_BYTES
 MAX_PAGES = 10                # pages a popup may take without scrolling (the shipped event's ADV_MAX_PAGES)
 MAX_POPUPS_PER_RUN = 6        # popups on one history, the question's included (version 1)
 MAX_POPUPS_PER_RUN_V2 = 16    # ... version 2 (questions anywhere): the companion keeps 96 pages a run
@@ -375,23 +405,110 @@ V6_EFFECTS = ("celebrate", "action", "mood", "health_change", "damage",     # th
               "old_look",                                                    # ... 27
               "sex_change",                                                  # ... 29
               "deliver_early",                                               # ... 30
-              "presentation")                                                # ... 31
+              "presentation",                                                # ... 31
+              "new_villager", "pregnant", "nursing", "clone", "body_swap",   # ... 31 (codes 27-32)
+              "lose_name", "change_name", "change_age",                      # ... 31 (33, 34)
+              "cure", "repair", "young_look",
+              "supply",
+              "trade", "group", "village")                                # ... 32 (35-37); 38-41 (supply, trade, group, village)
+TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
+TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
+ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
+ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Isolan), cast as the game's picker casts one
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
                      "sex_change": 22,     # 29
                      "presentation": 23,   # 31: the gender presentation (a cross-sex look, the sex field kept)
-                     "deliver_early": 24})  # 30
+                     "deliver_early": 24,   # 30
+                     # 31 (the owner, 2026-11-15): known only at run time (the engine side)
+                     "new_villager": 27, "pregnant": 28, "nursing": 29, "clone": 30, "body_swap": 31,
+                     "lose_name": 32, "change_name": 33, "change_age": 34,
+                     "cure": 35, "repair": 36, "young_look": 37,
+                     # 25 is reserved (a rest period once; the owner took the rest periods out, 2026-11-15)
+                     # 26: a story trait kept for the villager (The Quiet Hands: "mute"), never a change to them
+                     "trait": TRAIT_EFFECT_CODE,
+                     "supply": 25,         # 38, 39: The Tree of Life's supplies, every game's goods (the reserved 25)
+                     # 39-41: a trade, a group behaviour, the village (#813 had 26-28, round 6's trait / new_villager /
+                     # pregnant; 38-40 are the engine's Faith codes)
+                     "trade": 41, "group": 42, "village": 43})
+NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
+ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
+# 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
+CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5}
+CHANGE_AGE_ADD = 6
+CHANGE_AGE_YEARS_MAX = 120
+CHANGE_NAME_MAX = 31          # code 33: a fixed name (the engine's rule; any other refuses the whole file)
+CHANGE_NAME_RE = re.compile(r"^[A-Za-z](?:[A-Za-z '.\-]{0,29}[A-Za-z'.\-])?$")
+CLONE_COUNTS = (1, 2)         # code 30: how many doubles (value a; 0 or 1 = one, 2 = two)
+# Group targets (engine 3a3651283): role byte 254, the selector in byte 3, its value in the last H.
+TARGET_ROLE = 254
+TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
+                  "old_look", "celebrate", "appearance")          # skill covers skill_set; appearance: 5ee2b3dc0
+TARGET_ALL, TARGET_SKILL, TARGET_RANDOM = 1, 2, 3   # every villager / every one with the skill >= 50 / N at random
+# The villagers this event made (new_villager, clone): role bytes 253 (the newest) and 252 (the one before).
+NEW_ROLES = {"$newest": 253, "$previous": 252}
+NEW_ROLE_NAMES = {v: k for k, v in NEW_ROLES.items()}
+NEW_VILLAGER_SEX = {"random": 0, "male": 1, "female": 2}   # code 27: value b
+CHILD_OF_NEWEST_FLAG = 1      # code 27: flags bit 0, a child of the two newest villagers
+# codes 28 / 29 (engine 8ebafe54f): the babies, flags bits 1-2: "roll" the game's own multiple-birth roll (bit 1), twins
+# (bit 2), triplets (both); left out, one baby
+BABIES_FLAGS = {"roll": 2, 2: 4, 3: 6}
+BABIES_NAMES = {v: k for k, v in BABIES_FLAGS.items()}
+# codes 28 / 29: flags bit 3 (value 8), "the partner may carry" (the owner, 2026-11-16; engine story_graph.inc
+# CG_FX_PARTNER_MAY_CARRY): with a partner role, at the player's partner_carry_percent the partner carries instead (any
+# birth sex) when they pass the carrier's checks.  Every couple pregnancy of the new events sets it
+# ("partner_may_carry": true); a reason-based one (any_birth_sex) and one with no partner never do.
+PARTNER_MAY_CARRY_FLAG = 8
+SKILL_BEST_FLAG = 32          # codes 9 / 15: flags bit 32, the villager's best skill (string "best")
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
                     "old_look": 0,         # 27: "VVFP Head Look.dll", known only at run time
                     "sex_change": 0,       # 29: known only at run time (the companions loaded)
                     "deliver_early": CAP_CANCEL,    # 30: the nursing parent's pregnancy (the adapter's deliver)
-                    "presentation": 0})    # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "presentation": 0,     # 31: "VVFP Gender Presentation.dll", known only at run time
+                    "new_villager": 0, "pregnant": 0, "nursing": 0, "clone": 0, "body_swap": 0,
+                    "lose_name": 0, "change_name": 0, "change_age": 0,              # 32: known only at run time
+                    "cure": 0, "repair": 0, "young_look": 0,
+                    "trait": 0,
+                    "supply": 0,           # 38: The Tree of Life only; its puzzle solved, known only at run time
+                    "trade": 0, "village": 0,   # 39, 41: known only at run time
+                    "group": CAP_BEHAVIOUR})    # 40
+# Section 38: the supplies (the item word the .cieg holds) -> the puzzle that invents each in The Tree of Life.
+SUPPLY_ITEMS = {"cutting_tools": "The Cutting Tool", "soap": "Soap Invented", "cloth": "Cloth Invented"}
+SUPPLY_GAME = 4
+SUPPLY_MAX = 99               # an effect's change is 1..99 either way (the counts are kept 0..6, or 0..99)
+# Sections 39-41 (the owner's spec of 2026-11-16/17; docs/event-collection/traders-and-effects-research.md): every
+# game's goods a trader may give or take (story_graph_village.inc CG_GOODS) -> the games that keep each.  A word a
+# game does not keep is story only there.
+GOODS = {"food": (1, 2, 3, 4, 5), "tech": (1, 2, 3, 4, 5), "berries": (1,), "coconuts": (2,), "fish": (2,),
+         "collectible": (2, 3, 4, 5), "honey": (3,), "fruit": (3,), "blackberries": (4,), "cutting_tools": (4,),
+         "soap": (4,), "cloth": (4,), "noni": (5,),
+         "yellow_fruit": (4,)}    # 42: "VVFP VV4 Fruit Supply.dll"'s tree, only with Yellow Fruit Trees limited
+GOOD_MAX = 9999               # one supply / trade change of a good other than The Tree of Life's three supplies
+GROUP_KINDS = ("relax", "swim", "dance", "pray", "celebrate", "pond", "play", "stories", "song", "chant", "speech",
+               "sick", "cure", "work", "effect")
+GROUP_WHOLE_ONLY = ("sick", "cure", "work")    # the whole village's only
+# Section 42: a work rush's skill; the temporary effects (story_graph_village.inc CG_TEMPS) -> the game of each.
+WORK_SKILLS = ("Farming", "Building", "Research", "Healing", "Parenting", "Devotion")
+TEMP_EFFECTS: dict[str, int] = {}   # the owner, 2026-11-18: no vanilla event makes any of these: words only
+TEMP_WORDS_ONLY = ("smarter", "inspired", "healing", "bouncy", "hiccups", "swift", "stinky_breath", "soapy_taste",
+                   "nonsense_talk", "clean", "glow", "gunk", "stew_wait")
+TECH_AREAS = {1: ("Spirituality", "Science", "Construction", "Medicine", "Fertility", "Farming"),
+              2: ("Culture", "Science", "Engineering", "Medicine", "Exploration", "Farming"),
+              3: ("Science", "Medicine", "Alchemy", "Restoration", "Leadership", "Nature", "Magic"),
+              4: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Dendrology"),
+              5: ("Science", "Medicine", "Learning", "Construction", "Food Mastery", "Spirituality")}
+WEATHER = {"clear": (3, 4, 5), "sun": (4, 5), "rain": (3, 4, 5), "storm": (3, 4, 5), "fog": (3, 4, 5)}
+VILLAGE_WHAT = ("event_timer", "tech_level", "weather")   # the owner's final list: construction and the spawn burst are words only
+EVENT_TIMER_HOURS = 72
+CONSTRUCTION_MAX = 2000
 VILLAGER_EFFECTS_V6 = VILLAGER_EFFECTS + ("action", "mood", "health_change", "appearance", "die_unrecovered",
                                           "baby_lost", "birth_then_die", "old_look", "sex_change",
-                                          "deliver_early", "presentation")
+                                          "deliver_early", "presentation", "pregnant", "nursing", "clone",
+                                          "body_swap", "lose_name", "change_name", "change_age", "cure",
+                                          "young_look")
 GONE_EFFECTS_V6 = GONE_EFFECTS + ("die_unrecovered", "birth_then_die")
 # Section 22: each game's head and body rows (its sprite sheets' rows; the adapters' head_count / body_count).
 HEAD_ROWS = {1: 20, 2: 30, 3: 30, 4: 30, 5: 30}
@@ -401,17 +518,31 @@ LOOK_KEEP = -2                # ... not changed
 # Section 21: kinship relations (the relations table; the header is then 104 bytes).
 PREF_RANDOM = "random"        # cie-v6-binary.md 24: a random like or dislike
 PREF_RANDOM_FLAG = 8          # ... the effect's flags bit
+LINE_FLAG = 16                # kill / vanish: the result line's other wording (cie-v6-binary.md 25, "line")
+LINE_WORDS = {"kill": "injuries", "vanish": "leaves"}
+PREF_REMOVE_FLAG = 16         # ... "remove": true takes the like / dislike away (random: one the villager holds)
 NODE_AUTO_TEXT = 1            # cie-v6-binary.md 25: the node flags' bit for the automatic outcome lines
+NODE_NEW_PAGE = 2             # cie-v6-binary.md 19a: a popup node that starts the event's one popup afresh
+# Village Solidarity (the owner, 2026-11-17; src/vv_village_scores.py): a page's "solidarity" tag in the node flags'
+# bits 2-3 (byte 3), in every version: 1 raise, 2 lower, 3 neutral.  Untagged nodes keep 0, so an untagged graph
+# compiles to the same bytes as before.  (Bit 1 is NODE_NEW_PAGE.)
+SOLIDARITY_CODES = {"raise": 1, "lower": 2, "neutral": 3}
+NODE_SOLIDARITY_SHIFT = 2
+NODE_SOLIDARITY_MASK = 12
 RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4,
                   # gap C2: wider kinship, through a living villager in between
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
 HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
-            "has_living_child", "drew", "has_dead_relative")
+            "has_living_child", "drew", "has_dead_relative", "is_special", "has_supply")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
                    "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
-                   "has_dead_relative": 17})   # 21a (gap C3)
-ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative")   # run-time facts of a bound role
+                   "has_dead_relative": 17,     # 21a (gap C3)
+                   "is_special": 18,            # 37: the role's villager is the Golden Child / the Tribal Chief
+                   "has_supply": 19})           # 39: the village has at least n of a good to give (#813 had 18)
+ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative",
+              "is_special")                     # run-time facts of a bound role
+ONE_ROLE_FACTS = ("has_living_child", "has_dead_relative", "is_special")   # ... whose argument is the role's id
 
 
 def fact_of(op: str, arg: Any) -> str:
@@ -422,17 +553,30 @@ def fact_of(op: str, arg: Any) -> str:
         return f"skill_at_least:{arg['role']}:{arg['skill']}:{arg['min']}"
     if op == "drew":
         return f"drew:{arg['pool']}:{arg['instance']}:{arg['item']}"
+    if op == "has_supply":
+        return f"has_supply:{arg['item']}:{arg['min']}"
     return f"{op}:{arg}"
 
 
 def fact_role(op: str, arg: Any) -> str | None:
-    return arg if op in ("has_living_child", "has_dead_relative") else arg["role"] if op in ("age", "skill_at_least") \
+    return arg if op in ONE_ROLE_FACTS else arg["role"] if op in ("age", "skill_at_least") \
         else None
 STATIC_CONDS = ("game", "patch", "role", "special_present", "not", "all", "any")   # a choice's "if"
 TITLE_CONDS = ("game", "patch", "not", "all", "any")   # a title variant's "if": known before anyone is cast
 SPECIAL_CODES = {"golden_child": 1, "tribal_chief": 2, "nursing_parent": 3}
 NURSING_PARENT_MIN_AGE = 18          # years: children never carry in events (cie-v6-binary.md 22)
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
+# cie-v6-binary.md 37: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
+# may take the role, else any villager the role takes.  Allowed in every game (the owner, 2026-11-16).
+PREFER_CODES = {"golden_child": 4, "tribal_chief": 5}
+POOL_LINKED = 2               # 35: a pool's flags bit: it draws the item number the first linked pool drawn drew
+# 35: the chief's title words (the owner, 2026-11-16): a game word of these names is the chief's title; each run draws
+# one title, the same on every page (linked pools): "Chief", "leader", "elder", "headman" / "headwoman" (a cast chief's
+# presentation) or "council head"; The Secret City's real Tribal Chief, cast in the event's chief role, is the Chief.
+CHIEF_WORDS = ("chief", "Chief", "a_chief", "A_chief", "chiefs_possessive", "village_chief", "tribal_chief",
+               "Tribal_chief")
+CHIEF_TITLES = ("chief", "leader", "elder", "headman", "council head")
+_CHIEF_NOUN = re.compile(r"\b(?:Tribal |tribal |TRIBAL )?(?:Chief|chief|CHIEF|Leader|leader|LEADER)\b")
 PRESENT_CODES = {"golden_child": 1, "tribal_chief": 2}
 PROTECTED_MODES = ("auto", "exclude", "allow")
 PICK_CODES = {"random": 0, "highest": 1}
@@ -449,13 +593,20 @@ DAMAGE_ANY = "any"
 POOL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_]{0,31}$")    # an author's pool name ("_" and "@" are the compiler's)
 COLLECTION_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
 KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
+# Engine 5ee2b3dc0: (made1) / (made2), the newest / the one before of the villagers the event made (new_villager,
+# clone), body text only (never a label or a title); measured as a full name.
+MADE_PLACEHOLDERS = {"made1": "$newest", "made2": "$previous",
+                     "renamed": "$renamed"}     # a4f4f1d0b (33a): the latest change_name's new name
 PRONOUNS_V6 = {"he/she": ("he", "she"), "his/her": ("his", "her"), "him/her": ("him", "her"),
+               "his/hers": ("his", "hers"),            # engine 5ee2b3dc0: the possessive that stands alone
                "man/woman": ("man", "woman"), "himself/herself": ("himself", "herself"),
                "woman/man": ("man", "woman"), "boy/girl": ("boy", "girl"), "son/daughter": ("son", "daughter"),
                # Role-sex words (male word, female word), as the pronouns (cie-v6-binary.md 5).
                "mother/father": ("father", "mother"), "father/mother": ("father", "mother"), "mom/dad": ("dad", "mom"),
                "sister/brother": ("brother", "sister"), "aunt/uncle": ("uncle", "aunt"), "girl/boy": ("boy", "girl"),
-               "lady/gentleman": ("gentleman", "lady")}
+               "lady/gentleman": ("gentleman", "lady"),
+               # 35: the chief's title, as a role-sex word (a cast chief's words follow Gender Presentation)
+               "headman/headwoman": ("headman", "headwoman")}
 HINT_PRONOUNS = ("he/she", "him/her", "his/her", "himself/herself")   # a label name's fallback forms (section 15)
 HINT_DEFAULT = "him/her"
 GLYPH_FALLBACK = {";": ",", "(": "-", ")": "-", "&": "and", "%": " percent"}
@@ -675,7 +826,7 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
         if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
             problems.append(f"{where}: {op} is 1..255")
             return None
-        if op in ("has_living_child", "has_dead_relative") and not isinstance(arg, str):
+        if op in ONE_ROLE_FACTS and not isinstance(arg, str):
             problems.append(f"{where}: {op} names one role")
             return None
         if op == "age":
@@ -694,6 +845,13 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
                 problems.append(f"{where}: skill_at_least is {{\"role\": r, \"skill\": name, \"min\": 1..100}}")
                 return None
             return {op: dict(arg)}
+        if op == "has_supply":
+            if not isinstance(arg, dict) or set(arg) != {"item", "min"} or arg["item"] not in GOODS \
+                    or not _int_in(arg["min"], 0, GOOD_MAX):
+                problems.append(f"{where}: has_supply is {{\"item\": a good ({', '.join(GOODS)}), \"min\": "
+                                f"0..{GOOD_MAX} (0: the game keeps it now)}}")
+                return None
+            return {op: {"item": arg["item"], "min": arg["min"]}}
         if op == "drew":
             if not isinstance(arg, dict) or set(arg) - {"pool", "instance", "item"} \
                     or not isinstance(arg.get("pool"), str) or not isinstance(arg.get("item"), str) \
@@ -838,6 +996,12 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             problems.append(f"{where}: an award (defer) is a gain")
     elif do == "pay_award":
         pass
+    elif do == "vanish" and v6 and "line" in e:
+        known |= {"role", "line"}
+        out["role"] = e.get("role", default_role)
+        if e["line"] != LINE_WORDS["vanish"]:
+            problems.append(f"{where}: a vanish's line is \"leaves\" (or left out)")
+        out["line"] = e["line"]
     elif do == "celebrate":
         known.add("who")
         who = e.get("who", "all")
@@ -862,9 +1026,220 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         if not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
             problems.append(f"{where}: damage is 1..100 percent, min <= max")
         out.update(structures=st if st == DAMAGE_ANY else list(st), min=lo, max=hi)
+    elif do == "repair":
+        # Code 36: the damaged structures repaired, "any" or a list (as damage's).
+        known.add("structures")
+        st = e.get("structures", DAMAGE_ANY)
+        if st != DAMAGE_ANY and (not isinstance(st, list) or not st or any(
+                not isinstance(x, str) or not x or not x.isascii() or "," in x for x in st)
+                or len(set(st)) != len(st)):
+            problems.append(f"{where}: repair structures is \"any\" or a list of the game's structure names")
+            st = DAMAGE_ANY
+        out["structures"] = st if st == DAMAGE_ANY else list(st)
+    elif do == "new_villager":
+        # Section 31, code 27: a random new villager, or (copy_of) one with that role's villager's looks.
+        known |= {"copy_of", "age", "sex", "child_of_newest"}
+        sex = e.get("sex", "random")
+        if sex not in NEW_VILLAGER_SEX:
+            problems.append(f"{where}: new_villager sex is random, male or female")
+        elif sex != "random":
+            out["sex"] = sex
+        if e.get("child_of_newest", False) not in (True, False):
+            problems.append(f"{where}: child_of_newest is true or false")
+        elif e.get("child_of_newest"):
+            out["child_of_newest"] = True
+        if "copy_of" in e:
+            if not isinstance(e["copy_of"], str):
+                problems.append(f"{where}: new_villager copy_of names a villager role")
+            out["copy_of"] = e["copy_of"]
+        age = e.get("age", "any")
+        if age not in NEW_VILLAGER_AGES:
+            problems.append(f"{where}: new_villager age is one of {', '.join(NEW_VILLAGER_AGES)}")
+            age = "any"
+        if age != "any":
+            out["age"] = age
+    elif do == "supply":
+        # Section 38: the village's cutting tools, soap or cloth bolts (The Tree of Life), min..max a gain or a loss.
+        # Section 39: any game's goods (GOODS), min..max a gain or a loss (1..9999; The Tree of Life's three 1..99).
+        known |= {"item", "min", "max"}
+        item = e.get("item")
+        if item not in GOODS:
+            problems.append(f"{where}: supply item is one of {', '.join(GOODS)}")
+        top = SUPPLY_MAX if item in SUPPLY_ITEMS else GOOD_MAX
+        lo, hi = e.get("min"), e.get("max")
+        if not (_int_in(lo, -top, top) and _int_in(hi, -top, top) and lo <= hi and (lo >= 1 or hi <= -1)):
+            problems.append(f"{where}: supply min..max is a gain (1..{top}) or a loss (-{top}..-1), min <= max")
+        if games is not None and item in SUPPLY_ITEMS and SUPPLY_GAME not in games:
+            problems.append(f"{where}: supply changes The Tree of Life's supplies: the event must list game 4")
+        elif games is not None and item in GOODS and not set(games) & set(GOODS[item]):
+            problems.append(f"{where}: no game of the event keeps {item} (games {GOODS[item]})")
+        out.update(item=item, min=lo, max=hi)
+    elif do == "trade":
+        # Section 39: give n of one good, get m of another, all or nothing.
+        known |= {"give", "give_amount", "get", "get_amount"}
+        for k in ("give", "get"):
+            if e.get(k) not in GOODS:
+                problems.append(f"{where}: trade {k} is one of {', '.join(GOODS)}")
+            elif games is not None and not set(games) & set(GOODS[e[k]]):
+                problems.append(f"{where}: no game of the event keeps {e[k]} (games {GOODS[e[k]]})")
+        if e.get("give") == e.get("get"):
+            problems.append(f"{where}: a trade gives one good and gets another")
+        for k in ("give_amount", "get_amount"):
+            if not _int_in(e.get(k), 1, GOOD_MAX):
+                problems.append(f"{where}: trade {k} is 1..{GOOD_MAX}")
+        out.update(give=e.get("give"), give_amount=e.get("give_amount"), get=e.get("get"),
+                   get_amount=e.get("get_amount"))
+    elif do == "group":
+        # Section 40: the whole village (or one villager) takes the kind's action; sickness / cure.
+        known |= {"kind", "who", "percent"}
+        kind, who = e.get("kind"), e.get("who", "all")
+        if kind not in GROUP_KINDS:
+            problems.append(f"{where}: group kind is one of {', '.join(GROUP_KINDS)}")
+        if not isinstance(who, str):
+            problems.append(f"{where}: group's who is all or a role")
+            who = "all"
+        if kind in GROUP_WHOLE_ONLY and who != "all":
+            problems.append(f"{where}: group {kind} is the whole village's (who: all)")
+        if kind == "sick":
+            if not _int_in(e.get("percent"), 1, 100):
+                problems.append(f"{where}: group sick takes a percent 1..100")
+            out["percent"] = e.get("percent")
+        elif "percent" in e:
+            problems.append(f"{where}: only group sick takes a percent")
+        if kind == "work":
+            # 42: the skill's workers work, everyone else is busy with no skill
+            known.add("skill")
+            if e.get("skill") not in WORK_SKILLS:
+                problems.append(f"{where}: group work takes a skill, one of {', '.join(WORK_SKILLS)}")
+            out["skill"] = e.get("skill")
+        if kind == "effect":
+            # 42: a temporary effect through the game's own setter
+            known.add("effect")
+            eff = e.get("effect")
+            if eff in TEMP_WORDS_ONLY:
+                problems.append(f"{where}: {eff} is never an event's effect: words only (potions, baths, gunk and "
+                                "meditation are near puzzles)")
+            elif eff not in TEMP_EFFECTS:
+                problems.append(f"{where}: group effect is one of {', '.join(TEMP_EFFECTS)}")
+            elif games is not None and TEMP_EFFECTS[eff] not in games:
+                problems.append(f"{where}: {eff} is a game {TEMP_EFFECTS[eff]} effect: the event must list it")
+            out["effect"] = eff
+        out.update(kind=kind, who=who)
+    elif do == "village":
+        # Section 41: the next island event, a tech level, a construction, the weather.
+        what = e.get("what")
+        known.add("what")
+        if what not in VILLAGE_WHAT:
+            problems.append(f"{where}: village what is one of {', '.join(VILLAGE_WHAT)}")
+        out["what"] = what
+        if what in ("event_timer", "construction"):
+            known |= {"min", "max"}
+            lo, hi = e.get("min"), e.get("max")
+            if what == "event_timer":
+                ok = _int_in(lo, -EVENT_TIMER_HOURS, EVENT_TIMER_HOURS) and _int_in(hi, -EVENT_TIMER_HOURS,
+                                                                                    EVENT_TIMER_HOURS) \
+                    and lo <= hi and (lo >= 1 or hi <= -1)
+                if not ok:
+                    problems.append(f"{where}: event_timer is hours sooner (-{EVENT_TIMER_HOURS}..-1) or later "
+                                    f"(1..{EVENT_TIMER_HOURS}), min <= max")
+            elif not (_int_in(lo, 1, CONSTRUCTION_MAX) and _int_in(hi, 1, CONSTRUCTION_MAX) and lo <= hi):
+                problems.append(f"{where}: construction is 1..{CONSTRUCTION_MAX} points, min <= max")
+            out.update(min=lo, max=hi)
+        elif what == "tech_level":
+            known |= {"area", "step"}
+            area, step = e.get("area"), e.get("step")
+            if step not in (1, -1):
+                problems.append(f"{where}: tech_level step is 1 or -1")
+            if area is not None and (not isinstance(area, str) or (games is not None and not any(
+                    area in TECH_AREAS[gn] for gn in games if gn in TECH_AREAS))):
+                problems.append(f"{where}: tech_level area {area!r} is no area of the event's games")
+            out.update(step=step)
+            if area is not None:
+                out["area"] = area
+        elif what == "weather":
+            known.add("weather")
+            w = e.get("weather")
+            if w not in WEATHER:
+                problems.append(f"{where}: weather is one of {', '.join(WEATHER)}")
+            elif games is not None and not set(games) & set(WEATHER[w]):
+                problems.append(f"{where}: no game of the event has {w} weather (A New Home and The Lost Children "
+                                "have none)")
+            out["weather"] = w
     else:
         known.add("role")
         out["role"] = e.get("role", default_role)
+        if do in ("pregnant", "nursing"):
+            # Section 31, codes 28 / 29: the carrier (born female, 18+, unless any_birth_sex) and its partner.
+            known |= {"partner", "any_birth_sex", "babies", "partner_may_carry"}
+            if "babies" in e:
+                if e["babies"] not in BABIES_FLAGS or isinstance(e["babies"], bool):
+                    problems.append(f"{where}: {do} babies is \"roll\", 2 or 3 (left out: one)")
+                else:
+                    out["babies"] = e["babies"]
+            if "partner" in e:
+                if not isinstance(e["partner"], str) or e["partner"] == out["role"]:
+                    problems.append(f"{where}: {do} partner names another villager role")
+                out["partner"] = e["partner"]
+            if e.get("any_birth_sex", False) not in (True, False):
+                problems.append(f"{where}: any_birth_sex is true or false")
+            if e.get("any_birth_sex") is True:
+                out["any_birth_sex"] = True
+            if e.get("partner_may_carry", False) not in (True, False):
+                problems.append(f"{where}: partner_may_carry is true or false")
+            elif e.get("partner_may_carry") is True:
+                if "partner" not in e:
+                    problems.append(f"{where}: partner_may_carry needs a partner (the partner is who may carry)")
+                out["partner_may_carry"] = True
+        elif do == "change_age":
+            # Section 31, code 34: to an age class, or by a number (or a range) of years.
+            known |= {"to", "years"}
+            if ("to" in e) == ("years" in e):
+                problems.append(f"{where}: change_age gives to or years, one of them")
+            if "to" in e:
+                if e["to"] not in CHANGE_AGE_TO:
+                    problems.append(f"{where}: change_age to is one of {', '.join(CHANGE_AGE_TO)}")
+                out["to"] = e["to"]
+            elif "years" in e:
+                y = e["years"]
+                lo, hi = (y, y) if isinstance(y, int) and not isinstance(y, bool) else \
+                    (tuple(y) if isinstance(y, list) and len(y) == 2 else (None, None))
+                m = CHANGE_AGE_YEARS_MAX
+                if not (_int_in(lo, -m, m) and _int_in(hi, -m, m) and lo <= hi and (lo, hi) != (0, 0)):
+                    problems.append(f"{where}: change_age years is N or [a, b] in -{m}..{m}, a <= b, not 0")
+                out["years"] = [lo, hi]
+            if "max_age" in e:
+                # The age cap (the last H): never past it ("never past elder": 75).
+                known.add("max_age")
+                if not _int_in(e["max_age"], 1, CHANGE_AGE_YEARS_MAX):
+                    problems.append(f"{where}: change_age max_age is 1..{CHANGE_AGE_YEARS_MAX} years")
+                out["max_age"] = e["max_age"]
+        elif do == "body_swap":
+            known.add("with")
+            if not isinstance(e.get("with"), str) or e.get("with") == out["role"]:
+                problems.append(f"{where}: body_swap with names another villager role")
+            out["with"] = e.get("with")
+        elif do == "change_name" and "name_of" in e:
+            # Code 33, value a = the role's index + 1: the name drawn for that named stranger (cie-v6-binary.md 16,
+            # 28 -- a REL event's "(Chosen)"), the same on the page and in the game (the owner, 2026-11-19).
+            known.add("name_of")
+            if not isinstance(e["name_of"], str) or "name" in e:
+                problems.append(f"{where}: change_name name_of names a named stranger role (and gives no name)")
+            out["name_of"] = e["name_of"]
+        elif do == "change_name" and "name" in e:
+            # Code 33: a fixed name (the effect's string; story_graph.inc refuses any other); left out: a random one.
+            known.add("name")
+            name = e["name"]
+            if not isinstance(name, str) or not CHANGE_NAME_RE.match(name):
+                problems.append(f"{where}: change_name name is 1..{CHANGE_NAME_MAX} letters, spaces, apostrophes, "
+                                "hyphens or full stops, starting with a letter, no space at the end")
+            out["name"] = name
+        elif do == "clone" and "count" in e:
+            # Code 30: one double (the default) or two (value a).
+            known.add("count")
+            if e["count"] not in CLONE_COUNTS or isinstance(e["count"], bool):
+                problems.append(f"{where}: clone count is 1 or 2")
+            if e["count"] == 2:
+                out["count"] = 2      # one is the default (left out, as decompile gives it)
         if do == "action":
             known.add("action")
             act = e.get("action")
@@ -891,7 +1266,10 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                     problems.append(f"{where}: deliver_early min and max are -99..-1, min <= max (or both left out)")
                 out.update(min=lo, max=hi)
         elif do == "skill" and v6 and "set" in e:
-            known |= {"skills", "set"}
+            known |= {"skills", "set", "best"}
+            if e.get("best") is True:
+                e = dict(e, skills=["best"])
+                out["best"] = True
             skills = e.get("skills")
             if not isinstance(skills, list) or not skills or not all(isinstance(s, str) for s in skills) \
                     or len(set(skills)) != len(skills):
@@ -931,10 +1309,17 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             out["cause"] = "unknown"
         elif do in ("kill", "birth_then_die"):
             known.add("cause")
+            if do == "kill" and v6 and "line" in e:
+                known.add("line")
+                if e["line"] != LINE_WORDS["kill"]:
+                    problems.append(f"{where}: a kill's line is \"injuries\" (or left out)")
+                out["line"] = e["line"]
             cause = e.get("cause", "custom" if do == "kill" else "unknown")
-            if not isinstance(cause, str) or not cause or len(cause) > CAUSE_BYTES or not all(
+            cap = cause_cap()
+            if not isinstance(cause, str) or not cause or len(cause) > cap or not all(
                     text_char_ok(ch) and ch != "\n" for ch in cause):
-                problems.append(f"{where}: {do} cause is custom, unknown or up to {CAUSE_BYTES} allowed characters")
+                problems.append(f"{where}: {do} cause is custom, unknown or up to {cap} allowed characters"
+                                + _without_scrolling())
             out["cause"] = cause
         elif do == "status":
             known.add("status")
@@ -964,8 +1349,18 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
             elif word == PREF_RANDOM and not v6:
                 problems.append(f"{where}: a random preference needs format version {VERSION_V6}")
             out.update(list=lst, preference=word)
+            if v6 and "remove" in e:
+                # 24a: "remove": true takes the like / dislike away (flags bit 16; random: one the villager holds)
+                known.add("remove")
+                if e["remove"] not in (True, False):
+                    problems.append(f"{where}: preference remove is true or false")
+                if e["remove"] is True:
+                    out["remove"] = True
         elif do == "skill" and "set" not in out:
-            known |= {"skills", "min", "max"}
+            known |= {"skills", "min", "max"} | ({"best"} if v6 else set())
+            if v6 and e.get("best") is True:
+                e = dict(e, skills=["best"])
+                out["best"] = True
             if v6 and "size" in e:
                 # A size word: small 5-10, normal 10-20, large 20-40, huge 30-60 ("loss": the same, taken away).
                 known |= {"size", "loss"}
@@ -987,6 +1382,25 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: skill adds 1..{SKILL_ADD_MAX}"
                                 + (f" (or takes -{SKILL_ADD_MAX}..-1)" if v6 else "") + ", min <= max")
             out.update(skills=list(skills), min=lo, max=hi)
+    if v6 and "target" in e:
+        # A group target (role byte 254): {"all": true}, {"skill": "<name>"} (50 or more) or {"random": n}.
+        known.add("target")
+        tg = e["target"]
+        ok = isinstance(tg, dict) and len(tg) == 1 and (
+            tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
+            or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
+                and 1 <= tg["random"] <= 255))
+        if do not in TARGET_EFFECTS:
+            problems.append(f"{where}: {do} takes no group target")
+        elif not ok:
+            problems.append(f"{where}: target is {{\"all\": true}}, {{\"skill\": name}} or {{\"random\": 1..255}}")
+        elif do == "preference" and out.get("preference") == PREF_RANDOM:
+            problems.append(f"{where}: a group target's preference names a word (not random)")
+        if "role" in e or (do == "celebrate" and "who" in e):
+            problems.append(f"{where}: a group target names no role")
+        out.pop("role", None)
+        out.pop("who", None)
+        out["target"] = dict(tg) if isinstance(tg, dict) else tg
     if v6 and "src" in e:
         out["src"] = e["src"]
     extra = set(e) - known
@@ -1171,8 +1585,24 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected", "relation"}
+                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok", "prefer"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                if r.get("prefer") is not None:
+                    # 35: the role prefers the Golden Child / the Tribal Chief (any game; cast when they may be)
+                    if r["prefer"] not in PREFER_CODES:
+                        problems.append(f"{where}: prefer is golden_child or tribal_chief")
+                    elif r.get("special") is not None:
+                        problems.append(f"{where}: give special or prefer, not both")
+                    else:
+                        roles[rid]["prefer"] = r["prefer"]
+                for flag in ("speaks", "heathen_ok"):
+                    # 32 / 33c: "speaks": true (the role's words have them speak; never a story-mute villager),
+                    # "heathen_ok": true (New Believers: an Isolan's role, cast only among the Heathens)
+                    if flag in r:
+                        if not isinstance(r[flag], bool):
+                            problems.append(f"{where}: {flag} is true or false")
+                        elif r[flag]:
+                            roles[rid][flag] = True
                 rel = r.get("relation")
                 if rel is not None:
                     # Section 21: one kinship relation to another villager role the event needs.
@@ -1264,7 +1694,8 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         problems.append(f"at most {MAX_NODES} nodes")
     nodes: dict[str, dict] = {}
     node_keys = {"type", "popup", "join", "text", "variants", "effects", "children", "choices", "else", "summary",
-                 "outcome", "name"} | ({"src", "text_only_reason", "title", "auto_text"} if v6 else set())
+                 "outcome", "name", "solidarity"} | ({"src", "text_only_reason", "title", "auto_text", "new_page"} if v6
+                                                    else set())
     pool_names = pool_names_of(data) if v6 else set()
     canon = (lambda s: _canon_text(s, pool_names)) if v6 else (lambda s: s)
     default_role = default_role_of(roles) if v6 else "subject"
@@ -1375,6 +1806,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                       "else": els, "summary": summary, "outcome": outcome}
         if name:
             nodes[nid]["name"] = name   # only when given: a graph without names normalizes as before
+        sol = n.get("solidarity")
+        if sol is not None:
+            # Village Solidarity (any version): the page raises, lowers or leaves the village's score; kept only
+            # when given, so an untagged graph normalizes and compiles exactly as before.
+            if sol not in SOLIDARITY_CODES:
+                problems.append(f"{where}: solidarity is raise, lower or neutral")
+            elif t == "branch":
+                problems.append(f"{where}: a branch shows no page, so it has no solidarity tag")
+            else:
+                nodes[nid]["solidarity"] = sol
         if v6:
             for k in ("src", "text_only_reason"):
                 if k in n:
@@ -1399,6 +1840,16 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                     problems.append(f"{where}: auto_text is only on a popup node")
                 elif auto:
                     nodes[nid]["auto_text"] = True
+            fresh = n.get("new_page")
+            if fresh is not None:
+                # 19a: with Scrolling Popups, a popup that starts the event's one popup afresh (a scroll page of its
+                # own, as after a question), so no popup's text passes what the game's popup holds.
+                if not isinstance(fresh, bool):
+                    problems.append(f"{where}: new_page is true or false")
+                elif fresh and (t != "popup" or n.get("popup", "new") != "new"):
+                    problems.append(f"{where}: new_page is only on a popup node that opens a new popup")
+                elif fresh:
+                    nodes[nid]["new_page"] = True
     g["nodes"] = nodes
     if v6:
         _normalize_v6_extras(data, g, problems, shared_pools)
@@ -1479,9 +1930,36 @@ SKILL_SIZES = {"small": (5, 10), "normal": (10, 20), "large": (20, 40), "huge": 
 _POOL_TOKEN = re.compile(r"^([A-Za-z0-9_@][A-Za-z0-9_]{0,32})(?:\.([1-9]))?$")
 
 
+# Count tokens (engine 0853e8327, cie-v6-binary.md 33): {#babies:A|B|C} / {#made:A|B|C} in body text only; A for a
+# count of 1 (or 0 / unknown), B for 2, C for 3 or more; 1-3 options of 1-40 bytes of plain text.
+COUNT_KINDS = ("babies", "made")
+COUNT_OPTION_RE = re.compile(r"[A-Za-z0-9 ,:\-'\";/&%]*")    # the option's text outside its placeholders
+COUNT_OPTION_MAX = 160                                          # bytes (engine 5ee2b3dc0)
+
+
+def parse_count(inner: str) -> tuple:
+    """'#babies:a baby|twins|triplets' -> ("count", "babies", [options]); ("bad", why) when malformed."""
+    kind, _, rest = inner[1:].partition(":")
+    opts = rest.split("|") if rest else []
+    def ok(o: str) -> bool:
+        outside = re.sub(r"\([^()\n]*\)", "", o)
+        return 1 <= len(o.encode("utf-8")) <= COUNT_OPTION_MAX and bool(COUNT_OPTION_RE.fullmatch(outside))
+    if kind not in COUNT_KINDS or not 1 <= len(opts) <= 3 or not all(ok(o) for o in opts):
+        return ("bad", f"a count is {{#babies:A|B|C}} or {{#made:A|B|C}}: 1-3 options of 1-{COUNT_OPTION_MAX} "
+                       "bytes of letters, digits, spaces, , : - ' \" ; / & % and placeholders (no braces, line "
+                       "breaks or . ! ?)")
+    return ("count", kind, opts)
+
+
+def count_option(opts: list[str], n: int) -> str:
+    """The option a count of n shows: A for 1 (or 0 / unknown), B for 2, C for 3 or more (the last one there is)."""
+    i = 0 if n <= 1 else 1 if n == 2 else 2
+    return opts[min(i, len(opts) - 1)]
+
+
 def parse_inline(inner: str) -> list[tuple[int, str]] | None:
     """'3:red|1:blue' -> [(3, 'red'), (1, 'blue')]; None when it is not an inline pick of two or more."""
-    if "|" not in inner:
+    if "|" not in inner or inner.startswith("#"):       # a count token is never a pick
         return None
     out = []
     for alt in inner.split("|"):
@@ -1512,7 +1990,7 @@ def _canon_text(text: str, pools: Iterable[str] | None = None) -> str:
         alts = parse_inline(inner)
         if alts is not None:
             return inline_text(alts)
-        if names is None or inner.startswith("@"):
+        if names is None or inner.startswith(("@", "#")):
             return raw
         tok = _POOL_TOKEN.match(inner)
         return raw if tok else inner          # identifier-shaped: a list (checked), never text (G4)
@@ -1608,6 +2086,13 @@ def sentence_case(text: str, item: bool = False, label: bool = False) -> str:
     pool's item (its start is not a sentence's start); `label`: a button's label (decided as a whole)."""
     if not isinstance(text, str) or not any(_is_upper(c) for c in text):
         return text
+    return _sentence_case(text, bool(item), bool(label))
+
+
+@lru_cache(maxsize=1 << 16)
+def _sentence_case(text: str, item: bool, label: bool) -> str:
+    """sentence_case's work, kept per text (a pure function of its arguments: a big event's walk asks for the same
+    pool items' worst cases on every history)."""
     units = _units(text)
     n = len(units)
     # The words: (first unit, last unit + 1, letters, has a lower-case letter).
@@ -1736,6 +2221,8 @@ def parse_brace(inner: str) -> tuple:
     [(w, text), ...]) for a|b; ("bad", why) otherwise."""
     if inner.startswith("@"):
         return ("word", inner[1:]) if ID_RE.match(inner[1:]) else ("bad", "a game word is {@word}")
+    if inner.startswith("#"):
+        return parse_count(inner)
     alts = parse_inline(inner)
     if alts is not None:
         return ("inline", alts)
@@ -1991,6 +2478,8 @@ def parse_placeholder_v6(token: str, roles: dict) -> Placeholder | None:
         role = next((r for r in roles if r.lower() == role.lower()), role)
     if low in ("award", "award_unit"):
         return None if role else Placeholder(None, low, False, upper)
+    if low in MADE_PLACEHOLDERS:
+        return None if role else Placeholder(None, low, word[0].isupper(), upper)
     if low in _NAME_ALIASES:
         target = _NAME_ALIASES[low]
         return None if role or target not in roles else Placeholder(target, "name", word[0].isupper(), upper)
@@ -2019,7 +2508,7 @@ ITEM_END_MARKS = ("!", "?")
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
               aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
-              pronoun_names: bool = False, label: bool = False) -> str:
+              pronoun_names: bool = False, label: bool = False, counts: dict[str, int] | None = None) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
     the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
     ({@tribe}; None: "the village").  The glyph fallback is applied last."""
@@ -2047,6 +2536,13 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
                 unit = UNITS[award[0]] if award else ""
                 out.append(unit.upper() if p.upper else unit)
                 continue
+            if p.what in MADE_PLACEHOLDERS:
+                made = bindings.get(MADE_PLACEHOLDERS[p.what])
+                fixed = next((e.get("name") for n in g["nodes"].values() for e in n.get("effects", [])
+                              if e.get("do") == "change_name" and e.get("name")), None)
+                word = made.name if made else (fixed or "Renamed") if p.what == "renamed" else "Newcomer"
+                out.append(word.upper() if p.upper else word)
+                continue
             b = bindings[aliases.get(p.role, p.role)]
             if p.what == "name" and pronoun_names:      # section 15: a label too wide shows pronouns
                 word = PRONOUNS_V6[p.hint or HINT_DEFAULT][0 if b.sex == "m" else 1]
@@ -2055,6 +2551,10 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             out.append(word.upper() if p.upper else word[0].upper() + word[1:] if p.capital and word else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "count":
+                out.append(expand_v6(count_option(tok[2], (counts or {}).get(tok[1], 1)), g, bindings, picks, award,
+                                     game, True, aliases, _depth + 1, tribe, label=label, counts=counts))
+                continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 # G5: the save's tribe name, filled at run time.
                 name = tribe if tribe else NO_TRIBE[tok[1]]
@@ -2065,7 +2565,7 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
             item = expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                             aliases, _depth + 1, tribe, label=label)
+                             aliases, _depth + 1, tribe, label=label, counts=counts)
             out.append(item)
             drop_dot = item.endswith(ITEM_END_MARKS)
     text = "".join(out)
@@ -2100,6 +2600,8 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             elif p.what == "award_unit":
                 unit = UNITS[award[0]] if award else UNITS["tech"]
                 out.append(unit.upper() if p.upper else unit)
+            elif p.what in MADE_PLACEHOLDERS:
+                out.append("W" * game.name_room)            # 5ee2b3dc0: measured as a full name
             elif p.what == "name" and pronoun_names:      # section 15: the label's pronoun fallback
                 word = max(PRONOUNS_V6[p.hint or HINT_DEFAULT], key=len)
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
@@ -2113,6 +2615,11 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 out.append(word.upper() if p.upper else word.capitalize() if p.capital else word)
         else:
             tok = parse_brace(raw[1:-1])
+            if tok[0] == "count":
+                # 33: measured by its widest option, placeholders at their widest (5ee2b3dc0)
+                out.append(max((worst_v6(o, g, game, award, holds, _depth + 1, label=label) for o in tok[2]),
+                               key=len))
+                continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
                 continue
@@ -2161,6 +2668,9 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
             if tok[0] == "inline":
                 for _w, alt in tok[1]:
                     out.extend(placeholders_v6(alt, roles))
+            elif tok[0] == "count":
+                for alt in tok[2]:
+                    out.extend(placeholders_v6(alt, roles))
     return out
 
 
@@ -2170,14 +2680,15 @@ def placeholders_v6(text: str, roles: dict) -> list[tuple[str, Placeholder | Non
 def _harmful(e: dict, games: Iterable[int]) -> bool:
     """An effect that can harm its villager (cie-v6-binary.md section 7)."""
     do = e["do"]
-    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"):
+    if do in ("kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early",
+              "apostasy"):
         return True
     if do == "health":
         return e["max"] < HEALTH_MAX
     if do == "health_change":
         return e["min"] < 0
     if do == "preference":
-        return e["list"] == "dislikes"
+        return (e["list"] == "dislikes") != bool(e.get("remove"))   # a new dislike, or a like taken away
     if do == "skill":
         return "set" not in e and e["min"] < 0
     if do == "mood":
@@ -2190,10 +2701,60 @@ def _harmful(e: dict, games: Iterable[int]) -> bool:
     return False
 
 
+def village_args(e: dict) -> tuple[int, int, str]:
+    """Section 41: a "village" effect's a, b and string (the .cieg's)."""
+    what = e["what"]
+    if what in ("event_timer", "construction"):
+        return e["min"], e["max"], what
+    if what == "tech_level":
+        return e["step"], e["step"], f"tech_level:{e['area']}" if e.get("area") else "tech_level"
+    if what == "spawn":
+        return 0, 0, "spawn"
+    return 0, 0, f"weather:{e['weather']}"
+
+
+def group_word(e: dict) -> str:
+    """Section 40/42: a "group" effect's string ("work:Farming", "effect:hiccups", or the kind)."""
+    if e["kind"] == "work":
+        return f"work:{e['skill']}"
+    if e["kind"] == "effect":
+        return f"effect:{e['effect']}"
+    return e["kind"]
+
+
+def group_from(words: str) -> dict:
+    """group_word reversed."""
+    if words.startswith("work:"):
+        return {"kind": "work", "skill": words[5:]}
+    if words.startswith("effect:"):
+        return {"kind": "effect", "effect": words[7:]}
+    return {"kind": words}
+
+
+def village_from(words: str, a: int, b: int) -> dict:
+    """The JSON of a "village" effect from its string and a, b (village_args reversed)."""
+    if words in ("event_timer", "construction"):
+        return {"what": words, "min": a, "max": b}
+    if words == "spawn":
+        return {"what": "spawn"}
+    if words.startswith("tech_level"):
+        out: dict[str, Any] = {"what": "tech_level", "step": a}
+        if ":" in words:
+            out["area"] = words.split(":", 1)[1]
+        return out
+    return {"what": "weather", "weather": words.split(":", 1)[1]}
+
+
 def effect_role(e: dict) -> str | None:
     """The role an effect acts on, or None (food, tech, an award, damage, a celebration of everyone)."""
-    if e["do"] == "celebrate":
+    if e.get("target"):
+        return None                           # a group target (role byte 254)
+    if e["do"] in ("celebrate", "group"):
         return None if e["who"] == "all" else e["who"]
+    if e.get("target"):
+        return None                           # a group target (role byte 254)
+    if e["do"] == "new_villager":
+        return e.get("copy_of")               # 31: the role byte names the villager copied (none: 0xFF)
     return e.get("role") if e["do"] in VILLAGER_EFFECTS_V6 else None
 
 
@@ -2248,17 +2809,115 @@ def _guard_for(g: dict, node: dict, harm: set[str]) -> Any:
     return {"harmable": rs[0]} if len(rs) == 1 else {"all": [{"harmable": r} for r in rs]}
 
 
+def _graph_texts(g: dict) -> Iterable[str]:
+    """Every text of a normalized graph a game word may stand in: pages, variants, labels, pool items."""
+    for n in g.get("nodes", {}).values():
+        yield n.get("text") or ""
+        for v in n.get("variants") or []:
+            yield v.get("text") or ""
+        for c in n.get("choices") or []:
+            yield c.get("label") or ""
+    for p in g.get("pools", {}).values():
+        for it in p.get("items") or []:
+            yield it["text"] if isinstance(it, dict) else it
+
+
+def is_chief_word(word: str) -> bool:
+    """35: a game word that is the chief's title (CHIEF_WORDS, or a label's title-case copy of one, w_tc / w_tcN)."""
+    return re.sub(r"_tc\d*$", "", word) in CHIEF_WORDS
+
+
+def chief_role_of(g: dict) -> str | None:
+    """35: the event's chief: the villager role that is or prefers The Secret City's Tribal Chief (the first one)."""
+    for rid, r in (g.get("roles") or {}).items():
+        if r.get("kind") == "villager" and ("tribal_chief" in (r.get("special"), r.get("prefer"))):
+            return rid
+    return None
+
+
+def _cased_title(title: str, noun: str, role: str | None, case: str) -> str:
+    """A chief's title in `case`: "upper" ("COUNCIL HEAD"), "title" ("Council Head": a label's word, or a word that
+    is the capital noun alone), "first" ("Council head": the noun opens the word) or "lower"."""
+    if title == "headman":
+        return {"upper": f"({str(role).upper()}.HEADMAN/HEADWOMAN)", "title": f"({role}.Headman/Headwoman)",
+                "first": f"({role}.Headman/Headwoman)"}.get(case, f"({role}.headman/headwoman)")
+    if case == "upper":
+        return title.upper()
+    if case == "title":
+        return " ".join(w.capitalize() for w in title.split())
+    return title.capitalize() if case == "first" else title
+
+
+def chief_title_items(g: dict, word: str, per: dict[str, str], elder: bool) -> list[dict] | None:
+    """35: the linked pool's items of chief word `word` (per game: its text): first one item per text with its games
+    (the author's words, as every game word -- lift reads them back), then each other title of CHIEF_TITLES for each
+    of those texts, with the same games, every one of them equally likely; with a chief role, the real Tribal Chief
+    cast in it keeps the author's VV3 word (the other titles need {"not": {"is_special": role}}).  "elder" only when
+    `elder` (no "a {@w}" in the event's texts); "headman" only with a chief role.  None when a text has no chief or
+    leader noun (the word is then an ordinary game word)."""
+    role = chief_role_of(g)
+    texts: dict[str, list[int]] = {}
+    for gn, text in per.items():
+        texts.setdefault(text, []).append(int(gn))
+    items = []
+    owns = []
+    for t, gs in texts.items():
+        m = _CHIEF_NOUN.search(t)
+        if m is None:
+            return None
+        owns.append((t, gs, m, "chief" if "chief" in m.group(0).lower() else "leader"))
+        items.append({"text": t, "weight": 1, "if": {"game": sorted(gs)}, "slot": owns[-1][3]})
+    for t, gs, m, own in owns:
+        for title in CHIEF_TITLES:
+            if title == own or (title == "elder" and not elder) or (title == "headman" and role is None):
+                continue
+            before = t[:m.start()]
+            art = re.search(r"\b([Aa])n? $", before)
+            if art:
+                vowel = title[0] in "aeiou"
+                before = before[:art.start()] + art.group(1) + ("n " if vowel else " ")
+            noun = m.group(0).split()[-1]
+            case = "upper" if noun.isupper() and len(noun) > 1 else "lower" if not noun[:1].isupper() \
+                else "title" if (word != re.sub(r"_tc\d*$", "", word) or t.strip() == m.group(0)) \
+                else "first" if m.start() == 0 else "lower"
+            text = before + _cased_title(title, noun, role, case) + t[m.end():]
+            cond: dict = {"all": [{"game": sorted(gs)}]}
+            if role is not None:
+                cond["all"].append({"not": {"is_special": role}})
+            items.append({"text": text, "weight": 1, "if": cond, "slot": title})
+    return items
+
+
 def lower(g: dict) -> dict:
     """A normalized version 6 graph as the .cieg holds it: each inline pick its own pool _iN (the text says
-    {_iN}), each game word the pool @word (one item per text, its condition the games using it), every pool's
-    items as {"text", "weight", "if"}, and each child's harm guard ("guard")."""
+    {_iN}), each game word the pool @word (one item per text, its condition the games using it; a chief's title word
+    every title, linked: cie-v6-binary.md 37), every pool's items as {"text", "weight", "if"}, and each child's harm
+    guard ("guard")."""
     out = without_names(g)
     pools: dict[str, dict] = {}
     for name, p in out.get("pools", {}).items():
         pools[name] = {"items": [{"text": it["text"], "weight": it["weight"], "if": it["if"]} for it in p["items"]],
                        "distinct": p["distinct"], **({"distinct_from": list(p["distinct_from"])}
                                                      if p.get("distinct_from") else {})}
+    chief_words = [w for w in out.get("words", {}) if is_chief_word(w)]
+    elder = not any(re.search(r"\b[Aa]n?\s+\{@" + re.escape(w) + r"\}", t)
+                    for w in chief_words for t in _graph_texts(out))
+    linked: dict[str, list[dict]] = {}
+    for word in chief_words:
+        items = chief_title_items(out, word, out["words"][word], elder)
+        if items is not None:
+            linked[word] = items
+    # Linked pools draw by item number: every one must hold the same titles for the same games in the same order.
+    shapes = {json.dumps([(it["if"], it["slot"]) for it in items]) for items in linked.values()}
+    if len(shapes) > 1:
+        linked = {}
+    for items in linked.values():
+        for it in items:
+            del it["slot"]
     for word, per in out.get("words", {}).items():
+        if word in linked:
+            pools["@" + word] = {"items": linked[word], "distinct": False, "linked": True}
+            continue
         texts: dict[str, list[int]] = {}
         for gn, text in per.items():
             texts.setdefault(text, []).append(int(gn))
@@ -2308,6 +2967,8 @@ def lift(lg: dict) -> dict:
         if name.startswith("@"):
             per: dict[str, str] = {}
             for it in p["items"]:
+                if set(it["if"] or {}) != {"game"}:
+                    continue                   # 35: a chief's other titles (lower writes them; the words do not)
                 for gn in it["if"]["game"]:
                     per[str(gn)] = it["text"]
             words[name[1:]] = {k: per[k] for k in sorted(per, key=int)}
@@ -2440,7 +3101,7 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     if op == "harmable":
         member = dict(ctx.aliases).get(arg, arg)
         return member in ctx.roles and f"harmable:{member}" in ctx.facts
-    if op in ("special_present", "min_population", "min_children", "drew"):
+    if op in ("special_present", "min_population", "min_children", "drew", "has_supply"):
         return fact_of(op, arg) in ctx.facts
     if op in ROLE_FACTS:
         return fact_role(op, arg) in ctx.roles and fact_of(op, arg) in ctx.facts
@@ -2499,8 +3160,14 @@ def contexts(g: dict, games: Iterable[int] | None = None) -> list[Context]:
                     out.append(Context(game, pset, frozenset(rset)))
                     continue
                 rset = with_aliases(g, rset)
+                req_if = (g.get("requirement") or {}).get("if")
                 for facts in _fact_sets(g, rset):
-                    out.append(Context(game, pset, frozenset(rset), facts))
+                    ctx = Context(game, pset, frozenset(rset), facts)
+                    # a context the event's own requirement refuses never runs (the content filters' skip groups,
+                    # src/vv_event_content.py): nothing of it is checked
+                    if req_if is not None and not cond_holds(req_if, ctx, ()):
+                        continue
+                    out.append(ctx)
     return out
 
 
@@ -2539,10 +3206,13 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
     leaves: list = []
     for c in _all_conds(g):
         _cond_leaves(c, leaves)
+    req_if = (g.get("requirement") or {}).get("if")
+    if req_if is not None:
+        _cond_leaves(req_if, leaves)   # the requirement's own facts (min_population ...): its contexts exist too
     free = sorted({f"harmable:{a}" for op, a in leaves if op == "harmable" and a in bound
                    and g["roles"].get(a, {}).get("kind") == "villager" and f"harmable:{a}" not in base}
                   | {f"special_present:{a}" for op, a in leaves if op == "special_present"}
-                  | {fact_of(op, a) for op, a in leaves if op == "drew"}
+                  | {fact_of(op, a) for op, a in leaves if op in ("drew", "has_supply")}
                   | {fact_of(op, a) for op, a in leaves if op in ROLE_FACTS and fact_role(op, a) in bound})
     pops = sorted({a for op, a in leaves if op == "min_population"})
     kids = sorted({a for op, a in leaves if op == "min_children"})
@@ -2577,6 +3247,7 @@ class Popup:
     titles: list[str] = field(default_factory=list)   # the titles in force on it ("" = the event's), in order
     chosen: str = ""                    # a question's: the choice this history takes, as its row shows it at its
                                         # widest (one_popup puts it first in the answer's text)
+    new_page: bool = False              # 19a: its first node starts the event's one popup afresh
 
 
 @dataclass
@@ -2623,54 +3294,178 @@ def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> li
 # game lists them.  The keys and lines are pinned equal to story_graph.inc CG_AUTO_LINES (tests/test_cie_graph_v6.py).
 
 AUTO_LINES = {
-    "food+": "The village gains food.",
-    "food-": "The village loses food.",
-    "tech+": "The village gains tech points.",
-    "tech-": "The village loses tech points.",
+    "food+": "The village gains <N> food.",
+    "food-": "The village loses <N> food.",
+    "tech+": "The village gains <N> tech points.",
+    "tech-": "The village loses <N> tech points.",
     "kill": "<R> dies.",
-    "vanish": "<R> disappears.",
+    "kill_injuries": "<R> suffers fatal injuries.",
+    "vanish": "<R> disappears from the village.",
+    "vanish_leaves": "<R> leaves the village.",
     "status": "<R> becomes a Heathen.",
-    "health": "<R>'s health changes.",
+    "health": "<R>'s health is now <N>.",
     "like": "<R> now likes <W>.",
     "dislike": "<R> now dislikes <W>.",
-    "skill+": "<R> learns more about <S>.",
-    "skill-": "<R> feels less sure of <P> <S>.",
-    "sick": "<R> falls sick.",
-    "celebrate_all": "The village celebrates.",
+    "unlike": "<R> no longer likes <W>.",
+    "undislike": "<R> no longer dislikes <W>.",
+    "skill+": "<R> gains <N> <S> skill.",
+    "skill-": "<R> loses <N> <S> skill.",
+    "sick": "<R> becomes sick.",
+    "celebrate_all": "Everyone celebrates.",
     "celebrate": "<R> celebrates.",
-    "mood+": "<R> is in a good mood.",
-    "mood-": "<R> is in a bad mood.",
-    "health_change+": "<R> feels better.",
-    "health_change-": "<R> feels worse.",
+    "mood+": "<R> celebrates.",
+    "mood-": "<R> shakes <P> head.",
+    "health_change+": "<R> gains <N> health.",
+    "health_change-": "<R> loses <N> health.",
     "set100": "<R> masters <S>.",
-    "set0": "<R> forgets everything about <S>.",
-    "set": "<R>'s <S> skill changes.",
-    "damage": "Something in the village is damaged.",
-    "hair": "<R>'s hair changes color.",
-    "look": "<R>'s look changes.",
-    "die_unrecovered": "<R> dies; the body is not recovered.",
+    "set0": "<R> loses all <S> skill.",
+    "set": "<R>'s <S> skill is now <N>.",
+    "damage": "A building loses <N>% of its construction.",
+    "head": "<R>'s head changes.",
+    "clothes": "<R>'s clothes change.",
+    "die_unrecovered": "<R> dies. The body is not recovered.",
     "baby_lost": "<R>'s baby is lost.",
-    "old_look": "<R> looks older and more worn.",
-    "sex_change": "<R>'s sex changes.",
-    "presentation": "<R>'s look changes.",
+    "old_look": "<R> looks older.",
+    "sex_male": "<R> is now male.",
+    "sex_female": "<R> is now female.",
+    # the engine's newer effects (cure 35, young look 37, repair 36, a skill gain to the villager's best skill)
+    "cure": "<R> is cured.",
+    "young_look": "<R> looks younger.",
+    "repair": "The damaged buildings are being repaired.",
+    "skill_best": "<R> gains <N> skill in what <P> does best.",
+    # the people effects (codes 28-33)
+    "pregnant": "<R> is expecting a baby.",
+    "nursing": "<R> is caring for a baby.",
+    "clone": "A double of <R> appears.",
+    "body_swap": "<R> and <Q> swap bodies.",
+    "lose_name": "<R> forgets <P> name.",
+    "change_name": "<R> is now called <W>.",
+    "change_age": "<R> is now <N> years old.",
+    # New Believers' Faith (faith 38, join 39, apostasy 40)
+    "faith": "<R>'s Faith rises by <N>.",
+    "join": "<R> joins the tribe.",
+    "apostasy": "<R> becomes a Heathen.",
+    "presentation": "<R>'s gender presentation changes.",
+    # Village Solidarity (its companion): the change a tagged page made, after the 0..100 clamp
+    "solidarity+": "Village Solidarity rises by <N>.",
+    "solidarity-": "Village Solidarity falls by <N>.",
+    # The village effects (cie-v6-binary.md 39-41): written as each is made, with what it made (village.inc)
+    "supply+": "The village gains <N> <W>.",
+    "supply-": "The village loses <N> <W>.",
+    "trade_give": "The village gives <N> <W>.",
+    "trade_get": "The village gets <N> <W>.",
+    "group_song": "The village sings together.",
+    "group_chant": "The village chants together.",
+    "group_speech": "The village gathers for a speech.",
+    "group_dance": "The village dances.",
+    "group_pray": "The village prays.",
+    "group_relax": "The village relaxes.",
+    "group_swim": "The village goes swimming.",
+    "group_pond": "The village gathers at the water.",
+    "group_play": "The children play.",
+    "group_stories": "The elders tell stories.",
+    "group_celebrate": "Everyone celebrates.",
+    "group1_song": "<W> sings.",
+    "group1_chant": "<W> chants.",
+    "group1_speech": "<W> gives a speech.",
+    "group1_dance": "<W> dances.",
+    "group1_pray": "<W> prays.",
+    "group1_relax": "<W> relaxes.",
+    "group1_swim": "<W> goes swimming.",
+    "group1_pond": "<W> goes to the water.",
+    "group1_play": "<W> plays.",
+    "group1_stories": "<W> tells a story.",
+    "group1_celebrate": "<W> celebrates.",
+    "group_sick": "<N> villagers become sick.",
+    "group_sick1": "One villager becomes sick.",
+    "group_cure": "Every villager is cured.",
+    "group_work": "The village works on <W>.",
+    "timer_later": "The next island event will come <N> hours later.",
+    "timer_later1": "The next island event will come 1 hour later.",
+    "timer_soon": "The next island event will come in about a minute.",
+    "level_up": "The village's <W> technology rises to level <N>.",
+    "level_down": "The village's <W> technology falls to level <N>.",
+    "weather_clear": "The sky clears.",
+    "weather_sun": "The sun comes out.",
+    "weather_rain": "It starts to rain.",
+    "weather_storm": "A storm rolls in.",
+    "weather_fog": "Fog rolls in.",
+    # The owner (2026-11-19): every amount exact, singular and plural.  A group's change is written as it is made
+    # (cg_group_effect): <C> how many villagers it changed, <N> the change (<L> to <N> when they differ), <W> the one
+    # villager's name.  Added at the end: the lines above keep their places (their translation keys).
+    "tech1+": "The village gains 1 tech point.",
+    "tech1-": "The village loses 1 tech point.",
+    "skill_best-": "<R> loses <N> skill in what <P> does best.",
+    "group_skill+": "<C> villagers each gain <N> <S> skill.",
+    "group_skill-": "<C> villagers each lose <N> <S> skill.",
+    "group_skill+r": "<C> villagers gain <L> to <N> <S> skill.",
+    "group_skill-r": "<C> villagers lose <L> to <N> <S> skill.",
+    "group1_skill+": "<W> gains <N> <S> skill.",
+    "group1_skill-": "<W> loses <N> <S> skill.",
+    "group_best+": "<C> villagers each gain <N> skill in what they do best.",
+    "group_best-": "<C> villagers each lose <N> skill in what they do best.",
+    "group_best+r": "<C> villagers gain <L> to <N> skill in what they do best.",
+    "group_best-r": "<C> villagers lose <L> to <N> skill in what they do best.",
+    "group1_best+": "<W> gains <N> <S> skill.",
+    "group1_best-": "<W> loses <N> <S> skill.",
+    "group_health_change+": "<C> villagers each gain <N> health.",
+    "group_health_change-": "<C> villagers each lose <N> health.",
+    "group_health_change+r": "<C> villagers gain <L> to <N> health.",
+    "group_health_change-r": "<C> villagers lose <L> to <N> health.",
+    "group1_health_change+": "<W> gains <N> health.",
+    "group1_health_change-": "<W> loses <N> health.",
+    "group_faith+": "The Faith of <C> villagers rises by <N> each.",
+    "group_faith+r": "The Faith of <C> villagers rises by <L> to <N>.",
+    "group1_faith+": "<W>'s Faith rises by <N>.",
+    "group_set": "The <S> skill of <C> villagers is now <N>.",
+    "group_set_best": "The best skill of <C> villagers is now <N>.",
+    "group1_set": "<W>'s <S> skill is now <N>.",
+    "group_health": "The health of <C> villagers is now <N>.",
+    "group1_health": "<W>'s health is now <N>.",
 }
+# A good's words for one of it and for many (story_graph_village.inc cg_good_words); other goods as they are.
+GOOD_WORDS = {"tech": ("tech point", "tech points"), "collectible": ("collectible", "collectibles"),
+              "cutting_tools": ("cutting tool", "cutting tools"), "berries": ("berry", "berries"),
+              "coconuts": ("coconut", "coconuts"), "blackberries": ("blackberry", "blackberries")}
 
 
-def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "") -> str:
-    """One line of AUTO_LINES with its role's placeholders and its words put in (the names not yet filled)."""
+def good_words(word: str, number: int) -> str:
+    """`word`'s words for `number` of it (a good's singular or plural; underscores as spaces)."""
+    one, many = GOOD_WORDS.get(word, (word, word))
+    return (one if abs(number) == 1 else many).replace("_", " ")
+# The widest a scaled food / tech amount can grow (the "Island Events Scale ..." patches): the fit takes this many
+# times the amount when no roll is given (with Scrolling Popups only the bytes count).
+AUTO_SCALE_ROOM = 100
+# The widest a scaled food / tech amount can grow (the "Island Events Scale ..." patches): the fit takes this many
+# digits when no roll is given (with Scrolling Popups only the bytes count).
+AUTO_SCALE_ROOM = 100
+
+
+def _auto_fill(key: str, role: str | None, skill: str = "", word: str = "", number: int | None = None,
+               other: str | None = None) -> str:
+    """One line of AUTO_LINES with its role's placeholders, its words and its number put in (the names not yet
+    filled).  <N> is the amount as a plain number, never signed (the line's verb says gain or loss); <Q> the other
+    role's name (a body swap).  One tech point is "1 tech point" (story_graph.inc cg_amount_key)."""
+    if key in ("tech+", "tech-") and abs(number or 0) == 1:
+        key = "tech1" + key[-1]
     line = AUTO_LINES[key]
     if role is not None:
         line = line.replace("<R>", f"({role}.Name)").replace("<P>", f"({role}.his/her)")
-    return line.replace("<S>", skill).replace("<W>", word)
+    if other is not None:
+        line = line.replace("<Q>", f"({other}.Name)")
+    return line.replace("<S>", skill).replace("<W>", word).replace("<N>", str(abs(number or 0)))
 
 
-def _sign_keys(stem: str, lo: int, hi: int) -> list[str]:
-    return ([stem + "-"] if lo < 0 else []) + ([stem + "+"] if hi > 0 else [])
+def _sign_keys(stem: str, lo: int, hi: int) -> list[tuple[str, int]]:
+    """The keys a lo..hi change can give, each with its widest number."""
+    return ([(stem + "-", lo)] if lo < 0 else []) + ([(stem + "+", hi)] if hi > 0 else [])
 
 
-def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[int] | None = None) -> list[str]:
+def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[int] | None = None,
+                      sex: str | None = None) -> list[str]:
     """The lines effect `e` can give in `game` (raw text: placeholders kept), or with `fx` (its walk roll [a, b])
-    the one it gives (a list of one, or none).  `award`: the award pay_award pays, (kind, amount or (min, max), ...)."""
+    the one it gives (a list of one, or none).  `award`: the award pay_award pays, (kind, amount or (min, max), ...).
+    `sex`: the role's sex before a sex_change ("m" / "f"; None: both lines can be given)."""
     gm = GAMES[game]
     do = e["do"]
     r = effect_role(e)
@@ -2678,30 +3473,68 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
         if e.get("defer"):
             return []                                   # its pay_award tells it
         amount = effect_amount(e, game)
-        lo, hi = (fx[0], fx[0]) if fx is not None else amount if isinstance(amount, tuple) else (amount, amount)
-        return [_auto_fill(k, None) for k in _sign_keys(do, lo, hi)]
+        if fx is not None:
+            lo = hi = fx[0]
+        else:
+            lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
+            if e.get("scaled"):
+                lo, hi = lo * AUTO_SCALE_ROOM, hi * AUTO_SCALE_ROOM
+        return [_auto_fill(k, None, number=n) for k, n in _sign_keys(do, lo, hi)]
     if do == "pay_award":
         if award is None:
             return []
         amount = award[1]
         lo, hi = amount if isinstance(amount, tuple) else (amount, amount)
-        return [_auto_fill(k, None) for k in _sign_keys(award[0], lo, hi)]
-    if do in ("kill", "vanish", "status", "health", "sick", "die_unrecovered", "baby_lost", "old_look",
-              "sex_change", "presentation"):
+        return [_auto_fill(k, None, number=n) for k, n in _sign_keys(award[0], lo, hi)]
+    if e.get("target"):
+        # a group's change: written as it is made (story_graph.inc cg_group_line), so a simulated run has none; the
+        # fit takes the widest it can give
+        return [] if fx is not None else _group_lines(e, gm)
+    if r in NEW_ROLES:
+        return []                                       # a new villager: the engine's own lines
+    if do in ("kill", "vanish"):
+        return [_auto_fill(do + ("_" + e["line"] if e.get("line") else ""), r)]
+    if do == "health":
+        return [_auto_fill("health", r, number=fx[0] if fx is not None else e["max"])]
+    if do in ("status", "sick", "die_unrecovered", "baby_lost", "old_look", "presentation", "cure", "young_look",
+              "pregnant", "nursing", "clone", "lose_name"):
         return [_auto_fill(do, r)]
+    if do == "body_swap":
+        return [_auto_fill("body_swap", r, other=e["with"])]
+    if do == "change_name" and e.get("name_of"):
+        return [_auto_fill("change_name", r, word=f"({e['name_of']})")]   # the stranger's drawn name
+    if do == "change_name":
+        # a random name: drawn when the page is laid out (the engine's cg_pre), the widest the game's room holds
+        name = e.get("name") or ("W" * gm.name_room if fx is None else None)
+        return [_auto_fill("change_name", r, word=name)] if name else []
+    if do == "change_age":
+        # the age it becomes, drawn when the page is laid out (the engine's cg_pre): the widest 3 digits
+        return [_auto_fill("change_age", r, number=CHANGE_AGE_YEARS_MAX)] if fx is None else []
+    if do == "sex_change":
+        keys = ["sex_female"] if sex == "m" else ["sex_male"] if sex == "f" else ["sex_female", "sex_male"]
+        return [_auto_fill(k, r) for k in keys]
     if do == "damage":
-        return [_auto_fill("damage", None)]
+        return [_auto_fill("damage", None, number=fx[0] if fx is not None else e["max"])]
+    if do == "repair":
+        return [_auto_fill("repair", None)]
+    if do == "skill" and e.get("best"):
+        if "set" in e:
+            return [_auto_fill("skill_best", r, number=e["set"])]
+        lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
+        return ([_auto_fill("skill_best-", r, number=lo)] if lo < 0 else []) + \
+            ([_auto_fill("skill_best", r, number=hi)] if hi > 0 else [])
     if do == "celebrate":
         return [_auto_fill("celebrate_all", None)] if r is None else [_auto_fill("celebrate", r)]
     if do == "mood":
         return [_auto_fill("mood+" if e["mood"] == "good" else "mood-", r)]
     if do == "health_change":
         lo, hi = (fx[0], fx[0]) if fx is not None else (e["min"], e["max"])
-        return [_auto_fill(k, r) for k in _sign_keys("health_change", lo, hi)]
+        return [_auto_fill(k, r, number=n) for k, n in _sign_keys("health_change", lo, hi)]
     if do == "appearance":
-        return [_auto_fill("hair" if e.get("body") is None else "look", r)]
+        return ([_auto_fill("head", r)] if e.get("head") is not None else []) + \
+            ([_auto_fill("clothes", r)] if e.get("body") is not None else [])
     if do == "preference":
-        key = "dislike" if e["list"] == "dislikes" else "like"
+        key = ("un" if e.get("remove") else "") + ("dislike" if e["list"] == "dislikes" else "like")
         if e["preference"] != PREF_RANDOM:
             return [_auto_fill(key, r, word=e["preference"])]
         if fx is not None:
@@ -2714,10 +3547,81 @@ def auto_line_options(e: dict, game: int, award: tuple | None = None, fx: list[i
             skills = [s for s in e["skills"] if s in gm.skills]
         if "set" in e:
             key = "set100" if e["set"] == 100 else "set0" if e["set"] == 0 else "set"
-            return [_auto_fill(key, r, skill=s) for s in skills]
+            return [_auto_fill(key, r, skill=s, number=e["set"]) for s in skills]
         lo, hi = (fx[1], fx[1]) if fx is not None else (e["min"], e["max"])
-        return [_auto_fill(k, r, skill=s) for s in skills for k in _sign_keys("skill", lo, hi)]
-    return []                                           # action: no line
+        return [_auto_fill(k, r, skill=s, number=n) for s in skills for k, n in _sign_keys("skill", lo, hi)]
+    if do in ("supply", "trade", "group", "village"):
+        # 39-41: written as each is made (village.inc cg_after_line), so a simulated run has none; the fit takes the
+        # widest it can give
+        return [] if fx is not None else _village_lines(e, gm)
+    return []                                           # action, new villager, age: no line (their own logs)
+
+
+def _group_line(key: str, count: int = 0, low: int = 0, number: int = 0, skill: str = "", word: str = "") -> str:
+    """One group line of AUTO_LINES with its numbers and words put in (story_graph.inc cg_group_line)."""
+    return (AUTO_LINES[key].replace("<C>", str(count)).replace("<L>", str(abs(low))).replace("<S>", skill)
+            .replace("<W>", word).replace("<N>", str(abs(number))))
+
+
+def _group_lines(e: dict, gm: "Game") -> list[str]:
+    """The lines a group's skill or health change can write as it is made, at their widest (a range, every
+    villager of the largest village, the widest skill)."""
+    do = e["do"]
+    many = 256
+    if do == "skill":
+        if "set" in e:
+            skill = max((s for s in e.get("skills", []) if s in gm.skills), key=len, default="")
+            return [_group_line("group_set_best" if e.get("best") else "group_set", many, 0, e["set"], skill)]
+        stem = "best" if e.get("best") else "skill"
+        skill = "" if e.get("best") else max((s for s in e["skills"] if s in gm.skills), key=len, default="")
+        lines = []
+        for sign, n in (("-", e["min"]), ("+", e["max"])):
+            if (n < 0) == (sign == "-") and n != 0:
+                lines.append(_group_line(f"group_{stem}{sign}r", many, 100, n, skill))
+        return lines
+    if do == "health_change":
+        return [_group_line(f"group_health_change{sign}r", many, 100, n)
+                for sign, n in (("-", e["min"]), ("+", e["max"])) if n != 0 and (n < 0) == (sign == "-")]
+    if do == "health":
+        return [_group_line("group_health", many, 0, e["max"])]
+    return []
+
+
+def _village_lines(e: dict, gm: "Game") -> list[str]:
+    """The lines a village effect can write as it is made (story_graph_village.inc), at their widest."""
+    def good(word: str, number: int = 2) -> str:
+        return good_words(word, number)
+
+    do = e["do"]
+    big = 99999
+    if do == "supply":
+        return [_auto_fill("supply+" if e["max"] > 0 else "supply-", None, word=good(e["item"]), number=big)]
+    if do == "trade":
+        return [_auto_fill("trade_give", None, word=good(e["give"], e["give_amount"]), number=e["give_amount"]),
+                _auto_fill("trade_get", None, word=good(e["get"], e["get_amount"]), number=e["get_amount"])]
+    if do == "group":
+        kind = e["kind"]
+        if kind == "sick":
+            return [_auto_fill("group_sick", None, number=big)]
+        if kind == "cure":
+            return [_auto_fill("group_cure", None)]
+        if kind == "work":
+            return [_auto_fill("group_work", None, word=e["skill"])]
+        if kind == "effect":
+            return []
+        if e.get("who", "all") == "all":
+            return [_auto_fill("group_" + kind, None)]
+        return [_auto_fill("group1_" + kind, None, word="W" * gm.name_room)]
+    what = e["what"]
+    if what == "event_timer":
+        return [_auto_fill("timer_later", None, number=EVENT_TIMER_HOURS)] if e["max"] > 0 else \
+            [_auto_fill("timer_soon", None)]
+    if what == "tech_level":
+        area = max(TECH_AREAS.get(gm.number, ("",)), key=len)
+        return [_auto_fill("level_up" if e["step"] > 0 else "level_down", None, word=area, number=3)]
+    if what == "weather":
+        return [_auto_fill("weather_" + e["weather"], None)]
+    return []
 
 
 def widest_auto_line(lg: dict, e: dict, game: "Game", award: tuple | None) -> str:
@@ -2772,7 +3676,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         node = nodes[nid]
         path = path + (nid,)
         popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen) for p in popups]
+                        p.chosen, p.new_page) for p in popups]
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -2794,7 +3698,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 if "set" in e and not game.caps & CAP_SKILLS:
                     say(f"node {nid}: skill is not offered in {game.name}'s Custom Island Event")
                 r = effect_role(e)
-                if r is not None:
+                if r is not None and r not in NEW_ROLES:
                     kind = g["roles"].get(r, {}).get("kind")
                     member = dict(ctx.aliases).get(r, r)
                     if kind not in ("villager", "alias", "other"):
@@ -2886,7 +3790,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                 # 14: a page shown in the question's own popup keeps that popup's title.
                 in_question = after and (not v6 or popups[-1].answers <= MAX_ANSWERS_V4)
                 titles = [title] + ([ntitle] if ntitle else []) if in_question else [ntitle or title]
-                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles))
+                popups.append(Popup(kind, text, nodes=[nid], room=room, titles=titles,
+                                    new_page=bool(node.get("new_page"))))
         title = ntitle or title
         if node["type"] != "branch" and v6:
             _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
@@ -2903,7 +3808,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                         say(f"node {nid}: {raw}: a stranger has no name")
                     elif p.role not in ctx.roles:
                         say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
-                elif award is None:
+                elif p.what not in MADE_PLACEHOLDERS and award is None:
                     say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
         villager_fx = VILLAGER_EFFECTS_V6 + ("celebrate",) if v6 else VILLAGER_EFFECTS
         if any(e["do"] in villager_fx for e in node["effects"]) and popups and node["type"] != "question":
@@ -3001,7 +3906,7 @@ def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, awar
                     say(f"node {nid}: {raw}: a stranger has no name")
                 elif p.role not in ctx.roles:
                     say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
-            elif award is None:
+            elif p.what not in MADE_PLACEHOLDERS and award is None:
                 say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
         for name, _inst in pool_refs(t):
             pool = lg["pools"].get(name)
@@ -3071,8 +3976,8 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
                    uses: dict | None = None) -> None:
     """Version 6 text: the character set, every placeholder, escape and brace token (cie-v6-binary.md 5).  `uses`
     collects each pool's highest instance."""
-    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
-        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    if len(text.encode("ascii", "replace")) > text_cap():
+        problems.append(f"{where}: text is longer than {text_cap()} characters" + _without_scrolling())
     bad: set[str] = set()
     for kind, raw in text_tokens(text):
         if kind == "lit":
@@ -3093,6 +3998,10 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
             elif tok[0] == "word":
                 if tok[1] not in g.get("words", {}) and tok[1] not in TRIBE_WORDS:
                     problems.append(f"{where}: {raw} names no game word")
+            elif tok[0] == "count" and (label or where.startswith("title")):
+                problems.append(f"{where}: a count token ({raw}) stands only in body text, not a label or title")
+            elif tok[0] == "count":
+                pass                                  # 33: kept as written; the engine shows the count's option
             elif label:
                 problems.append(f"{where}: a label shows game words only, not {raw}")
             elif tok[0] == "pool":
@@ -3138,6 +4047,14 @@ def _pool_depth(g: dict, name: str, stack: tuple = ()) -> int:
 def _validate_v6(g: dict, problems: list[str]) -> None:
     """Version 6's own checks: pools, game words, roles' requirements and safety, the new effects' words."""
     uses: dict[str, int] = {}
+    titles = [("the title", g.get("title") or "")] + \
+        [("a title variant", v.get("title") or "") for v in g.get("title_variants") or [] if isinstance(v, dict)] + \
+        [(f"node {nid} title", n.get("title") or "") for nid, n in g["nodes"].items()]
+    for where, text in titles:
+        if "{#" in text:
+            problems.append(f"{where}: a count token stands only in body text, not a title")
+        if any(p and p.what in MADE_PLACEHOLDERS for _r, p in placeholders_v6(text, g["roles"])):
+            problems.append(f"{where}: (made1), (made2) and (renamed) stand only in body text, not a title")
     for nid, n in g["nodes"].items():
         if n["type"] != "branch":
             _check_text_v6(f"node {nid}", n["text"], [], g, uses=uses)
@@ -3196,13 +4113,18 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
     for nid, n in g["nodes"].items():
         for i, e in enumerate(n["effects"]):
             where = f"node {nid} effect {i + 1}"
-            if e["do"] == "celebrate" and e["who"] != "all" and \
+            if e["do"] == "celebrate" and e.get("who", "all") not in ("all",) + tuple(NEW_ROLES) and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: celebrate's who is all or a villager role")
+            if (e.get("target") or {}).get("skill") is not None and e["target"]["skill"] not in all_skills:
+                problems.append(f"{where}: target skill {e['target']['skill']!r} is not a skill in any game")
+            if e["do"] == "group" and e["who"] != "all" and \
+                    g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
+                problems.append(f"{where}: group's who is all or a villager role")
             if e["do"] == "action" and isinstance(e["action"], str) and \
                     not any(e["action"] in actions(gn) for gn in g["games"]):
                 problems.append(f"{where}: {e['action']!r} is not an action of the event's games")
-            if e["do"] == "skill":
+            if e["do"] == "skill" and not e.get("best"):
                 for s in e["skills"]:
                     if s not in all_skills:
                         problems.append(f"{where}: {s!r} is not a skill in any game")
@@ -3223,8 +4145,8 @@ def _check_text(where: str, text: str, problems: list[str], version: int = 1, g:
     if version >= VERSION_V6 and g is not None:
         _check_text_v6(where, text, problems, g, label)
         return
-    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
-        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    if len(text.encode("ascii", "replace")) > text_cap():
+        problems.append(f"{where}: text is longer than {text_cap()} characters" + _without_scrolling())
     for raw, p in placeholders(text):
         if p is None:
             problems.append(f"{where}: {raw} is not a placeholder (parentheses are only placeholders)")
@@ -3259,7 +4181,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
     after it (story_graph.inc cg_op_lead; "Honesty\n\n..."): in `worst`, which the bytes are checked on."""
     out: list[Popup] = []
     for pop in popups:
-        if out and out[-1].layout != "question":
+        if out and out[-1].layout != "question" and not pop.new_page:
             last = out[-1]
             last.text = last.text + ONE_POPUP_JOIN + pop.text if last.text else pop.text
             last.worst = last.worst + ONE_POPUP_JOIN + pop.worst if last.worst else pop.worst
@@ -3276,7 +4198,7 @@ def one_popup(popups: list[Popup]) -> list[Popup]:
         if out and out[-1].chosen:
             worst = out[-1].chosen + ONE_POPUP_JOIN + worst if worst else out[-1].chosen
         out.append(Popup(pop.layout, pop.text, worst, pop.effects, list(pop.nodes), pop.room, pop.answers,
-                         list(pop.titles), pop.chosen))
+                         list(pop.titles), pop.chosen, pop.new_page))
     return out
 
 
@@ -3287,6 +4209,14 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     done: set[tuple] = set()
     for p in paths:
         game = GAMES[p.ctx.game]
+        total = sum(len(pop.worst.encode("ascii", "replace")) + 1
+                    for pop in (one_popup(p.popups) if scrolling else p.popups))
+        if total > DISPLAY_BYTES:
+            nodes = "+".join(n for pop in p.popups for n in pop.nodes)
+            why = (f"{game.name}: the popups of one run ({nodes[:120]}) hold {total:,} bytes with the longest names; "
+                   f"the game keeps at most {DISPLAY_BYTES:,} for one event")
+            if why not in problems:
+                problems.append(why)
         for pop in (one_popup(p.popups) if scrolling else p.popups):
             key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
@@ -3294,10 +4224,10 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
             done.add(key)
             layout = getattr(game, pop.layout)
             nodes = "+".join(pop.nodes)
-            cap = ONE_POPUP_TEXT_MAX_12 if scrolling and game.number <= 2 else POPUP_TEXT_MAX
+            cap = LONG_TEXT_MAX if scrolling else POPUP_TEXT_MAX
             if len(pop.worst.encode("ascii", "replace")) > cap:
                 problems.append(f"{game.name}: the popup of {nodes} is longer than {cap} bytes "
-                                "with the longest names")
+                                "with the longest names" + ("" if scrolling else _without_scrolling()))
                 continue
             if scrolling:
                 continue
@@ -3342,18 +4272,33 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
                 out.append(f"{what}: {raw}: a stranger has no name")
     if bad:
         out.append(f"{what} has characters the game cannot show")
-    if len(title) > LABEL_BYTES_V6:
-        out.append(f"{what} is longer than {LABEL_BYTES_V6} characters as written")   # the .cieg's raw title
+    raw_cap = LONG_LINE_BYTES if scroll_caps() else LABEL_BYTES_V6
+    if len(title) > raw_cap:
+        out.append(f"{what} is longer than {raw_cap} characters as written"   # the .cieg's raw title
+                   + _without_scrolling())
     if out:
         return out
     for gn in g["games"]:
         game = GAMES[gn]
         worst = worst_v6(title_case(title), g, game, None)                # section 20
+        if scroll_caps() and len(worst) <= LONG_LINE_BYTES:
+            # With Scrolling Popups a long title wraps (one_popup.h; A New Home's and The Lost Children's text leads
+            # with it, its rest after the picture's gap, cg_title_wrap): only its length is free -- a single word
+            # wider than the title box still cannot wrap.
+            if gn in TITLE_BOX_PX:
+                wide, word = widest_word(worst, lambda w: title_px(gn, w))
+                if wide > TITLE_BOX_PX[gn]:
+                    out.append(f"{game.name}: {what} has a word ({word[:24]!r}) {wide} pixels wide with the longest "
+                               f"names; its popup's title box shows {TITLE_BOX_PX[gn]}")
+            continue
         if title_fits(gn, worst) or title_fits(gn, worst_v6(title_case(title), g, game, None, pronoun_names=True)):
             continue
-        if len(worst) > TITLE_BYTES:
+        if scroll_caps():
+            out.append(f"{what} is longer than {LONG_LINE_BYTES} characters with the longest names")
+        elif len(worst) > TITLE_BYTES:
             out.append(f"{what} is longer than {TITLE_BYTES} characters" + (" with the longest names"
-                                                                            if worst != title else ""))
+                                                                            if worst != title else "")
+                       + _without_scrolling())
         elif gn in TITLE_BOX_PX:
             out.append(f"{game.name}: {what} is {title_px(gn, worst)} pixels wide; its popup shows "
                        f"{TITLE_BOX_PX[gn]}")
@@ -3419,8 +4364,33 @@ def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game")
     return best
 
 
+def widest_word(text: str, px) -> tuple[int, str]:
+    """The widest of `text`'s words (parted by spaces and line breaks) by `px(word)`, and that word."""
+    best, word = 0, ""
+    for w in text.replace("\n", " ").split(" "):
+        if w:
+            n = px(w)
+            if n > best:
+                best, word = n, w
+    return best, word
+
+
+def _without_scrolling() -> str:
+    """What a too-long text's problem adds without Scrolling Popups (the long caps need it)."""
+    return "" if scroll_caps() else " (with the Scrolling Popups patch on, texts can be practically unlimited)"
+
+
 def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tuple[dict, list[str]]:
-    """(the normalized graph, every problem).  No problems = the graph may be compiled and played."""
+    """(the normalized graph, every problem).  No problems = the graph may be compiled and played.  With
+    `scrolling` (Scrolling Popups installed) the long caps apply (LONG_TEXT_MAX, LONG_LINE_BYTES)."""
+    token = _SCROLL_CAPS.set(bool(scrolling))
+    try:
+        return _validate(data, scrolling, shared_pools)
+    finally:
+        _SCROLL_CAPS.reset(token)
+
+
+def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list[str]]:
     g, problems = normalize(data, shared_pools)
     if problems and not g.get("nodes"):
         return g, problems
@@ -3485,6 +4455,20 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
             for c in n["choices"]:
                 if v6:
                     label = worst_v6(c["label"], lg_labels, game, None, label=True)
+                    if scroll_caps():
+                        # A choice's row grows to as many lines as its label needs (one_popup.h): only the sanity
+                        # cap counts, never the screen's width.
+                        if len(label) > LONG_LINE_BYTES:
+                            problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters "
+                                            f"with the longest names; at most {LONG_LINE_BYTES}")
+                            continue
+                        # Only its length is free: a single word wider than the screen cannot wrap.
+                        wide, word = widest_word(label, lambda w: label_px(gn, w))
+                        if wide > label_max_px(gn):
+                            problems.append(f"{game.name}: the label {c['label']!r} has a word ({word[:24]!r}) that "
+                                            f"runs off the screen with the longest names ({wide} of "
+                                            f"{label_max_px(gn)} pixels)")
+                        continue
                     if not label_fits(gn, label):
                         # Section 15: the engine shows the names as pronouns when they do not fit.
                         fallback = worst_v6(c["label"], lg_labels, game, None, pronoun_names=True, label=True)
@@ -3492,7 +4476,7 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
                             continue
                     if len(label) > LABEL_BYTES_V6:
                         problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with "
-                                        f"the longest names; at most {LABEL_BYTES_V6}")
+                                        f"the longest names; at most {LABEL_BYTES_V6}" + _without_scrolling())
                     elif label_px(gn, label) > label_max_px(gn):
                         problems.append(f"{game.name}: the label {c['label']!r} runs off the screen with the "
                                         f"longest names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
@@ -3511,7 +4495,8 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
                 problems.append(f"node {nid}: a label is one line")
             phs = placeholders_v6(c["label"], g["roles"]) if v6 else placeholders(c["label"])
             for raw, p in phs:
-                if p is None or p.what in ("award", "award_unit") or (p.role and p.role not in g["roles"]):
+                if p is None or p.what in ("award", "award_unit") or p.what in MADE_PLACEHOLDERS or \
+                        (p.role and p.role not in g["roles"]):
                     problems.append(f"node {nid}: the label's {raw} is not a placeholder a label can show")
                 elif g["roles"][p.role].get("optional"):
                     problems.append(f"node {nid}: the label's {raw} names {p.role}, who may not be bound")
@@ -3520,6 +4505,12 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
     for ctx in contexts(g):
         paths = walk(g, ctx, problems)
         problems.extend(x for x in fit_problems(g, paths, scrolling) if x not in problems)
+    if not problems:
+        # The file the game reads: at most MAX_FILE_BYTES (the library's scan refuses a larger one).
+        size = len(compile_graph(g))
+        if size > MAX_FILE_BYTES:
+            problems.append(f"the event's file would be {size:,} bytes; the game reads at most {MAX_FILE_BYTES:,} "
+                            "(shorten some texts or split the event)")
     return g, problems
 
 
@@ -3546,6 +4537,17 @@ _VARIANT = struct.Struct("<HH")
 _PATCH = struct.Struct("<H")
 assert _HEADER.size == 80 and _ROLE.size == 8 and _NODE.size == 28 and _CHILD.size == 12
 assert _EFFECT.size == 16 and _COND.size == 8 and _VARIANT.size == 4
+
+
+def _solidarity_flags(node: dict) -> int:
+    """A node's Village Solidarity tag in its flags byte (0 untagged: the bytes as before)."""
+    return SOLIDARITY_CODES.get(node.get("solidarity"), 0) << NODE_SOLIDARITY_SHIFT
+
+
+def _solidarity_from_flags(node: dict, flags: int) -> None:
+    code = (flags & NODE_SOLIDARITY_MASK) >> NODE_SOLIDARITY_SHIFT
+    if code:
+        node["solidarity"] = {v: k for k, v in SOLIDARITY_CODES.items()}[code]
 
 
 _HEADER6 = struct.Struct("<4sHHIII HHH HHHHHHHH H IIIIIIII II HH HH HH")   # 18: + title variants first, count
@@ -3610,8 +4612,10 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], arg["max"] or 0)
         elif op == "skill_at_least":
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], s(arg["skill"]))
-        elif op in ("has_living_child", "has_dead_relative"):
+        elif op in ONE_ROLE_FACTS:
             conds[at] = _COND.pack(code, 0, ridx[arg], 0, 0)
+        elif op == "has_supply":
+            conds[at] = _COND.pack(code, 0, s(arg["item"]), arg["min"], 0)
         elif op == "drew":
             item = [it["text"] for it in g["pools"][arg["pool"]]["items"]].index(arg["item"])
             conds[at] = _COND.pack(code, 0, list(lg["pools"]).index(arg["pool"]), arg["instance"], item)
@@ -3649,9 +4653,11 @@ def _compile_v6(g: dict) -> bytes:
             sk = v["skill"]
             roles += _ROLE6.pack(0, flags, SEX_CODES[v["sex"]], v["min_age"], s(r),
                                  ridx[gap["role"]] + 1 if gap else 0, gap["years"] if gap else 0,
-                                 v["max_age"] or 0, SPECIAL_CODES.get(v["special"], 0),
+                                 v["max_age"] or 0,
+                                 SPECIAL_CODES.get(v["special"], 0) or PREFER_CODES.get(v.get("prefer"), 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
-                                 PICK_CODES[sk["pick"]] if sk else 0, 0)
+                                 (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
+                                 | (ROLE_HEATHEN if v.get("heathen_ok") else 0), 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -3670,9 +4676,20 @@ def _compile_v6(g: dict) -> bytes:
         for e in n["effects"]:
             do = e["do"]
             code = EFFECT_CODES["skill_set" if do == "skill" and "set" in e else do]
-            r = effect_role(e)
-            role = ridx[r] if r is not None else 0xFF
+            r = e["role"] if do == "trait" else effect_role(e)
+            rx = lambda name: NEW_ROLES[name] if name in NEW_ROLES else ridx[name]  # noqa: E731
+            role = rx(r) if r is not None else 0xFF
             flags, a, b, st = 0, 0, 0, NONE
+            sel, last = 0, 0                     # byte 3, the last H (group targets, change_age's cap)
+            tg = e.get("target")
+            if tg:
+                role = TARGET_ROLE
+                if tg.get("all"):
+                    sel = TARGET_ALL
+                elif "skill" in tg:
+                    sel, last = TARGET_SKILL, s(tg["skill"])
+                else:
+                    sel, last = TARGET_RANDOM, tg["random"]
             if do in ("food", "tech"):
                 flags, a = (1 if e["scaled"] else 0) | (2 if e["defer"] else 0), e["amount"]
                 b = e.get("max") or 0
@@ -3680,24 +4697,40 @@ def _compile_v6(g: dict) -> bytes:
                     st = s(per_game_text(e["per_game"]))
             elif do == "kill":
                 st = s(e["cause"])
+                flags = LINE_FLAG if e.get("line") else 0
+            elif do == "vanish":
+                flags = LINE_FLAG if e.get("line") else 0
             elif do == "status":
                 a = STATUS_CODES[e["status"]]
             elif do in ("health", "health_change", "damage"):
                 a, b = e["min"], e["max"]
                 if do == "damage":
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
+            elif do == "supply":
+                a, b, st = e["min"], e["max"], s(e["item"])
+            elif do == "trade":
+                a, b, st = e["give_amount"], e["get_amount"], s(f"{e['give']},{e['get']}")
+            elif do == "group":
+                a, st = e.get("percent") or 0, s(group_word(e))
+            elif do == "village":
+                a, b, st = village_args(e)
+                st = s(st)
             elif do == "preference":
                 flags = (4 if e["list"] == "dislikes" else 0) | (PREF_RANDOM_FLAG if e["preference"] == PREF_RANDOM
-                                                                 else 0)
+                                                                 else 0) | (PREF_REMOVE_FLAG if e.get("remove") else 0)
                 st = NONE if e["preference"] == PREF_RANDOM else s(e["preference"])
             elif do == "skill" and "set" in e:
                 a, st = e["set"], s(",".join(e["skills"]))
+                flags |= SKILL_BEST_FLAG if e.get("best") else 0
             elif do == "skill":
                 a, b, st = e["min"], e["max"], s(",".join(e["skills"]))
+                flags |= SKILL_BEST_FLAG if e.get("best") else 0
             elif do == "action":
                 st = s(e["action"])
             elif do == "mood":
                 a = 1 if e["mood"] == "good" else -1
+            elif do == "repair":
+                st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
             elif do == "appearance":
                 a, b = (LOOK_KEEP if e.get(p) is None else LOOK_RANDOM if e[p] == "random" else e[p]
                         for p in ("head", "body"))
@@ -3705,12 +4738,38 @@ def _compile_v6(g: dict) -> bytes:
                 st = s(e["cause"])
             elif do == "deliver_early" and "min" in e:
                 a, b = e["min"], e["max"]
+            elif do == "trait":
+                a = TRAIT_CODES[e["trait"]]
+            elif do == "new_villager":
+                a = NEW_VILLAGER_AGES[e.get("age", "any")]
+                b = NEW_VILLAGER_SEX[e.get("sex", "random")]
+                flags = CHILD_OF_NEWEST_FLAG if e.get("child_of_newest") else 0
+            elif do in ("pregnant", "nursing"):
+                flags = (ANY_BIRTH_SEX_FLAG if e.get("any_birth_sex") else 0) | BABIES_FLAGS.get(e.get("babies"), 0) \
+                    | (PARTNER_MAY_CARRY_FLAG if e.get("partner_may_carry") else 0)
+                a = rx(e["partner"]) if e.get("partner") else 0xFF
+            elif do == "body_swap":
+                a = rx(e["with"])
+            elif do == "change_name" and e.get("name_of"):
+                a = rx(e["name_of"]) + 1
+            elif do == "change_name" and e.get("name"):
+                st = s(e["name"])
+            elif do == "clone" and e.get("count") == 2:
+                a = 2
+            elif do == "change_age":
+                if "to" in e:
+                    flags = CHANGE_AGE_TO[e["to"]]
+                else:
+                    flags, (a, b) = CHANGE_AGE_ADD, e["years"]
+                last = e.get("max_age", 0)
             elif do == "presentation":
                 a = 1 if e["on"] else 0
-            effects += _EFFECT.pack(code, role, flags, 0, a, b, st, 0)
+            effects += _EFFECT.pack(code, role, flags, sel, a, b, st, last)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, NODE_AUTO_TEXT if n.get("auto_text") else 0,
+                            1 if n["join"] == "paragraph" else 0,
+                            (NODE_AUTO_TEXT if n.get("auto_text") else 0) | (NODE_NEW_PAGE if n.get("new_page") else 0)
+                            | _solidarity_flags(n),
                             s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
@@ -3720,7 +4779,8 @@ def _compile_v6(g: dict) -> bytes:
     pools = items = b""
     n_item = 0
     for name, p in lg["pools"].items():
-        pools += _POOL.pack(s(name), n_item, len(p["items"]), 1 if p["distinct"] else 0, 0,
+        pools += _POOL.pack(s(name), n_item, len(p["items"]),
+                            (1 if p["distinct"] else 0) | (POOL_LINKED if p.get("linked") else 0), 0,
                             s(",".join(p.get("distinct_from") or [])), 0)
         for it in p["items"]:
             items += _ITEM.pack(s(it["text"]), it["weight"], cond(it["if"]), 0)
@@ -3806,6 +4866,7 @@ def _decompile_v6(data: bytes) -> dict:
     code_effect = {v: k for k, v in EFFECT_CODES.items()}
     code_status = {v: k for k, v in STATUS_CODES.items()}
     code_special = {v: k for k, v in SPECIAL_CODES.items()}
+    code_prefer = {v: k for k, v in PREFER_CODES.items()}
     code_present = {v: k for k, v in PRESENT_CODES.items()}
     code_pick = {v: k for k, v in PICK_CODES.items()}
 
@@ -3816,12 +4877,14 @@ def _decompile_v6(data: bytes) -> dict:
         name = code_cond[op]
         if name == "visited":
             return {name: node_ids[a]}
-        if name in ("role", "harmable", "has_living_child", "has_dead_relative"):
+        if name in ("role", "harmable", *ONE_ROLE_FACTS):
             return {name: role_ids[a]}
         if name == "age":
             return {name: {"role": role_ids[a], "min": b, "max": c3 or None}}
         if name == "skill_at_least":
             return {name: {"role": role_ids[a], "skill": s(c3), "min": b}}
+        if name == "has_supply":
+            return {name: {"item": s(a), "min": b}}
         if name == "drew":
             pname, pfirst = _POOL.unpack_from(data, o_pool + a * _POOL.size)[:2]
             it = _ITEM.unpack_from(data, o_item + (pfirst + c3) * _ITEM.size)[0]
@@ -3841,6 +4904,7 @@ def _decompile_v6(data: bytes) -> dict:
     roles: dict[str, dict] = {}
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
+        speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -3861,8 +4925,14 @@ def _decompile_v6(data: bytes) -> dict:
                           if skills != NONE else None,
                           "special": code_special.get(special), "protected": said,
                           "believers_only": bool(flags & 8)}
+            if special in code_prefer:
+                roles[rid]["prefer"] = code_prefer[special]     # 35
             if gap_role:
                 roles[rid]["max_age_gap"] = {"role": role_ids[gap_role - 1], "years": gap_years}
+            if speaks:
+                roles[rid]["speaks"] = True
+            if heathen:
+                roles[rid]["heathen_ok"] = True
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}
@@ -3888,9 +4958,14 @@ def _decompile_v6(data: bytes) -> dict:
                              "else": node_ids[ce] if ce != NONE else None})
         effects = []
         for k in range(e_count):
-            code, role, flags, _q, a, b, st, _ = _EFFECT.unpack_from(data, o_effect + (e_first + k) * _EFFECT.size)
+            code, role, flags, sel, a, b, st, last = _EFFECT.unpack_from(data, o_effect + (e_first + k) * _EFFECT.size)
             do = code_effect[code]
             e: dict[str, Any] = {"do": "skill" if do == "skill_set" else do}
+            rn = lambda i: NEW_ROLE_NAMES[i] if i in NEW_ROLE_NAMES else role_ids[i]  # noqa: E731
+            target = None
+            if role == TARGET_ROLE:
+                target = {"all": True} if sel == TARGET_ALL else {"skill": s(last)} if sel == TARGET_SKILL \
+                    else {"random": last}
             if do in ("food", "tech"):
                 e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
                 if b:
@@ -3898,12 +4973,41 @@ def _decompile_v6(data: bytes) -> dict:
                 if st != NONE:
                     e["per_game"] = per_game_parse(s(st))
             elif do == "celebrate":
-                e["who"] = "all" if role == 0xFF else role_ids[role]
+                if target is None:
+                    e["who"] = "all" if role == 0xFF else rn(role)
             elif do == "damage":
                 words = s(st)
                 e.update(structures=DAMAGE_ANY if words == DAMAGE_ANY else words.split(","), min=a, max=b)
+            elif do == "repair":
+                words = s(st)
+                e["structures"] = DAMAGE_ANY if words == DAMAGE_ANY else words.split(",")
+            elif do == "new_villager":
+                if role != 0xFF:
+                    e["copy_of"] = rn(role)
+                age = {v: k for k, v in NEW_VILLAGER_AGES.items()}[a]
+                if age != "any":
+                    e["age"] = age
+                sex = {v: k for k, v in NEW_VILLAGER_SEX.items()}[b]
+                if sex != "random":
+                    e["sex"] = sex
+                if flags & CHILD_OF_NEWEST_FLAG:
+                    e["child_of_newest"] = True
+            elif do == "supply":
+                e.update(item=s(st), min=a, max=b)
+            elif do == "trade":
+                give, get = s(st).split(",", 1)
+                e.update(give=give, give_amount=a, get=get, get_amount=b)
+            elif do == "group":
+                e.update(group_from(s(st)), who="all" if role == 0xFF else role_ids[role])
+                if s(st) == "sick":
+                    e["percent"] = a
+            elif do == "village":
+                e.update(village_from(s(st), a, b))
             elif do != "pay_award":
-                e["role"] = role_ids[role]
+                if target is None:
+                    e["role"] = rn(role)
+                if do in LINE_WORDS and flags & LINE_FLAG:
+                    e["line"] = LINE_WORDS[do]
                 if do == "kill":
                     e["cause"] = s(st)
                 elif do == "status":
@@ -3913,10 +5017,16 @@ def _decompile_v6(data: bytes) -> dict:
                 elif do == "preference":
                     e.update(list="dislikes" if flags & 4 else "likes",
                              preference=PREF_RANDOM if flags & PREF_RANDOM_FLAG else s(st))
+                    if flags & PREF_REMOVE_FLAG:
+                        e["remove"] = True
                 elif do == "skill":
                     e.update(skills=s(st).split(","), min=a, max=b)
+                    if flags & SKILL_BEST_FLAG:
+                        e["best"] = True
                 elif do == "skill_set":
                     e.update(skills=s(st).split(","), set=a)
+                    if flags & SKILL_BEST_FLAG:
+                        e["best"] = True
                 elif do == "action":
                     e["action"] = s(st)
                 elif do == "mood":
@@ -3927,10 +5037,38 @@ def _decompile_v6(data: bytes) -> dict:
                             e[part] = "random" if v == LOOK_RANDOM else v
                 elif do in ("die_unrecovered", "birth_then_die"):
                     e["cause"] = s(st)
+                elif do == "trait":
+                    e["trait"] = {v: k for k, v in TRAIT_CODES.items()}[a]
                 elif do == "deliver_early" and (a or b):
                     e.update(min=a, max=b)
+                elif do in ("pregnant", "nursing"):
+                    if a != 0xFF:
+                        e["partner"] = rn(a)
+                    if flags & ANY_BIRTH_SEX_FLAG:
+                        e["any_birth_sex"] = True
+                    if flags & 6:
+                        e["babies"] = BABIES_NAMES[flags & 6]
+                    if flags & PARTNER_MAY_CARRY_FLAG:
+                        e["partner_may_carry"] = True
+                elif do == "body_swap":
+                    e["with"] = rn(a)
+                elif do == "change_name" and a > 0:
+                    e["name_of"] = rn(a - 1)
+                elif do == "change_name" and st != NONE and s(st):
+                    e["name"] = s(st)
+                elif do == "clone" and a == 2:
+                    e["count"] = 2
+                elif do == "change_age":
+                    if flags == CHANGE_AGE_ADD:
+                        e["years"] = [a, b]
+                    else:
+                        e["to"] = {v: k for k, v in CHANGE_AGE_TO.items()}[flags]
+                    if last:
+                        e["max_age"] = last
                 elif do == "presentation":
                     e["on"] = a == 1
+            if target is not None:
+                e["target"] = target
             effects.append(e)
         nodes[nid] = {"type": typ, "popup": "append" if popup else "new", "join": "paragraph" if join else "space",
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
@@ -3940,6 +5078,9 @@ def _decompile_v6(data: bytes) -> dict:
             nodes[nid]["title"] = s(ntitle)
         if nflags & NODE_AUTO_TEXT:
             nodes[nid]["auto_text"] = True
+        if nflags & NODE_NEW_PAGE:
+            nodes[nid]["new_page"] = True
+        _solidarity_from_flags(nodes[nid], nflags)
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if req_cond != NONE:
         _op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
@@ -3963,6 +5104,8 @@ def _decompile_v6(data: bytes) -> dict:
             it, w, c, _ = _ITEM.unpack_from(data, o_item + (first + k) * _ITEM.size)
             its.append({"text": s(it), "weight": w, "if": cond(c)})
         pools[s(name)] = {"items": its, "distinct": bool(pflags & 1)}
+        if pflags & POOL_LINKED:
+            pools[s(name)]["linked"] = True        # 35: a chief's title word (the compiler's, never an author's)
         if frm != NONE:
             pools[s(name)]["distinct_from"] = s(frm).split(",")
     lg = {"format": FORMAT, "version": version, "title": s(title),
@@ -4067,6 +5210,9 @@ def compile_graph(g: dict) -> bytes:
                     st = s(per_game_text(e["per_game"]))     # version 5: each game's own amount or range
             elif do == "kill":
                 st = s(e["cause"])
+                flags = LINE_FLAG if e.get("line") else 0
+            elif do == "vanish":
+                flags = LINE_FLAG if e.get("line") else 0
             elif do == "status":
                 a = STATUS_CODES[e["status"]]
             elif do == "health":
@@ -4078,7 +5224,7 @@ def compile_graph(g: dict) -> bytes:
             effects += _EFFECT.pack(EFFECT_CODES[do], role, flags, 0, a, b, st, 0)
             n_effect += 1
         nodes += _NODE.pack(NODE_TYPES.index(n["type"]), 1 if n["popup"] == "append" else 0,
-                            1 if n["join"] == "paragraph" else 0, 0, s(nid), s(n["text"]),
+                            1 if n["join"] == "paragraph" else 0, _solidarity_flags(n), s(nid), s(n["text"]),
                             v_first if n["variants"] else NONE, len(n["variants"]),
                             c_first, n_child - c_first, nidx[n["else"]] if n["else"] else NONE,
                             e_first if n["effects"] else NONE, len(n["effects"]), s(n["summary"]),
@@ -4201,7 +5347,7 @@ def decompile_graph(data: bytes) -> dict:
                 roles[rid]["max_age_gap"] = {"role": role_ids[(extra & 0xFF) - 1], "years": extra >> 8}
     nodes = {}
     for nid, n in zip(node_ids, nodes_raw):
-        (t, popup, join, _p, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
+        (t, popup, join, nflags, _id, text, v_first, v_count, c_first, c_count, els, e_first, e_count, summary,
          outcome, _z4) = n
         typ = NODE_TYPES[t]
         variants = []
@@ -4229,6 +5375,8 @@ def decompile_graph(data: bytes) -> dict:
                     e["per_game"] = per_game_parse(s(st))
             elif do in VILLAGER_EFFECTS:
                 e["role"] = role_ids[role]
+                if do in LINE_WORDS and flags & LINE_FLAG:
+                    e["line"] = LINE_WORDS[do]
                 if do == "kill":
                     e["cause"] = s(st)
                 elif do == "status":
@@ -4244,6 +5392,7 @@ def decompile_graph(data: bytes) -> dict:
                       "text": s(text), "variants": variants, "effects": effects, "children": kids,
                       "choices": choices, "else": node_ids[els] if els != NONE else None, "summary": s(summary),
                       "outcome": s(outcome)}
+        _solidarity_from_flags(nodes[nid], nflags)
     requirement: dict[str, Any] = {"min_eligible": min_el}
     if version >= 3 and req_cond != NONE:
         op, count, first, _b, _ = _COND.unpack_from(data, o_cond + req_cond * _COND.size)
@@ -4258,6 +5407,40 @@ def decompile_graph(data: bytes) -> dict:
 
 
 # ---- Version 6: the engine's walk, roll for roll (cie-v6-binary.md section 6) --------------------------------------
+
+
+def partner_carry_pairs(g: dict, aliases: dict[str, str] | None = None) -> list[tuple[str, str]]:
+    """The (carrier role, partner role) pairs the companion decides when the run starts (story_graph.inc
+    cg_partner_carry_decide; the owner, 2026-11-18), in its order: each pregnant / nursing effect with
+    partner_may_carry and a partner role, in the order the effects are compiled, an alias role as its member drawn
+    (`aliases`, as simulate draws them), a role already in a pair skipped.
+    For each, the cast made and the aliases drawn, before any page: when the carrier passes the carrier's checks and the partner
+    is 18 or more and not expecting, one roll of the player's partner_carry_percent (none at 0 or 100) decides; on a
+    yes the two roles' villagers change places for the whole run (partner_carry_swap), so every page names who
+    carries and the effect makes that villager carry."""
+    lg = lower(g)
+    out: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for n in lg["nodes"].values():
+        for e in n.get("effects", []) or []:
+            if e.get("do") not in ("pregnant", "nursing") or not e.get("partner_may_carry"):
+                continue
+            c, p = e.get("role", "subject"), e.get("partner")
+            c, p = (aliases or {}).get(c, c), (aliases or {}).get(p, p)
+            if p is None or p in NEW_ROLES or c in NEW_ROLES or c == p or c in seen or p in seen:
+                continue
+            seen |= {c, p}
+            out.append((c, p))
+    return out
+
+
+def partner_carry_swap(bindings: dict[str, Any], swaps: Iterable[tuple[str, str]]) -> dict[str, Any]:
+    """The bindings once the partners who carry have changed places with their carriers (simulate takes the
+    bindings as the cast leaves them, this decision made)."""
+    out = dict(bindings)
+    for c, p in swaps:
+        out[c], out[p] = out.get(p), out.get(c)
+    return out
 
 
 def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Binding], answers: Iterable[int] = (),
@@ -4328,8 +5511,11 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if hi != 0:
                 lo += below(hi - lo + 1)
             return [lo, 0]
-        if do in ("health", "health_change", "damage") or (do == "deliver_early" and "min" in e):
+        if do in ("health", "health_change", "damage", "supply") or (do == "deliver_early" and "min" in e):
             return [e["min"] + below(e["max"] - e["min"] + 1), 0]
+        if do == "village":
+            lo, hi, _w = village_args(e)              # 35: a fixed step or the weather (lo == hi) takes no roll
+            return [lo + below(hi - lo + 1), 0]
         if do == "skill":
             have = [s for s in e["skills"] if s in gm.skills]
             va = gm.skills.index(have[below(len(have))]) if have else -1
@@ -4360,6 +5546,15 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if any(p[0] == name and p[1] == k for p in picks) or name not in lg["pools"]:
                 continue
             pool = lg["pools"][name]
+            if pool.get("linked"):
+                # 35: the item number the first linked pool drawn drew: no roll, no condition asked again
+                first = next((p[2] for p in picks if lg["pools"].get(p[0], {}).get("linked") and p[2] is not None),
+                             None)
+                if first is not None and first < len(pool["items"]):
+                    picks.append([name, k, first])
+                    if depth + 1 < MAX_POOL_DEPTH + 1:
+                        scan(pool["items"][first]["text"], visited, picks, depth + 1)
+                    continue
             eligible = [i for i, it in enumerate(pool["items"]) if cond_holds(it["if"], cx(picks), visited)]
             left = eligible
             if pool["distinct"]:
@@ -4425,6 +5620,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     seg = segment(lg["start"], path, picks)
     answers = list(answers)
     qi = 0
+    chosen: dict[int, int] = {}        # each question's place on the path -> the choice picked
     while True:
         path += seg["nodes"]
         path_texts += seg["texts"]
@@ -4440,6 +5636,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         qi += 1
         if pick not in segs:
             raise ValueError(f"answer {pick} is not shown at {path[-1]}")
+        chosen[len(path) - 1] = pick
         seg = segs[pick]
 
     # The popups, joined as walk() joins them, then read as the player reads them.
@@ -4461,7 +5658,8 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         for e in n["effects"]:
             if e["do"] in ("food", "tech") and e["defer"]:
                 paying = (e["do"], fx[k][0])
-            lines += auto_line_options(e, game, paying, fx[k])
+            who = bindings.get(aliases.get(e.get("role"), e.get("role"))) if e["do"] == "sex_change" else None
+            lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
             k += 1
         if n.get("auto_text"):
             path_texts[at] = with_auto_lines(path_texts[at], lines)
@@ -4470,9 +5668,26 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     title = event_title(lg, game, patches)   # 18
     room_after = False                 # the last popup was a question showing 2 to 4 buttons
     seen: tuple = ()
+    # The owner (2026-11-16, story_graph.inc cg_choice_title): after a choice the popups that follow take its label
+    # as their title until the next choice, unless the node after it has a title of its own; a title node of that
+    # part keeps its own.
+    choice_title, before = None, None
+
+    def shown_title(t):
+        # a chosen label is read as a button reads it (its game words, its names): ("label", raw)
+        return ("label", choice_title) if choice_title is not None and t == before else t
+
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         seen = seen + (nid,)
+        if at > 0 and lg["nodes"][path[at - 1]]["type"] == "question":
+            q = lg["nodes"][path[at - 1]]
+            # the choice picked (several may lead to the same node: its own label)
+            picked = chosen.get(at - 1)
+            label = (q["choices"][picked]["label"] if picked is not None and picked < len(q["choices"])
+                     else next((c["label"] for c in q["choices"] if c["next"] == nid), None))
+            choice_title = label if label is not None and not n.get("title") else None
+            before = title
         if n["type"] == "branch":
             continue
         t = path_texts[at]
@@ -4482,16 +5697,51 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         else:
             texts.append(t)
             if room_after and n["type"] == "popup":
-                titles.append(title)   # shown in the question's own popup: its title
+                titles.append(shown_title(title))   # shown in the question's own popup: its title
                 title = n.get("title") or title
             else:
                 title = n.get("title") or title
-                titles.append(title)
+                titles.append(shown_title(title))
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
     pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
-    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe) for t in texts]
-    titles = [title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
+    counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
+              if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts)
+              for t in texts]
+
+    def choice_shown(label: str) -> str:
+        # story_graph.inc cg_title_expand: the label in title case, its names (or pronouns when they do not fit)
+        t = title_case(label)
+        real = expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, label=True)
+        if title_fits(game, real):
+            return real
+        return expand_v6(t, lg, bindings, pick_map, None, game, unicode, aliases, tribe=tribe, pronoun_names=True,
+                         label=True)
+
+    titles = [choice_shown(t[1]) if isinstance(t, tuple)
+              else title_shown(lg, t, game, bindings, aliases, unicode) for t in titles]     # 17
+    for i, t in enumerate(titles):
+        # story_graph.inc cg_title_wrap: a title wider than the title area is cut at a space where it fits; its rest
+        # is the page's first line
+        if t and not title_fits(game, t):
+            cut = -1
+            for k in range(1, len(t)):
+                if t[k] == " ":
+                    if not title_fits(game, t[:k]):
+                        break
+                    cut = k
+            if cut <= 0:
+                cut = len(t) - 1
+                while cut > 1 and not title_fits(game, t[:cut]):
+                    cut -= 1
+                rest = t[cut:]
+            else:
+                rest = t[cut + 1:]
+            titles[i] = t[:cut]
+            if i < len(popups):
+                popups[i] = rest + "\n" + popups[i]
     labels = []                        # 15: each question's shown buttons, as read
     seen = ()
     for nid in path:

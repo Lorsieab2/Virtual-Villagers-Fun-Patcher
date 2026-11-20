@@ -262,8 +262,13 @@ class Checks(unittest.TestCase):
         sentence = " ".join(["word"] * 150) + "."           # one sentence taller than a page
         self.assertProblem(tiny(b={"text": sentence}), "runs off the screen without scrolling")
         self.assertEqual(problems_of(tiny(b={"text": sentence}), scrolling=True), [])
-        long = "\n".join(["Short words here."] * 120)       # more bytes than the popup holds
-        self.assertProblem(tiny(b={"text": long}), "longer than", scrolling=True)
+        long = "\n".join(["Short words here."] * 120)       # more bytes than the popup holds without scrollbars
+        self.assertProblem(tiny(b={"text": long}), "longer than")
+        # With Scrolling Popups a popup's length is practically unlimited (the owner, 2026-11-16): only the sanity
+        # cap counts.
+        self.assertEqual(problems_of(tiny(b={"text": long}), scrolling=True), [])
+        huge = "\n".join(["Short words here."] * (cg.LONG_TEXT_MAX // 17 + 10))
+        self.assertProblem(tiny(b={"text": huge}), f"longer than {cg.LONG_TEXT_MAX}", scrolling=True)
 
     def test_too_many_popups(self):
         nodes = {"b": {"text": "1", "children": [{"next": "p2"}]}}
@@ -672,7 +677,7 @@ class Version3(unittest.TestCase):
             "find_coins": ("tech", *tech), "find_treasure": ("tech", 3 * tech[0], 3 * tech[1]),
             "find_food": ("food", 2 * food[0], 2 * food[1]), "return_food": ("food", *food),
             "return_tech": ("tech", *tech), "keep_research": ("tech", *tech)})
-        self.assertEqual(g["nodes"]["stay_q"]["choices"][1]["label"], "Curses schmurses. I'm keeping them.")
+        self.assertEqual(g["nodes"]["stay_q"]["choices"][1]["label"], "Curses Schmurses. I'm Keeping Them.")
 
     def test_the_puzzles_mirror_the_companion(self):
         for game in range(1, 6):
@@ -751,8 +756,11 @@ class Version4(unittest.TestCase):
         # Compiled before format version 4 (the module at 538ddc27): versions 1 to 3 are unchanged.  The Aspiring
         # Adventurer re-pinned in v1.35.97: its awards are the real event's per-game ranges (format version 5); the
         # parts' names are never compiled (The Cave Explorers' bytes are the same with them).
-        pins = {"the_aspiring_adventurer.json": "5801bf94439645f9035a1e6453f98ce2404f5f59b8e17b80d357e22acc579109",
-                "the_cave_explorers.json": "b922a6878a819698084c7c0f3671012e8a7d0e0f0b22ca11f6af23ae340269be"}
+        # Both re-pinned again in v1.35.97 for the Title Case labels (the owner, 2026-11-15): letter case only.
+        # And again for the Village Solidarity tag on every ending (the owner, 2026-11-20): the endings' node flags
+        # bits 2-3 only (tests/test_solidarity_added_events.py).
+        pins = {"the_aspiring_adventurer.json": "2f9085ed9eaa75955a7c2051e0fc233217f2bb0135baa11516deaea4126a055e",
+                "the_cave_explorers.json": "601c04a685c059bd5085bb5fa0b5f36270ace973dc087dd8bc52928b9a84af0f"}
         for name, digest in pins.items():
             blob = cg.compile_graph(cg.load(ROOT / "data" / "cie_graphs" / name))
             self.assertEqual(__import__("hashlib").sha256(blob).hexdigest(), digest, name)

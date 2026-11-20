@@ -1,0 +1,244 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s062_flood",
+  "source": "rewrites",
+  "lines": [
+   2942,
+   2984
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2942",
+  "ledger": [
+   {
+    "src": "L2943",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2952",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2961",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2949",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2950",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2953",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2962",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2955",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2958",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2964",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2967",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2970-2984",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L2956",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L2965",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "It rains for nine days without stopping.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It rains for nine days without stopping. The paths turn into brown streams. Frogs sit on every doorstep, looking very pleased with themselves. Nothing anybody owns is dry: not the mats, not the clothes, not the firewood, not the inside of anybody's ears.\nOn the tenth day, with a deep, groaning roar that everybody hears at once, the river comes over its banks.\nIt pours through the village in a brown, churning wave, knee-deep and rising, carrying away everything that isn't tied down, and quite a few things that are. Baskets go spinning past. A canoe floats by, upside down. There isn't time to save everything. There's barely time to save one thing: the food store, or the research hut and its years of notes. Which should the village save?",
+   "choices": [
+    {
+     "label": "Save the Food",
+     "next": "c1",
+     "src": "L2949"
+    },
+    {
+     "label": "Save the Research Notes",
+     "next": "c2",
+     "src": "L2950"
+    }
+   ],
+   "src": "L2945-2947",
+   "text_only": [
+    {
+     "src": "L2947",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The food is carried to the high ground, every basket of it, dry and safe on the hilltop. But while everyone was busy at the store, the river reached the research hut, and went in through the door, and came out through the window, and took most of what was on the shelves with it. When the water goes down three days later, the researchers wade in and find their notes plastered across the floor in a brown, soggy paste.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2956",
+   "text_only": [
+    {
+     "src": "L2956",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o2": {
+   "text": "The food is saved. And then, at the very last moment, the water turns, just slightly, and runs round the research hut instead of through it. Everything is saved. When the river finally goes back down to its banks, it leaves behind a thick layer of rich, black, sweet-smelling mud all over the fields. The farmers are delighted. Everything they plant in it comes up twice as fast. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2959",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"The store! The store!\" Everyone wades for the food store, waist-deep in the brown water now, forming a chain to pass the baskets up the hill to the high ground, one after another, while the water climbs...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2953",
+   "text_only": [
+    {
+     "src": "L2953",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The notes are saved, every one, stacked dry and safe on the hilltop. But down below, with a long, wet groan, the walls of the food store give way, and the river takes it. Baskets and pots and sacks go sailing off downstream towards the sea, bobbing and spinning, and there's nothing anyone can do but watch. It's a very hungry season afterwards.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L2965"
+  },
+  "c2o2": {
+   "text": "By some miracle, everything is saved. The notes, the food, the tools, the babies, the goats, and even most of the chickens. The only casualty is one villager's favourite hat, a big woven one with a feather in it, which is last seen floating gently down the river and out to sea, the right way up, as if it's going on a holiday. Its owner stands on the hill and waves it goodbye, and is never quite the same.",
+   "src": "L2968",
+   "text_only": [
+    {
+     "src": "L2968",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "\"The notes! Years of work!\" The researchers and half the village wade for the research hut and carry out armful after armful of scrolls, holding them high above their heads, struggling up the hill with the water pulling at their legs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2962"
+  }
+ }
+}

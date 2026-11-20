@@ -209,14 +209,40 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "(child) seems relieved that adults do not know everything.",
-   "src": "L29692"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "(child) decides to ask a different person tomorrow.",
    "src": "L29693"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) seems relieved that adults do not know everything.",
+   "src": "L29692",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29692"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) seems relieved that adults do not know everything.",
+   "src": "L29692"
   }
  }
 }

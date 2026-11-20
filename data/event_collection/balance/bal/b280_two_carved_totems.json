@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Carved Totems",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b280_two_carved_totems",
+  "source": "balance",
+  "lines": [
+   13033,
+   13074
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13033",
+  "ledger": [
+   {
+    "src": "L13054",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a body swap between the two"
+   },
+   {
+    "src": "L13034",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13035",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13042",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13039",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13040",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13043",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13052",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13045",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13048",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13054",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13057",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13060-13074",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager don't believe a word of it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Two old carved posts stand at the entrance to the village, one on each side of the path, so old that nobody remembers whose faces they show. The elders say they hold the spirits of two friends who swore to watch over the village together, and that if two people touch them at the same moment, the spirits will trade places to say hello.\n(subject) and (friend) don't believe a word of it. They're about to prove it, one hand on each post, while a crowd watches. Should they go through with it, or let the old story be?",
+   "choices": [
+    {
+     "label": "Touch the Posts",
+     "next": "c1",
+     "src": "L13039"
+    },
+    {
+     "label": "Let the Story Be",
+     "next": "c2",
+     "src": "L13040"
+    }
+   ],
+   "src": "L13036-13037"
+  },
+  "c1o1": {
+   "text": "(subject) blinks and finds (subject.himself/herself) standing on the wrong side of the path, with the wrong hand on the wrong post, in (friend)'s body. (friend) is staring back at (subject.him/her) out of (subject)'s face. The crowd gasps. The elders nod as if they always knew. They try touching the posts again, and again, all day. The spirits, it seems, only say hello once.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L13046",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They swap, and then, just as the crowd starts screaming, they swap back. Both of them sit down on the path, dizzy. Neither one is the same afterwards. For one horrible moment each of them was reaching for a fallen fruit with hands that weren't theirs, and from then on neither of them can stand picking fruit or berries at all. The posts look, people say, a little smug.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L13049"
+  },
+  "c1": {
+   "text": "\"On three,\" says (subject). \"One. Two. Three.\" They both slap their hands against the old wood at exactly the same moment. A cold wind blows straight down the path between them...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13043"
+  },
+  "c2o1": {
+   "text": "In the morning, two very confused families find that their children have woken up in each other's sleeping mats, and each other's bodies. The children are delighted. Their parents are not. The elders say firmly that the spirits only say hello once. Within a month, the children are best friends, and nobody can remember which family each of them used to belong to.",
+   "src": "L13055",
+   "effects": [
+    {
+     "do": "body_swap",
+     "role": "subject",
+     "with": "friend"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) feels a little ashamed of nearly treating the posts like a joke, and spends the next week repainting them in red and white, slowly and carefully, the way the elders say they used to look. (subject.He/She) is much better at the work by the end than at the start. The posts look very fine. Nobody touches them.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13058",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(friend) takes (subject.his/her) hand off the post. \"Leave it,\" (subject.he/she) says. \"Just in case.\" (subject) shrugs. They walk away. That night, two little children sneak out to the posts...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13052"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fruit",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "fruit"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

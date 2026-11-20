@@ -4,11 +4,11 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv3",
-  "name": "2-10x Tech Cost",
-  "description": "Every technology level on the Tech screen costs 2 to 10 times its normal price in tech points: you choose the multiplier with the 2-10x Tech Cost slider in the patcher window (a whole number, 3 unless you move it). The normal prices are: Science level 2 11,000, level 3 150,000; Medicine level 2 8,000, level 3 75,000; Alchemy level 2 5,000, level 3 55,000; Restoration level 2 7,000, level 3 85,000; Leadership level 2 7,000, level 3 125,000; Nature level 1 4,500, level 2 50,000, level 3 150,000; Magic level 1 4,500, level 2 50,000, level 3 150,000. At x 3, for example, a 5,000-point level costs 15,000. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs that many times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game. **Needs no other patch.**",
-  "output_tag": "2-10x Tech Cost",
+  "name": "0.1-10x Tech Cost",
+  "description": "Every technology level on the Tech screen costs 0.1 to 10 times its normal price in tech points: you choose the multiplier with the 0.1-10x Tech Cost slider in the patcher window (in steps of 0.1, 3 unless you move it; type it in the box beside the slider too; the slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, 1 in the middle the normal game; a number saved above 10 is 10). 1 is the normal price; below 1 technologies are cheaper, each price rounded to a whole tech point and never below 1. The normal prices are: Science level 2 11,000, level 3 150,000; Medicine level 2 8,000, level 3 75,000; Alchemy level 2 5,000, level 3 55,000; Restoration level 2 7,000, level 3 85,000; Leadership level 2 7,000, level 3 125,000; Nature level 1 4,500, level 2 50,000, level 3 150,000; Magic level 1 4,500, level 2 50,000, level 3 150,000. At x 3, for example, a 5,000-point level costs 15,000; at x 0.5, 2,500. The Tech screen shows the multiplied price, a purchase is refused (and nothing is spent) with fewer tech points than that, and buying takes exactly that many. The two factions, Nature and Magic, are technologies too: choosing one costs that many times as much. Research, tech points from anywhere else, every other tech-point cost (such as clothes) and the patcher's own upgrades are unchanged. The higher you set it, the harder the game; the lower, the easier. **Needs no other patch.**",
+  "output_tag": "0.1-10x Tech Cost",
   "behavior_changes": [
-    "Every non-zero entry of the technology price table 0x4A818C, x N (the slider, 2 to 10; 3 by default). Its only reader is the getter 0x427020, called by the Tech screen's hover label, information box and purchase (0x464C84, 0x464E47, 0x465706): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number."
+    "Every non-zero entry of the technology price table 0x4A818C, x N rounded to a whole tech point, never below 1 (the slider, 0.1 to 10; 3 by default). Its only reader is the getter 0x427020, called by the Tech screen's hover label, information box and purchase (0x464C84, 0x464E47, 0x465706): the shown price, the purchase's refusal threshold and the amount it takes are the same multiplied number."
   ],
   "explicit_non_changes": [
     "Each price is changed in place, same length; no code is added and no executable space is claimed.",
@@ -17,7 +17,7 @@
   "companion_files": [],
   "tech_cost_multiplier": {
     "default": 3,
-    "minimum": 2,
+    "minimum": 0.1,
     "maximum": 10
   },
   "patches": [

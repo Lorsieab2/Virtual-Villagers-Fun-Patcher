@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unheard Family",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca27_unheard_family",
+  "source": "draft_lca",
+  "lines": [
+   376,
+   387
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L376",
+  "ledger": [
+   {
+    "src": "L377",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L387",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A newly arrived family mourns their dead in a different way: make room for their custom, or ask them to join the village's.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s family came to Isola last season. When (subject.his/her) grandmother died, the family wanted to sit with her for three days and nights, singing, before her burial. The village's custom is to bury the dead by the next sunset. (friend) is in charge of the burials and does not know what to do. What should (friend) decide?",
+   "src": "L379",
+   "choices": [
+    {
+     "label": "Make Room for Their Custom",
+     "next": "o1",
+     "src": "L381"
+    },
+    {
+     "label": "Ask Them to Follow Ours",
+     "next": "o2",
+     "src": "L385"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) gives the family a quiet hut at the edge of the village and the three days they asked for. Villagers bring food and leave it at the door without going in. On the third night, (subject) invites (friend) in to hear the last song. (friend) goes, and is very glad (friend.he/she) did.",
+   "src": "L383",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L383"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the family to bury their grandmother by sunset, as the village does. They agree, but (subject)'s face is closed and hard. The family keeps very much to itself for a long time afterwards. (friend) begins to wonder whether (friend.he/she) asked for too much.",
+   "src": "L387"
+  }
+ }
+}

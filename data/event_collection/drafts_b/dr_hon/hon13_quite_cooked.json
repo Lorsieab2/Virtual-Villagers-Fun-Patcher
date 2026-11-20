@@ -103,7 +103,8 @@
      "max": -10,
      "src": "L158"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "o2": {
    "name": "Outcome B",
@@ -117,7 +118,8 @@
      "max": -10,
      "src": "L161"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

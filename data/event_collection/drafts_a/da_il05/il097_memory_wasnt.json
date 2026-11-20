@@ -69,14 +69,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) thinks hard, and realizes (friend) is right. \"I'm so sorry. I think I've been telling your story for years.\" (friend) laughs. \"Was I good in it?\" \"You were wonderful. You lost the pearl very bravely.\" From then on, (subject) always starts it with \"This happened to (friend)...\"",
-   "src": "L200"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"Well,\" says (subject), slightly pink, \"it's a very good story.\" \"It is,\" says (friend). \"That's why I told it.\" They agree that (friend) can have the pearl, and (subject) can keep telling it as long as (subject.he/she) gets the ending right. (subject) admits (subject.he/she) may have added a seagull.",
    "src": "L203"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) thinks hard, and realizes (friend) is right. \"I'm so sorry. I think I've been telling your story for years.\" (friend) laughs. \"Was I good in it?\" \"You were wonderful. You lost the pearl very bravely.\" From then on, (subject) always starts it with \"This happened to (friend)...\"",
+   "src": "L200",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L200"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) thinks hard, and realizes (friend) is right. \"I'm so sorry. I think I've been telling your story for years.\" (friend) laughs. \"Was I good in it?\" \"You were wonderful. You lost the pearl very bravely.\" From then on, (subject) always starts it with \"This happened to (friend)...\"",
+   "src": "L200"
   }
  }
 }

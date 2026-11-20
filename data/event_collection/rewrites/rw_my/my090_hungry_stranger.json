@@ -1,0 +1,327 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hungry Stranger's Blessing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my090_hungry_stranger",
+  "source": "rewrites",
+  "lines": [
+   15092,
+   15147
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15092",
+  "ledger": [
+   {
+    "src": "L15093",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15094",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15102",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15109",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15116",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15123",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15097",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15098",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15099",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15100",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15103",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15110",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15117",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15124",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15104",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15106",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15111",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15113",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15118",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15120",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15125",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15127",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15130-15147",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A traveler limps up the path to a villager's hut, lips cracked from the sun, and asks very politely for a bowl of food.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A traveler limps up the path to (name)'s hut, lips cracked from the sun, and asks very politely for a bowl of food. (He/she) leans on a walking stick covered in tiny carvings of fish and fruit, so finely done that the little fish seem to swim whenever the stick turns in the light.\nIt has been a lean season. (Name)'s pot is not exactly overflowing. The traveler waits, swaying a little on (his/her) feet, too tired to beg twice. Can (name) afford to share?",
+   "choices": [
+    {
+     "label": "Share a Full Meal",
+     "next": "c1",
+     "src": "L15097"
+    },
+    {
+     "label": "Share What Is Available",
+     "next": "c2",
+     "src": "L15098"
+    },
+    {
+     "label": "Ask for Work in Exchange",
+     "next": "c3",
+     "src": "L15099"
+    },
+    {
+     "label": "Refuse the Request",
+     "next": "c4",
+     "src": "L15100"
+    }
+   ],
+   "src": "L15095-15096",
+   "text_only": [
+    {
+     "src": "L15095",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "When (he/she) is finished, the traveler wipes (his/her) mouth, picks up a twig, and draws in the dust: \"Past the two black rocks off the point,\" (he/she) says, \"where the water turns from green to violet. Go at dawn.\" Then (he/she) thanks (name) and leaves. (Name) paddles out the next morning, and finds the violet water, and the fish are so thick in it that (he/she) fills the canoe in an hour. The fishers go back every day for a month. Nobody had ever fished there before.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true
+    }
+   ],
+   "src": "L15105",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The traveler eats, thanks (name) with great feeling, and continues on (his/her) way. There is no magic map, no glowing gift, no mysterious blessing. Just an empty bowl, a full traveler and a somewhat emptier pot. (Name) is surprised to find that (he/she) does not mind at all. (He/she) had half expected something, and is a little ashamed of that. (He/she) washes the bowl, humming.",
+   "src": "L15107"
+  },
+  "c1": {
+   "text": "Lean season or not, (name) sits the traveler down and fills (his/her) bowl to the brim, then fills it again. The traveler eats like someone who has not eaten in days, which (he/she) probably has not...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15103"
+  },
+  "c2o1": {
+   "text": "The traveler eats the small portion slowly, then gets up. \"Where do you gather your roots?\" (he/she) asks, and follows (name) out to the patch at the forest edge. (He/she) knows exactly where to dig: under which leaves, beside which trees, how deep to go. In one afternoon, the two of them fill three baskets, more than (name) usually gathers in a week. The traveler takes a single root for the road and leaves.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15112",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The traveler accepts the half bowl with a little bow, and when (he/she) is done, picks up (name)'s old cracked basket from beside the door. \"May I?\" Before (name) can answer, the traveler's fingers are flying, weaving, tightening, tucking. Five minutes later, the basket is stronger than when it was new, with a neat little fish woven into the side. The traveler hands it back, nods, and goes on (his/her) way.",
+   "src": "L15114"
+  },
+  "c2": {
+   "text": "(Name) explains, a little embarrassed, that it has been a lean season, and offers what (he/she) can: half a bowl of thin stew and a couple of roasted roots. The traveler takes it gratefully...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15110"
+  },
+  "c3o1": {
+   "text": "(He/she) works harder than anyone (name) has ever seen, and smarter too. (He/she) shows (name) how to cut the stalks at an angle so they regrow faster, how to stack the crop so the air dries it, and how to tell by the smell which plants are ready. The other farmers wander over to watch, then to copy. By supper, the traveler has more than earned (his/her) meal, and the village has a new way of harvesting that saves a great deal of time.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15119",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The traveler tries. (He/she) picks up the hoe, takes three steps into the field, and sways, and sits down hard in the dirt, pale and shaking. \"I'm sorry,\" (he/she) whispers. \"I can't.\" (Name) looks at (him/her) for a long moment. Then (he/she) helps the traveler up, sits (him/her) in the shade, and brings (him/her) a full bowl anyway. \"Work tomorrow,\" (name) says gruffly. The traveler is gone by morning, but the bowl has been washed and stacked.",
+   "src": "L15121"
+  },
+  "c3": {
+   "text": "\"There's food,\" (name) says, \"but everyone here works for it. Would you help me in the field this afternoon?\" The traveler nods...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15117",
+   "text_only": [
+    {
+     "src": "L15117",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o1": {
+   "text": "That very afternoon, a storm blows in out of a clear sky. It lasts barely an hour, but it falls right on the racks where the village's fish are drying in the sun, and by the time anyone can cover them, a great deal of the catch is soaked and spoiled. Some say it was bad luck. Some say it was the traveler. (Name) does not say anything at all, but (he/she) looks down the empty path for a long time.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L15126",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The traveler finds help in the next hut down the path, where an old couple feed (him/her) and let (him/her) sleep by their fire. No storm comes. No curse falls. The village has an ordinary week. (Name) hears about it from the old couple, who were glad of the company. (He/she) feels a little foolish, and resolves that next time, lean season or not, (he/she) will find something to share.",
+   "src": "L15128"
+  },
+  "c4": {
+   "text": "\"I'm sorry,\" (name) says. \"We have barely enough for ourselves this season.\" The traveler nods, sighs, and limps off down the path...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15124"
+  }
+ }
+}

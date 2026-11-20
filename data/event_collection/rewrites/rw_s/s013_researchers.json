@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Researchers' Bonfire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s013_researchers",
+  "source": "rewrites",
+  "lines": [
+   583,
+   626
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L583",
+  "ledger": [
+   {
+    "src": "L584",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L585",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L592",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L601",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L589",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L590",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L593",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L602",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L595",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L598",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L604",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L607",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L610-626",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L596",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L599",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   },
+   {
+    "src": "L608",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) tech points.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "The research hut smells of smoke and old ink, and the night is so cold that everyone has crowded close to the hearth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The research hut smells of smoke and old ink, and the night is so cold that everyone has crowded close to the hearth. (Name) has had a clever idea: some priceless old scrolls have gone soft and damp in the rainy season, so (he/she) has been drying them by the fire, a few at a time, to make them easier to read.\nThe scrolls are very dry now. Maybe a bit too much. (Name) is piling them up beside the hearth, admiring how crisp they've become, when a fat orange spark jumps out of the fire, lands on the pile, and sits there glowing. All of a sudden, the whole pile catches fire. The blaze is burning fast, and (name) has only a few seconds to act. Should (name) try to salvage them, or is it too late to save them?",
+   "choices": [
+    {
+     "label": "Attempt to Salvage the Scrolls",
+     "next": "c1",
+     "src": "L589"
+    },
+    {
+     "label": "It Is Too Late",
+     "next": "c2",
+     "src": "L590"
+    }
+   ],
+   "src": "L586-587"
+  },
+  "c1o1": {
+   "text": "(Name) beats out the flames with (his/her) own cloak, smothering them, stamping on the sparks, (his/her) eyes streaming from the smoke. By the time the water arrives it is nearly over. Half the scrolls are blackened ash. But (name) dragged the oldest, most important ones out of the pile first, and those have survived, scorched at the edges but readable. (His/her) hands and arms are blistered red. The healers wrap them in cool leaves and tell (him/her) (he/she) is very brave and very stupid, in that order.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "auto_text": true,
+   "src": "L596"
+  },
+  "c1o2": {
+   "text": "The fire is too fast and too hungry. (Name) beats at it until the other researchers drag (him/her) away by the back of (his/her) shirt, coughing. They stand outside in the cold and watch through the doorway as every scroll burns: years of notes, measurements, drawings, the old stories copied out by hand. When it is over there is nothing but a pile of grey flakes, drifting up the chimney like snow. Nobody says anything for a long time. Nobody blames (name), out loud, but inside they are seething.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L599"
+  },
+  "c1": {
+   "text": "(Name) doesn't think. (He/She) tears off (his/her) cloak and throws (himself/herself) at the flames, beating at them with both hands while the other researchers shout and scramble for water...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L593"
+  },
+  "c2o1": {
+   "text": "(Name) writes all night, by the light of the fire that ate the scrolls. Then all the next day. (He/She) remembers far more than (he/she) thought (he/she) would: whole pages, the drawings, even the little notes in the margins. As (he/she) writes, (he/she) finds three mistakes in the old scrolls that nobody ever noticed, and fixes them. The new scrolls are better than the old ones. The other researchers read them in silence, and then ask (him/her) to teach them how (he/she) does it. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "skills": [
+      "Research"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L605",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) writes and writes. Then (he/she) stops and reads back what (he/she) has written, and goes very pale. It turns out what (he/she) remembers best from all those years of study is the drawings in the margins: a researcher's doodle of a grumpy fish, a little sketch of somebody's goat, a very good picture of a nimbus cloud. The real notes, the measurements and the numbers, have mostly gone from (his/her) memory. The other researchers are kind about it. They pin the grumpy fish on the wall.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L608"
+  },
+  "c2": {
+   "text": "(Name) drags the other researchers outside, away from the smoke. \"Let it burn,\" (he/she) says, through gritted teeth. \"It's too late now. Luckily I've read every one of those scrolls a hundred times. I can rewrite them.\" (He/She) sits down on a log, picks up a fresh sheet of bark, and starts to write...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L602"
+  }
+ }
+}

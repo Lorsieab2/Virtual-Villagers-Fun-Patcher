@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancient Bottle's Warning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my093_ancient_bottle",
+  "source": "rewrites",
+  "lines": [
+   15266,
+   15321
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15266",
+  "ledger": [
+   {
+    "src": "L15267",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15268",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15276",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15283",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15290",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15297",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15271",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15272",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15273",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15274",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15277",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15284",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15291",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15298",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15280",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15285",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15287",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15292",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15294",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15299",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15301",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15304-15321",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Digging to widen an old path, a villager unearths a glass bottle choked with dirt and roots.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  },
+  "storyteller": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Digging to widen an old path, (subject) unearths a glass bottle choked with dirt and roots. Inside is a scrap of bark, and on it, in brown ink and a hand that shakes as if the writer was in a great hurry, is a warning: \"The great tree on the bend must never be cut down. Never. Whatever happens.\"\n(subject) knows exactly which tree it means: the huge, gnarled old thing on the bend of this very path, which the village has just decided to cut down, because it is in the way. The builders are coming with their axes tomorrow morning. Should (subject) try to stop them?",
+   "choices": [
+    {
+     "label": "Protect the Tree",
+     "next": "c1",
+     "src": "L15271"
+    },
+    {
+     "label": "Study the Roots",
+     "next": "c2",
+     "src": "L15272"
+    },
+    {
+     "label": "Ask a Storyteller",
+     "next": "c3",
+     "src": "L15273"
+    },
+    {
+     "label": "Ignore the Warning",
+     "next": "c4",
+     "src": "L15274"
+    }
+   ],
+   "src": "L15269-15270"
+  },
+  "c1o1": {
+   "text": "Behind the broad, drooping leaves, where nobody ever bothered to look, the branches are hung with small purple fruit, hundreds of them, sweet and juicy and perfectly ripe. Nobody in the village had ever noticed them. The old tree, it turns out, fruits heavily every season, and has been quietly dropping its harvest for the birds for who knows how long. Now the villagers gather it instead. The builders stop sulking after their first taste.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L15279",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The tree is left standing, and the path curves around it. Nothing special is found: no fruit, no treasure, no secret. Just a very large, very old tree. Nobody ever learns who wrote the warning, or why. But the children start calling it the Never Tree, and it becomes their favourite climbing spot, and (subject) feels a quiet, unreasonable pride every time (subject.he/she) walks around the bend.",
+   "src": "L15281"
+  },
+  "c1": {
+   "text": "(subject) runs to the builders, waving the bottle, and tells them the tree has to stay. After a great deal of arguing, and some sulking, the builders agree to route the path around it instead. That afternoon, (subject) goes to look at the tree properly for the first time...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15277"
+  },
+  "c2o1": {
+   "text": "\"Good gods,\" says (researcher), the lead researcher, sitting back on (subject.his/her) heels. \"These roots go everywhere. They're holding the whole slope together.\" The tree's roots run deep into the hillside above the path, binding the loose soil. If it were cut down, the next big rain would likely bring half the hill sliding down onto the path, and the huts below it. The tree stays, and the researchers spend the next season learning which other trees are quietly holding up the island.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L15286",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Deep among the roots, wedged into a hollow as if the tree had grown around it, the researchers find a small carved figure: a little wooden person, arms outstretched, worn smooth by time. Nobody knows what it is for. Some say it was a guardian. Some say a child's toy, lost long ago. The tree is left standing just in case, and the figure is put back exactly where it was found.",
+   "src": "L15288"
+  },
+  "c2": {
+   "text": "Before anyone touches an axe, (subject) insists the researchers take a look. They spend a day crawling around the base of the tree, digging and poking at the enormous roots...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15284"
+  },
+  "c3o1": {
+   "text": "\"There's an old tale,\" (storyteller) says. \"A guardian of the village, long ago, who loved this place so much that, when (subject.his/her) time came, (subject.he/she) asked to be bound into a living tree so (subject.he/she) could keep watching over it forever. The tree on the bend.\" (subject.He/she) taps the bottle. \"Whoever wrote this believed it.\" The story spreads, and the builders, who are not superstitious, decide they would rather not test it. The path goes around.",
+   "src": "L15293"
+  },
+  "c3o2": {
+   "text": "(storyteller) smiles. \"Warnings,\" (subject.he/she) says, \"very often outlive the reasons they were written. Someone was frightened of something, once. Perhaps the tree hid them from a storm. Perhaps their child used to climb it. Perhaps they just liked it.\" (subject.He/she) hands the bottle back. \"The question is not why they wrote it. It's whether you want to listen.\" (subject) thinks about it for a long time, and decides (subject.he/she) does.",
+   "src": "L15295"
+  },
+  "c3": {
+   "text": "(subject) takes the bottle to (storyteller), the oldest storyteller in the village, who reads the warning by firelight, then sits back with a long, slow \"Ahhhh...\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15291"
+  },
+  "c4o1": {
+   "text": "It takes all morning to cut through the huge trunk. As it finally begins to split and groan, a heavy limb high above cracks loose and comes crashing down, straight onto (subject). (subject.He/she) is knocked flat, pinned and badly hurt, and the others have to lever the branch off (subject.him/her) and carry (subject.him/her) to the healers on a litter. When (subject.he/she) finally wakes up, (subject.he/she) asks for the note. It is gone from (subject.his/her) wrap. Nobody can find it anywhere.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L15300",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The tree comes down with a tremendous crash, exactly where the builders planned it to, and nobody is hurt. The wood is excellent: hard, straight-grained and enormous. It provides beams for three new huts, and the path is wider and straighter than ever. Nothing bad happens at all. (subject) keeps the note anyway, on a shelf, and every so often (subject.he/she) looks at it, and wonders.",
+   "src": "L15302"
+  },
+  "c4": {
+   "text": "(subject) shrugs. It is an old bottle with an old note, and the path needs widening. (subject.He/she) tucks the note in (subject.his/her) wrap and joins the builders the next morning, axe in hand...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15298"
+  }
+ }
+}

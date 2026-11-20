@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Statue Under the Lagoon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b266_statue_under",
+  "source": "balance",
+  "lines": [
+   12399,
+   12439
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12399",
+  "ledger": [
+   {
+    "src": "L12400",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12401",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12408",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12417",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12405",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12406",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12409",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12418",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12411",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12414",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12420",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12423",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12426-12439",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Fish swim in and out of its open mouth.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The water in the lagoon is clearer than anyone can remember, and from the canoes, (name) can see something on the bottom that nobody has seen before: a stone face, as big as a hut, lying on its back in the sand and looking up. Fish swim in and out of its open mouth. The elders say the first people carved faces of their ancestors and set them on the shore, and that the sea took one in a great storm long ago.\n(Name) is the best diver in the village. The face is very deep. Should (name) dive down to touch it, or leave it alone?",
+   "choices": [
+    {
+     "label": "Dive Down to It",
+     "next": "c1",
+     "src": "L12405"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c2",
+     "src": "L12406"
+    }
+   ],
+   "src": "L12402-12403"
+  },
+  "c1o1": {
+   "text": "(Name) touches the stone cheek, and the cold goes out of the water all at once. When (he/she) comes back up, gasping, the people in the canoe stare at (him/her). (His/her) face is young: the face of the ancestor, maybe, or (his/her) own from long ago. \"It said thank you,\" (name) says. \"I think. For visiting.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L12412",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) goes down, and down, and touches the stone face, and doesn't come back up. The others dive after (him/her) until they're exhausted, and find nothing: not a body, not a footprint in the sand, only the stone face, looking up. When the water clouds over again the next day, the face is gone too. On calm nights, fishers say they hear someone laughing under the lagoon.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L12415",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) takes three long breaths and goes over the side. The water gets colder and greener as (he/she) goes down. The stone face gets bigger and bigger. Its eyes seem to follow (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12409"
+  },
+  "c2o1": {
+   "text": "That night, (name) dreams of the stone face, which looks disappointed in (him/her). In the morning (he/she) wakes up with grey in (his/her) hair and deep lines around (his/her) eyes, like the face of the statue. (His/her) age hasn't changed. The elders say the ancestors don't like being ignored, and give (him/her) a lot of sympathetic pats on the shoulder.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L12421",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "By the next morning the lagoon has clouded over again, and the face is invisible. (Name) is a little sorry. But every time (he/she) paddles over that spot after that, a fish jumps beside the canoe, as if to say the face is still there and still watching. (Name) starts waving at the fish. The other fishers think (he/she) has lost (his/her) mind.",
+   "src": "L12424"
+  },
+  "c2": {
+   "text": "(Name) looks down at the stone face for a long time and then picks up (his/her) paddle. \"It's been sleeping a long time,\" (he/she) says. \"Let it sleep.\" As they paddle away, the water ripples, though there's no wind...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12418"
+  }
+ }
+}

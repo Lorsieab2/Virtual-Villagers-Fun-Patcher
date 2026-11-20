@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) chases the gull. The gull drags the fish faster. (name1) slips on the wet rocks and sits down in a pool. The gull lets go of the fish, looks at (name1) with contempt, and flies off. (name1) gets the fish back. (He/she) is soaked. It's still the biggest fish of the season. It's a mixed sort of day.",
-   "src": "L254"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) watches the gull struggle. It's working so hard. \"Fine,\" says (name1). \"You earned it.\" The gull gets the fish to the water's edge, where a wave takes it, and the fish, which wasn't quite as dead as everyone thought, swims away. Both (name1) and the gull stare at the sea for a long time.",
    "src": "L257"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) chases the gull. The gull drags the fish faster. (name1) slips on the wet rocks and sits down in a pool. The gull lets go of the fish, looks at (name1) with contempt, and flies off. (name1) gets the fish back. (He/she) is soaked. It's still the biggest fish of the season. It's a mixed sort of day.",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L254"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) chases the gull. The gull drags the fish faster. (name1) slips on the wet rocks and sits down in a pool. The gull lets go of the fish, looks at (name1) with contempt, and flies off. (name1) gets the fish back. (He/she) is soaked. It's still the biggest fish of the season. It's a mixed sort of day.",
+   "src": "L254"
   }
  }
 }

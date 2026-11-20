@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fastest Feet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b205_fastest_feet",
+  "source": "balance",
+  "lines": [
+   9521,
+   9565
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9521",
+  "ledger": [
+   {
+    "src": "L9522",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9523",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9531",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9540",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9528",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9529",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9532",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9541",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9534",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9537",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9543",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9546",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9549-9565",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager runs everywhere.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) runs everywhere. To the gardens, to the beach, to the cooking fire, to bed. (subject.He/She) has never walked anywhere in (subject.his/her) life if (subject.he/she) could run. Today a messenger from the next village has come with a challenge: their fastest runner against the village's, round the whole island, before sunset. The prize is a carved canoe paddle with a whale on it.\nEveryone looks at (subject). The path round the island is rough, rocky and very long. (healer) says (subject)'s left knee has been clicking all season, and (subject.he/she) should rest it.\nShould (subject) run the race?",
+   "choices": [
+    {
+     "label": "Run the Race",
+     "next": "c1",
+     "src": "L9528"
+    },
+    {
+     "label": "Let Someone Else Run",
+     "next": "c2",
+     "src": "L9529"
+    }
+   ],
+   "src": "L9524-9526"
+  },
+  "c1o1": {
+   "text": "On the rocks at the far point, (subject)'s knee gives way with a crack. (subject.He/She) finishes the race anyway, hopping, on a stick cut from a bush, long after sunset, with both villages waiting in silence. The other runner gives (subject.him/her) the paddle. (subject) never runs again. The paddle hangs over (subject.his/her) door.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9535",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) wins, by a hand, as the sun touches the sea. The next village pays up with the paddle and a feast's worth of food. And (subject), the next morning, walks to the cooking fire. Then walks to the gardens. \"I think I ran it all out,\" (subject.he/she) says, surprised. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L9538",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The two runners set off from the beach at dawn, side by side, with both villages cheering. By noon they are halfway round, and (subject)'s knee is clicking with every step...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9532"
+  },
+  "c2o1": {
+   "text": "(friend) runs the race of (friend.his/her) life and wins by the length of a canoe. (subject) cheers louder than anyone, standing on a rock at the finish, and is the first to lift (friend) onto (subject.his/her) shoulders, knee or no knee. The village feasts all night.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L9544",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(friend) loses, gracefully. But (subject) rests the knee for a month, as (healer) says, and it stops clicking. Next year, (subject) races the other village's runner and wins. \"Should have rested it last year,\" says (healer), smugly.",
+   "src": "L9547"
+  },
+  "c2": {
+   "text": "(subject) looks at (subject.his/her) knee, and at (healer)'s face, and says (subject.he/she) will sit this one out. The whole village groans. (friend), the second fastest, steps forward, looking terrified...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9541"
+  }
+ }
+}

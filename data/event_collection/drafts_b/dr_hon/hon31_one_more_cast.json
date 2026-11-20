@@ -74,6 +74,32 @@
    "src": "L374"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The fish do start biting, just as the rain starts. (subject) catches three, then has to paddle hard for home through choppy water, and a wave knocks the catch basket overboard. (subject.He/she) reaches the beach shaken and empty-handed. (friend) helps haul the canoe up. For a while neither of them says anything. Then (subject) says, \"I'll come in when you do, next time.\"",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L377"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The fish do start biting, just as the rain starts. (subject) catches three, then has to paddle hard for home through choppy water, and a wave knocks the catch basket overboard. (subject.He/she) reaches the beach shaken and empty-handed. (friend) helps haul the canoe up. For a while neither of them says anything. Then (subject) says, \"I'll come in when you do, next time.\"",
    "src": "L377"

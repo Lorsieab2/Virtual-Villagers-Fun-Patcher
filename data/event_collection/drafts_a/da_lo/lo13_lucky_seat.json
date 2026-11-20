@@ -70,6 +70,32 @@
    "src": "L159"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits on the other side of the fire. (subject.He/She) plays carefully. (subject.He/She) wins two and loses two. It's a very ordinary night. Somehow, it's also a relief: there's no streak to protect anymore. (subject) has more fun than (subject.he/she) has had all week. (subject.He/She) still sits on the lucky log the next night, though.",
+   "src": "L162",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L162"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) sits on the other side of the fire. (subject.He/She) plays carefully. (subject.He/She) wins two and loses two. It's a very ordinary night. Somehow, it's also a relief: there's no streak to protect anymore. (subject) has more fun than (subject.he/she) has had all week. (subject.He/She) still sits on the lucky log the next night, though.",
    "src": "L162"

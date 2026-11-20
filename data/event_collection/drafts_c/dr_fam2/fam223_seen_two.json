@@ -79,6 +79,32 @@
    "src": "L278"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) answers, as usual. But that evening (subject.he/she) goes for a walk alone, which (subject.he/she) never does, and finds a stream (subject.he/she) has never seen. (subject.He/she) doesn't tell (friend) about it. It's the first thing (subject.he/she) has ever had all to (subject.him/her)self. (subject.He/she) feels a bit guilty. (subject.He/she) also feels very, very pleased.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) answers, as usual. But that evening (subject.he/she) goes for a walk alone, which (subject.he/she) never does, and finds a stream (subject.he/she) has never seen. (subject.He/she) doesn't tell (friend) about it. It's the first thing (subject.he/she) has ever had all to (subject.him/her)self. (subject.He/she) feels a bit guilty. (subject.He/she) also feels very, very pleased.",
    "src": "L281"

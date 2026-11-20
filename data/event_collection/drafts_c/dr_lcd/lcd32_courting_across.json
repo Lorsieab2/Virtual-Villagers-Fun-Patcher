@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Courting Across the Bay",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd32_courting_across",
+  "source": "draft_lcd",
+  "lines": [
+   442,
+   453
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L442",
+  "ledger": [
+   {
+    "src": "L443",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L449",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L453",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager is courting someone from the settlement across the bay: invite them to Isola, or paddle over to meet their family.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) met someone wonderful at the shared festival with the settlement across the bay, and they have been paddling back and forth to see each other ever since. (friend), (subject)'s closest friend, says it is time to get serious: either bring the sweetheart to Isola, or go and meet the family. What should (subject) do?",
+   "src": "L445",
+   "choices": [
+    {
+     "label": "Invite Them to Isola",
+     "next": "o1",
+     "src": "L447"
+    },
+    {
+     "label": "Meet the Family",
+     "next": "o2",
+     "src": "L451"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The sweetheart comes to Isola for a week. The village is curious and very friendly and asks a great many questions. By the end of the week, the sweetheart knows everyone's name and has been taught three songs. (other.He/she) says (other.he/she) could live here. (subject) says that is exactly what (subject.he/she) was hoping.",
+   "src": "L449"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) paddles across the bay to meet the sweetheart's family. They are polite, careful and ask (subject.him/her) very hard questions about fishing. (subject) answers them all. On the third day, the eldest of them gives (subject) a carved hook, and everybody relaxes.",
+   "src": "L453"
+  }
+ }
+}

@@ -138,6 +138,32 @@
    "src": "L863"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, helps a parent sort freshly gathered roots. (Name1) feels useful and hopes someone noticed.",
+   "src": "L867",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L867"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a child, helps a parent sort freshly gathered roots. (Name1) feels useful and hopes someone noticed.",
    "src": "L867"

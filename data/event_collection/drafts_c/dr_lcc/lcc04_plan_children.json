@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Plan for the Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc04_plan_children",
+  "source": "draft_lcc",
+  "lines": [
+   50,
+   61
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L57",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village plans where the children go if raiders come: hide them in the caves, or send them inland.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "If raiders ever come, the children must be safe. (subject) wants a hiding place: the sea caves under the north cliff, with water and food stored there. (friend) says caves can become traps, and the children should run inland to the high forest instead, where nobody will find them. What should the plan be?",
+   "src": "L53",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L53"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Prepare the Sea Caves",
+     "next": "o1",
+     "src": "L55"
+    },
+    {
+     "label": "The Path to the High Forest",
+     "next": "o2",
+     "src": "L59"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village stocks the caves with water, dried fish and blankets, and every child practices running there when the conch blows. They treat it as a game, and get very fast. (friend) still worries about the tide. (subject) marks the high-water line on the cave wall.",
+   "src": "L57",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L57"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village clears a hidden path to the high forest and builds a shelter at the end of it. The children practice the run. The first time, it takes half the afternoon, because three of them stop to look at a beetle. By the tenth time, it takes no time at all.",
+   "src": "L61"
+  }
+ }
+}

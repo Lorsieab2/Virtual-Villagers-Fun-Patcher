@@ -102,7 +102,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "text": "A contestant argues that prosperity means full food stores; another points toward the lonely and forgotten. The judges cannot easily choose.",
@@ -142,7 +143,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b1": {
    "text": "The discussion uncovers an unfair village custom, and the council agrees to reconsider it.",
@@ -166,7 +168,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "Every answer creates three more questions. The competition ends at sunset without a winner but with a thriving new study circle.",
@@ -190,7 +193,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "One villager responds with a joke so apt that it becomes a proverb.",
@@ -214,7 +218,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives tech"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "p1": {
    "text": "A judge from the other community praises the winning rival despite pressure from (judge.his/her) own supporters. The crowd slowly applauds.",

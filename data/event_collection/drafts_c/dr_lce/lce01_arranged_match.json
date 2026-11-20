@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Arranged Match",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce01_arranged_match",
+  "source": "draft_lce",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A parent has arranged a match for their grown child with a family friend: agree to meet them, or refuse outright.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 45
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has spent months talking with an old friend's family on the far side of the island, and has come home delighted: (friend.he/she) has arranged a match for (subject), with the friend's eldest. (subject) is a grown adult, has never met this person, and had no idea any of this was happening. What should (subject) do?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Agree to Meet Them",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Refuse Outright",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) agrees to meet the match, and nothing more. The two of them sit through a very awkward meal while both families watch. Then they go for a walk and discover they both think the whole thing is ridiculous. They become friends. That is all. (friend) is disappointed, and accepts it.",
+   "src": "L15"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend) that (subject.he/she) will choose (subject.his/her) own partner, thank you. (friend) is hurt and embarrassed, and has to go back to the other family and apologize. It is a cold season in their hut. Eventually, (friend) admits (friend.he/she) should have asked first.",
+   "src": "L19"
+  }
+ }
+}

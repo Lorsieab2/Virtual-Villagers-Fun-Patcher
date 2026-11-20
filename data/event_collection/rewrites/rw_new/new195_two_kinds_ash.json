@@ -1,0 +1,325 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Kinds of Ash",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new195_two_kinds_ash",
+  "source": "rewrites",
+  "lines": [
+   9497,
+   9553
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L9497",
+  "ledger": [
+   {
+    "src": "L9498",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9499",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9509",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9516",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9523",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9530",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9504",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9505",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9506",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9507",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9510",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9517",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9524",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9531",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9511",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9513",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9518",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9520",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9525",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9527",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9532",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9534",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9537-9553",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager noticed it while washing pots.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) noticed it while washing pots.\nAsh from the coconut husk fire, stirred into water, turns the water slippery. Strangely slippery, like soap. And it stings a little, in small cuts.\nAsh from the driftwood fire, stirred into water, just turns the water grey.\n(subject) has now washed every pot in the cooking hut twice, just to check. And then the pots from the hut next door. (subject.He/She) cannot stop wondering why, and has started keeping the two ashes in separate jars, with labels, and talking about them at dinner. What makes the two ashes so different?",
+   "choices": [
+    {
+     "label": "Soak the Ash Side by Side",
+     "next": "c1",
+     "src": "L9504"
+    },
+    {
+     "label": "Test Husk Against Driftwood",
+     "next": "c2",
+     "src": "L9505"
+    },
+    {
+     "label": "Ask Why the Pots Got Cleaner",
+     "next": "c3",
+     "src": "L9506"
+    },
+    {
+     "label": "Teach the Ash Test",
+     "next": "c4",
+     "src": "L9507"
+    }
+   ],
+   "src": "L9500-9503"
+  },
+  "c1o1": {
+   "text": "(subject) soaks each ash in its own jar, day after day, and the husk ash makes the water slippery every single time, while the driftwood ash never does. It's a repeatable pattern, and the village now knows: slippery water needs husk ash. Nobody's sure yet what they want slippery water for. (subject) has ideas.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9512",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Some batches are slippery, and some aren't, and (subject) can't work out why. (subject.He/She) writes down the uncertainty honestly, and starts a third jar.",
+   "src": "L9514"
+  },
+  "c1": {
+   "text": "(subject) sets up two jars of water, one with husk ash, one with driftwood ash, and leaves them for a whole day...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9510"
+  },
+  "c2o1": {
+   "text": "A simple test with husk ash, driftwood ash and a half-and-half mix shows it clearly: the more husk ash in the water, the more slippery it gets. The fuel is the cause, not the salt. And the slippery water, (subject) discovers, cleans greasy pots far better than plain water ever did. The cooks start keeping a jar of husk-ash water by the washing place, and pots have never been so clean.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L9519",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Both explanations, the fuel and the salt in the driftwood, still fit after the test. More tests are needed. (subject) is delighted. More tests is (subject.his/her) favourite thing now.",
+   "src": "L9521"
+  },
+  "c2": {
+   "text": "(subject) has two ideas: it's the fuel itself, or it's the salt in the driftwood that makes the difference. (subject.He/She) tests husk, driftwood, and a mix...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9517"
+  },
+  "c3o1": {
+   "text": "(helper) pipes up: \"Why do the husk ash pots always come out cleaner?\" Everyone stops. They'd all assumed slippery meant dirty, something to rinse off. But the slippery water was cleaning the pots. It's a hidden assumption, exposed, and the village starts washing with ash water on purpose.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L9526",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The group argues about how much ash counts as \"a handful.\" Big hands? Small hands? Heaped or flat? Finally they agree on a coconut shell measure: one half shell, level. It takes all evening.",
+   "src": "L9528"
+  },
+  "c3": {
+   "text": "(subject) asks the other cooks and helpers if they've noticed anything (subject.he/she) hasn't...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9524"
+  },
+  "c4o1": {
+   "text": "(subject) teaches (novice) how to repeat the ash soak properly: the same jar, the same measure of ash, the same amount of water, the same time. (novice) learns a great deal about how to make a test that can be trusted, and gets the same results the very first time.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "novice",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L9533",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "(novice) notices that one of the jars had seawater in it, not fresh water, because someone filled it at the beach. That would change everything. The group revises its notes, and (subject) labels the water jars too, now.",
+   "src": "L9535"
+  },
+  "c4": {
+   "text": "(subject) shows (novice) how (subject.he/she) has been running the test, so it can be done again by someone else...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9531"
+  }
+ }
+}

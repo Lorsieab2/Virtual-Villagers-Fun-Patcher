@@ -82,6 +82,43 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) points out that the bats have babies this time of year, and a scoop at the door might frighten them off for good. (subject) sighs and agrees to wait until the young are grown. That evening they sit outside and watch the bats pour out of the cave in a great dark ribbon against the sky. It goes on for ages. Neither of them says anything about droppings for quite a while.",
+   "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They wait until dark, when the bats have flown out to feed, and creep in with a torch. It is the smelliest hour of (friend)'s life. But the gardens that get the bat droppings grow like nobody has ever seen. (subject) is very proud. (friend) refuses to talk about the cave, ever, but does start asking for the leftover droppings for (friend.his/her) own beans.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L158"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "They wait until dark, when the bats have flown out to feed, and creep in with a torch. It is the smelliest hour of (friend)'s life. But the gardens that get the bat droppings grow like nobody has ever seen. (subject) is very proud. (friend) refuses to talk about the cave, ever, but does start asking for the leftover droppings for (friend.his/her) own beans.",
    "src": "L158",
@@ -92,12 +129,8 @@
      "scaled": true,
      "src": "L158"
     }
-   ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "(friend) points out that the bats have babies this time of year, and a scoop at the door might frighten them off for good. (subject) sighs and agrees to wait until the young are grown. That evening they sit outside and watch the bats pour out of the cave in a great dark ribbon against the sky. It goes on for ages. Neither of them says anything about droppings for quite a while.",
-   "src": "L161"
+   ],
+   "auto_text": true
   }
  }
 }

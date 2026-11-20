@@ -197,11 +197,75 @@
    ]
   },
   "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(villager) joins a fishing trip.",
+   "src": "L32173",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L32173"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
    "name": "Outcome D1",
    "text": "(villager) joins a fishing trip.",
    "src": "L32173"
   },
-  "d2": {
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They spend the afternoon laughing about unrelated things.",
+   "src": "L32174",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L32174"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L32174"
+    },
+    {
+     "do": "mood",
+     "role": "young",
+     "mood": "good",
+     "src": "L32174"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
    "name": "Outcome D2",
    "text": "They spend the afternoon laughing about unrelated things.",
    "src": "L32174"

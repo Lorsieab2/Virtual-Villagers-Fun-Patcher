@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Riptide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s084_riptide",
+  "source": "rewrites",
+  "lines": [
+   3941,
+   3983
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3941",
+  "ledger": [
+   {
+    "src": "L3942",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3943",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3951",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3960",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3948",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3949",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3952",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3961",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3954",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3957",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3963",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3966",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3969-3983",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The afternoon is bright and lazy, and the sea glitters like a cloth scattered with beads.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The afternoon is bright and lazy, and the sea glitters like a cloth scattered with beads. The water looks calm. It always looks calm, the old fishers say, right before it isn't.\n(Name) is a strong swimmer, one of the best in the village, and has been out past the breakers for an hour, floating on (his/her) back, watching the clouds. That's exactly why (he/she) doesn't notice how far out (he/she) has drifted until (he/she) turns over to swim back, and the beach looks very, very small.\n(He/She) swims towards it. The beach gets smaller. A riptide has caught (him/her), a hidden river in the sea, and it's pulling (him/her) straight out, away from the island, fast. Should (name) swim straight back with everything (he/she) has, or do what the old fishers always say?",
+   "choices": [
+    {
+     "label": "Swim Straight Back",
+     "next": "c1",
+     "src": "L3948"
+    },
+    {
+     "label": "Swim Sideways",
+     "next": "c2",
+     "src": "L3949"
+    }
+   ],
+   "src": "L3944-3946"
+  },
+  "c1o1": {
+   "text": "For a long, terrible time, nothing happens. (Name) swims and swims and the beach stays exactly where it is. Then, slowly, so slowly, (he/she) starts to gain. A stroke at a time. A breath at a time. (He/She) is so tired (he/she) can't feel (his/her) arms any more. And then (his/her) feet touch sand, and (he/she) crawls up the beach on hands and knees and lies there with the waves washing over (his/her) legs, too exhausted to move. (He/She) sleeps for a whole day and night.",
+   "src": "L3955"
+  },
+  "c1o2": {
+   "text": "The current is stronger. Much stronger. However hard (name) swims, it's stronger still, and slowly, stroke by stroke, the tiredness creeps in, and the beach gets smaller. On the shore, someone sees (him/her) at last, a tiny dark dot far out past the reef, and screams, and the canoes go out. But by the time they get there, there's nothing. The current has carried (name) out of sight. (He/She) is never seen again. Every evening for a long time, someone from (his/her) family goes down to the beach and watches the horizon until dark.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3958",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) puts (his/her) head down and swims straight for the beach, as hard as (he/she) has ever swum, kicking and pulling and gasping, fighting the water with everything (he/she) has...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3952"
+  },
+  "c2o1": {
+   "text": "It's the hardest thing (name) has ever done, swimming away from the shore while it's slipping away. But just like the old fishers say, after a few dozen strokes the pull simply stops. The current lets go of (him/her), like a hand opening. (Name) turns, and the waves are with (him/her) now, and they carry (him/her) gently all the way in. (He/She) walks up the beach on shaking legs and goes straight to the oldest fisher in the village, and hugs (him/her) without saying a word. The fisher seems to understand.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 5,
+     "max": 5,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L3964",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) swims sideways, just like the fishers say. But (he/she) has already spent too much strength fighting the water, and (he/she) is too far out, and too tired. The current lets go of (him/her) at last, far, far out past the reef, where the waves are big and grey. (Name) never makes it back. Two days later, (his/her) body washes up on the beach on the far side of the island. The village carries (him/her) home and lays (him/her) to rest above the bay, facing the water (he/she) loved to swim in.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L3967",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Every part of (name) wants to swim straight for the shore. But (he/she) remembers what the old fishers always say: never fight a rip. Swim along the beach, not towards it. So (he/she) turns, and swims sideways, parallel to the sand...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3961"
+  }
+ }
+}

@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Double Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b161_double_fruit",
+  "source": "balance",
+  "lines": [
+   7430,
+   7474
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7430",
+  "ledger": [
+   {
+    "src": "L7431",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7432",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7440",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7449",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7437",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7438",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7441",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7450",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7443",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7446",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7452",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7455",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7458-7474",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every so often the breadfruit trees grow a double fruit: two fruits joined in the middle, like a pair of fists pressed together.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every so often the breadfruit trees grow a double fruit: two fruits joined in the middle, like a pair of fists pressed together. The children think they're funny. The elders don't. The elders say the trees grow them when a forest spirit has been sleeping in the branches, and that whoever eats one \"gets a bit doubled.\"\n(subject) has found one on the path this morning, ripe and fragrant and still warm from the sun. It has a faint glow about it, which may be the light. (subject)'s stomach growls. (subject.He/She) skipped breakfast.\nShould (subject) eat the double fruit, or take it to the elders?",
+   "choices": [
+    {
+     "label": "Eat It",
+     "next": "c1",
+     "src": "L7437"
+    },
+    {
+     "label": "Take It to the Elders",
+     "next": "c2",
+     "src": "L7438"
+    }
+   ],
+   "src": "L7433-7435"
+  },
+  "c1o1": {
+   "text": "(subject) burps, and then there are two of (subject.him/her) on the path, both holding an empty fruit rind and looking equally guilty. They walk back to the village side by side, in step. Neither of them can work out which one was there first. In the end the second one takes the name (made1), because the first one, or possibly the second, says it was their fruit.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L7444",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Each half of the fruit, it turns out, was doubled too. By the time (subject) has finished eating, there are {#made:two|three} of (subject.him/her) standing on the path, all with juice on their chins. The elders take one look as the {#made:two|three} of them walk into the village, and say, \"We told you.\" {#made:One of them takes the name (made1)|Two of them take the names (made1) and (made2)}. They spend the next week arguing about who has to do the work.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L7447",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) breaks it apart at the join. Both halves are sweet and soft and taste faintly of rain. (subject.He/She) eats one half, then, since it seems rude not to, eats the other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7441"
+  },
+  "c2o1": {
+   "text": "\"Thank you,\" says (elder), the eldest elder, and eats it, every bite, before anyone can stop (subject.him/her). There's a pop, and there are two of (elder), sitting side by side on the bench, exactly the same, both very pleased with themselves. \"I've always wanted another pair of hands,\" they say together. The second one takes the name (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "elder"
+    }
+   ],
+   "src": "L7453",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The elders tell (subject) to take it back and tie it to the tree it fell from, so the spirit doesn't miss it. (subject) does, feeling foolish. The next morning, the tree is covered in fruit, all ordinary, single, perfectly ripe, more than it has ever grown before. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L7456",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) carries the fruit very carefully to the elders, holding it out in front of (subject.him/her) like a hot pot. The eldest elder looks at it for a long time, then holds out (subject.his/her) hand...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7450"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L7447",
+   "before": "there are three of (him/her) standing",
+   "after": "there are {#made:two|three} of (him/her) standing"
+  },
+  {
+   "src": "L7447",
+   "before": "as the three of them walk",
+   "after": "as the {#made:two|three} of them walk"
+  },
+  {
+   "src": "L7447",
+   "before": "Two of them take the names (new name) and (new name 2).",
+   "after": "{#made:One of them takes the name (new name)|Two of them take the names (new name) and (new name 2)}."
+  }
+ ]
+}

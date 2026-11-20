@@ -70,11 +70,73 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Did you ever feel behind?\" asks (subject). (friend) laughs. \"I felt behind until I was fifty. Then I realized there wasn't a race.\" (friend.He/she) pats the fence. \"Some people do everything early. Some people do everything late. Some people never build a fence at all, and they're fine too.\" (subject) isn't sure (subject.he/she) believes (friend.him/her). (subject.He/she) feels a little better anyway.",
+   "src": "L92",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L92"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Did you ever feel behind?\" asks (subject). (friend) laughs. \"I felt behind until I was fifty. Then I realized there wasn't a race.\" (friend.He/she) pats the fence. \"Some people do everything early. Some people do everything late. Some people never build a fence at all, and they're fine too.\" (subject) isn't sure (subject.he/she) believes (friend.him/her). (subject.He/she) feels a little better anyway.",
    "src": "L92"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to stop thinking about it and finish the fence. (friend) helps, mostly by giving bad advice. By evening the fence is done. It's slightly crooked. (subject) is enormously proud of it, out of all proportion. (subject.He/she) doesn't feel less behind, exactly. (subject.He/she) just stops caring so much about what (subject.he/she) is behind.",
+   "src": "L95",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L95"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L95"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides to stop thinking about it and finish the fence. (friend) helps, mostly by giving bad advice. By evening the fence is done. It's slightly crooked. (subject) is enormously proud of it, out of all proportion. (subject.He/she) doesn't feel less behind, exactly. (subject.He/she) just stops caring so much about what (subject.he/she) is behind.",
    "src": "L95"

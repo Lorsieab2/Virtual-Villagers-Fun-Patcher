@@ -95,14 +95,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) takes a deep breath and says it out loud, exactly: \"(subject.He/she) says your fence is uglier than your goat, and your goat is the ugliest animal on Isola.\" There's a terrible silence. Then (neighbor) bursts out laughing. \"That's fair, actually. It is a very ugly goat.\" The argument goes much better after that.",
-   "src": "L494"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(friend) says, \"(subject.He/she) disagrees strongly.\" (subject), watching (friend)'s lips, signs immediately: \"That is NOT what I said.\" (friend) sighs and translates the goat part too. (neighbor) is offended. Then (neighbor) looks at the goat. \"...Fine.\" The fence gets moved. (subject) tells (friend) never to tidy up (subject.his/her) words again.",
    "src": "L497"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) takes a deep breath and says it out loud, exactly: \"(subject.He/she) says your fence is uglier than your goat, and your goat is the ugliest animal on Isola.\" There's a terrible silence. Then (neighbor) bursts out laughing. \"That's fair, actually. It is a very ugly goat.\" The argument goes much better after that.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "neighbor",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) takes a deep breath and says it out loud, exactly: \"(subject.He/she) says your fence is uglier than your goat, and your goat is the ugliest animal on Isola.\" There's a terrible silence. Then (neighbor) bursts out laughing. \"That's fair, actually. It is a very ugly goat.\" The argument goes much better after that.",
+   "src": "L494"
   }
  }
 }

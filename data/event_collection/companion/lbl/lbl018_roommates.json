@@ -107,6 +107,38 @@
    "src": "L4029"
   },
   "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "They discover a mutual love of midnight snacks.",
+   "src": "L4030",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "roommate1",
+     "mood": "good",
+     "src": "L4030"
+    },
+    {
+     "do": "mood",
+     "role": "roommate2",
+     "mood": "good",
+     "src": "L4030"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Outcome 3",
    "text": "They discover a mutual love of midnight snacks.",
    "src": "L4030"

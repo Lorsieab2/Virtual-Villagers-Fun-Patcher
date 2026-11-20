@@ -1,0 +1,187 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Face in the Tide Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s002_face_tide_pool",
+  "source": "rewrites",
+  "lines": [
+   51,
+   95
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L51",
+  "ledger": [
+   {
+    "src": "L52",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L53",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L61",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L70",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L58",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L59",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L62",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L71",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L64",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L67",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L73",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L76",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L79-95",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "At low tide the rocks are a maze of warm, still pools, and a villager has come down to look for crabs.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At low tide the rocks are a maze of warm, still pools, and (name) has come down to look for crabs. The air smells of salt and sun-dried seaweed, and a single hermit crab is the only one watching. (Name) leans over a perfectly round pool to see what's in it. (His/her) reflection leans over too.\nThen the reflection smiles, a moment too late. Then it waves.\n(Name) did not wave. (Name) is not smiling. The reflection keeps waving, friendly and patient, as if it has been waiting a long time for (him/her) to come by.",
+   "choices": [
+    {
+     "label": "Wave Back",
+     "next": "c1",
+     "src": "L58"
+    },
+    {
+     "label": "Throw a Pebble In",
+     "next": "c2",
+     "src": "L59"
+    }
+   ],
+   "src": "L54-56"
+  },
+  "c1o1": {
+   "text": "The reflection reaches up, takes hold of the rock, and climbs out of the pool, dripping, to shake (name)'s hand. It has (name)'s face, (name)'s hair and (name)'s knobbly knees. It does not have (name)'s opinions. \"Is that how you wear your hair?\" it says. \"On purpose?\" It follows (name) home, criticising the path, the weather and (name)'s walk the whole way. The village takes a week to tell them apart, and then decides it doesn't matter. The newcomer chooses the name (made1), takes up all the jobs (name) never liked, and has never once been seen near a tide pool again.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L65",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The reflection waves again, a slow, kind little wave, the way someone would wave to a child on a passing canoe. Then it sinks back into the dark of the pool and is gone, and the water shows only (name), looking very confused. (He/She) sits on the rocks until the tide comes back in, waiting for it to return. It never does. (Name) walks home with the strange feeling of having been politely turned down by (himself/herself).",
+   "src": "L68"
+  },
+  "c1": {
+   "text": "Slowly, feeling very foolish, (name) lifts a hand and waves. The reflection's smile grows wider. The water in the pool begins to tremble, though there is no wind at all...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L62"
+  },
+  "c2o1": {
+   "text": "The ripples spread out and break the face into a hundred wobbling pieces. When the water settles, the pool is just a pool, with (name)'s ordinary, worried face in it. A small striped fish swims out from under a rock, looks at the pebble, then looks at (name) with deep reproach, and swims back under again. (Name) apologises to the fish. It does not accept.",
+   "src": "L74"
+  },
+  "c2o2": {
+   "text": "The pebble hits the reflection right on the nose. The face flinches, really flinches, and the pool goes dark and cold, as if a cloud has passed over just that one small circle of water. The hermit crab that was watching from the rocks drops off its perch and hurries away. (Name) is very cross with (himself/herself) for the rest of the day, and can't shake the feeling that (he/she) hurt someone. (He/She) never swims near the tide pools again, and if anyone asks why, (he/she) changes the subject.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L77",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) picks up a pebble and, before (he/she) can think better of it, tosses it straight at the smiling face. Plop...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L71"
+  }
+ }
+}

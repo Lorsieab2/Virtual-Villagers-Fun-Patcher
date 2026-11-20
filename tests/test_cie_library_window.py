@@ -153,7 +153,7 @@ class Helpers(unittest.TestCase):
         # Each part by its plain-words name, never its id (the owner: code labels are never UI).
         self.assertTrue(any("A deadly ending  (shared: shown above)" in words for words in links), links)
         buttons = [words for _i, _p, words, kind, _t in rows if kind == "choice"]
-        self.assertEqual(buttons, ["Button A: Go investigate!", "Button B: Stay on the safe path"])
+        self.assertEqual(buttons, ["Button A: Go Investigate!", "Button B: Stay on the Safe Path"])
         self.assertTrue(any(words.startswith("2 in 4: Finds a pile of dirt: nothing but") for _i, _p, words, _k, _t
                             in rows))
         self.assertTrue(any(words.startswith("1 in 3: if the friend takes part: A8 Saved by a friend")
@@ -232,7 +232,7 @@ class Helpers(unittest.TestCase):
             self.assertGreaterEqual(fit.used, 1)
         chars = w.fit_meter(g, "intro", True)
         for fit in chars.values():
-            self.assertEqual((fit.unit, fit.limit), ("characters", cg.POPUP_TEXT_MAX))
+            self.assertEqual((fit.unit, fit.limit), ("characters", cg.LONG_TEXT_MAX))   # practically unlimited
         self.assertIsNone(w.fit_meter(g, "deadly", False)[1])                    # a silent split shows nothing
         g["nodes"]["intro"]["text"] = " ".join(["(Name) waits."] * 160)
         over = w.fit_meter(g, "intro", False)[3]
@@ -758,11 +758,13 @@ class Window(unittest.TestCase):
 
 
 class Wiring(unittest.TestCase):
-    def test_a_button_on_the_tools_tab_with_its_guide(self) -> None:
+    def test_a_button_under_more_island_events_and_creator_with_its_guide(self) -> None:
+        # The owner (2026-11-16): the creator sits under each game's "More Island Events and Creator" row.
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn('text="Custom Island Event Library...",', source)
-        self.assertIn("vv_cie_library_window.open_cie_library(self, None)", source)
-        self.assertIn('self._help_button(stew_tools, "custom_island_event_library")', source)
+        self.assertIn("vv_cie_library_window.open_cie_library(self, b)", source)   # each game's own (Codex, #775)
+        self.assertIn('self._help_button(creator, "custom_island_event_library")', source)
+        self.assertNotIn('self._help_button(stew_tools, "custom_island_event_library")', source)
         guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))["controls"]
         self.assertEqual(guide["custom_island_event_library"]["title"], w.TITLE)
 

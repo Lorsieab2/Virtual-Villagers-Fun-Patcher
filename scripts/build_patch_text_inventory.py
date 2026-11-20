@@ -46,6 +46,9 @@ PARTS = {
     "vvfp_vv3_both_factions": ("vvfp.factions", "VVFP VV3 Both Factions.dll"),
     "vvfp_vv4_fruit_supply": ("vvfp.fruit_supply", "VVFP VV4 Fruit Supply.dll"),
     "vvfp_vv2_empty_stew": ("vvfp.vv2_empty_stew", "VVFP VV2 Empty Stew.dll"),
+    "vvfp_fog_listening": ("vvfp.fog_listening", "VVFP Fog Listening.dll"),
+    "vvfp_village_solidarity": ("vvfp.village_solidarity", "VVFP Village Solidarity.dll"),
+    "vvfp_vv4_cloth_sacks": ("vvfp.cloth_sacks", "VVFP VV4 Cloth Sacks.dll"),
 }
 
 
@@ -213,6 +216,26 @@ def add_gui_rows(strings: list[dict]) -> None:
     strings.append({"stem": "vvfp.gui/rename_tribe.long_name_note", "english": vv_tribe_rename.LONG_NAME_NOTE,
                     "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",
                     "context": "Rename Tribe window (the note under the name box)", "notes": "a patcher window"})
+    # The Difficulty Sliders page (the owner, 2026-11-18): its button, title, intro, the greyed-out note and the
+    # page's "?" guide (data/how_to_use.json "difficulty_sliders").
+    import vv_fun_patcher_gui as gui
+    import vv_how_to_use
+    page = {"title": (gui.DIFFICULTY_SLIDERS_TITLE, "Difficulty Sliders page (its title)"),
+            "button": (gui.DIFFICULTY_SLIDERS_BUTTON, "the main page's button that opens the Difficulty Sliders page"),
+            "intro": (gui.DIFFICULTY_SLIDERS_INTRO, "Difficulty Sliders page (the text under its title)"),
+            "off_note": (gui.DIFFICULTY_SLIDER_OFF_NOTE, "Difficulty Sliders page (beside a greyed-out slider)")}
+    guide = vv_how_to_use.guide("difficulty_sliders").lines
+    page.update({f"guide_{n}": (line, "the Difficulty Sliders \"?\" guide, line %d" % n)
+                 for n, line in enumerate(guide, 1)})
+    for name, (english, context) in page.items():
+        strings.append({"stem": f"vvfp.gui/difficulty_sliders.{name}", "english": english,
+                        "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b", "context": context,
+                        "notes": "a patcher window"})
+    import vv_game_mechanics
+    strings.append({"stem": "vvfp.gui/game_mechanics.minimum_detail", "english": vv_game_mechanics.MINIMUM_DETAIL,
+                    "games": ["vv1", "vv2", "vv3", "vv4", "vv5"], "mechanism": "b",
+                    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics "
+                               "and numbers)", "notes": "a patcher window"})
 
 
 def main() -> None:

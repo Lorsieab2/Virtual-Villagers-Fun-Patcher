@@ -22,17 +22,26 @@
    (cod_cie.inc) -- so a grave the game reused drops what it does not hold.  Start Over deletes the file
    (cw_reset, from VvfpCauseVillageReset).
 
-   FORMAT (little-endian), exactly 16 + 68 * count bytes:
+   FORMAT (little-endian).  Version 1, exactly 16 + 68 * count bytes:
        u32 magic 'VCW1', u32 version 1, u32 game (1..5), u32 count (at most CW_MAX),
        count x { u32 fingerprint (never 0), char words[64] (bytes 0x20-0x7E, NUL-terminated and NUL-filled, at
                  least one character) }
-   each fingerprint once.  A file that is not exactly this is set aside unread (sidecar_io.h), never misread. */
+   Version 2 (the owner, 2026-11-17: with Scrolling Popups a death's own words are practically unlimited, up to
+   CW_WORDS - 1 = 4,095 characters; the graves' popups scroll), exactly 16 + the entries' bytes:
+       u32 magic 'VCW1', u32 version 2, u32 game (1..5), u32 count (at most CW_MAX),
+       count x { u32 fingerprint (never 0), u32 length (1 .. CW_WORDS - 1), length bytes 0x20-0x7E (no NUL) }
+   each fingerprint once.  Both are read; a save writes version 1 while every entry's words fit its 63 characters
+   (so an older companion still reads it) and version 2 once one does not.  A file that is not exactly one of these
+   is set aside unread (sidecar_io.h), never misread. */
 
 #define CW_MAGIC 0x31574356u           /* 'VCW1' */
-#define CW_VERSION 1u
+#define CW_VERSION_1 1u
+#define CW_VERSION_2 2u
 #define CW_HEADER 16u
-#define CW_WORDS 64
-#define CW_ENTRY (4u + CW_WORDS)
+#define CW_WORDS_V1 64                 /* version 1's words field, NUL included */
+#define CW_ENTRY_V1 (4u + CW_WORDS_V1)
+#define CW_WORDS 4096                  /* the words kept, NUL included (story_custom.h CE_LONG_LINE_BYTES) */
+#define CW_ENTRY_MAX (8u + CW_WORDS - 1u)
 #define CW_MAX (RECORDS_MAX + GRAVES)
 
 static struct {
@@ -47,14 +56,14 @@ static struct {
     char path[MAX_PATH];
 } cw;
 
-static unsigned char cw_buffer[CW_HEADER + CW_MAX * CW_ENTRY];
+static unsigned char cw_buffer[CW_HEADER + CW_MAX * CW_ENTRY_MAX];
 
 static int cw_words_ok(const unsigned char *w) {
     int i, ended = 0;
     if (w[0] == 0) {
         return 0;
     }
-    for (i = 0; i < CW_WORDS; ++i) {
+    for (i = 0; i < CW_WORDS_V1; ++i) {
         if (w[i] == 0) {
             ended = 1;
         } else if (ended || w[i] < 0x20 || w[i] > 0x7E) {
@@ -64,31 +73,66 @@ static int cw_words_ok(const unsigned char *w) {
     return ended;
 }
 
+/* The entry at `at` of a file of `version` (`length_all` bytes): its fingerprint and its words (`*length` bytes, no
+   NUL); the offset of the next entry, or 0 when the entry is not whole or not valid. */
+static unsigned int cw_file_entry(const unsigned char *data, DWORD length_all, unsigned int version, unsigned int at,
+                             unsigned int *fingerprint, const unsigned char **words, unsigned int *length) {
+    unsigned int i;
+    if (version == CW_VERSION_1) {
+        if (at + CW_ENTRY_V1 > length_all || !cw_words_ok(data + at + 4)) {
+            return 0;
+        }
+        *fingerprint = *(const unsigned int *)(data + at);
+        *words = data + at + 4;
+        *length = (unsigned int)lstrlenA((const char *)data + at + 4);
+        return at + CW_ENTRY_V1;
+    }
+    if (at + 8u > length_all) {
+        return 0;
+    }
+    *fingerprint = *(const unsigned int *)(data + at);
+    *length = *(const unsigned int *)(data + at + 4);
+    if (*length == 0u || *length > CW_WORDS - 1u || *length > length_all - at - 8u) {
+        return 0;
+    }
+    *words = data + at + 8;
+    for (i = 0; i < *length; ++i) {
+        if ((*words)[i] < 0x20 || (*words)[i] > 0x7E) {
+            return 0;
+        }
+    }
+    return at + 8u + *length;
+}
+
 static int cw_validate(const unsigned char *data, DWORD length, void *context) {
-    unsigned int count, i, k;
+    static unsigned int seen[CW_MAX];
+    unsigned int count, version, i, k, at = CW_HEADER;
     (void)context;
     if (length < CW_HEADER) {
         return 0;
     }
     count = *(const unsigned int *)(data + 12);
-    if (*(const unsigned int *)data != CW_MAGIC || *(const unsigned int *)(data + 4) != CW_VERSION
+    version = *(const unsigned int *)(data + 4);
+    if (*(const unsigned int *)data != CW_MAGIC || (version != CW_VERSION_1 && version != CW_VERSION_2)
         || *(const unsigned int *)(data + 8) != (unsigned int)g_game || count > CW_MAX
-        || length != CW_HEADER + count * CW_ENTRY) {
+        || (version == CW_VERSION_1 && length != CW_HEADER + count * CW_ENTRY_V1)) {
         return 0;
     }
     for (i = 0; i < count; ++i) {
-        const unsigned char *e = data + CW_HEADER + i * CW_ENTRY;
-        unsigned int fingerprint = *(const unsigned int *)e;
-        if (fingerprint == 0u || !cw_words_ok(e + 4)) {
+        unsigned int fingerprint, words_length;
+        const unsigned char *words;
+        at = cw_file_entry(data, length, version, at, &fingerprint, &words, &words_length);
+        if (at == 0u || fingerprint == 0u) {
             return 0;
         }
         for (k = 0; k < i; ++k) {
-            if (*(const unsigned int *)(data + CW_HEADER + k * CW_ENTRY) == fingerprint) {
+            if (seen[k] == fingerprint) {
                 return 0;
             }
         }
+        seen[i] = fingerprint;
     }
-    return 1;
+    return at == length;                /* exactly the entries, nothing after them */
 }
 
 static int cw_find(unsigned int fingerprint) {
@@ -139,12 +183,19 @@ static void cw_bind(int slot) {
         cw.count = 0;
     }
     if (result == VV_SIDECAR_LOAD_VALID) {
-        unsigned int count = *(const unsigned int *)(cw_buffer + 12), i;
+        unsigned int count = *(const unsigned int *)(cw_buffer + 12), i, at = CW_HEADER;
+        unsigned int version = *(const unsigned int *)(cw_buffer + 4);
         for (i = 0; i < count && cw.count < CW_MAX; ++i) {
-            const unsigned char *e = cw_buffer + CW_HEADER + i * CW_ENTRY;
-            if (cw_find(*(const unsigned int *)e) < 0) {
-                cw.fingerprint[cw.count] = *(const unsigned int *)e;
-                memcpy(cw.words[cw.count], e + 4, CW_WORDS);
+            unsigned int fingerprint, n;
+            const unsigned char *words;
+            at = cw_file_entry(cw_buffer, length, version, at, &fingerprint, &words, &n);
+            if (at == 0u) {
+                break;                  /* (never: the file was checked whole) */
+            }
+            if (cw_find(fingerprint) < 0) {
+                cw.fingerprint[cw.count] = fingerprint;
+                memset(cw.words[cw.count], 0, CW_WORDS);
+                memcpy(cw.words[cw.count], words, n);
                 ++cw.count;
             }
         }
@@ -164,8 +215,8 @@ static const char *cw_words(unsigned int fingerprint) {
     return i >= 0 ? cw.words[i] : NULL;
 }
 
-/* Keep `words` for the body with `fingerprint` (printable ASCII, at most CW_WORDS - 1 = 63 kept, the editor's limit; the oldest entry
-   gives way when the table is full). */
+/* Keep `words` for the body with `fingerprint` (printable ASCII, at most CW_WORDS - 1 = 4,095 kept: the event's own
+   limit, 63 without Scrolling Popups; the oldest entry gives way when the table is full). */
 static void cw_add(unsigned int fingerprint, const char *words) {
     char kept[CW_WORDS];
     int i, n = 0;
@@ -257,17 +308,35 @@ static void cw_saved(int slot) {
     if (!cw.dirty || cw.slot <= 0) {
         return;
     }
-    for (i = 0; i < cw.count; ++i) {
-        unsigned char *e = cw_buffer + CW_HEADER + (unsigned int)i * CW_ENTRY;
-        *(unsigned int *)e = cw.fingerprint[i];
-        memcpy(e + 4, cw.words[i], CW_WORDS);
+    {
+        /* Version 1 while every entry's words fit its field (an older companion still reads the file), else 2. */
+        unsigned int version = CW_VERSION_1, at = CW_HEADER;
+        for (i = 0; i < cw.count; ++i) {
+            if (lstrlenA(cw.words[i]) > CW_WORDS_V1 - 1) {
+                version = CW_VERSION_2;
+            }
+        }
+        for (i = 0; i < cw.count; ++i) {
+            unsigned char *e = cw_buffer + at;
+            unsigned int n = (unsigned int)lstrlenA(cw.words[i]);
+            *(unsigned int *)e = cw.fingerprint[i];
+            if (version == CW_VERSION_1) {
+                memset(e + 4, 0, CW_WORDS_V1);
+                memcpy(e + 4, cw.words[i], n);
+                at += CW_ENTRY_V1;
+            } else {
+                *(unsigned int *)(e + 4) = n;
+                memcpy(e + 8, cw.words[i], n);
+                at += 8u + n;
+            }
+        }
+        ((unsigned int *)cw_buffer)[1] = version;
+        sizes[0] = at;
     }
     ((unsigned int *)cw_buffer)[0] = CW_MAGIC;
-    ((unsigned int *)cw_buffer)[1] = CW_VERSION;
     ((unsigned int *)cw_buffer)[2] = (unsigned int)g_game;
     ((unsigned int *)cw_buffer)[3] = (unsigned int)cw.count;
     parts[0] = cw_buffer;
-    sizes[0] = CW_HEADER + (unsigned int)cw.count * CW_ENTRY;
     if (vv_sidecar_publish(&cw.gate, cw.path, parts, sizes, 1)) {
         cw.dirty = 0;
         COD_COUNT(published);
@@ -303,8 +372,8 @@ static const char *cod_cause_words_of(int cause, unsigned int fingerprint) {
 
 /* The Story / Cheat Upgrades companion's branching Custom Island Event (story_graph.inc cg_tell_killed): called
    right after its "Dies" with the author's cause words killed the villager in record `index` (the record holds the
-   body).  As VvfpCauseKilled, with the words kept for the Death record and the grave (`words`, at most 63
-   characters are kept). */
+   body).  As VvfpCauseKilled, with the words kept for the Death record and the grave (`words`, at most 4,095
+   characters are kept: the event's own limit, 63 without Scrolling Popups). */
 __declspec(dllexport) void __stdcall VvfpCauseKilledBy(int game, int index, const char *words) {
     unsigned char *record;
     if (install_state != 1 || game != g_game) {

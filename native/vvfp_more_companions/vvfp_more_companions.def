@@ -1,0 +1,4 @@
+LIBRARY "VVFP More Companions"
+EXPORTS
+    VvfpStartup
+    VvfpMoreCompanionsWord

@@ -74,6 +74,39 @@
    "src": "L158"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I was resting my eyes,\" says (subject), with great dignity, mat pattern still on (subject.his/her) face. \"For the whole afternoon?\" \"They needed it.\" (friend) laughs. (subject) gets up and goes to dinner, still a bit dazed, and is wide awake until the middle of the night.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L161"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L161"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I was resting my eyes,\" says (subject), with great dignity, mat pattern still on (subject.his/her) face. \"For the whole afternoon?\" \"They needed it.\" (friend) laughs. (subject) gets up and goes to dinner, still a bit dazed, and is wide awake until the middle of the night.",
    "src": "L161"

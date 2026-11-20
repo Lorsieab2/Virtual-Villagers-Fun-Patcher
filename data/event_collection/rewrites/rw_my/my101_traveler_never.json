@@ -1,0 +1,310 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Traveler Who Never Arrived",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my101_traveler_never",
+  "source": "rewrites",
+  "lines": [
+   15730,
+   15785
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15730",
+  "ledger": [
+   {
+    "src": "L15731",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15732",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15740",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15747",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15754",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15735",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15736",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15737",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15738",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15741",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15748",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15755",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15762",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15742",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15744",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15749",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15751",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15756",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15758",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15763",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15765",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15768-15785",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A messenger runs into the village out of breath, covered in dust from the road.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A messenger runs into the village out of breath, covered in dust from the road. \"A traveler is coming!\" (he/she) gasps to (name). \"With a gift for your village. An important one, wrapped in red cloth. Be ready!\" Then (he/she) drinks three cups of water, collapses in the shade, and falls asleep.\nThat was four days ago. No traveler has come. The red-wrapped gift has not appeared. The messenger keeps saying it will be any moment now, and the village is getting restless, and a little worried. Something might have happened on the road. Should (name) go and look?",
+   "choices": [
+    {
+     "label": "Search the Road",
+     "next": "c1",
+     "src": "L15735"
+    },
+    {
+     "label": "Wait at the Gate",
+     "next": "c2",
+     "src": "L15736"
+    },
+    {
+     "label": "Ask the Messenger Again",
+     "next": "c3",
+     "src": "L15737"
+    },
+    {
+     "label": "Leave a Light Burning",
+     "next": "c4",
+     "src": "L15738"
+    }
+   ],
+   "src": "L15733-15734",
+   "text_only": [
+    {
+     "src": "L15733",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "A half-day's walk out, they hear a weak voice calling from beside the road. A huge tree has come down in the last storm, and under one of its branches lies the traveler, leg pinned and badly hurt, weak from days without water. It takes all of them to lift the branch. They carry the traveler home on a litter of branches, and the healers set to work on (his/her) leg. Clutched to (his/her) chest the whole way is a bundle wrapped in red cloth. When (he/she) can finally sit up, (he/she) gives it to (name): a carved figure of the island, for the village, for saving (his/her) life twice over.",
+   "src": "L15743"
+  },
+  "c1o2": {
+   "text": "They search until dark, and find no traveler. But by the side of the road, half-hidden in the grass, is a traveling pack: well worn, and abandoned in a hurry. Inside are bundles of seeds of every kind, carefully labelled, and a scrap of red cloth. No sign of its owner. The villagers bring it home and plant the seeds, which grow well, and wait for someone to come and claim the pack. Nobody ever does.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15745",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) gathers a few strong villagers and sets off down the long road out of the village, calling out and searching the ditches and the trees on either side...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15741"
+  },
+  "c2o1": {
+   "text": "Just as the sun is setting, a stranger comes walking up the road: tall, quiet and dusty. Without a word, (he/she) holds out a bundle wrapped in red cloth. Inside is a map, drawn on fine bark, showing paths all over the island that nobody in the village has ever heard of: shortcuts, hidden springs, passes through the hills. \"Forgotten paths,\" the stranger says. \"Someone thought you should have them.\" (He/she) refuses to stay the night, and is gone up the road before anyone can ask (his/her) name.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15750",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) waits all day. No traveler appears. When (he/she) finally gives up at nightfall and goes back to the village, (he/she) finds that the messenger is gone too. (His/her) sleeping mat is empty, the cup by it still half full. Nobody saw (him/her) leave. Nobody saw anyone on the road. The village never does find out what the gift was, or who it was for.",
+   "src": "L15752"
+  },
+  "c2": {
+   "text": "(Name) decides that if the traveler is coming, someone should be there to greet (him/her) properly. (He/she) sits down at the village gate with a jug of water and waits, all day...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15748"
+  },
+  "c3o1": {
+   "text": "The messenger looks shifty. Then embarrassed. Then very embarrassed. \"Well... I didn't exactly meet them. I dreamed it. A traveler, coming with a red gift. It was so real, I woke up and just started running.\" (He/she) stares into (his/her) bowl. \"And then I got here and everyone was so nice, and the food was so good...\" The village does not know whether to be angry or to laugh. It mostly laughs. The messenger stays on and becomes a very good cook.",
+   "src": "L15757",
+   "text_only": [
+    {
+     "src": "L15757",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o2": {
+   "text": "\"I met them!\" the messenger insists, eyes wide. \"On the coast road, by the black rocks, five days ago. They gave me water. They told me to run ahead and tell you. They said they'd be right behind me.\" (He/she) is so sure, and so frightened, that (name) believes (him/her). They search the coast road by the black rocks, and find nothing at all. The messenger is still waiting for the traveler when (he/she) finally leaves the village, a season later.",
+   "src": "L15759"
+  },
+  "c3": {
+   "text": "(Name) sits down beside the messenger, who is eating (his/her) fifth free meal in four days. \"Tell me again,\" (name) says, \"exactly where you met this traveler.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15755"
+  },
+  "c4o1": {
+   "text": "After midnight, (name) wakes to the sound of stumbling footsteps. A traveler staggers in through the gate, soaked and shaking and covered in mud, and falls asleep by the dying fire without a word. In the morning, when (he/she) can talk, (he/she) says (he/she) had been lost for three days in the hills, and had given up hope, until (he/she) saw a little light far below. (He/she) never mentions a gift. But (he/she) cries when (he/she) thanks (name) for the lantern.",
+   "src": "L15764"
+  },
+  "c4o2": {
+   "text": "The lantern burns all night long, a small warm light at the edge of the village. (Name) checks on it every hour, and every hour the road beyond it is empty and dark. At dawn, the oil runs out, and the light goes out. Nobody came. (Name) keeps lighting it every night for a week, just in case. On the eighth night, (he/she) stops.",
+   "src": "L15766"
+  },
+  "c4": {
+   "text": "(Name) thinks the traveler might have got lost in the dark. (He/she) hangs a lantern on a pole at the village gate, fills it with oil, and keeps it burning through the night...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15762"
+  }
+ }
+}

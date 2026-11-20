@@ -67,10 +67,12 @@ typedef int (__stdcall *ensure_village_t)(int, const char *, const void *);
 #define LIKES       0xFB4
 #define DISLIKES    0xFC0
 #define PREF_SLOTS  3
+#define SEX         0xDC8   /* 0 male, 1 female (the DLL's GAME_LAYOUTS row) */
+#define SEX_FEMALE  1
 #define OWN_FATHER  0xDF8   /* the villager's own parents, kept for life */
 #define OWN_MOTHER  0xE11
 #define OWN_CAP     0x19
-#define TITLE       "Virtual Villagers 3 Births and Conceptions Log"
+#define TITLE      "Virtual Villagers 3 Births and Conceptions Log"
 #define VILLAGE     "Village: Harness Tribe (Save 1)\n"
 #define VILLAGE2    "Village: Second Tribe (Save 2)\n"
 
@@ -99,6 +101,10 @@ static void parents(int i, const char *father, const char *mother) {
 }
 
 static void conceive(int mother, int father) {
+    /* The game makes a woman pregnant: since the logs name a male carrier
+       ("Note: Carried by <name>, who is male", the owner 2026-11-17), a
+       zeroed sex field (male) would add that Note to every record here. */
+    *(int *)(rec(mother) + SEX) = SEX_FEMALE;
     memset(rec(mother) + FATHER_NAME, 0, FATHER_CAP);
     strncpy((char *)rec(mother) + FATHER_NAME, (const char *)rec(father) + NAME, FATHER_CAP);
     *(int *)(rec(mother) + HEAD_COPY) = *(int *)(rec(father) + HEAD);

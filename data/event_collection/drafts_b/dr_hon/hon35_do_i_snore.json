@@ -69,11 +69,70 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"...Yes,\" says (subject). \"Quite a lot.\" (friend) looks horrified. \"How much is quite a lot?\" \"Like a canoe being dragged over gravel.\" (friend) puts (friend.his/her) face in (friend.his/her) hands, and then starts to laugh. \"That's why everyone moved.\" The next time, (friend) sleeps a little way off from the group, and everybody sleeps well, including (friend).",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"...Yes,\" says (subject). \"Quite a lot.\" (friend) looks horrified. \"How much is quite a lot?\" \"Like a canoe being dragged over gravel.\" (friend) puts (friend.his/her) face in (friend.his/her) hands, and then starts to laugh. \"That's why everyone moved.\" The next time, (friend) sleeps a little way off from the group, and everybody sleeps well, including (friend).",
    "src": "L422"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"A little,\" says (subject). \"Sometimes.\" \"Oh, good.\" The next night (friend) sleeps in the middle of the group, and nobody else sleeps at all. In the morning (friend) looks round at all the tired faces and asks (subject) again. \"Be honest. Properly honest.\" (subject) tells (friend.him/her). (friend) laughs so hard (friend.he/she) has to sit down.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L425"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"A little,\" says (subject). \"Sometimes.\" \"Oh, good.\" The next night (friend) sleeps in the middle of the group, and nobody else sleeps at all. In the morning (friend) looks round at all the tired faces and asks (subject) again. \"Be honest. Properly honest.\" (subject) tells (friend.him/her). (friend) laughs so hard (friend.he/she) has to sit down.",
    "src": "L425"

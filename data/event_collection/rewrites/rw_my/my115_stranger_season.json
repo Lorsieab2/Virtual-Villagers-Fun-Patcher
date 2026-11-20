@@ -1,0 +1,301 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Stranger of the Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my115_stranger_season",
+  "source": "rewrites",
+  "lines": [
+   16542,
+   16597
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16542",
+  "ledger": [
+   {
+    "src": "L16543",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16544",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16552",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16559",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16566",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16573",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16547",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16548",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16549",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16550",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16553",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16560",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16567",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16574",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16554",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16556",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16561",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16563",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16568",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16570",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16575",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16577",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16580-16597",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is the last evening before the rains.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "grave1": {
+   "kind": "villager"
+  },
+  "grave2": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It is the last evening before the rains. The sky is heavy and purple with the first storm clouds, the air smells of coming rain, and the wind is picking up. A solitary traveler, cloak pulled tight against the gusts, stops at (subject)'s door and asks for shelter for the night.\nAs (subject) considers it, the traveler glances past (subject.him/her) toward the village and says, half to (subject.himself/herself), \"Is (grave1) still mending nets by the point? And does (grave2) still sing in the mornings?\" (subject) stares. (Grave1) and (grave2) died long before (subject) was born. (subject.He/she) only knows their names from the memorial stones. Should (subject) let the traveler in?",
+   "choices": [
+    {
+     "label": "Invite the Traveler In",
+     "next": "c1",
+     "src": "L16547"
+    },
+    {
+     "label": "Ask How They Know the Names",
+     "next": "c2",
+     "src": "L16548"
+    },
+    {
+     "label": "Offer a Meal Outside",
+     "next": "c3",
+     "src": "L16549"
+    },
+    {
+     "label": "Send the Traveler Away",
+     "next": "c4",
+     "src": "L16550"
+    }
+   ],
+   "src": "L16545-16546"
+  },
+  "c1o1": {
+   "text": "All night, while the rain drums on the roof, the traveler tells stories: about (grave1)'s terrible jokes, about (grave2)'s singing, about a dozen other villagers long gone, whose names nobody has spoken aloud in years. Word spreads, and soon the hut is packed. The oldest elders nod and smile and fill in details. The young ones listen wide-eyed. By morning, the dead of the village feel nearer than they have in a generation, and the traveler is gone, and the rain is still falling.",
+   "src": "L16555"
+  },
+  "c1o2": {
+   "text": "The traveler eats, warms (subject.himself/herself), and sleeps quietly through the storm. At dawn (subject.he/she) is gone. On the mat (subject.he/she) slept on is a packet of seeds, wrapped in leaves, with a note in an old-fashioned hand: \"From (grave1)'s garden. (grave1) would want them planted.\" Nobody alive remembers (grave1) having a garden. But the seeds sprout fast in the rain, and grow into a crop of beans so sweet that the village plants them every season after.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L16557",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) swallows and steps aside. \"Come in,\" (subject.he/she) says. \"The rain's coming.\" The traveler smiles, and sits down by the fire, and the wind howls outside as the first heavy drops begin to fall...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16553"
+  },
+  "c2o1": {
+   "text": "The traveler is quiet for a moment. \"Oh,\" (subject.he/she) says softly. \"I didn't know. I lived nearby, many, many years ago, when I was young. (grave1) taught me to mend nets. (grave2) used to sing me awake.\" (subject.He/she) looks very old, suddenly, in the gathering dark. (subject) invites (subject.him/her) in, and in the morning takes (subject.him/her) to the memorial, where the traveler sits by (grave1)'s and (grave2)'s stones for a long time, and talks to them, quietly, as the rain begins.",
+   "src": "L16562"
+  },
+  "c2o2": {
+   "text": "The traveler smiles. \"Some names,\" (subject.he/she) says, \"are carried by the wind.\" And (subject.he/she) will not say anything else about it. (subject) gives (subject.him/her) shelter anyway, and the traveler sits by the fire through the storm, humming a tune the oldest elders later say (grave2) used to sing. In the morning, the traveler is gone, and the wind has dropped, and the rain falls softly and steadily, the way it does at the start of every rainy season.",
+   "src": "L16564"
+  },
+  "c2": {
+   "text": "\"Forgive me,\" (subject) says carefully, \"but how do you know those names? (grave1) and (grave2) died long ago. Long before I was born.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16560"
+  },
+  "c3o1": {
+   "text": "The traveler sits on the bench, eats every bite gratefully, and hands back the bowl with a little bow. \"Thank you,\" (subject.he/she) says. \"It's good to know the village still feeds its guests.\" Then (subject.he/she) pulls (subject.his/her) cloak tight and continues on toward the shore, just as the first raindrops begin to fall. (subject) watches until the traveler disappears into the purple dusk, and finds (subject.himself/herself) hoping (subject.he/she) reaches wherever (subject.he/she) is going.",
+   "src": "L16569",
+   "text_only": [
+    {
+     "src": "L16569",
+     "what": "\"disappears\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o2": {
+   "text": "The traveler does not touch the stew. \"Thank you,\" (subject.he/she) says. \"But might I have a candle instead?\" (subject), puzzled, fetches one. The traveler lights it from the cooking fire and walks off, not toward the shore, but toward the memorial, its tiny flame burning steady in the howling wind. In the morning, the candle stands burnt down to a stub between (grave1)'s and (grave2)'s stones. Nobody knows how it stayed lit through the rain.",
+   "src": "L16571"
+  },
+  "c3": {
+   "text": "(subject) is uneasy about letting this traveler in. Instead, (subject.he/she) brings out a bowl of hot stew and a cup of water, and sets them on the bench beside the door, out of the wind...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16567"
+  },
+  "c4o1": {
+   "text": "The traveler goes, and the rain comes, as it does every year, heavy and long and cleansing. The season changes as usual. Nothing strange happens. (subject) sometimes wonders who the traveler was, and how (subject.he/she) knew those names, and then the rainy season keeps everyone busy enough that (subject.he/she) stops wondering. Mostly.",
+   "src": "L16576"
+  },
+  "c4o2": {
+   "text": "The next morning, in the first grey light, (subject) hears someone calling from the empty path outside, a voice (subject.he/she) almost knows, warm and old, calling a name that is not (subject.his/hers). (subject.He/she) goes to the door. The path is empty, muddy and running with rainwater. There are no footprints in the mud. The voice calls once more, a little farther off, toward the memorial, and then the rain swallows it.",
+   "src": "L16578"
+  },
+  "c4": {
+   "text": "Something about this traveler makes (subject)'s skin crawl. \"I'm sorry,\" (subject.he/she) says, \"we can't take anyone tonight.\" The traveler nods, and turns, and walks away into the wind...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16574"
+  }
+ }
+}

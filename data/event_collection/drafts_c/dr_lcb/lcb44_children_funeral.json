@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Children's Funeral for a Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb44_children_funeral",
+  "source": "draft_lcb",
+  "lines": [
+   610,
+   621
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L610",
+  "ledger": [
+   {
+    "src": "L611",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and an adult)"
+   },
+   {
+    "src": "L617",
+    "kind": "instruction",
+    "text": "[effect: small Parenting skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L617",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L621",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The children are holding a solemn funeral for a dead fish: join in seriously, or let them do it alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) found a beautiful dead fish on the beach this morning, and the children have decided it needs a proper funeral, with songs, a speech and a grave in the sand. (friend) has been asked to come. They are all very serious. (friend) is trying very hard not to smile. What should (friend) do?",
+   "src": "L613",
+   "choices": [
+    {
+     "label": "Join In Seriously",
+     "next": "o1",
+     "src": "L615"
+    },
+    {
+     "label": "Let Them Do It Alone",
+     "next": "o2",
+     "src": "L619"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stands with the children, head bowed, while (subject) gives a speech about the fish's bravery and beautiful colors. They sing a mourning song with the words slightly wrong. (friend) puts a shell on the grave. The children are deeply satisfied.",
+   "src": "L617",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L617"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) decides it is the children's ceremony, and watches from a distance. They do it perfectly, with a great deal of wailing. Then the tide comes in and takes the fish, and (subject) declares that the sea has accepted it. Everyone agrees this is the best possible ending.",
+   "src": "L621"
+  }
+ }
+}

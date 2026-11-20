@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Somewhere I like,\" says (subject). \"I'd rather keep it to myself.\" (friend) is surprised for a moment, and then nods. \"Fair enough.\" Later (friend) catches (friend.him/her)self wondering about it, and decides to stop. Wherever it was, (subject) came back looking happy. That's enough.",
-   "src": "L62"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Just... gathering,\" says (subject). \"Gathering what?\" \"Things.\" (friend) looks at (subject.his/her) empty hands. (subject) looks at them too. \"...I'd rather not say, actually,\" (subject.he/she) admits. \"That's all right,\" says (friend). \"You could have just said that.\" \"I know. I'm out of practice.\"",
    "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Somewhere I like,\" says (subject). \"I'd rather keep it to myself.\" (friend) is surprised for a moment, and then nods. \"Fair enough.\" Later (friend) catches (friend.him/her)self wondering about it, and decides to stop. Wherever it was, (subject) came back looking happy. That's enough.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Somewhere I like,\" says (subject). \"I'd rather keep it to myself.\" (friend) is surprised for a moment, and then nods. \"Fair enough.\" Later (friend) catches (friend.him/her)self wondering about it, and decides to stop. Wherever it was, (subject) came back looking happy. That's enough.",
+   "src": "L62"
   }
  },
  "grammar_fixes": [

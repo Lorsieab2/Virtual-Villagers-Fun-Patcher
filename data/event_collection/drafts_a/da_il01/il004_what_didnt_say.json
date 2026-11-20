@@ -65,14 +65,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "\"What if we did it on the beach?\" (subject) blurts out. There's a pause. Then (friend) says, \"...with torches?\" And suddenly everyone is talking at once. Nobody remembers whose idea it was, but (subject) does. (subject.He/She) smiles quietly into (subject.his/her) cup all evening.",
-   "src": "L53"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "The feast is held in the usual place, the usual way, and it's lovely. Later, walking home along the shore, (subject) pictures the torches and the music and the honey cakes. Maybe next year. Maybe (subject.he/she) will just make the honey cakes (subject.him/her)self.",
    "src": "L56"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"What if we did it on the beach?\" (subject) blurts out. There's a pause. Then (friend) says, \"...with torches?\" And suddenly everyone is talking at once. Nobody remembers whose idea it was, but (subject) does. (subject.He/She) smiles quietly into (subject.his/her) cup all evening.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"What if we did it on the beach?\" (subject) blurts out. There's a pause. Then (friend) says, \"...with torches?\" And suddenly everyone is talking at once. Nobody remembers whose idea it was, but (subject) does. (subject.He/She) smiles quietly into (subject.his/her) cup all evening.",
+   "src": "L53"
   }
  }
 }

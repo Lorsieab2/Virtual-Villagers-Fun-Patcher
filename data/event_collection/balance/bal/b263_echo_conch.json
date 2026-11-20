@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Echo Conch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b263_echo_conch",
+  "source": "balance",
+  "lines": [
+   12263,
+   12305
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12263",
+  "ledger": [
+   {
+    "src": "L12264",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12265",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12273",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12282",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12270",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12271",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12274",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12283",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12276",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12279",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12285",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12288",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12291-12305",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is supposed to make a conch shell that answers back in the voice of whoever blows it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "keeper": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(keeper), the village's spell-keeper, has been working on a new spell for a month. It is supposed to make a conch shell that answers back in the voice of whoever blows it. (subject.He/She) has finally finished, and is looking for someone to test it. (subject) happens to be walking past with an armful of yams.\n\"Blow it,\" (keeper) says, holding it out. \"Just once. Gently. Very gently. I mean it.\"\n(subject) puts down the yams. Should (subject.he/she) blow gently, as (keeper) says, or give it a proper blast, the way conches are meant to be blown?",
+   "choices": [
+    {
+     "label": "Blow Gently",
+     "next": "c1",
+     "src": "L12270"
+    },
+    {
+     "label": "Give It a Proper Blast",
+     "next": "c2",
+     "src": "L12271"
+    }
+   ],
+   "src": "L12266-12268"
+  },
+  "c1o1": {
+   "text": "The sound folds itself into a person standing beside (subject). It is (subject), exactly: same face, same laugh, same habit of picking up yams. \"Oh no,\" says (keeper). \"Too much.\" The new (subject) picks up the yams and asks where they go. The village names (subject.him/her) (made1), and (keeper) goes back to working on the spell.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L12277",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The sound folds into a person who looks just like (subject) but stands differently, and talks differently, and turns out to hate yams. \"It's not a perfect echo,\" (keeper) admits, writing notes. \"Close, though.\" The newcomer introduces (subject.himself/herself) as (made1), and starts picking fights with (subject) about the right way to cook fish.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L12280",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) puts the shell to (subject.his/her) lips and breathes into it, very softly. The conch sighs back, in (subject)'s own voice, and then the sound keeps going, getting louder, and starts to take a shape...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12274"
+  },
+  "c2o1": {
+   "text": "The roar becomes {#made:a person|two people}, {#made:exactly (subject)|both exactly (subject)}, looking very startled. \"I said gently,\" says (keeper) from the ground. The {#made:two|three} (subject)s look at each other. Then all {#made:two|three} of them pick up the yams at once. The village names {#made:the newcomer (made1)|the newcomers (made1) and (made2)}, and the spell-keeper puts the conch in a box.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L12286",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The conch cracks right down the middle with a bang, and the roar stops dead. (keeper) gets up, dusts (subject.himself/herself) off, and looks sadly at the two halves. \"A month,\" (subject.he/she) says. \"A whole month.\" (subject) feels terrible about it and helps (keeper) look for a new shell every day for a week.",
+   "src": "L12289"
+  },
+  "c2": {
+   "text": "(subject) fills (subject.his/her) lungs and blows as hard as (subject.he/she) can. The conch roars like a storm. (keeper) throws (subject.himself/herself) flat on the ground...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12283"
+  }
+ }
+}

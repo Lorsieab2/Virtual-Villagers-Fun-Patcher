@@ -69,14 +69,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) wants to hear it. (subject) tells it. It's about a pig and a coconut. (friend) doesn't laugh. (subject) explains that you had to be there, and the pig was also there, and that's what made it. (friend) still doesn't laugh. (subject) doesn't mind in the least. (subject.He/she) tells it again later, to (subject.him/her)self, and laughs until (subject.he/she) cries.",
-   "src": "L224"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Why that?\" asks (friend). (subject) thinks. \"Because for a moment, everybody was happy at the same time, and I did that. You can't plan it. It just happened, and I was the one who made it happen.\" (friend) thinks about this. It's a better answer than (friend.he/she) expected. (friend.He/she) decides to try making everyone laugh at the next feast. (friend.He/she) doesn't. But (friend.he/she) tries.",
    "src": "L227"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) wants to hear it. (subject) tells it. It's about a pig and a coconut. (friend) doesn't laugh. (subject) explains that you had to be there, and the pig was also there, and that's what made it. (friend) still doesn't laugh. (subject) doesn't mind in the least. (subject.He/she) tells it again later, to (subject.him/her)self, and laughs until (subject.he/she) cries.",
+   "src": "L224",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L224"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) wants to hear it. (subject) tells it. It's about a pig and a coconut. (friend) doesn't laugh. (subject) explains that you had to be there, and the pig was also there, and that's what made it. (friend) still doesn't laugh. (subject) doesn't mind in the least. (subject.He/she) tells it again later, to (subject.him/her)self, and laughs until (subject.he/she) cries.",
+   "src": "L224"
   }
  }
 }

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unlucky Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf10_unlucky_stone",
+  "source": "draft_lcf",
+  "lines": [
+   134,
+   145
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L141",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L145",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager is sure their lavastone is bringing bad luck: throw it in the sea, or give it to someone who wants it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Since (subject) found a lavastone in the forest, everything has gone wrong: (subject.his/her) roof leaked, (subject.his/her) canoe cracked, and a crab bit (subject.his/her) toe. (subject) is convinced the stone is cursed. (friend), who would love a lavastone, says (subject) is just having a bad season. What should (subject) do?",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Throw It in the Sea",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Give It to (friend)",
+     "next": "o2",
+     "src": "L143"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) throws the stone as far as (subject.he/she) can into the waves. It glows all the way down. The next day (subject.his/her) roof leaks again. The day after that, it stops raining, and things get better. (subject) is certain it was the stone.",
+   "src": "L141"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gives the stone to (friend), who is delighted. (subject)'s luck improves. (friend)'s luck stays exactly the same as always: mostly fine, with the occasional crab. (friend) says that proves the stone was never cursed. (subject) says it proves the stone likes (friend).",
+   "src": "L145"
+  }
+ }
+}

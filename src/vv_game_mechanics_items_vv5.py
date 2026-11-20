@@ -123,14 +123,15 @@ def _feature(feature: str) -> str:
 # the test keeps the two the same).
 # Story / Cheat Upgrades and its cost row are on by default (owner, 2026-11-01).
 DEFAULT_OFF = frozenset({"vv5_learning_never_fails", "vv5_everyone_collects_like_vv1", "vv5_super_secret_golden_mushroom",
-                         "vv5_collectibles_stay_collected"})
+                         "vv5_collectibles_stay_collected", "vv5_science_collectibles_complete"})
 ORIGINS = "vv5_enable_origins_exclusive_features"
 STORY = "vv5_story_cheat_upgrades"
 STORY_COST = "vv5_story_cheat_upgrades_cost_tech_points"
 PATCHES = (ORIGINS, STORY, STORY_COST, "vv5_learning_never_fails", "vv5_heathen_mommy_puzzle",
            "vv5_statue_polishing_or_honoring", "vv5_easier_devotee_training", "vv5_vv4_nursery_divisor_parity",
            "vv5_builders_fix_huts", "vv5_builders_and_healers_work_first", "vv5_super_secret_golden_mushroom",
-           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused")
+           "vv5_everyone_collects_like_vv1", "vv5_collectibles_stay_collected", "vv5_adult_confused",
+           "vv5_science_collectibles_complete")
 
 
 # ---------------------------------------------------------------------------
@@ -169,10 +170,11 @@ def _tech_entries() -> list[Entry]:
                 f"always one baby; at Parenting 50 an embrace conceives {_conceive(50, 1)} of the time.", ()),
             2: (f"falling sick {sick[1]} an age unit; old from 58 years; old-age rolls past 63; at Parenting 50 an "
                 f"embrace conceives {_conceive(50, 2)} of the time.",
-                # The study tests 0x47998F, 0x46BDED; the drop handler registered at 0x47A9AB.
+                # The study tests 0x47998F, 0x46BDED; the drop handler 0x479980 is registered for map area 16 by the
+                # start-up table (0x47A9A6: 0x479810(0x10, 0x479980, 6, 0)), so a drop on that area runs it.
                 (("Dropping a villager on the medicine spot to study needs Medicine 2, and a studying villager keeps the "
-                  "task only with Healing 6 or more. The code that reacts to that drop was found, but not how the drop "
-                  "reaches it.", UNCONFIRMED),)),
+                  "task only with Healing 6 or more. The game sends any villager dropped on that spot (its map area 16) "
+                  "to that test.", VERIFIED_C),)),
             3: (f"falling sick {sick[2]} an age unit; old from 66 years; old-age rolls past 71; at Parenting 50 an "
                 f"embrace conceives {_conceive(50, 3)} of the time; a believer who is not sick passes the regain-health "
                 f"check (+1 health) every age unit while there is food (see Chances); and a pregnancy brings twins "
@@ -283,9 +285,11 @@ def _power_entries() -> list[Entry]:
         "Blessings Day Celebration island event fills it to the cap. The cap is 5 x (believers + the babies they carry "
         "+ 2), raised by the Tribute Statue, Spirituality and the relics (their own entries), at most 1,000; a power "
         "can be cast whenever the Divine Energy is at least its cost (see God powers)."), VERIFIED_E,
-        # The set-up routine is at 0x425DA6.
-        (("Some code of the game's sets the cap to 50 and adds 50 Divine Energy; that this is the new village's start "
-          "was not traced.", UNCONFIRMED),))]
+        # The new village's builder 0x4259D0 (called from the new-village paths 0x4404D9 and 0x43E726; it makes the
+        # villagers and sets the tips' marks 0x44EC40) ends at 0x425DA6: the cap +0x17D60 = 50, then the adder
+        # 0x424F80(50).
+        (("A new village starts with a Divine Energy cap of 50 and 50 Divine Energy: the game's new-village set-up "
+          "sets both as its last step.", VERIFIED_C),))]
     for name, cost, _ in powers.TABLE:
         out.append(Entry(POWER, name, f"{cost:,} Divine Energy",
                          POWER_WORDS[name] + " Every number and its source: God powers.", VERIFIED_E))
@@ -311,7 +315,10 @@ def _puzzle_entries() -> list[Entry]:
             # The catch-up test 0x46C5B5.
             "while the game catches up time away, noni is picked only once this totem is down; in play noni is "
             "picked once the food bin is built."), VERIFIED_C,
-              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),
+              # CFoodTotemPuzzle 0x439650 (work event, 0x46D87A): +1 at +8, solved at 12 (0x43966B); the status line
+              # "%d%% of the Hungry Totem dismantled" (string 605) shows count x 100 / 12 (0x43C0C0).
+              (("It takes 12 dismantling actions: each one that reaches its end adds 1, and the totem falls at 12. "
+                "The status line shows the share done (\"N% of the Hungry Totem dismantled\").", VERIFIED_C),
                # The solve time is kept by Advance 0x43AF80; the Puzzles screen's branch jumps 0x44917C -> 0x449075,
                # past 0x449073.
                ("The game keeps the time it was solved at, as for every puzzle, but in the normal game the Puzzles "
@@ -324,7 +331,9 @@ def _puzzle_entries() -> list[Entry]:
             "opens the lab: while catching up, research is done only once it is down; the second "
             "collectible set (the lab gear) can appear only from then on; The Pesky Critter island event becomes "
             "possible."), VERIFIED_C,
-              (("How many dismantling actions it takes was not traced.", UNCONFIRMED),)),
+              # CResearchTotemPuzzle 0x43C360: +1 at +8, solved at 12 (0x43C377).
+              (("It takes 12 dismantling actions: each one that reaches its end adds 1, and the totem falls at 12.",
+                VERIFIED_C),)),
         Entry(PUZZLE, "The Hydroponic Farm", "30 points, from the aqueduct repair", (
             "the farm's crops are refilled to 800 every 40 age units (2 hours, 4 hours or 6 hours 40 minutes of "
             "real-life play on Fast, Normal or Slow) and a harvest gives 10, 7 or 4 food (7 while catching up), before "
@@ -332,23 +341,45 @@ def _puzzle_entries() -> list[Entry]:
             "Food Mastery; Hand of Bloom on the field fills the crops at once; solving it adds 80 Faith to the Heathen "
             "Master Farmer; the Army Ants!, Aphid Infestation! and The River Breaks Its Banks events "
             "become possible. The Earthquake takes 1 of the 30 points from an unfinished farm."), VERIFIED_E,
-              # The Research master test 0x46BE38.
+              # The Research master test 0x46BE38.  CHydroFarm's work event 0x439DF0 calls 0x43AF80(5), which adds 1 to
+              # the farm's progress (0x43AF96) and solves it at its threshold (30, table 0x51DF30); nothing else adds.
               (("The repair is \"Directing aqueduct repair\", which only a master of Research (88 or more) is kept on, "
-                "and \"Repairing aqueduct\"; how many points each action gives was not traced.",
-                UNCONFIRMED),)),
+                "and \"Repairing aqueduct\"; each repair step at the farm that reaches its end adds 1 point, so it "
+                "takes 30.", VERIFIED_C),)),
         Entry(PUZZLE, "The Buried Mausoleum", "villagers restore it (\"Restoring the mausoleum\")", (
             # The burial pick 0x46F130; the Earthquake's +50 at 0x43C9C0.
             "the dead are buried from then on: with a body waiting, an idle villager buries it 25% of the time, and "
             "one with Healing 50 or more 70% of the rest. The Earthquake adds 50 of the 1,000 restoring points it "
             "needs."), VERIFIED_C),
-        Entry(PUZZLE, "The Blocking Totem", "villagers dismantle it (\"Dismantling the Blocking Totem\")", (
-            "the game's tip says the mausoleum can then be dug out; the code that ties the two was not traced."),
-         UNCONFIRMED),
-        Entry(PUZZLE, "The Hollow Totem", "village children break it (\"Squeezing into the Hollow Totem\")", (
-            "the game's tip says the lake becomes the believers'; what changes in play was not traced."), UNCONFIRMED),
+        # CBuildingTotemPuzzle 0x4332A0 (work event, 0x46D9F5): +1 at +8, solved at 40 (0x4332B7).  The work
+        # dispatcher offers "Restoring the mausoleum" while catching up only with it solved (0x46C3FF..0x46C415); live
+        # it does not test it.
+        Entry(PUZZLE, "The Blocking Totem", "40 dismantling actions (\"Dismantling the Blocking Totem\")", (
+            "each action that reaches its end adds 1, and the totem falls at 40. Solved, villagers also restore the "
+            "mausoleum while the game catches up time away; in play they can restore it with the totem still "
+            "standing (the game's tip says the mausoleum can then be dug out safely)."), VERIFIED_C),
+        # CChildrensTotemPuzzle: the work event 0x46D17C sets the count of villagers in action 0x9F (0x4717A0) into
+        # 0x4335A0; at 6 a 5-second real-clock wait starts, and the update 0x4335D0 solves it when it is passed.
+        Entry(PUZZLE, "The Hollow Totem", "six village children squeezing into it at once (\"Squeezing into the "
+                                          "Hollow Totem\")", (
+            "when six children are squeezing into it at the same moment, it breaks 5 real-life seconds later "
+            "(real time)."), VERIFIED_C,
+              # The walk-map flag 0x478855 -> 0x478240(0x56, solved ? 0 : 1) -> 0x477900 writes bit 0 of every cell of
+              # area 0x56, the walkability grid's "blocked" bit (docs/improved-pathfinding.md: VV3-VV5, bit 0).
+              (("The game's tip says the lake becomes the believers'. In the code, one area of the island's ground "
+                "(the one the tip means) is marked closed to the villagers' walking until the totem falls; solving it "
+                "opens that ground, so villagers can walk there.", VERIFIED_C),)),
+        # CConvertMasterBuilderPuzzle: the drop 0x4379D0 (area 0x20) needs no structure up and the Heathen Master
+        # Builder (role 14) standing at the build-off spot (x 501-851, y 2141-2354); the believer does 0xAD (events
+        # 0x39..0x36, the tribe's structure 0x18..0x15) while the Heathen does 0xB0 (0x3D..0x3A, his 0x1C..0x19).
+        # At his last stage (0x46D5BA) the tribe's last stage shown -> 0xB1 "The heathen is impressed" -> event 0x3E:
+        # Faith set to 25 + rand(35) (0x467F90) and puzzle 9 +1 (solved); otherwise 0xB2 "...not impressed" -> 0x3F.
         Entry(PUZZLE, "The Heathen Builder", "a build-off with the Heathen Master Builder", (
-            "the Master Builder joins the tribe (the game's tip); how the build-off is won and the Faith it sets were "
-            "not traced."), UNCONFIRMED),
+            "drop a villager on the build-off spot while the Heathen Master Builder stands there: the villager and the "
+            "Heathen each build their own structure in four stages, at the same time. If the villager's is finished "
+            "when the Heathen finishes his, \"The heathen is impressed\": his Faith is set to 25 to 59 (each equally "
+            "likely), so he joins the tribe, and the puzzle is solved; otherwise \"The heathen is not impressed\" and "
+            "it can be tried again."), VERIFIED_C),
         Entry(PUZZLE, "The Lake", "2 points", (
             "1 point from a Tempest cast while The Lake has none and the weather level is above 50 (it comes 120 "
             # The points 0x43C7E0, 0x4233DD; the fish 0x46D790.
@@ -359,12 +390,23 @@ def _puzzle_entries() -> list[Entry]:
             # The strike's window 0x43A0C0; the healers' studying 0x46CD24.
             "villagers work on taking it down only during the 75 real-life seconds (real time) after each strike on "
             "it. Solved, healers with nobody to cure study medicine on their own."), VERIFIED_E),
+        # CRainbowTotemPuzzle 0x43BD70 (work event, 0x46D9E2): +1 at +0x4C, solved at 30 (0x43BD8B).
         Entry(PUZZLE, "The Rainbow Totem", "villagers put three dyes in the pools and dismantle it", (
-            "the game's tip says the warm springs become the villagers'; what changes in play was not traced."),
-         UNCONFIRMED),
+            "the dismantling takes 30 actions: each one that reaches its end adds 1, and the totem falls at 30."),
+         VERIFIED_C,
+              # The walk-map flag 0x478899 -> 0x478240(0x72, solved ? 0 : 1): bit 0 ("blocked") of area 0x72's cells.
+              (("The game's tip says the warm springs become the villagers'. In the code, one area of the island's "
+                "ground (the one the tip means) is marked closed to the villagers' walking until the totem falls; "
+                "solving it opens that ground, so villagers can walk there.", VERIFIED_C),)),
+        # CConvertMasterScientistPuzzle: the drop 0x438250 (area 0x1F) starts 0xAC "Attempting the proof" (Learning
+        # 2 checked at 0x4382CE); its end (0x43815B) compares Research (+0x1C68) with 88.0: 88 or more queues event
+        # 0x32 (the Heathen 0xE4 "Celebrating the solution!"), less 0x33 (0xE3 "Examining the proposed solution").
+        # 0xE4's event 0x35 (0x46D2A8): Faith +30 (0x468020) and, with Faith above 0, puzzle 13 solved.
         Entry(PUZZLE, "The Heathen Scientist", "a proof the Heathen Master Scientist examines", (
-            "the Master Scientist joins the tribe (the game's tip); the steps and the Faith set were not traced."),
-         UNCONFIRMED),
+            "drop a villager on the drawing board (\"Attempting the proof\") while the Heathen Master Scientist "
+            "watches. With Research 88 or more the proof is right: the Heathen celebrates the solution, gains 30 "
+            "Faith, and once his Faith is above 0 he joins the tribe and the puzzle is solved. With less, he only "
+            "examines it and nothing changes."), VERIFIED_C),
         Entry(PUZZLE, "The Tribute Statue", "three building stages", (
             f"each stage raises the Divine Energy cap: +50 at the first, +50 more at the second, +100 once solved; "
             f"each age unit every believer gains 1 Faith {p(10)} of the time at the first stage, {p(20)} at the second "
@@ -372,9 +414,14 @@ def _puzzle_entries() -> list[Entry]:
             f"and {p(30)} once solved. The second stage needs Construction and Spirituality both at 2 or more, the "
             "third both at 3. From the first stage villagers choose Honoring as a job."),
          VERIFIED_E,
-              # Work event 40 at 0x46DA1B.
-              (("Polishing the finished statue: a work step of the game's adds 1 Divine Energy; which action starts "
-                "it was not traced.", UNCONFIRMED),
+              # Work event 40 at 0x46DA16 (+1 through the clamped adder 0x424F80): the work-event step 0x474EF0 is
+              # queued at 58 places, none with 40; polishing (action 0x9D, 0x455020) queues Building practice
+              # 0x474780(4) but no work event. Fix Vanilla Bugs queues event 40 after that practice (0x455109).
+              (("The game's tip says polishing the finished statue gives energy and building skill, and the game has "
+                "a step that adds 1 Divine Energy for it, but in the normal game no action ever asks for that step, so "
+                "\"Polishing the statue\" trains Building and gives no Divine Energy. "
+                f"{_feature('vv5_fix_vanilla_bugs')}: each polish also adds 1 Divine Energy, never above the "
+                "Divine Energy cap.", VERIFIED_C),
                (f"{_feature('vv5_statue_polishing_or_honoring')}: a villager dropped on the finished statue polishes it "
                 "or Honors, 50% each, whatever their skills; one who carries the job on alone keeps the 50/50 only when "
                 "checked on that skill, and anyone else 14% of the time.", VERIFIED_C))),
@@ -383,8 +430,14 @@ def _puzzle_entries() -> list[Entry]:
             "above 445): the game says \"Your vision and power are blocked here!\""), VERIFIED_E),  # 0x4234C8
         Entry(PUZZLE, "The Heathen Chief", "four necklace pieces brought to the Chief", (
             "the Heathen Chief's Faith is set to 100, so the Chief joins the tribe."), VERIFIED_E,  # 0x4360EE
+              # CConvertHeathenChiefPuzzle registers four drop places (0x436CEE..0x436D1E): areas 0x26 (farmer's,
+              # needs puzzle 5), 0x27 (scientist's, puzzle 13), 0x28 (doctor's, puzzle 1), 0x29 (builder's, puzzle 9),
+              # each only while puzzle 16 is unsolved; the actions 0xB9..0xBC pick the piece up, 0xBD assembles.
               (("The pieces are the scientist's, the doctor's, the farmer's and the builder's (the game's own action "
-                "names); where each is found was not traced.", UNCONFIRMED),)),
+                "names). Each lies at its own place on the island and can be picked up only once its Heathen master "
+                "has joined: the farmer's after The Hydroponic Farm, the doctor's after The Sick Heathen, the "
+                "builder's after The Heathen Builder and the scientist's after The Heathen Scientist (before that "
+                "the villager only \"sees a piece of a necklace\").", VERIFIED_C),)),
         Entry(PUZZLE, "The Heathen Parent", "convert the Heathen Mommy", (
             f"{_feature('vv5_heathen_mommy_puzzle')} only: a new village's Heathen Mommy carries one baby, and solving "
             # Her Faith set at 0x43979C; the Puzzles screen's count 0x44974C.
@@ -434,7 +487,9 @@ def _building_entries() -> list[Entry]:
             "its site appears at Learning 3. Built, a villager dropped on it with at least 3 of the six skills at 50 or "
             "more becomes the teacher, and every age unit the teacher's lesson raises every child's skills, Heathen "
             "children included: a lesson spread over all six skills gives each a fifth of the lesson, six fifths in "
-            "all; the rule is under Tech points and effects."),
+            "all; the rule is under Tech points and effects. A nursing mother dropped on it is refused (\"Nursing "
+            "mothers don't work while they are caring for an infant.\"), and a teacher who becomes a mother keeps "
+            "teaching (also under Tech points and effects)."),
          VERIFIED_C,
               ((f"{_feature('vv5_vv4_nursery_divisor_parity')}: a spread lesson gives each of the six skills a sixth, "
                 "exactly one lesson in all; lessons on the strongest skill are unchanged.", VERIFIED_C),)),
@@ -444,7 +499,13 @@ def _building_entries() -> list[Entry]:
             "Normal or Slow. While it burns a believer who fails the health check gets a second roll (see Chances) and "
             "a research success gives 1 more tech point 10.01% of the time; the Cold Snap island event puts it out."),
          VERIFIED_E,
-              (("Which of the three actions gives each of the 3 points was not traced.", UNCONFIRMED),)),
+              # CFirePit's put-down handler 0x439100 (area type 1): item 4 (firewood) +1 once (byte +5), item 15
+              # (dry grass, carried by "Gathering dry grass" 0x45AF83) +1 once (byte +4), an empty hand with both in +1
+              # (0x4391A3); "Starting a fire" ends with the build step 0x474FC0(0x12) -> slot 10 0x438D40 (+1 while
+              # unsolved).  Each +1 is 0x43AF80(18).
+              (("\"Gathering firewood\" gives the first point when its wood is put in the pit, \"Gathering dry "
+                "grass\" the second when its grass is put in (each counts once), and \"Starting a fire\" with both in "
+                "gives the third.", VERIFIED_C),)),
         Entry(BUILDING, "Fixing a hut (the repair)", "free; a builder's own job", (
             # Offered at 0x46C9E6; the 70% at 0x463F47.
             "offered only once Huts 1 to 3 and the Clothing Hut are all built: the builder examines one of the three "
@@ -452,8 +513,11 @@ def _building_entries() -> list[Entry]:
             "trains Building."), VERIFIED_C,
               ((f"{_feature('vv5_builders_fix_huts')}: about three times in four a builder builds first, and with no "
                 "project to work on examines and fixes a built hut even before every hut stands.", VERIFIED_C),
-               (f"{_feature('vv5_builders_and_healers_work_first')}: builders and healers try their own work first about "
-                "three times in four, and in catch-up devotees try Honoring first.", VERIFIED_C))),
+               (f"{_feature('vv5_builders_and_healers_work_first')}: farmers, researchers, healers, builders and "
+                "devotees try their own work first about three times in four (devotees while you play only without "
+                "Easier Devotee Training), once that skill is above 5; the game's \"untrained\" mark is turned off, so "
+                "a believer never dropped on a job works on their own too, as in Virtual Villagers 1-3.",
+                VERIFIED_C))),
     ]
 
 
@@ -471,8 +535,11 @@ def _item_entries() -> list[Entry]:
             "35 food (52 at Food Mastery 2, 70 at 3), 8% of the mushrooms that appear."), VERIFIED_E,
               ((f"{_feature('vv5_super_secret_golden_mushroom')}: 1 in 1,000,000 random brown or red mushrooms is a "
                 "Golden Mushroom worth 100 food, counted as a mushroom.", VERIFIED_E),
+               # The row NOPs the reservation jne 0x413E5F of the drop hit-test 0x413E40; emulated on the stock and
+               # the rendered bytes in tests/test_everyone_collects.py; the pickup returns 1 after the item is gone
+               # and the award depends only on the carried id (that test's reading).
                (f"{_feature('vv5_everyone_collects_like_vv1')}: several children dropped on one mushroom or collectible "
-                "each pick it up, so it is counted and paid once for each.", UNCONFIRMED),
+                "each pick it up, so it is counted and paid once for each.", VERIFIED_C),
                # The release listener 0x4146B0: 0x4146E6 ja becomes jmp 0x414713, past the three place tests
                # (vv5_collectibles_stay_collected).
                (f"{_feature('vv5_collectibles_stay_collected')}: a mushroom, relic or lab gear piece a child has "
@@ -493,7 +560,12 @@ def _item_entries() -> list[Entry]:
             "every successful research session gives 0 to (half the pieces owned, less 1) more tech points, each "
             "equally likely (0 to 11 with all 24). A piece found again gives 100, 250 or 1,500 tech points by rarity. "
             "Completing the set raises the believers' limit by 5. Once the Knowing Totem is down, half of the "
-            "collectibles that appear are from each set."), VERIFIED_E),
+            "collectibles that appear are from each set."), VERIFIED_E,
+              # The bonus 0x46DE5F: 12 with all 24 pieces, else 0 (scripts/build_science_collectibles_complete_features.py;
+              # emulated in tests/test_science_collectibles_complete.py).
+              ((f"{_feature('vv5_science_collectibles_complete')}: the pieces add nothing to research until all 24 "
+                "are found; with all 24, 0 to 11 more as in the normal game. A piece found again still gives 100, 250 "
+                "or 1,500 tech points, and completing the set still raises the believers' limit by 5.", VERIFIED_C),)),
         Entry(ITEM, "A change of clothes", "5,000 tech points, at the built Clothing Hut", (
             # Work event 90, queued at 0x45CF5F, takes the 5,000 at 0x46CEC7; the chooser steps the body 0 to 28
             # (0x419CE0); its fourth button returns the 5,000 (0x419E77); too few points at 0x46CE93.
@@ -530,13 +602,14 @@ ORIGINS_TECH = (
     ("Barrel of Babies", 75_000, "after the Tech screen closes, the game's Barrel O' Babies! event comes (up to 3 "
                                  "children). Refused, nothing spent, without room for 3 more villagers."),
     ("Tech Point Doubler", 500_000, "doubles every tech point research earns (the base, the lab gear bonus and the "
-                                    "fire's +1); island events and duplicate lab gear are not doubled. Removable for "
-                                    "free (no refund) and buyable again; not sold with 256 Villagers "
-                                    "(Experimental)."),
-    # The one food gain it lets through returns to 0x414970, the mushroom pickup that also counts Mushrooms Found.
-    ("Food Point Doubler", 500_000, "doubles the food of every mushroom picked up, after Food Mastery; noni picks, "
-                                    "crop harvests, fishing and island events are not doubled. Removable for free (no "
-                                    "refund) and buyable again; not sold with 256 Villagers (Experimental)."),
+                                    "fire's +1) and duplicate lab gear; island events, rewards, purchases and cheats "
+                                    "are not doubled. Removable for free (no refund) and buyable again; not sold with "
+                                    "256 Villagers (Experimental)."),
+    # The whitelist: noni, crops, lake fish, the mushroom pickup and the food jobs inherited from VV4.
+    ("Food Point Doubler", 500_000, "doubles the food gathered from food sources, after Food Mastery: noni picks, "
+                                    "crop harvests, lake fishing and mushrooms; island events, rewards, purchases and "
+                                    "cheats are not doubled. Removable for free (no refund) and buyable again; not "
+                                    "sold with 256 Villagers (Experimental)."),
     ("Full Heal / Cure All", 30_000, "every living believer is cured of sickness and set to 100 health; each cure "
                                      "counts in People Cured. Heathens are skipped."),
     ("Complete All Collections", 1_000_000, "marks all 48 collectibles found and earns the collection goals still "
@@ -580,9 +653,10 @@ def _patcher_entries() -> list[Entry]:
         for name, price, effect in rows:
             subs = ()
             if name == "Barrel of Babies":
-                subs = (("Which of the game's two Barrel O' Babies! versions the purchase brings (the believers', slot "
-                         "26, or the Heathens') is not settled: the patch's notes name different event numbers.",
-                         UNCONFIRMED),)
+                # The selector body (scripts/build_vv5_origins_feature.py BARREL_SELECTOR_BODY_REPAIRED: mov esi, 26)
+                # picks event 26 of the event table 0x4DC850; tests/test_vv5_barrel_event_index.py re-derives it.
+                subs = (("The purchase brings the believers' Barrel O' Babies! (the game's event 26), not the "
+                         "Heathens' one.", VERIFIED_C),)
             unchanged = "" if name in NO_CHANGE_CHECK else " Nothing is spent when nothing would change."
             out.append(Entry(PATCHER, name, f"{price:,} tech points", (
                 f"{lead}: on {screen}: {effect}{unchanged}"), VERIFIED_C, subs))

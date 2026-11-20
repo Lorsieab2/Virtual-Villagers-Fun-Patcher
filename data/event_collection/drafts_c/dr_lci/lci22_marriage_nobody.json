@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Marriage Nobody Wanted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci22_marriage_nobody",
+  "source": "draft_lci",
+  "lines": [
+   302,
+   313
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L302",
+  "ledger": [
+   {
+    "src": "L303",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and an elder)"
+   },
+   {
+    "src": "L309",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two families have planned a marriage, and one of the pair does not want it: stand by them, or ask them to give it a chance.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 45
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(third) and another family have been planning a wedding between (subject) and (friend) for a month. Today, (subject) said, quietly, that (subject.he/she) does not want to marry (friend). (friend) is relieved, as it happens. (third) is mortified. What should happen?",
+   "src": "L305",
+   "choices": [
+    {
+     "label": "Stand by Their Choice",
+     "next": "o1",
+     "src": "L307"
+    },
+    {
+     "label": "Ask Them to Give It a Chance",
+     "next": "o2",
+     "src": "L311"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) goes to the other family and calls the wedding off. It is the most embarrassing day of (third.his/her) life. Then (subject) and (friend) laugh about it together, and become good friends. (third) decides to stop planning weddings.",
+   "src": "L309"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) asks (subject) to spend some time with (friend) first. (subject) does, out of respect. At the end of the month, both of them still say no. The wedding is called off. (third) accepts it, at last.",
+   "src": "L313"
+  }
+ }
+}

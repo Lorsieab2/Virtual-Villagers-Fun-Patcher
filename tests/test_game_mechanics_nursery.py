@@ -185,8 +185,10 @@ class Lesson(unittest.TestCase):
         e.villager(1, age=0, skills=[1.0] * 6)
         e.lesson([0, 0])
         self.assertGreater(e.skills(1)[0], 1.0)
-        line = next(f for f in nursery.lines(_Village(), 5) if "whether it stays was not traced" in f.text)
-        self.assertFalse(line.confirmed)
+        # 2026-11-18: turning Heathen never touches the job (0x4669E0 -> 0x466880), so the line is code, not open.
+        line = next(f for f in nursery.lines(_Village(), 5) if "a teacher who turns Heathen keeps the Nursery" in f.text)
+        self.assertTrue(line.confirmed)
+        self.assertNotIn("not traced", line.text)
 
     def test_four_hundred_children_from_zero(self) -> None:
         """The emulated counts the page quotes: which skill a child starting at 0 ends up trained in."""
@@ -209,6 +211,140 @@ class Lesson(unittest.TestCase):
                 self.assertEqual(last, count, (number, speed))
         self.assertIn("394, 371 and 341", _text(5))
         self.assertIn("398, 385 and 357", _text(4))
+
+
+@unittest.skipUnless((STOCK / "Virtual Villagers - New Believers.exe").exists()
+                     and (STOCK / "Virtual Villagers - The Tree of Life.exe").exists(), "stock exes not present")
+class NursingMothers(unittest.TestCase):
+    """Nursing mothers and the Nursery School: the code the lines rest on, in the stock exes, and the drop check run
+    in unicorn with the game's own registration and dispatcher."""
+
+    GAMES = {
+        4: dict(exe="Virtual Villagers - The Tree of Life.exe", hid=0x22, handler=0x4376E0, reg=0x46E5E0,
+                disp=0x46E460, pos=0x45ED00, look=0x46C410, tip=0x44B890, ecx=0x7054C4, extra=False,
+                mother=0x2DF, child=0x2DE),
+        5: dict(exe="Virtual Villagers - New Believers.exe", hid=0x11, handler=0x43AA30, reg=0x479810,
+                disp=0x4794A0, pos=0x466350, look=0x477860, tip=0x44E730, ecx=0x77DECC, extra=True,
+                mother=0x2D0, child=0x2CF),
+    }
+
+    def test_exe_bytes(self) -> None:
+        pins = {
+            4: ((0x46E4CB, "83BE4C1C000000"),            # the drop check: carrying?
+                (0x46E4DD, "68DF020000"),                # tip 0x2DF eTTipStandAloneMommiesNoWork
+                (0x43784B, "6A006AFF68E07643006A22"),    # the Nursery registers flag 0
+                (0x4658AD, "83B94C1C000000"),            # the chooser: carrying -> the mother picker
+                (0x4658BF, "E86CC1FFFF"),                # call 0x461A30
+                (0x465788, "83B84C1C000000"),            # the job gate
+                (0x467C84, "3B788D"),                    # the teacher pick: the job only
+                (0x45E7F1, "83F805"),                    # Parenting gain at least 5
+                (0x45E830, "89964C1C0000")),             # conceiving writes the field
+            5: ((0x479521, "83BE4C1C000000"), (0x479533, "68D0020000"),
+                (0x43AB8B, "6A006AFF6830AA43006A11"),
+                (0x46F0FD, "39994C1C0000"), (0x46F10C, "E8BFB0FFFF"),
+                (0x46E918, "83B84C1C000000"), (0x471BED, "3B4714"),
+                (0x465E41, "83F805"), (0x465E80, "89964C1C0000"),
+                (0x43AAB5, "B906020000")),               # the hover always "under construction"
+        }
+        for game, rows in pins.items():
+            img = _image(self.GAMES[game]["exe"])
+            for addr, hexed in rows:
+                self.assertEqual(img[addr - BASE:addr - BASE + len(hexed) // 2].hex().upper(), hexed, hex(addr))
+
+    def test_the_tip_is_the_mothers_tip(self) -> None:
+        import vv_game_mechanics_hidden_vv4 as h4
+        import vv_game_mechanics_hidden_vv5 as h5
+        for table, number, at in ((h4, 0x2DF, 0x46E4E7), (h5, 0x2D0, 0x47953D)):
+            row = next(r for r in table.POPUP_TIPS if r[0] == number)
+            self.assertEqual(row[1:3], ("eTTipStandAloneMommiesNoWork", (at,)))
+            self.assertEqual(row[3], nursery.MOTHER_TIP)
+
+    def _drop(self, game: int, age: int, conceived: int, first: int = 0):
+        from unicorn import UC_ARCH_X86, UC_HOOK_CODE, UC_MODE_32, Uc
+        from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_ECX, UC_X86_REG_EIP, UC_X86_REG_ESP
+        c = self.GAMES[game]
+        img = _image(c["exe"])
+        mu = Uc(UC_ARCH_X86, UC_MODE_32)
+        mu.mem_map(BASE, (len(img) + 0xFFFF) & ~0xFFFF)
+        mu.mem_write(BASE, img)
+        stack, vil, ret = 0x0F000000, 0x0E000000, 0x0DEAD000
+        mu.mem_map(stack - 0x100000, 0x100000)
+        mu.mem_map(vil, 0x10000)
+        mu.mem_map(ret, 0x1000)
+        log = []
+
+        def call(fn, args, ecx=0):
+            sp = stack - 0x1000
+            for a in reversed(args):
+                sp -= 4
+                mu.mem_write(sp, struct.pack("<I", a & 0xFFFFFFFF))
+            sp -= 4
+            mu.mem_write(sp, struct.pack("<I", ret))
+            mu.reg_write(UC_X86_REG_ESP, sp)
+            mu.reg_write(UC_X86_REG_ECX, ecx)
+            mu.emu_start(fn, ret, count=100000)
+            return mu.reg_read(UC_X86_REG_EAX) & 0xFF
+
+        def back(uc, eax, pop):
+            sp = uc.reg_read(UC_X86_REG_ESP)
+            to = struct.unpack("<I", uc.mem_read(sp, 4))[0]
+            uc.reg_write(UC_X86_REG_EAX, eax)
+            uc.reg_write(UC_X86_REG_ESP, sp + 4 + pop)
+            uc.reg_write(UC_X86_REG_EIP, to)
+
+        def hook(uc, addr, _size, _data):
+            sp = uc.reg_read(UC_X86_REG_ESP)
+            arg = lambda k: struct.unpack("<I", uc.mem_read(sp + 4 + 4 * k, 4))[0]  # noqa: E731
+            if addr == c["pos"]:
+                uc.mem_write(arg(0), struct.pack("<ii", 100, 600))
+                back(uc, arg(0), 4)
+            elif addr == c["look"]:
+                back(uc, c["hid"], 8)
+            elif addr == c["tip"]:
+                log.append(("tip", arg(0)))
+                back(uc, 0, 0xC)
+            elif addr == c["handler"]:
+                log.append(("nursery", arg(0)))
+                back(uc, 1, 0)
+        for a in (c["pos"], c["look"], c["tip"], c["handler"]):
+            mu.hook_add(UC_HOOK_CODE, hook, begin=a, end=a)
+        call(c["reg"], [c["hid"], c["handler"], -1, 0])
+        mu.mem_write(vil, b"\0" * 0x3000)
+        mu.mem_write(vil + 0x1B8C, struct.pack("<i", age))
+        mu.mem_write(vil + 0x1C4C, struct.pack("<i", conceived))
+        got = call(c["disp"], [vil] + ([first] if c["extra"] else []), c["ecx"])
+        return got, log
+
+    def test_the_drop_refuses_a_mother(self) -> None:
+        for game, c in self.GAMES.items():
+            for first in ((0, 1) if c["extra"] else (0,)):
+                self.assertEqual(self._drop(game, 500, 0, first), (1, [("nursery", 0)]))
+                self.assertEqual(self._drop(game, 500, 480, first), (0, [("tip", c["mother"])]))
+                self.assertEqual(self._drop(game, 200, 0, first), (0, [("tip", c["child"])]))
+
+    def test_the_lines(self) -> None:
+        for game in (4, 5):
+            facts = nursery.lines(_Village(), game)
+            text = "\n".join(f.text for f in facts)
+            self.assertIn("Nursing mothers and the Nursery School: a nursing mother", text)
+            self.assertIn(nursery.MOTHER_TIP, text)
+            self.assertIn("emulated with the game's code", text)
+            self.assertIn("Parenting 20 gains 8, Parenting 80 gains 5", text)
+            self.assertIn("keeps the Nursery School as her job", text)
+            self.assertIn("both are then teachers", text)
+            for activity in nursery.MOTHER_ACTIVITIES[game]:
+                self.assertIn(activity, text)
+            self.assertNotRegex(text, r"0x[0-9A-Fa-f]{3,}")
+            unconfirmed = [f.text for f in facts if f.verified is False]
+            self.assertTrue(any(t.startswith("That tip shows only once") for t in unconfirmed))
+            self.assertTrue(any(t.startswith("Whether she first finishes") for t in unconfirmed))
+            pregnant_child = "A pregnant child: Grant Youth keeps a pregnancy"
+            self.assertEqual(pregnant_child in text, game == 5)
+            self.assertEqual("sees a nursery school foundation" in text, game == 5)
+        names4 = {e.name: e for e in items4.entries()}
+        names5 = {e.name: e for e in items5.entries()}
+        self.assertIn(nursery.MOTHER_TIP, names4["The Nursery School (the building)"].text)
+        self.assertIn(nursery.MOTHER_TIP, names5["The Nursery School"].text)
 
 
 class PageLines(unittest.TestCase):

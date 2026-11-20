@@ -89,11 +89,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about it. \"Isn't it strange? A stranger said four words to me, and I've been trying to live up to them ever since.\" (friend) thinks about it, then says, \"Well. You have kind hands.\" (subject) laughs. \"Don't. I'll be stuck with that one too.\" But (subject.he/she) smiles about it all evening.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) tells (friend) about it. \"Isn't it strange? A stranger said four words to me, and I've been trying to live up to them ever since.\" (friend) thinks about it, then says, \"Well. You have kind hands.\" (subject) laughs. \"Don't. I'll be stuck with that one too.\" But (subject.he/she) smiles about it all evening.",
    "src": "L26"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to do the same thing for somebody else. At the fire that night, (subject.he/she) watches (young_villager), a young villager, patiently untangling a toddler's hair, and says, as lightly as (subject.he/she) can, \"You're very patient.\" (young_villager) looks startled, then pleased. (subject) has no idea if it'll stick. (subject.He/she) hopes it might.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "young_villager",
+     "mood": "good",
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) decides to do the same thing for somebody else. At the fire that night, (subject.he/she) watches (young_villager), a young villager, patiently untangling a toddler's hair, and says, as lightly as (subject.he/she) can, \"You're very patient.\" (young_villager) looks startled, then pleased. (subject) has no idea if it'll stick. (subject.He/she) hopes it might.",
    "src": "L29"

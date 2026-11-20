@@ -112,6 +112,32 @@
    "src": "L220,L223"
   },
   "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. The child waits so long that the seeker gives up, and the child emerges in triumph.",
+   "src": "L220,L224",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L220,L224"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. The child waits so long that the seeker gives up, and the child emerges in triumph.",
    "src": "L220,L224"

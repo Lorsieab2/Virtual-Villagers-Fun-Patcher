@@ -74,6 +74,32 @@
    "src": "L578"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) can't bring (subject.him/her)self to throw it. It's too perfect. If (subject.he/she) throws it, it's gone. (subject.He/she) puts it in (subject.his/her) pocket and throws an ordinary stone instead, which skips twice and sinks. (friend) laughs. (subject) keeps the perfect stone for years. Sometimes (subject.he/she) takes it out and thinks about how far it would have gone.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) can't bring (subject.him/her)self to throw it. It's too perfect. If (subject.he/she) throws it, it's gone. (subject.He/she) puts it in (subject.his/her) pocket and throws an ordinary stone instead, which skips twice and sinks. (friend) laughs. (subject) keeps the perfect stone for years. Sometimes (subject.he/she) takes it out and thinks about how far it would have gone.",
    "src": "L581"

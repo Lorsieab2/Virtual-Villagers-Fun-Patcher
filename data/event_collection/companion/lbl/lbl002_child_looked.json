@@ -101,9 +101,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "text": "The resemblance starts a cheerful family storytelling night.",
-   "src": "L3816"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -114,6 +121,31 @@
    "name": "Outcome 3",
    "text": "The family agrees that resemblance proves very little.",
    "src": "L3818"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The resemblance starts a cheerful family storytelling night.",
+   "src": "L3816",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L3816"
+    },
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L3816"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The resemblance starts a cheerful family storytelling night.",
+   "src": "L3816"
   }
  }
 }

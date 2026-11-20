@@ -77,7 +77,8 @@
      "max": 10,
      "src": "L3382"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e2": {
    "name": "Outcome B",
@@ -96,7 +97,8 @@
      "max": 10,
      "src": "L3383"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

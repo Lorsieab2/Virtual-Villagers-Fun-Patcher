@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Small Victories",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca06_festival",
+  "source": "draft_lca",
+  "lines": [
+   82,
+   93
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L82",
+  "ledger": [
+   {
+    "src": "L83",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and a child)"
+   },
+   {
+    "src": "L89",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L93",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village wants a festival for small, everyday victories: let everyone name their own, or let the village choose.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Festivals on Isola are usually for big things: a great harvest, a new hut, a canoe that survived a storm. (subject) wants one for small things instead: the first time someone swam out to the rocks, a pot that did not crack, a week with no arguments. (friend) thinks this is either lovely or the start of a very long night. (third) already has a list. How should they run it?",
+   "src": "L85",
+   "choices": [
+    {
+     "label": "Everyone Names Their Own Victory",
+     "next": "o1",
+     "src": "L87"
+    },
+    {
+     "label": "The Village Chooses",
+     "next": "o2",
+     "src": "L91"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "One by one, the villagers stand up and say what they are proud of. (third) is proud of losing a tooth. (friend) is proud of not losing (friend.his/her) temper with the goats. Someone is proud of finally learning to whistle, and does, for some time. It is a very long night, and nobody minds.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village votes on whose small victories to celebrate. It is supposed to be fun, but some people get chosen three times and some not at all, and (subject) notices a few quiet faces at the edge of the firelight. Next year, (subject.he/she) says, everyone names their own.",
+   "src": "L93",
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- the draft's notes: everything but the marked effects is story only",
+     "src": "L93"
+    }
+   ]
+  }
+ }
+}

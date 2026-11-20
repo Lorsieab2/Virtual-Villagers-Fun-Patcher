@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cave of Echoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b020_cave_echoes",
+  "source": "balance",
+  "lines": [
+   889,
+   931
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L889",
+  "ledger": [
+   {
+    "src": "L890",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L899",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L896",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L897",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L900",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L909",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L902",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L905",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L911",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L917-931",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have dared each other to go all the way to the back.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There's a cave on the north shore where a voice comes back to its owner twice, three times, a dozen times, each echo a little different. The fishers say that a long time ago a wise-woman went in there to talk to herself, and came out as two people, and that the cave has been \"full of voices\" ever since.\n(subject) and (friend) have dared each other to go all the way to the back. Halfway in, the echoes start answering before they speak.\n(friend) wants to shout their names and see what comes back. (subject) wants to whisper. Which should they do?",
+   "choices": [
+    {
+     "label": "Shout",
+     "next": "c1",
+     "src": "L896"
+    },
+    {
+     "label": "Whisper",
+     "next": "c2",
+     "src": "L897"
+    }
+   ],
+   "src": "L892-894"
+  },
+  "c1o1": {
+   "text": "{#made:A figure walks|Two figures walk|Three figures walk} out of the dark, {#made:and it is|both of them|all of them} (subject), exactly, down to the way (subject.he/she) chews (subject.his/her) lip. {#made:It is|They are|They are} delighted to meet (subject.him/her). (friend) is less delighted, and walks home a long way ahead of them. The village decides {#made:the newcomer needs a name, and it becomes (made1)|they each need a name, and the newcomers become (made1) and (made1)|they each need a name}. {#made:It has|They have|They have} all of (subject)'s opinions, which means they agree about everything and the rest of the village gets very tired of it.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L903",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The last echo walks out of the dark wearing (subject)'s face. But it is a stranger behind it: it has none of (subject)'s habits, it laughs at different things, and it wants to know where the food is. The cave kept only (subject)'s voice and shape, the fishers say; the rest it had to make up. The newcomer chooses (made1) for a name, and is soon the loudest person at every meal.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L906",
+   "text_only": [
+    {
+     "src": "L906",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) takes a deep breath and shouts (subject.his/her) own name at the dark. It comes back, and back, and back, and then, very close, it says it again in a voice that isn't an echo at all...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L900"
+  },
+  "c2o1": {
+   "text": "When they stagger out into the sun, they each look down and see the other's body. The cave, it seems, mixed up more than their voices. They go back in every day for a month and whisper and shout and sing. Nothing comes back but ordinary echoes. In the end, they swap huts, and jobs, and most of their friends, and get on with it. \"At least it's someone I like,\" (subject) says, in (friend)'s voice.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L912",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "From deep in the cave, something giggles. Both of them run, and don't stop until they're on the beach, and then they collapse in the sand laughing until their sides hurt, though neither of them can explain why. They never go back. But on still nights, when the wind is from the north, (subject) swears (subject.he/she) can hear the cave whispering (subject.his/her) name.",
+   "src": "L915",
+   "text_only": [
+    {
+     "src": "L915",
+     "what": "\"collapse\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2": {
+   "text": "(subject) and (friend) whisper their names at the same time. The whispers slide off into the dark, and come back mixed up together, (subject)'s voice saying (friend)'s name, (friend)'s voice saying (subject)'s...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L909"
+  }
+ }
+}

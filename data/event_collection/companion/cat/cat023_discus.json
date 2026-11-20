@@ -77,11 +77,104 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
+   "src": "L7382",
+   "text_only": [
+    {
+     "what": "The fish disappears for days",
+     "reason": "an animal, not a villager; no one vanishes",
+     "src": "L7382"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The drawing captures the Discus silhouette, but the great-sail fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
+   "src": "L7376",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7376"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "The drawing captures the Discus silhouette, but the great-sail fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
    "src": "L7376"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
+   "src": "L7378",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7378"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7378"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "handling stresses it",
+     "reason": "the fish is stressed, not a villager",
+     "src": "L7378"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
    "src": "L7378",
@@ -103,9 +196,10 @@
      "reason": "the fish is stressed, not a villager",
      "src": "L7378"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "c": {
+  "c__fx": {
    "name": "Answer C",
    "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
    "src": "L7380",
@@ -119,6 +213,12 @@
      "min": 5,
      "max": 10,
      "src": "L7380"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7380"
     }
    ],
    "text_only": [
@@ -127,19 +227,39 @@
      "reason": "an animal, not a villager",
      "src": "L7380"
     }
-   ]
+   ],
+   "auto_text": true
   },
-  "d": {
-   "name": "Answer D",
-   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
-   "src": "L7382",
+  "c__text": {
+   "name": "Answer C",
+   "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
+   "src": "L7380",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7380"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7380"
+    }
+   ],
    "text_only": [
     {
-     "what": "The fish disappears for days",
-     "reason": "an animal, not a villager; no one vanishes",
-     "src": "L7382"
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L7380"
     }
-   ]
+   ],
+   "auto_text": true
   }
  },
  "grammar_fixes": [

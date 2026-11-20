@@ -1,0 +1,222 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Hat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b187_elder_hat",
+  "source": "balance",
+  "lines": [
+   8671,
+   8714
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8671",
+  "ledger": [
+   {
+    "src": "L8696",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): a new look and the old head look for (name2)"
+   },
+   {
+    "src": "L8672",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8673",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8681",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8690",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8678",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8679",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8682",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8691",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8684",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8687",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8693",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8696",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8699-8714",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Whoever receives it is supposed to wear it on festival days, and in time to take a seat on the council.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 39
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(elder) is retiring from the council, and the custom is that a retiring elder gives away (subject.his/her) hat to a younger villager, a tall woven hat with shells round the brim, shaped by a lifetime of being worn. Whoever receives it is supposed to wear it on festival days, and in time to take a seat on the council.\n(elder) has picked (subject). (subject) is honoured, and also very aware that the hat smells strongly of (elder), and that everyone who has ever worn one of these hats for long has ended up looking quite a lot like an elder (subject.himself/herself). \"It's the weight of the wisdom,\" the elders say.\nShould (subject) accept the hat, or politely ask for something else?",
+   "choices": [
+    {
+     "label": "Accept the Hat",
+     "next": "c1",
+     "src": "L8678"
+    },
+    {
+     "label": "Ask for Something Else",
+     "next": "c2",
+     "src": "L8679"
+    }
+   ],
+   "src": "L8674-8676"
+  },
+  "c1o1": {
+   "text": "(subject) wears it to every festival that year. By the end of it, (subject.his/her) hair has gone grey under the brim and (subject.his/her) face has the calm, lined look of a council elder, years before (subject.his/her) time. People start asking (subject.him/her) to settle arguments. (elder) is delighted. \"It knows its own,\" (subject.he/she) says.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8685",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The hat makes (subject) stand up straighter. Then (subject.he/she) weaves a cloak to go with it, and adds shells to (subject.his/her) clothes to match the brim, and by the end of the season (subject.he/she) looks every inch a councillor, without a single grey hair. The elders grumble that it's not how it's done. They give (subject.him/her) a seat anyway.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L8688",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(elder) lifts the hat off (subject.his/her) own head and settles it on (subject)'s. It is heavier than it looks, and warm, and fits as if it was made for (subject.him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8682"
+  },
+  "c2o1": {
+   "text": "(elder) spends the next month with (subject), every morning, teaching (subject.him/her) everything (subject.he/she) has learned in a lifetime about (subject)'s own work. At the end of the month, (subject.he/she) gives (subject) the hat anyway, and tells (subject.him/her) to put it in a basket until (subject.he/she) is ready.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L8694",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(elder) gives the hat to (friend) instead, who accepts it at once, and within a season looks fifteen years older and much more pleased with (subject.himself/herself). (subject) is relieved, mostly. (friend) tells (subject.him/her), rather often, what the council thinks about things.",
+   "src": "L8697",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random"
+    },
+    {
+     "do": "old_look",
+     "role": "friend"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) thanks (elder), very politely, and says (subject.he/she) isn't ready for a hat. \"Could you teach me something instead?\" (elder) looks at (subject.him/her) for a long moment, and laughs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8691"
+  }
+ }
+}

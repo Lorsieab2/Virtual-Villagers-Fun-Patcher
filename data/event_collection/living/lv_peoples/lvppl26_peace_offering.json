@@ -104,7 +104,8 @@
      "scaled": true,
      "src": "L22005"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",
@@ -117,7 +118,8 @@
      "scaled": true,
      "src": "L22006"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -142,7 +144,8 @@
      "scaled": true,
      "src": "L22008"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -155,7 +158,8 @@
      "scaled": true,
      "src": "L22009"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

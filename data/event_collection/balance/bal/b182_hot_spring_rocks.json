@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hot Spring in the Rocks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b182_hot_spring_rocks",
+  "source": "balance",
+  "lines": [
+   8433,
+   8477
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L8433",
+  "ledger": [
+   {
+    "src": "L8434",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8435",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8443",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8452",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8440",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8441",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8444",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8453",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8446",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8449",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8455",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8458",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8461-8477",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Since the ground shook last month, steam has been rising from a crack in the black rocks above the beach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Since the ground shook last month, steam has been rising from a crack in the black rocks above the beach. Today (subject) climbed up to look, and found a pool there, hot as a bath, milky blue, smelling strongly of rotten eggs. Little yellow crystals grow round the edge like frost.\n(friend) has been sick for a month with aching joints and a cough. The healers have tried everything. (healer) says there are hot springs on other islands where the sick go to bathe and come out well, and also ones where they come out boiled.\nShould (subject) bring (friend) to bathe in the pool, or test it first?",
+   "choices": [
+    {
+     "label": "Bring (friend) to Bathe",
+     "next": "c1",
+     "src": "L8440"
+    },
+    {
+     "label": "Test It First",
+     "next": "c2",
+     "src": "L8441"
+    }
+   ],
+   "src": "L8436-8438"
+  },
+  "c1o1": {
+   "text": "(friend) lies in the pool until (subject.his/her) fingers wrinkle. The cough loosens. The aching goes. That evening, (subject.he/she) walks down to the village without help, smelling powerfully of eggs and grinning. The healers start taking sick villagers up to the pool every week, and holding their noses.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L8447",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The pool cures (friend) completely, and does something else as well. When (friend) climbs out, (subject.his/her) skin is smooth and bright and (subject.his/her) face looks years younger. (healer) is fascinated. Half the village goes up to the pool that week. It doesn't work on anyone else's face, only on the sick, which makes several people very cross.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "young_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L8450",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) and (healer) carry (friend) up to the rocks on a mat and lower (subject.him/her) into the milky water, very slowly. (friend) gasps at the heat, then sighs, a long, long sigh...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8444"
+  },
+  "c2o1": {
+   "text": "The water is hot, but not too hot, and it seems to soak right into (subject)'s bones. (subject.He/She) comes out feeling like a child, and looks like one too, round the face. The next day they bring (friend) up, and (friend)'s cough is gone by evening. \"You've gone pink,\" says (healer) to (subject). \"And smooth. Very smooth.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L8456",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The pool is hotter at the bottom than at the top. (subject)'s feet touch a vent, and (subject.he/she) comes out of the water faster than (subject.he/she) has ever moved, with both feet scalded red. (healer) pours the cold water over them and says, very gently, that some springs are for looking at. (friend) gets better slowly, the ordinary way.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L8459",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) decides to try it first. (subject.He/She) sits on the edge and lowers (subject.his/her) feet in, then (subject.his/her) legs, while (healer) watches with a gourd of cold water ready...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8453"
+  }
+ }
+}

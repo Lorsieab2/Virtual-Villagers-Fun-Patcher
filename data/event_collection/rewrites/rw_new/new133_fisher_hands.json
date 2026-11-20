@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Fisher's Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new133_fisher_hands",
+  "source": "rewrites",
+  "lines": [
+   6242,
+   6287
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6242",
+  "ledger": [
+   {
+    "src": "L6243",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6244",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6252",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6259",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6266",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6248",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6249",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6250",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6253",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6260",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6267",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6254",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6256",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6261",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6263",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6268",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6270",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6273-6287",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager tied half the nets on this island.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) tied half the nets on this island. (subject.His/Her) knots are famous. Young fishers used to watch (subject.his/her) fingers fly and try to copy them, and fail.\nLately, those fingers fumble. Knots that used to take a blink now take a long, painful minute. (subject.His/Her) knuckles ache in the mornings and swell in the damp. And (subject) has started hiding the knotting work under a mat whenever anyone walks past, pretending to be doing something else.\n(young) noticed today. (subject.He/She) saw the half-finished net, and the mat, and (subject)'s face when (subject.he/she) realized (subject.he/she) had been seen. (young) doesn't want to embarrass (subject.him/her), but (subject.he/she) can't pretend (subject.he/she) didn't see it either. What should (young) do?",
+   "choices": [
+    {
+     "label": "Ask How They Want to Fish",
+     "next": "c1",
+     "src": "L6248"
+    },
+    {
+     "label": "Record the Knots",
+     "next": "c2",
+     "src": "L6249"
+    },
+    {
+     "label": "Build a Knotting Frame",
+     "next": "c3",
+     "src": "L6250"
+    }
+   ],
+   "src": "L6245-6247"
+  },
+  "c1o1": {
+   "text": "(subject) thinks about it for a long time. Then (subject.he/she) decides (subject.he/she) will keep fishing by hand line from the rocks, which is gentle on the fingers and always has been (subject.his/her) favourite anyway. It's a choice that is (subject.his/hers) alone. The next morning, (subject.he/she) is out on the rocks at dawn, and comes back with three fish and a smug expression.",
+   "src": "L6255"
+  },
+  "c1o2": {
+   "text": "(subject) is quiet for a while. Then, without looking at anyone, (subject.he/she) slides the mat off the half-finished net and asks for help with the knotting. (subject.His/Her) family, who thought pride would never allow it, are so surprised that no one says anything at all for a moment. Then everyone sits down at once, and the net is finished by evening.",
+   "src": "L6257"
+  },
+  "c1": {
+   "text": "(young) sits down beside (subject) and asks, very simply, \"What would you like to keep doing?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6253"
+  },
+  "c2o1": {
+   "text": "(subject) teaches (young) seven net knots, slowly, and the reason behind each one: this one for deep water, this one so a torn net doesn't unravel, this one to hold a weight. (young)'s head is spinning by sunset, but (subject.he/she) can tie all seven. (subject) watches (subject.him/her) do it, nods once, and says nothing, which from (subject) is the highest praise.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6262",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Halfway through, (subject) stops. There's one old knot, the \"crab claw\", that (subject.he/she) can't quite remember any more. (subject.He/She) tries three times, gets it wrong three times, and finally asks the other old fishers to help puzzle it out. It takes them the whole evening, a great deal of arguing, and a lot of string.",
+   "src": "L6264"
+  },
+  "c2": {
+   "text": "(young) asks if (subject) would teach (subject.him/her) the knots, all of them, before they're forgotten. (subject) frowns, then cracks (subject.his/her) aching knuckles. \"Sit down. Watch my hands. Not my face, my HANDS.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6260"
+  },
+  "c3o1": {
+   "text": "The frame holds the net steady, and (subject)'s fingers only have to do the knotting, not the holding. (subject.He/She) ties knots in comfort again, slowly but surely, and seems genuinely moved. \"Huh,\" (subject.he/she) says gruffly. \"Not bad.\" The frame stays by (subject.his/her) hut for the rest of (subject.his/her) life.",
+   "src": "L6269"
+  },
+  "c3o2": {
+   "text": "(subject) tries the frame, but (subject.his/her) hands are hurting too much today. So (subject.he/she) soaks them in a bowl of warm water instead, and leaves the nets for tomorrow. (young) sits with (subject.him/her) while (subject.he/she) does, and they talk about the sea.",
+   "src": "L6271"
+  },
+  "c3": {
+   "text": "(young) has an idea, and spends the afternoon building a wooden frame that can hold a net steady at just the right height, so (subject) doesn't have to grip it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6267"
+  }
+ }
+}

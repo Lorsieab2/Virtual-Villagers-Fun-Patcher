@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hollow-Log Drum",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b324_hollow_log_drum",
+  "source": "balance",
+  "lines": [
+   14993,
+   15035
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14993",
+  "ledger": [
+   {
+    "src": "L15014",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): the young head look for (eldest name)"
+   },
+   {
+    "src": "L14994",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14995",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15002",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15011",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14999",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15000",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15003",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15012",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15005",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15008",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15014",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15017",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15020-15035",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everyone looks at a villager.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "drummer": {
+   "kind": "villager"
+  },
+  "eldest": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(drummer) has spent the whole dry season hollowing out a great log for a new drum, and tonight it will be played for the first time. The elders say a new drum has to be woken properly, or it sulks forever: someone who has never danced must dance to its first beat.\nEveryone looks at (subject). (subject) has never danced in (subject.his/her) life. Not at weddings, not at festivals, not once. (subject.He/She) would rather swim to the next island. Should (subject) dance, or refuse and let someone else try?",
+   "choices": [
+    {
+     "label": "Dance",
+     "next": "c1",
+     "src": "L14999"
+    },
+    {
+     "label": "Refuse",
+     "next": "c2",
+     "src": "L15000"
+    }
+   ],
+   "src": "L14996-14997"
+  },
+  "c1o1": {
+   "text": "(subject) dances badly, wildly, and without stopping, until the drum and (subject) are both exhausted. Everyone agrees it is the worst dancing they have ever seen and the best first beat a drum has ever had. From then on (subject) dances at every festival, still badly, still with complete joy.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "dancing",
+     "role": "subject"
+    }
+   ],
+   "src": "L15006",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "On the third beat, (subject) jumps, lands on the side of (subject.his/her) foot, and goes down with a crack everyone hears over the drum. The ankle never heals straight, and (subject) walks with a hitch from then on. The drum, the elders say, is properly woken. (subject) says, with feeling, that the drum can go back to sleep.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "dancing",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L15009",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(drummer) raises the sticks. BOOM. The sound goes through (subject)'s feet and up (subject.his/her) legs, and before (subject.he/she) can think about it, (subject.his/her) feet are moving...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15003"
+  },
+  "c2o1": {
+   "text": "The eldest villager in the village, (eldest), who has also never danced, gets up slowly and says (subject.he/she) supposes it's (subject.his/her) turn. (subject.He/She) dances one slow, careful circle around the drum. Everyone cries. In the firelight, (subject.his/her) face looks years younger, and in the morning, it still does. The drum sounds wonderful ever after.",
+   "src": "L15015",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "eldest"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nobody else will do it. The drum is played anyway, and it sounds flat and dull, like hitting a wet log. (drummer) tries for weeks to make it sing, and fails, and by the end of the season has lost (subject.his/her) love of drumming altogether. The great drum ends up as a water trough for the pigs.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "drummer",
+     "remove": true,
+     "like": "drums"
+    }
+   ],
+   "src": "L15018",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"No,\" says (subject). \"Get someone else.\" The crowd groans. (drummer) shrugs and looks for another first-time dancer...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15012"
+  }
+ }
+}

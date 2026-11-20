@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lazy River",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b336_lazy_river",
+  "source": "balance",
+  "lines": [
+   15527,
+   15568
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15527",
+  "ledger": [
+   {
+    "src": "L15551",
+    "kind": "instruction",
+    "why": "the EFFECT mapped by hand (scripts/go_events/gen_go.py OVERRIDES): one of the couple carries the baby, with the other, one baby"
+   },
+   {
+    "src": "L15528",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15529",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15536",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15545",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15533",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15534",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15537",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15546",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15539",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15542",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15554-15568",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L15543",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "A villager has done it every afternoon for a month and loves nothing better.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On hot afternoons, the young people of the village float down the slow river on rafts of banana logs, lying on their backs in the sun, drifting from the hills to the sea. (subject) has done it every afternoon for a month and loves nothing better. Today, the farmers have asked for help bringing in the harvest before the rains.\nThe river is right there, warm and slow. The gardens are on the other side of the village, hot and dusty. Should (subject) float down the river one more time, or go and help with the harvest?",
+   "choices": [
+    {
+     "label": "Float Down the River",
+     "next": "c1",
+     "src": "L15533"
+    },
+    {
+     "label": "Help With the Harvest",
+     "next": "c2",
+     "src": "L15534"
+    }
+   ],
+   "src": "L15530-15531"
+  },
+  "c1o1": {
+   "text": "Halfway down, the raft hits a submerged log, and (subject) is tipped into the water and dragged under the snag. (subject.He/She) comes up spluttering, scraped from shoulder to hip, and walks the rest of the way home. The rains come early that night, and the harvest is half lost. After that, lying around doing nothing never feels quite as good as it used to.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "resting",
+     "role": "subject"
+    }
+   ],
+   "src": "L15540",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "It's the most perfect afternoon of the summer. (subject) floats all the way to the sea, and lies on the beach in the sun until dusk. When (subject.he/she) gets back, the farmers are coming in from the gardens, exhausted, with half the harvest still in the ground. Nobody says anything. Their faces say it all.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L15543"
+  },
+  "c1": {
+   "text": "(subject) pushes off on (subject.his/her) raft and lies back. The sun is warm, the water is slow, the birds are singing...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15537"
+  },
+  "c2o1": {
+   "text": "The farmers sing while they work, an old harvest song with a hundred verses, and by the end of the afternoon (subject) is singing too. The harvest is in before the rains. That evening, the river doesn't seem so tempting any more. (subject) has found something (subject.he/she) likes better than floating, and doesn't miss the water. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L15549",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Working the row next to (subject) is (friend), the head farmer's grown child, who has a laugh like a waterfall and talks the whole afternoon. They bring in the harvest together, and then the next day's, and by the end of the season, they are inseparable. By the next rains, there is a baby on the way.",
+   "src": "L15552",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "subject",
+     "partner": "friend",
+     "partner_may_carry": true
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) sighs, ties up the raft and walks across the village to the gardens, where the farmers hand (subject.him/her) a basket without a word...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15546"
+  }
+ }
+}

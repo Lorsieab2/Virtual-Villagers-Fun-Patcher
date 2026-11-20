@@ -67,21 +67,14 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Neighbors arrange shifts and relief.",
-   "src": "L3102",
-   "effects": [
+   "children": [
     {
-     "do": "skill",
-     "role": "carer",
-     "skills": [
-      "Parenting"
-     ],
-     "min": 5,
-     "max": 10,
-     "src": "L3102"
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
     }
    ]
   },
@@ -112,7 +105,8 @@
      "max": 10,
      "src": "L3103"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "e3": {
    "name": "Outcome 3",
@@ -131,7 +125,54 @@
      "max": 10,
      "src": "L3104"
     }
-   ]
+   ],
+   "auto_text": true
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Neighbors arrange shifts and relief.",
+   "src": "L3102",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "carer",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3102"
+    },
+    {
+     "do": "mood",
+     "role": "carer",
+     "mood": "good",
+     "src": "L3102"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Neighbors arrange shifts and relief.",
+   "src": "L3102",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "carer",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3102"
+    }
+   ],
+   "auto_text": true
   }
  }
 }

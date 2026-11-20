@@ -71,14 +71,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(subject) jumps. For one long moment there's nothing but air and (subject.his/her) own yell. Then the water swallows (subject.him/her), cold and green, and (subject.he/she) comes up gasping and laughing. Everyone cheers. (subject.He/she) climbs straight back up to do it again. The fear was real. (subject.He/she) jumped anyway, and (subject.he/she) doesn't think that makes the fear any less real.",
-   "src": "L590"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Not today,\" says (subject). (subject.He/she) climbs back down the way (subject.he/she) came up. One or two friends call out. (friend) climbs down too and says to them, \"Leave it.\" The rock will still be there. Maybe next summer. Maybe never. (subject) swims in the lagoon all afternoon and has a wonderful time.",
    "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) jumps. For one long moment there's nothing but air and (subject.his/her) own yell. Then the water swallows (subject.him/her), cold and green, and (subject.he/she) comes up gasping and laughing. Everyone cheers. (subject.He/she) climbs straight back up to do it again. The fear was real. (subject.He/she) jumped anyway, and (subject.he/she) doesn't think that makes the fear any less real.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) jumps. For one long moment there's nothing but air and (subject.his/her) own yell. Then the water swallows (subject.him/her), cold and green, and (subject.he/she) comes up gasping and laughing. Everyone cheers. (subject.He/she) climbs straight back up to do it again. The fear was real. (subject.He/she) jumped anyway, and (subject.he/she) doesn't think that makes the fear any less real.",
+   "src": "L590"
   }
  }
 }

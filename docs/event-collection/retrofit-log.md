@@ -967,3 +967,10 @@ normal 20 (the generators `scripts/companion/gen_k5.py` and `gen_k6.py` give the
   outcome alike; The Clumsy Morel (`c5dn022_clumsy_morel`), whose three outcomes are all the mushroom's mishaps (a
   skill loss, tripping, a forgotten knot); and The Smoked Catch (`c5ev019_smoked_catch`) B's small food loss, which
   harms no villager.
+
+## Food and tech where the text fits (2026-11-15)
+
+The owner asked for food and tech-point gains and losses on outcomes whose own text already implies them
+("Where the text fits"). Every addition (event, node, effect and the justifying text) is a row of
+`scripts/food_tech_additions.py` ADDITIONS and is listed in `docs/event-collection/food-tech-log.md`. The
+generators apply the table as they write, so a regeneration keeps it; no text, choice, weight or other effect changed.

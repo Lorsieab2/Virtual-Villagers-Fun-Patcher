@@ -65,14 +65,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) turns the hut upside down. (friend) comes to help and, after a long search, finds the spoon in the water jar, where (subject) put it that morning after stirring something. (subject) holds it like a lost friend. The stew is cold by now. (subject) eats it anyway and says it's the best stew (subject.he/she) has ever had.",
-   "src": "L146"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "(subject) picks up an ordinary spoon and eats. It's fine. The stew is fine. Everything is fine. It's just a little bit wrong. The next morning the good spoon turns up in the water jar, and (subject) decides not to ask (subject.him/her)self how it got there.",
    "src": "L149"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) turns the hut upside down. (friend) comes to help and, after a long search, finds the spoon in the water jar, where (subject) put it that morning after stirring something. (subject) holds it like a lost friend. The stew is cold by now. (subject) eats it anyway and says it's the best stew (subject.he/she) has ever had.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) turns the hut upside down. (friend) comes to help and, after a long search, finds the spoon in the water jar, where (subject) put it that morning after stirring something. (subject) holds it like a lost friend. The stew is cold by now. (subject) eats it anyway and says it's the best stew (subject.he/she) has ever had.",
+   "src": "L146"
   }
  }
 }

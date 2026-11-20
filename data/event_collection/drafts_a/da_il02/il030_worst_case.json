@@ -75,6 +75,38 @@
    "src": "L329"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) checks the gathering place, arranges (subject.his/her) notes, and chooses a spot away from the coconut trees. The speech goes reasonably well. Halfway through, a bird interrupts with an enormous squawk. Everyone laughs, including (subject).",
+   "src": "L333",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L333"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L333"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(subject) checks the gathering place, arranges (subject.his/her) notes, and chooses a spot away from the coconut trees. The speech goes reasonably well. Halfway through, a bird interrupts with an enormous squawk. Everyone laughs, including (subject).",
    "src": "L333"

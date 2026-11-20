@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Asks Everything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf29_child_asks",
+  "source": "draft_lcf",
+  "lines": [
+   400,
+   411
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L400",
+  "ledger": [
+   {
+    "src": "L401",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child and two adults)"
+   },
+   {
+    "src": "L407",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L411",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L411",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child asks a researcher and a believer why the sun rises: give both answers, or ask the child what they think.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "third"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A child asks a researcher and a person of faith why the sun rises: give both answers, or ask the child what they think."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to know why the sun comes up every morning. (friend) says it is the way the world turns, as far as anyone can tell. (third) says the sun is welcomed back by the island's spirits each dawn. (subject) looks back and forth between them, frowning. What should they say next?",
+   "src": "L403",
+   "choices": [
+    {
+     "label": "Give Both Answers",
+     "next": "o1",
+     "src": "L405"
+    },
+    {
+     "label": "Ask the Child",
+     "next": "o2",
+     "src": "L409"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) and (third) agree that these are two different ways of understanding the same morning. (subject) thinks about it, then says that maybe the spirits turn the world. Both adults are delighted, and a little alarmed.",
+   "src": "L407"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They ask (subject) what (subject.he/she) thinks. (subject) says the sun comes up because it wants to see what everyone is doing. (friend) and (third) both agree that is an excellent theory. (subject) goes off to watch the sunrise and check.",
+   "src": "L411",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L411"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

@@ -437,8 +437,12 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
     ("vv1_write_parentage_log", "0x3BCCB"): "1D49E2E120DFD76DA7D18AF3243E8147C9593F1AA452D9B4B43E6C07BA6BFD1E",
-    ("vv1_enable_origins_exclusive_features", "0x1D120"): "6BCFB1B986B25AC430D1B9E30D36DB58CC87B19CCB326384E0D74087842F7FDE",
-    ("vv1_enable_origins_exclusive_features", "0x1D140"): "2A7F6BCAFF096282681EA63DCA4CC89377EE5F32C236B5D1FEA2BB49FEC65562",
+    # Re-reviewed for the doublers' whitelist (#805): the tech (0x1D120) and food (0x1D140) add-points caves now
+    # compare the return address [esp + 4] (after the cave's own push ebx) with the eligible callers and jump
+    # past the doubling for every other one.  Only cmp / je / jmp were added: ebx is still pushed and popped,
+    # eax is the only other register written (as before), ecx is read once into ebx, and the stock ret 4 is kept.
+    ("vv1_enable_origins_exclusive_features", "0x1D120"): "C00B2393BDB5B647E0821411E7F03961365AA67BEFA6A2132E911B48D3784B7E",
+    ("vv1_enable_origins_exclusive_features", "0x1D140"): "7D1DB4E4E01AB36DB4177A53A7CC27560EC9CAD9D14CCAAB2AAADEB15FBE72A0",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
     # The cave now loads the village as [esi+0x10] and calls the room check
     # at 0x490B00 before consuming the paid event.  Register contract is
@@ -530,6 +534,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
     ("vv1_school_lessons_grant_skill", "0x3A230"): "846EAF1C3E8A0897824E1607D8568B3050F240A670A857D88D59F3479E24089A",
     ("vv1_school_lessons_grant_skill", "0x44B28"): "E695CAD15B97EF9EC985AC6A3EB1C2045C0BE465D922AD6F57F3FAC975EF43E9",
+    # Fix Vanilla Bugs' liking-work rule (0x39AF8 -> 0x455491/0x4554B2) and keeping-an-assigned-job rule (0x47CFF ->
+    # sixteen pieces from 0x454B32): their caves are int3 padding between functions INSIDE .text, which this walker
+    # treats as stock code and never enters, so each block hashes as empty (SHA-256 of nothing).  Their bytes are
+    # pinned exactly and their register contracts run by emulation from the routine's entry instead
+    # (tests/test_vv1_fix_vanilla_bugs.py LikingWorkTests / KeepAssignedJobTests: ECX, ESP and the saved
+    # registers at each exit, every roll, every spot case), and the pieces are checked to be padding no stock
+    # branch reaches.  Re-entries: 0x439B00 / 0x439B22 (the chooser's own choice and no-job exit), 0x447FFB (the
+    # work-spot routine's nothing-started exit) and the spot jump table 0x4480A8.
+    ("vv1_fix_vanilla_bugs", "0x39AF8"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    ("vv1_fix_vanilla_bugs", "0x47CFF"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
 }
 
 # The co-selected Origins composition relocates the Birth Control page to the

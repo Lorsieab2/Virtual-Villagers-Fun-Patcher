@@ -73,7 +73,7 @@ The fidelity check compares each text with its source lines after applying, in o
 
 | File | Source | Example |
 |---|---|---|
-| `(role)`, `(Role)`, `(role.he/she)`, `(role.His/Her)` ... | any one source parenthesis group | `(Healer1)` for `(Healer1)`; `(patient)` for `(patient name)`; `(cook1)` for `(name1 or name2)` |
+| `(role)`, `(Role)`, `(role.he/she)`, `(role.His/Her)` ... | any one source parenthesis group; a pronoun or role-sex word also either of its own words written bare (the owner, 2026-11-16: the Golden Child's and a carrier's words follow the villager) | `(Healer1)` for `(Healer1)`; `(patient)` for `(patient name)`; `(cook1)` for `(name1 or name2)`; `(child.he/she)` for `he` |
 | `{P}`, `{P.2}` (pool) | one source parenthesis group, or the pool's own items as the source's bare `a/b/c` list | `{A.2}` for `(A, different)`; `{ING}` for `fish/mushrooms/.../a magical potion` |
 | `{a\|b\|c}` (inline pick) | the source list `(a/b/c)` or bare `a/b/c`, item for item | `{relieved\|frustrated\|anxious}` |
 | `{@chief}` (game word) | one of the word's values, or `Chief` / `the Chief` / `a Chief` / `Chiefs` | `{@Chief} refuses` for `The Chief refuses` |
@@ -153,6 +153,16 @@ effect of that kind, or a `text_only` entry for that line.
 | the child survives but the mother dies | `{"do": "birth_then_die", "role": r, "cause": "unknown"}` on a `"special": "nursing_parent"` role with `"protected": "allow"` (cie-v6-binary.md 23: the baby is born now, then the parent dies with a grave) |
 | looks older, the old head look | `{"do": "old_look", "role": r}` (cie-v6-binary.md 27) |
 | a gender transition that changes the villager's recorded sex (explicitly chosen) | `{"do": "sex_change", "role": r}` (cie-v6-binary.md 29: refused while carrying or nursing, for special villagers, and while a companion that keeps data by the sex is in the game; the text still shows) |
+| The Tree of Life's cutting tools, soap, cloth (a sack is a cloth bolt) gained, lost, used, broken or found | `{"do": "supply", "item": "cutting_tools" \| "soap" \| "cloth", "min": a, "max": b}` (cie-v6-binary.md 38: a gain 1..99 or a loss -99..-1; tools and cloth kept 0..6, 0..99 with Up to 99 Cutting Tools/Soap/Cloth, soap 0..99; nothing before the item is invented or outside The Tree of Life). An existing event's is listed in `scripts/supply_effects.py` (`--format` adds it) |
+| any game's goods given, taken, found or lost (food, tech, berries, coconuts, fish, honey, fruit, blackberries, noni, collectibles) | `{"do": "supply", "item": ..., "min": a, "max": b}` (cie-v6-binary.md 39: never below 0, the game's ceiling; a word the game does not keep is story only there; mushrooms, VV3/VV4/VV5 fish and crabs, potions, herbs, stews, firewood and water are never counts) |
+| a trader's exchange | `{"do": "trade", "give": g, "give_amount": n, "get": h, "get_amount": m}` behind a child `if` `{"has_supply": {"item": g, "min": n}}` (cie-v6-binary.md 39: all or nothing) |
+| the village (or one villager) relaxes, swims, dances, prays, celebrates, visits the pond, plays, tells stories, sings, chants, gives a speech; falls sick; is cured | `{"do": "group", "kind": ..., "who": "all" \| r}` (`"percent"` for `sick`; cie-v6-binary.md 34) |
+| the next island event sooner / later; a tech level up / down; rain, a storm, fog, sun | `{"do": "village", "what": "event_timer" \| "tech_level" \| "weather", ...}` (cie-v6-binary.md 35; no weather in A New Home or The Lost Children) |
+| a skill's workers rush to work (everyone else kept busy) | `{"do": "group", "kind": "work", "skill": "Farming"}` (cie-v6-binary.md 42: the job ticked, or no job ticked and it is the highest skill; the rest take a busy state with no skill) |
+| new things to find wash up / turn up | words only (the owner's final list, 2026-11-18) |
+| a potion's effect (VV3), clean / glow / gunk / the stew wait (VV4), a fish run, research progress, a hut built faster | words only (the owner's final list, 2026-11-18: the compiler refuses them) |
+| yellow fruit (VV4) given or taken | `supply` / `trade` with `yellow_fruit` (36: only with Yellow Fruit Trees are No Longer Unlimited) |
+| cloth used as a material (sails, awnings, patching roofs and huts, nets, bandaged repairs) | The Tree of Life: `supply cloth` with a loss, offered only behind `{"has_supply": {"item": "cloth", "min": n}}`; the other games: words only |
 | a chosen name, "asks to be called ..." | a new-name role, `{"kind": "stranger", "new_name_for": r, "sex": "same" \| "other" \| "random", "last_name": "same" \| "different" \| "random"}`, shown as `(Chosen)` (cie-v6-binary.md 28: nobody is renamed) |
 
 - "(large award) food" shown in the text is `(award)`: give `"defer": true` on the food and a `{"do": "pay_award"}`
@@ -234,6 +244,17 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
 - **Special villagers** (Q17): the Golden Child (`"special": "golden_child"`, `"min_age": 0`), the VV3 Chief, a named
   nursing parent. Casting one with no token in the text is allowed (the cast is the requirement). Unnamed mentions
   ("A nursing mother nearby") stay text.
+- **The Golden Child** (the owner, 2026-11-16): an event that needs him or has him act, speak or be affected is A
+  New Home only and casts the real one (`"special": "golden_child"`); his words are the role's placeholders
+  (`(child.he/she)`, `(child.boy/girl)`: he may be born a girl, section 4's bare-word rule keeps the source). A line
+  where he acts in an all-games event shows only in A New Home and only while he is there (`special_present`, or an
+  optional `golden_child` role when the line names him). A passing mention may stay in any game.
+- **A carrier** (the owner, 2026-11-16): a `nursing_parent` role takes no `sex` (only villagers born female are cast
+  as carriers) and its words are the role's placeholders (`(mother.mother/father)`, `(mother.he/she)`): they follow
+  the villager's Gender Presentation, else the sex the game records (`collection_lib.carrier_words`).
+- **A chief role** (the owner, 2026-11-16): chief events run in every game; the chief's role has
+  `"prefer": "tribal_chief"` (The Secret City's robed Tribal Chief is cast when there, else any fitting villager;
+  cie-v6-binary.md 35).
 - **Protection** (the owner, 2026-11-14, V28; cie-v6-binary.md 7): `protected: "auto"` (the default) keeps nursing
   parents, the Golden Child and the VV3 Chief out of any role a harmful effect can reach. Only The Lost Children's
   totems are ALWAYS protected: where harming one of the others makes sense in the event (a nursing mother who loses
@@ -272,6 +293,11 @@ A skill loss is the same range negative (`"min": -10, "max": -5`); it makes the 
   singular VV3 value with a plural other. An event without VV3 has only `"*"`. A game word cannot sit inside an
   inline pick: make that list a named pool (`RULE`, `POWERS`). "Chief" in any text a non-VV3 game can show is an
   error.
+- **The chief's title is drawn per run** (the owner, 2026-11-16; cie-v6-binary.md 37): a chief word (`chief`,
+  `Chief`, `a_chief`, `tribal_chief` ...) shows one of "Chief", "leader", "elder", "headman" / "headwoman" (a
+  cast chief's presentation) or "council head" in every game, the same on every page of the run and after a
+  resume; the real Tribal Chief cast in the event's chief role is always the word's VV3 text. Write the words as
+  before: the compiler adds the other titles. Titles keep their `title_variants`.
 
 ## 11. Routing
 
@@ -549,6 +575,93 @@ review sheet). The shape is 15b's (the setup asks; each label leads to its own t
 - "The chief" stays the game word `{@chief}` / `{@Chief}` (a label in title case: collection_check compares a game word
   as the word it stands for); a title with "Chief" has a "Leader" title variant outside VV3. Nobody is cast as the chief.
 
+## 15i. More Island Events (mixer only) and heathen_ok roles (2026-11-16)
+
+The owner's "Additional Virtual Villagers Events By Lorsieab2.txt" (the nine events "VVFP More Island Events.dll"
+runs) is frozen byte for byte (`collection_lib.MIE`, source id `mie`, SHA-256 in `data/event_collection/MIE.sha256`);
+rows `_mie_rows` in `scripts/collection_manifest.py` (the header and The Cooking Contest's draft are notes rows);
+files `data/event_collection/mie/mie/<id>.json`, written by `scripts/go_events/gen_mie.py` (one hand-mapped function
+per event). Each has `collection.mixer_only: true`: it compiles and validates and gets its mixer versions, but its
+static form is in no manifest, the Credits list or the Game Mechanics index (the DLL runs the originals). The owner's
+odds are repeated children (the engine draws children equally); what the format cannot say is listed in
+`collection.approximations` (an authoring key) and printed by the generator.
+
+**heathen_ok** (the owner: "Heathens may be involved if needed for the event to make sense"): a New Believers villager
+role with `believers_only: false` must also say `"heathen_ok": true`, and a paragraph that names the role must say
+Isolan or Heathen. Only faith gain (+5..+35), joining the tribe, actions and minor harm (health -5..-30, sickness)
+may reach it; never kill, vanish, age, re-skill or less faith (`collection_check.heathen_ok_problems`). The engine's
+role flag (a real Heathen villager, never a Heathen role character or a sick one) is pending: `graph_for_engine`
+leaves the key out until it lands. In use: S027 The Isolan at the Fire and S070 The Isolan Healer.
+
+## 15j. (Name1)'s Harshest Critic (the owner's event, 2026-11-16, Expanded v3)
+
+The owner's random-pool event, frozen byte for byte (`collection_lib.CRITIC`, source id `critic`, SHA-256 in
+`data/event_collection/CRITIC.sha256`, the owner's CRLF ends kept, `-text`), laid out as The Cooking Contest is: a
+setup with letter slots (A the profession, B the task, T the difficulty, C the privilege, C2, D, E), four choices,
+a first popup per choice and 112 routes (R1-R112), each equally likely; Variant 2 (the critic is the student
+him/herself) is the mentor's kind word after a fail or a stumble, half the time. Its 112 routes are more text than one
+`.cieg` holds (`CG_MAX_FILE`), so it ships as six files, one per route family (R1-R23, R24-R41, R42-R57, R58-R73,
+R74-R95, R96-R112), ONE series (`hc_critic`, one draw in the rare roll); the setup and the shared pools are add-on rows
+(`collection_manifest.CRITIC_ROWS`) each file lists in `collection.addons`. Files:
+`data/event_collection/critic/hc/<id>.json`, built by `scripts/critic/gen_critic.py` (`--review` prints each
+pronoun's owner; `OWNERS` fixes the ones the nearest name gets wrong).
+
+- Every "(a / b / c)" list is a pool of its own (`p<line>_<k>`), each item the owner's words; a slot word with no list
+  ("(a faraway village)", "(healing)") is a one-item pool; "(somehow)" and the other asides are literal
+  parentheses. "(number)" is a pool of the number words the file itself uses (two, three, five, seven, nine, twelve,
+  forty); "(crop)" is taro or fruit; "(thing)" the owner's job words; "(recipient)" the L125 list.
+- The skill group is drawn first (a branch to `g_farm` ... `g_dev`, equally likely), and every profession, task,
+  difficulty, privilege, punishment, flavor, quote and disaster line of a group carries `{"visited": "g_<group>"}`;
+  the "any profession" tasks are not Devotion's (the owner's "draw task B from Devotion only"). A skill reward is a
+  branch over the groups: Devotion is VV5's Devotion or Research / Parenting (the owner's Devotion rule; VV1-VV4 skip
+  Devotion), and a potion maker's or poultice maker's is Research or Healing (the owner's potion rule).
+- Choice labels: the owner's 21 alternatives per choice; 24 copies of the question (4 per group, branch nodes
+  `c_<group><k>` before each) each show one set (the first three sets twice). "C2 ... sometimes": two of each group's
+  four copies show it. Copy 1 and 2 show the professions whose "a (A)" and "(A)s" read right, copy 3 the others
+  ("an alchemist", "keepers of ..."), copy 4 the potion and poultice makers (Research, Healing) or as copy 3; copy 2's
+  task is a named master challenge (`TASKN`), the only copy whose difficulty may be a named master's.
+- **Never a `drew` condition here.** Each `drew` is one more run-time fact, and the checks walk every combination of
+  run-time facts (`vv_cie_graph.contexts`): a draft with a `drew` per profession and task (about 70) asked for 2^70
+  contexts and ran the PC out of memory. Every condition is `visited` (a fact of the path); `gen_critic.bounded`
+  refuses a `drew`, more than 32 contexts, or a file the engine cannot read (`CG_MAX_FILE`, 128 KB).
+- Content filters, no text changed: the G quotes aimed at the person ("YOU DONKEY!", "the brain of a coconut", ...)
+  are left out in Variant 2 (the owner: "avoid having the mentor mock (name1) as a person"); a proposal or a marriage
+  (K Devotion, Q) only when (name1) is 18 or older; "a (A)" and "(A)s" lines only on copies 1 and 2.
+- The credit is the owner's own line (2026-11-17), frozen as its own one-line file (`critic_credit`).
+- Lists (Pick Island Event, the library, Game Mechanics: manifest.txt's title) show the six files as "The Harshest
+  Critic (1 of 6)" ... "(6 of 6)" (`collection.list_title`, the owner 2026-11-18); the popups and the log keep the
+  event's own title, "(Name1)'s Harshest Critic".
+- Owner-approved (2026-11-18): the Variant 2 filter (the five person-insults only in Variant 1); kept exactly as
+  written: D's humiliating threats (the face posted, the "I tried" sign, the children's song), "Is this a basket or a
+  cry for help?", "Twenty children went to nap. Nineteen came back.", the deodorant and the whoopee cushion.
+- Grammar (the owner, 2026-11-18: "fix grammar mistakes"): the `critic` rows of grammar-fixes.md, grammar only.
+## 15k. Tree of Life Supplies (the owner's request of 2026-11-17)
+
+"New Events - Tree of Life Supplies (draft for owner).txt" (SUP-01..14) is a ninth group C file
+(`collection_lib.DRAFTS_C`, source id `draft_sup`, section and series `dr_sup`, SHA-256 in `DRAFT_SUP.sha256`), built by
+`scripts/drafts_c/gen_drafts_c.py` with `scripts/drafts_c/annotations/sup.txt`. Every heading ends "(VV4 only)": the row
+is The Tree of Life only (`collection_manifest.DRAFTS_C_VV4_TAG`, cut from the title, a ledger note). An "[effect: the
+village gains / loses N cutting tools / bars of soap / cloth bolts]" is the `supply` effect (cie-v6-binary.md 38); one
+bracket may hold several effects separated by "; ". Like every new added event: off by default, on in Owner's
+Defaults (the collection's rows).
+
+The existing added events whose words give or take these items (the owner's audit, the same day) keep their text and
+get the effect from `scripts/supply_effects.py` (applied by `--format`; the check refuses a listed file without it);
+the Living mixer's outcome lines from `scripts/living_bank_build.py` `SUPPLY`.
+
+## 15l. Living Culture (the owner's concepts of 2026-11-17, drafted 2026-11-18)
+
+"New Events - Living Culture I (draft for owner).txt", "... II ..." and on (LCA-, LCB-, ...; 50 events each) are group C
+files (`collection_lib.DRAFTS_C`, source ids `draft_lca`, `draft_lcb`, ...; one series each; SHA-256 in
+`DRAFT_LC*.sha256`), built by `scripts/drafts_c/gen_drafts_c.py` with `scripts/drafts_c/annotations/lc*.txt`. The owner's
+concept volumes are kept verbatim in the private VVFP-owner-files repo (`living-culture/`); each event's concepts and
+real-world inspiration are in its file's closing notes only, never in event text. The owner waived review ("I'm sure the
+draft events are fine"); every annotation's REVIEW line logs the 15-point review. Each ending may carry a
+"[Solidarity: raise|lower|neutral]" tag (the owner's planned village counter, which only changes odds): a ledger note,
+never shown, no effect yet. Effects use the general words of `gen_drafts_c._general_effect` ("small Farming skill for
+(name2)", "(name1) loses a little health", "everyone celebrates", "small tech gain", ...). Like every new added event:
+off by default, on in Owner's Defaults (the collection's rows).
+
 ## 15a. The Pick Island Event sentence
 
 `collection.description` (authoring key; it ships in each game's manifest.txt) is the one sentence Pick Island Event
@@ -600,3 +713,23 @@ remaining features:
 | `v14/vv1_v14_01_impossible.json` | A one-page Golden Child scene in a series |
 | `v17/vv1_v17_research.json` | A no-choice contest with the festival's shared setting paragraph |
 | `v9/vv4_rotten_structure.json` | Structure damage, banks as pools appended to a lead page |
+
+## 19. Story-only text and text-suggested effects (the owner, 2026-11-19)
+
+The owner: "It's okay to have story-only flavor text. Not every event needs to have an effect. As long as any effects
+an island event does have make sense for the text, it's okay." And: "in general no need to be exact".
+
+- An outcome may stay words only. When it has an effect, the effect must fit what the text says or suggests.
+- Effects added only because the text suggests them, and not because the text instructs them, are kept apart from
+  the files. They are listed in `data/event_collection/outcome_effects/` and added by `scripts/outcome_effects.py`.
+  Each one happens half the time: a silent 50/50 split of the outcome page
+  (`docs/event-collection/outcome-effects-v1.35.97/README.md`).
+- Amounts follow the stock island events' scale, sized by how big the text sounds. Use the small size only where the
+  text says little.
+- Use judgement and don't escalate borderline cases.
+
+## 20. Never shorten for length (the owner, 2026-11-19)
+
+Never drop or shorten text or effects for length. Island popups have scrollbars in all 5 games. A real engine limit is raised or worked around; the content stays.
+
+- Known real limit (2026-11-19): The Secret City, The Tree of Life and New Believers format a popup's text into the dialog's own 2,000-byte buffer (`push 0x7d0` at 0x418612 / 0x416FD0 / 0x417770, `button-probe.md`). The fit check counts 1,990 of it (`vv_cie_graph.POPUP_TEXT_MAX`, `story_graph.inc CG_TEXT_MAX`). A New Home and The Lost Children hold 9,999 (8,000 counted). Scrolling Popups scrolls that same buffer, so a longer popup needs an engine change. It is never a reason to cut content.

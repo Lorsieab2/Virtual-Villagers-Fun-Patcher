@@ -153,13 +153,39 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "The families gather afterward for a peaceful meal.",
-   "src": "L61"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
    "name": "Outcome D2",
    "text": "The friends spend less time together that evening but remain comfortable with their differences.",
+   "src": "L61"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The families gather afterward for a peaceful meal.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The families gather afterward for a peaceful meal.",
    "src": "L61"
   }
  }

@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Traveler's Lost Star",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my082_traveler_lost",
+  "source": "rewrites",
+  "lines": [
+   14628,
+   14683
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14628",
+  "ledger": [
+   {
+    "src": "L14629",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14630",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14638",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14645",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14652",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14659",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14633",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14634",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14635",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14636",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14639",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14646",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14653",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14660",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14640",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14642",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14647",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14649",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14654",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14656",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14661",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14663",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14666-14683",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everyone on Isola knows the red star; mothers point it out to their babies, fishers steer by it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Late one night, a traveler stumbles into the village, face lined from years of squinting at the sky, and grabs (name) by the sleeve. \"The red star,\" (he/she) says urgently. \"The one low over the sea. Where has it gone?\" (He/she) points at a patch of sky just above the horizon.\n(Name) looks. Everyone on Isola knows the red star; mothers point it out to their babies, fishers steer by it. And it is not there. The patch of sky where it should be is empty and black. (Name) cannot remember the last time (he/she) looked for it. The traveler is staring at (him/her), desperate for an answer. Where could a star go? What should (name) do?",
+   "choices": [
+    {
+     "label": "Study the Sky",
+     "next": "c1",
+     "src": "L14633"
+    },
+    {
+     "label": "Offer Shelter",
+     "next": "c2",
+     "src": "L14634"
+    },
+    {
+     "label": "Ask Why the Star Matters",
+     "next": "c3",
+     "src": "L14635"
+    },
+    {
+     "label": "Search the Horizon",
+     "next": "c4",
+     "src": "L14636"
+    }
+   ],
+   "src": "L14631-14632"
+  },
+  "c1o1": {
+   "text": "They watch all night, and night after night for a whole week, marking the stars with sticks in the sand. Slowly, the researchers work it out: the stars move with the seasons, rising earlier each night, and at this time of year the red star sets before it gets dark. \"It hasn't gone anywhere,\" one says, delighted. \"We just stopped looking at the right time.\" The village's understanding of the stars and seasons takes a great leap forward. The traveler stays the whole week and leaves very happy.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L14641",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They lie on the sand for an hour, seeing nothing but cloud. Then the clouds slide apart, and there it is: the red star, low and steady, exactly where the traveler pointed. The traveler laughs out loud with relief, then laughs harder, then cannot stop laughing, and soon everyone on the beach is laughing too, lying on the cold sand at midnight like a pack of fools. \"Clouds,\" the traveler wheezes. \"Just clouds.\"",
+   "src": "L14643"
+  },
+  "c1": {
+   "text": "(Name) wakes the researchers, who grumble, wrap themselves in blankets, and come out to the beach with the traveler, where they lie on their backs on the sand staring at the sky...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14639"
+  },
+  "c2o1": {
+   "text": "Over a bowl of hot broth, the traveler talks: about sailing between the islands by the stars, about reading the swell of the sea with the soles of the feet, about the birds that lead the way to land and the clouds that hang over hidden islands. (Name) is spellbound. The village fishers crowd in to listen until the fire burns down. By morning, the traveler is calm again, and sets off saying (he/she) is sure the star will be there tonight.",
+   "src": "L14648"
+  },
+  "c2o2": {
+   "text": "The traveler sits by the fire for a while, then lies down. In the morning, (he/she) is gone. On the mat lies a scrap of sailcloth with stars drawn all over it, each one marked by a tiny knot tied through the cloth. In the corner, low over a drawn line of sea, is one red knot. (Name) holds the chart up to the next night's sky. It matches every star perfectly, except the red one, which is still not there.",
+   "src": "L14650"
+  },
+  "c2": {
+   "text": "\"Whatever's happened to the star, you'll not find it tonight,\" (name) says kindly. \"Come in and rest.\" The traveler hesitates, then follows (him/her) inside to the fire...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14646"
+  },
+  "c3o1": {
+   "text": "\"Because it's the one I follow home,\" (he/she) says. \"Every time I've been lost at sea, I've found that star and followed it, and it's led me back to the one I love. If it's gone, how will I get back to (him/her)?\" (Name) sits down beside the traveler, and together they wait, and talk, until the sky turns grey. The star never appears. But when (he/she) leaves at dawn, the traveler is smiling. \"I suppose I know the way by now,\" (he/she) says.",
+   "src": "L14655"
+  },
+  "c3o2": {
+   "text": "\"My great-great-grandmother,\" the traveler says, \"promised our family that as long as the red star shone, we would never be lost. It's been shining every night for a hundred years.\" (He/she) stares at the empty sky. \"And now it isn't.\" (Name) does not know what to say. After a long while, (he/she) points out, gently, that the traveler did find a village, and a fire, and someone to talk to. The traveler thinks about that for a long time.",
+   "src": "L14657"
+  },
+  "c3": {
+   "text": "\"Forgive me,\" (name) says, \"but why does it matter so much? It's just one star.\" The traveler looks at (him/her) as though (he/she) has said something terrible, then sighs and sits down heavily on a log...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14653"
+  },
+  "c4o1": {
+   "text": "They do not find the star. But low on the horizon, far across the water, someone spots a tiny orange glow: a signal fire on a distant headland, where no one has ever seen a light before. Another settlement! The traveler is thrilled; (he/she) is sure it is a village (he/she) has been trying to find. The next morning, (he/she) borrows a canoe and paddles off toward it. A season later, a canoe from that headland arrives, carrying gifts and greetings.",
+   "src": "L14662"
+  },
+  "c4o2": {
+   "text": "They search until their eyes ache. The star does not appear. Eventually, the villagers drift off to bed, one by one, and (name) is left with the traveler, who stands silently on the hilltop, staring at the empty patch of sky. At dawn, without a word, the traveler bows to (name) and walks away down the hill toward the shore. That night, (name) looks for the red star again. It is there. It is there every night after that.",
+   "src": "L14664"
+  },
+  "c4": {
+   "text": "(Name) and the traveler climb to the highest point above the village, and a few curious villagers tag along. They stand on the hilltop in the wind, scanning the dark horizon in every direction...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14660"
+  }
+ }
+}

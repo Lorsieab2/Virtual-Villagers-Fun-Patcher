@@ -159,9 +159,16 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "(child), overwhelmed by noise, discovers a peaceful place to draw.",
-   "src": "L29479"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
@@ -189,6 +196,25 @@
    "name": "Outcome D2",
    "text": "(elder), a competitive grandparent, loses spectacularly and demands a rematch.",
    "src": "L29483"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(child), overwhelmed by noise, discovers a peaceful place to draw.",
+   "src": "L29479",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29479"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(child), overwhelmed by noise, discovers a peaceful place to draw.",
+   "src": "L29479"
   }
  }
 }

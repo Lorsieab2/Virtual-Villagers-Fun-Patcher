@@ -87,7 +87,7 @@ WORD_WHY = {
 
 
 def kinds(effects: list[dict]) -> set[str]:
-    return {cc.EFFECT_KIND.get(e["do"], e["do"]) for e in effects}
+    return set().union(*(cc.effect_kinds(e) for e in effects)) if effects else set()
 
 
 def text_only(text: str, effects: list[dict]) -> list[dict]:
@@ -268,7 +268,7 @@ def main() -> int:
     paths = []
     for p, doc in docs:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(cc.canonical(doc), encoding="utf-8", newline="\n")
+        p.write_text(cc.canonical(cc.with_outcome_effects(doc, p)), encoding="utf-8", newline="\n")
         paths.append(str(p))
     rc = subprocess.call([sys.executable, str(P.ROOT / "scripts" / "collection_check.py"), "--format", *paths])
     return rc or (1 if problems else 0)

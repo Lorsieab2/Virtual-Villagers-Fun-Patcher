@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path That Wasn't There",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b160_path_wasnt_there",
+  "source": "balance",
+  "lines": [
+   7382,
+   7426
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7382",
+  "ledger": [
+   {
+    "src": "L7383",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7384",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7392",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7401",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7389",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7390",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7393",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7402",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7395",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7398",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7404",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7407",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7410-7426",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have walked the same path to the far gardens every morning for years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have walked the same path to the far gardens every morning for years. This morning, halfway there, there is a second path. It branches off to the left, between two trees that were not that close together yesterday. It is paved with flat white stones, perfectly clean, without a single leaf on them, and it smells of flowers neither of them has ever smelled before.\nAt the far end, where it bends out of sight, someone is singing. The tune is very old. (subject)'s grandmother used to say that when the island wants someone, it opens a path for them.\nShould they follow the white path, or keep to the old one?",
+   "choices": [
+    {
+     "label": "Follow the White Path",
+     "next": "c1",
+     "src": "L7389"
+    },
+    {
+     "label": "Keep to the Old Path",
+     "next": "c2",
+     "src": "L7390"
+    }
+   ],
+   "src": "L7385-7387"
+  },
+  "c1o1": {
+   "text": "At the bend, (subject) stops. Something tells (subject.him/her) to go no further. But (friend) keeps walking, smiling, as if (friend.he/she) has heard someone calling (friend.his/her) name. (subject) calls after (friend.him/her) and gets no answer. When (subject) looks down again, (subject.he/she) is standing on the old path, alone, and there are only two trees, the usual distance apart.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L7396",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They walk on together, round the bend, and they don't come back. The gardeners find their baskets that evening, set down neatly side by side on the old path between two trees, the usual distance apart. The village looks for days. On still mornings, anyone who walks to the far gardens early enough can sometimes hear singing off to the left, and sometimes there are two voices with it.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    },
+    {
+     "do": "vanish",
+     "role": "friend",
+     "line": "leaves"
+    }
+   ],
+   "src": "L7399",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They step onto the white stones together. They're warm under their feet, like stones that have been in the sun all day, though the sun has only just come up. The singing gets louder as they walk, and the trees close in overhead...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7393"
+  },
+  "c2o1": {
+   "text": "At the far gardens, every plant has burst into flower overnight, in colours nobody has seen before, smelling exactly like the white path. (subject) and (friend) work all day among them in silence. On the way home, the second path is gone. The flowers last a week, then turn into perfectly ordinary beans.",
+   "src": "L7405"
+  },
+  "c2o2": {
+   "text": "On the way home, the white path is still there. (friend) stops in front of it. \"It's waiting for me,\" (friend.he/she) says, quietly. (subject) holds on to (friend.his/her) arm, but (friend) gently takes it back. \"It's all right,\" (friend.he/she) says. \"Tell them I wasn't scared.\" Then (friend.he/she) steps onto the white stones, and walks round the bend, and is gone.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L7408",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"No,\" says (subject), firmly, and takes (friend)'s arm. \"Gardens.\" They walk on, not looking left. The singing follows them for a while, and then, slowly, stops...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7402"
+  }
+ }
+}

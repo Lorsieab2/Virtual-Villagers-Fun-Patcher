@@ -16,12 +16,12 @@ def reward_words(game: int) -> str:
 
 
 # Every event's way in (collection_design.md C2): never a share of the stock draw.
-RARE = ("it never takes a share of the game's own draw: it comes through Story / Cheat Upgrades' separate rare "
-        "roll or Pick Island Event")
+RARE = ("it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat "
+        "Upgrades: 30-50% of the natural events) or through Pick Island Event")
 
 CAVE_DESCRIPTION = (
     " And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 "
-    "years apart, wonder what the cave hides. \"Don't explore\" changes nothing; \"Explore the Cave\" leads on: "
+    "years apart, wonder what the cave hides. \"Don't Explore\" changes nothing; \"Explore the Cave\" leads on: "
     "\"Proceed Further\" brings a scream in the dark (they run, then argue, make up, or both fall down a chasm and are "
     "gone for good, 1 in 10) or a find (a map that takes both away for good, 1 in 10; gold coins: tech points; a "
     "treasure map: three times as many; preserved food: twice the food); \"Stay Here\" lets them return what they "
@@ -31,7 +31,7 @@ CAVE_DESCRIPTION = (
     + "), scaled as the Aspiring Adventurer's is.")
 CAVE_BEHAVIOUR = (
     "The Cave Explorers (A New Home): one more encounter like The Aspiring Adventurer (never a share of the stock "
-    "draw: taken only while due, through Story / Cheat Upgrades' rare roll or Pick Island Event), only while The "
+    "draw: taken only while due, through Story / Cheat Upgrades' natural-event replacement or Pick Island Event), only while The "
     "Cave puzzle is done (world byte +0x9FA8) and two villagers who may go on The Aspiring Adventurer are 18 or more (360 age units) and at most 5 years (100 age units) apart; the pair is drawn among those "
     "ordered pairs. Three questions in the encounter dialog: the answers are given new words (the constructor's own "
     "text setter 0x4015A0) and centred again (the buttons' own size and move). Explore -> Proceed Further: 50% A (10% "
@@ -44,20 +44,20 @@ CAVE_BEHAVIOUR = (
 
 CLIMB_DESCRIPTION = (
     " And The Climb (The Lost Children only): a villager of 18 or more who is at least a Trainee in Research (20 or "
-    "more) wants to climb the Great Falls. \"Go with the plan\": half the time they fall and die (a grave); half "
+    "more) wants to climb the Great Falls. \"Go with the Plan\": half the time they fall and die (a grave); half "
     "the time they reach the top -- their Research becomes the game's maximum (100), the village gains a large tech "
     "award (twice a normal one: " + adv.award_words(2, "tech", "large") + ", then the game's own factor) and "
-    "everyone celebrates. \"Follow the scientists' advice\": +10 to 20 Research (at most 100). One villager who "
+    "everyone celebrates. \"Follow the Scientists' Advice\": +10 to 20 Research (at most 100). One villager who "
     "may go is enough; it comes as one of the two-choice events, never taking a share of their draw.")
 CLIMB_BEHAVIOUR = (
     "The Climb (The Lost Children): its own number in family A's draw, 22 (The Aspiring Adventurer 21), taken only "
-    "while it is due (Story / Cheat Upgrades' rare roll or Pick Island Event: the draw's first answer then; the stock "
+    "while it is due (Story / Cheat Upgrades' natural-event replacement or Pick Island Event: the draw's first answer then; the stock "
     "rand(22) otherwise, untouched) and only while a villager who may go on The "
     "Aspiring Adventurer is 18 or more (360 age units) with Research +0x7F4 of 20 or more (the game's own \"Trainee\" "
-    "level, 0x429C3D); the villager is drawn among them. \"Go with the plan\": 50% the fall (health 0: a body and a "
+    "level, 0x429C3D); the villager is drawn among them. \"Go with the Plan\": 50% the fall (health 0: a body and a "
     "grave), 50% the summit (Research set to the game's cap 100, 0x4212F4; a large tech award, twice a normal one, "
     "through the family-A tech writer 0x426290 after the two-choice factor 0x41F720; the game's own village "
-    "celebration 0x45D7D0 with Old Friends' place 0x18). \"Follow the scientists' advice\": +10 to 20 Research, at "
+    "celebration 0x45D7D0 with Old Friends' place 0x18). \"Follow the Scientists' Advice\": +10 to 20 Research, at "
     "most 100. The effects wait for their own page: they are made when the page that ends the ending's text is "
     "shown, and the event writes its own one Island Events log entry (VvfpIslandEventsGraphBegin / End / Write).")
 
@@ -79,7 +79,7 @@ TROUBLING_BEHAVIOUR = (
     "Children's 0x425860 rule: the living villagers plus the babies carried, litter +0xE90) and the tribe's name (the "
     "game object [0x4B309C] +0x12ED4). It shares table slot 0 with The Aspiring Adventurer and Diving for Treasure "
     "and never takes a share of the draw: the loop-end stub adds no entry to the selector's list and puts the object "
-    "of the event that is due (Story / Cheat Upgrades' rare roll or Pick Island Event) in slot 0, which Story / Cheat "
+    "of the event that is due (Story / Cheat Upgrades' natural-event replacement or Pick Island Event) in slot 0, which Story / Cheat "
     "Upgrades' pick then presents in place of the stock event drawn. "
     "The popup is the game's own dialog 0x4192F0 with two more answer buttons made as its constructor makes its two "
     "(0x46EC93, picture 4 via 0x42E9D0 / 0x42E8A0, 0x4019F0 ids 4 and 5, labels 0x4185A0 / 0x401620, add-child "
@@ -92,11 +92,11 @@ TROUBLING_BEHAVIOUR = (
     "site of its own.")
 DIVE_DESCRIPTION = (
     " And Diving for Treasure (The Secret City only): a villager of 18 or more dives for something shimmering on the "
-    "reef. \"Swim deeper\": 1 in 4 each, golden doubloons (tech points), a useless buoy, a container of exotic "
+    "reef. \"Swim Deeper\": 1 in 4 each, golden doubloons (tech points), a useless buoy, a container of exotic "
     "ingredients (food) -- a random amount as the Aspiring Adventurer's, " + adv.award_words(3, "tech") + " or "
     + adv.award_words(3, "food") + ", times the game's own multiplier -- or an air tank pops: 75% the diver gets "
     "ashore and now dislikes swimming; 25% the diver sinks: dies (17%, a grave), is never found (17%, no grave) or "
-    "is rescued (66%, +10 to 20 Healing, at most 100). \"Better not\": +10 to 20 Parenting, at most 100. It needs two "
+    "is rescued (66%, +10 to 20 Healing, at most 100). \"Better Not\": +10 to 20 Parenting, at most 100. It needs two "
     "villagers of 18 or more who are not nursing a baby and not the Tribal Chief (the diver, and another named as the "
     "head Doctor on the rescue page); " + RARE + ".")
 DIVE_BEHAVIOUR = (
@@ -109,15 +109,15 @@ DIVE_BEHAVIOUR = (
     "0x97488) taken from the likes +0xFB4 and added to the dislikes +0xFC0 -- else sinks: rand(100) < 17 the game's "
     "own death (0x462670, health 0, cause -1: a grave), < 34 removed as a living villager is (no body; told to Cause "
     "of Death), else +10 to 20 Healing (+0xEB4); A a normal tech award, C a normal food award (the game's range, then "
-    "its multiplier, through 0x427130 / 0x4263F0). \"Better not\": +10 to 20 Parenting (+0xEB0). Skills at most 100 "
+    "its multiplier, through 0x427130 / 0x4263F0). \"Better Not\": +10 to 20 Parenting (+0xEB0). Skills at most 100 "
     "(the game's own adder 0x455740 caps at 0x64). The effects are made when the ending's last page is shown, with "
     "the event's one Island Events log entry. No site of its own.")
 DOLPHIN_DESCRIPTION = (
     " And The Playful Dolphins (The Tree of Life only): a villager of 14 or more, swimming underwater, spots a pod of "
-    "dolphins. \"Swim towards the dolphins\": half the time the swimmer watches them hunt -- Farming becomes 100 (the "
+    "dolphins. \"Swim Towards the Dolphins\": half the time the swimmer watches them hunt -- Farming becomes 100 (the "
     "game's maximum) and the village gains a large food award (twice a normal one: "
     + f"{2 * adv.award_range(4, 'food')[0]:,}" + " food before the scaling); half the time a tail slaps the swimmer, "
-    "who loses 30 to 50 health but never dies of it (at least 1 is left). \"Hang back\": a small food award (half a "
+    "who loses 30 to 50 health but never dies of it (at least 1 is left). \"Hang Back\": a small food award (half a "
     "normal one: " + f"{adv.award_range(4, 'food')[0] // 2:,}" + " food before the scaling). It needs two villagers of 14 or more who are not "
     "nursing a baby and not a body or a ghost; it needs no puzzle (not the Fishing Nets); " + RARE + ".")
 DOLPHIN_BEHAVIOUR = (
@@ -126,16 +126,16 @@ DOLPHIN_BEHAVIOUR = (
     "among them; it can happen while two such villagers live, with no puzzle (not the Fishing Nets). One more "
     "two-choice object with the Adventurer's virtual table and methods (adv_flow), put in slot 0 only while it is due "
     "(t_list adds no entry). "
-    "\"Swim towards the dolphins\": rand(100) < 50 the hunt -- Farming (float +0x1C5C) +200 capped at 100.0, as the "
+    "\"Swim Towards the Dolphins\": rand(100) < 50 the hunt -- Farming (float +0x1C5C) +200 capped at 100.0, as the "
     "game's own skill adder 0x46AD80 caps (the double 100.0 at 0x48A7C0) -- and a large food award (the game's range "
     "x 2, then Island Events Scale, through 0x41D920), else the tail slap: health (+0x1C40, 0..100, in the block "
     "+0x1C34) minus 30 to 50, never below 1, through the game's own setter 0x46AF00 (value, cause -1: never its death "
-    "path). \"Hang back\": a small food award (the range x 1 / 2, then Island Events Scale). The effects are made "
+    "path). \"Hang Back\": a small food award (the range x 1 / 2, then Island Events Scale). The effects are made "
     "when the ending's last page is shown, with the event's one Island Events log entry. No site of its own.")
 MASK_DESCRIPTION = (
     " And The Mysterious Mask (The Tree of Life only): a group of 2 to 4 children under 14 finds a strange carved mask "
-    "at the edge of the forest, and the player picks one of four answers: \"Wait for their parents to come\" or \"Cry "
-    "for help\" (the children are safe), \"Walk towards the clearing\" or \"Walk towards the forest\" (the same odds: "
+    "at the edge of the forest, and the player picks one of four answers: \"Wait for Their Parents to Come\" or \"Cry "
+    "for help\" (the children are safe), \"Walk Towards the Clearing\" or \"Walk Towards the Forest\" (the same odds: "
     "home safe 50%, else lost -- then rescued 75% or captured 25%, when every child of the group is gone for good, no "
     "graves). The elders' speech tells what happened, and in every ending five volunteers of 18 or more leave on an "
     "expedition for good (no graves). It needs a population of 61 or more (the living plus the babies carried), two "
@@ -339,28 +339,28 @@ SCALE = {
        "that patch scales the game's own events",
 }
 HOW = {
-    1: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it; it comes as one of the villager encounters, never the "
+    1: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it; it comes as one of the villager encounters, never the "
        "village's first island event",
-    2: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it; it comes as one of the two-choice island events, never "
+    2: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it; it comes as one of the two-choice island events, never "
        "the village's first island event",
-    3: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it",
-    4: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it",
-    5: "rare and separate: it never takes a share of the game's own draw (the stock island events' chances never "
-       "change); after a natural island event, Story / Cheat Upgrades' separate rare roll may bring one of these "
-       "events (or an Isola Grand Event Collection event) between two natural ones, never in trouble and never in "
-       "place of a rescue, and Pick Island Event can pick it",
+    3: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it",
+    4: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it",
+    5: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
+       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
+       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
+       "can pick it",
 }
 
 
@@ -371,12 +371,12 @@ def description(game: int) -> str:
         "Adds new island events, written by the owner, beside the game's own (more come in later versions). "
         + ("Four here: " if game in (1, 2) else "Five here: " if game in (3, 4) else "Three here: ")
         + "The Aspiring Adventurer -- a villager who loves to explore sees something glinting off the "
-        "safe path. \"Go investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
+        "safe path. \"Go Investigate!\" finds a pile of dirt, a stack of meat (food) or a golden chest of "
         "artifacts (tech points); half the time the adventurer gets home (with the find, or with a friend's "
         "help), half the time a trap leads to death (a grave) or a disappearance (no grave). \"Stay on the safe "
         "path\" brings them home 9 times in 10; otherwise they are lost: hurt, healed or disabled, a skilled "
         "survivalist, killed, gone, or they " + ("become a Heathen" if game == 5 else "join another tribe")
-        + ". The event is " + HOW[game] + "; it needs two villagers of 14 or more who are not nursing a baby and not "
+        + ". " + HOW[game] + "; it needs two villagers of 14 or more who are not nursing a baby and not "
         + WHO_NOT[game] + ", and the adventurer and the friend who may come to help are drawn from them. The "
         "reward is a random amount from the smallest to the largest food or tech-point gain of the game's own island "
         "events (" + reward_words(game) + ")" + ("; " if game in (1, 4, 5) else " ") + SCALE[game]
@@ -388,7 +388,7 @@ def description(game: int) -> str:
            if game == 3 else DOLPHIN_DESCRIPTION + MASK_DESCRIPTION if game == 4 else "")
         + ceremony_description(game) + " Pick Island Event lists each of these events and picks one whenever its own "
         "requirements hold (otherwise it says what the event needs). " + classic
-        + " **Needs Story / Cheat Upgrades (on by default), which runs the rare roll and Pick Island Event; ticking "
+        + " **Needs Story / Cheat Upgrades (on by default), which runs these events and Pick Island Event; ticking "
         "this ticks it.** "
         "**Unverified in play: the event has not been seen in a running game** (emulated on the stock executable). "
         "The companion is \"" + DLL_NAME + "\", started by VVFP Startup.dll; nothing is saved by it."
@@ -407,15 +407,15 @@ def row(game: int, sha: str) -> dict:
         "output_tag": "Aspiring Adventurer",
         "dependencies": [f"vv{game}_story_cheat_upgrades"],
         "behavior_changes": [
-            f"The event is {HOW[game]}. It can happen only while at least two villagers may go: 14 or more (280 age "
+            f"{HOW[game]}. It can happen only while at least two villagers may go: 14 or more (280 age "
             f"units), alive and present, not carrying a baby, and not {WHO_NOT[game]}; the adventurer and the friend "
             "of ending A8 are drawn from them, the friend never the adventurer.",
-            "Choice A, \"Go investigate!\": the find 50% a pile of dirt, 25% meat (a food award: "
+            "Choice A, \"Go Investigate!\": the find 50% a pile of dirt, 25% meat (a food award: "
             + adv.award_words(game, "food") + "), 25% a golden chest (a tech award: " + adv.award_words(game, "tech")
             + "); then 50% a surviving ending (after the dirt A7 or A9; after a find A1, A5 or A8, "
             "which give the reward) and 50% a deadly one (A2 and A4 die, the game's own death with cause -1 and a "
             "grave; A3 and A6 disappear, no body), each equally likely within its half.",
-            "Choice B, \"Stay on the safe path\": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 "
+            "Choice B, \"Stay on the Safe Path\": 90% home safe; 10% lost, then 1 in 6 each: the healers (1 in 3 "
             "each: dies; a full recovery; health set to 10-50 and running disliked), " + JOINS[game]
             + ", a survivalist (+20 to 30 in Farming, Building, Research or Healing, at most 100), dies under a "
             "fallen tree, dies at the bottom of a cliff, disappears.",

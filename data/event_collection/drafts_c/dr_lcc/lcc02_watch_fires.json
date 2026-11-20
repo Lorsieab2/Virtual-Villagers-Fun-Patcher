@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Watch Fires",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc02_watch_fires",
+  "source": "draft_lcc",
+  "lines": [
+   22,
+   33
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L22",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a teen)"
+   },
+   {
+    "src": "L29",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L29",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village builds watch fires on the headlands, and a teen wants to keep one: let them, or keep the watch to adults.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 16,
+   "max_age": 16
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Since the raiders' canoes were seen, the village keeps fires ready on both headlands, to be lit if danger comes. (friend) has asked (subject), who runs the watch, to let (friend.him/her) keep the north fire one night a week. (friend.He/she) is sharp-eyed and steady. (friend.He/she) is also only sixteen. What should (subject) do?",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Let (friend) Keep Watch",
+     "next": "o1",
+     "src": "L27"
+    },
+    {
+     "label": "Keep the Watch to Adults",
+     "next": "o2",
+     "src": "L31"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gives (friend) the north fire on calm nights, with an adult in calling distance. (friend) takes it very seriously, and on the third night spots a canoe that turns out to be two lost fishers from the next bay. (friend.He/she) guides them in with the fire. (subject) is very proud.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says the watch is for grown warriors, and (friend) must wait two years. (friend) is furious. Instead, (friend.he/she) spends every evening learning the signal calls, and by the time (friend.he/she) is eighteen, (friend.he/she) knows them better than anyone.",
+   "src": "L33"
+  }
+ }
+}

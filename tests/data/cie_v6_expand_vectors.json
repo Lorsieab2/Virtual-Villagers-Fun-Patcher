@@ -268,11 +268,11 @@
     "aliases": {},
     "popups": [
      "Two skilled gardeners have developed different plans for a small community garden near the village. Ana favors a mixture of familiar plants and experimental varieties, while Bo favors a winding garden with shaded places to sit.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
-     "A child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
+     "garden.\nA child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
     ],
     "titles": [
      "The Gardening Contest",
-     "The Gardening Contest"
+     "Combine the best features into one shared"
     ],
     "labels": [
      [
@@ -551,11 +551,11 @@
     "aliases": {},
     "popups": [
      "Two skilled gardeners have developed different plans for a small community garden near the village. Kai favors a traditional layout remembered by the elders, while Lea favors neat rows with carefully labeled plants.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
-     "The gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
+     "the plan.\nThe gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
     ],
     "titles": [
      "The Gardening Contest",
-     "The Gardening Contest"
+     "Give each gardener a small plot to demonstrate"
     ],
     "labels": [
      [
@@ -919,7 +919,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Trade with the elders"
     ],
     "labels": [
      [
@@ -1285,7 +1285,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Trade with the elders"
     ],
     "labels": [
      [
@@ -1632,7 +1632,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Keep it"
     ],
     "labels": [
      [
@@ -1993,7 +1993,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Sell it"
     ],
     "labels": [
      [
@@ -2336,7 +2336,7 @@
     "titles": [
      "The Market Day",
      "The Market Day",
-     "The Market Day"
+     "Ask the Chief"
     ],
     "labels": [
      [
@@ -2725,7 +2725,7 @@
     "titles": [
      "The \"Twin\" Cooks",
      "The \"Twin\" Cooks",
-     "The \"Twin\" Cooks"
+     "One"
     ],
     "labels": [
      [
@@ -2958,7 +2958,7 @@
     "titles": [
      "The \"Twin\" Cooks",
      "The \"Twin\" Cooks",
-     "The \"Twin\" Cooks"
+     "One"
     ],
     "labels": [
      [
@@ -3052,7 +3052,7 @@
     ],
     "titles": [
      "The Village Idiot and the Impossible Invention",
-     "The Village Idiot and the Impossible Invention"
+     "Tell Her To Stop Before Anyone Is Hurt."
     ],
     "labels": [
      [
@@ -3166,7 +3166,7 @@
     "titles": [
      "A Stranger on the Sand",
      "A Stranger on the Sand",
-     "A Stranger on the Sand"
+     "Send for help"
     ],
     "labels": [
      [
@@ -3506,11 +3506,11 @@
     "aliases": {},
     "popups": [
      "Rosalind and Bartholomew look out to sea.",
-     "They sail at dawn."
+     "Dawn\nThey sail at dawn."
     ],
     "titles": [
      "The Far Reef",
-     "The Far Reef"
+     "Tell Her And He To Sail Out To The Far Reef At"
     ],
     "labels": [
      [
@@ -3598,7 +3598,7 @@
     ],
     "titles": [
      "The Far Reef",
-     "The Far Reef"
+     "Keep Rosalind home"
     ],
     "labels": [
      [
@@ -4587,7 +4587,7 @@
     "titles": [
      "The Visitor",
      "The Visitor",
-     "The Visitor"
+     "Share a meal with Aipi"
     ],
     "labels": [
      [
@@ -4688,7 +4688,7 @@
     "titles": [
      "The Visitor",
      "The Visitor",
-     "The Visitor"
+     "Send her away"
     ],
     "labels": [
      [
@@ -5926,7 +5926,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes laundry.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+     "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes laundry.\nAna now dislikes work.\nAna gains 8 Research skill.\nAna loses 8 Healing skill.\nBy noon it has passed.\nAna celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6085,7 +6085,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo wakes up feeling odd.\nBo's hair changes color.\nBo now likes dirt.\nBo now dislikes work.\nBo learns more about Farming.\nBo feels less sure of his Healing.\nBy noon it has passed.\nBo is in a good mood.\nThe village gains food."
+     "Bo wakes up feeling odd.\nBo's head changes.\nBo now likes dirt.\nBo now dislikes work.\nBo gains 10 Farming skill.\nBo loses 10 Healing skill.\nBy noon it has passed.\nBo celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6249,7 +6249,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes turnips.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+     "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes turnips.\nAna now dislikes work.\nAna gains 5 Research skill.\nAna loses 5 Healing skill.\nBy noon it has passed.\nAna celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6413,7 +6413,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo wakes up feeling odd.\nBo's hair changes color.\nBo now likes turnips.\nBo now dislikes work.\nBo learns more about Farming.\nBo feels less sure of his Healing.\nBy noon it has passed.\nBo is in a good mood.\nThe village gains food."
+     "Bo wakes up feeling odd.\nBo's head changes.\nBo now likes turnips.\nBo now dislikes work.\nBo gains 7 Farming skill.\nBo loses 9 Healing skill.\nBy noon it has passed.\nBo celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"
@@ -6489,7 +6489,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+     "Ana has been coughing for days.\nAna looks older.\nAna now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6565,7 +6565,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+     "Bo has been coughing for days.\nBo looks older.\nBo now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6641,7 +6641,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+     "Ana has been coughing for days.\nAna looks older.\nAna now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6717,7 +6717,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo has been coughing for days.\nBo looks older and more worn.\nBo now dislikes running."
+     "Bo has been coughing for days.\nBo looks older.\nBo now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6793,7 +6793,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana has been coughing for days.\nAna looks older and more worn.\nAna now dislikes running."
+     "Ana has been coughing for days.\nAna looks older.\nAna now dislikes running."
     ],
     "titles": [
      "The Long Cough"
@@ -6952,7 +6952,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana wakes up feeling odd.\nAna's hair changes color.\nAna now likes dancing.\nAna now dislikes work.\nAna learns more about Research.\nAna feels less sure of her Healing.\nBy noon it has passed.\nAna is in a good mood.\nThe village gains food."
+     "Ana wakes up feeling odd.\nAna's head changes.\nAna now likes dancing.\nAna now dislikes work.\nAna gains 9 Research skill.\nAna loses 7 Healing skill.\nBy noon it has passed.\nAna celebrates.\nThe village gains 40 food."
     ],
     "titles": [
      "The Odd Morning"

@@ -32,14 +32,15 @@ matching docs/hidden-gates-all-five-games.md (Research sections) and src/vv_game
   * The fire: 1 more on rand(100) < 10 while it burns, in VV2 (0x4637C5..0x463809: its end, a real moment, later
     than the clock 0x403200), VV3 (0x459410..0x459435), VV4 (0x464E87..0x464EAB) and VV5 (0x46DE7C..0x46DEA0); none
     of these tests the catch-up flag.  VV1 has no bonus.
-  * Not counted (each lasts real-life minutes or needs a villager the save does not name): VV3's potion "scientific
-    clarity" (+1, 0x4593F2) and the Tribal Chief's supervision (0x4593AF); VV4's Purify Tree glow (x 3, 0x464E46).
+  * Outside the times, each given with its value on the page (each lasts real-life minutes or needs a villager the
+    save does not name): VV3's potion "scientific clarity" (+1, 0x4593F2) and the Tribal Chief's supervision
+    (0x4593AF); VV4's Purify Tree glow (x 3, 0x464E46).
   * Difficulty: none of the code above reads it (VV1 state +0xA30C, VV2 +0x2EAEC, VV3 +0x12F08, VV4 +0x170F4, VV5
     +0x17D54 appear nowhere in the chooser, the skill test, the payout or the tech adders VV1 0x41D120, VV2
     0x426290, VV3 0x427130, VV4 0x41E300, VV5 0x4237B0), and the prices are fixed tables (VV1 0x435AF8, VV2
     0x44380A, VV3 0x427020, VV4 0x41E220, VV5 0x4236D0).
-  * The patcher's 2-10x Tech Cost (vv<N>_tech_cost_multiplier, off by default; scripts/build_tech_cost_multiplier_features.py)
-    multiplies every price in those places by the player's whole number 2 to 10, so the Tech screen, its refusal and
+  * The patcher's 0.1-10x Tech Cost (vv<N>_tech_cost_multiplier, off by default; scripts/build_tech_cost_multiplier_features.py)
+    multiplies every price in those places by the player's number 0.1 to 10 (a whole tech point, never below 1), so the Tech screen, its refusal and
     its charge all use N x the table here.  N is read back from the game's executable (its first price site, divided
     by the stock price there; read_multiplier): with it in the game every price and time below is worked out from
     the multiplied price, the stock one named first.
@@ -56,7 +57,9 @@ RESEARCH_SHOWN = 50            # the Research skill the page's figures are for (
 TOP = 3                        # every technology's top level
 FIRE = 0.1                     # the fire's +1 on rand(100) < 10
 WORK_AGE = 280                 # age units (14 years): who gets job turns
-MULTIPLIERS = range(2, 11)     # 2-10x Tech Cost: every technology level costs N x its stock price, N 2 to 10
+# 0.1-10x Tech Cost: every technology level costs N x its stock price, N 0.1 to 10 in tenths (the owner, 2026-11-17:
+# every slider goes less as well as more), each price rounded to a whole tech point, never below 1.
+MULTIPLIER_TENTHS = range(1, 1001)
 
 
 def multiplier_feature(game: int) -> str:
@@ -121,7 +124,7 @@ def difficulty_line(game: int) -> str:
     # Believers 0x46A3C0, 0x46B270, 0x46DB7B, 0x4237B0, prices 0x4236D0.
     return ("Difficulty (Easy, Medium or Hard) changes none of these times: the job choice, the Research test, the "
             "payout and the adding of the points never read it, and the prices are fixed (the game's price table; x N "
-            "with \"2-10x Tech Cost\"). It changes how much the villagers eat (Food estimates).")
+            "with \"0.1-10x Tech Cost\"). It changes how much the villagers eat (Food estimates).")
 
 
 # The job turn's low-food test: The Secret City 0x45BF00, The Tree of Life 0x465750, New Believers 0x46E985.
@@ -176,15 +179,24 @@ def stock_price(game: int, name: str, level: int) -> int:
     return next(two if level == 2 else three for _, n, two, three in items.TECHS if n == name)
 
 
-def price(game: int, name: str, level: int, factor: int = 1) -> int:
-    """The tech points level `level` of `name` costs: `factor` x the stock price (2-10x Tech Cost's multiplier)."""
-    return stock_price(game, name, level) * factor
+def scaled_price(stock: int, factor) -> int:
+    """A stock price at x `factor` as the patcher writes it (vv_fun_patcher.tech_cost_price): rounded to a whole tech
+    point, halves up, never below 1."""
+    if isinstance(factor, int):
+        return stock * factor
+    return max(1, (stock * round(factor * 10) + 5) // 10)
 
 
-def multiplier_in_bytes(game: int, data: bytes) -> int | None:
-    """The 2-10x Tech Cost multiplier an executable's bytes hold: k when every one of the row's price sites
-    (data/vv<N>_tech_cost_multiplier_feature.json) holds its stock value x k, for one whole k from 2 to 10;
-    otherwise None (the row is not in these bytes, or they are not one consistent build)."""
+def price(game: int, name: str, level: int, factor=1) -> int:
+    """The tech points level `level` of `name` costs: `factor` x the stock price (0.1-10x Tech Cost's multiplier)."""
+    return scaled_price(stock_price(game, name, level), factor)
+
+
+def multiplier_in_bytes(game: int, data: bytes) -> int | float | None:
+    """The 0.1-10x Tech Cost multiplier an executable's bytes hold: k when every one of the row's price sites
+    (data/vv<N>_tech_cost_multiplier_feature.json) holds its stock value x k as the patcher writes it (scaled_price),
+    for one k from 0.1 to 10 in tenths (an int when whole); otherwise None (the row is not in these bytes, or they
+    are not one consistent build)."""
     import json
     from pathlib import Path
     try:
@@ -197,14 +209,18 @@ def multiplier_in_bytes(game: int, data: bytes) -> int | None:
         return None
     if not values or any(stock <= 0 for _, stock in values):
         return None
-    factors = {value // stock if value % stock == 0 else 0 for value, stock in values}
-    if len(factors) != 1 or next(iter(factors)) not in MULTIPLIERS:
+    value, stock = max(values, key=lambda pair: pair[1])
+    tenths = round(value * 10 / stock)
+    if tenths not in MULTIPLIER_TENTHS:
         return None
-    return next(iter(factors))
+    factor = tenths // 10 if tenths % 10 == 0 else tenths / 10
+    if any(scaled_price(stock, factor) != value for value, stock in values):
+        return None
+    return factor
 
 
-def read_multiplier(village) -> int | None:
-    """2-10x Tech Cost's multiplier in the game's executable (multiplier_in_bytes).  None when the row is not known
+def read_multiplier(village) -> int | float | None:
+    """0.1-10x Tech Cost's multiplier in the game's executable (multiplier_in_bytes).  None when the row is not known
     to be in the game, or the executable is not found or cannot be read or holds no consistent multiplier."""
     game = village.game
     exe = getattr(village, "exe", None)
@@ -222,12 +238,13 @@ def patcher_line(village) -> str:
     or not known."""
     game = village.game
     name = gm.feature_name(multiplier_feature(game))
-    head = (f"With the patcher (\"{name}\", off by default): every technology level costs 2 to 10 times its normal "
-            "price, the whole number the player picks on the patcher window's slider (3 unless moved); the Tech "
-            "screen shows the multiplied price, refuses a purchase with fewer points and takes exactly that many.")
+    head = (f"With the patcher (\"{name}\", off by default): every technology level costs 0.1 to 10 times its "
+            "normal price, the number the player picks on the patcher window's slider (3 unless moved; 1 is the normal "
+            "price, below 1 cheaper, each price a whole tech point and never below 1); the Tech screen shows that "
+            "price, refuses a purchase with fewer points and takes exactly that many.")
     has = village.has(multiplier_feature(game))
     if has is None:
-        return head + " Whether the game has it could not be told."
+        return head + f" Whether the game has it could not be told: {gm.BROWSE_HINT}."
     if has is False:
         return head + " It is not in this game."
     factor = read_multiplier(village)
@@ -251,9 +268,9 @@ def every_level(game: int) -> list[tuple[str, int]]:
     return [(name, level) for name in names for level in range(lowest.get(name, 2), TOP + 1)]
 
 
-def cost_words(game: int, points: int, stock: int, factor: int) -> str:
-    """A price as the page says it: with 2-10x Tech Cost in the game (factor 2 to 10), the stock price first, then
-    the multiplied one."""
+def cost_words(game: int, points: int, stock: int, factor) -> str:
+    """A price as the page says it: with 0.1-10x Tech Cost in the game (factor 0.1 to 10, not 1), the stock price
+    first, then the multiplied one."""
     if factor == 1:
         return f"{points:,} tech points"
     return (f"{stock:,} tech points normally, {points:,} with \"{gm.feature_name(multiplier_feature(game))}\" "
@@ -261,14 +278,14 @@ def cost_words(game: int, points: int, stock: int, factor: int) -> str:
 
 
 def unread_words(game: int, stock: int) -> str:
-    """A price when 2-10x Tech Cost is in the game but its multiplier could not be read."""
-    return (f"{stock:,} tech points normally, {MULTIPLIERS[0] * stock:,} to {MULTIPLIERS[-1] * stock:,} with "
+    """A price when 0.1-10x Tech Cost is in the game but its multiplier could not be read."""
+    return (f"{stock:,} tech points normally, {scaled_price(stock, 0.1):,} to {scaled_price(stock, 10):,} with "
             f"\"{gm.feature_name(multiplier_feature(game))}\" (its multiplier could not be read from the game's "
             "executable)")
 
 
 def multiplied_item_facts(village, facts: list) -> list:
-    """The Technologies entries with 2-10x Tech Cost in the game: each level's price is the stock one, then the
+    """The Technologies entries with 0.1-10x Tech Cost in the game: each level's price is the stock one, then the
     multiplied one.  Every game's entry bullet starts "<technology> level <n>" and names its price "<price> tech
     points" (tests/test_tech_cost_multiplier.py checks that every level is found)."""
     game = village.game
@@ -292,7 +309,8 @@ def multiplied_item_facts(village, facts: list) -> list:
                 continue
             out[k] = dataclasses.replace(fact, text=fact.text.replace(
                 f"{stock:,} tech points",
-                cost_words(game, factor * stock, stock, factor) if factor else unread_words(game, stock), 1))
+                cost_words(game, scaled_price(stock, factor), stock, factor) if factor else unread_words(game, stock),
+                1))
             break
     return out
 
@@ -308,6 +326,25 @@ def buyable(game: int, levels: dict[str, int], both_factions: bool = False) -> l
         elif levels.get("Magic", 0) > 0:
             out = [n for n in out if n != "Nature"]
     return out
+
+
+# Where a save keeps the Origins Tech Point Doubler's ownership, as (file offset, the bit that marks it):
+#   A New Home: state +0x9E90, a whole dword (native/vv1_origins_icons VV_DOUBLER_TECH_OFFSET; file = state + 4);
+#   The Lost Children: state +0x2EAE8 bit 1 (scripts/build_vv2_origins_feature.py do_tech_doubler; file = state + 4);
+#   The Secret City, The Tree of Life, New Believers: bit 1 of the live statistics block's +0x30 (VV3 0x5824D0, VV4
+#   0x4D6E10, VV5 0x51D388), which the game saves and loads with the block (VV3 0x4264A0 / 0x426480 copy its 0x98
+#   bytes to and from manager +0x4EC), so file = the block's file offset (counts.SAVE_ROWS bases 0x4F0, 0x860,
+#   0x7C4) + 0x30.  The builders' "not in the save" notes for VV3/VV4 predate that reading.
+DOUBLER_TECH_AT = {1: (0x9E90 + 4, 0xFFFFFFFF), 2: (0x2EAE8 + 4, 1), 3: (0x4F0 + 0x30, 1), 4: (0x860 + 0x30, 1),
+                   5: (0x7C4 + 0x30, 1)}
+
+
+def doubler_owned(game: int, data: bytes) -> bool | None:
+    """Whether this save owns the Origins Tech Point Doubler; None when the save ends before its field."""
+    at, bit = DOUBLER_TECH_AT.get(game, (None, 0))
+    if at is None or at + 4 > len(data):
+        return None
+    return struct.unpack_from("<I", data, at)[0] & bit != 0
 
 
 def lab_bonus(game: int, data: bytes) -> float:
@@ -506,20 +543,20 @@ def lines(ctx, everyone) -> list[gm.Fact]:
 
     # How it is worked out.
     add(rule.rule, gm.CODE)
-    if multiplied and factor > 1:
+    if multiplied and factor != 1:
         add(gm.patch_words(village, multiplier_feature(game), f"every technology level costs {factor} times its "
                            "normal price, the multiplier read from the game's executable (the Tech screen shows it, "
                            "refuses a purchase with fewer points and takes it), so the points still needed and every "
-                           "time above are worked out from the multiplied prices"), gm.CODE)
+                           "time above are worked out from those prices"), gm.CODE)
     elif multiplied:
-        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its normal "
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 0.1 to 10 times its normal "
                            "price, but the multiplier could not be read from the game's executable, so the points "
                            "still needed and the times above are for the normal prices: with the patch each is "
-                           "larger"), gm.CODE)
+                           "larger, or smaller below 1"), gm.CODE)
     elif unknown:
-        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 2 to 10 times its normal "
+        add(gm.patch_words(village, multiplier_feature(game), "every technology level costs 0.1 to 10 times its normal "
                            "price, so the points still needed and the times above, worked out from the normal "
-                           "prices, would each be larger"), gm.CODE)
+                           "prices, would each be larger (or smaller below 1)"), gm.CODE)
     if rule.fire:
         fired = per_unit(game, levels, RESEARCH_SHOWN, lab, True, never) if now else 0.0
         if fired:
@@ -532,9 +569,20 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         add(gm.patch_words(village, f"vv{game}_learning_never_fails", "every Research test passes (in the rate "
                            "above)"), gm.CODE)
     if village.has(f"vv{game}_enable_origins_exclusive_features") is True:
-        add(f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this "
-            "game): an owned Tech Point Doubler doubles the tech points research earns, so every time above halves; "
-            "whether this save owns one is not read here.", False if game == 4 else gm.CODE)
+        origins = f"With the patcher's \"{gm.feature_name(f'vv{game}_enable_origins_exclusive_features')}\" (in this game)"
+        owned = doubler_owned(game, village.data)
+        # v1.35.97 (PR #805, docs/doubler-composition-audit.md): every game's Tech Point Doubler doubles research's
+        # pay and its research-table bonuses (The Secret City's chief, Magic and potion points, The Tree of Life's Lab
+        # Equipment, the fire's point), so the times halve in all five games.
+        lead = (origins + ": an owned Tech Point Doubler doubles the tech points research earns, so every time "
+                "above halves")
+        if owned is None:
+            # Only a save that ends before the field (DOUBLER_TECH_AT) reaches here.
+            add(lead + "; whether this village owns one: this save ends before its field, and the Tech screen's "
+                "Upgrades list says \"Remove\" on its row when it does.", gm.CODE)
+        else:
+            add(lead + (": this save owns one, so each time above takes half as long as it says." if owned else
+                        ": this save does not own one."), gm.SAVE)
     chosen = farmers_mod.game_module(game).FARMING_CHOSEN
     add(f"How it is worked out: points still needed ÷ (job turns x the share of turns that choose Research, "
         f"{chosen:.5f} x min(1, (Research + 40) ÷ 100), x the share that pass the Research test x the points a "
@@ -547,12 +595,18 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         "the real-life time closed is the counted time when one closing that long covers it, otherwise more than "
         f"{gm.duration(gm.AWAY_LIMITS[game]['band_end'])} for each catch-up needed.", True)
     # The Secret City: the potion 0x4593F2, the Chief's supervision 0x4593AF; The Tree of Life: the glow 0x464E46.
-    add("Not counted: a villager who likes or dislikes learning (a different test), "
-        + {3: "the potion \"scientific clarity\" (+1 for 10 real-life minutes, the same at every speed) and the "
-              "Tribal Chief's supervision, ",
-           4: "the Purify Tree's glow (3 times the points for 4 real-life minutes, the same at every speed), "
+    # The owner, 2026-11-18 ("nothing withheld"): what the times leave out is given with its value.
+    add("Outside the times above, each with its value: liking or disliking learning changes only the test for "
+        "gaining skill, never the Research test or its pay, so it changes no time here; "
+        + {3: "the potion \"scientific clarity\" adds 1 to each success for 10 real-life minutes (the same at every "
+              "speed); a supervising Tribal Chief adds a third (Science 0) or a quarter (Science 1 or more) of a "
+              "success, 25, 50 or 75% of the time at Leadership 1, 2 or 3 (it needs the chief dropped there in live "
+              "play); ",
+           4: "the Purify Tree's glow pays 3 times the points for 4 real-life minutes (the same at every speed); ",
            }.get(game, "")
-        + "the skill gained on each success and tech points that come any other way.", gm.CODE)
+        + f"the skill gained on each success makes later sessions pay more (the times hold it at {RESEARCH_SHOWN}, so "
+        "they run long for a researcher who improves); and tech points from puzzles, collectibles found again and "
+        "the island's own events come on top.", gm.CODE)
     if game >= 3:
         add(LOW_FOOD, gm.CODE)
     add(difficulty_line(game), gm.CODE)

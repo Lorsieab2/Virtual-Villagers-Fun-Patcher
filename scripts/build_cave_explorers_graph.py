@@ -117,6 +117,16 @@ PART_NAMES = {
 }
 
 
+# Village Solidarity (the owner, 2026-11-20: "add tags to every single event"): each ending's tag, the same as the
+# shipped event's (native/vvfp_more_island_events/cave_core.inc cave_effects) and its collection form
+# (data/event_collection/mie/mie/mie_cave_explorers.json): finds and returns raise, a loss of the two lowers, the
+# quarrel left unmended lowers, making up raises, staying home is neutral.
+SOLIDARITY = {"dont": "neutral", "argue_2": "lower", "makeup": "raise", "chasm_1": "lower", "chasm_2": "lower",
+              "find_map": "lower", "find_coins": "raise", "find_treasure": "raise", "find_food": "raise",
+              "return_food": "raise", "return_tech": "raise", "keep_research": "raise", "keep_both": "lower",
+              "keep_one": "lower"}
+
+
 def build() -> dict:
     stay_first, stay_rest = TEXT["STAY"].split(' "Wait.', 1)
     stay_rest = '"Wait.' + stay_rest
@@ -199,6 +209,8 @@ def build() -> dict:
     n["keep_one"] = {"popup": "append", "text": text("KEEP_ONE"),
                      "effects": [{"do": "kill", "role": "friend", "cause": "unknown"}],
                      "summary": "name2 dies", "outcome": "name2 dies, a grave"}
+    for nid, tag in SOLIDARITY.items():
+        n[nid]["solidarity"] = tag
     n = {nid: {"name": PART_NAMES[nid], **node} for nid, node in n.items()}
     return {
         "format": "vvfp-cie-graph", "version": 3, "title": cave.TITLE, "games": [cave.GAME], "patches": [],

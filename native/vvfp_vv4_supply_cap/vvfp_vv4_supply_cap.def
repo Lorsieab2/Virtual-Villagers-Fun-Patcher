@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV4 Supply Cap"
+EXPORTS
+    VvfpStartup
+    VvfpSupplyCapInstalled

@@ -1,0 +1,240 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "fathers30",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "fat01_father_carries": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F13"
+    ]
+   }
+  },
+  "fat02_clothes_changing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat03_what_will_child": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat04_long_night": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat05_first_hold": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat06_feeding_test": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat07_question": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat08_quiet_choice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat09_father_waited": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat10_yet_maybe_never": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat11_place_hearth": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat12_two_futures": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat13_midnight_walk": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F16"
+    ]
+   }
+  },
+  "fat14_wrong_end_cloth": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat15_father_turn": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F07"
+    ]
+   }
+  },
+  "fat16_small_fever": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "c2": [
+     "F13"
+    ]
+   }
+  },
+  "fat17_child_would_held": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat18_father_mistake": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat19_empty_cradle": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "d2": [
+     "F05"
+    ],
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "fat20_baby_festival": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat21_lessons_beneath": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat22_extra_pair_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat23_father_devotion": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat24_boundary_holds": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F16"
+    ]
+   }
+  },
+  "fat25_more_difficult": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat26_first_word": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat27_after_birth": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "b2": [
+     "F13"
+    ]
+   }
+  },
+  "fat28_what_makes_man": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "a2": [
+     "F16"
+    ]
+   }
+  },
+  "fat29_what_makes_us": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "fat30_children": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

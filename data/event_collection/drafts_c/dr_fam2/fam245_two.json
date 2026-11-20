@@ -81,11 +81,75 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(third) looks at both turtles very seriously. Then (third.he/she) takes both, puts them together and says, \"They're married now.\" (third.He/she) eats the honey cake. Then (third.he/she) climbs onto (subject)'s lap and holds (friend)'s hand at the same time. Both grandparents melt. Neither of them won. Both of them did.",
+   "src": "L536",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L536"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L536"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(third) looks at both turtles very seriously. Then (third.he/she) takes both, puts them together and says, \"They're married now.\" (third.He/she) eats the honey cake. Then (third.he/she) climbs onto (subject)'s lap and holds (friend)'s hand at the same time. Both grandparents melt. Neither of them won. Both of them did.",
    "src": "L536"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) look at each other over (third)'s head and both start to laugh. \"We're being ridiculous,\" says (friend). \"Completely,\" says (subject). They sit down together and help (third) make a house for the two turtles. After that, they still compete a little. But mostly they team up. They're much more effective that way.",
+   "src": "L539",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L539"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L539"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) and (friend) look at each other over (third)'s head and both start to laugh. \"We're being ridiculous,\" says (friend). \"Completely,\" says (subject). They sit down together and help (third) make a house for the two turtles. After that, they still compete a little. But mostly they team up. They're much more effective that way.",
    "src": "L539"

@@ -89,9 +89,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "(name1) drinks cool water straight from a freshly opened coconut. It is exactly what (name1) needed on such a hot day.",
-   "src": "L66,L67"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -107,6 +114,25 @@
    "name": "Ending 4",
    "text": "(name1) drinks cool water straight from a freshly opened coconut. A curious goat watches hopefully until (name1) gives it the empty shell.",
    "src": "L66,L70"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. It is exactly what (name1) needed on such a hot day.",
+   "src": "L66,L67",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L66,L67"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. It is exactly what (name1) needed on such a hot day.",
+   "src": "L66,L67"
   }
  }
 }

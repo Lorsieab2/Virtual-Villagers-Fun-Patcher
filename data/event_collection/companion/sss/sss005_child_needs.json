@@ -85,6 +85,32 @@
    "src": "L6118"
   },
   "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The child spends the evening carving a little boat, happy without joining the crowd.",
+   "src": "L6120",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L6120"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
    "name": "Answer C",
    "text": "The child spends the evening carving a little boat, happy without joining the crowd.",
    "src": "L6120"

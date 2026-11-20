@@ -31,11 +31,15 @@ VV1_PAGE_SHA256 = "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DD
 # Immediate Fixed are the PE CheckSum (0x150..0x152), the notice test
 # 0x2F1EE..0x2F1F2 and the refusal test 0x3DE45 / 0x3DE48..0x3DE4A. Stock is
 # unchanged.
+# Re-pinned for catch-up babies (2026-11-19). Justified BEFORE re-pinning: in every mode the new render with
+# 0x2E7F1 set back to 05 and the PE CheckSum recomputed is exactly the previous pin
+# (52E67385.../E512B3F7.../E512B3F7...); the only differing bytes are 0x2E7F1 (cmp eax,5 -> cmp eax,0x63, the
+# catch-up job turn's Children gate) and the PE CheckSum (0x150..0x152). The length is unchanged.
 VV1_STANDALONE_RENDER_SHA256 = {
     "vv1_birth_control": {
-        "stock": "52E67385EBE2F0CA3C41A20B3851DBDFD78B108F30070DD92A5E2486F457343B",
-        "collection_progression": "E512B3F73AAC5F19325A7D6325D0FAA7E219BB9278B4FA0B00CFBDE96C4FF8D3",
-        "immediate_fixed": "E512B3F73AAC5F19325A7D6325D0FAA7E219BB9278B4FA0B00CFBDE96C4FF8D3",
+        "stock": "CFF275917DBCF2164E7BDD47808129D7E75C13B3D71C5B362CB49450A46FB475",
+        "collection_progression": "8D8E21D9B23C4009514E77C08B53726AACE8358886EB5F0A3BE20D38A8365B0C",
+        "immediate_fixed": "8D8E21D9B23C4009514E77C08B53726AACE8358886EB5F0A3BE20D38A8365B0C",
     },
     # Re-pinned for the exact birth hook (Show Parents in Details Screen),
     # now four splices after the pregnancy tick's child-creation calls
@@ -101,10 +105,12 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # 0x4093E0 ripple-thunk hook and the never-read .vv1md scratch slots removed).  This test passes at
     # 239f8b73, before that merge, and fails with these values from dc3216f1, the merge, onward; the head
     # look changes no VV1 Origins byte.
+    # Re-pinned for the Origins doublers' scope (#805, merged at e09e40511): the only manifest change is the Origins
+    # payload at 0x56900 ("after" bytes); no offset is added or removed.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "7C14F65C87653CB24FCDCB40FB467AC1841639698EAF388CE9C25FC60DE2F72F",
-        "collection_progression": "EF5AC37A682AD8A29AE383A95724F1FAF6923BE4974D3765D9CEF6C3890A1003",
-        "immediate_fixed": "EF5AC37A682AD8A29AE383A95724F1FAF6923BE4974D3765D9CEF6C3890A1003",
+        "stock": "F8ECD9CDD66F493F40344BA880B9D48DE04C633E1252BD7E5644BF3F0B17A0CA",
+        "collection_progression": "03C348D7E81DFF29C2C4DB0F0BE1B6A2EAC6F2638438B056AAD260D60CF4ACD8",
+        "immediate_fixed": "03C348D7E81DFF29C2C4DB0F0BE1B6A2EAC6F2638438B056AAD260D60CF4ACD8",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
@@ -148,8 +154,10 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             0x477FA: ("3950F47C2A", "E901890400"),
             0x39C80: ("83FE01", "83FE05"),
             0x39C83: ("0F8E99FEFFFF", "E9B864050090"),
+            # Catch-up babies (the owner, 2026-11-19): the job turn's Children gate RNG(100) <= 5 -> <= 99.
+            0x2E7EF: ("83F805", "83F863"),
         }
-        self.assertEqual(len(patches), 6)
+        self.assertEqual(len(patches), 7)
         for patch in patches:
             offset = int(patch["offset"], 0)
             with self.subTest(offset=hex(offset)):

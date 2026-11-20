@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire Spirit's Joke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s055_fire_spirit_joke",
+  "source": "rewrites",
+  "lines": [
+   2607,
+   2651
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2607",
+  "ledger": [
+   {
+    "src": "L2608",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2609",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2617",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2626",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2614",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2615",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2618",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2627",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2620",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2623",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2629",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2632",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2635-2651",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager are arguing about whose turn it is to keep the cooking fire going overnight.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are arguing about whose turn it is to keep the cooking fire going overnight. They have been arguing about it since supper. \"I did it yesterday.\" \"You did it HALF of yesterday.\" \"I did it the day before!\" \"That was a NAP.\" It has been going on so long that the fire has sunk down to a low, sulky orange glow, and everyone else has gone to bed.\nThe fire has been listening. Everyone knows a mischievous spirit lives in the old cooking fire, which is why nobody ever lets it go out.\nSuddenly it gives an enormous crackle and a great burst of blue sparks, and somewhere in the middle of it, just for a moment, there's a small laugh. A smoky, crackly, delighted little laugh. When the smoke clears, (subject) and (friend) are looking at each other's faces. From the wrong side. Should they apologise to the fire spirit, or let the fire burn out and hope the magic goes with it?",
+   "choices": [
+    {
+     "label": "Apologise to the Fire",
+     "next": "c1",
+     "src": "L2614"
+    },
+    {
+     "label": "Let It Burn Out",
+     "next": "c2",
+     "src": "L2615"
+    }
+   ],
+   "src": "L2610-2612"
+  },
+  "c1o1": {
+   "text": "The fire seems satisfied. It flares up warm and gold around the new log, gives one more crackle, and with a little puff of blue smoke, (subject) and (friend) are themselves again. They look down at their own hands. They look at each other. Without another word, they work out a rota for the fire, scratch it into the doorpost of the cooking hut, and stick to it for the rest of their lives.",
+   "src": "L2621"
+  },
+  "c1o2": {
+   "text": "The fire seems satisfied. Mostly. It flickers, and crackles, and a single blue spark spirals up and pops in the air. But nothing changes. (subject) is still in (friend)'s body, and (friend) is still in (subject)'s. The elders say they'll stay swapped until they learn to share properly. They try. They really do try. But they never quite manage it, not entirely, so they stay swapped. They still argue about the fire. Now they each argue the other one's side, which is very confusing for everyone.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2624",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The two of them, in each other's bodies, kneel down in front of the embers together. \"We're sorry,\" says (subject), in (friend)'s voice. \"We'll take turns,\" says (friend), in (subject)'s. \"Fairly.\" They put a fresh log on, together. The fire crackles, thinking about it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2618"
+  },
+  "c2o1": {
+   "text": "The last ember winks out. There's a cold little puff of grey smoke, and the magic goes out with it: (subject) and (friend) are themselves again, standing in the dark next to a cold fire pit with their arms still folded. They stare at each other, very shaken. Neither of them ever argues about the fire again. In fact, for the rest of the season, they keep finding each other up in the middle of the night, sneaking out to check on it, just in case.",
+   "src": "L2630"
+  },
+  "c2o2": {
+   "text": "The fire burns out. The magic doesn't. In the cold grey morning (subject) and (friend) are still stuck as each other, and the fire pit is a heap of cold ash, and everyone wants breakfast. They're stuck that way for good. And from that night on, each of them keeps the fire going all night, every night, out of guilt, both of them at once, sitting on opposite sides and feeding it logs and not speaking. It's the best-kept fire in the village's history.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2633",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Fine,\" says (subject), in the wrong voice. \"Let it go out, then.\" \"Fine,\" says (friend). \"See if I care.\" They both fold their arms. And the fire, very slowly, dies down to embers, and to ash...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2627",
+   "text_only": [
+    {
+     "src": "L2627",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

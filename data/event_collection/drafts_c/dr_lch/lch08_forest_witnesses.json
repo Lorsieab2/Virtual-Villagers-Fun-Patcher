@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest's Witnesses",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch08_forest_witnesses",
+  "source": "draft_lch",
+  "lines": [
+   106,
+   117
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L106",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a researcher)"
+   },
+   {
+    "src": "L113",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L113",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Elders' memories of the forest disagree with the researcher's records: trust the memories, or the records.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 65
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been measuring the forest for three years and says it is healthy. (subject) has walked through it for sixty years and says it is quieter than it used to be: fewer birds, fewer frogs, the old fig trees dying from the top. Who is right?",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Trust the Memories",
+     "next": "o1",
+     "src": "L111"
+    },
+    {
+     "label": "Trust the Records",
+     "next": "o2",
+     "src": "L115"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) goes into the forest with (subject) and listens instead of measuring. (friend.He/she) hears what (subject) means: the silence. The next season, (friend) counts the birds too. The count is lower than (friend.he/she) expected.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village trusts the records. The forest seems fine. Five years later, the young researchers find (subject)'s warnings in the old bark records and wish someone had listened.",
+   "src": "L117"
+  }
+ }
+}

@@ -44,10 +44,10 @@ TEXTS: tuple[tuple[str, str], ...] = (
               "ask our Mommies and Daddies about it! Maybe someone's looking for it!\" But unfortunately, no one knows "
               "where their parents are or what direction the village is in. Being the finder, the other kids look to "
               "{a} to decide what to do. What shall they do?"),
-    ("LABEL_WAIT", "Wait for their parents to come"),
-    ("LABEL_CRY", "Cry for help"),
-    ("LABEL_CLEARING", "Walk towards the clearing"),
-    ("LABEL_FOREST", "Walk towards the forest"),
+    ("LABEL_WAIT", "Wait for Their Parents to Come"),
+    ("LABEL_CRY", "Cry for Help"),
+    ("LABEL_CLEARING", "Walk Towards the Clearing"),
+    ("LABEL_FOREST", "Walk Towards the Forest"),
     ("WAIT", "The children wait all day for their parents to come. Eventually, they come and walk everyone back to the "
              "village. Little {a} shows the mask to {his} parents, who are alarmed and send for the elders. As night "
              "falls, {a} watches the elders chatter next to the fire."),

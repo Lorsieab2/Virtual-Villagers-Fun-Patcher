@@ -102,7 +102,7 @@ with the chosen value.
 ### The Isola Grand Event Collection and the rare roll (v1.35.97)
 
 With the Isola Grand Event Collection patch installed, the list then shows the collection's
-events of the game played (from `Island Event Collection\manifest.txt` beside the companions),
+events of the game played (from `Events\<group>.lst` beside the companions),
 each possible now by a strict cast or with what it needs; the in-game Custom Island Event
 library has them too, in its own group. More Island Events' events and the collection's also
 come through a separate rare roll after a natural island event, which never changes the game's

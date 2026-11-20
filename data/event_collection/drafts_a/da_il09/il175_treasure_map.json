@@ -66,14 +66,40 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(friend) studies the map very seriously. They try the tree. Wrong tree. They try the rock. Wrong rock. They dig seven holes. On the eighth hole, by pure luck, (subject) finds the shell. (subject.He/She) holds it up like it's made of gold. Then, without a pause, (subject.he/she) buries it again and starts drawing a new map.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "They give up after four holes. \"Maybe the treasure doesn't want to be found yet,\" says (friend). (subject) thinks about this. Then (subject.he/she) carefully writes on the bottom of the map: STILL THERE. (subject.He/She) keeps the map under (subject.his/her) sleeping mat. Some days (subject.he/she) takes it out just to look at it.",
    "src": "L185"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) studies the map very seriously. They try the tree. Wrong tree. They try the rock. Wrong rock. They dig seven holes. On the eighth hole, by pure luck, (subject) finds the shell. (subject.He/She) holds it up like it's made of gold. Then, without a pause, (subject.he/she) buries it again and starts drawing a new map.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) studies the map very seriously. They try the tree. Wrong tree. They try the rock. Wrong rock. They dig seven holes. On the eighth hole, by pure luck, (subject) finds the shell. (subject.He/She) holds it up like it's made of gold. Then, without a pause, (subject.he/she) buries it again and starts drawing a new map.",
+   "src": "L182"
   }
  }
 }

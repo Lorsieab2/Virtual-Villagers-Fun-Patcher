@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They go to the waterfall in the rain. They eat soggy lunch on the wet rock. They climb the hill and watch a sunset made entirely of grey clouds. They get home soaked to the skin and laughing too hard to talk. The visitor says, leaving the next morning, that it was the best day of the whole trip.",
-   "src": "L482"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "They stay in the hut and listen to the rain. They talk all day about everything and nothing. It isn't the day (name1) planned. In some ways it's better. The visitor leaves at dawn under a clear sky, and (name1) watches them go and doesn't regret a single drop of the rain.",
    "src": "L485"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They go to the waterfall in the rain. They eat soggy lunch on the wet rock. They climb the hill and watch a sunset made entirely of grey clouds. They get home soaked to the skin and laughing too hard to talk. The visitor says, leaving the next morning, that it was the best day of the whole trip.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L482"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They go to the waterfall in the rain. They eat soggy lunch on the wet rock. They climb the hill and watch a sunset made entirely of grey clouds. They get home soaked to the skin and laughing too hard to talk. The visitor says, leaving the next morning, that it was the best day of the whole trip.",
+   "src": "L482"
   }
  }
 }

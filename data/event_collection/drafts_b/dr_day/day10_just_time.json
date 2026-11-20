@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits in the doorway, completely dry, and watches the rain hammer the village. People run past, soaked, shrieking. (subject.He/she) waves at them cheerfully. It's petty. It's also one of the most satisfying moments of (subject.his/her) week. (subject.He/she) enjoys every second of it.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) sits in the doorway, completely dry, and watches the rain hammer the village. People run past, soaked, shrieking. (subject.He/she) waves at them cheerfully. It's petty. It's also one of the most satisfying moments of (subject.his/her) week. (subject.He/she) enjoys every second of it.",
    "src": "L122"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) dashes past, already soaked. \"Come in!\" calls (subject). (friend) tumbles in, dripping everywhere, and they sit together listening to the rain on the roof. \"How are you so dry?\" asks (friend). \"Good timing,\" says (subject), and tries, without much success, not to look smug.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(friend) dashes past, already soaked. \"Come in!\" calls (subject). (friend) tumbles in, dripping everywhere, and they sit together listening to the rain on the roof. \"How are you so dry?\" asks (friend). \"Good timing,\" says (subject), and tries, without much success, not to look smug.",
    "src": "L125"

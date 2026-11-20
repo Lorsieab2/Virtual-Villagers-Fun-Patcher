@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lost Page of the World",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my065_lost_page_world",
+  "source": "rewrites",
+  "lines": [
+   13645,
+   13700
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13645",
+  "ledger": [
+   {
+    "src": "L13646",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13647",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13655",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13662",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13669",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13676",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13650",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13651",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13652",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13653",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13656",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13663",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13670",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13677",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13657",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13659",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13664",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13666",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13671",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13673",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13678",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13680",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13683-13700",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Walking along the tideline, a villager spots a thick greenish bottle half-buried in the sand, its neck stoppered with old wax.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Walking along the tideline, (name) spots a thick greenish bottle half-buried in the sand, its neck stoppered with old wax. Inside is a single page, rolled tight and covered in tiny, careful handwriting that slopes uphill. It describes a place on Isola, a real place, with directions: but it also says that the place \"is never quite the same twice, and remembers those who visit.\"\n(Name) reads it three times. The handwriting is old. The bottle is older. And the directions start at a rock (he/she) walks past every single day. (Name) is itching to follow them. But a place that remembers its visitors...? What should (he/she) do?",
+   "choices": [
+    {
+     "label": "Follow the Directions",
+     "next": "c1",
+     "src": "L13650"
+    },
+    {
+     "label": "Copy the Page",
+     "next": "c2",
+     "src": "L13651"
+    },
+    {
+     "label": "Show the Elders",
+     "next": "c3",
+     "src": "L13652"
+    },
+    {
+     "label": "Return It to the Bottle",
+     "next": "c4",
+     "src": "L13653"
+    }
+   ],
+   "src": "L13648-13649"
+  },
+  "c1o1": {
+   "text": "At the top of a hill (name) has never climbed, (he/she) finds a ring of standing stones, and under a fallen roof of slabs, star charts scratched deep into flat stone: whole constellations, the paths of the moon, marks for every season. (Name) runs all the way home. The researchers spend weeks up there copying the charts, and come back with a far better understanding of the seasons and the sky. Nobody can explain how a whole hilltop of standing stones went unnoticed for so long.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L13658",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The directions lead to a grove of trees that (name) knows perfectly well: the village children play there every afternoon. It is a disappointing end to a treasure hunt. But (name) goes back that night to be sure, and stops at the edge. In the dark, the grove is wrong. The trees are in different places. The path bends the other way. A bird is singing that should not sing at night. (Name) backs away slowly, and the next morning, the grove is perfectly ordinary again.",
+   "src": "L13660"
+  },
+  "c1": {
+   "text": "(Name) tucks the page into (his/her) wrap and sets off: from the black rock, a hundred paces toward the morning sun, up the dry streambed, through a gap in the rocks that (he/she) has somehow never noticed before...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13656"
+  },
+  "c2o1": {
+   "text": "It is a good thing (he/she) does. By the time (name) finishes the last line, the ink on the original has begun to fade in the sunlight, and by evening, the old page is completely blank. But (name)'s copy is perfect, and on the back of the page, (he/she) has also copied a little map that turns out to show the island's springs and streams. The researchers are delighted, and the map is hung in the research hut.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13665",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When (name) holds the copy next to the original, (he/she) frowns. The words are not quite the same. A path that bends left in the original bends right in the copy. A tree has become a stone. (Name) is absolutely certain (he/she) copied it exactly. (He/she) copies it again, more slowly. The second copy is different from both. (Name) decides to put the page down and go and do something sensible for a while, like gutting fish.",
+   "src": "L13667"
+  },
+  "c2": {
+   "text": "Worried the old page will fall apart, (name) borrows a sheet of bark-paper and some ink from the researchers and sits down to copy every word, very carefully, letter by letter...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13663"
+  },
+  "c3o1": {
+   "text": "\"I know this hand,\" the old elder says at last, smiling. \"When I was a child, a traveler came here who wrote stories about impossible places: islands that moved, caves that sang, paths that changed when you weren't looking. We children adored them. I think (he/she) must have thrown this one into the sea for someone to find.\" The elder tucks the page into (his/her) own wrap and spends the evening telling the children every story (he/she) can still remember.",
+   "src": "L13672"
+  },
+  "c3o2": {
+   "text": "The elders argue all night. One says the page is history, a genuine record of a place that exists. Another says it is a story and nothing more. A third says that on Isola there is not always much difference between the two, which makes the first two even angrier. By dawn, no one agrees on anything except that (name) should not have brought it to them so late at night.",
+   "src": "L13674"
+  },
+  "c3": {
+   "text": "(Name) carries the bottle carefully to the elders' fire. The oldest of them takes out the page, holds it close to the flames, and reads it in silence...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13670"
+  },
+  "c4o1": {
+   "text": "The bottle stays on the shelf, sealed and dry. When the researchers hear about it, they ask to keep it in their hut until they can study it properly, and (name) is happy to hand it over. It sits there to this day, between a jar of strange seeds and a very old turtle shell, waiting for someone clever enough to make sense of it.",
+   "src": "L13679"
+  },
+  "c4o2": {
+   "text": "The next morning, the wax on the bottle is unbroken. But when (name) holds it up to the light, (he/she) can see that the page inside is different. Shaking, (he/she) opens it. It is the same uphill handwriting, but it describes a new place now: a small hut, a dry corner, a shelf, and someone standing in front of it holding a bottle. (Name) puts the bottle down very, very carefully and goes to stay with a friend for a few days.",
+   "src": "L13681"
+  },
+  "c4": {
+   "text": "Something about the page makes (name) uneasy. (He/she) rolls it up again, slides it back into the bottle, presses the wax down firmly, and takes the bottle home to a dry corner of (his/her) hut...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13677"
+  }
+ }
+}

@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silver Thread",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my080_silver_thread",
+  "source": "rewrites",
+  "lines": [
+   14513,
+   14567
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14513",
+  "ledger": [
+   {
+    "src": "L14514",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14515",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14522",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14529",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14536",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14543",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14517",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14518",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14519",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14520",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14523",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14530",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14537",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14544",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14524",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14526",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14531",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14533",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14540",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14545",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14550-14567",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the forest path, a villager walks face-first into something fine and tight, and steps back, sputtering.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the forest path, (name) walks face-first into something fine and tight, and steps back, sputtering. It is a thread, silver as moonlight on water, stretched taut between two trees at exactly the height of (his/her) nose. When the wind touches it, it hums. And when (name) follows it with (his/her) eyes, it seems to lead much farther into the forest than the trees themselves could possibly reach. The longer (he/she) looks, the farther apart the two trees seem to be. Old fishers say the spiders on this side of the island spin silk strong enough to hold a canoe, but none of them ever said it hummed. Should (name) follow it?",
+   "choices": [
+    {
+     "label": "Follow the Thread",
+     "next": "c1",
+     "src": "L14517"
+    },
+    {
+     "label": "Cut the Thread",
+     "next": "c2",
+     "src": "L14518"
+    },
+    {
+     "label": "Wind It Onto a Spool",
+     "next": "c3",
+     "src": "L14519"
+    },
+    {
+     "label": "Leave It Alone",
+     "next": "c4",
+     "src": "L14520"
+    }
+   ],
+   "src": "L14516"
+  },
+  "c1o1": {
+   "text": "The thread ends at a stream, tied around a rock. Huddled beside it, cold and wet and very scared, is a small child from the village who went missing that morning while the whole village was out searching the wrong way. \"I followed the shiny string,\" the child sobs. \"I thought it would take me home.\" (Name) wraps the child in (his/her) wrap and follows the thread all the way back. The child's parents cry so hard with relief they can barely stand. When (name) goes back for the thread the next day, there is nothing between the trees.",
+   "src": "L14525"
+  },
+  "c1o2": {
+   "text": "The thread ends at a tiny, crumbling shrine of piled stones, so overgrown with moss that it must have been forgotten for generations. And yet, laid on top of it are fresh flowers: white and yellow, picked that very morning, the stems still wet. (Name) looks around. There is no path, no footprints, no sign that anyone has been here in years. (He/she) adds a flower of (his/her) own before leaving. On the way home, the thread is gone.",
+   "src": "L14527"
+  },
+  "c1": {
+   "text": "(Name) takes hold of the thread with one hand and begins to walk. It runs on and on, from tree to tree, humming under (his/her) fingers, deeper into the forest than (he/she) has ever been...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14523"
+  },
+  "c2o1": {
+   "text": "The moment the blade touches it, the thread gives a high, sweet note, like a plucked string, and both ends simply dissolve into the air, like breath on a cold morning. There is nothing left. Not a strand. (Name) stands there with (his/her) knife in the air, the note still ringing faintly in (his/her) ears, feeling as though (he/she) might have just cut something (he/she) should not have.",
+   "src": "L14532"
+  },
+  "c2o2": {
+   "text": "The thread falls slackly to the ground. When (name) picks it up, it is just spider silk. A very long strand, admittedly, and unusually thick, but definitely spider silk, sticky and grey now that it is out of the light. Somewhere above (him/her), (name) hears an indignant scuttling sound. (He/she) looks up into the branches, sees a spider the size of (his/her) hand glaring down at (him/her), and decides to go home a different way.",
+   "src": "L14534"
+  },
+  "c2": {
+   "text": "Whatever it is, (name) does not want anyone else walking into it in the dark. (He/she) draws (his/her) knife and slices through it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14530"
+  },
+  "c3o1": {
+   "text": "(He/she) winds and winds until the stick is fat with silver thread. Back at the village, the weavers are astonished. The thread is so strong they cannot break it with their hands, and so fine it slips through the tiniest eye. Studying how it was twisted gives the weavers a whole new way of spinning their own fibres, finer and stronger than before. They never manage to make anything as silver as the original, but they do not stop trying.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14539",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "For a few turns it winds beautifully. Then, as it leaves the shade of the trees and touches the sunlight, the thread turns dull and brittle, and with a faint tinkling sound it breaks into a hundred tiny silver pieces that fall onto the path like frost and melt away. (Name) is left holding a bare stick. (He/she) goes back to the trees, but the rest of the thread is gone too.",
+   "src": "L14541"
+  },
+  "c3": {
+   "text": "(Name) has never seen a thread so fine and so strong. (He/she) fetches a stick from the ground and begins carefully winding the thread around it, tree by tree, along the path...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14537"
+  },
+  "c4o1": {
+   "text": "The next morning, (name) takes the same path, ducking at the right spot out of habit, but there is nothing there. No thread, no hum. The two trees are just two ordinary trees, an ordinary distance apart. A spider has spun a perfectly normal web between them. (Name) is almost disappointed.",
+   "src": "L14546"
+  },
+  "c4o2": {
+   "text": "The next morning, the thread is gone. But from the branch where it began hangs a tiny bell, made of a curled white shell, tied on with a single strand of silver. When the wind touches it, it rings, with a sound like rain falling on a pond. (Name) leaves it there. Over the following seasons, villagers walking that path start to stop and listen to it, and say it brings them good luck. Nobody ever takes it down.",
+   "src": "L14548"
+  },
+  "c4": {
+   "text": "(Name) ducks carefully under the thread and walks on, leaving it humming quietly in the breeze behind (him/her). (He/she) tells (himself/herself) not to think about it...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14544"
+  }
+ }
+}

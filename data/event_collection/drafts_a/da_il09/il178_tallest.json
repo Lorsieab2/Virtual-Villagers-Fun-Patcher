@@ -62,11 +62,63 @@
    ]
   },
   "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The children dig frantically, piling up a wall of sand. The first wave stops at the wall. The children cheer. The second wave goes round the side. The third wave goes over the top. The castle slowly slumps into the sea, the seaweed flag last of all. The children watch it go, then immediately start building another one higher up the beach.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
    "name": "Answer A",
    "text": "The children dig frantically, piling up a wall of sand. The first wave stops at the wall. The children cheer. The second wave goes round the side. The third wave goes over the top. The castle slowly slumps into the sea, the seaweed flag last of all. The children watch it go, then immediately start building another one higher up the beach.",
    "src": "L218"
   },
-  "b": {
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"It's the sea's turn now,\" says (name1), sitting back. The children sit in a row and watch the waves come in, a little bit at a time, until the towers melt and the moat fills and the whole castle is a smooth little lump. It's sad, and beautiful, and somehow very funny. Somebody suggests they do it all again tomorrow.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L221"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "\"It's the sea's turn now,\" says (name1), sitting back. The children sit in a row and watch the waves come in, a little bit at a time, until the towers melt and the moat fills and the whole castle is a smooth little lump. It's sad, and beautiful, and somehow very funny. Somebody suggests they do it all again tomorrow.",
    "src": "L221"

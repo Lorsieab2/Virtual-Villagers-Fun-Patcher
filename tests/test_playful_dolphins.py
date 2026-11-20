@@ -8,7 +8,7 @@ tests/story_emulator.py, the villagers in the game's own records as tests/test_a
 popup through the game's own click handler, OK and constructor sites):
   * who: the swimmer is a villager of 14 or more who is not protected; 13, nursing (mother or father) and a body or
     ghost never; two such villagers are needed; the Fishing Nets (or any puzzle) are never needed;
-  * both branches of "Swim towards the dolphins" at their odds (rand(100) < 50 the hunt), and "Hang back";
+  * both branches of "Swim Towards the Dolphins" at their odds (rand(100) < 50 the hunt), and "Hang Back";
   * every effect: Farming set to 100 (the game's maximum), the large and the small food awards (and their scaling),
     the tail slap's 30 to 50 health lost, never below 1;
   * the effects on the ending's last page only; the Island Events log's one entry; nothing handed over before it;
@@ -53,6 +53,13 @@ FOOD_LO = adv.award_range(4, "food")[0]               # 300: The Tree of Life's 
 FISHING_NETS = 11                                     # the game's puzzle 11 (island_event_more.inc P4(11))
 PUZZLE_PROGRESS, PUZZLE_DONE_AT = 0x4D8BF8 + 8 * FISHING_NETS, 0x4D8B20 + 4 * FISHING_NETS
 
+
+
+def owner_label(text: str) -> str:
+    """An owner's label as the event shows it: Title Case (the owner, 2026-11-15; scripts/collection_lib.py)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import collection_lib
+    return collection_lib.title_case_label(text)
 
 def words(text: str) -> list[str]:
     return re.sub(r"\s+", " ", text).strip().split(" ")
@@ -152,7 +159,7 @@ class Dolphins(Village):
 
     def play(self, answer: int, calls: list | None = None) -> list[tuple]:
         """The whole event: (what was clicked, the village after it, the log calls so far) for each click; answer 0
-        "Swim towards the dolphins", 1 "Hang back"."""
+        "Swim Towards the Dolphins", 1 "Hang Back"."""
         calls = calls if calls is not None else []
         steps = []
         for _ in range(self.dp_state()[10] - 1):
@@ -224,8 +231,8 @@ class TheWords(unittest.TestCase):
                     line = line.strip()
                     if not line or line.startswith("--"):
                         continue
-                    if line.endswith(":") and line[:-1] in LABELS:
-                        used.append(line[:-1])
+                    if line.endswith(":") and owner_label(line[:-1]) in LABELS:
+                        used.append(owner_label(line[:-1]))
                         continue
                     shown = line.replace("(Name)", "Ana").replace("(name)", "Ana").replace("(award)", "300")
                     for k, v in sub.items():
@@ -281,7 +288,7 @@ class TheOdds(unittest.TestCase):
         self.assertEqual(event.only_with, "vv4_more_island_events")
         text = event.text + " " + " ".join(s if isinstance(s, str) else s.text for s in event.subs)
         for needle in ("14 villager years or more", "not nursing a baby", "not a body or a ghost", "under 14",
-                       "Needs no fishing nets or other puzzle.", "wall clock", "50%", "Farming becomes 100",
+                       "Needs no fishing nets or other puzzle.", "30-50% chance", "50%", "Farming becomes 100",
                        "600 food", "150 food", "30 to 50", "never below 1", "one entry", "Island Events Scale"):
             self.assertIn(needle, text)
 
@@ -364,7 +371,7 @@ class Branches(unittest.TestCase):
                 v.play(0)
                 self.assertEqual(ENDINGS[v.dp_state()[8]], want)
         self.assertEqual(self.ending(answer=1), "BACK")
-        self.assertEqual(self.ending(answer=1, slap=True), "BACK")      # "Hang back": always
+        self.assertEqual(self.ending(answer=1, slap=True), "BACK")      # "Hang Back": always
 
     def test_the_hunt_farming_100_and_a_large_award(self) -> None:
         for start in (0.0, 50.0, 87.5, 100.0):
@@ -490,7 +497,7 @@ class Pages(unittest.TestCase):
         self.assertTrue(v.open(dp_rolls(swimmer=0)))
         for _ in range(v.dp_state()[10] - 1):
             v.click(0)
-        v.click(1)                                                  # "Swim towards the dolphins"
+        v.click(1)                                                  # "Swim Towards the Dolphins"
         pages = v.dp_state()[11]
         for _ in range(pages - 2):
             v.click(0)

@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ghost Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b234_ghost_canoe",
+  "source": "balance",
+  "lines": [
+   10889,
+   10931
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10889",
+  "ledger": [
+   {
+    "src": "L10890",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10899",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10908",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10896",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10897",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10900",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10909",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10902",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10905",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10911",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10917-10931",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The fishers call it the Ghost Canoe.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every few years, on still, foggy nights, the fishers see a canoe out past the reef that shouldn't be there: an old one, carved in a style nobody uses any more, with one paddler in it, paddling very slowly, never getting any closer. The fishers call it the Ghost Canoe. They say it is looking for someone to paddle with.\nTonight it's foggy and still, and (name) is out alone in (his/her) own canoe, checking the fish traps, and the Ghost Canoe is right there, close enough to touch. The paddler has stopped paddling. (He/She) is holding out a spare paddle to (name), wordlessly.\nShould (name) take the paddle, or turn back for shore?",
+   "choices": [
+    {
+     "label": "Take the Paddle",
+     "next": "c1",
+     "src": "L10896"
+    },
+    {
+     "label": "Turn Back",
+     "next": "c2",
+     "src": "L10897"
+    }
+   ],
+   "src": "L10892-10894"
+  },
+  "c1o1": {
+   "text": "In the morning, (name)'s canoe drifts in to the beach, empty, with the fish traps still in it. The fishers say they saw two paddlers in the Ghost Canoe that night, going away into the fog. Every few years after that, on still foggy nights, the Ghost Canoe still comes, and there are two in it, and one of them waves.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L10903",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) paddles beside the old canoe all night, in silence, through the fog. At dawn the paddler holds out (his/her) hand for the paddle, and (name) gives it back, and the Ghost Canoe fades with the fog. (Name) comes home exhausted, with a full catch, and knows the sea better than (he/she) ever did. (He/She) never talks about it.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L10906",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) reaches out and takes the paddle. It's cold and wet and very old, and it fits (his/her) hands perfectly. The paddler nods, and starts to paddle again, and (name)'s own canoe begins to drift along beside...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10900"
+  },
+  "c2o1": {
+   "text": "In the fog, paddling hard, (name) misses the gap in the reef. The canoe hits the coral, and turns over in the surf. The fishers find (name) in the morning on the beach. The village lays (him/her) to rest on the headland. The fishers say that the next time the Ghost Canoe came, it was still alone, and paddling more slowly than ever.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L10912",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) makes it through the gap and runs (his/her) canoe up onto the sand and doesn't stop running until (he/she) is in (his/her) hut. In the morning, there's a very old paddle lying on the beach beside (his/her) canoe. Nobody will touch it. In the end the fishers push it out to sea on the tide.",
+   "src": "L10915"
+  },
+  "c2": {
+   "text": "(Name) shakes (his/her) head, and turns (his/her) canoe for the shore, and paddles as hard as (he/she) can through the fog. Behind (him/her), there's the slow splash of another paddle, following...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10909"
+  }
+ }
+}

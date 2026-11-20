@@ -69,11 +69,63 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) enters (subject.his/her) own small melon, and it comes last. Then (subject.he/she) tells everyone about the giant wild one, and the whole village troops off to see it. Everyone agrees it would have won easily. The elders give it a special mention, \"Best Melon, No Gardener,\" and (subject) is asked to cut it. It's delicious.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) enters (subject.his/her) own small melon, and it comes last. Then (subject.he/she) tells everyone about the giant wild one, and the whole village troops off to see it. Everyone agrees it would have won easily. The elders give it a special mention, \"Best Melon, No Gardener,\" and (subject) is asked to cut it. It's delicious.",
    "src": "L122"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) carries the wild melon to the contest. It wins easily. Everyone wants to know how (subject.he/she) grew it, and (subject) mumbles something about \"lots of water.\" (friend) looks at the melon, then at (subject), and raises an eyebrow, but says nothing at all. (subject) finds (subject.he/she) can't quite enjoy the prize as much as (subject.he/she) expected. What (subject.he/she) does about that is (subject.his/her) own business.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) carries the wild melon to the contest. It wins easily. Everyone wants to know how (subject.he/she) grew it, and (subject) mumbles something about \"lots of water.\" (friend) looks at the melon, then at (subject), and raises an eyebrow, but says nothing at all. (subject) finds (subject.he/she) can't quite enjoy the prize as much as (subject.he/she) expected. What (subject.he/she) does about that is (subject.his/her) own business.",
    "src": "L125"

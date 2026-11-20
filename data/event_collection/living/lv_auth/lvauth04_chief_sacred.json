@@ -154,7 +154,8 @@
      "max": 10,
      "src": "L23388"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c2": {
    "name": "Outcome C2",

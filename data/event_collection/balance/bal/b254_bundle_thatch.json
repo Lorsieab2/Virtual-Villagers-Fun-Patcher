@@ -1,0 +1,276 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Bundle of Thatch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b254_bundle_thatch",
+  "source": "balance",
+  "lines": [
+   11856,
+   11897
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11856",
+  "ledger": [
+   {
+    "src": "L11857",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11858",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11866",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11875",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11863",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11864",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11867",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11876",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11869",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11872",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11878",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11881",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11884-11897",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been re-thatching the roof of the meeting hut since dawn.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been re-thatching the roof of the meeting hut since dawn. There is one bundle left to tie on, right at the peak, and the light is going. The ladder is wobbly. The rafter at the top has a crack in it that (name) noticed this morning and meant to mention to somebody.\nDown below, the other builders are packing up. \"Leave it till tomorrow,\" one of them calls. \"It'll rain tonight,\" (name) calls back. \"Then the hall gets wet.\"\nShould (name) climb up and finish the roof, or come down and leave it for morning?",
+   "choices": [
+    {
+     "label": "Finish the Roof",
+     "next": "c1",
+     "src": "L11863"
+    },
+    {
+     "label": "Come Down",
+     "next": "c2",
+     "src": "L11864"
+    }
+   ],
+   "src": "L11859-11861"
+  },
+  "c1o1": {
+   "text": "The rafter holds. (Name) ties the last knot by feel, slides down the thatch, and lands on the ground just as the first drops fall. That night it rains hard, and every hut in the village stays dry, because on the way down (name) also checked the other roofs and found two more leaks, and patched them by lamplight with the other builders' help.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L11870",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The cracked rafter snaps. (Name) comes down through the half-finished roof and lands hard on the floor of the hall, and (his/her) back is never the same. (He/She) walks bent after that, slowly, and climbing anything is out of the question. The other builders finish the roof the next day, very quietly, and they replace every cracked rafter in the village by the end of the month.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c2"
+    }
+   ],
+   "src": "L11873",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) climbs to the very top, straddles the ridgepole, and starts tying the last bundle on in the dusk. The cracked rafter creaks under (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11867"
+  },
+  "c2o1": {
+   "text": "In the morning the builders all come back together, and since (name) mentioned the crack, they decide to check every rafter in every hut. They find nine cracked ones. It takes three days to replace them all, and by the end, every builder in the village knows more about rafters than they ever wanted to.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L11879",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It rains all night, and in the morning the meeting hall has a puddle in the middle of the floor the size of a small pond. The children are delighted and sail leaf boats in it. The elders hold their meeting standing up. (Name) finishes the roof by midday, and nobody says a word about it, which is somehow worse.",
+   "src": "L11882"
+  },
+  "c2": {
+   "text": "(Name) sighs, looks at the cracked rafter one more time, and climbs down. \"Somebody look at that in the morning,\" (he/she) says. Everybody nods...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11876"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "rocks",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  },
+  "c1o2_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g2",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_c1"
+    }
+   ]
+  }
+ }
+}

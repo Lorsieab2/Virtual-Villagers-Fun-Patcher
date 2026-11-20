@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tunnel Under the Headland",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b330_tunnel_under",
+  "source": "balance",
+  "lines": [
+   15261,
+   15301
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L15261",
+  "ledger": [
+   {
+    "src": "L15262",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15263",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15270",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15279",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15267",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15268",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15271",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15280",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15273",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15276",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15282",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15285",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15288-15301",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The tide only stays out long enough for someone very fast.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the lowest tide, a sea cave opens under the headland, a dark tunnel that the fishers say goes right through the rock to the other side of the island. Nobody has ever swum it. The tide only stays out long enough for someone very fast. (Name) is the fastest swimmer in the village, and today the tide is the lowest it has been in years.\n(Name) is standing at the mouth of the tunnel. Cold air is blowing out of it. Should (he/she) swim through, or wait at the mouth and shout to see if there's an echo from the other side?",
+   "choices": [
+    {
+     "label": "Swim Through",
+     "next": "c1",
+     "src": "L15267"
+    },
+    {
+     "label": "Shout and Listen",
+     "next": "c2",
+     "src": "L15268"
+    }
+   ],
+   "src": "L15264-15265"
+  },
+  "c1o1": {
+   "text": "The fishers wait on the far side of the headland until the tide comes back in. (Name) never comes out. They wait for the next low tide, and the next. Nothing. The tunnel mouth is marked with a ring of white stones after that, and the children are told never, ever to go near it. Some fishers say the tunnel doesn't go through the rock at all, but down.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L15274",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) shoots out of the far end into bright sunlight, gasping, scraped and laughing. (He/She) has done it. But something in the tunnel has changed (him/her): (his/her) face, when the others see it, is somehow different, sharper and more weathered, as if the rock rubbed some of its own shape into (him/her). (Name) doesn't mind at all. (He/She) is the first person ever to swim the tunnel.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L15277",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) takes three deep breaths and dives into the dark. The tunnel is narrow and cold, and the water pulls (him/her) along faster than (he/she) can swim...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15271"
+  },
+  "c2o1": {
+   "text": "A head bobs up out of the dark water and swims to the mouth of the tunnel: (name)'s head, (name)'s shoulders, (name)'s exact grin. \"Took you long enough,\" it says, climbing out. The fishers are speechless. The village names (him/her) (made1), and the tunnel mouth gets a ring of white stones anyway.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L15283",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Whatever shouted back, (name) waits too long listening for it. The tide turns, the water comes roaring back into the tunnel, and (name) has to scramble up the rocks to keep from being pulled in. (He/She) gets home soaked and shaken. (Name), who used to love the sea more than anyone, finds the water has lost its pull on (him/her). (He/She) still swims, but only when (he/she) has to.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L15286",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) cups (his/her) hands and shouts into the tunnel. The sound rolls away into the dark. For a long moment, nothing. Then, very faintly, something shouts back...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15280"
+  }
+ }
+}

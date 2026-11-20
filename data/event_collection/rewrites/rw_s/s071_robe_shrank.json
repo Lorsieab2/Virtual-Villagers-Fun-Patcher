@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Robe That Shrank",
+ "games": [
+  3
+ ],
+ "collection": {
+  "id": "s071_robe_shrank",
+  "source": "rewrites",
+  "lines": [
+   3351,
+   3393
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3351",
+  "ledger": [
+   {
+    "src": "L3352",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3353",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3361",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3370",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3358",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3359",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3362",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3371",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3364",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3373",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3376",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3379-3393",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Somebody, and nobody will say who, has washed the Chief's robe in hot water.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "special": "tribal_chief"
+  },
+  "chief": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Somebody, and nobody will say who, has washed the Chief's robe in hot water. Boiling hot water. With the cooking pots.\nNow Chief (subject) is standing in the middle of the village, holding the robe up in front of (subject.him/her) by the shoulders. Steam is still rising off it. It smells overpoweringly of wet feathers and fish stew. And it is small. Very small. It would fit a child, possibly a small one.\nThe whole village has found somewhere else to look. The builders are very interested in a fence. The farmers are examining a cloud. Nobody will meet Chief (subject)'s eye. There is a ceremony tonight, and the Chief is expected to wear the robe. What should the Chief do?",
+   "choices": [
+    {
+     "label": "Make a New Robe",
+     "next": "c1",
+     "src": "L3358"
+    },
+    {
+     "label": "Wear It Anyway",
+     "next": "c2",
+     "src": "L3359"
+    }
+   ],
+   "src": "L3354-3356"
+  },
+  "c1o1": {
+   "text": "The weavers work night and day for a week, and outdo themselves. The new robe is even grander than the old: longer, richer, with more feathers, and a pattern of waves along the hem that catches the light when the Chief walks. Chief (subject) puts it on in front of the whole village, and turns round slowly, and is delighted. Absolutely delighted. (subject.He/She) wears it everywhere. And the very next day (subject.he/she) announces a new rule: the Chief's robe is to be washed by the Chief, personally, in cold water.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "chief",
+     "body": "random"
+    }
+   ],
+   "src": "L3365",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The weavers, terrified of making it too small, make it a little too big. Quite a lot too big, in fact. It drags along the ground behind Chief (subject) like a tail, and the sleeves hang down past (subject.his/her) hands. (subject.He/She) wears it anyway, because it's the Chief's robe, and trips over it at every single ceremony for the rest of the year. Nobody laughs. Not out loud. The children have started a game where they walk behind the Chief holding up the hem.",
+   "src": "L3368"
+  },
+  "c1": {
+   "text": "Chief (subject) takes a long, deep breath, folds the tiny robe very neatly, and hands it to the weavers. \"I'd like,\" (subject.he/she) says, with enormous dignity, \"a new one.\" The weavers bow very low and hurry away...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3362"
+  },
+  "c2o1": {
+   "text": "It takes three people pulling and a great deal of breathing in, but Chief (subject) squeezes into it. The sleeves stop just below (subject.his/her) elbows. The hem stops well above (subject.his/her) knees. The feathers stick out at strange angles. Chief (subject) walks to the middle of the village, stands up very straight, and announces that this is the new style. A very fashionable style, from far away. Nobody dares argue. By the end of the week, two of the younger villagers have shrunk their own clothes on purpose.",
+   "src": "L3374"
+  },
+  "c2o2": {
+   "text": "Chief (subject) squeezes into it, and wears it with tremendous dignity to the evening ceremony, and stands up in front of everyone to make a long and serious speech. Halfway through the speech, (subject.he/she) raises both arms to the sky, and with a long, loud RRRRIP, the robe splits all the way down the back. There is a terrible silence. And then Chief (subject) starts laughing. (subject.He/She) laughs louder than anyone, bent double, tears running down (subject.his/her) face, and the whole village laughs with (subject.him/her) until they can't stand up. They love (subject.him/her) for it, more than ever.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L3377",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "Chief (subject) looks at the tiny steaming robe for a long, long moment. Then (subject.he/she) sets (subject.his/her) jaw. \"Nobody,\" (subject.he/she) says, \"tells the Chief what to wear.\" And (subject.he/she) starts to put it on...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3371"
+  }
+ }
+}

@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Swim",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b207_night_swim",
+  "source": "balance",
+  "lines": [
+   9616,
+   9659
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9616",
+  "ledger": [
+   {
+    "src": "L9617",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9618",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9626",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9635",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9623",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9624",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9627",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9636",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9629",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9632",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9641",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9644-9659",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the hottest nights the lagoon glows.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the hottest nights the lagoon glows. Every movement in the water lights up blue-green, a splash makes a shower of sparks, and a swimmer leaves a trail like a comet. The young people sneak down to swim in it when the elders are asleep. The elders know, and pretend they don't, and say only: \"Not past the reef.\"\nTonight (subject) and (friend) are swimming in the glow, laughing, and (friend) has swum out further than (friend.he/she) meant to. Out past the reef, in the black water, something huge is moving, and it is glowing too.\nShould (subject) swim out after (friend), or shout from the shallows?",
+   "choices": [
+    {
+     "label": "Swim Out After (friend)",
+     "next": "c1",
+     "src": "L9623"
+    },
+    {
+     "label": "Shout from the Shallows",
+     "next": "c2",
+     "src": "L9624"
+    }
+   ],
+   "src": "L9619-9621"
+  },
+  "c1o1": {
+   "text": "(subject) reaches (friend) and pushes (friend.him/her) back towards the reef, and then the current past the reef takes (subject). (friend) gets back to the beach and raises the village. The fishers find (subject) at dawn on the far sand. The village buries (subject) above the lagoon. The young people still swim in the glow on hot nights, but never past the reef.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L9630",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The huge shape is a whale, glowing all over with the tiny lights, and it rolls once, slowly, between them and the open sea, and blows a fountain of blue sparks into the air. Then it sinks away. (subject) and (friend) swim back to shore together without a word and sit on the sand till dawn, shaking and grinning.",
+   "src": "L9633"
+  },
+  "c1": {
+   "text": "(subject) swims hard, leaving a trail of blue sparks, out towards the reef and the dark water beyond it, where the huge glowing shape is turning slowly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9627"
+  },
+  "c2o1": {
+   "text": "The trail of sparks goes out, and doesn't light up again. (subject) runs for the fishers, and they take torches and canoes out past the reef, and search all night, and all the next day. They never find (friend). On hot nights, from the beach, (subject) sometimes sees a single trail of blue sparks far out past the reef, swimming away.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L9639",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "After a long moment the sparks start up again, coming back, slowly, then faster. (friend) staggers out of the water, gasping, and says something big went past underneath (friend.him/her) like a hill moving. They don't swim at night again for a long time. When they do, they stay in the shallows.",
+   "src": "L9642"
+  },
+  "c2": {
+   "text": "(subject) stands in the shallows and shouts (friend)'s name until (subject.his/her) voice cracks. Far out, (friend)'s little trail of sparks stops, and turns, and then goes very still...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9636"
+  }
+ }
+}

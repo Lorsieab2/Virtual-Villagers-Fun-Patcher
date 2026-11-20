@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Fog Off the Mountain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b282_grey_fog_off",
+  "source": "balance",
+  "lines": [
+   13123,
+   13163
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13123",
+  "ledger": [
+   {
+    "src": "L13124",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13125",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13132",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13141",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13129",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13130",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13133",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13142",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13144",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13147",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13150-13163",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every so often a thick grey fog rolls down off the mountain, cold and damp, smelling faintly of ash.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 45
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every so often a thick grey fog rolls down off the mountain, cold and damp, smelling faintly of ash. The elders call it the Old Breath, and they say the mountain is breathing out the years it took from the people who climbed it long ago. Everyone stays indoors when it comes.\n(Name) is caught out in it, halfway back from the far gardens, with a basket of yams on (his/her) head. The fog is so thick (he/she) can't see (his/her) own feet. Should (he/she) keep walking towards the village, or sit down and wait for it to pass?",
+   "choices": [
+    {
+     "label": "Keep Walking",
+     "next": "c1",
+     "src": "L13129"
+    },
+    {
+     "label": "Sit Down and Wait",
+     "next": "c2",
+     "src": "L13130"
+    }
+   ],
+   "src": "L13126-13127"
+  },
+  "c1o1": {
+   "text": "(Name) gets home in the end, shivering. In the lamplight, (his/her) family stares. (His/her) hair is streaked with grey, and there are lines around (his/her) eyes that weren't there this morning. (His/her) knees feel just the same, and the healers say (his/her) age hasn't changed at all. \"The mountain only breathed on your face,\" says the eldest, as if that's a comfort.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13136",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fog seems to follow (name) all the way home, wrapped around (him/her) like a blanket. When (he/she) finally steps inside, (his/her) back aches, (his/her) knees creak and (his/her) hair is grey. Ten years older, in one walk. (Name) sits down very slowly. \"Well,\" (he/she) says, \"at least I didn't drop the yams.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      10,
+      10
+     ],
+     "max_age": 75,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13139",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) walks on, step by step, feeling for the path with (his/her) toes. The fog presses against (his/her) face like a damp cloth...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13133"
+  },
+  "c2o1": {
+   "text": "It passes by noon. (Name) gets up stiffly and walks home, and by evening (his/her) friends are teasing (him/her) about the grey in (his/her) hair. It doesn't wash out. \"It suits you,\" everyone says, which is what people say when they mean it makes (him/her) look older. (Name) decides to believe them.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L13145",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The fog passes over and around (name) without touching (him/her) at all, as if (he/she) were a rock in a stream. When it clears, (he/she) is sitting on the path, perfectly dry, with the yams in (his/her) lap and a small lizard asleep on (his/her) knee. (He/She) gets up carefully so as not to wake it.",
+   "src": "L13148"
+  },
+  "c2": {
+   "text": "(Name) sits down right there in the middle of the path, puts the yams in (his/her) lap and pulls (his/her) wrap over (his/her) head. The fog swirls around (him/her), cold and patient...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13142"
+  }
+ }
+}

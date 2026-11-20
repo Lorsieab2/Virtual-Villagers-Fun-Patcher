@@ -94,7 +94,8 @@
      "max": 10,
      "src": "L8924"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "name": "Answer B",
@@ -118,7 +119,8 @@
      "max": -40,
      "src": "L8928"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c3": {
    "name": "Answer C (3)",
@@ -131,7 +133,8 @@
      "cause": "unknown",
      "src": "L8928"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "c": {
    "type": "branch",

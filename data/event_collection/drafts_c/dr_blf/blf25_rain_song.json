@@ -75,6 +75,49 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Do you think the song does anything?\" (friend) asks quietly. (subject) is quiet a while. \"I don't know,\" (subject.he/she) admits. \"I think it helps us. We feel less alone when we're worried together.\" (friend) nods. \"Then it does something.\" They carry water from the stream all day. The rain comes eventually. It always has, so far.",
+   "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Maybe it takes time,\" says (subject). \"Maybe,\" says (friend). They carry water from the stream to the gardens all day. Four days later, the rain comes. Some villagers say the song worked. Some say it would have rained anyway. Nobody can say for sure, and both groups are very happy about the rain.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L302"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L302"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "\"Maybe it takes time,\" says (subject). \"Maybe,\" says (friend). They carry water from the stream to the gardens all day. Four days later, the rain comes. Some villagers say the song worked. Some say it would have rained anyway. Nobody can say for sure, and both groups are very happy about the rain.",
    "src": "L302",
@@ -85,12 +128,8 @@
      "scaled": true,
      "src": "L302"
     }
-   ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "\"Do you think the song does anything?\" (friend) asks quietly. (subject) is quiet a while. \"I don't know,\" (subject.he/she) admits. \"I think it helps us. We feel less alone when we're worried together.\" (friend) nods. \"Then it does something.\" They carry water from the stream all day. The rain comes eventually. It always has, so far.",
-   "src": "L305"
+   ],
+   "auto_text": true
   }
  }
 }

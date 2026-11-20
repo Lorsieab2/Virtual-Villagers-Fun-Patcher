@@ -1,0 +1,6 @@
+LIBRARY "VVFP Food Gain"
+EXPORTS
+    VvfpStartup
+    VvfpFoodGainInstalled
+    VvfpFoodGainTenths
+    VvfpFoodGainSite

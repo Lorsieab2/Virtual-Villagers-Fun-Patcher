@@ -69,11 +69,69 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) thinks about it, then grins. \"Only if you don't snore.\" \"I absolutely snore,\" says (friend). \"Fine,\" says (subject). They move in together. They argue about everything: how to cook fish, who left the door open, whether it's going to rain. They have never been happier. People ask if they're a couple. \"No,\" says (subject). \"We're worse. We're friends.\"",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L254"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L254"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "(subject) thinks about it, then grins. \"Only if you don't snore.\" \"I absolutely snore,\" says (friend). \"Fine,\" says (subject). They move in together. They argue about everything: how to cook fish, who left the door open, whether it's going to rain. They have never been happier. People ask if they're a couple. \"No,\" says (subject). \"We're worse. We're friends.\"",
    "src": "L254"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I love you,\" says (subject). \"But I like my own hut. Even if it's drafty.\" (friend) laughs. \"Fair enough.\" So instead, they visit each other every evening, taking turns. One cooks, the other complains. It works perfectly. They agree they'd have driven each other mad living together. They're probably right.",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L257"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "\"I love you,\" says (subject). \"But I like my own hut. Even if it's drafty.\" (friend) laughs. \"Fair enough.\" So instead, they visit each other every evening, taking turns. One cooks, the other complains. It works perfectly. They agree they'd have driven each other mad living together. They're probably right.",
    "src": "L257"

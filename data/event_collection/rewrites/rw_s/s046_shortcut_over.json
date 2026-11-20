@@ -1,0 +1,285 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shortcut over the Ridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s046_shortcut_over",
+  "source": "rewrites",
+  "lines": [
+   2176,
+   2220
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2176",
+  "ledger": [
+   {
+    "src": "L2177",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2178",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2186",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2195",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2183",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2184",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2187",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2196",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2189",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2192",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2198",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2201",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2204-2220",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There's a shortcut over the ridge to the far beaches.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There's a shortcut over the ridge to the far beaches. It runs along a knife-edge of crumbling red rock, no wider than a sleeping mat, with a long drop straight down to the sea on one side and a wall of thorn bushes on the other. It cuts the walk in half.\nEveryone knows it's dangerous. Every parent has told every child never to take it. And every single adult in the village has taken it at least once, and quietly not mentioned it.\nToday it's (name)'s turn. (He/She) is coming home late from the far beach, with a basket so heavy (his/her) shoulders are aching, and the sun is going down. The long way is very long. The ridge is right there. Should (he/she) risk the shortcut, or take the long way home?",
+   "choices": [
+    {
+     "label": "Take the Shortcut",
+     "next": "c1",
+     "src": "L2183"
+    },
+    {
+     "label": "Take the Long Way",
+     "next": "c2",
+     "src": "L2184"
+    }
+   ],
+   "src": "L2179-2181"
+  },
+  "c1o1": {
+   "text": "(Name) doesn't look down, and doesn't look back, and doesn't stop. One foot in front of the other, quick and light, the basket steady. Halfway across a gust nearly takes (him/her), and (he/she) drops to a crouch, heart hammering, and waits it out, and goes on. In no time at all (he/she) jumps down onto the soft grass on the far side, and laughs out loud. (He/She) gets home before dusk, faster than ever, with a full basket and a huge grin, and tells everyone (he/she) took the long way. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2190",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "It rained up on the ridge in the afternoon. (Name) didn't know. The red rock is slick and wet, and halfway across, where the path is narrowest, (his/her) foot slides out from under (him/her). There's nobody there to see. (He/She) does not come home. When (he/she) still hasn't come back by morning, the searchers go out along both paths, calling, and on the ridge they find (his/her) basket lying on its side at the edge, with the fruit spilled out over the rocks. Nothing else. The sea below gives nothing back. Nobody in the village takes the shortcut again, for a while.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L2193",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) shifts the basket on (his/her) back, takes a deep breath, and steps out onto the ridge. The wind comes up from the sea in gusts, tugging at (him/her). Far below, the waves boom against the rocks. (He/She) doesn't look down...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2187"
+  },
+  "c2o1": {
+   "text": "The long way is long. It is very, very long. It goes down into a valley and back up again, through mud and mosquitoes, and the basket gets heavier with every step. The sun goes down, and (name) stumbles the last part in the dark, stubbing (his/her) toes on every root. (He/She) gets home long after dinner, tired and grumpy and filthy and safe. (He/She) drops the basket in the store and swears, loudly, that (he/she) is never going on a long gathering trip again.",
+   "children": [
+    {
+     "next": "c2o1_c3"
+    }
+   ],
+   "src": "L2199"
+  },
+  "c2o2": {
+   "text": "Halfway along the long way, in the last of the light, (name) takes a wrong turn down an old overgrown path, and comes out in a grove (he/she) has never seen before. Nobody has picked it in years: the trees are bent nearly double with fruit, and the ground is thick with it. (Name) drops the old basket, fills it with the best of the new fruit, ties more up in (his/her) wrap, and staggers home in the dark carrying more than (he/she) has ever carried in (his/her) life. The next day half the village goes back with baskets. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2202",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) looks at the ridge for a long time, at the red rock and the drop and the setting sun. Then (he/she) sighs, shifts the heavy basket, and turns down the long, winding path through the jungle instead...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2196"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "berries",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       1,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "coconuts",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g2",
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "else": "c2o1_c1"
+    }
+   ]
+  },
+  "c2o1_g3": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "fruit",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c3": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g3",
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "else": "c2o1_c2"
+    }
+   ]
+  }
+ }
+}

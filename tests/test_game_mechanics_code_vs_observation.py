@@ -45,7 +45,8 @@ PAIRS = (
     (5, "Death and graves",
      "In the game's code a Heathen can be marked sick: The Missing Kids", gm.CODE,
      "Heathens never age, eat or fall sick (the game runs none of that for them)", gm.OWNER),
-    # A New Home: the dislike of running is read only under 14 (0x43CCF0) vs the owner's "works for adults too".
+    # A New Home: the dislike of running is read only in a child's walk (0x43CCF0) vs the owner's live word
+    # (2026-11-16) that it slows every villager, adults too.
     (1, "Hidden villager stats",
      "In the game's code the dislike of running is read in one place only", gm.CODE,
      "Running, liked: a villager of 14 or more runs", gm.OWNER),
@@ -86,10 +87,11 @@ class BothSidesAreWritten(unittest.TestCase):
                     self.assertRegex(text, r"^(The game |In the game's code|A teenager, in the game's code|"
                                            r"The Lovers in the game's code|Heathens, in the game's code)")
 
-    def test_vv1_running_keeps_the_untraced_step_unconfirmed(self) -> None:
-        # Step 1 of the step dispatcher (0x43CBD0) sets the running speed under 14 with no dislike read; what
-        # queues it is not traced, so the line stays UNCONFIRMED.
-        self._one(1, "Hidden villager stats", "Another movement step gives every villager under 14", False)
+    def test_vv1_running_step_is_traced(self) -> None:
+        # Step 1 of the step dispatcher (0x43CBD0) sets the running speed under 14 with no dislike read; the "nothing
+        # withheld" audit (6c77b2a69) traced what queues it ("Not feeling well", "Strolling", the Golden Child's own
+        # wandering), so the line is the code's.
+        self._one(1, "Hidden villager stats", "Another movement step gives every villager under 14", gm.CODE)
 
     def test_vv3_autosave_and_the_live_run_are_both_written(self) -> None:
         # The code: the per-frame update 0x427720 runs the save check 0x427DD0 at 0x427B40, every 600 seconds of

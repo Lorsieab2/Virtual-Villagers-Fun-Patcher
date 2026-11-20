@@ -121,6 +121,8 @@ assets/word_lists/** -text
 assets/fruit_supply/*.txt -text
 # Island Events Scale With Stored Food and Tech Points's flag file: pinned by raw SHA-256.
 assets/island_events_scale/*.txt -text
+# No Restrictions on Fog of Doom Conversions' flag file: pinned by raw SHA-256.
+assets/fog_listening/*.txt -text
 
 # Isola Grand Event Collection: the frozen source is pinned by SHA-256 (data/event_collection/SOURCE.sha256); the
 # collection JSON masters are compared byte for byte after a round trip.
@@ -161,6 +163,8 @@ docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collecti
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Disability[[:space:]]and[[:space:]]Diversity[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]History[[:space:]]and[[:space:]]Collective[[:space:]]Memory[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Pondering[[:space:]]How[[:space:]]Life[[:space:]]Has[[:space:]]Gone[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Tree[[:space:]]of[[:space:]]Life[[:space:]]Supplies[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Living[[:space:]]Culture[[:space:]]*[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 # The owner-approved files, group D (frozen byte for byte; scripts/drafts_d/)
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Role[[:space:]]Models[[:space:]]RM-41[[:space:]]to[[:space:]]RM-90[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Beyond[[:space:]]the[[:space:]]Horizon[[:space:]]081[[:space:]]to[[:space:]]130[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
@@ -172,3 +176,7 @@ docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collecti
 /docs/more-island-events/Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt -text
 # The owner's all-in-one Animals anthology (frozen byte for byte; its newest volumes: scripts/anthology_new/)
 /docs/more-island-events/Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt -text
+# The owner's More Island Events file (frozen byte for byte; scripts/go_events/gen_mie.py, data/event_collection/MIE.sha256)
+/docs/more-island-events/Additional[[:space:]]Virtual[[:space:]]Villagers[[:space:]]Events[[:space:]]By[[:space:]]Lorsieab2.txt -text
+assets/gender_presentation/*.txt -text
+/docs/more-island-events/(Name1)'s[[:space:]]Harshest[[:space:]]Critic*.txt -text

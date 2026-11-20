@@ -64,14 +64,47 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "The children are thrilled. (name1) climbs onto the rock, tucks up (his/her) knees and jumps. The splash soaks every child on the bank, the judges, and a pig that was asleep nearby. (name1) surfaces to a roar of applause and is declared champion for life. (He/she) is a bit stiff for two days and regrets nothing.",
-   "src": "L386"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) sits on the bank and solemnly holds up fingers for scores. Every child gets ten. The last jump is clearly aimed straight at the judge and drenches (him/her) from head to foot. \"That one,\" (name1) says, dripping, \"gets eleven.\"",
    "src": "L389"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The children are thrilled. (name1) climbs onto the rock, tucks up (his/her) knees and jumps. The splash soaks every child on the bank, the judges, and a pig that was asleep nearby. (name1) surfaces to a roar of applause and is declared champion for life. (He/she) is a bit stiff for two days and regrets nothing.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L386"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -20,
+     "max": -10,
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The children are thrilled. (name1) climbs onto the rock, tucks up (his/her) knees and jumps. The splash soaks every child on the bank, the judges, and a pig that was asleep nearby. (name1) surfaces to a roar of applause and is declared champion for life. (He/she) is a bit stiff for two days and regrets nothing.",
+   "src": "L386"
   }
  }
 }

@@ -71,14 +71,46 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(friend) announces a rule that whoever has a crab nearby wins straight away, and points to a crab. (subject) invents a rule that crabs don't count on days with clouds. Soon the game is nothing but new rules, and both of them are laughing too hard to play it, which turns out to be more fun than the game was.",
-   "src": "L410"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Tell me every rule now,\" says (friend), \"before we start.\" (subject) has to make them all up at once, and they scratch them into the sand. Then they play by them. (subject) loses. (subject.He/she) stares at the sand for a long moment, and then accepts it. They play again. (subject) loses again. (friend) is gracious about it, eventually.",
    "src": "L413"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) announces a rule that whoever has a crab nearby wins straight away, and points to a crab. (subject) invents a rule that crabs don't count on days with clouds. Soon the game is nothing but new rules, and both of them are laughing too hard to play it, which turns out to be more fun than the game was.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L410"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) announces a rule that whoever has a crab nearby wins straight away, and points to a crab. (subject) invents a rule that crabs don't count on days with clouds. Soon the game is nothing but new rules, and both of them are laughing too hard to play it, which turns out to be more fun than the game was.",
+   "src": "L410"
   }
  }
 }

@@ -1,0 +1,939 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Aspiring Adventurer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "mie_adventurer",
+  "source": "mie",
+  "lines": [
+   33,
+   302
+  ],
+  "section": "mie",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L33",
+  "ledger": [
+   {
+    "src": "L85",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L86",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the owner's spec around the choice labels"
+   },
+   {
+    "src": "L35",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L37-42",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L46",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L49",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L53",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L60-63",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L65-70",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L72-73",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L77",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L80",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L90",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L97",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L100",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L109",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L112",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L122",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L127",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L131",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L136",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L139",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L142",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L148",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L151",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L155",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L157",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L161",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L166",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L172",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L175",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L178",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L181",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L184",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L192",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L197",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L200-201",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L205",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L208",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L210-216",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L218-228",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L230",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L232-238",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L242",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L245",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L247-256",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L258-268",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L270-276",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L279",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L281-285",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L287-296",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   },
+   {
+    "src": "L298-302",
+    "kind": "note",
+    "why": "the owner's spec (requirements, casting, chances, effects): carried out as the roles, the requirement, the branches and the pages' effects"
+   }
+  ],
+  "description": "A villager spots something glinting off the jungle path: go and investigate, or stay on the safe path.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "mixer_only": true,
+  "approximations": [
+   "the friend in A8 is a second villager cast for every run (the event needs two who can be picked, as the owner's requirement says); a Custom Island Event bought with one villager cannot be cast (the owner's 'then A8 becomes A5' is not made)",
+   "the protected villagers are kept out of both roles by the engine's protected filter (nursing parents, the Golden Child, The Secret City's chief, the totems, New Believers' special roles and Heathens)"
+  ]
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "protected": "exclude"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "protected": "exclude"
+  },
+  "stranger": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "text": "(Subject) is an aspiring adventurer. Every morning (subject.he/she) goes off in the jungle to scavenge for useful things. Although (subject) has an eye for treasure, sometimes (subject.his/her) ambition gets the best of (subject.him/her). (Subject) has managed to escape from sticky situations so far, but the others have cautioned (subject.him/her) repeatedly about exploring alone.",
+   "src": "L82",
+   "children": [
+    {
+     "next": "ask"
+    }
+   ]
+  },
+  "ask": {
+   "type": "question",
+   "text": "During (subject.his/her) travels, (subject.he/she) sees something glinting in the corner of (subject.his/her) eye. (Subject) feels compelled to see what it is, but is unsure whether to leave the known-safe path in order to investigate.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Go Investigate!",
+     "next": "a_open",
+     "src": "L85"
+    },
+    {
+     "label": "Stay on the Safe Path",
+     "next": "b_open",
+     "src": "L86"
+    }
+   ]
+  },
+  "a_open": {
+   "text": "Against (subject.his/her) better judgement, (subject) leaves the beaten path to check out the strange sight. As (subject.he/she) pushes through the foliage, the area gets noticeably darker and colder. The hairs on (subject)'s neck stand on end as (subject.he/she) gets closer to the spot. When (subject) approaches, (subject.he/she) finds...",
+   "src": "L95",
+   "children": [
+    {
+     "next": "find_dirt"
+    },
+    {
+     "next": "find_dirt"
+    },
+    {
+     "next": "find_meat"
+    },
+    {
+     "next": "find_chest"
+    }
+   ]
+  },
+  "find_dirt": {
+   "text": "nothing but a pile of dirt.",
+   "src": "L98",
+   "popup": "append",
+   "children": [
+    {
+     "next": "dirt_safe"
+    },
+    {
+     "next": "deadly"
+    }
+   ]
+  },
+  "find_meat": {
+   "text": "a large stack of meat, sitting perfectly on a cloth! (Subject)'s stomach growls upon seeing the bounty, and (subject.he/she) hastily grabs as much as (subject.he/she) can and starts stuffing it in (subject.his/her) knapsack.",
+   "src": "L101",
+   "popup": "append",
+   "children": [
+    {
+     "next": "meat_safe"
+    },
+    {
+     "next": "deadly"
+    }
+   ]
+  },
+  "find_chest": {
+   "text": "a large golden chest full of artifacts! (Subject)'s eyes widen at the sight, and (subject.he/she) stuffs as much treasure as (subject.he/she) can fit in (subject.his/her) knapsack.",
+   "src": "L104",
+   "popup": "append",
+   "children": [
+    {
+     "next": "chest_safe"
+    },
+    {
+     "next": "deadly"
+    }
+   ]
+  },
+  "dirt_safe": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a7"
+    },
+    {
+     "next": "a9"
+    }
+   ]
+  },
+  "deadly": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    },
+    {
+     "next": "a6"
+    }
+   ]
+  },
+  "meat_safe": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_food"
+    },
+    {
+     "next": "a5_food"
+    },
+    {
+     "next": "a8_food"
+    }
+   ]
+  },
+  "a1_food": {
+   "text": "(Subject) waits for a while, and seeing no one else around, concludes that (subject.he/she) can get away safely. (subject.He/She) triumphantly goes back to the village and raves about (subject.his/her) latest discovery, to the joy of the villagers. Your villagers gain (award) food.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L110",
+     "text": "/tech points"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L110",
+     "what": "\"tech\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "a5_food": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nMiraculously, (subject) manages to escape the trap, and quickly runs back to the safety of the village. Heart pounding, (subject.he/she) frantically warns others about (subject.his/her) misadventure, to the relief of all the villagers. (Subject) vows to never do something like that EVER again! Your villagers gain (award) food.",
+   "src": "L128-129",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L129",
+     "text": "/tech points"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L129",
+     "what": "\"tech\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "a8_food": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nLuckily, it's just one of (subject.his/her) old friends! Apparently, they got worried, and brought extra supplies to help (subject) out... Together (subject) and (friend) return to the safety of the village, to the relief of all the villagers. (Subject) thanks (friend) for saving (subject.his/her) life and vows to never do something like that EVER again! Your villagers gain (award) food.",
+   "src": "L143-144",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L144",
+     "text": "/tech points"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L144",
+     "what": "\"tech\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "chest_safe": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1_tech"
+    },
+    {
+     "next": "a5_tech"
+    },
+    {
+     "next": "a8_tech"
+    }
+   ]
+  },
+  "a1_tech": {
+   "text": "(Subject) waits for a while, and seeing no one else around, concludes that (subject.he/she) can get away safely. (subject.He/She) triumphantly goes back to the village and raves about (subject.his/her) latest discovery, to the joy of the villagers. Your villagers gain (award) tech points.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L110",
+     "text": "food/"
+    }
+   ],
+   "auto_text": true
+  },
+  "a5_tech": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nMiraculously, (subject) manages to escape the trap, and quickly runs back to the safety of the village. Heart pounding, (subject.he/she) frantically warns others about (subject.his/her) misadventure, to the relief of all the villagers. (Subject) vows to never do something like that EVER again! Your villagers gain (award) tech points.",
+   "src": "L128-129",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L129",
+     "text": "food/"
+    }
+   ],
+   "auto_text": true
+  },
+  "a8_tech": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nLuckily, it's just one of (subject.his/her) old friends! Apparently, they got worried, and brought extra supplies to help (subject) out... Together (subject) and (friend) return to the safety of the village, to the relief of all the villagers. (Subject) thanks (friend) for saving (subject.his/her) life and vows to never do something like that EVER again! Your villagers gain (award) tech points.",
+   "src": "L143-144",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src_cut": [
+    {
+     "src": "L144",
+     "text": "food/"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nThe last thing (subject) sees is the wide toothy grin of a large beast, and the terror of (subject.his/her) face reflected in its eyes.\nLater on, some hunters come to check on the trap, and see the unfortunate aftermath. They manage to recover (subject)'s remains and return them to the village. The villagers mourn for (subject) greatly and lament that things had to turn out this way.",
+   "src": "L113-115",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown"
+    }
+   ],
+   "auto_text": true
+  },
+  "a3": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nThe last thing (subject) sees is the wide toothy grin of a large beast, and the terror of (subject.his/her) face reflected in its eyes.\nLater on, some hunters come to check on the trap, and see the unfortunate aftermath. They try to recover (subject)'s remains, but are unsuccessful. They bring the sad news to the village along with their condolences. The villagers mourn for (subject) greatly and lament that things had to turn out this way.",
+   "src": "L118-120",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nThe last thing (subject) sees is a strange (stranger.man/woman) brandishing a knife with a wide grin on (stranger.his/her) face...\nAfter several days, the villagers get worried about (subject) and send out a search party. Eventually, they find the grisly scene, and manage to recover (subject.his/her) remains. For 3 days the village mourns (subject)'s death as they lay (subject.him/her) to rest. They vow never to let something like this happen again.",
+   "src": "L123-125",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown"
+    }
+   ],
+   "auto_text": true
+  },
+  "a6": {
+   "text": "As (subject) turns to leave, (subject.he/she) unexpectedly steps into a trap! Now panicking, (subject.he/she) struggles with all (subject.his/her) might to break free, causing a big ruckus. (subject.He/She) hears something coming, and braces for the worst...\nThe last thing (subject) sees is a strange (stranger.man/woman) brandishing a knife with a wide grin on (stranger.his/her) face...\nAfter several days, the villagers get worried about (subject) and send out a search party. Although they try their hardest, they cannot find any trace of (subject.him/her). For 3 days the village mourns (subject)'s disappearance and vow to never let something like this happen again.",
+   "src": "L132-134",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    }
+   ],
+   "auto_text": true
+  },
+  "a7": {
+   "text": "(Subject) is disappointed that (subject.he/she) wasted (subject.his/her) time, and manages to make it back to the village safely.",
+   "src": "L137"
+  },
+  "a9": {
+   "text": "(Subject) laughs at the pitiable sight and walks back to the village with a smile. (subject.He/She) will definitely have a funny story to tell over dinner.",
+   "src": "L140"
+  },
+  "b_open": {
+   "text": "(Subject) decides it's far too dangerous to leave the safety of the path...",
+   "src": "L153",
+   "children": [
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_home"
+    },
+    {
+     "next": "b_lost"
+    }
+   ]
+  },
+  "b_home": {
+   "text": "And manages to make it home safely.",
+   "src": "L156",
+   "popup": "append"
+  },
+  "b_lost": {
+   "text": "And starts heading home. Unfortunately, something goes horribly wrong and (subject.he/she) gets hopelessly lost in the jungle. Days pass with no sign of (subject)...",
+   "src": "L158",
+   "popup": "append",
+   "children": [
+    {
+     "next": "lost1"
+    },
+    {
+     "next": "lost2",
+     "if": {
+      "game": [
+       1,
+       2,
+       3,
+       4
+      ]
+     },
+     "else": "lost2_vv5"
+    },
+    {
+     "next": "lost3"
+    },
+    {
+     "next": "lost4"
+    },
+    {
+     "next": "lost5"
+    },
+    {
+     "next": "lost6"
+    }
+   ]
+  },
+  "lost1": {
+   "text": "...until a scout spots (subject) wandering disoriented. (subject.He/She) is heavily injured, and is quickly brought to the healers...",
+   "src": "L164",
+   "children": [
+    {
+     "next": "heal1"
+    },
+    {
+     "next": "heal2"
+    },
+    {
+     "next": "heal3"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L164",
+     "what": "\"injured\"",
+     "reason": "the word in the owner's story; what changes in the game is the outcome's own effects (the owner's spec beside it), so this word alone changes nothing"
+    }
+   ]
+  },
+  "heal1": {
+   "text": "Although they try everything in their power to save (subject), (subject.he/she) quietly passes away, to the grief of all the villagers. In the end, they can only speculate about what happened to poor (subject), and forbid anyone from ever going out in the jungle alone again.",
+   "src": "L167",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown"
+    }
+   ],
+   "auto_text": true
+  },
+  "heal2": {
+   "text": "After many medical procedures, (subject) eventually makes a full recovery. (Subject) recounts (subject.his/her) harrowing misadventure to the worried villagers, and (subject.he/she) vows never to make that mistake again. The villagers are relieved that (subject) has managed to survive (subject.his/her) ordeal and embrace (subject.him/her) tightly.",
+   "src": "L170"
+  },
+  "heal3": {
+   "text": "After many medical procedures, (subject) manages to recover, although is left permanently disabled. (Subject) recounts (subject.his/her) harrowing misadventure to the worried villagers, and (subject.he/she) vows never to make that mistake again. The villagers are relieved that (subject) has managed to survive (subject.his/her) ordeal and embrace (subject.him/her) tightly.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "health",
+     "role": "subject",
+     "min": 10,
+     "max": 50
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "running"
+    }
+   ],
+   "auto_text": true
+  },
+  "lost2": {
+   "text": "...until a scout spots (subject) walking about. (Subject) seems to have joined another tribe. (subject.He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "auto_text": true
+  },
+  "lost2_vv5": {
+   "text": "...until a scout spots (subject) walking about. (Subject) is seen wearing a mask and seems to have joined the heathens' tribe. (subject.He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.",
+   "src": "L198",
+   "effects": [
+    {
+     "do": "status",
+     "role": "subject",
+     "status": "heathen"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "...until a scout spots (subject) walking about. (Subject) is seen wearing a mask and seems to have joined the Isolans' tribe. (subject.He/She) seems no worse for the wear, so the scout goes back to report their findings to the tribe.",
+     "src": "L201"
+    }
+   ],
+   "auto_text": true
+  },
+  "lost3": {
+   "text": "...until a scout spots (subject) walking about. (Subject) notices the scout and returns home with them, to the great relief of the villagers. (subject.He/She) recounts (subject.his/her) misadventure to the worried villagers, who learn that (subject.he/she) got lost in the dark. Luckily, (subject) was prepared and managed to survive. (Subject) is proving to be a great survivalist, and now teaches others the art of bushcraft!",
+   "src": "L179",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming",
+      "Building",
+      "Research",
+      "Healing"
+     ],
+     "min": 20,
+     "max": 30
+    }
+   ],
+   "auto_text": true
+  },
+  "lost4": {
+   "text": "...until a scout spots (subject)'s remains under a fallen tree. In the end, the villagers can only speculate about what happened to poor (subject), and forbid anyone from ever going out in the jungle alone again.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown",
+     "line": "injuries"
+    }
+   ],
+   "auto_text": true
+  },
+  "lost5": {
+   "text": "...until a scout spots (subject)'s remains at the bottom of a stony cliff. In the end, the villagers can only speculate about what happened to poor (subject), and forbid anyone from ever going out in the jungle alone again.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "subject",
+     "cause": "unknown"
+    }
+   ],
+   "auto_text": true
+  },
+  "lost6": {
+   "text": "...and (subject.he/she) is never seen again. In the end, the villagers can only speculate about what happened to poor (subject), and forbid anyone from ever going out in the jungle alone again.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

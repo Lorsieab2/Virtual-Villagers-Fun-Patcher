@@ -83,9 +83,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "The villagers try it and step on each other's feet, laughing.",
-   "src": "L585"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -132,6 +139,58 @@
    "src": "L591"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villagers try it and step on each other's feet, laughing.",
+   "src": "L585",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L585"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villagers try it and step on each other's feet, laughing.",
+   "src": "L585"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The mixture is so confusing that everyone collapses laughing.",
+   "src": "L592",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L592"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L592"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "The mixture is so confusing that everyone collapses laughing.",
    "src": "L592",

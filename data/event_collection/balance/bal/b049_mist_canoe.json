@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mist Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b049_mist_canoe",
+  "source": "balance",
+  "lines": [
+   2208,
+   2249
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2208",
+  "ledger": [
+   {
+    "src": "L2209",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2210",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2227",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2215",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2216",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2219",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2228",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2221",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2224",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2230",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2233",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2236-2249",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Old stories say it's from the island behind the mist, and that it sometimes waits for a passenger.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Some mornings a thick white mist lies on the sea, and once in a long while, the fishers say, a canoe comes out of it that nobody can quite see, only the shape of it, and the sound of paddles. Old stories say it's from \"the island behind the mist,\" and that it sometimes waits for a passenger.\nThis morning (name) is alone on the beach, and the mist is thick, and there it is: the shape of a canoe, waiting just past the shallows, and the soft sound of paddles holding it still. It seems to be waiting for (him/her).\nShould (name) wade out to it, or call out from the beach?",
+   "choices": [
+    {
+     "label": "Wade Out",
+     "next": "c1",
+     "src": "L2215"
+    },
+    {
+     "label": "Call Out from the Beach",
+     "next": "c2",
+     "src": "L2216"
+    }
+   ],
+   "src": "L2211-2213"
+  },
+  "c1o1": {
+   "text": "When the mist lifts, an hour later, the beach is empty. (Name)'s footprints go down to the water's edge and stop. The fishers search, but there's nothing to search for. In the village, people say (he/she) went to the island behind the mist, and some of them sound almost envious. (His/Her) friends leave a light burning on the beach on misty mornings, just in case.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject",
+     "line": "leaves"
+    }
+   ],
+   "src": "L2222",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) climbs in, and the mist closes round, and then (he/she) is standing on the beach again, soaking wet, in bright sunshine. Only a moment seems to have passed. But (his/her) face has aged, as if (he/she) had been gone for years, and (he/she) can't say where, only that it was \"very peaceful, and very far.\" (He/She) smiles more than (he/she) used to.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L2225",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) wades out, knee deep, waist deep. The canoe is closer than it looked, and further, both at once. A hand that (he/she) can't quite see reaches down to help (him/her) in...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2219"
+  },
+  "c2o1": {
+   "text": "The canoe slides up onto the sand, and it's quite solid, and in it are two very tired, very confused adults with a baby, who say they've been lost in the mist for days and couldn't see the shore. Whether they came from behind the mist or just got lost in it, nobody ever finds out, not even them. {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L2231",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The voice calls back (name)'s own name, softly, and then the sun breaks through and the mist goes in a rush, and there's nothing on the water but a single white seabird. (Name) stands there a long time. (He/She) never tells anyone what the voice sounded like.",
+   "src": "L2234"
+  },
+  "c2": {
+   "text": "\"Who's there?\" (name) calls. The paddling stops. For a long moment the mist is completely silent. Then someone, somewhere, calls back...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2228"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2231",
+   "before": "They decide to stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They decide to stay}."
+  }
+ ]
+}

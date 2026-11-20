@@ -143,9 +143,16 @@
    ]
   },
   "a1_m": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They discover mutual affection and begin courting.",
-   "src": "L27395"
+   "children": [
+    {
+     "next": "a1_m__fx"
+    },
+    {
+     "next": "a1_m__text"
+    }
+   ]
   },
   "a2_m": {
    "name": "Outcome A2",
@@ -165,9 +172,16 @@
    ]
   },
   "b1_m": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They grow closer through stories of their lives.",
-   "src": "L27398"
+   "children": [
+    {
+     "next": "b1_m__fx"
+    },
+    {
+     "next": "b1_m__text"
+    }
+   ]
   },
   "b2_m": {
    "name": "Outcome B2",
@@ -187,9 +201,16 @@
    ]
   },
   "c1_m": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They attend together and feel happy.",
-   "src": "L27401"
+   "children": [
+    {
+     "next": "c1_m__fx"
+    },
+    {
+     "next": "c1_m__text"
+    }
+   ]
   },
   "c2_m": {
    "name": "Outcome C2",
@@ -266,9 +287,16 @@
    ]
   },
   "a1_f": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "They discover mutual affection and begin courting.",
-   "src": "L27395"
+   "children": [
+    {
+     "next": "a1_f__fx"
+    },
+    {
+     "next": "a1_f__text"
+    }
+   ]
   },
   "a2_f": {
    "name": "Outcome A2",
@@ -288,9 +316,16 @@
    ]
   },
   "b1_f": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "They grow closer through stories of their lives.",
-   "src": "L27398"
+   "children": [
+    {
+     "next": "b1_f__fx"
+    },
+    {
+     "next": "b1_f__text"
+    }
+   ]
   },
   "b2_f": {
    "name": "Outcome B2",
@@ -310,9 +345,16 @@
    ]
   },
   "c1_f": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "They attend together and feel happy.",
-   "src": "L27401"
+   "children": [
+    {
+     "next": "c1_f__fx"
+    },
+    {
+     "next": "c1_f__text"
+    }
+   ]
   },
   "c2_f": {
    "name": "Outcome C2",
@@ -340,6 +382,156 @@
    "name": "Outcome D2",
    "text": "They cherish companionship without needing a label.",
    "src": "L27405"
+  },
+  "a1_m__fx": {
+   "name": "Outcome A1",
+   "text": "They discover mutual affection and begin courting.",
+   "src": "L27395",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "men1",
+     "mood": "good",
+     "src": "L27395"
+    },
+    {
+     "do": "mood",
+     "role": "men2",
+     "mood": "good",
+     "src": "L27395"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1_m__text": {
+   "name": "Outcome A1",
+   "text": "They discover mutual affection and begin courting.",
+   "src": "L27395"
+  },
+  "b1_m__fx": {
+   "name": "Outcome B1",
+   "text": "They grow closer through stories of their lives.",
+   "src": "L27398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "men1",
+     "mood": "good",
+     "src": "L27398"
+    },
+    {
+     "do": "mood",
+     "role": "men2",
+     "mood": "good",
+     "src": "L27398"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1_m__text": {
+   "name": "Outcome B1",
+   "text": "They grow closer through stories of their lives.",
+   "src": "L27398"
+  },
+  "c1_m__fx": {
+   "name": "Outcome C1",
+   "text": "They attend together and feel happy.",
+   "src": "L27401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "men1",
+     "mood": "good",
+     "src": "L27401"
+    },
+    {
+     "do": "mood",
+     "role": "men2",
+     "mood": "good",
+     "src": "L27401"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1_m__text": {
+   "name": "Outcome C1",
+   "text": "They attend together and feel happy.",
+   "src": "L27401"
+  },
+  "a1_f__fx": {
+   "name": "Outcome A1",
+   "text": "They discover mutual affection and begin courting.",
+   "src": "L27395",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "women1",
+     "mood": "good",
+     "src": "L27395"
+    },
+    {
+     "do": "mood",
+     "role": "women2",
+     "mood": "good",
+     "src": "L27395"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1_f__text": {
+   "name": "Outcome A1",
+   "text": "They discover mutual affection and begin courting.",
+   "src": "L27395"
+  },
+  "b1_f__fx": {
+   "name": "Outcome B1",
+   "text": "They grow closer through stories of their lives.",
+   "src": "L27398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "women1",
+     "mood": "good",
+     "src": "L27398"
+    },
+    {
+     "do": "mood",
+     "role": "women2",
+     "mood": "good",
+     "src": "L27398"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1_f__text": {
+   "name": "Outcome B1",
+   "text": "They grow closer through stories of their lives.",
+   "src": "L27398"
+  },
+  "c1_f__fx": {
+   "name": "Outcome C1",
+   "text": "They attend together and feel happy.",
+   "src": "L27401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "women1",
+     "mood": "good",
+     "src": "L27401"
+    },
+    {
+     "do": "mood",
+     "role": "women2",
+     "mood": "good",
+     "src": "L27401"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1_f__text": {
+   "name": "Outcome C1",
+   "text": "They attend together and feel happy.",
+   "src": "L27401"
   }
  }
 }

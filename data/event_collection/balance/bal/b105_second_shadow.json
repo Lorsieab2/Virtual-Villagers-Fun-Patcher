@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Shadow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b105_second_shadow",
+  "source": "balance",
+  "lines": [
+   4745,
+   4785
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4745",
+  "ledger": [
+   {
+    "src": "L4746",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4747",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4754",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4763",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4751",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4752",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4755",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4764",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4757",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4760",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4766",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4769",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4772-4785",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For three days, a villager has had two shadows.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For three days, (name) has had two shadows. One does what a shadow should. The other is a little late, and a little to the left, and sometimes it waves when (name) doesn't. The elders say a shadow that has come loose like that is \"trying to become someone,\" and that it will, one way or the other, at the next full moon, unless it's sent back to where it came from: the old pool in the cave behind the village, where shadows are said to sink.\nThe full moon is tonight. Should (name) let it happen, or take the second shadow to the cave pool?",
+   "choices": [
+    {
+     "label": "Let It Happen",
+     "next": "c1",
+     "src": "L4751"
+    },
+    {
+     "label": "Take It to the Cave Pool",
+     "next": "c2",
+     "src": "L4752"
+    }
+   ],
+   "src": "L4748-4749"
+  },
+  "c1o1": {
+   "text": "The shadow becomes a person: (name), exactly, every like and every habit, blinking in the firelight. It has been following (name) for three days and knows everything (he/she) has done, and has opinions about all of it. It takes the name (made1), and the two of them sit by the fire talking until dawn.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L4758",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The shadow becomes a person with (name)'s face and someone else's heart. Three days of following (name) around taught it the outside, and nothing more: it likes different things, laughs differently, and is very excited about being able to eat. It takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L4761",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) sits by the fire as the full moon rises, and watches the second shadow stretch out across the ground, and thicken, and stand up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4755"
+  },
+  "c2o1": {
+   "text": "The second shadow slides into the pool and sinks. But when (name) bends to look into the water, (his/her) reflection has a different face. The shadow took some of (name)'s old face with it when it went, and left (him/her) a new one. (Name) touches (his/her) cheek, and decides it's a fair trade.",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L4767",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The second shadow sinks into the black water, and the pool shivers, and is still. (Name) walks back out with one shadow, right where it should be. For a long time after, (he/she) keeps glancing down at it, just to check.",
+   "src": "L4770"
+  },
+  "c2": {
+   "text": "(Name) walks into the cave with a torch, and the second shadow follows, late and to the left, all the way down to the black, still pool...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4764"
+  }
+ }
+}

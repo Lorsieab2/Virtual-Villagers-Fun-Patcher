@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Price of a Promise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj38_price_promise",
+  "source": "draft_lcj",
+  "lines": [
+   530,
+   541
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L530",
+  "ledger": [
+   {
+    "src": "L531",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L537",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L537",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L541",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L541",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A trader took payment but never delivered the promised tools: demand repayment, or warn the other islands.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last season, the village paid a trader twenty baskets of fish for a set of stone tools, to be delivered at the full moon. Three full moons have passed. Now the trader is back, with no tools and a story. (subject) wants the fish back. (friend) wants to make sure no other island is cheated. What should the village do?",
+   "src": "L533",
+   "choices": [
+    {
+     "label": "Demand Repayment",
+     "next": "o1",
+     "src": "L535"
+    },
+    {
+     "label": "Warn the Other Islands",
+     "next": "o2",
+     "src": "L539"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village tells the trader, firmly, to repay the fish or deliver the tools, before trading anything else. The trader delivers the tools a month later, late and not as good as promised. It is something.",
+   "src": "L537",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L537"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sends word to every island the village trades with. The trader finds no buyers anywhere. Two months later, the tools arrive, along with an apology.",
+   "src": "L541",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L541"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

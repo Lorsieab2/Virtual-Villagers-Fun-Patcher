@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Diary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new178_hidden_diary",
+  "source": "rewrites",
+  "lines": [
+   8624,
+   8671
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8624",
+  "ledger": [
+   {
+    "src": "L8625",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8626",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8636",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8643",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8650",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8632",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8633",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8634",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8637",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8644",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8651",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8640",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8645",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8647",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8652",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8654",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8657-8671",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Under the loose floorboards of an abandoned hut, a villager finds a bundle of bark pages tied up with old fishing line.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Under the loose floorboards of an abandoned hut, (name) finds a bundle of bark pages tied up with old fishing line.\nIt's a diary. Whoever wrote it lived in this hut long ago, and kept careful notes, every day, for years: the weather, the wind, the tides, when the rains came.\nAlong with some very, very honest opinions about the neighbours.\n\"Third day of rain. Roof leaking. The family next door sang all night again. They cannot sing. Nobody has ever told them. I will not be the one.\"\n(Name) reads that page three times, laughing, and then realizes that the family next door is probably somebody's great-great-grandparents. What should (name) do with the diary?",
+   "choices": [
+    {
+     "label": "Copy the Weather Notes",
+     "next": "c1",
+     "src": "L8632"
+    },
+    {
+     "label": "Ask Who Lived in That Hut",
+     "next": "c2",
+     "src": "L8633"
+    },
+    {
+     "label": "Start a Village Weather Log",
+     "next": "c3",
+     "src": "L8634"
+    }
+   ],
+   "src": "L8627-8631"
+  },
+  "c1o1": {
+   "text": "(Name) copies the diary's weather notes onto fresh bark, all of them, years of them: when the first rains came each year, how long the dry seasons lasted, which winds brought storms. It's useful knowledge, carefully kept, and the farmers and fishers pore over it. (Name) leaves out the bits about the neighbours. Mostly.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8639",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The oldest pages are so brittle that they crumble at the first touch, into dust and flakes. A fragile part of the diary is lost: the first years of notes, before anyone else in the village kept any. (Name) gathers the dust into a little pot, not knowing what else to do with it.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L8641",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) decides the weather notes, at least, are too valuable to lose. (He/She) sits down with fresh bark and starts copying...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8637"
+  },
+  "c2o1": {
+   "text": "An old woman's eyes light up. She remembers the writer from her childhood: a cranky old fisher who never missed a storm warning, not once in forty years. \"He'd stand on the beach and shout at us to get the canoes in, and he was always right.\" That forgotten detail makes the notes far more trustworthy, and the village starts using them to plan the fishing season.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L8646",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nobody agrees on who the writer was. A fisher, a healer, a lonely farmer, a spirit. Nobody pretends to know. But everyone wants to read the bits about the neighbours, and at least three families find out unflattering things about their ancestors.",
+   "src": "L8648"
+  },
+  "c2": {
+   "text": "(Name) takes the diary around the village, asking the oldest villagers whose it might have been...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8644"
+  },
+  "c3o1": {
+   "text": "The village begins its own careful weather log, kept in the record hut, with a new entry every single day. Different villagers take turns. Over the seasons, the patterns start to show, and the farmers and fishers use it constantly. It becomes a record for future generations. No opinions about the neighbours are allowed. Officially.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L8653",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "Before anything else is done with it, (name) decides the diary's personal pages should remain private. They were never meant to be read. (He/She) ties the bundle back up with its old fishing line and puts it back under the floorboards, where it was. Only the weather is copied.",
+   "src": "L8655"
+  },
+  "c3": {
+   "text": "Inspired by the diary, (name) proposes that the village keep its own weather log, every day, like the old writer did...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8651"
+  }
+ }
+}

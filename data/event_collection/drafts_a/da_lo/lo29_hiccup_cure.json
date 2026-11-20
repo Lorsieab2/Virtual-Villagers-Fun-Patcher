@@ -65,14 +65,46 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "(subject) holds (subject.his/her) breath. Turns round three times. Hiccups. \"Grouper.\" Hiccups. \"Snapper.\" Hiccups. \"...Small grey one.\" By the time (subject.he/she) runs out of fish names, (subject.he/she) is laughing too hard to hiccup. Whether that was the cure, (friend) refuses to say. (friend.He/She) just looks very satisfied.",
-   "src": "L351"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
    "text": "\"I'll just wait,\" says (subject). (friend) looks hurt. The hiccups go on. And on. Eventually, just to stop (friend) looking at (subject.him/her), (subject) tries the cure. On the second fish name, the hiccups stop. (subject) can't tell if it worked or if they'd have stopped anyway. (friend) can tell. It worked.",
    "src": "L354"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) holds (subject.his/her) breath. Turns round three times. Hiccups. \"Grouper.\" Hiccups. \"Snapper.\" Hiccups. \"...Small grey one.\" By the time (subject.he/she) runs out of fish names, (subject.he/she) is laughing too hard to hiccup. Whether that was the cure, (friend) refuses to say. (friend.He/She) just looks very satisfied.",
+   "src": "L351",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L351"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L351"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) holds (subject.his/her) breath. Turns round three times. Hiccups. \"Grouper.\" Hiccups. \"Snapper.\" Hiccups. \"...Small grey one.\" By the time (subject.he/she) runs out of fish names, (subject.he/she) is laughing too hard to hiccup. Whether that was the cure, (friend) refuses to say. (friend.He/She) just looks very satisfied.",
+   "src": "L351"
   }
  }
 }

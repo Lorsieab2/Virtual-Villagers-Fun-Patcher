@@ -132,6 +132,32 @@
    "src": "L231"
   },
   "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "A villager who signs rather than speaks points out that languages need not be spoken at all; everyone learns a new sign that evening.",
+   "src": "L232",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L232"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
    "name": "Outcome C2",
    "text": "A villager who signs rather than speaks points out that languages need not be spoken at all; everyone learns a new sign that evening.",
    "src": "L232"

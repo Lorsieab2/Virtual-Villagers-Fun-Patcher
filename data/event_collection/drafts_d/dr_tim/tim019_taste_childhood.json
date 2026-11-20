@@ -99,9 +99,16 @@
    "src": "L315"
   },
   "e2": {
+   "type": "branch",
    "name": "Ending 2",
-   "text": "(Name1) tries to recreate a dish remembered from childhood. (Name1) quietly notes one change to try next time.",
-   "src": "L319"
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
   },
   "e3": {
    "name": "Ending 3",
@@ -112,6 +119,25 @@
    "name": "Ending 4",
    "text": "(Name1) tries to recreate a dish remembered from childhood. (Name1) is nervous about the verdict and pretends otherwise.",
    "src": "L327"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) tries to recreate a dish remembered from childhood. (Name1) quietly notes one change to try next time.",
+   "src": "L319",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L319"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) tries to recreate a dish remembered from childhood. (Name1) quietly notes one change to try next time.",
+   "src": "L319"
   }
  }
 }

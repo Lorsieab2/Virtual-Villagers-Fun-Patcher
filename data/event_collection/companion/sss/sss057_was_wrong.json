@@ -79,9 +79,16 @@
    ]
   },
   "a": {
+   "type": "branch",
    "name": "Answer A",
-   "text": "Trust slowly improves and the apprentice gains confidence.",
-   "src": "L6652"
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
   },
   "b": {
    "name": "Answer B",
@@ -92,6 +99,25 @@
    "name": "Answer C",
    "text": "They work productively, though the mentor struggles with pride.",
    "src": "L6656"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Trust slowly improves and the apprentice gains confidence.",
+   "src": "L6652",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L6652"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Trust slowly improves and the apprentice gains confidence.",
+   "src": "L6652"
   }
  }
 }

@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Fishers' Lamp",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b113_night_fishers",
+  "source": "balance",
+  "lines": [
+   5105,
+   5147
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5105",
+  "ledger": [
+   {
+    "src": "L5106",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5107",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5115",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5124",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5112",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5113",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5116",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5125",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5118",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5121",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5127",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5130",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5133-5147",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The fish are following it, thousands of them.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) are night fishing past the reef when the wind drops completely and a strange light rises out of the water ahead of them: pale blue, shimmering, drifting slowly away from the canoe, like a lamp carried just under the surface. The fish are following it, thousands of them.\nThe old fishers' stories say the light \"leads to the richest fishing in the world,\" and also that some who followed it never found their way back. (friend) is already reaching for the paddle.\nShould they follow it, or head for home?",
+   "choices": [
+    {
+     "label": "Follow the Light",
+     "next": "c1",
+     "src": "L5112"
+    },
+    {
+     "label": "Head for Home",
+     "next": "c2",
+     "src": "L5113"
+    }
+   ],
+   "src": "L5108-5110"
+  },
+  "c1o1": {
+   "text": "Far out, the light stops, and (friend), leaning over the side to see, says, \"Oh,\" very softly, as if (friend.he/she) has seen something wonderful. Then (friend.he/she) slips over the side, and is gone, and the light goes out. (subject) searches the dark water until dawn, and paddles home alone. The fishers never find (friend). (subject) never speaks of what was under the water, and nobody asks.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L5119",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The light stops over a deep place, and the fish boil up round the canoe so thick they jump in by themselves. They fill the canoe until it's riding low, and the light fades, and the wind comes back to carry them home. The whole village eats fish for a week. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L5122",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They paddle after the blue glow, further and further out, the fish thick as rain around the canoe, the reef far behind...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5116"
+  },
+  "c2o1": {
+   "text": "In the dark, with no wind and no stars, they misjudge the reef passage. The canoe hits the coral and goes over. (friend) makes it to the shallows. (subject) doesn't. The fishers find (subject.him/her) at dawn on the reef. The village buries (subject) facing the sea, and (friend) carves a blue lamp on the grave post.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L5128",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They come in through the reef by the sound of the surf, and pull the canoe up on the sand, and sit there in the dark, shaking a little. Out past the reef, the blue light glows for a while longer, then sinks. \"Next time,\" says (friend). \"No,\" says (subject). \"There won't be a next time.\"",
+   "src": "L5131"
+  },
+  "c2": {
+   "text": "(subject) grabs (friend)'s arm and shakes (friend.his/her) head, and they turn the canoe round and paddle hard for the reef, with the blue light glowing behind them...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5125"
+  }
+ }
+}

@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healing Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b232_healing_rain",
+  "source": "balance",
+  "lines": [
+   10793,
+   10837
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10793",
+  "ledger": [
+   {
+    "src": "L10794",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10795",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10803",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10812",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10800",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10801",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10804",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10813",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10806",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10809",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10815",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10818",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10821-10837",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A soft, warm rain has started falling from a clear sky, and it smells of crushed mint.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A soft, warm rain has started falling from a clear sky, and it smells of crushed mint. (healer), the head healer, comes running out of the healers' hut with (subject.his/her) arms up, shouting. (subject.His/her) grandmother told (subject.him/her) about this: a rain that comes once in a lifetime, when a sky spirit passes over and weeps for the sick. \"Anyone who stands in it is healed,\" (subject.he/she) says. \"But only while it lasts.\"\nThe sick villagers are lying in their huts. Some can't walk. The rain is already thinning. (subject) is standing in the middle of the village, getting wet.\nShould (subject) carry the sickest out into the rain, or gather the rain in pots to take to them?",
+   "choices": [
+    {
+     "label": "Carry the Sick Out",
+     "next": "c1",
+     "src": "L10800"
+    },
+    {
+     "label": "Gather the Rain in Pots",
+     "next": "c2",
+     "src": "L10801"
+    }
+   ],
+   "src": "L10796-10798"
+  },
+  "c1o1": {
+   "text": "They get every sick villager out before the rain stops. By the time the last drops fall, the coughs have stopped and the fevers have gone, and people who couldn't walk this morning are sitting up, laughing, soaked to the skin. The healers stand in the middle of the village, dripping, and learn a great deal from watching how the sick recovered.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L10807",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The rain stops before they reach the last huts. Three of the sickest are cured. The others are not. And (subject), who has been running about in the rain carrying people, catches a chill of (subject.his/her) own by evening. (healer) says the spirit must have had somewhere else to be.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "random": 3
+     }
+    },
+    {
+     "do": "sick",
+     "role": "subject"
+    }
+   ],
+   "src": "L10810",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) and the other healers run from hut to hut, carrying out anyone who can't walk on mats and on their backs, and laying them in the open, faces to the sky...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10804"
+  },
+  "c2o1": {
+   "text": "The rain in the pots still smells of mint, and it still works. Every sick villager drinks a cup, and by evening every one of them is well. There's even some left over, which (healer) seals in a jar and keeps on the high shelf for a very bad day.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10816",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The first cup works, and (friend), the sickest, sits up and asks for food. By the second cup, the mint smell has gone, and the rain is only rain. The healers argue for a week about why, and become so muddled that they forget some of what they used to be sure about.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": -5,
+     "max": -5,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L10819",
+   "text_only": [
+    {
+     "src": "L10819",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) puts out every pot, bowl and gourd in the village, and the rain fills them, and then it stops. (subject) carries the first pot to the sickest hut...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10813"
+  }
+ }
+}

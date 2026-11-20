@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teenagers in the Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b349_teenagers_cave",
+  "source": "balance",
+  "lines": [
+   16111,
+   16152
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16111",
+  "ledger": [
+   {
+    "src": "L16112",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16113",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16120",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16129",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16117",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16118",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16121",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16130",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16123",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16126",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16132",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16138-16152",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is the first adult they found.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "teen": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(teen) and two friends went into the caves in the hills this morning on a dare, and only the two friends have come back, white-faced. They say (teen) went down a narrow passage after a glint of something, and the passage collapsed behind (subject.him/her). They can hear (subject.him/her) calling, faintly, from under the rocks.\n(subject) is the first adult they found. Should (subject) go straight into the cave and start digging, or run back to the village for more hands and torches?",
+   "choices": [
+    {
+     "label": "Go Straight In",
+     "next": "c1",
+     "src": "L16117"
+    },
+    {
+     "label": "Get More Hands",
+     "next": "c2",
+     "src": "L16118"
+    }
+   ],
+   "src": "L16114-16115",
+   "text_only": [
+    {
+     "src": "L16114",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) reaches (teen) after an hour, bruised and scared but alive, and pulls (subject.him/her) through the gap. As they crawl out, a stone drops from the roof and strikes (subject) on the head. (subject.He/She) gets them all out before (subject.he/she) collapses. When (subject.he/she) wakes, (subject.he/she) knows (teen), the cave and the way home, but not (subject.his/her) own name. The village calls (subject.him/her) \"?\", and (teen) brings (subject.him/her) food every day.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "role": "teen",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L16124",
+   "text_only": [
+    {
+     "src": "L16124",
+     "what": "\"food\", \"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) digs through to (teen) and finds (subject.his/her) leg pinned under a slab. It takes all of (subject)'s strength to lift it. (teen) is carried home, and lives, but the leg never mends straight, and (subject.he/she) walks with a stick from then on. (subject.He/She) won't go anywhere dark or enclosed ever again. The glint, it turns out, was a puddle.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "teen",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "preference",
+     "dislike": "caves",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16127",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) follows the two friends into the cave with a single torch. The calling gets louder as they go deeper. (subject) starts pulling rocks away from the collapse with (subject.his/her) bare hands...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16121",
+   "text_only": [
+    {
+     "src": "L16121",
+     "what": "\"collapse\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "With ten people digging and passing rocks back hand to hand, (teen) is out in no time, filthy and shaking and completely unhurt, and the whole village turns out to cheer when the rescuers come down the hill. (teen) is grounded for a month, and spends it being visited by everyone, which (subject.he/she) quite enjoys.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L16133",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They dig (teen) out, unhurt, and (subject.he/she) is clutching the thing (subject.he/she) went in for: a carved stone tablet, covered in the old people's marks, about how to find fresh water underground. The scroll-keepers are overjoyed. (teen) is grounded anyway. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L16136",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) sends one friend running for the village and goes in with the other to keep (teen) talking. Within the hour, ten villagers arrive with torches and digging sticks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16130"
+  }
+ }
+}

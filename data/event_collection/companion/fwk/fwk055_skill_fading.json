@@ -34,7 +34,10 @@
     "why": "Contextual consequences: a designer note, never shown"
    }
   ],
-  "description": "After a long illness, a craftsperson struggles with a technique once mastered."
+  "description": "After a long illness, a craftsperson struggles with a technique once mastered.",
+  "cast_only": [
+   "craftsperson"
+  ]
  },
  "requirement": {
   "min_eligible": 1
@@ -79,15 +82,7 @@
    "name": "Ending (C)",
    "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
    "src": "L5992",
-   "effects": [
-    {
-     "do": "preference",
-     "role": "craftsperson",
-     "list": "dislikes",
-     "preference": "work",
-     "src": "L5992"
-    }
-   ]
+   "auto_text": true
   },
   "outcome": {
    "name": "Ending",

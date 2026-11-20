@@ -110,7 +110,8 @@
      "max": -10,
      "src": "L20685"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b": {
    "type": "branch",
@@ -126,8 +127,18 @@
   },
   "b1": {
    "name": "Outcome B1",
-   "text": "The child heals with a lasting bend but learns to use the arm well.",
-   "src": "L20687"
+   "text": "The child heals with a lasting bend but learns to use the arm well, though heavy lifting stays hard.",
+   "src": "L20687",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "child",
+     "list": "dislikes",
+     "preference": "lifting",
+     "src": "L20687"
+    }
+   ],
+   "auto_text": true
   },
   "b2": {
    "name": "Outcome B2",
@@ -147,14 +158,48 @@
    ]
   },
   "c1": {
+   "type": "branch",
    "name": "Outcome C1",
-   "text": "A second healer suggests a gentler support that improves comfort.",
-   "src": "L20690"
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
   },
   "c2": {
    "name": "Outcome C2",
    "text": "The healers disagree, and the family requests time to decide.",
    "src": "L20691"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "A second healer suggests a gentler support that improves comfort.",
+   "src": "L20690",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": 15,
+     "max": 30,
+     "src": "L20690"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "A second healer suggests a gentler support that improves comfort.",
+   "src": "L20690"
   }
- }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L20687",
+   "before": "use the arm well.",
+   "after": "use the arm well, though heavy lifting stays hard."
+  }
+ ]
 }

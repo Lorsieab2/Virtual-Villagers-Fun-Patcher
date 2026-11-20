@@ -1,0 +1,236 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Stranger's Recipe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s064_stranger_recipe",
+  "source": "rewrites",
+  "lines": [
+   3032,
+   3074
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3032",
+  "ledger": [
+   {
+    "src": "L3033",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3034",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3042",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3039",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3040",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3043",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3052",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3045",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3048",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3054",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3057",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3060-3074",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Then you eat. The smoke curling up out of the sand smells incredible.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A passing trader has stopped for the night, and instead of trading, (he/she) is cooking. (He/She) has wrapped a fresh fish in big green leaves, tied it with grass, and laid it on a bed of stones that (he/she) heated in the fire until they glowed. Now (he/she) is covering the whole thing with more leaves, and then with sand.\n\"It's how we do it at home,\" (he/she) tells (name), who wandered over to see what (he/she) was doing. \"Slow. You wait. Then you eat.\"\nThe smoke curling up out of the sand smells incredible. Half the village has drifted over too, pretending they just happened to be passing. Several of them have been passing for quite some time. (Name) is itching to learn how it's done. Should (he/she) try making one right now, or write the whole method down for later?",
+   "choices": [
+    {
+     "label": "Try It Right Away",
+     "next": "c1",
+     "src": "L3039"
+    },
+    {
+     "label": "Write It Down for Later",
+     "next": "c2",
+     "src": "L3040"
+    }
+   ],
+   "src": "L3035-3037"
+  },
+  "c1o1": {
+   "text": "It's the best thing (name) has ever eaten. The fish falls apart like butter. The leaves have soaked into it and made it taste of green and smoke. (Name) learns how to do it on the spot, with the trader watching and laughing and correcting (him/her), and that night (he/she) makes it for the whole village, a whole row of leaf-wrapped fish buried in hot sand. Everyone eats too much. From then on, (name) can't stop cooking, and can't stop eating, and is very happy about both. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L3046",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) wraps the fish, heats the stones, and buries it all just like the trader did. Then (he/she) gets bored of waiting, and digs it up early, and decides it needs more heat, and puts it straight on the fire. Then (he/she) gets distracted talking to someone. When (he/she) remembers, the fish is a small black lump that smokes when poked. The trader laughs so hard (he/she) has to lie down. Then (he/she) gets up, wipes (his/her) eyes, and shows (name) again from the beginning. Slower this time.",
+   "src": "L3049"
+  },
+  "c1": {
+   "text": "When the trader finally digs the fish out and unwraps the steaming leaves, the smell rolls out over everyone like a warm wave. (Name) takes the first bite. Then (he/she) asks to try making one (himself/herself), right now...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3043"
+  },
+  "c2o1": {
+   "text": "(Name) writes down every word, and copies the scrap neatly onto good bark in the research hut, and pins it to the wall of the cooking hut. The next feast day, the cooks try it. It works perfectly. Within a season, fish in leaves on hot stones has become the village's favourite dish, the one they make for weddings and festivals and visitors, and the cooks are very proud of it. Nobody remembers it came from a stranger, except (name). Your villagers gain (award) tech points and (award) food.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3055",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) writes it all down, folds the bark up small, and tucks it into a pocket for safekeeping. The trader leaves the next morning. And (name) can't find the bark anywhere. (He/She) searches the whole hut, twice. It's gone. A whole year later, digging in an old wrap for something completely different, (he/she) finds it, tucked into a fold. (He/She) opens it. It's smudged, and faded, and the only thing (he/she) can still read is \"...then you wait.\"",
+   "src": "L3058"
+  },
+  "c2": {
+   "text": "(Name) fetches a piece of bark and a burnt stick and asks the trader to go through it all again, slowly, every step, while (he/she) writes it all down: how hot the stones, which leaves, how long to wait...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3052"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

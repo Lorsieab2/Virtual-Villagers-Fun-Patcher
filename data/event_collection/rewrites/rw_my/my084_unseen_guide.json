@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unseen Guide",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my084_unseen_guide",
+  "source": "rewrites",
+  "lines": [
+   14744,
+   14799
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14744",
+  "ledger": [
+   {
+    "src": "L14745",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14746",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14754",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14761",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14768",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14775",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14749",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14750",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14751",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14752",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14755",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14762",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14769",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14776",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14756",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14758",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14763",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14765",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14770",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14772",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14777",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14782-14799",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager stayed out gathering too long, and now it is dark.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) stayed out gathering too long, and now it is dark. The forest is black and dripping, a storm is rolling in, and every path looks exactly like every other path. (He/she) is well and truly lost, and starting to panic.\nThen a voice speaks, calm and close, as if someone were walking right beside (him/her): \"Left at the big rock. Then straight on. You're nearly there.\" (Name) spins around, heart thudding. There is no one. Only the trees and the rain. And the voice, patiently, says it again. The old hunters say that people lost in this forest sometimes stay in it, to keep others from getting lost. Should (name) trust the voice?",
+   "choices": [
+    {
+     "label": "Follow the Directions",
+     "next": "c1",
+     "src": "L14749"
+    },
+    {
+     "label": "Ask Who Is Speaking",
+     "next": "c2",
+     "src": "L14750"
+    },
+    {
+     "label": "Call for a Friend",
+     "next": "c3",
+     "src": "L14751"
+    },
+    {
+     "label": "Ignore the Voice",
+     "next": "c4",
+     "src": "L14752"
+    }
+   ],
+   "src": "L14747-14748"
+  },
+  "c1o1": {
+   "text": "After what feels like forever, (name) sees the glow of the village fires through the trees and breaks into a run. (He/she) bursts out of the forest just as the storm hits, soaked and shaking and alive. \"Thank you!\" (he/she) shouts back at the dark trees. There is no answer. For the rest of (his/her) life, whenever (name) is frightened, (he/she) remembers that calm voice in the dark, and feels a little braver.",
+   "src": "L14757"
+  },
+  "c1o2": {
+   "text": "The voice leads (him/her) not home but to a little cave in a rocky bank, just as the storm breaks in earnest. \"Wait here,\" it says. \"Not tonight.\" Rain hammers the cave mouth all night, and trees crack and fall in the forest, but inside it is dry and smells of old ashes, as though someone used to camp here long ago. At dawn the storm has passed, and (name) finds (his/her) way home easily. The searchers say the path (he/she) would have taken was blocked by a fallen tree.",
+   "src": "L14759"
+  },
+  "c1": {
+   "text": "(Name) does not have a better idea. (He/she) turns left at the big rock, then walks straight on, the voice murmuring encouragement now and then: \"Mind the root. Duck. Good. Keep going.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14755"
+  },
+  "c2o1": {
+   "text": "\"Someone who was once lost here too,\" the voice says at last, gently. \"Left at the big rock.\" (Name) follows it home, and it does not speak again. Later, an elder tells (him/her) about a young hunter who went missing in that forest generations ago and was never found. \"They say (he/she) still walks there,\" the elder says, \"making sure nobody else gets lost.\" (Name) leaves a little food at the edge of the forest that evening.",
+   "src": "L14764",
+   "text_only": [
+    {
+     "src": "L14764",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "The voice falls silent, and does not speak again, no matter how (name) begs. (Name) has to choose a path alone. (He/she) picks one, then another, scrambling through the rain, until at last, more by luck than anything, (he/she) stumbles out near the fields and limps home, soaked and furious with (himself/herself). (He/she) lies awake that night wondering if (he/she) had only asked a simple question and scared away a friend.",
+   "src": "L14766"
+  },
+  "c2": {
+   "text": "\"Wait,\" (name) whispers, voice trembling. \"Who are you? Where are you?\" The rain patters. For a while, the voice says nothing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14762"
+  },
+  "c3o1": {
+   "text": "It is a search party: (name)'s friends, who noticed (he/she) had not come back and set out with torches. They follow (his/her) shouts, and soon (name) is wrapped in a blanket and being scolded affectionately all the way home. When (he/she) mentions the voice, they all look at each other. \"We didn't say anything about the big rock,\" one of them says. \"We came from the other way.\"",
+   "src": "L14771"
+  },
+  "c3o2": {
+   "text": "The search party finds (him/her) quickly, but they all look strangely at (name) as they wrap (him/her) up. \"Who were you with?\" one asks. \"We heard two voices. Yours, and someone else's. Someone telling you where to go.\" (Name) insists (he/she) was alone. The searchers insist (he/she) was not. They walk home in uneasy silence, and more than one of them glances back at the dark trees.",
+   "src": "L14773"
+  },
+  "c3": {
+   "text": "(Name) cups (his/her) hands to (his/her) mouth and shouts as loud as (he/she) can: \"HELP! I'M LOST! OVER HERE!\" Far off, through the rain, someone shouts back...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14769"
+  },
+  "c4o1": {
+   "text": "It is a long, wet, miserable night. The voice speaks a few more times, patiently, and then stops. When the sun finally rises, the forest looks completely different: friendly, ordinary and full of birdsong. (Name) can see the smoke from the village rising just over the next ridge. (He/she) walks home, stiff and soggy, and sleeps for most of the day.",
+   "src": "L14778"
+  },
+  "c4o2": {
+   "text": "(Name) decides to find (his/her) own way out, and stumbles off in the opposite direction from the voice, straight into a thicket of thornbushes. The thorns tear at (his/her) arms and legs and clothes, and the more (he/she) struggles, the worse it gets. (He/she) finally fights free at dawn, scratched from head to toe, and limps home. The healers spend a whole evening cleaning (his/her) scratches. Behind (him/her), as (he/she) left the thicket, (he/she) could have sworn someone sighed.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -20,
+     "max": -10,
+     "role": "subject"
+    }
+   ],
+   "src": "L14780",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "(Name) has heard stories about voices in the forest that lead people away. (He/she) clamps (his/her) hands over (his/her) ears, hunkers down under a tree, and decides to wait for daylight...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14776"
+  }
+ }
+}

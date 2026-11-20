@@ -52,6 +52,7 @@ from pathlib import Path
 
 import vv_game_mechanics as gm
 import vv_game_mechanics_children_play as children_play
+import vv_game_mechanics_solidarity as solidarity
 import vv_game_mechanics_death as death
 from vv_game_mechanics_chances import at_most, chance
 import vv_game_mechanics_events as events
@@ -68,6 +69,7 @@ NATURE, MAGIC = 5, 6
 PUZZLES = 0x11ECC
 PUZZLES_MARK = 0x2AD
 BEE_HIVE = 1                            # puzzle 1, The Bee Hive (story_c3.inc C3_PUZZLE_DEFS)
+SHARKS = 10                             # puzzle 10, The Sharks: the sea opens for fishing
 HONEY = 0x11FA1
 TREES = 0x1200D
 TREE_SIZE = 0x18
@@ -379,9 +381,10 @@ def _tree_steps(clock: Clock, now: int, due: int, interval: int, amount: int, cr
     comes at its due time (or as soon as the village is played, when it is overdue) and gains `gain(elapsed)` for all
     the time since `credited` -- the stock formula (0x434760, 0x4319B0) -- then `amount` every `interval` game
     seconds, in real time at the clock's speed."""
-    out = {"step": amount, "interval": gm.real_seconds(interval, clock.runs_at)}
+    out = {"step": amount, "interval": gm.real_seconds(interval, clock.runs_at),
+           # the play still needed to the next refill, also for one that cannot be dated (the owner, 2026-11-17)
+           "first_in": gm.real_seconds(max(0, due - now), clock.runs_at)}
     if clock.frozen:
-        out["first_in"] = gm.real_seconds(max(0, due - now), clock.runs_at)
         out["first_step"] = gain(max(0, due - credited))
     else:
         first = max(due, now)
@@ -488,7 +491,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
                     else "Nature is level 0")
     if patch is None:
         patch_words = (f"Whether the game has the patcher's \"{NATURE_PATCH_NAME}\" could not be told (its game "
-                       "folder was not found); the stock rule is shown.")
+                       f"folder was not found; {gm.BROWSE_HINT}); the stock rule is shown.")
     else:
         patch_words = (f"The patcher's \"{NATURE_PATCH_NAME}\" is {'in' if patch else 'not in'} the game"
                        + (" but needs Nature level 1." if patch and nature < 1 else "."))
@@ -586,6 +589,7 @@ def facts(village: gm.Village) -> list[gm.Fact]:
             "The patcher's fruit-tree timers file is there but has no schedule for this save: the save's own "
             "refill times are shown, as the game uses them."), gm.SAVE))
     out.extend(_village(village, buf, epoch, clock, nature, sources))
+    out.extend(gm.slider_facts(village))   # the 0.1x-10x sliders in the game
     return out
 
 
@@ -635,7 +639,19 @@ POTION_EFFECTS_LINE = (
     "better with 10 to 14 health, stinky breath, tasted soapy, crazy talk), 5 real-life minutes (light and springy, "
     "fertile +50, everyone else slowing down, very fertile +100), with no time limit (the two vials carried to the "
     "ocean) or not at all (the rest, such as curing sickness, which happen at once). The times are real time, the "
-    "same at every speed and counting while paused; saving ends every effect.")
+    "same at every speed. In the base game they also count while the game is paused, and every save (the 10-minute "
+    "autosave too) ends every effect. Drinking away the hiccups, getting over the nonsense talk and eating away "
+    "stinky breath or a soapy taste also end every potion effect the villager has, not only that one.")
+FIX_VANILLA = "vv3_fix_vanilla_bugs"
+# VVFP Speed Change Timers.dll: the set_speed detour (from a pause) moves every villager effect end (+0xF50 list, +0x10)
+# on by the paused time; the autosave check 0x427DD0's jump to the save 0x427D90 (0x427DF3) runs with a flag that makes
+# the writer's call 0x45EF9C skip 0x455DD0.  The other saves: 0x41AEB5, 0x41B681, 0x41B95D, 0x41BA4D, 0x42840C.
+EFFECTS_FIX_LINE = (
+    "potion effects stop while the game is paused and go on when it runs again, so each lasts its full 10 or 5 "
+    "real-life minutes of play (real time while the game runs, the same at every speed); and only the 10-minute "
+    "autosave keeps them: every other save (quitting, leaving the village for the slot menu, starting a new "
+    "village, a menu's save) still ends them, and the save never holds them; and drinking away the hiccups, "
+    "getting over the nonsense talk or eating away stinky breath or a soapy taste ends only that effect")
 HERBS_LINE = (
     "Herbs never run out: a bush can be gathered without limit once the Alchemy Lab is restored. A villager cannot "
     "drink a potion whose effect they already have, or any potion while they already have 4 effects.")
@@ -663,8 +679,17 @@ CHANCE_LINES = (
     # settings, the slot and slot + 20, once 600 seconds of the system clock 0x401ED0 have passed.  It is called at
     # 0x427B40, the last step of the game object's per-frame update 0x427720 (vtable slot 0x1C), skipped only while
     # the start-up loading step [+0x2C] is 6 or less (0x427B37); gm.autosave_line has the five games' trace.
-    ("Not traced: how long a fixed-spot coral from puzzle code stays out, and the sharks' timer (so their clocks, "
-     "real time or on the game's clock, are not known).", False),
+    # The sharks: the puzzle object (vtable 0x49D348) keeps only its solved byte; the drawer 0x436200 draws
+    # max(1, (100 - progress of puzzle 6) x 10 / 100) sharks at ten fixed spots (0x594B50.., set once at 0x436270);
+    # nothing in it, or in the sharks' listeners 0x436390 / 0x436580, reads a clock.
+    ("The sharks have no timer: they stay off the beach, at fixed spots, until The Sharks is solved; the game draws "
+     "10 of them, one fewer for each 10% of the puzzle's progress (at least 1).", True),
+    # The pop-up hook 0x437310's case for tip 658 (byte table 0x437594, jump table 0x437544) calls 0x42D530: item
+    # 0x40 (the first common Coral piece) at (1487, 620), gone 90 seconds of the wall clock later (0x42D55A), as
+    # every placed piece (0x42DB10, 0x42DC70).
+    ("The tutorial's step \"Children can also contribute to village life...\" (tip 658) puts a common Coral piece "
+     "at a fixed spot for the children to collect; like every collectible it is gone after 90 real-life seconds "
+     "unpicked (real time, the same at every speed).", True),
     # A live run of The Secret City, written down in the Game Mechanics audit of 2026-10-25 (commit 72b88737): a
     # village played for 30 minutes left no new save.  The code says otherwise (Autosave above); the owner,
     # 2026-10-27: "for cases where the code contradicts live observation write both cases down".
@@ -709,8 +734,8 @@ CANT_DRINK_LINE = (
     "potion: that villager already has the same potion's effect, or already has 4 effects. It has no timer of its "
     "own: it lasts until that villager's effect ends (10 or 5 real-life minutes after drinking, real time), and only "
     "for that villager and that effect, so other villagers can still drink it, and that villager other potions "
-    "while under 4 effects. Saving the game ends every villager's potion effects, so time away never carries one "
-    "over and a save holds none to count down.")
+    "while under 4 effects. Saving the game (in the base game every save, the autosave too) ends every villager's "
+    "potion effects, so time away never carries one over and a save holds none to count down.")
 
 
 def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: int,
@@ -742,8 +767,9 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                         "5 on Fast, Normal or Slow; 8 while catching up).", gm.CODE)
     # The big catch is a crab (the owner, 2026-10-23; the code's carried item 9, "Crab" in the carry-name
     # table 0x4A8A14, against 8 "Fish" for the plain catch, 0x4535AF / 0x4535F3); its chance is in Chances.
-    add("Food sources", "The sea never runs out; a fisher with Farming 88 or more sometimes lands a crab worth 55 "
-                        "food instead (its chance: Chances, The crab).", gm.CODE)
+    add("Food sources", "Once The Sharks puzzle is solved, the sea never runs out; a fisher with Farming 88 or more "
+                        "sometimes lands a crab worth 55 food instead (its chance: Chances, The crab). Before it, "
+                        "nobody fishes.", gm.CODE)
 
     # The spawner 0x42DC90 / 0x42D940: two slots (0x42D950), a second roll above strength 50 (0x42DD8D), each item
     # out 90 seconds of the wall clock (0x42DB10).  An earlier line said "in storms" and kept "At most 2" apart.
@@ -833,7 +859,9 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
     # Hungrier Villagers: both meal immediates x N (scripts/build_hungrier_villagers_features.py).
     if village.has(HUNGRIER) is not False:
         add("Food earned", gm.patch_words(village, HUNGRIER, "each villager's meal, and the difficulty's extra, "
-                                        "take 2 to 10 times the food (the slider); food never goes below 0"))
+                                        "take 0.1 to 10 times the food (the slider, 1 the normal game; at most 64 "
+                                        "times; a number like 0.3 on "
+                                        "average); food never goes below 0"))
 
     # -- Time away (catch-up): src/vv_game_mechanics_catchup.py, added by vv_game_mechanics.read -----
 
@@ -852,7 +880,10 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
                   + "; what a burning fire changes: Chances (Regaining health, Falling sick, Research)."), gm.SAVE)
     for line, ok in children_play.lines(village):   # tag and sandcastles (vv_game_mechanics_children_play)
         add("Other", line, ok)
+    for line, ok in solidarity.lines(village):      # Village Solidarity (vv_game_mechanics_solidarity)
+        add("Other", line, ok)
     add("Other", POTION_EFFECTS_LINE, gm.RUNNING)
+    add("Other", gm.patch_words(village, FIX_VANILLA, EFFECTS_FIX_LINE), gm.RUNNING)
     add("Other", HERBS_LINE, gm.OWNER)
     add("Other", CANT_DRINK_LINE, gm.RUNNING)
     extra = ""
@@ -908,9 +939,30 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
             puzzles.append((name, progress, PUZZLE_THRESHOLDS[pid]))
     pick_food = {gm.FAST: 7, gm.NORMAL: 3, gm.SLOW: 2}[speed]
     srcs = list(sources or [])
-    srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out", verified=gm.RUNNING))
+
+    def solved(pid: int) -> bool:
+        return struct.unpack_from("<i", buf, PUZZLES + 4 + 8 * pid)[0] >= PUZZLE_THRESHOLDS[pid]
+
+    # The Tribal Chief's Directing work (src/vv_game_mechanics_chief_vv3.py), and its bonus on the fish.
+    import vv_game_mechanics_chief_vv3 as chief
+    out.extend(chief.facts(village, level[LEADERSHIP], level[SCIENCE], solved))
+    fish_live = {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed]
+    with_chief = chief.fish_food(village, level[LEADERSHIP], fish_live)
+    plain = with_chief or (fish_live, 8)
+    # An expert fisher (Farming 88 or more): a crab, 55 food with no chief bonus, on rand(100) < 10 (0x4535A2)
+    # after the Farming check, which passes always from Farming 66; its live cycle is measured at Farming 100.
+    crab = 10 / 100
+    expert = (100, crab * 55 + (1 - crab) * plain[0], crab * 55 + (1 - crab) * plain[1],
+              "from Farming 88, 10 catches in 100 are a crab worth 55 food instead of a fish"
+              + ("; the chief's bonus on the fish counted" if with_chief else ""))
+    # The sea is a farming source only once The Sharks (puzzle 10) is solved (the dispatcher 0x45AFD3).
+    sharks = solved(SHARKS)
+    if sharks:
+        srcs.append(life.Source("Fishing", None, unlimited=True, refill_words="the sea never runs out",
+                                verified=gm.RUNNING))
     ctx = life.Context(
         village, speed_value, wall(LAST_SAVED), _i32(buf, FOOD), low_food=500, extra_from=8000, sources=srcs,
+        created=clock.created,
         tech=_i32(buf, POINTS), tech_words=f"Research brings them (the skill ÷ {divisor} at Science level "
                                            f"{level[SCIENCE]}); a piece already found pays 100, 250 or 1,500 by rarity.",
         brown=6, red=35, red_share=0.08, mushrooms_an_hour=18.0, golden=village.has(GOLDEN) is True,
@@ -942,10 +994,18 @@ def _village(village: gm.Village, buf: bytes, epoch: int, clock: Clock, nature: 
         food_words="2 food a villager every age unit while there is more than 500 (at 500 or less half the meals are "
                    "eaten); on Medium at 8,000 or more, and on Hard at any amount, 2 more 76% of the time; never more "
                    "on Easy.",
-        # Only open sources: the fruit once a tree stands, the honey once The Bee Hive is solved; the sea always.
+        # Only open sources: the fruit once a tree stands, the honey once The Bee Hive is solved, the sea once The
+        # Sharks is solved.
         trips=[("fruit picks", pick_food if any(s.name.startswith("Tree ") for s in srcs) else 0, "Tree "),
                ("honey picks", pick_food if _i32(buf, PUZZLES + 4 + 8 * BEE_HIVE) >= 1 else 0, "Honey"),
-               ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed], "Fishing")])
+               ("fishing trips", {gm.FAST: 11, gm.NORMAL: 8, gm.SLOW: 5}[speed] if sharks else 0, "Fishing")],
+        fishing_trip="fishing trips",
+        fishing_unlock="fishing opens once The Sharks is solved; it is not solved in this village yet.",
+        fishing_food=with_chief,
+        fishing_food_words=(f"the Tribal Chief directing the sea adds a third to a fish {chief.chance(level[LEADERSHIP]):.0%} "
+                            "of the time, counted (Tribal Chief: Directing work)" if with_chief else
+                            "no Tribal Chief directs the sea now, so no chief bonus is counted"),
+        fishing_expert=expert)
     out.extend(life.sections(ctx))
     out.extend(death.facts(village, medicine=level[MEDICINE], speed_value=speed_value, base=epoch,
                            nature=max(level[5], nature)))

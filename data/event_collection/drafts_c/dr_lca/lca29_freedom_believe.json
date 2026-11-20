@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Freedom to Believe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca29_freedom_believe",
+  "source": "draft_lca",
+  "lines": [
+   404,
+   415
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L411",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L415",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager does not want to join the village's blessing ceremony: respect it, or ask them to come and simply stand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every new moon, the village holds a blessing for the boats, and almost everyone comes. This time (subject) has said (subject.he/she) will not. (subject.He/she) does not believe in it, and would rather not pretend. (friend), who leads the blessing, is hurt and a little worried about what people will say. What should (friend) do?",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Respect (subject)'s Choice",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Invite (subject) to Simply Stand",
+     "next": "o2",
+     "src": "L413"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tells the village that the blessing is for whoever wants it, and nobody has to explain why they are not there. A few people mutter. (subject) spends the evening mending the boats instead, which, (friend) admits later, is also a kind of blessing.",
+   "src": "L411"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks if (subject) would come and stand at the back, without joining in. (subject) thinks about it and says no, kindly but firmly. (friend) is disappointed, and lets it go. They stay friends. The question comes up again every new moon, and the answer stays the same.",
+   "src": "L415"
+  }
+ }
+}

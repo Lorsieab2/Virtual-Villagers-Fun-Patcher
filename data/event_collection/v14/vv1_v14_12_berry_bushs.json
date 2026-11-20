@@ -47,7 +47,7 @@
   "scene": {
    "name": "The Berry Bush's Blessing",
    "src": "L7730-7732",
-   "text": "The boy sits beside the nearly bare berry bush, touches a leaf and hums. Blossoms appear, followed by ripe berries. He immediately eats one and offers another to the youngest child nearby.",
+   "text": "The (child.boy/girl) sits beside the nearly bare berry bush, touches a leaf and hums. Blossoms appear, followed by ripe berries. (child.He/She) immediately eats one and offers another to the youngest child nearby.",
    "text_only": [
     {
      "src": "L7732-7735",

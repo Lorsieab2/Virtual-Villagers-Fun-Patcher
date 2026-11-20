@@ -66,11 +66,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Outcome 1",
-   "popup": "append",
-   "join": "paragraph",
-   "text": "Invent an instrument that imitates rainfall.",
-   "src": "L2932"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Outcome 2",
@@ -85,6 +90,29 @@
    "join": "paragraph",
    "text": "The rattle becomes a festival favorite.",
    "src": "L2934"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Invent an instrument that imitates rainfall.",
+   "src": "L2932",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L2932"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Invent an instrument that imitates rainfall.",
+   "src": "L2932"
   }
  }
 }

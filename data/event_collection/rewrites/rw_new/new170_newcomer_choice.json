@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Newcomer's Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new170_newcomer_choice",
+  "source": "rewrites",
+  "lines": [
+   8235,
+   8280
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8235",
+  "ledger": [
+   {
+    "src": "L8236",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8237",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8245",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8252",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8259",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8241",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8242",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8243",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8246",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8253",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8260",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8247",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8249",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8254",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8256",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8261",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8263",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8266-8280",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager arrived in the dry season, with one bag and no plans.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "name3": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) arrived in the dry season, with one bag and no plans. (subject.He/She) has been helping out, finding (subject.his/her) feet, never quite unpacking.\nAnd (subject.he/she) has caught (friend)'s eye. The feeling might even be mutual. They keep ending up at the same fire, laughing at the same jokes, walking back the long way.\nBut (subject) still hasn't decided whether to stay on the island at all. (subject.His/Her) bag is still packed by the door. Both of them know it. Neither of them has mentioned it. Should (subject) say something, or decide about the island first?",
+   "choices": [
+    {
+     "label": "Speak Plainly by the Shore",
+     "next": "c1",
+     "src": "L8241"
+    },
+    {
+     "label": "Show the Newcomer the Island",
+     "next": "c2",
+     "src": "L8242"
+    },
+    {
+     "label": "Ask Someone Who Settled Here",
+     "next": "c3",
+     "src": "L8243"
+    }
+   ],
+   "src": "L8238-8240"
+  },
+  "c1o1": {
+   "text": "(subject) explains how (subject.he/she) feels, about (friend), and about the island, and about the bag by the door, without asking (friend) for an answer. \"I just didn't want you to have to guess.\" (friend) is quiet for a while. Then says, \"Unpack the bag.\" (subject) laughs, and doesn't say yes. But (subject.he/she) doesn't say no.",
+   "src": "L8248"
+  },
+  "c1o2": {
+   "text": "(friend) doesn't feel quite the same way, and says so, kindly. (subject) accepts it. It's hard, but somehow it makes things simpler. A week later, (subject) unpacks the bag anyway. \"Not because of you,\" (subject.he/she) tells (friend). \"Because of the island.\"",
+   "src": "L8250"
+  },
+  "c1": {
+   "text": "One evening, on the beach, (subject) stops and turns to (friend). \"I need to say something. Before I lose my nerve.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8246"
+  },
+  "c2o1": {
+   "text": "They spend the afternoon exploring the island's best spots: the waterfall pool, the cliff where the birds nest, the beach where the sand squeaks. At the end of the day, sitting on the cliff, (subject) admits (subject.he/she) has never seen anywhere so beautiful. They decide to meet again tomorrow. The bag stays packed, but only just.",
+   "src": "L8255"
+  },
+  "c2o2": {
+   "text": "It's a wonderful day. But as they talk, they find they want different things from life: (friend) will never leave the island, and (subject) is not sure (subject.he/she) can ever stay anywhere. They like each other a lot. That doesn't change the rest.",
+   "src": "L8257"
+  },
+  "c2": {
+   "text": "(friend) decides that if (subject) is going to make a choice about the island, (subject.he/she) should at least see the best of it first...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8253"
+  },
+  "c3o1": {
+   "text": "(Name3) listens, nodding, remembering. \"I kept my bag packed for two years,\" (subject.he/she) says. \"Then one day I needed something out of it, and I just never put it back.\" (subject.He/She) leaves the decision to (subject). That night, (subject) takes one thing out of the bag.",
+   "src": "L8262"
+  },
+  "c3o2": {
+   "text": "(Name3)'s advice is entirely about how good the fishing is. The lagoon fishing. The reef fishing. The fishing off the rocks at dawn. It goes on for an hour. It's not very helpful, so (subject) follows (subject.his/her) own judgment. But (subject.he/she) does go fishing at dawn, and it is very good.",
+   "src": "L8264"
+  },
+  "c3": {
+   "text": "(subject) goes to (name3), who also arrived here once with nothing, and stayed...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8260"
+  }
+ }
+}

@@ -71,11 +71,81 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders put them in different canoes for one moon. Both of them are offended. Within a week, both of them are quietly relieved. At the end of the moon they are put back together, and argue about everything again, but a little less loudly, and the canoe stays the right way up.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "The elders put them in different canoes for one moon. Both of them are offended. Within a week, both of them are quietly relieved. At the end of the moon they are put back together, and argue about everything again, but a little less loudly, and the canoe stays the right way up.",
    "src": "L278"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders give them one canoe, one net and one task: catch enough for the elders' supper between the two of them, and come back only when they have. It takes them all day. They argue for most of it. They paddle in at sunset with exactly enough fish, sunburned and grudgingly pleased with themselves.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L281"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders give them one canoe, one net and one task: catch enough for the elders' supper between the two of them, and come back only when they have. It takes them all day. They argue for most of it. They paddle in at sunset with exactly enough fish, sunburned and grudgingly pleased with themselves.",
    "src": "L281"

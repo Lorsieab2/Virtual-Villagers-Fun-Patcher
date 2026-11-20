@@ -64,14 +64,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "(name1) brings in (his/her) drying fish and mats and tells everyone else to do the same. People look at the clear blue sky and then at (him/her). Some of them do it anyway. That night it pours. (name1) is unbearable about it for days. Nobody, including (name1), can say for certain whether the ants knew or just got lucky.",
-   "src": "L182"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "(name1) decides the sky knows more than the ants. It stays dry. The next day, too. The ants settle into the rocks and stay there, busy and unbothered. A week later, without any warning at all, it rains. (name1) wonders whether the ants just plan very far ahead. (He/she) starts watching them closely after that, just in case.",
    "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) brings in (his/her) drying fish and mats and tells everyone else to do the same. People look at the clear blue sky and then at (him/her). Some of them do it anyway. That night it pours. (name1) is unbearable about it for days. Nobody, including (name1), can say for certain whether the ants knew or just got lucky.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) brings in (his/her) drying fish and mats and tells everyone else to do the same. People look at the clear blue sky and then at (him/her). Some of them do it anyway. That night it pours. (name1) is unbearable about it for days. Nobody, including (name1), can say for certain whether the ants knew or just got lucky.",
+   "src": "L182"
   }
  }
 }

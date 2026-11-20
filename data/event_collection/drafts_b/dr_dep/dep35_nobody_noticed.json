@@ -82,14 +82,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "\"Three days,\" says (subject). \"I was gone three days.\" (friend) looks genuinely startled, then a bit ashamed. \"I'm sorry. I didn't notice. That's not great.\" It doesn't fix the sting entirely. But (friend) asks about the trip and actually listens, and (subject) finds (subject.he/she) feels less invisible by the end of the evening.",
-   "src": "L422"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "\"Just a few days,\" says (subject), and goes to unpack. It bothers (subject.him/her) all evening. The next morning (child), a child, runs up and says, \"You were gone! I counted! Three days!\" and hugs (subject.his/her) legs. It doesn't make up for the rest of it. It does help.",
    "src": "L425"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Three days,\" says (subject). \"I was gone three days.\" (friend) looks genuinely startled, then a bit ashamed. \"I'm sorry. I didn't notice. That's not great.\" It doesn't fix the sting entirely. But (friend) asks about the trip and actually listens, and (subject) finds (subject.he/she) feels less invisible by the end of the evening.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Three days,\" says (subject). \"I was gone three days.\" (friend) looks genuinely startled, then a bit ashamed. \"I'm sorry. I didn't notice. That's not great.\" It doesn't fix the sting entirely. But (friend) asks about the trip and actually listens, and (subject) finds (subject.he/she) feels less invisible by the end of the evening.",
+   "src": "L422"
   }
  }
 }

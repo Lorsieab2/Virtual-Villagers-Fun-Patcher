@@ -96,11 +96,75 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders decide it doesn't matter who started it: everyone who threw anything cleans up, tonight. Eight teenagers spend the evening scrubbing taro off drums by torchlight. (subject) and (friend) blame each other the whole time, then start laughing, then start flicking little bits of taro at each other again, until (elder), an elder, coughs very loudly.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L578"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "The elders decide it doesn't matter who started it: everyone who threw anything cleans up, tonight. Eight teenagers spend the evening scrubbing taro off drums by torchlight. (subject) and (friend) blame each other the whole time, then start laughing, then start flicking little bits of taro at each other again, until (elder), an elder, coughs very loudly.",
    "src": "L578"
   },
-  "o2": {
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders ask around. It turns out the very first lump of taro was thrown by (child), a small child, who is now fast asleep and can't be questioned. Everyone who threw anything cleans up anyway. (subject) and (friend) agree, with some relief, that neither of them started it, and work side by side until the drums are clean.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L581"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The elders ask around. It turns out the very first lump of taro was thrown by (child), a small child, who is now fast asleep and can't be questioned. Everyone who threw anything cleans up anyway. (subject) and (friend) agree, with some relief, that neither of them started it, and work side by side until the drums are clean.",
    "src": "L581"

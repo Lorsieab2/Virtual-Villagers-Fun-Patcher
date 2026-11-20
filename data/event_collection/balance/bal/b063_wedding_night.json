@@ -1,0 +1,215 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding Night Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b063_wedding_night",
+  "source": "balance",
+  "lines": [
+   2841,
+   2883
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2841",
+  "ledger": [
+   {
+    "src": "L2842",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2843",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2851",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2860",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2848",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2849",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2852",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2861",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2854",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2857",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2863",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2866",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2869-2883",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager were married this afternoon, and the feast has gone on into the night.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) were married this afternoon, and the feast has gone on into the night. As the fire burns low, the oldest woman in the village comes over with two cups of a thick, sweet drink she's made from flowers that bloom only at weddings. \"For a family, if you want one,\" she says, \"and you do, I've seen you with the little ones.\"\nThey do. They've talked about it for months. But there's also a game the young people want them to play, a silly one with blindfolds and a lot of laughing, which is a wedding tradition too.\nShould they drink the flower cups, or join the game?",
+   "choices": [
+    {
+     "label": "Drink the Flower Cups",
+     "next": "c1",
+     "src": "L2848"
+    },
+    {
+     "label": "Join the Game",
+     "next": "c2",
+     "src": "L2849"
+    }
+   ],
+   "src": "L2844-2846"
+  },
+  "c1o1": {
+   "text": "By the time of the next village feast, a baby is expected. The old woman takes full credit, loudly and to everyone. (subject) and (friend) let her. They save her the best seat at the naming feast, when it comes, and she sits in it like a queen.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2855",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "A baby is expected, and when the healer comes to listen, (healer.he/she) listens a long time. {#babies:\"Just one, a strong one\"|\"Two heartbeats\"|\"Three heartbeats\"} The old woman, told the news, cackles. \"I may have made it a bit strong,\" she admits.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2858",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The drink tastes of honey and petals and something sharp, like lemon. The old woman watches them drink every drop, then nods and walks off without a word...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2852"
+  },
+  "c2o1": {
+   "text": "When they come back, red-faced and breathless, the cups are empty. A very sleepy goat is lying beside them. The old woman looks at the goat for a long time. \"Well,\" she says. \"We'll see.\" That spring, the goat has three kids. (subject) and (friend) wait, and are happy, and laugh about the goat for years.",
+   "src": "L2864"
+  },
+  "c2o2": {
+   "text": "They forget the cups entirely. They play until dawn, and fall asleep in a heap with half the young people of the village. And a few months later, without any flowers at all, a baby is expected. \"It was the game,\" (friend) tells everyone. \"Laughter's better than flowers.\" The old woman disagrees.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L2867",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "They put the cups aside for later and join the blindfold game, which involves a great deal of falling over and everyone shrieking with laughter...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2861"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2858",
+   "before": "{#babies:\"Just one. A strong one.\"|\"Two heartbeats.\"|\"Three heartbeats.\"}",
+   "after": "{#babies:\"Just one, a strong one\"|\"Two heartbeats\"|\"Three heartbeats\"}"
+  }
+ ]
+}

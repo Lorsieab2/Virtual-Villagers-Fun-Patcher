@@ -1,0 +1,272 @@
+LCC-01
+DESC: Strange canoes were seen off the reef: rally the village with the stamping dance, or keep calm and keep watch.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no violence shown; fear and courage both valid)
+
+LCC-02
+DESC: The village builds watch fires on the headlands, and a teen wants to keep one: let them, or keep the watch to adults.
+ROLES: name1=18+ name2=16-16
+FIX S: 2=2 3=2
+REVIEW: 15/15 pass (teen agency; no teen in combat)
+
+LCC-03
+DESC: The village's warriors practice with spears on the beach: keep practicing hard, or teach everyone a little.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (warriors any sex 18+; injury minor)
+
+LCC-04
+DESC: The village plans where the children go if raiders come: hide them in the caves, or send them inland.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (children protected; plan not tested by harm)
+
+LCC-05
+DESC: An elder remembers the old war chant from the last raid, long ago: teach it to the warriors, or let it rest.
+ROLES: name1=55+ name2=18+
+FIX O1: 2=1
+REVIEW: 15/15 pass (past harm implied; the elder's feelings respected)
+
+LCC-06
+DESC: Raiders are stripping the far gardens at night: drive them off together, or let them take the food and stay safe.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (violence implied; both choices defensible; no victim blamed)
+
+LCC-07
+DESC: Raiders land on the beach at night: meet them at the waterline, or pull back and defend the huts.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (the warriors are not glorified; injuries real; non-graphic)
+
+LCC-08
+DESC: After the raid, one raider is left behind, wounded: tend their wounds, or bind them and decide later.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=s 2=s 3=s
+REVIEW: 15/15 pass (prisoner treated with dignity; mixed ending)
+
+LCC-09
+DESC: A captured raider has lived among the village for a season and asks to stay: welcome them, or send them home.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s 2=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (the former prisoner's dignity; the village's caution valid)
+
+LCC-10
+DESC: The captured raider escaped in the night with a canoe: chase them, or let them go.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s 2=s 3=s
+REVIEW: 15/15 pass (betrayal acknowledged; no revenge)
+
+LCC-11
+DESC: The raiders hold one of the village's fishers and want their captured warrior back: make the exchange, or bargain for more.
+ROLES: name1=55+ name2=18+
+FIX O1: 1=s
+REVIEW: 15/15 pass (no one harmed; bargaining shown as a hard choice)
+
+LCC-12
+DESC: A grown stranger arrives saying raiders took them from Isola as a child: welcome them home, or wait for proof.
+ROLES: name1=55+ name2=18+
+FIX S: 1=s 2=s 3=s
+FIX O1: 1=s 2=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (past harm implied; the survivor not doubted cruelly; no forced disclosure)
+
+LCC-13
+DESC: The warriors need better shields: use the canoe wood, or weave them from palm and bark.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (practical tradeoff)
+
+LCC-14
+DESC: A strong villager refuses to train as a warrior: respect it, or ask them to serve in another way.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (refusal respected; no shaming)
+
+LCC-15
+DESC: Raiders are camped in the forest: ambush them at dawn, or surround them and demand they leave.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (avoidance first where possible; injuries real)
+
+LCC-16
+DESC: The warriors leave to guard the far beach for a moon: give them a feast, or send them with food for the journey.
+ROLES: name1=18+ name2=55+
+FIX O1: 1=1
+REVIEW: 15/15 pass (support from the whole village)
+
+LCC-17
+DESC: The warriors come home from the far beach, and one is badly hurt: celebrate their return, or tend the wounded quietly first.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (joy and worry held together)
+
+LCC-18
+DESC: A warrior from the village fell defending the far beach: sing the honor song, or mourn quietly as the family asks.
+ROLES: name1=55+ name2=18+
+FIX O1: 1=2
+REVIEW: 15/15 pass (grief, not glory; the family's wish decides)
+
+LCC-19
+DESC: The village wants to give a shell necklace to everyone who fought: give them to the warriors only, or to everyone who helped.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fairness question; nobody humiliated)
+
+LCC-20
+DESC: The raiders send a gift of fine rope and an offer of peace: accept it, or refuse until the stolen food is repaid.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (repair needs more than gifts; both answers reasonable)
+
+LCC-21
+DESC: A young lookout blew the raid alarm for a canoe of lost fishers: forgive the mistake, or take them off the watch for a while.
+ROLES: name1=18-25 name2=18+
+REVIEW: 15/15 pass (accountability without humiliation)
+
+LCC-22
+DESC: The village needs more spearheads: use the sacred black stone from the old shrine, or search the far beach for ordinary stone.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (belief respected; practical cost)
+
+LCC-23
+DESC: The village could block the lagoon mouth with stakes against raiders: build the wall, or keep the lagoon open for fishing.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (security vs livelihood; both reasonable)
+
+LCC-24
+DESC: A healer was hurt running to help during the raid: let them rest, or ask them to guide the others from their mat.
+ROLES: name1=18+ name2=18+
+FIX S: 2=1
+FIX O1: 1=2 2=2
+REVIEW: 15/15 pass (care for carers)
+
+LCC-25
+DESC: The raiders' island invites the village to a peace council: send the elders, or send warriors with them.
+ROLES: name1=55+ name2=18+ name3=18+
+REVIEW: 15/15 pass (peace pursued without naivety)
+
+LCC-26
+DESC: The village hosts a feast for the raiders' island to seal the truce: hold a grand feast, or a modest one.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (hospitality without forgetting)
+
+LCC-27
+DESC: The warriors want a spear-throwing contest at the festival: hold it, or make it a contest anyone can enter.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (friendly competition)
+
+LCC-28
+DESC: Two lookouts disagree about the signals: use the conch, or use smoke by day and fire by night.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (practical; experts can disagree)
+
+LCC-29
+DESC: An elder knows a hidden escape way through the caves: share it with everyone, or only with the warriors.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (secrecy vs sharing; both reasonable)
+
+LCC-30
+DESC: A whole season of watches and drills, and the raiders never came: keep the watch, or go back to normal life.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (preparedness without paranoia; no wrong answer)
+
+LCC-31
+DESC: Raiders stole three canoes in the night: build new ones, or go and take them back.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no revenge glorified)
+
+LCC-32
+DESC: Raiders set the storehouse roof on fire: save the stores, or save the huts beside it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (impossible choice; no blame)
+
+LCC-33
+DESC: During a raid alarm a child ran across the village to warn the elders: praise them, or scold them for the danger.
+ROLES: name1=8-13 name2=18+
+REL: name2=parent_of:name1
+FIX S: 2=1
+FIX O1: 1=1 2=1
+FIX O2: 3=2 4=2
+REVIEW: 15/15 pass (child safe; feelings respected)
+
+LCC-34
+DESC: A paddler warns that raiders are gathering against the village: trust the warning, or suspect a trick.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+REVIEW: 15/15 pass (uncertainty not resolved by magic)
+
+LCC-35
+DESC: The warriors want to paint their faces before the watch: let them, or ask them not to frighten the children.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (gentle; children's feelings)
+
+LCC-36
+DESC: Two warriors blame each other for the raiders getting through: hold a hearing, or make them stand watch together.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no forced reconciliation; accountability)
+
+LCC-37
+DESC: A raider fell on the beach and their people left them behind: bury them with care, or return them to their people.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (enemy dead treated with dignity; non-graphic)
+
+LCC-38
+DESC: An old warrior offers to teach the young ones how they fought long ago: learn the old ways, or learn new ones.
+ROLES: name1=60+ name2=18-25
+REVIEW: 15/15 pass (elders can be wrong; respect without deference)
+
+LCC-39
+DESC: Two strong swimmers offer to slip out to the raiders' canoes at night and cut them loose: let them, or forbid it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (risk acknowledged; consent of the swimmers)
+
+LCC-40
+DESC: A child asks an elder to tell the story of the great raid: tell it as a hero story, or tell it as it was.
+ROLES: name1=55+ name2=5-13
+REVIEW: 15/15 pass (children spoken to age-appropriately; war not glorified)
+
+LCC-41
+DESC: The warriors want to dance the guardian dance every dawn on the beach: make it a daily custom, or keep it for danger.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (custom made by the people)
+
+LCC-42
+DESC: Raiders demand food in return for leaving the village alone: pay them, or refuse and prepare.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (no right answer; consequences follow the story)
+
+LCC-43
+DESC: Among the raiders who fled was a teenager who stayed behind, frightened: take them in, or return them to their family.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s 2=s 3=s 4=s 5=s 6=s
+FIX O1: 2=s 3=s 4=s
+FIX O2: 1=s 2=s 3=s 4=s 5=s
+REVIEW: 15/15 pass (a young person treated with care; no harm)
+
+LCC-44
+DESC: A drummer proposes a drum code to warn the far gardens of raiders: learn it, or keep things simple.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (practical; humor)
+
+LCC-45
+DESC: Raiders' fires burn on a nearby islet all night: watch until dawn, or send someone to see.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (waiting shown honestly)
+
+LCC-46
+DESC: A trader offers strange metal blades for the warriors: buy them, or refuse them.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+REVIEW: 15/15 pass (no outsider confirmed; tech not superiority)
+
+LCC-47
+DESC: The healers want bundles of bandages ready for raids: use the good cloth, or use leaves and bark.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (preparation; practical tradeoff)
+
+LCC-48
+DESC: After the raid, the village is angry and wants revenge: speak for revenge, or speak for patience.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (anger validated; violence never glorified)
+
+LCC-49
+DESC: The village and the raiders' island agree to build a canoe together as a sign of peace: build it, or keep the peace simple.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (peace earned; not guaranteed)
+
+LCC-50
+DESC: The village wants a yearly day to remember its defenders: make it a day of feasting, or a day of quiet remembrance.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (memory without glory; both forms respectful)

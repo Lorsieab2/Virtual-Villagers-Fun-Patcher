@@ -1,0 +1,628 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_hea",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "hea01_count_four_count": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea02_tea_tastes": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea03_itchy_poultice": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea04_under_breadfruit": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea05_second_opinion": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "healer"
+   ]
+  },
+  "hea06_morning_walk": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F25"
+    ],
+    "o1__text": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea07_spoon_canoe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea08_thank_you": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea09_hiccup_potion": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea10_too_many_people": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea11_same_steps_every": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea12_two_teas": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject"
+   ]
+  },
+  "hea13_worrying_hour": {
+   "filters": [
+    "F04",
+    "F16",
+    "F25"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o1": [
+     "F16"
+    ],
+    "o2": [
+     "F04"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea14_morning_stretch": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea15_knot_bed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject"
+   ]
+  },
+  "hea16_something_hands": {
+   "filters": [
+    "F12"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F12"
+    ],
+    "o2__text": [
+     "F12"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hea17_things_healer": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea18_stone_game": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hea19_brave_stomach": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "grownup"
+   ]
+  },
+  "hea20_count_three": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea21_fish_oil_salve": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hea22_blessing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea23_apprentice": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F08"
+    ],
+    "o2__fx": [
+     "F08"
+    ],
+    "o2__text": [
+     "F08"
+    ],
+    "setup": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "healer",
+    "friend",
+    "subject"
+   ]
+  },
+  "hea24_resting_allowed": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea25_grandmother": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea26_shaking_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea27_cold_water_cure": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea28_more_better": {
+   "filters": [
+    "F06",
+    "F16"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2__fx": [
+     "F06",
+     "F16"
+    ],
+    "o2__text": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea29_my_story_tell": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea30_grumpy_leg": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea31_laughing_visit": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F08"
+    ],
+    "o2": [
+     "F08"
+    ],
+    "setup": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea32_burning_worries": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F07"
+    ],
+    "setup": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea33_wrong_leaf": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o1": [
+     "F06"
+    ],
+    "o2": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hea34_tight_chest": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "hea35_both_please": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "third",
+    "subject"
+   ]
+  },
+  "hea36_ear_trumpet": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea37_slower_wanted": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "o2__fx": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea38_steam_hut": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2__fx": [
+     "F07"
+    ],
+    "o2__text": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea39_healer_carvings": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea40_toothache": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea41_calm_place": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea42_every_gloomy_day": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "hea43_itch_nobody_can": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea44_after_storm": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea45_remedy_didnt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hea46_swapped_cups": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend",
+    "healer"
+   ]
+  },
+  "hea47_sitting_still": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "hea48_healer_bad_guess": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "hea49_long_sleep": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2__fx": [
+     "F07"
+    ],
+    "o2__text": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "hea50_hard_after_good": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F16"
+    ]
+   },
+   "speaks": [
+    "healer"
+   ]
+  }
+ }
+}

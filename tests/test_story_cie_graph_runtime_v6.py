@@ -263,6 +263,170 @@ def installed(r, patches) -> None:
 
 
 @emulated
+class PartnerMayCarry(unittest.TestCase):
+    """The owner (2026-11-16): in a couple's pregnancy that allows it, the partner carries instead as often as the
+    player's setting says ("# partner_carry_percent=N" in the installed patches' list; 10 when none)."""
+
+    def carries(self, game: str, line: str | None, rolls: list[int]) -> tuple[int, int]:
+        r = V6(game, TWO)
+        text = f"vv{r.n}\n" + (line + "\n" if line is not None else "")
+        buf = r.p.alloc(len(text) + 1)
+        r.p.write(buf, text.encode("ascii") + b"\0")
+        r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+        r.rolls(rolls)
+        got = r.p.export("VvfpStoryProbePartnerCarries", r.n)
+        return got & 0xFF, (got >> 8) & 1
+
+    def test_the_setting_decides(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                self.assertEqual(self.carries(game, None, [5]), (10, 1))            # 10% unless moved: roll 5 < 10
+                self.assertEqual(self.carries(game, None, [10]), (10, 0))
+                self.assertEqual(self.carries(game, "# partner_carry_percent=0", [0]), (0, 0))      # never
+                self.assertEqual(self.carries(game, "# partner_carry_percent=100", [99]), (100, 1))  # always
+                self.assertEqual(self.carries(game, "# partner_carry_percent=55", [54]), (55, 1))
+                self.assertEqual(self.carries(game, "# partner_carry_percent=55", [55]), (55, 0))
+
+
+def carry_graph(game: str) -> dict:
+    """A couple's pregnancy whose partner may carry: a page naming them, then the pregnancy's page naming the carrier."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Two Hearts", "games": [int(game[2])],
+            "roles": {"subject": {"kind": "villager", "min_age": 18}, "friend": {"kind": "villager", "min_age": 18}},
+            "start": "p0",
+            "nodes": {"p0": {"text": "(Subject) and (friend) sit by the fire.", "children": [{"next": "p1"}]},
+                      "p1": {"text": "(Subject) is pregnant, and (subject.he/she) beams at (friend).",
+                             "effects": [{"do": "pregnant", "role": "subject", "partner": "friend",
+                                          "partner_may_carry": True}]}}}
+
+
+@emulated
+class PartnerCarryNamesFollow(unittest.TestCase):
+    """The owner (2026-11-18, Codex on #814): who carries is decided at the cast, before any page, so every page
+    names the villager who actually carries; the effect makes that villager carry; a loaded run keeps the choice."""
+
+    PEOPLE = [(0, "f", 30, "Ann", 0, False), (1, "m", 31, "Bob", 0, False)]
+
+    def start(self, game: str, percent: int, session: bool = False):
+        r = V6(game, self.PEOPLE)
+        text = f"vv{r.n}\n# partner_carry_percent={percent}\n"
+        buf = r.p.alloc(len(text) + 1)
+        r.p.write(buf, text.encode("ascii") + b"\0")
+        r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+        r.rolls([0] * 40)                      # Ann is cast as the carrier, Bob as the partner
+        if session:
+            r.facts(unicode=0, structures=0)
+            r.p.export("VvfpStoryProbeQueueSession", 0, 0, 1, 0)
+        self.assertIsNone(r.queue6(compiled(carry_graph(game))))
+        return r
+
+    def check(self, r, game: str, carrier: int, partner: int, shown: list) -> None:
+        names = {0: "Ann", 1: "Bob"}
+        words = " ".join(norm(s[1]) for s in shown)
+        self.assertIn(f"{names[carrier]} and {names[partner]} sit by the fire.", words)
+        pron = "she" if carrier == 0 else "he"
+        self.assertIn(f"{names[carrier]} is pregnant, and {pron} beams at {names[partner]}.", words)
+        L = r.v.L
+        self.assertNotEqual(r.v.i32(carrier, L["pregnant"]), 0, f"{names[carrier]} carries")
+        self.assertEqual(r.v.i32(partner, L["pregnant"]), 0, f"{names[partner]} does not")
+        if game in EXPECTED_FATHER:            # the conception's record: the partner is the other parent
+            at = EXPECTED_FATHER[game][0]
+            got = r.p.read(r.v.record(carrier) + at, 24).split(b"\0")[0].decode("ascii", "replace")
+            self.assertEqual(got, names[partner])
+
+    def test_0_and_100_percent(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for percent, carrier, partner in ((0, 0, 1), (100, 1, 0)):
+                with self.subTest(game=game, percent=percent):
+                    r = self.start(game, percent)
+                    shown = r.walk_through()
+                    self.check(r, game, carrier, partner, shown)
+
+    def test_an_alias_carrier_is_its_member(self):
+        """Codex on #814: a pregnancy on an alias role is decided for the member drawn (the aliases come first)."""
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            g = carry_graph(game)
+            g["roles"]["chosen"] = {"kind": "alias", "of": ["subject"]}
+            g["nodes"]["p1"] = {"text": "(Chosen) is pregnant, and (chosen.he/she) beams at (friend).",
+                                "effects": [{"do": "pregnant", "role": "chosen", "partner": "friend",
+                                             "partner_may_carry": True}]}
+            for percent, carrier, partner in ((0, 0, 1), (100, 1, 0)):
+                with self.subTest(game=game, percent=percent):
+                    r = V6(game, self.PEOPLE)
+                    text = f"vv{r.n}\n# partner_carry_percent={percent}\n"
+                    buf = r.p.alloc(len(text) + 1)
+                    r.p.write(buf, text.encode("ascii") + b"\0")
+                    r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    self.check(r, game, carrier, partner, r.walk_through())
+
+    def test_the_other_outcomes_foundling_follows_the_swap(self):
+        """Codex on #814 (b247, b356): the swap holds for the run, so the other answer's unflagged nursing baby for
+        the carrier role goes to the villager the page names (a father may care for a baby)."""
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            g = carry_graph(game)
+            g["start"] = "q"
+            g["nodes"]["q"] = {"type": "question", "text": "(Subject) and (friend) talk about a family.",
+                               "choices": [{"label": "Wait", "next": "p0"}, {"label": "Take In", "next": "f"}]}
+            g["nodes"]["f"] = {"text": "A baby is left with (subject), and (subject.he/she) keeps it.",
+                               "effects": [{"do": "nursing", "role": "subject", "partner": "friend"}]}
+            for percent, carer in ((0, 0), (100, 1)):
+                with self.subTest(game=game, percent=percent):
+                    r = V6(game, self.PEOPLE)
+                    text = f"vv{r.n}\n# partner_carry_percent={percent}\n"
+                    buf = r.p.alloc(len(text) + 1)
+                    r.p.write(buf, text.encode("ascii") + b"\0")
+                    r.p.export("VvfpStoryProbeInstalledPatches", r.n, buf)
+                    r.rolls([0] * 40)
+                    r.p.export("VvfpStoryProbeGraphNoDeliver", 1)   # the conception only: no sound to play here
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    words = " ".join(norm(s[1]) for s in r.walk_through(answers=[1]))
+                    name, pron = ("Ann", "she") if carer == 0 else ("Bob", "he")
+                    self.assertIn(f"A baby is left with {name}, and {pron} keeps it.", words)
+                    self.assertNotEqual(r.v.i32(carer, r.v.L["pregnant"]), 0, f"{name} nurses the baby")
+                    self.assertEqual(r.v.i32(1 - carer, r.v.L["pregnant"]), 0)
+
+    def test_a_loaded_run_keeps_the_choice(self):
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                r = self.start(game, 100, session=True)
+                if not r.state()["armed"]:
+                    assert r.p.export("VvfpStoryProbeGraphArmNext", r.n) == 1
+                r.p.write(TEXT_BUF, b"\0")
+                assert r.p.export("VvfpStoryProbeDeliver", r.n, TEXT_BUF, 9000) == 1
+                first = norm(r.p.cstring(TEXT_BUF))
+                r.tick()
+                file = r.graph_file()
+                self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
+                again = V6(game, self.PEOPLE)
+                text = f"vv{again.n}\n# partner_carry_percent=0\n"   # the setting moved since: the run keeps its own
+                buf = again.p.alloc(len(text) + 1)
+                again.p.write(buf, text.encode("ascii") + b"\0")
+                again.p.export("VvfpStoryProbeInstalledPatches", again.n, buf)
+                again.rolls([5] * 40)
+                again.facts(unicode=0, structures=0)
+                again.p.export("VvfpStoryProbeQueueSession", 0, 0, 0x7FFFFFF0, 0)
+                buf = again.p.alloc(len(file) + 16)
+                again.p.write(buf, file)
+                again.p.export("VvfpStoryProbeGraphSession", buf, len(file))
+                again.tick()
+                self.assertNotEqual(again.state()["phase"], IDLE, "put back")
+                self.assertEqual(list(again.state()["records"][:2]), [1, 0], "Bob still carries")
+                rest = again.walk_through()
+                self.check(again, game, 1, 0, [("page", first, None)] + rest)
+
+
+@emulated
 class SharedVectors(unittest.TestCase):
     """The engine's walk is the patcher's walk: path, effect rolls, picks, aliases and the words read."""
 
@@ -297,6 +461,14 @@ class SharedVectors(unittest.TestCase):
                               cg.GAMES[case["game"]].preferences.index(word))
         if "tribe" in case:
             put_tribe(r, game, case["tribe"])
+        if case["name"].startswith("auto_lines"):
+            # Every skill at 50: each gain or loss the vector rolls is made in full, as the patcher's walk (which has
+            # no village) states it -- the lines state the change really made (cie-v6-binary.md 25), so a loss from 0
+            # would have none.
+            for idx in range(len(vector_village(case))):
+                for k in range(r.v.L["skill_count"]):
+                    r.p.write(r.v.record(idx) + r.v.L["skills"] + 4 * k,
+                              struct.pack("<f" if r.v.L["floats"] else "<i", 50))
         r.p.export("VvfpStoryProbeGraphHeadLook", 1, 0, 0)    # 27: "VVFP Head Look.dll" in the game
         installed(r, case.get("patches", ()))
         self.assertIsNone(r.queue6(data))
@@ -446,7 +618,7 @@ class ResumeAndFile(unittest.TestCase):
         self.assertEqual(again.v6state()["picks"], before, "the same picks")
         self.assertEqual(again.displays()[:len(words)], words, "the same words")
 
-    def test_a_version_3_run_file_still_loads(self):
+    def test_a_version_3_or_4_run_file_still_loads(self):
         if not have_stock("vv3"):
             self.skipTest("no stock The Secret City")
         from test_story_cie_graph_runtime import CIEG
@@ -465,23 +637,35 @@ class ResumeAndFile(unittest.TestCase):
         r.tick()
         file = bytearray(r.graph_file())
         r.p.export("VvfpStoryProbeGraphFileLayout", LAYOUT_BUF)
-        v3, head, whole = struct.unpack("<3i", r.p.read(LAYOUT_BUF, 12))
-        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 4, "written as version 4")
-        old = bytes(file[:head]) + bytes(file[head:head + v3]) + bytes(file[head + whole:])
-        old = bytearray(old)
-        struct.pack_into("<I", old, 4, 3)
-        struct.pack_into("<I", old, 16, v3)
-        again = V6("vv3")
-        again.rolls([0] * 40)
-        again.p.export("VvfpStoryProbeQueueSession", 0, 0, 0x7FFFFFF0, 0)
-        buf = again.p.alloc(len(old) + 16)
-        again.p.write(buf, bytes(old))
-        again.p.export("VvfpStoryProbeGraphSession", buf, len(old))
-        again.tick()
-        self.assertEqual(again.state()["phase"], ASKED, "a version 3 file is put back")
-        again.p.write(TEXT_BUF, b"\0")
-        assert again.p.export("VvfpStoryProbeChoiceBegin", again.n, TEXT_BUF, 4096) == 1
-        self.assertEqual(again.labels(2), labels)
+        (v3, head, whole, words_at, words, words_v4, v3_end, v4, entry_at, entry, entry_v4) = struct.unpack(
+            "<11i", r.p.read(LAYOUT_BUF, 44))
+        growth = (words - words_v4) + (entry - entry_v4)
+        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
+        self.assertEqual(v3, v3_end - growth)
+        self.assertLess(v4, whole - growth)   # version 6 added carry_swapped and female_at after version 5's state
+        state = bytes(file[head:head + whole])
+        # Versions 2 to 4 kept 49,152 bytes of displays' words and 8,192 of the log entry: the state as such a file
+        # holds it.
+        self.assertTrue(all(b == 0 for b in state[words_at + words_v4:words_at + words]), "the words fit the old room")
+        self.assertTrue(all(b == 0 for b in state[entry_at + entry_v4:entry_at + entry]), "the entry fits the old room")
+        narrow = (state[:words_at + words_v4] + state[words_at + words:entry_at + entry_v4]
+                  + state[entry_at + entry:])
+        for version, size in ((3, v3), (4, v4)):
+            with self.subTest(version=version):
+                old = bytearray(bytes(file[:head]) + narrow[:size] + bytes(file[head + whole:]))
+                struct.pack_into("<I", old, 4, version)
+                struct.pack_into("<I", old, 16, size)
+                again = V6("vv3")
+                again.rolls([0] * 40)
+                again.p.export("VvfpStoryProbeQueueSession", 0, 0, 0x7FFFFFF0, 0)
+                buf = again.p.alloc(len(old) + 16)
+                again.p.write(buf, bytes(old))
+                again.p.export("VvfpStoryProbeGraphSession", buf, len(old))
+                again.tick()
+                self.assertEqual(again.state()["phase"], ASKED, f"a version {version} file is put back")
+                again.p.write(TEXT_BUF, b"\0")
+                assert again.p.export("VvfpStoryProbeChoiceBegin", again.n, TEXT_BUF, 4096) == 1
+                self.assertEqual(again.labels(2), labels)
 
 
 def cast_graph(**role) -> dict:
@@ -538,6 +722,76 @@ class Casting(unittest.TestCase):
                 self.assertIsNone(r.queue6(data))
                 r.walk_through()
                 self.assertIn(r.state()["records"][0], (1, 2), "only the villagers with the top value")
+
+    def test_highest_holds_with_heathen_ok_too(self):
+        # Codex P2 (PR #771): role byte 13 holds the picker with the speaks and heathen_ok bits; both are masked.
+        game = self.run_game()
+        g = cast_graph(skill={"names": ["Farming"], "min": 1, "pick": "highest"}, heathen_ok=True, speaks=True)
+        g["nodes"]["p"]["effects"] = []
+        data = compiled(g)
+        for roll in range(3):
+            with self.subTest(roll=roll):
+                r = V6(game, [(0, "m", 30, "Adam", 10, False), (1, "f", 31, "Bea", 30, False),
+                              (2, "m", 32, "Cal", 30, False)])
+                r.rolls([roll] * 40)
+                self.assertIsNone(r.queue6(data))
+                r.walk_through()
+                self.assertIn(r.state()["records"][0], (1, 2), "only the villagers with the top value")
+
+    def test_a_piece_of_extreme_ages_never_stops_its_file(self):
+        # Codex P2 (PR #774): one player piece asking "90+" once made pc_validate refuse the WHOLE pieces file.
+        # Elders of 90 and more exist: ages up to 120 load, and the rest of the file composes.
+        import vv_player_events as pe
+        game = self.run_game()
+        text = ("Piece: walk\nKind: Setup\nFamily: f\nTitle: A Walk\nRole a: adult\nText: (A) goes for a walk.\n\n"
+                "Piece: look\nKind: Approach\nFamily: f\nLabel: Look Around\nRole a: adult\nText: (A) looks around.\n\n"
+                "Piece: see\nKind: Outcome\nFamily: f\nAnswers: look\nRole a: adult\nText: (A) sees the sea.\n\n"
+                "Piece: rest\nKind: Approach\nFamily: f\nLabel: Sit Down\nRole a: adult\nText: (A) sits down.\n\n"
+                "Piece: calm\nKind: Outcome\nFamily: f\nAnswers: rest\nRole a: adult\nText: (A) feels calm.\n\n"
+                "Piece: old\nKind: Setup\nFamily: g\nTitle: The Eldest\nRole e: 90+\nText: (E) remembers.\n\n"
+                "Piece: hear\nKind: Approach\nFamily: g\nLabel: Listen\nRole e: 90+\nText: (E) talks.\n\n"
+                "Piece: told\nKind: Outcome\nFamily: g\nAnswers: hear\nRole e: 90+\nText: (E) is heard.\n")
+        items = pe.parse_text(text, "mine.txt")
+        self.assertFalse([str(p) for i in items for p in i.problems])
+        data, probs = pe.compile_pieces(items, int(game[2]))
+        self.assertFalse([str(p) for p in probs])
+        r = V6(game, [(0, "m", 30, "Adam", 0, False), (1, "f", 33, "Eve", 0, False)])
+        at, out = r.p.alloc(len(data)), r.p.alloc(0x40000)
+        r.p.write(at, data)
+        r.p.export("VvfpStoryProbeProceduralFile", at, len(data))
+        setup = next(k for k, i in enumerate(items) if i.piece["id"] == "walk")
+        size = r.p.export("VvfpStoryProbeProceduralCompose", int(game[2]), setup, 0, 0, out, 0x40000)
+        self.assertGreater(size, 0, "the file loads and the walk composes, a 90+ piece beside it")
+
+    def test_a_procedural_apostasy_is_harmful(self):
+        # Codex P2 (PR #771): a composed event's apostasy (40) takes the harm guard and the protected flag, as the
+        # engine's own cg_effect_harmful counts it -- never a nursing parent with the safeguards on.
+        game = self.run_game()
+        r = V6(game, [(0, "m", 30, "Adam", 0, False)])
+        at = r.p.alloc(32)
+        for code, harmful in ((40, 1), (39, 0), (38, 0), (4, 1)):   # apostasy, join, faith, kill
+            r.p.write(at, bytes([code, 0, 0, 0]) + bytes(16))
+            self.assertEqual(r.p.export("VvfpStoryProbeProceduralHarmful", at), harmful, code)
+        self.assertTrue(cg._harmful({"do": "apostasy", "role": "subject"}, [5]), "the compiler's guard too")
+
+    def test_a_heathen_reached_through_an_alias_keeps_vanillas_list(self):
+        # Codex P2 (PR #771): an alias standing for a heathen_ok role resolves to a Heathen -- an effect off the
+        # Heathens' list is refused on them, as on the Heathen's own role.
+        if not have_stock("vv5"):
+            self.skipTest("no New Believers")
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Storm", "games": [5],
+             "roles": {"isolan": {"kind": "villager", "min_age": 14, "heathen_ok": True},
+                       "someone": {"kind": "alias", "of": ["isolan"]}},
+             "start": "p",
+             "nodes": {"p": {"text": "(isolan.Name) is caught in the storm.",
+                             "effects": [{"do": "kill", "role": "someone"}]}}}
+        data = compiled(g)
+        r = V6("vv5", [(0, "m", 30, "Adam", 0, False)])
+        r.p.write(r.v.record(0) + 0x1CEC, b"\1")          # a Heathen
+        r.rolls([0] * 40)
+        self.assertIsNone(r.queue6(data))
+        r.walk_through()
+        self.assertEqual(r.p.read(r.v.record(0) + r.v.L["active"], 1), b"\1", "the Heathen lives")
 
     def test_a_harm_capable_role_never_takes_a_nursing_parent(self):
         game = self.run_game()
@@ -663,6 +917,79 @@ class NodeTitles(unittest.TestCase):
                 at = r.p.alloc(64)
                 r.p.write(at, decide.encode() + b"\0")
                 self.assertEqual(r.p.export("VvfpStoryGraphLogged", r.n, at), 1, "the log knows the page's own title")
+
+    def test_the_chosen_label_titles_what_follows(self):
+        """The owner (2026-11-16): after a choice, the next popups take the chosen label as their title until the next
+        choice, unless the next node has a title of its own ("Show them" leads to "The Elders Decide", which keeps
+        its own); a label wider than the title area is never replaced by the event's title: it wraps, its rest the
+        page's first line."""
+        from test_cie_graph_v6 import TITLES
+        inv = "The Revolutionary Invention"
+        long_label = "Ask every elder what they would be good at doing tomorrow"
+        wide = copy.deepcopy(TITLES)
+        wide["nodes"]["q"]["choices"][1]["label"] = long_label
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game, label="Keep it quiet"):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(TITLES)))
+                shown = r.walk_through([1])
+                self.assertEqual(r.titles(), [inv, inv, "Keep it quiet"])
+            with self.subTest(game=game, label=long_label):
+                r = V6(game, TWO)
+                r.rolls([0] * 40)
+                self.assertIsNone(r.queue6(compiled(wide)))
+                shown = r.walk_through([1])
+                last = r.titles()[-1]
+                self.assertNotEqual(last, inv)
+                self.assertTrue(long_label.startswith(last), last)
+                if last != long_label:
+                    rest = long_label[len(last):].strip()
+                    self.assertIn(rest, shown[-1][1], "the label's rest is the page's first line")
+
+    def test_a_wrapped_label_never_cuts_the_text_without_scrolling(self):
+        """Codex P2 (PR #771): without Scrolling Popups a label wider than the title area puts its rest on each page's
+        first line -- the pages are laid out with that line kept free, so the page's text is never cut."""
+        from test_cie_graph_v6 import TITLES
+        long_label = "Ask every elder what they would be good at doing tomorrow"
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                for words in range(4, 70, 3):          # one page, a full page, then two
+                    wide = copy.deepcopy(TITLES)
+                    wide["nodes"]["q"]["choices"][1]["label"] = long_label
+                    wide["nodes"]["n"]["text"] = "(Name) waits. " + "A word. " * words + "Zebra ends it."
+                    r = V6(game, TWO)
+                    process = r.p
+                    # paging without scrolling takes more steps than the emulator's usual limit
+                    r.p.call = lambda address, args=(), **kw: type(process).call(
+                        process, address, args, **{**kw, "limit": 40_000_000})
+                    r.p.export("VvfpStoryProbeGraphScroll", 0)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(wide)))
+                    text = " ".join(" ".join(t for _k, t, _l in r.walk_through([1])).split())
+                    self.assertIn("Zebra ends it.", text, (words, text[-200:]))
+                    self.assertEqual(text.count("A word."), words, words)
+
+    def test_the_title_is_the_choice_picked(self):
+        """Codex P2 (PR #771): both choices lead to the same node -- each one's own label titles what follows."""
+        from test_cie_graph_v6 import TITLES
+        same = copy.deepcopy(TITLES)
+        same["nodes"]["q"]["choices"] = [{"label": "Leave", "next": "n"}, {"label": "Keep", "next": "n"}]
+        del same["nodes"]["y"], same["nodes"]["y2"]
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            for answer, label in ((0, "Leave"), (1, "Keep")):
+                with self.subTest(game=game, answer=label):
+                    r = V6(game, TWO)
+                    r.rolls([0] * 40)
+                    self.assertIsNone(r.queue6(compiled(same)))
+                    r.walk_through([answer])
+                    self.assertEqual(r.titles()[-1], label)
 
     def test_placeholders_in_titles(self):
         """17: on screen with the names (or pronouns when they do not fit); the log's entry with the real names (the
@@ -1516,8 +1843,47 @@ class EngineFollowups(unittest.TestCase):
                 self.assertIn(words.index("work"), r.v.prefs(0, "dislikes"))
                 self.assertIn("Ana now likes resting.", text)
                 self.assertIn("Ana now dislikes work.", text)
-                self.assertIn("Ana's hair changes color.", text)
-                self.assertIn("The village gains food.", text)
+                self.assertIn("Ana's head changes.", text)
+                self.assertRegex(text, r"The village gains [1-9][0-9]* food\.")
+
+    def test_a_group_random_removal_takes_one_held_preference_each(self):
+        # cie-v6-binary.md 24 on a group (role 254): a random like taken away is drawn from each member's own likes
+        # (Codex on #771: the add's draw skips held words, so a removal from it was never made).  A member with none
+        # held: nothing for them, nothing refused.
+        g = {"format": "vvfp-cie-graph", "version": 6, "title": "The Tide", "games": [1, 2, 3, 4, 5],
+             "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p",
+             "nodes": {"p": {"text": "The tide turns.",
+                             "effects": [{"do": "preference", "role": "subject", "like": "random"}]}}}
+        data = bytearray(compiled(g))
+        fx = bytes([8, 0, 8, 0]) + bytes(8) + b"\xff\xff\0\0"
+        self.assertEqual(data.count(fx), 1)
+        at = data.index(fx)
+        data[at + 1], data[at + 2], data[at + 3] = 0xFE, 8 | 16, 1      # every villager, a random one taken away
+        struct.pack_into("<I", data, 12, 0)
+        struct.pack_into("<I", data, 12, zlib.crc32(bytes(data)))
+        for game in GAME_IDS:
+            if not have_stock(game):
+                continue
+            with self.subTest(game=game):
+                words = cg.GAMES[int(game[2])].preferences
+                r = V6(game, [(0, "f", 30, "Ana", 0, False), (1, "m", 40, "Bo", 0, False),
+                              (2, "m", 25, "Cy", 0, False)])
+                held = {0: ["ants", "work"], 1: ["resting"], 2: []}
+                for i, likes in held.items():
+                    for which in ("likes", "dislikes"):
+                        for k in range(r.v.L["slots"]):
+                            r.p.put32(r.v.record(i) + r.v.L[which] + 4 * k, 0xFFFFFFFF)
+                    for k, w in enumerate(likes):
+                        r.p.put32(r.v.record(i) + r.v.L["likes"] + 4 * k, words.index(w))
+                r.rolls([1] * 40)
+                self.assertIsNone(r.queue6(bytes(data), strict=True, origin=2))
+                text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
+                for i, likes in held.items():
+                    now = [words[w] for w in r.v.prefs(i, "likes") if w >= 0]
+                    self.assertEqual(len(now), max(len(likes) - 1, 0), (i, now))
+                    self.assertTrue(set(now) <= set(likes), (i, now))
+                    self.assertEqual([w for w in r.v.prefs(i, "dislikes") if w >= 0], [], "nothing disliked")
+                self.assertNotIn("could not be made", text)
 
 
     def head_looks(self, r) -> list[list[int]]:
@@ -1540,7 +1906,7 @@ class EngineFollowups(unittest.TestCase):
                     head0 = r.v.i32(1, r.v.L["head"])
                     text = " ".join(t for _kind, t, _labels in r.walk_through())   # as delivered, refusals too
                     self.assertEqual(r.state()["records"][0], 1)
-                    self.assertIn("Ana looks older and more worn.", text)
+                    self.assertIn("Ana looks older.", text)
                     self.assertIn("Ana now dislikes running.", text)
                     words = cg.GAMES[int(game[2])].preferences
                     self.assertIn(words.index("running"), r.v.prefs(1, "dislikes"))
@@ -1605,7 +1971,7 @@ class EngineFollowups(unittest.TestCase):
                     self.assertIsNone(r.queue6(compiled(SEX_GRAPH), strict=True, origin=2))
                     head0 = r.v.i32(1, r.v.L["head"])
                     text = " ".join(t for _kind, t, _labels in r.walk_through())
-                    self.assertIn("Ana's sex changes.", text)
+                    self.assertIn("Ana is now male.", text)
                     self.assertEqual(r.v.i32(1, r.v.L["head"]), head0, "the head row never changes")
                     words = cg.GAMES[int(game[2])].preferences
                     self.assertEqual(r.v.i32(1, off), male, "Ana's record is a man's now")
@@ -1631,6 +1997,73 @@ NEW_NAME_GRAPH = {
     "nodes": {"p": {"text": "(Name) asks to be called (Chosen). (chosen) it is.", "auto_text": True,
                     "effects": [{"do": "sex_change", "role": "subject"}]}},
 }
+AGE_NAME_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Long Sleep", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) wakes from a very long sleep.", "auto_text": True,
+                    "effects": [{"do": "change_age", "role": "subject", "years": [3, 5]},
+                                {"do": "change_name", "role": "subject"}]}},
+}
+
+
+if HAVE_EMULATOR:
+    class AgeAndNameLines(unittest.TestCase):
+        def test_the_line_says_the_age_and_name_the_effect_makes(self):
+            # The owner (2026-11-18): a line whenever an effect happens.  The age and a random name are drawn when
+            # the page is laid out (story_graph.inc cg_pre) and the effect then makes exactly that.
+            for game in GAME_IDS:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.rolls([1] * 60)
+                    self.assertIsNone(r.queue6(compiled(AGE_NAME_GRAPH), strict=True, origin=2))
+                    text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())
+                    age = r.v.i32(1, r.v.L["age"])
+                    self.assertIn(f"is now {age // 20} years old.", text)
+                    self.assertIn(age // 20, range(33, 36), "30 plus 3 to 5 years")
+                    name = r.p.cstring(r.v.record(1) + r.v.L["name"])
+                    self.assertNotEqual(name, "Ana")
+                    self.assertIn(f"is now called {name}.", text)
+
+
+CHOSEN_RENAME_GRAPH = {
+    "format": "vvfp-cie-graph", "version": 6, "title": "The Name That Fits", "games": [1, 2, 3, 4, 5],
+    "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"},
+              "chosen": {"kind": "stranger", "new_name_for": "subject", "sex": "same", "last_name": "same"}},
+    "start": "p",
+    "nodes": {"p": {"text": "(Name) asks to be called (Chosen).", "auto_text": True,
+                    "effects": [{"do": "change_name", "role": "subject", "name_of": "chosen"}]}},
+}
+
+
+if HAVE_EMULATOR:
+    class ChosenRename(unittest.TestCase):
+        def test_the_villager_takes_the_chosen_name(self):
+            # The owner (2026-11-19): a REL event's chosen name is the name the villager is renamed to.
+            for game in GAME_IDS:
+                if not have_stock(game):
+                    continue
+                with self.subTest(game=game):
+                    r = V6(game, [(0, "m", 20, "Cy", 0, False), (1, "f", 30, "Ana", 0, False)])
+                    r.rolls([3] * 60)
+                    self.assertIsNone(r.queue6(compiled(CHOSEN_RENAME_GRAPH), strict=True, origin=2))
+                    text = " ".join(" ".join(t for _kind, t, _labels in r.walk_through()).split())
+                    name = r.p.cstring(r.v.record(1) + r.v.L["name"])
+                    self.assertNotEqual(name, "Ana")
+                    self.assertIn(f"asks to be called {name}.", text)
+                    self.assertIn(f"is now called {name}.", text)
+
+
+class ChosenRenameFormat(unittest.TestCase):
+    def test_round_trip(self):
+        g = cg.load(copy.deepcopy(CHOSEN_RENAME_GRAPH), True)
+        self.assertEqual(cg.decompile_graph(cg.compile_graph(g))["nodes"]["p"]["effects"][0]["name_of"], "chosen")
+        self.assertEqual(cg.auto_line_options(g["nodes"]["p"]["effects"][0], 3),
+                         ["(subject.Name) is now called (chosen)."])
+
+
 SEX_GRAPH = {
     "format": "vvfp-cie-graph", "version": 6, "title": "The Person They Have Always Been", "games": [1, 2, 3, 4, 5],
     "roles": {"subject": {"kind": "villager", "min_age": 25, "sex": "female"}},

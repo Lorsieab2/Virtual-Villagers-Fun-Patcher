@@ -99,7 +99,8 @@
      "max": 10,
      "src": "L239"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a2": {
    "name": "Outcome A2",

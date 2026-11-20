@@ -91,14 +91,40 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "At last the elders give up. \"Well? What is it?\" (subject) beams. \"I don't know. I made it up.\" There's a stunned silence. Then one elder laughs, and then all of them. (elder), one of the elders, refuses to give up and insists the answer is \"a dream,\" and argues it for weeks. (subject) tells (elder), \"That's right,\" but only (elder.him/her).",
-   "src": "L218"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "The guesses go on. An egg? A thought? A sleeping lizard? The riddle spreads through the whole village, and for days people shout guesses at (subject) across the paths. (subject) just smiles. Nobody ever finds out that the riddle had no answer, or rather, that it now has about forty.",
    "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "At last the elders give up. \"Well? What is it?\" (subject) beams. \"I don't know. I made it up.\" There's a stunned silence. Then one elder laughs, and then all of them. (elder), one of the elders, refuses to give up and insists the answer is \"a dream,\" and argues it for weeks. (subject) tells (elder), \"That's right,\" but only (elder.him/her).",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "At last the elders give up. \"Well? What is it?\" (subject) beams. \"I don't know. I made it up.\" There's a stunned silence. Then one elder laughs, and then all of them. (elder), one of the elders, refuses to give up and insists the answer is \"a dream,\" and argues it for weeks. (subject) tells (elder), \"That's right,\" but only (elder.him/her).",
+   "src": "L218"
   }
  }
 }

@@ -1,0 +1,332 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bargain of the Hidden Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my063_bargain_hidden",
+  "source": "rewrites",
+  "lines": [
+   13529,
+   13584
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13529",
+  "ledger": [
+   {
+    "src": "L13530",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13531",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13539",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13546",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13553",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13560",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13534",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13535",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13536",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13537",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13540",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13547",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13554",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13561",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13543",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13550",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13555",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13557",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13562",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13564",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13567-13584",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is gathering firewood when a stranger steps out from between the trees.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) is gathering firewood when a stranger steps out from between the trees. The stranger wears a veil of fine woven grass that shivers in every breeze, and (subject.his/her) hands smell of crushed mint. \"I know of a garden,\" the stranger says, \"where food grows without anyone tending it. I will tell you where it is. I ask only one thing. Do not boast of finding it.\"\n(subject) thinks of the village's half-empty storehouse. (subject.He/she) also thinks that a veiled stranger offering free food in the middle of the woods is exactly the kind of thing the elders warn children about. The stranger waits, perfectly still. Is the stranger telling the truth, or is it a trick? Should (subject) take the offer?",
+   "choices": [
+    {
+     "label": "Accept and Keep Quiet",
+     "next": "c1",
+     "src": "L13534"
+    },
+    {
+     "label": "Tell the Village",
+     "next": "c2",
+     "src": "L13535"
+    },
+    {
+     "label": "Ask Who Owns the Garden",
+     "next": "c3",
+     "src": "L13536"
+    },
+    {
+     "label": "Decline the Offer",
+     "next": "c4",
+     "src": "L13537"
+    }
+   ],
+   "src": "L13532-13533",
+   "text_only": [
+    {
+     "src": "L13532",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    },
+    {
+     "src": "L13533",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "...a sunny little clearing bursting with beans, greens and fat yellow squash, all growing in neat rows that no one has planted. (subject) fills (subject.his/her) basket, and keeps (subject.his/her) word. Over the following weeks, small baskets of fresh greens start appearing on doorsteps all over the village, with no note and no explanation. Families who had been going hungry find themselves eating well. Everyone wonders who the mysterious giver is. (subject) just shrugs and looks innocent, which (subject.he/she) is terrible at.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L13542",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "...a clearing full of perfectly ordinary wild plants: some sour berries, a few tough greens, and a great deal of nettle, which (subject) discovers by sitting in it. Hardly a miracle garden. Still, it is a lovely spot, sunny and quiet, and (subject) finds (subject.himself/herself) going back there just to sit and think. (subject.He/she) never tells anyone about it. There is not much to boast about anyway.",
+   "src": "L13544"
+  },
+  "c1": {
+   "text": "(subject) nods, and the stranger leans close and whispers directions: past the split rock, down the fern gully, and left at the tree that looks like it is waving. (subject) follows them, and finds...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13540"
+  },
+  "c2o1": {
+   "text": "The garden is real, and it is enormous: row after row of beans, yams, squash and fruit, more than the whole village could eat in a season. The villagers organize a careful harvest, taking only what is ripe and leaving the rest to grow, and haul basket after basket home. That night there is a great feast. (subject) is the hero of the evening, though (subject.he/she) catches (subject.himself/herself) glancing at the dark trees now and then, half-expecting to see a veil shivering among them.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true
+    }
+   ],
+   "src": "L13549",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "By the time the crowd arrives, the garden has been torn apart. The ground is churned with hoofprints, the plants are trampled flat, and the last bean pod hangs alone on a stripped vine. Wild pigs, says one villager. Someone else points out that pigs do not usually eat a garden right after a stranger asks for it to be kept secret. Nobody says anything for a while. Then they all trudge home, and (subject) does not boast about anything for a very long time.",
+   "src": "L13551"
+  },
+  "c2": {
+   "text": "(subject) thanks the stranger, then runs straight back to the village shouting about a magic garden full of food. Promise or no promise, this is too good to keep to (subject.himself/herself). Half the village grabs baskets and follows (subject.him/her) into the forest...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13547",
+   "text_only": [
+    {
+     "src": "L13547",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o1": {
+   "text": "\"It belongs,\" the stranger says, \"to whoever cares for it.\" Then (subject.he/she) tells (subject) the way, steps back between the trees, and is gone. (subject) finds the garden overgrown and choked with weeds, and spends the whole afternoon clearing them, watering the thirsty plants and propping up the bent stalks. When (subject.he/she) leaves, the little garden looks happier than (subject.he/she) has ever seen anything look. It is a long time before it gives (subject.him/her) anything to eat. (subject) keeps coming back anyway.",
+   "src": "L13556"
+  },
+  "c3o2": {
+   "text": "The stranger hesitates, then sighs and lifts the veil, revealing the grinning face of (elder), one of the village's oldest elders. \"It's mine, you nosy thing,\" (elder) cackles. \"I've tended it for years. I just wanted to see if anyone would ask before helping themselves.\" The elder shows (subject) the garden, and from then on (subject) helps tend it twice a week. The mint smell, it turns out, was from (elder)'s tea.",
+   "src": "L13558"
+  },
+  "c3": {
+   "text": "\"Wait,\" (subject) says. \"If I take food from a garden, I'd like to know whose garden it is.\" The stranger tilts (subject.his/her) veiled head, as if no one has ever asked that before...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13554",
+   "text_only": [
+    {
+     "src": "L13554",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c4o1": {
+   "text": "...and walks away without a word of complaint, back between the trees, and the forest closes behind (subject.him/her). (subject) finishes gathering firewood and goes home. That evening, (subject.he/she) tells the story at the fire, and several villagers immediately ask why on earth (subject.he/she) said no. (subject) does not have a good answer. (subject.He/she) just has a feeling, and decides that is good enough.",
+   "src": "L13563"
+  },
+  "c4o2": {
+   "text": "...and steps back into the forest. That night, as (subject) undresses for bed, a single seed falls out of (subject.his/her) pocket: round, shiny, and green as a beetle's wing. (subject.He/she) is certain it was not there this morning. (subject.He/she) plants it outside (subject.his/her) hut, half-expecting nothing, and the next morning there is a tiny sprout. (subject) waters it every day and tells no one, and tries very hard not to boast about it.",
+   "src": "L13565"
+  },
+  "c4": {
+   "text": "\"Thank you,\" (subject) says carefully, \"but I'll find my own food.\" The stranger bows (subject.his/her) veiled head...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13561",
+   "text_only": [
+    {
+     "src": "L13561",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  }
+ }
+}

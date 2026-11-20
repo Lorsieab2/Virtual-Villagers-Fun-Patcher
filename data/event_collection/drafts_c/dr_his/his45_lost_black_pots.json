@@ -69,14 +69,50 @@
    ]
   },
   "o1": {
+   "type": "branch",
    "name": "Outcome A",
-   "text": "They try different clays, hotter fires, smoke, burying the pots in leaves, polishing them with stones. The pots come out brown, grey, cracked, lumpy and, once, exploded. After a whole season, (subject) produces one that's dark grey and a little bit shiny. It's not the same. It's the closest anyone has come in generations. They put it next to the old pieces. It looks proud.",
-   "src": "L542"
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
   },
   "o2": {
    "name": "Outcome B",
    "text": "After a month of failures, (subject) gives up. \"Maybe some things are just gone,\" (subject.he/she) says. (friend) agrees. They keep the old pieces safe on a shelf in the meeting hut, with a note carved beside them: \"Nobody knows how.\" Children come and look at their own faces in the shine. (subject) still wonders, sometimes, late at night, what the trick was.",
    "src": "L545"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They try different clays, hotter fires, smoke, burying the pots in leaves, polishing them with stones. The pots come out brown, grey, cracked, lumpy and, once, exploded. After a whole season, (subject) produces one that's dark grey and a little bit shiny. It's not the same. It's the closest anyone has come in generations. They put it next to the old pieces. It looks proud.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L542"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L542"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They try different clays, hotter fires, smoke, burying the pots in leaves, polishing them with stones. The pots come out brown, grey, cracked, lumpy and, once, exploded. After a whole season, (subject) produces one that's dark grey and a little bit shiny. It's not the same. It's the closest anyone has come in generations. They put it next to the old pieces. It looks proud.",
+   "src": "L542"
   }
  }
 }

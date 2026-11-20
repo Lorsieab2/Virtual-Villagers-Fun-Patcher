@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "We Will Defend Our Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc01_we_will_defend",
+  "source": "draft_lcc",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Strange canoes were seen off the reef: rally the village with the stamping dance, or keep calm and keep watch.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At dusk, (subject) spotted three canoes beyond the reef, full of people with painted faces, watching the village and not coming closer. Then they turned and paddled away. The village is frightened. (friend) wants to call everyone to the beach for the stamping dance, the one that is supposed to put fire in the belly. (subject) thinks a dance will only frighten the children more. What should the village do?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Do the Stamping Dance",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Keep Calm and Keep Watch",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The whole village gathers on the sand, and the adults stamp and shout and slap their chests until the ground shakes and the children are shouting along. \"This is our home!\" (friend) roars, and every voice on the beach roars it back. Nobody sleeps much. But nobody is afraid anymore, either.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L15"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) organizes watches instead: two people on the headland, all night, every night, with a conch shell to blow. The village goes to bed uneasy. The canoes do not come back that week. Some people grumble that the watches are a waste of sleep. (subject) keeps them going anyway.",
+   "src": "L19"
+  }
+ }
+}

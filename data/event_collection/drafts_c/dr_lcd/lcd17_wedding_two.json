@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding of Two Traditions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd17_wedding_two",
+  "source": "draft_lcd",
+  "lines": [
+   232,
+   243
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L232",
+  "ledger": [
+   {
+    "src": "L233",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L239",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L243",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two partners from families with different wedding customs: blend both, or let each family hold its own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s family weds with flower garlands and a shared bowl of fish soup. (friend)'s family came from across the sea, and weds by binding the couple's wrists with a cord and walking them three times around a fire. Both families want their way. (subject) and (friend) want everyone happy. What should they do?",
+   "src": "L235",
+   "choices": [
+    {
+     "label": "Blend Both",
+     "next": "o1",
+     "src": "L237"
+    },
+    {
+     "label": "Hold Two Weddings",
+     "next": "o2",
+     "src": "L241"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The wedding has garlands, soup, a cord and a fire. The couple, tied at the wrist, try to eat soup from a shared bowl and get most of it down their fronts. Both families laugh. Both families cry. Both families say it was done properly.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L239"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They hold two weddings, one each day. On the first, they wear garlands and share soup. On the second, they walk three times around the fire, tied together. By the end, the couple is exhausted and very married.",
+   "src": "L243"
+  }
+ }
+}

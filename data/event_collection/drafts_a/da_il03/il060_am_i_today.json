@@ -71,6 +71,32 @@
    "src": "L230"
   },
   "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(friend) tucks a flower behind (friend.his/her) own ear and stares at the horizon too. They stand there being mysterious together until a crab pinches (friend)'s toe and (friend.he/she) yelps. (subject) breaks character and laughs. Next week, (subject.he/she) thinks, (subject.he/she) might try being funny.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
    "name": "Answer B",
    "text": "(friend) tucks a flower behind (friend.his/her) own ear and stares at the horizon too. They stand there being mysterious together until a crab pinches (friend)'s toe and (friend.he/she) yelps. (subject) breaks character and laughs. Next week, (subject.he/she) thinks, (subject.he/she) might try being funny.",
    "src": "L233"

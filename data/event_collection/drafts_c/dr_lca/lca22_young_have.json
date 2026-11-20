@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Young Have Something to Say",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca22_young_have",
+  "source": "draft_lca",
+  "lines": [
+   306,
+   317
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L306",
+  "ledger": [
+   {
+    "src": "L307",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens and an elder)"
+   },
+   {
+    "src": "L313",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L317",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two teens ask for a seat at the elders' council: give them one, or set up a council of their own.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have come to the elders' council with a request: they want the young people of the village to have a seat on the council, because the council keeps deciding things about them without asking. (third) thinks they have a point. Some of the other elders think they should be out fishing. What should the council do?",
+   "src": "L309",
+   "choices": [
+    {
+     "label": "Give Them a Seat",
+     "next": "o1",
+     "src": "L311"
+    },
+    {
+     "label": "A Young People's Council",
+     "next": "o2",
+     "src": "L315"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council gives the young people one seat, and (subject) takes it first. (subject.He/she) says very little at the first meeting, and a great deal at the second. The elders find it uncomfortable and useful in roughly equal measure.",
+   "src": "L313"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) suggests the young people hold their own council and send their decisions to the elders. (friend) is suspicious, but agrees to try. The young council's first decision is that all elders must learn the new clapping game. The elders' council respectfully declines. Their second decision is better.",
+   "src": "L317"
+  }
+ }
+}

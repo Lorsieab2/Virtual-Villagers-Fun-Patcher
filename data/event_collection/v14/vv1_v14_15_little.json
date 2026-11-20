@@ -43,9 +43,42 @@
  "start": "scene",
  "nodes": {
   "scene": {
+   "type": "branch",
+   "name": "The Little Healer",
+   "children": [
+    {
+     "next": "scene__fx"
+    },
+    {
+     "next": "scene__text"
+    }
+   ]
+  },
+  "scene__fx": {
    "name": "The Little Healer",
    "src": "L7753-7755",
-   "text": "An elder struggles beneath a heavy basket. The Golden Child helps the elder sit in the shade, fetches water, and calls a healer rather than pretending he can cure everything. The healer praises his judgment.",
+   "text": "An elder struggles beneath a heavy basket. The Golden Child helps the elder sit in the shade, fetches water, and calls a healer rather than pretending (child.he/she) can cure everything. The healer praises (child.his/her) judgment.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 5,
+     "max": 10,
+     "src": "L7756"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L7753-7755"
+    }
+   ],
+   "auto_text": true
+  },
+  "scene__text": {
+   "name": "The Little Healer",
+   "src": "L7753-7755",
+   "text": "An elder struggles beneath a heavy basket. The Golden Child helps the elder sit in the shade, fetches water, and calls a healer rather than pretending (child.he/she) can cure everything. The healer praises (child.his/her) judgment.",
    "effects": [
     {
      "do": "health_change",
@@ -54,7 +87,8 @@
      "max": 10,
      "src": "L7756"
     }
-   ]
+   ],
+   "auto_text": true
   }
  }
 }

@@ -263,6 +263,10 @@ static void dv_effects(int e) {
     default:                                             /* B: nothing happens */
         break;
     }
+    /* Village Solidarity (adv_solidarity): the doubloons and the container raise, the drowning and the lost diver
+       lower, the rest (a dislike, a skill, nothing) is the diver's own (neutral). */
+    adv_solidarity(g->game, (e == DV_E_A || e == DV_E_C) ? ADV_SOL_RAISE
+                            : (e == DV_E_D2A || e == DV_E_D2B) ? ADV_SOL_LOWER : ADV_SOL_NEUTRAL);
 }
 
 /* ---- As a dialog shows it (adv_flow) --------------------------------------------------------------------------- */

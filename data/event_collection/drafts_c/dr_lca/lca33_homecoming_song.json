@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Homecoming Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca33_homecoming_song",
+  "source": "draft_lca",
+  "lines": [
+   460,
+   471
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L460",
+  "ledger": [
+   {
+    "src": "L461",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L467",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L471",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager comes home after a long time away and seems changed: welcome them with a song, or give them quiet time first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has come home after more than a year away on the other side of the island, and (subject.he/she) is thinner and quieter than (subject.he/she) used to be. (subject.He/she) has not said much about where (subject.he/she) has been. (friend), (subject.his/her) old teacher, wants the village to sing the homecoming song tonight. (subject) looks like (subject.he/she) might rather hide. How should they welcome (subject.him/her)?",
+   "src": "L463",
+   "choices": [
+    {
+     "label": "Sing the Homecoming Song",
+     "next": "o1",
+     "src": "L465"
+    },
+    {
+     "label": "Give (subject) Quiet Time First",
+     "next": "o2",
+     "src": "L469"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village sings, and (subject) stands in the middle of it, very still. Then (subject.he/she) starts to cry, and then to laugh, and then (subject.he/she) sings the last verse with everyone else. (subject.He/she) still does not say where (subject.he/she) has been. Nobody asks.",
+   "src": "L467"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks the village to wait. For a week, people leave food at (subject)'s door and smile when they pass, and nobody makes a fuss. On the eighth day, (subject) comes to the evening fire on (subject.his/her) own and sits down. Someone starts the homecoming song, softly. (subject) does not leave.",
+   "src": "L471",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L471"
+    }
+   ]
+  }
+ }
+}

@@ -75,7 +75,6 @@
   "mother": {
    "kind": "villager",
    "min_age": 18,
-   "sex": "female",
    "special": "nursing_parent"
   },
   "companion": {
@@ -88,7 +87,7 @@
   "setup": {
    "type": "question",
    "name": "The setup",
-   "text": "(mother), a nursing mother, wants to attend a distant village celebration but worries about her baby's routine.",
+   "text": "(mother), a nursing (mother.mother/father), wants to attend a distant village celebration but worries about (mother.his/her) baby's routine.",
    "src": "L30463",
    "choices": [
     {
@@ -134,12 +133,12 @@
   },
   "a1": {
    "name": "Outcome A1",
-   "text": "She enjoys the music and returns before becoming overtired.",
+   "text": "(mother.He/She) enjoys the music and returns before becoming overtired.",
    "src": "L30465"
   },
   "a2": {
    "name": "Outcome A2",
-   "text": "The baby becomes unsettled, and she leaves early without embarrassment.",
+   "text": "The baby becomes unsettled, and (mother.he/she) leaves early without embarrassment.",
    "src": "L30466"
   },
   "b": {
@@ -183,7 +182,7 @@
   },
   "c2": {
    "name": "Outcome C2",
-   "text": "(mother) decides she would rather go alone with her baby, and (companion) respects that.",
+   "text": "(mother) decides (mother.he/she) would rather go alone with (mother.his/her) baby, and (companion) respects that.",
    "src": "L30472"
   },
   "d": {
@@ -199,13 +198,65 @@
    ]
   },
   "d1": {
+   "type": "branch",
    "name": "Outcome D1",
-   "text": "Friends bring a little festival music to her neighborhood.",
-   "src": "L30474"
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
   },
   "d2": {
+   "type": "branch",
    "name": "Outcome D2",
-   "text": "She declines a gathering and enjoys a restful evening instead.",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Friends bring a little festival music to (mother.his/her) neighborhood.",
+   "src": "L30474",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30474"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Friends bring a little festival music to (mother.his/her) neighborhood.",
+   "src": "L30474"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(mother.He/She) declines a gathering and enjoys a restful evening instead.",
+   "src": "L30475",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30475"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "(mother.He/She) declines a gathering and enjoys a restful evening instead.",
    "src": "L30475"
   }
  }

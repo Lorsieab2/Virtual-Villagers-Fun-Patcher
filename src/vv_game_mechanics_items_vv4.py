@@ -69,13 +69,22 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                          "vv4_classic_vv_difficulty", "vv4_hungrier_villagers", "vv4_science_collectibles_complete",
                          "vv4_collectibles_stay_collected", "vv4_island_events_scale_with_population",
                          "vv4_island_events_scale_with_stored_amounts", "vv4_more_island_events",
-                         "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation"})
+                         "vv4_scrolling_popups", "vv4_isola_grand_event_collection", "vv4_gender_presentation",
+                          "vv4_more_frequent_island_events", "vv4_village_solidarity", "vv4_up_to_99_supplies",
+                          # (Birth Control is on by default, as in the other games: the owner, 2026-11-19, #829)
+                          # the 0.1x-10x sliders (#799) and One-Time Collectibles Appear Again (#800): off by default
+                          "vv4_collectible_frequency", "vv4_food_gain", "vv4_tech_gain", "vv4_skill_success",
+                          "vv4_age_speed", "vv4_one_time_collectibles_again"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
+    {"vv4_island_event_content_notes", "vv4_island_events_any_time"}
+    | {f"vv4_island_event_filter_f{n:02d}" for n in range(1, 29)})
 
 ORIGINS = "vv4_enable_origins_exclusive_features"
 VILLAGE_WIDE = "vv4_origins_village_wide_upgrades"
 STORY = "vv4_story_cheat_upgrades"
 STORY_COST = "vv4_story_cheat_upgrades_cost_tech_points"
 HARDER_FISHING = "vv4_harder_fishing_unlock"
+# Fix Vanilla Bugs: the save writer no longer ends every villager's effects (0x4660C4 -> 0x45EAA0 dropped).
+FIX_VANILLA = "vv4_fix_vanilla_bugs"
 
 
 @dataclass(frozen=True)
@@ -157,11 +166,15 @@ def _techs() -> list[Entry]:
         _level("Medicine", 3, sick.format(odds="3 in 5,400", old=66, death=71, p=101) + " Twins and triplets "
                "become possible: a pregnancy is multiple " + _ch(7) + " of the time, a quarter of those triplets; and "
                "a fed villager who is not sick always passes the check for health coming back.", VERIFIED_C,
-               (("Level 3 makes the Hospital appear as a building site.", UNCONFIRMED),)),
+               # The Hospital (project 25, vtable 0x48E6CC, constructor 0x431310) reveals at 0x430E30: an unrevealed
+               # site (state 4) and Medicine > 2.
+               (("Level 3 makes the Hospital appear as a building site.", VERIFIED_C),)),
         _level("Learning", 1, learn.format(n=34, like=67, dis=17), VERIFIED_C),
         _level("Learning", 2, learn.format(n=49, like=82, dis=32), VERIFIED_C),
         _level("Learning", 3, learn.format(n=64, like=97, dis=47), VERIFIED_C,
-               (("Level 3 makes the Nursery School appear as a building site.", UNCONFIRMED),)),
+               # The Nursery School (project 24, vtable 0x48E64C, constructor 0x431290) reveals at 0x430DB0: state 4
+               # and Learning > 2.
+               (("Level 3 makes the Nursery School appear as a building site.", VERIFIED_C),)),
         # The drop chain (2026-10-27): theMainScene's mouse handlers 0x442E60 / 0x443310 (its vtable 0x48ED5C,
         # 0x48ED64, beside its input slot 0x4409E0) -> the drop 0x440F00 -> 0x46E460, which calls the handler that the
         # spot under the villager has in the drop table 0x705158 (filled at start-up: the initializer list 0x48A56C
@@ -171,15 +184,21 @@ def _techs() -> list[Entry]:
         _level("Construction", 1, "Hut 1 is the only hut a villager dropped there builds; dropped on Hut 2 or Hut 3 "
                                   "the villager does not build and the game says \"Additional research may be "
                                   "necessary.\"", VERIFIED_C,
-               # The rubble check: 0x433FB4 (Construction below 2).
-               (("Dropped on the rubble the villager does not clear it (the game checks for Construction below 2); "
-                 "how the game reaches that check from a drop was not traced.", UNCONFIRMED),)),
-        # Hut 2's drop: Construction < 2 at 0x46F38A; Hut 3's: Construction < 3 at 0x46F477.
+               # The rubble is the Cooking Pit's (spot 0x20, drop handler 0x4359F0, registered at 0x43664C): a drop
+               # with The Cooking Pit (puzzle 6) unsolved starts action 0x6B, whose handler 0x433FA0 (registered at
+               # 0x4365B2) checks Construction below 2 (0x433FB4): below, action 0x1A with message 0xF6; at 2 or more
+               # action 0x6F "Clearing rubble" (0x4342D0, registered at 0x436573).
+               (("Dropped on the rubble over the Cooking Pit the villager does not clear it: the game says "
+                 "\"Removing these rocks seems technically challenging.\"", VERIFIED_C),)),
+        # Hut 2's drop: Construction < 2 at 0x46F38A; Hut 3's: Construction < 3 at 0x46F477.  The sites: Hut 2
+        # (project 20, vtable 0x48E44C) reveals at 0x430B90 (state 4, Construction > 1), Hut 3 (project 21, vtable
+        # 0x48E4CC) at 0x430C00 (Construction > 2), both asked by every building's update 0x4300E0 (vtable +0x64).
         _level("Construction", 2, "Villagers dropped on Hut 2 build it; Hut 3 still refuses.", VERIFIED_C,
-               (("Level 2 makes Hut 2 appear as a building site.", UNCONFIRMED),
-                ("Villagers dropped on the rubble clear it.", UNCONFIRMED))),
+               (("Level 2 makes Hut 2 appear as a building site.", VERIFIED_C),
+                ("Villagers dropped on the rubble over the Cooking Pit clear it (\"Clearing rubble\").",
+                 VERIFIED_C))),
         _level("Construction", 3, "Villagers dropped on Hut 3 build it.", VERIFIED_C,
-               (("Level 3 makes Hut 3 appear as a building site.", UNCONFIRMED),
+               (("Level 3 makes Hut 3 appear as a building site.", VERIFIED_C),
                 (patch(HARDER_FISHING) + ": level 3 lets villagers fix the piers (Fishing Nets); below it a villager "
                  "dropped on them says \"Additional research may be necessary.\", as on Hut 3, and builders leave "
                  "them alone.", VERIFIED_E))),
@@ -212,18 +231,44 @@ def _techs() -> list[Entry]:
 def _puzzles() -> list[Entry]:
     tree = ("one of the five stages of the Tree of Life (The Stream, Pruning, Honoring, Purify and Decorating each "
             "give one; the tree's art follows them)")
+    # The step counts are the thresholds each puzzle registers with 0x4386A0(id, steps) at start-up: The Cutting Tool
+    # (0) 1 at 0x43169E, Boiling Water (2) 1 at 0x42FADE, Soap Invented (3) 1 at 0x43A5AC, The Butterflies (4) 1 at
+    # 0x43938E, The Frog Rescue (5) 5 at 0x4336CE, Cloth Invented (7) 1 at 0x436DCE, The Nursery School (8) 1 at
+    # 0x43782E; a puzzle is solved once its progress reaches that (0x438960).
     return [
         Entry(PUZZLE, "The Cutting Tool", "solved in 1 step; the cutting tools made count on hand (Village counts).",
-              UNCONFIRMED),
+              VERIFIED_C),
         Entry(PUZZLE, "The Stream", (
             f"solved in 1 step; {tree}. The stream gathers 2% more debris with each growth of the blackberries "
             "(every 6 minutes of real-life play on Normal speed), up to 100%."), VERIFIED_E),
-        Entry(PUZZLE, "Boiling Water", "solved in 1 step.", UNCONFIRMED),
+        Entry(PUZZLE, "Boiling Water", "solved in 1 step.", VERIFIED_C),
+        # The recipes (0x42ED00..0x42EDCF): stew 10 = soapy x3 (item 0x21) in salt water (state 0xA), 11 = pulpy vines
+        # x3 (0x22); the pot's click line for 10 is "Soap is ready to stack." (0x244, 0x42E58A), for 11 "Pulp for
+        # cloth is ready." (0x24D, 0x42E5A5).
         Entry(PUZZLE, "Soap Invented", (
-            "solved in 1 step: soap made in the pot (pulpy vines x3 in salt water); the soap bars made count on "
-            "hand."), UNCONFIRMED),
-        Entry(PUZZLE, "The Butterflies", "solved in 1 step; solving it needs The Stream solved.", UNCONFIRMED),
-        Entry(PUZZLE, "The Frog Rescue", "solved after 5 steps.", UNCONFIRMED),
+            "solved in 1 step: soap made in the pot (soapy herbs x3 in salt water); the soap bars made count on "
+            "hand."), VERIFIED_C),
+        # CRestoreButterflies (0x4D8CCC, vtable 0x48EA34): its update 0x4390D0 moves the stalks from dry (0) to
+        # recovering (1) once The Stream (puzzle 1) is solved, stamping the real clock 0x403750, and to green (2) when
+        # that clock passes the stamp + 14,400 (0x4391E4); the drop 0x439230 starts the solving action 0x78 only on
+        # green stalks, otherwise "The stalks are still recovering." or "The stalks are dead and dry."
+        Entry(PUZZLE, "The Butterflies", (
+            "solved in 1 step; solving it needs The Stream solved, and then the stalks turn green 4 real-life hours "
+            "later (by the computer's clock, the same at every speed); a villager dropped on the green stalks solves "
+            "it. Before that the game says \"The stalks are still recovering.\", or \"The stalks are dead and dry.\" "
+            "while The Stream is unsolved."), VERIFIED_C),
+        Entry(PUZZLE, "The Frog Rescue", "solved after 5 steps.", VERIFIED_C,
+              # The world refresh 0x46D090, its frog block 0x46D3BF..0x46D4C5 (puzzle 5 solved, the stream's flow
+              # 0x4396E0 above 0); "VVFP VV4 Frogs.dll" (tests/test_vv4_frogs.py).
+              (("Solved, while the stream flows, frogs leap on the river round the island: one frog, then two "
+                "50-in-100 chances of another (1 to 3 at a time). The game puts them only in two small spots on the "
+                "right of the river's bottom stretch.", VERIFIED_C),
+               (patch("vv4_fix_vanilla_bugs") + ": they leap anywhere on the river's blue water round the island "
+                "(the curve on the left, the whole bottom stretch and the pool under the waterfall by the ladder), "
+                "never on grass, the tree or the ladder, as often as in the game. While the stream runs low (its "
+                "debris above 75%) no whole leap fits on the thin river, so each leap goes where it fits it best, "
+                "partly over its rocky edge as in the game.",
+                VERIFIED_C))),
         Entry(PUZZLE, "The Cooking Pit", (
             "solved in 1 step. Solved, farmers are offered the fruit (\"Attempting to retrieve fruit\": stomping or "
             "shaking down fruit, 3 food before Food Mastery), and while the game catches up time away each villager "
@@ -235,7 +280,7 @@ def _puzzles() -> list[Entry]:
               (("DEAD (never runs): the code always pays the bonus to a villager whose task is the fruit, but "
                 "nothing gives a villager that task, in the game or with the patcher's patches: dropping one on "
                 "the fruit sets no task. Only a hand-edited save could.", VERIFIED_C),)),
-        Entry(PUZZLE, "Cloth Invented", "solved in 1 step; the cloth bolts made count on hand.", UNCONFIRMED,
+        Entry(PUZZLE, "Cloth Invented", "solved in 1 step; the cloth bolts made count on hand.", VERIFIED_C,
               # The vines' drop 0x436D40 (the Clothing Hut test at 0x436D74); the hut's label 0x46F62F.
               (("It needs the Clothing Hut finished: before that a villager dropped on the tough vines says \"Don't "
                 "know what to do with these tough vines!\" and does nothing; after it they start on the cloth "
@@ -245,7 +290,7 @@ def _puzzles() -> list[Entry]:
                ("The cloth bolts are stored at the Clothing Hut.", gm.OWNER),
                (patch(HARDER_FISHING) + ": no cloth is made until Science level 3, even with the Clothing Hut "
                 "finished; cloth already made is still used.", VERIFIED_E))),
-        Entry(PUZZLE, "The Nursery School", "solved in 1 step.", UNCONFIRMED),
+        Entry(PUZZLE, "The Nursery School", "solved in 1 step.", VERIFIED_C),
         Entry(PUZZLE, "The Mossy Rocks", (
             "solved after 5 steps; a crab caught there (\"Catching a crab\") brings 35 food before Food Mastery."),
             VERIFIED_E),
@@ -255,9 +300,11 @@ def _puzzles() -> list[Entry]:
         Entry(PUZZLE, "Fishing Nets", (
             "solved in 1 step. Solved, fishing is offered: 4 food a fish before Food Mastery, or 8 for a Golden "
             "Fish, which comes (2 x fish scales found + 1)% of the time -- 3% with 1 scale, 25% with all 12, never "
-            "with none."), VERIFIED_E,
-            ((patch("vv4_complete_scales_golden_fish") + ": a Golden Fish comes only with all 12 scales (25% of the "
-              "time).", UNCONFIRMED),
+            "with none. From the 2nd scale the nets' catch pile shows a Golden Fish in both nets."), VERIFIED_E,
+            # data/builds.json vv4_complete_scales_golden_fish: 0x433386 `cmp eax, 1` -> `cmp eax, 12`, the scale
+            # count the Golden Fish branch (0x433360..0x433387) needs after its rand(100) < 2s + 1 roll.
+            ((patch("vv4_complete_scales_golden_fish") + ": a Golden Fish neither shows in the nets nor is caught "
+              "until all 12 scales are found; then it shows and comes 25% of the time.", VERIFIED_C),
              # The nets' drop: the Clothing Hut test 0x4334FC; the piers 0x4334CC; the builders' job choice (the
              # Building dispatcher 0x463DD8: piers not fixed and some work done).
              ("Mending the nets needs the Clothing Hut finished: once the piers are fixed, a villager dropped on the "
@@ -273,14 +320,23 @@ def _puzzles() -> list[Entry]:
               "fixing them stops), and the cloth for the nets waits for Science level 3. Piers already fixed stay "
               "fixed and work already done on them is kept.", VERIFIED_E))),
         Entry(PUZZLE, "Pruning the Tree", f"solved in 1 step (binding the branch); {tree}.", VERIFIED_E,
-              (("Binding the branch needs Dendrology level 2.", UNCONFIRMED),)),
+              (("Binding the branch needs Dendrology level 2.", VERIFIED_C),)),      # 0x437B12 (Dendrology level 2)
         Entry(PUZZLE, "Honoring the Tree", f"solved in 1 step (the sweet x3 stew honours the tree); {tree}.",
               VERIFIED_E),
         Entry(PUZZLE, "Purify Tree", (
-            f"solved in 1 step; {tree}. One of the Purify Tree's two results gives the villager a glow for 4 "
-            "real-life minutes (240 seconds; real time, the same at every speed), and while it lasts their research brings 3 times the tech points."),
+            f"solved in 1 step; {tree}. A villager who finishes \"Meditating to purify the mind\" gets the Purify "
+            "Tree's glow for 4 real-life minutes (240 seconds; real time, the same at every speed), and while it "
+            "lasts their research brings 3 times the tech points; one who finishes \"Getting clean in soapy pond\" "
+            "is clean for the same 4 minutes. Only a clean villager dropped on the tree starts purifying it, and only "
+            "one who also glows can finish. In the base game every save, the 10-minute autosave included, ends the "
+            "glow and the clean body at once, a bath in heavy rain often leaves the villager not clean at all (the "
+            "rain's splashes take the room its sparkles need), and paused time uses them up too."),
             VERIFIED_E,
-            (("Purifying the tree needs Dendrology level 3.", UNCONFIRMED),)),
+            (("Purifying the tree needs Dendrology level 3.", VERIFIED_C),      # 0x43847E (Dendrology level 3)
+             (patch(FIX_VANILLA) + ": the 10-minute autosave no longer ends them (every other save still does) and they stop "
+              "while the game is paused, so each lasts its full 4 real-life minutes of play (real time while the game "
+              "runs, the same at every speed); and a bath in the rain makes the "
+              "villager clean as in fine weather.", VERIFIED_E))),
         Entry(PUZZLE, "Decorating the Tree", (
             f"solved after 3 steps; {tree}. With 3 or more tree stages a hummingbird flies by every 3 to 5 real-life "
             "minutes, the same at every speed, every 23 to 25 once the tree is decorated; it changes nothing."),
@@ -304,17 +360,20 @@ def _buildings() -> list[Entry]:
         Entry(BUILDING, "Building in general", (
             "every building needs 2,000 build points, and each successful build step (the Building skill check "
             "passed, the builder standing in the building's area) adds that building's own amount."), VERIFIED_E,
+            # The Building dispatcher 0x4639B0 offers each project (19..25) only when its percent built (0x438980) is
+            # at least 1 and it is not finished (0x438960): 0x463C7A, 0x463CC6, 0x463D16, 0x463D66, 0x463E50,
+            # 0x463EED, 0x463F3F.
             (("A builder takes on a building by itself only once it is at least 1% built, so the first push on a new "
-              "site is a villager you drop there.", UNCONFIRMED),
+              "site is a villager you drop there.", VERIFIED_C),
              ("A builder who dislikes wood considers each wooden building only 16% of the time and walks off 40% of "
               "the time once started.", VERIFIED_C))),
         Entry(BUILDING, "Hut 1", (
             f"{steps(12)}. Room for babies: from 10 villagers no pregnancy starts "
             "without Hut 1, from 17 without Huts 1 and 2, from 35 without all three."), VERIFIED_C),
         Entry(BUILDING, "Hut 2", f"{steps(4)}. It counts toward the room for babies (Hut 1).", VERIFIED_E,
-              (("It is built only at Construction level 2.", UNCONFIRMED),)),
+              (("It is built only at Construction level 2.", VERIFIED_C),)),       # 0x430B90, 0x46F38A
         Entry(BUILDING, "Hut 3", f"{steps(1)}. It counts toward the room for babies (Hut 1).", VERIFIED_E,
-              (("It is built only at Construction level 3.", UNCONFIRMED),)),
+              (("It is built only at Construction level 3.", VERIFIED_C),)),       # 0x430C00, 0x46F477
         Entry(BUILDING, "The Clothing Hut", (
             f"{steps(12)}. It never counts toward the room for babies; finished, it is where villagers get new "
             "clothes (Technologies, items and buildings)."), VERIFIED_E,
@@ -330,19 +389,25 @@ def _buildings() -> list[Entry]:
             f"{steps(50)}. Finished, a villager dropped on it with at least 3 of the five skills at 50 or more becomes "
             "the teacher, and each child's lessons are worth the teacher's five skills added up "
             "÷ 240 per real-life hour at any speed, in skills below 50 (the rule is under Tech points and "
-            "effects)."), VERIFIED_E,
-            (("It appears as a site at Learning level 3.", UNCONFIRMED),)),
+            "effects). A nursing mother dropped on it is refused (\"Nursing mothers don't work while they are "
+            "caring for an infant.\"), and a teacher who becomes a mother keeps teaching (also under Tech points "
+            "and effects)."), VERIFIED_E,
+            (("It appears as a site at Learning level 3.", VERIFIED_C),)),        # 0x430DB0
         Entry(BUILDING, "The Hospital", (
             f"{steps(50)}. Finished, a healer with nobody sick studies medicine there (Healing practice), and a "
             "healer dropped there keeps going back with Healing 6 or more; it cures nobody and heals no "
             "health."), VERIFIED_C,
-            (("It appears as a site at Medicine level 3.", UNCONFIRMED),)),
+            (("It appears as a site at Medicine level 3.", VERIFIED_C),)),        # 0x430E30
         Entry(BUILDING, "Fixing huts", (
             "only once Huts 1 to 3 and the Clothing Hut are all finished: a builder examining a hut goes on to fix "
             "it " + _ch(70) + " of the time, otherwise says \"This hut is still in good repair.\" Fixing trains "
             "Building and adds nothing to the hut."), VERIFIED_C,
+            # native/vvfp_fix_huts/vvfp_fix_huts.c: VVFP_CHANCE_PERCENT 75 per decision, NOT_PREFERRED_PERCENT 14;
+            # VV4 site 0x463F8A, the build-first filter vv4_filter.
             ((patch("vv4_builders_fix_huts") + ": builders build first and fix huts when no building can be worked "
-              "on.", UNCONFIRMED),
+              "on. It steps in on 75 of every 100 of the game's choices for a builder (for a villager whose job "
+              "checkmark is not Building, on 14 in 100 of those); the rest of the time the game chooses as it "
+              "always has.", VERIFIED_C),
              # The Building dispatcher's option 9 (0x463E9B..0x463EDB): projects 19 to 22 all finished.
              ("The builders' own job choice is what checks that Huts 1 to 3 and the Clothing Hut are all "
               "finished.", VERIFIED_C))),
@@ -379,9 +444,13 @@ STEWS = (
     ("Soapy stew", "soapy x3",
      "the villager says \"I feel sick!\" and goes \"Throwing up soapy stew!\" -- it does not make them sick -- and "
      "cannot eat this stew again for 10 real-life minutes (real time, the same at every speed)", VERIFIED_E),
-    ("Soap", "pulpy vines x3, in salt water, with no heat", "makes soap", VERIFIED_E),
-    ("Soapy herbs in salt water", "soapy x3, in salt water, with no heat",
-     "a stew of its own (stew 10 of the recipe table); what it gives was not traced here", UNCONFIRMED),
+    # The recipes 0x42EDB2 (stew 10: soapy x3, salt water) and 0x42EDC3 (stew 11: pulpy vines x3, salt water); the
+    # pot's click lines 0x42E58A ("Soap is ready to stack.") and 0x42E5A5 ("Pulp for cloth is ready."); a villager
+    # dropped on the pot gets action 0x77 or 0x7B for them (0x42E752 / 0x42E767), not a stew to eat.
+    ("Soap", "soapy x3, in salt water, with no heat",
+     "makes soap (clicked, the pot then says \"Soap is ready to stack.\")", VERIFIED_C),
+    ("Cloth pulp", "pulpy vines x3, in salt water, with no heat",
+     "makes the pulp for cloth (clicked, the pot then says \"Pulp for cloth is ready.\")", VERIFIED_C),
     ("A failed stew", "any other mix", "tastes nasty (fresh water) or too salty (salt water)", VERIFIED_E),
 )
 
@@ -409,8 +478,12 @@ def _items() -> list[Entry]:
         Entry(ITEM, "Eating a stew", (
             "a villager who already has that stew's effect, or already has 12 effects, is refused: \"That villager "
             "can't eat more stew so soon.\" It lasts until that effect ends (real time, the same at every speed: 10 real-life minutes for the healing "
-            "and soapy stews), for that villager and that stew only; saving the game ends every villager's stew "
-            "effects."), VERIFIED_E),
+            "and soapy stews), for that villager and that stew only. The save does not keep it; in the base game "
+            "saving (the 10-minute autosave too) also ends every villager's stew effects at once."), VERIFIED_E,
+            ((patch(FIX_VANILLA) + ": the 10-minute autosave no longer ends them and the wait stops while the game is paused, so "
+              "it lasts its full "
+              "10 real-life minutes of play (real time while the game runs, the same at every speed).",
+              VERIFIED_E),)),
     ]
     out += [Entry(ITEM, name, f"{recipe}: {does}.", ok) for name, recipe, does, ok in STEWS]
     out += [
@@ -435,8 +508,13 @@ def _items() -> list[Entry]:
             "Mastery (how often: Mushrooms)."), VERIFIED_E,
             ((patch("vv4_super_secret_golden_mushroom") + ": 1 in 1,000,000 of the random mushrooms is a Golden "
               "Mushroom worth 100 food (Mushrooms).", VERIFIED_E),
-             (patch("vv4_everyone_collects_like_vv1") + ": several children dropped on one mushroom or collectible "
-              "each collect it, so it is multiplied.", UNCONFIRMED),
+             # data/builds.json vv4_everyone_collects_like_vv1: 0x413A3F `jne` -> nops in the drop hit-test 0x413A20,
+             # which otherwise skips an item whose reserver (+0x18) is set (tests/test_everyone_collects.py runs it).
+             # The second child: the pickup (collectible manager vf0) returns 1 even when the first pickup already
+             # removed the item, and the award (vf1) reads only the carried id, so each is paid.
+             (patch("vv4_everyone_collects_like_vv1") + ": a child can be dropped on a mushroom or collectible "
+              "another villager is already going for (the game normally ignores that drop), and several children "
+              "dropped on one each collect it and each is paid for it, so it is multiplied.", VERIFIED_C),
              # The release listener 0x414410: 0x414442 cmp eax,8 / jne becomes cmp eax,5 / je
              # (vv4_collectibles_stay_collected); the stew pot's listener 0x42EA30 runs first.
              (patch("vv4_collectibles_stay_collected") + ": a mushroom a child has picked up counts wherever the "
@@ -467,8 +545,13 @@ def _items() -> list[Entry]:
         Entry(ITEM, "New clothes", (
             "a villager dropped on the finished Clothing Hut, with at least 5,000 tech points in store, gets new "
             "clothes; with fewer the game says \"Not enough tech points to make new clothes!\"."), VERIFIED_C,
-            (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\" -- "
-              "the deduction itself was not traced.", UNCONFIRMED),)),
+            # The job event 0x46432A (dispatcher 0x4642F0): 5,000 or more in store (cmp [0x4D6F88], 0x1388) -> the
+            # tech writer 0x41E300 with -5,000 (0x46435E) and the change (world +0x1719C); otherwise action 0x1A with
+            # message 0xE6.
+            (("The game's question: \"Do you want to spend 5000 tech points to change this villager's clothes?\"; "
+              "the 5,000 tech points are taken when the villager's change comes, and only if the store still holds "
+              "5,000 then -- otherwise the villager says \"Not enough tech points to make new clothes!\" and "
+              "nothing is taken.", VERIFIED_C),)),
         Entry(ITEM, "A snack at the food bin", (
             "a villager below full health, with food in storage, eats 1 food and regains 1 health 50.05% of the "
             "time."), VERIFIED_E),
@@ -483,78 +566,117 @@ def _items() -> list[Entry]:
 def _patcher() -> list[Entry]:
     o, vw, st = patch(ORIGINS), patch(VILLAGE_WIDE), patch(STORY)
     cost = gm.feature_name(STORY_COST)
+    # Read from the patcher's own code (2026-11-18): the Tech menu scripts/build_vv4_origins_feature.py (prices
+    # 50,000 / 30,000 / 75,000 / 500,000 / 500,000 / 30,000 for rows 0-5; do_island_event writes the island timer
+    # [world+0x170E0] = the real clock + 5; do_barrel arms the barrel and writes 0; do_tech_doubler /
+    # do_food_doubler set bits 1 / 2 of 0x4D6E10; cure_all heals every living record below 100 through 0x46AF00,
+    # clears +0x1C48 and refunds 30,000 when nothing was done); the Details menu (detail_costs 50,000 / 100,000 /
+    # 40,000 / 50,000 / 5,000; youth age - 700, at least 100; mastery through 0x46AD80 with a refund unless all
+    # five are 100; running through 0x45D2D0 / 0x45D1C0 after running_preflight; age 360); the village-wide cave
+    # (data/vv4_origins_village_wide_upgrades.json, commands 6 / 7 / 8 at 0x728290 / 0x7283B0 / 0x728670);
+    # native/vv4_origins_icons/vv4_origins_icons.c (ApplyVV4CompleteCollections, ApplyVV4ResetCollections,
+    # vv4_apply_equal_division, vv4_skill_pref_buy, ConfirmOriginsVillageWide); native/shared/island_timer_keep.h;
+    # native/vvfp_story_upgrades (story_c4.inc c4_refill, story_time_skip.inc TIME_SKIP_MAX_YEARS 72,
+    # story_queue.inc).
+    # The doublers: tech_increment doubles a positive delta unless its return address is one of 0x41447C, 0x414498,
+    # 0x4144B4 (duplicate collectibles), 0x414A2D (an island event), 0x464E5D, 0x464E87 and 0x464EB0 -- research's
+    # three gains in the job event 0x4642F0 (the base, the Lab Equipment bonus, the Fire Pit's +1) -- and the
+    # island events' tail jumps go round it; the only other positive callers of 0x41E300 are 0x431A9B (+250,
+    # CDecorateTree) and the developer's F6 (0x440884).  food_increment's exceptions 0x4643EB, 0x464438, 0x464497,
+    # 0x464510, 0x464578, 0x4645B5 and 0x464600 are the farming trips' job events (the flat pick, the berry pick,
+    # the harvest, the fruit, the fish, the Golden Fish) and 0x41494E an island event; still doubled: the mushroom
+    # pickup 0x414660, the Mossy Rocks crab 0x436F15, the found crab 0x464A46, the catch-up Cooking Pit bonus
+    # 0x468AB2 and F6 (0x440893).
     rows = [
         ("Time Warp", f"{o}: {_tp(50_000)}: the village's clock moves on by 12 real-life hours on Fast or Normal and "
                       "10 on Slow, so the villagers live 12, 6 or 3 years on Fast, Normal or Slow at once (Time "
                       "away); refused while paused.", gm.CLAMP),
-        ("Island Event", f"{o}: {_tp(30_000)}: the game's own island event chooser picks and runs an event a few "
-                         "real-life seconds after the Tech screen closes; one at a time. Its awards are never "
-                         "doubled, and it does not move when the game's own next island event comes.", UNCONFIRMED),
-        ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event brings up to 3 children, a few "
-                             "real-life seconds after the Tech screen closes; refused, with nothing taken, while the "
-                             "village has no room for them (an unburied villager still takes a place).",
-         UNCONFIRMED),
-        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive tech-point gain "
-                               "the villagers earn is doubled; island events and duplicate collectibles are not.",
-         UNCONFIRMED),
-        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: every positive food gain is "
-                               "doubled after Food Mastery; island events and duplicate collectibles are not.",
-         UNCONFIRMED),
+        ("Island Event", f"{o}: {_tp(30_000)}: the game's own island event chooser picks and runs an event 5 "
+                         "real-life seconds (real time, the same at every speed) after it is bought, once the Tech screen is "
+                         "closed; one at a time. Its "
+                         "awards are never doubled, and the game's own next island event keeps its time (the bought "
+                         "one does not push it later).", VERIFIED_C),
+        ("Barrel of Babies", f"{o}: {_tp(75_000)}: the game's barrel island event brings 3 children as soon as the "
+                             "village runs again after the Tech screen closes; refused, with nothing taken, unless 3 "
+                             "villager places are free (an unburied villager and each pending baby take a place).",
+         VERIFIED_C),
+        ("Tech Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the tech points research "
+                               "earns are doubled (with the Lab Equipment bonus and the fire's extra point), and so "
+                               "are duplicate collectibles; island events, rewards, purchases and cheats are not.",
+         VERIFIED_C),
+        ("Food Point Doubler", f"{o}: {_tp(500_000)}, owned by this save and removable: the food gathered from food "
+                               "sources is doubled after Food Mastery (blackberry bushes, cutting-tool berries, "
+                               "yellow breadfruit, fish, golden fish, crabs and mushrooms); island events, rewards, "
+                               "purchases and cheats are not.", VERIFIED_C),
         ("Full Heal / Cure All", f"{o}: {_tp(30_000)}: every sick villager is cured and every villager is restored "
-                                 "to full health; nothing is taken when everyone is already healthy.", UNCONFIRMED),
+                                 "to full health; nothing is taken when everyone is already healthy.", VERIFIED_C),
         ("Complete All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked found; nothing is "
-                                     "taken when every piece is already found.", UNCONFIRMED),
+                                     "taken when every piece is already found.", VERIFIED_C),
         ("Reset All Collections", f"{vw}: {_tp(1_000_000)}: every collection piece is marked not found; nothing is "
-                                  "taken when none is found.", UNCONFIRMED),
+                                  "taken when none is found.", VERIFIED_C),
         ("Equal Division of Labor (Includes Parenting / No Parenting)",
          f"{vw}: {_tp(1_000_000)} each: the villagers' job checkmarks are spread evenly over the jobs, men and women "
-         "balanced in each; the No Parenting one leaves Parenting out.", UNCONFIRMED),
+         "balanced in each; who takes which job follows their skill progress (the most-progressed job first, "
+         "random for ties). Every living villager counts, children too; the No Parenting one leaves Parenting "
+         "out.", VERIFIED_C),
         ("Clear All Skill Preferences", f"{o}: {_tp(500_000)}: every villager's job checkmark is cleared, so each "
                                         "chooses their own work as in the stock game; skills are not changed.",
-         UNCONFIRMED),
+         VERIFIED_C),
         ("Check Highest Skill (Includes Parenting / No Parenting)",
          f"{o}: {_tp(1_000_000)} each: each villager's job checkmark is set to the skill they have most progress in "
          "(ties: Farming, Building, Research, Healing, Parenting, in that order); the No Parenting one ignores "
-         "Parenting; a villager with no progress yet keeps theirs.", UNCONFIRMED),
-        ("All Villagers Like Running", f"{vw}: {_tp(1_000_000)}: every villager likes running (an adult who likes "
-                                       "running walks at speed 300 instead of 100).", UNCONFIRMED),
+         "Parenting; a villager with no progress yet keeps theirs.", VERIFIED_C),
+        ("All Villagers Like Running", f"{vw}: {_tp(1_000_000)}: every living villager with a free Like slot comes to "
+                                       "like running (an adult who likes running walks at speed 300 instead of "
+                                       "100), and running is taken out of everyone's Dislikes; a villager whose 3 "
+                                       "Like slots are full gets no like.", VERIFIED_C),
         ("Grant Full Mastery to All Villagers", f"{vw}: {_tp(1_000_000)}: every villager's five skills become 100.",
-         UNCONFIRMED),
+         VERIFIED_C),
         ("All Villagers are Exactly 18", f"{vw}: {_tp(1_000_000)}: every villager's age becomes exactly 18 (360 age "
-                                         "units); nothing is taken when everyone already is.", UNCONFIRMED),
-        ("Change Appearance for All", f"{o}: {_tp(450_000)}: one head, body and mask choice per sex, or a "
-                                      "whole-village mask mode, applied to every villager.", UNCONFIRMED),
+                                         "units); nothing is taken when everyone already is.", VERIFIED_C),
+        # native/vv4_origins_icons ShowVv4AppearanceForAll / fa_nothing_selected / vv4_apply_for_all: per-sex
+        # head, body and mask, the village-wide head (random, by hair colour) and body (random) modes, the tribe
+        # mask mode, the head-look rows and Reset to original; a head change warns about descendants.
+        ("Change Appearance for All", f"{o}: {_tp(450_000)}: one window sets the head, body and mask of every "
+                                      "living villager, men and women apart, or by a village-wide choice (random "
+                                      "heads, heads by hair colour, random bodies, a whole-village mask mode, the "
+                                      "original look); a head change warns that it passes to descendants. Nothing "
+                                      "is taken when nothing is chosen.", VERIFIED_C),
         ("Grant Youth", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 35 years "
-                        "younger, never below 5 years.", UNCONFIRMED),
+                        "younger, never below 5 years.", VERIFIED_C),
         ("Grant Full Mastery", f"{o}: {_tp(100_000)} on the Villager Details screen: that villager's five skills "
-                               "become 100.", UNCONFIRMED),
+                               "become 100.", VERIFIED_C),
         ("Grant Running", f"{o}: {_tp(40_000)} on the Villager Details screen: running goes into a free Like slot "
                           "and out of the Dislikes; refused, with nothing taken, without a free Like slot.",
-         UNCONFIRMED),
+         VERIFIED_C),
         ("Set Age to 18", f"{o}: {_tp(50_000)} on the Villager Details screen: that villager is made 18.",
-         UNCONFIRMED),
+         VERIFIED_C),
         ("Change Appearance", f"{o}: {_tp(5_000)} on the Villager Details screen: that villager's head, body and "
-                              "Heathen mask are chosen from the game's own art.", UNCONFIRMED),
+                              "Heathen mask are chosen from the game's own art.", VERIFIED_C),
         ("Pick Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{cost}\" ticked, as it is by default "
                               "with it): the player picks which stock island event comes, and how it turns out, from "
-                              "the game's own list; it runs through the game's own island event code.", UNCONFIRMED),
+                              "the game's own list; it runs through the game's own island event code.", VERIFIED_C),
         ("Custom Island Event", f"{st}: 0 tech points ({_tp(30_000)} with \"{cost}\" ticked): an island event the "
                                 "player writes -- food, tech points, new villagers and what this game's own code can "
                                 "change. Its \"Refill the food sources\" fills the blackberry bushes to 1,000 and, "
                                 "with \"Yellow Fruit Trees are No Longer Unlimited\", the yellow fruit tree to "
-                                "1,000; fishing has no store to refill.", UNCONFIRMED),
+                                "1,000; fishing has no store to refill.", VERIFIED_C),
         ("Choose Time Skip Amount", f"{st}: 0 tech points ({_tp(50_000)} with \"{cost}\" ticked): 1 to 72 villager "
                                     "years, as a run of Time Warps (12, 6 or 3 years each on Fast, Normal or Slow), "
-                                    "each caught up by the game before the next.", UNCONFIRMED),
+                                    "each caught up by the game before the next.", VERIFIED_C),
     ]
     free = (patch(STORY) + f": every Origins upgrade costs 0 tech points while \"{cost}\" is unticked; with it ticked "
             "(it is ticked with Story / Cheat Upgrades) the prices here stand.")
-    out = [Entry(PATCHER, "Free Origins upgrades", free, UNCONFIRMED)]
+    # native/shared/story_bridge.h vvfp_story_price / vvfp_story_price_text; the Story companion writes the zero
+    # prices unless the cost row is ticked (data/vv4_story_cheat_upgrades_cost_tech_points_feature.json).
+    out = [Entry(PATCHER, "Free Origins upgrades", free, VERIFIED_C)]
     out += [Entry(PATCHER, name, text, ok) for name, text, ok in rows]
+    # native/vvfp_difficulty/vvfp_difficulty.c: the field +0x170F4 (0 Easy, 1 Normal, 2 Hard), set to 1 by the
+    # state's constructor 0x41F483 and saved with the village.
     out.append(Entry(PATCHER, "Difficulty Settings", (
         patch("vv4_difficulty_settings") + ": the Options dialog shows the Difficulty choice (Easy, Normal or Hard) "
         "that The Tree of Life already plays by; a village starts on Normal, and the choice is saved with the "
-        "village."), UNCONFIRMED))
+        "village."), VERIFIED_C))
     return out
 
 

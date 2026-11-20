@@ -82,6 +82,44 @@
    ]
   },
   "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gets bored of waiting and simply walks in. In the crowd, nobody notices the cape at all. Then, much later, sitting quietly by the fire, (subject.he/she) hears (friend) say, \"Where did you get that cape? It's beautiful.\" It's the only compliment (subject.he/she) gets all night. It turns out to be enough.",
+   "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "At last (subject) sweeps in, cape flowing behind (subject.him/her), at exactly the moment the drummers stop and everyone turns toward the food. Nobody looks. Then (child), a child, shouts, \"Ooh, a CAPE!\" and the whole festival turns round. (subject) gets a round of applause, which was all (subject.he/she) wanted, and twice what (subject.he/she) expected.",
+   "src": "L158",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L158"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
    "name": "Outcome A",
    "text": "At last (subject) sweeps in, cape flowing behind (subject.him/her), at exactly the moment the drummers stop and everyone turns toward the food. Nobody looks. Then (child), a child, shouts, \"Ooh, a CAPE!\" and the whole festival turns round. (subject) gets a round of applause, which was all (subject.he/she) wanted, and twice what (subject.he/she) expected.",
    "src": "L158",
@@ -92,11 +130,6 @@
      "src": "L158"
     }
    ]
-  },
-  "o2": {
-   "name": "Outcome B",
-   "text": "(subject) gets bored of waiting and simply walks in. In the crowd, nobody notices the cape at all. Then, much later, sitting quietly by the fire, (subject.he/she) hears (friend) say, \"Where did you get that cape? It's beautiful.\" It's the only compliment (subject.he/she) gets all night. It turns out to be enough.",
-   "src": "L161"
   }
  }
 }

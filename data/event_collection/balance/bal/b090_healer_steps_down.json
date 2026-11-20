@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Healer Steps Down",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b090_healer_steps_down",
+  "source": "balance",
+  "lines": [
+   4065,
+   4107
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4065",
+  "ledger": [
+   {
+    "src": "L4066",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4067",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4075",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4084",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4072",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4073",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4076",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4085",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4078",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4081",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4087",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4090",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4093-4107",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been the village's healer for forty years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has been the village's healer for forty years. (subject.His/Her) hands shake now, and (subject.he/she) has decided it's time to stop. But first, (subject.he/she) wants to pass on what (subject.he/she) knows, and there's a problem: the young person (subject.he/she) thinks has the best hands for it is (young), who goes pale at the sight of a scraped knee.\n(subject) can teach all the healers at once, in a great gathering, or take (young) aside alone and try to change (young.his/her) mind.\nWhat should (subject) do?",
+   "choices": [
+    {
+     "label": "Teach All the Healers",
+     "next": "c1",
+     "src": "L4072"
+    },
+    {
+     "label": "Take (Young) Aside",
+     "next": "c2",
+     "src": "L4073"
+    }
+   ],
+   "src": "L4068-4070"
+  },
+  "c1o1": {
+   "text": "By the end, the healers' heads are so full they can't sleep, and they argue about doses in their dreams. Every one of them is better at the work than before. (subject) hangs up (subject.his/her) basket on the third evening and goes fishing for the first time in forty years, and catches nothing, and doesn't care.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L4079",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(young) wasn't invited, but listens at the door all three days anyway, and somewhere on the second afternoon, hearing (subject) talk about the people (subject.he/she) has helped, (young.he/she) stops feeling sick at the thought of it. On the fourth morning, (young) comes in and asks if (young.he/she) can help with the next patient.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "young",
+     "remove": true,
+     "dislike": "medicine"
+    }
+   ],
+   "src": "L4082",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Every healer in the village crowds into the healers' hut, and (subject) teaches from dawn to dark, three days running, every remedy (subject.he/she) knows...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4076"
+  },
+  "c2o1": {
+   "text": "\"I can't,\" says (young). \"I just can't.\" (subject) doesn't push. \"Then don't,\" (subject.he/she) says. \"Good hands are good for lots of things.\" (young) becomes the best net-maker the village has had in years, and (subject) teaches the healers instead, and is proud of both.",
+   "src": "L4088"
+  },
+  "c2o2": {
+   "text": "\"Just one patient,\" says (subject). \"Just hold the bowl.\" (young) holds the bowl, shaking, while (subject) cleans a child's cut knee. The child stops crying, and grins at (young), and something in (young)'s face changes. (young.He/She) holds the bowl again the next day, and the next.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "young",
+     "remove": true,
+     "dislike": "medicine"
+    }
+   ],
+   "src": "L4091",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) finds (young) at the stream and sits down beside (young.him/her). \"You've got good hands,\" (subject.he/she) says. \"Steady. Healer's hands.\" (young) looks horrified...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4085"
+  }
+ }
+}

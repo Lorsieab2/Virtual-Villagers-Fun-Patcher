@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jar of Silent Thunder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my103_jar_silent",
+  "source": "rewrites",
+  "lines": [
+   15846,
+   15901
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15846",
+  "ledger": [
+   {
+    "src": "L15847",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15848",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15856",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15863",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15870",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15877",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15851",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15852",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15853",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15854",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15857",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15864",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15871",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15878",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15858",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15865",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15867",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15872",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15874",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15879",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15881",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15884-15901",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the middle of the old stone circle on the hill, half-buried in the turf, a villager finds a squat grey jar.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the middle of the old stone circle on the hill, half-buried in the turf, (name) finds a squat grey jar. Its lid is sealed with a knot of cord unlike any the village uses, looped and twisted in a pattern that makes (his/her) eyes hurt to follow.\nIt is only when the storm rolls in that afternoon that (name) notices the strange thing. Every time the thunder booms overhead, the jar shivers on the ground. It rattles and trembles and dances on the grass. And it makes no sound at all. Not a clink, not a buzz. Perfect, trembling silence. (Name) is itching to know what is inside. Should (he/she) open it?",
+   "choices": [
+    {
+     "label": "Untie the Knot",
+     "next": "c1",
+     "src": "L15851"
+    },
+    {
+     "label": "Study the Jar",
+     "next": "c2",
+     "src": "L15852"
+    },
+    {
+     "label": "Carry It Home",
+     "next": "c3",
+     "src": "L15853"
+    },
+    {
+     "label": "Leave It at the Circle",
+     "next": "c4",
+     "src": "L15854"
+    }
+   ],
+   "src": "L15849-15850"
+  },
+  "c1o1": {
+   "text": "The last loop comes free, and the lid lifts by itself with a soft whoosh. A burst of warm air rushes out past (name)'s face, smelling of hot stone and rain, like the breath of a summer storm. And then the jar is still. It does not tremble again, not even when the next thunderclap shakes the hill. It is just an ordinary, empty jar. (Name) is not sure whether (he/she) has let something out, or let something rest.",
+   "src": "L15859"
+  },
+  "c1o2": {
+   "text": "As (name) pulls the knot loose, it does not just come undone. It unravels, and keeps unravelling, into a long, long thread strung with tiny red beads. (Name) winds it around (his/her) hand. When (he/she) finally counts the beads, there are exactly as many as there are standing stones in the circle. The jar is empty. (Name) wears the beads on (his/her) wrist after that, and they rattle faintly whenever it thunders.",
+   "src": "L15861"
+  },
+  "c1": {
+   "text": "(Name) kneels by the jar, and very carefully, loop by loop, begins to work at the strange knot, while the thunder rolls overhead and the jar trembles under (his/her) fingers...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15857"
+  },
+  "c2o1": {
+   "text": "After several soggy storms, one researcher works it out. \"It's not the thunder,\" (he/she) says, lying flat with an ear to the turf. \"It's the ground. The clay responds to shaking in the earth itself, the tiny shivers that travel through the rock when thunder strikes, or a tree falls, or the earth moves far away. It's like an ear for the island.\" The researchers start making jars of their own from the same clay, so they can feel the ground's tremors coming.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L15866",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The researchers watch it all through the storm, taking notes. And then the storm passes, the sky clears, the sun comes out, and the jar does not stop. It goes on trembling silently on the grass in perfect calm, as though it can still hear thunder that no one else can. It trembles all that day and all the next night. The researchers become a little nervous and go home. The next morning, it is still.",
+   "src": "L15868"
+  },
+  "c2": {
+   "text": "(Name) brings the researchers up to the stone circle during the next storm, and they crouch around the jar in the pouring rain, watching it dance, and arguing loudly over the thunder...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15864"
+  },
+  "c3o1": {
+   "text": "Halfway down the hill, a thunderclap shakes the sky, the jar jerks violently in (name)'s arms, and with a crack, it splits clean in half. Out pours a fine, glittering powder, grey and sparkling like crushed stars, which drifts away on the wind before (name) can catch more than a pinch. The researchers study the pinch for weeks and cannot identify it. The two halves of the jar sit on a shelf, and they never tremble again.",
+   "src": "L15873"
+  },
+  "c3o2": {
+   "text": "With every step away from the stone circle, the jar gets heavier. By the bottom of the hill it is so heavy that (name) is staggering, sweating, bent double. Ten more steps, and (he/she) simply cannot hold it. (He/she) sets it down, gasping, and it sinks a finger's depth into the turf. (Name) leaves it there and goes to fetch help. When (he/she) returns with three strong villagers, the jar is gone from the hillside. They find it back in the middle of the stone circle, exactly where it started.",
+   "src": "L15875"
+  },
+  "c3": {
+   "text": "(Name) decides the jar would be safer in the village. (He/she) wraps it in a cloth, hefts it into (his/her) arms, and starts down the hill...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15871"
+  },
+  "c4o1": {
+   "text": "The jar stays where it is through the next storm, and the next, trembling silently each time the thunder rolls. Villagers start walking up to the circle during storms, just to watch it. It becomes a kind of strange, small village tradition: on stormy days, someone always says, \"Shall we go and see the jar?\" and they do, and they stand in the rain watching it dance, and nobody ever touches it.",
+   "src": "L15880"
+  },
+  "c4o2": {
+   "text": "The next morning, (name) walks back up to the circle to check on it. There are two jars. The original, and right beside it a second one, a little smaller, sealed with an identical knot. No one in the village made it. No one carried it up there. When the next storm comes, both jars tremble together, in silence, side by side. (Name) stops visiting the stone circle after that.",
+   "src": "L15882"
+  },
+  "c4": {
+   "text": "(Name) decides that whatever this jar is, it belongs to the stone circle, not to the village. (He/she) leaves it exactly where it is and heads home through the rain...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15878"
+  }
+ }
+}

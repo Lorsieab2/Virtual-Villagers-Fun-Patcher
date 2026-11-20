@@ -109,9 +109,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "Villagers discover that poorly secured storage baskets allowed scraps to wash away.",
-   "src": "L15"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -160,6 +167,26 @@
   "d2": {
    "name": "Outcome D2",
    "text": "The first proposal proves inconvenient, and the group continues searching for a practical solution.",
+   "src": "L15"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Villagers discover that poorly secured storage baskets allowed scraps to wash away.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L15"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Villagers discover that poorly secured storage baskets allowed scraps to wash away.",
    "src": "L15"
   }
  }

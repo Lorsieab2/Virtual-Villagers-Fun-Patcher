@@ -74,6 +74,36 @@
    "src": "L506"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The trap is finished, and (friend) sets it in the stream. By the next morning it has come apart and is floating downstream in four pieces. (subject) admits everything. (friend) fishes the pieces out with a stick. \"Next time, just say.\" Then (friend.he/she) teaches (subject.him/her) the knot, very slowly, with a great deal of sighing.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "The trap is finished, and (friend) sets it in the stream. By the next morning it has come apart and is floating downstream in four pieces. (subject) admits everything. (friend) fishes the pieces out with a stick. \"Next time, just say.\" Then (friend.he/she) teaches (subject.him/her) the knot, very slowly, with a great deal of sighing.",
    "src": "L509"

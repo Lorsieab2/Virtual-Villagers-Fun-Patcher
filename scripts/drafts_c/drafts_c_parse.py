@@ -17,6 +17,7 @@ THE ANNOTATIONS (scripts/drafts_c/annotations/<prefix>.txt, one block per event,
   FIG: e=elder:55+                    (a person the draft names by a role word: cast, and shown by name)
   EDIT S: "An elder is" => "[e], an elder, is"   ([e] the figure's name, [e:he/she] a pronoun)
   WORD: chief                         (the text's "chief" is the game word {@chief})
+  NEED: cloth=1                       (offered only when the village has it: the requirement's has_supply)
   REVIEW: ok | the 15-point review's finding
 
 Nothing here touches a game, a save or an exe.
@@ -135,7 +136,7 @@ def read_annotations(sid: str) -> dict[str, dict]:
                 i, who = item.split("=")
                 fx[int(i)] = who
             continue
-        m = re.match(r"^(DESC|ROLES|REL|FIG|WORD|SKILL|REVIEW):\s*(.*)$", s)
+        m = re.match(r"^(DESC|ROLES|REL|FIG|WORD|SKILL|NEED|REVIEW):\s*(.*)$", s)
         if m:
             key, val = m.groups()
             if key in ("ROLES", "REL"):

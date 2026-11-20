@@ -78,6 +78,38 @@
    "src": "L122"
   },
   "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) decide not to start a fuss. But every time they pass the gate after that, they glance at each other and look at the faint old face behind the new one. Whoever the hero was, (other.he/she) had two faces, and nobody else knows. They find this enormously satisfying.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
    "name": "Outcome B",
    "text": "(subject) and (friend) decide not to start a fuss. But every time they pass the gate after that, they glance at each other and look at the faint old face behind the new one. Whoever the hero was, (other.he/she) had two faces, and nobody else knows. They find this enormously satisfying.",
    "src": "L125"

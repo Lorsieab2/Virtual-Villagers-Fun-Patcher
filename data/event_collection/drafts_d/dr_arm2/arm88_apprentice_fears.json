@@ -54,6 +54,36 @@
  "start": "setup",
  "nodes": {
   "setup": {
+   "type": "branch",
+   "name": "The scene",
+   "children": [
+    {
+     "next": "setup__fx"
+    },
+    {
+     "next": "setup__text"
+    }
+   ]
+  },
+  "setup__fx": {
+   "name": "The scene",
+   "text": "(Name1), a toolmaker's apprentice, is nervous around sharp edges. The master starts them with handles, bindings and polishing, and the apprentice discovers they are the best binder in the workshop.",
+   "src": "L52",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 30,
+     "max": 60,
+     "src": "L52"
+    }
+   ],
+   "auto_text": true
+  },
+  "setup__text": {
    "name": "The scene",
    "text": "(Name1), a toolmaker's apprentice, is nervous around sharp edges. The master starts them with handles, bindings and polishing, and the apprentice discovers they are the best binder in the workshop.",
    "src": "L52"

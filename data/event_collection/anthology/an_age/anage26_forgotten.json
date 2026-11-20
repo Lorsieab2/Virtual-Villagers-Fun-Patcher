@@ -139,9 +139,16 @@
    ]
   },
   "a1": {
+   "type": "branch",
    "name": "Outcome A1",
-   "text": "Children invent a playful verse that (elder) loves.",
-   "src": "L30529"
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
   },
   "a2": {
    "name": "Outcome A2",
@@ -188,9 +195,16 @@
    "src": "L30535"
   },
   "c2": {
+   "type": "branch",
    "name": "Outcome C2",
-   "text": "(elder) is relieved not to be pressured to remember perfectly.",
-   "src": "L30536"
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
   },
   "d": {
    "type": "branch",
@@ -213,6 +227,44 @@
    "name": "Outcome D2",
    "text": "(elder) prefers to leave the song unfinished as a reminder of change.",
    "src": "L30539"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Children invent a playful verse that (elder) loves.",
+   "src": "L30529",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30529"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Children invent a playful verse that (elder) loves.",
+   "src": "L30529"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "(elder) is relieved not to be pressured to remember perfectly.",
+   "src": "L30536",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30536"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "(elder) is relieved not to be pressured to remember perfectly.",
+   "src": "L30536"
   }
  }
 }

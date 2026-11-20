@@ -129,12 +129,14 @@
    ]
   },
   "contest": {
-   "src": "L8132-8135",
-   "text": "Researchers demonstrate practical tools and mathematical puzzles. The harsh scholar dismisses (Researcher)'s odd lever until it lifts a stone that three adults could not budge. Another invention merely flings a coconut into the sea. The scholar demands a record of both results.",
+   "type": "branch",
    "name": "The Stone Table of Questions",
    "children": [
     {
-     "next": "u"
+     "next": "contest__fx"
+    },
+    {
+     "next": "contest__text"
     }
    ]
   },
@@ -370,6 +372,35 @@
   },
   "no_coda": {
    "type": "branch"
+  },
+  "contest__fx": {
+   "src": "L8132-8135",
+   "text": "Researchers demonstrate practical tools and mathematical puzzles. The harsh scholar dismisses (Researcher)'s odd lever until it lifts a stone that three adults could not budge. Another invention merely flings a coconut into the sea. The scholar demands a record of both results.",
+   "name": "The Stone Table of Questions",
+   "children": [
+    {
+     "next": "u"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8132-8135"
+    }
+   ],
+   "auto_text": true
+  },
+  "contest__text": {
+   "src": "L8132-8135",
+   "text": "Researchers demonstrate practical tools and mathematical puzzles. The harsh scholar dismisses (Researcher)'s odd lever until it lifts a stone that three adults could not budge. Another invention merely flings a coconut into the sea. The scholar demands a record of both results.",
+   "name": "The Stone Table of Questions",
+   "children": [
+    {
+     "next": "u"
+    }
+   ]
   }
  },
  "include_pools": [

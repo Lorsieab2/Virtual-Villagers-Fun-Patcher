@@ -122,9 +122,16 @@
    ]
   },
   "e1": {
+   "type": "branch",
    "name": "Ending 1",
-   "text": "Several villagers make room for (name1), a newcomer, in their game. Someone remembers an old joke, and the group starts laughing again.",
-   "src": "L1507"
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
   },
   "e2": {
    "name": "Ending 2",
@@ -132,11 +139,82 @@
    "src": "L1511"
   },
   "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1507",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1507"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1507"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. The conversation is ordinary, which is exactly what feels comforting.",
+   "src": "L1515",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1515"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
    "name": "Ending 3",
    "text": "Several villagers make room for (name1), a newcomer, in their game. The conversation is ordinary, which is exactly what feels comforting.",
    "src": "L1515"
   },
-  "e4": {
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Several villagers make room for (name1), a newcomer, in their game. A small invitation changes the mood of the whole afternoon.",
+   "src": "L1519",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1519"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
    "name": "Ending 4",
    "text": "Several villagers make room for (name1), a newcomer, in their game. A small invitation changes the mood of the whole afternoon.",
    "src": "L1519"

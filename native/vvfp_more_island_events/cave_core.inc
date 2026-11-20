@@ -295,10 +295,12 @@ static void cave_award(int kind, int amount) {
 
 /* Ending `e`'s effects, made once. */
 static void cave_effects(int e) {
+    int here;
     if (cave.effects_made || e != cave.ending) {
         return;
     }
     cave.effects_made = 1;
+    here = cave_same(0) || cave_same(1);          /* the village the popup is about (before anyone leaves) */
     switch (e) {
     case CAVE_E_FIND:
         if (cave.find == CAVE_MAP) {
@@ -330,6 +332,17 @@ static void cave_effects(int e) {
         break;
     default:
         break;
+    }
+    /* Village Solidarity (adv_solidarity): a find, the objects returned or researched raise; the map (both leave),
+       the chasm, a death, or the two falling out for good lower; making up raises; staying home is neutral. */
+    if (here) {
+        adv_solidarity(cave.g->game,
+                       e == CAVE_E_FIND ? (cave.find == CAVE_MAP ? ADV_SOL_LOWER : ADV_SOL_RAISE)
+                       : (e == CAVE_E_LEFT || e == CAVE_E_RIGHT)
+                           ? (cave.a_end == CAVE_END_MAKEUP ? ADV_SOL_RAISE : ADV_SOL_LOWER)
+                       : e == CAVE_E_RETURN ? ADV_SOL_RAISE
+                       : e == CAVE_E_KEEP ? (cave.keep_end == CAVE_RESEARCH ? ADV_SOL_RAISE : ADV_SOL_LOWER)
+                       : ADV_SOL_NEUTRAL);
     }
 }
 

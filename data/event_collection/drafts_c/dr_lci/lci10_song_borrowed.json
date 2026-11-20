@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song That Was Borrowed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci10_song_borrowed",
+  "source": "draft_lci",
+  "lines": [
+   134,
+   145
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L141",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L145",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L145",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A visiting musician claims a family's private song as their own: demand acknowledgment, or agree on rules for sharing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the shared festival, a musician from another island sang (subject)'s family song, the one sung only at their weddings, and said (other.he/she) wrote it. (friend), who keeps the village's stories, thinks the village needs rules about which stories and songs may be shared at all. What should they do?",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Demand Acknowledgment",
+     "next": "o1",
+     "src": "L139"
+    },
+    {
+     "label": "Agree on Rules",
+     "next": "o2",
+     "src": "L143"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) stands up at the festival and tells the crowd whose song it is. The musician is embarrassed and apologizes, publicly. (other.He/she) never sings it again. (subject) is satisfied, mostly.",
+   "src": "L141"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village agrees: each family decides which of its songs and stories may be shared, and which are kept. (friend) keeps a list. The musician is sent a polite message. The next festival, nobody borrows anything without asking.",
+   "src": "L145",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L145"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

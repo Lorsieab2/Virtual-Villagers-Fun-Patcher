@@ -117,7 +117,7 @@ def render(mode: str, expanded: bool = False) -> bytes:
     ids = [p.id for p in patcher.load_public_fun_patches()
            if p.game_id == "vv3" and p.id not in __import__("vv_fun_patcher").ALTERNATIVE_FUN_PATCH_IDS and (expanded or p.id not in patcher.EXPERIMENTAL_FUN_PATCH_IDS)
            and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS
-           # 2-10x Tech Cost multiplies the factions' prices on purpose (tests/test_tech_cost_multiplier.py);
+           # 0.1-10x Tech Cost multiplies the factions' prices on purpose (tests/test_tech_cost_multiplier.py);
            # these checks are of the stock prices.
            and not p.id.endswith("_tech_cost_multiplier")]
     data, _ = patcher.render_patched_bytes(stock_exe(), build, mode, ids)
@@ -348,6 +348,7 @@ class Game:
         drawn: list[tuple] = []
         mgr = p.alloc(0x40)
         p.stub(0x42E9D0, lambda q: (mgr, 0))
+        p.mu.mem_write(0x592714, struct.pack("<I", mgr))   # the word the companion reads, never the getter
         p.stub(0x42EB90, lambda q: (drawn.append(("image", q.arg(0), q.arg(1), q.arg(2), q.arg(3))) or 0, 0x14))
         p.stub(0x42ECA0, lambda q: (drawn.append(("pip", q.arg(0), q.arg(1), q.arg(2))) or 0, 0x18))
         p.stub(0x408940, lambda q: (mgr, 0))

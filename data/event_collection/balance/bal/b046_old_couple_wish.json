@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Couple's Wish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b046_old_couple_wish",
+  "source": "balance",
+  "lines": [
+   2070,
+   2112
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2070",
+  "ledger": [
+   {
+    "src": "L2071",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2072",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2080",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2089",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2077",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2078",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2081",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2090",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2083",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2086",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2092",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2095",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2098-2112",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have been together for fifty years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 33
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 33
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been together for fifty years. Tonight is the anniversary of the day they first met, at the stream, when (subject) fell in and (friend) laughed so hard (friend.he/she) fell in too.\nA travelling storyteller staying in the village has heard about it, and offers them a gift: a little clay pot of stream water, blessed, (subject.he/she) says, by \"the spirit of that very stream.\" Drunk together, the storyteller says, it will give them back their youth; poured into the stream, it will bring them something else.\nThe two of them look at each other over the pot. What should they do?",
+   "choices": [
+    {
+     "label": "Drink It Together",
+     "next": "c1",
+     "src": "L2077"
+    },
+    {
+     "label": "Pour It into the Stream",
+     "next": "c2",
+     "src": "L2078"
+    }
+   ],
+   "src": "L2073-2075"
+  },
+  "c1o1": {
+   "text": "In the morning they wake up and stare at each other. Fifteen years have gone from both of them, from their faces and their knees and their backs. They walk down to the stream hand in hand, and (subject) pushes (friend) in, and (friend) pulls (subject) in after, and the whole village comes to watch two elders, much less elderly than yesterday, splashing about like children.",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -15,
+      -15
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "change_age",
+     "role": "friend",
+     "years": [
+      -15,
+      -15
+     ]
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L2084",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "In the morning, their faces are young again: smooth, bright, the faces from fifty years ago. Their knees, however, are exactly as old as they were. \"Well,\" says (friend), creaking up off the sleeping mat, \"at least we look nice while we complain.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L2087",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They pass the pot back and forth, a sip each, until it's gone. The water tastes of moss and stones and, very faintly, of the morning they met...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2081"
+  },
+  "c2o1": {
+   "text": "By the time they get back, the storyteller has told everyone, and the whole village is waiting with flowers and food and drums. There's a feast by the stream, with the two of them in the place of honour, and the story of the day they met told and retold until even the youngest children can recite it.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L2093",
+   "text_only": [
+    {
+     "src": "L2093",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing happens, and that's fine. They sit by the stream until the stars come out, talking about fifty years of small things. \"I'd rather have the years we had,\" (subject) says, \"than get them back.\" (friend) agrees, and then pushes (subject.him/her) in the stream, for old times' sake.",
+   "src": "L2096"
+  },
+  "c2": {
+   "text": "They walk down to the stream together, slowly, and pour the water into the place where they met. The stream seems to brighten for a moment, and then runs on as before...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2090"
+  }
+ }
+}

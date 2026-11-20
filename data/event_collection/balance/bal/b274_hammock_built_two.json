@@ -1,0 +1,267 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hammock Built for Two",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b274_hammock_built_two",
+  "source": "balance",
+  "lines": [
+   12761,
+   12802
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12761",
+  "ledger": [
+   {
+    "src": "L12762",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12763",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12770",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12779",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12767",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12768",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12771",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12780",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12773",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12776",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12782",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12785",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12788-12802",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's also very big, and slightly lopsided, and it creaks.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(friend) has been secretly weaving a huge double hammock for (subject) all season, out of the softest fibre on the island, and today (subject.he/she) finally strings it between the two shadiest palms by the lagoon. It's beautiful. It's also very big, and slightly lopsided, and it creaks.\n\"For us,\" (friend) says proudly. \"For lazy afternoons.\" (subject) eyes the knot at one end, which looks a bit loose. Should she climb straight in, or check the knots first?",
+   "choices": [
+    {
+     "label": "Climb Straight In",
+     "next": "c1",
+     "src": "L12767"
+    },
+    {
+     "label": "Check the Knots First",
+     "next": "c2",
+     "src": "L12768"
+    }
+   ],
+   "src": "L12764-12765"
+  },
+  "c1o1": {
+   "text": "They spend every lazy afternoon of the season in that hammock. When (subject) finds out she is pregnant, (friend) is so proud that anyone would think (subject.he/she) had woven the baby too. (subject.He/She) gets straight to work on a tiny hammock to hang underneath the big one.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12774",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Later in the season, (subject) is pregnant, and the healers, listening carefully, announce {#babies:a single strong heartbeat|twins|triplets}. (friend) goes pale, then very pleased, then pale again. \"I'll need more fibre,\" (subject.he/she) says, and goes off to weave {#babies:a tiny hammock|two tiny hammocks|three tiny hammocks} for underneath the big one.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L12777",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) climbs in, (friend) climbs in after her, and the hammock swings out over the sand, creaking happily. The loose knot holds. They lie there listening to the lagoon...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12771"
+  },
+  "c2o1": {
+   "text": "(subject) sits down beside (subject.him/her) and they retie it together, properly this time, with the knot (subject)'s mother taught her. It takes all afternoon, and it's the best afternoon they've spent together in months. (friend) has always hated the fiddly side of building, the knots and the lashings that never sit right. With (subject) beside (subject.him/her), they stop being fiddly and start being satisfying.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "children": [
+    {
+     "next": "c2o1_c2"
+    }
+   ],
+   "src": "L12783",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "While they're arguing about the knot, a crowd of children discover the fallen hammock and claim it. By the time (friend) has retied it, there are nine children in it, swinging and shrieking. It never really becomes (subject) and (friend)'s hammock. But it is, everyone agrees, the most popular thing (friend) has ever made.",
+   "src": "L12786"
+  },
+  "c2": {
+   "text": "(subject) tugs at the loose knot. It slips, and the whole hammock drops to the sand with a soft thump. (friend) looks heartbroken...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12780"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "rocks"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       1
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  },
+  "c2o1_g2": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "wood"
+    }
+   ]
+  },
+  "c2o1_c2": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g2",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_c1"
+    }
+   ]
+  }
+ }
+}

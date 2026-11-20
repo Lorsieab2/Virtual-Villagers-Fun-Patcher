@@ -66,6 +66,7 @@ static void adv_log_event(int game, const char *title) {
     adv_log.active = 1;
     adv_log.game = game;
     adv_copy(adv_log.title, sizeof adv_log.title, title);
+    adv_copy(adv_sol_title, sizeof adv_sol_title, title);     /* Village Solidarity's log names the event so too */
     adv_log_put("  Event: ");
     adv_log_put(title);
     adv_log_put("\n");

@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feather Crown",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b220_feather_crown",
+  "source": "balance",
+  "lines": [
+   10228,
+   10271
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10228",
+  "ledger": [
+   {
+    "src": "L10229",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10230",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10238",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10247",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10235",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10236",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10239",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10248",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10241",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10244",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10250",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10253",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10256-10271",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the nest is a ring of white feathers, so neatly woven together that it looks exactly like a crown.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A great white bird has been nesting on the roof of (subject)'s hut all season, and today it has flown away and left its nest behind. In the nest is a ring of white feathers, so neatly woven together that it looks exactly like a crown. The feathers shine in the sun as if wet.\n(elder) says those birds come once a lifetime, and leave a gift for the house that sheltered them. The crown is just (subject)'s size. It hums, very faintly, when (subject) holds it near (subject.his/her) head, like a shell held to the ear.\nShould (subject) wear the crown, or hang it up in the hut?",
+   "choices": [
+    {
+     "label": "Wear It",
+     "next": "c1",
+     "src": "L10235"
+    },
+    {
+     "label": "Hang It Up",
+     "next": "c2",
+     "src": "L10236"
+    }
+   ],
+   "src": "L10231-10233"
+  },
+  "c1o1": {
+   "text": "The crown stays on. It won't come off, not that (subject) tries very hard. The feathers stay white and shining through sun and rain and smoke. Everyone in the village stops (subject.him/her) to look at it. The children call (subject.him/her) the Bird {@Chief}. The real {@chief} pretends not to mind.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L10242",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The crown purrs on (subject)'s head all day, and by evening (subject.his/her) face under it has changed: brighter, smoother, younger, as if (subject.he/she) has had a whole season of good sleep. \"That's the bird's gift,\" says (elder). \"Bright years for a kind roof.\" (subject) wears it every day.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10245",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) lowers the feather crown onto (subject.his/her) head. It's light, and cool, and it fits as if it grew there. The humming gets a little louder, then settles to a soft purr...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10239"
+  },
+  "c2o1": {
+   "text": "While the crown hangs over the door, (subject)'s hut is the only one in the village the rain never leaks into, and the mosquitoes never come near. Other villagers start asking if they can sit in it during storms. (subject) lets them. The hut gets very crowded.",
+   "src": "L10251"
+  },
+  "c2o2": {
+   "text": "The next spring, the white bird comes back and lands on the peg over the door, beside the crown, and looks at (subject) for a long time. Then it touches (subject.his/her) forehead with its beak, very gently, and flies away. By the next morning (subject)'s face looks ten years younger. (elder) says (subject.he/she) has never heard of the bird coming back.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L10254",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) hangs the crown from a peg over the door of (subject.his/her) hut, where everyone can see it. It turns slowly in the breeze, shining...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10248"
+  }
+ }
+}

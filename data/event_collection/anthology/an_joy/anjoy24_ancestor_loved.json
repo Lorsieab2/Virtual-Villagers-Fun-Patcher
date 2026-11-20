@@ -129,9 +129,16 @@
    ]
   },
   "b1": {
+   "type": "branch",
    "name": "Outcome B1",
-   "text": "The gathering becomes warmly humorous.",
-   "src": "L29034"
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
   },
   "b2": {
    "name": "Outcome B2",
@@ -181,6 +188,31 @@
    "name": "Outcome D2",
    "text": "The mystery inspires a new annual storytelling game.",
    "src": "L29041"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gathering becomes warmly humorous.",
+   "src": "L29034",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29034"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29034"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gathering becomes warmly humorous.",
+   "src": "L29034"
   }
  }
 }

@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The River's Memory",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb04_river_memory",
+  "source": "draft_lcb",
+  "lines": [
+   50,
+   61
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L50",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child)"
+   },
+   {
+    "src": "L57",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L57",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A child asks why the river is so small, and an elder remembers it wide: take a walk upstream, or tell the old stories.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 70
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been told that the stream behind the village used to be a river you could swim in. It is barely knee-deep now. (friend.He/she) asks (subject), who has lived beside it for seventy years, where the rest of it went. (subject) does not have a simple answer. What should (subject) do?",
+   "src": "L53",
+   "choices": [
+    {
+     "label": "Walk Upstream Together",
+     "next": "o1",
+     "src": "L55"
+    },
+    {
+     "label": "Tell the Old Stories",
+     "next": "o2",
+     "src": "L59"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) follow the stream into the hills. (subject) shows (friend.him/her) where the old pools were, the rocks (subject.he/she) used to jump from, and the place where a landslide changed the river's course long ago. (friend) comes home quiet and thoughtful. The next day (friend.he/she) starts clearing leaves from the little pools upstream.",
+   "src": "L57",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L57"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "That evening, (subject) tells the village stories about the river as it was: the great flood, the year the eels came, the time someone's grandmother floated all the way to the sea on a log. The children listen with their mouths open. The river is still small. But everyone remembers it a little bigger.",
+   "src": "L61"
+  }
+ }
+}

@@ -111,7 +111,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "a3": {
    "text": "A contestant accidentally rhymes {@chief}'s title with an insult. The audience gasps, then laughs.",
@@ -144,7 +145,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b2": {
    "text": "A playful poem about a goat becomes a beloved festival chant.",
@@ -168,7 +170,8 @@
      "what": "tech, food, or appropriate skill experience",
      "reason": "the trial names no villager to gain skill; this trial's constructive success gives food"
     }
-   ]
+   ],
+   "auto_text": true
   },
   "b3": {
    "text": "A rival plagiarizes an old verse and is exposed by its elderly author, who is sitting among the judges.",

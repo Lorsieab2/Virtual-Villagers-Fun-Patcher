@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Wandered Off",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b259_elder_wandered",
+  "source": "balance",
+  "lines": [
+   12082,
+   12123
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12082",
+  "ledger": [
+   {
+    "src": "L12083",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12084",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12091",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12100",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12088",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12089",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12092",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12101",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12094",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12097",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12103",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12106",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12109-12123",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager went out to gather firewood this morning and hasn't come back.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) went out to gather firewood this morning and hasn't come back. It's dusk now. (subject) is old, and lately (subject.he/she) has been forgetting things: where (subject.he/she) left (subject.his/her) cup, what day it is, the way back from the stream. (friend) found (subject.his/her) basket at the edge of the jungle, half full of sticks, sitting in the middle of the path.\nIt will be dark in an hour. Should (friend) go into the jungle now, alone, or wait for morning and take a search party?",
+   "choices": [
+    {
+     "label": "Go Now, Alone",
+     "next": "c1",
+     "src": "L12088"
+    },
+    {
+     "label": "Wait for Morning",
+     "next": "c2",
+     "src": "L12089"
+    }
+   ],
+   "src": "L12085-12086"
+  },
+  "c1o1": {
+   "text": "(friend) follows the crack to a small campfire in a clearing, and there is (subject), sitting by it, wrapped in a blanket and eating roasted taro. Beside (subject.him/her) are a (subject.man/woman), a teenager and a small child, who have been living rough in the hills since their own home was lost to a landslide. They found (subject) wandering and took (subject.him/her) in. All five of them walk back to the village together in the torchlight, and {#made:the village has room for only one of them|the village has room for only two of them|the family stays}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L12095",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(friend) finds (subject) at the bottom of a steep slope, where (subject.he/she) must have slipped in the afternoon. (subject.He/She) is already gone. (friend) twists an ankle carrying (subject.him/her) back, and arrives at the village long after midnight. The village buries (subject) the next day, with (subject.his/her) basket of sticks beside the grave. Everyone says (subject.he/she) would have liked that.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -40,
+     "max": -20
+    },
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L12098",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(friend) grabs a torch and goes, calling (subject)'s name into the trees. The jungle swallows the sound. Somewhere ahead, a branch cracks...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12092"
+  },
+  "c2o1": {
+   "text": "They find (subject) a little way in, fast asleep in the crook of a fig tree, where (subject.he/she) climbed to keep away from the wild pigs. (subject.He/She) has no idea what all the fuss is about. \"I was gathering firewood,\" (subject.he/she) says, a bit offended. The search party carries (subject.him/her) home in triumph, and the whole village turns out to cheer.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L12104",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They search for three days and find nothing but one sandal near the stream. The jungle is very big and very old. (friend) keeps the fire at the edge of the jungle burning for a month, just in case. Then, one evening, (subject.he/she) lets it go out, and the village puts (subject)'s basket of sticks on the meeting-hut step, where it stays.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L12107",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "It's too dangerous in the dark, and everyone knows it. (friend) lights a fire at the edge of the jungle and keeps it burning all night so (subject) can see it. At first light, ten people go in together...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12101"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L12095",
+   "before": "and the family stays.",
+   "after": "and {#made:the village has room for only one of them|the village has room for only two of them|the family stays}."
+  }
+ ]
+}
