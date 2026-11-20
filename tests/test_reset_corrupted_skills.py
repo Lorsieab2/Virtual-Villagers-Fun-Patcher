@@ -270,7 +270,7 @@ class TheReset(unittest.TestCase):
                 backup = Path(result.backup.backup_folder)
                 self.assertIn(cs().BACKUP_LABEL, backup.name)
                 self.assertEqual((backup / v.save.name).read_bytes(), original)
-                copy = v.folder / DATA / "Copies Made Before Repairs" / (v.save.name + cs().COPY_SUFFIX)
+                [copy] = cs().tools.copies.kept_copies(v.folder, v.save, cs().COPY_SUFFIX)
                 self.assertEqual(copy.read_bytes(), original)
                 text = v.repairs()
                 self.assertIn("Repair 1\r\n  Date: 2026-10-11 12:00:00\r\n", text)

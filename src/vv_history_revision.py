@@ -59,6 +59,7 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_log_tools as tools
+import vv_long_paths as lp
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 KIND_ID = "history_revision"
@@ -914,11 +915,15 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
         # The save's own copies, and for a log moved into its save's own folder also the copies made
         # before the move, at its older-layout place (vv_log_tools.copy_places).
         for probe in tools.copy_places(folder, log, BACKUP_SUFFIX):
-            if not probe.parent.is_dir():
+            if not lp.is_dir(probe.parent):
                 continue
-            for c in probe.parent.glob(glob.escape(probe.name) + "*"):
+            for c in lp.extended(probe.parent).glob(glob.escape(probe.name) + "*"):
                 if c.name in wanted and re.fullmatch(re.escape(probe.name) + r"(-\d+)?", c.name):
-                    found.setdefault(c.name, []).append((log, c))
+                    found.setdefault(c.name, []).append((log, lp.plain(c)))
+        # A copy this build made: a short name in Copies Made Before Repairs, its file named in the index.
+        for c in tools.copies.kept_copies(folder, log, BACKUP_SUFFIX):
+            if c.name in wanted:
+                found.setdefault(c.name, []).append((log, c))
     try:
         when = datetime.strptime(latest["date"], "%Y-%m-%d %H:%M:%S").timestamp()
     except ValueError:
@@ -927,7 +932,7 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
     for name, matches in found.items():
         if len(matches) > 1:
             matches = [(log, c) for log, c in matches
-                       if when is not None and when - 600 <= c.stat().st_mtime <= when + 60]
+                       if when is not None and when - 600 <= lp.mtime(c) <= when + 60]
         if not matches:
             refused.append(f"{name}: more than one log has a copy of this name, and which one the revision of "
                            f"{latest['date']} made cannot be told")
@@ -937,7 +942,7 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
     for log, copy in pairs:
         seen.add(copy.name)
         try:
-            restored, moved, since = _merge(log.read_bytes(), copy.read_bytes())
+            restored, moved, since = _merge(log.read_bytes(), lp.read_bytes(copy))
         except ValueError as exc:
             refused.append(f"{_rel(folder, log)}: {exc}")
             continue

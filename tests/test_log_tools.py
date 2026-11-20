@@ -839,7 +839,8 @@ class LogWordsTests(FolderTest):
                          .replace(b"  Name: Ana\r\n", b"  Name: Ana\r\n  Sex: Female\r\n") + self.NEW)
         # The copy is kept in Data\Copies Made Before Repairs, at the log's own place (the owner,
         # 2026-10-09), never beside the log.
-        backup_copy = folder / DATA / "Copies Made Before Repairs" / (HISTORY + tools.WORD_BACKUP_SUFFIX)
+        backup_copy = tools.copies.kept_copies(folder, path, tools.WORD_BACKUP_SUFFIX)[0]   # the first made
+        self.assertEqual(backup_copy, folder / DATA / "Copies Made Before Repairs" / "Village History.txt.bak1")
         self.assertEqual(backup_copy.read_bytes(), self.OLD + self.NEW)
         self.assertFalse(path.with_name(path.name + tools.WORD_BACKUP_SUFFIX).exists())
         repairs = (tools.layout.slot_log_folder(folder, "Repairs Made", 1) / "Virtual Villagers 1 Repairs Log 1.txt").read_text("latin-1")

@@ -26,6 +26,7 @@ sys.path.insert(0, str(ROOT / "src"))
 import vv_log_additions as additions  # noqa: E402
 import vv_log_contradictions as contradictions  # noqa: E402
 import vv_log_tools as tools  # noqa: E402
+import vv_repair_copies as repair_copies  # noqa: E402
 
 LOGS = "Virtual Villagers Fun Patcher Logs"
 VILLAGE = "Village: Kalahuna Tribe 2 (Save 1)"
@@ -148,8 +149,7 @@ class FalseUnaccountedEveryGame(unittest.TestCase):
                 self.assertNotIn("\r\n\r\n\r\n", text)
                 fixes = result.added["false_unaccounted"]
                 self.assertEqual(fixes[0].count, 6)
-                self.assertTrue(any(p.name.startswith(log.name + ".before-")
-                                    for p in folder.rglob("*") if p.is_file()), "a copy made before")
+                self.assertTrue(repair_copies.kept_copies(folder, log), "a copy made before")
                 repairs = "".join(p.read_bytes().decode("latin-1") for p in folder.rglob("*Repairs Log*.txt"))
                 self.assertIn(additions.ADDED["false_unaccounted"], repairs)
                 self.assertFalse(contradictions.plan_false_unaccounted(folder, game, 1).removes, "nothing more")

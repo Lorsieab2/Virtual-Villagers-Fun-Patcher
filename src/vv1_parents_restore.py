@@ -36,6 +36,8 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_log_tools as tools
+import vv_long_paths as lp
+import vv_repair_copies as repair_copies
 import vv_save_backup
 import vv_save_layout as layout
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
@@ -175,7 +177,7 @@ def read_table(path: Path, slot: int, strict: bool = True) -> Table | None:
     """The slot's parentage file, or None when it is not one.  `strict` False (a copy read only as a
     source): a departed list that is not the companion's is left out and the 256 records still read."""
     try:
-        data = Path(path).read_bytes()
+        data = lp.read_bytes(path)
     except OSError:
         return None
     if len(data) < SIZE or data[:4] != MAGIC or struct.unpack_from("<I", data, 8)[0] != slot:
@@ -196,12 +198,14 @@ def copies(folder: Path, slot: int) -> list[Path]:
     # The older layout's Data folder, and the save's own "Virtual Villagers Fun Patcher\Save <slot>\Data"
     # (src/vv_save_layout.py).
     for data in (folder / layout.DATA, folder / layout.save_root(slot) / layout.SAVE_DATA):
-        if not data.is_dir():
-            continue
-        for path in data.rglob(file_name(slot) + ".*"):
-            if path.is_file() and path.name.startswith(stem) and not path.name.endswith(".tmp"):
+        # Any length (vv_long_paths): an older build's copy can run past 259 characters.
+        for path in lp.walk(data):
+            if path.name.startswith(stem) and not path.name.endswith(".tmp"):
                 out.append(path)
-    out.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    # This build's copies: short names ("Parentage Records - Save 1.dat.bak1"), the index naming the file.
+    out += [k.copy for k in repair_copies.all_kept(folder)
+            if Path(k.original.replace("\\", "/")).name.casefold() == file_name(slot).casefold()]
+    out.sort(key=lp.mtime, reverse=True)
     return out
 
 

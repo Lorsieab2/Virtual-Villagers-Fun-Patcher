@@ -50,7 +50,13 @@ def write(path: Path, data: str | bytes, when: int | None = None) -> None:
 
 def tree(folder: Path, under: str = "") -> dict[str, bytes]:
     root = folder / under if under else folder
-    return {p.relative_to(folder).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
+    out = {p.relative_to(folder).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
+    if under == COPIES:
+        # The copies kept before repairs have short names; the index says which file each is
+        # (src/vv_repair_copies.py), shown here at the place an older build kept it.
+        out = {f"{COPIES}/{k.original.replace(chr(92), '/')}": k.copy.read_bytes()
+               for k in tools.copies.all_kept(folder)}
+    return out
 
 
 class MoveTest(unittest.TestCase):

@@ -158,7 +158,7 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_save_clock", "vv3_second_faction", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_long_paths", "vv_repair_copies", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
@@ -252,12 +252,12 @@ class ReleasesLinkTests(unittest.TestCase):
         for module, may_import in (
             # Its game-speed changes replay each game's own speed routine (vv_save_clock), which
             # imports nothing of the patcher's.
-            ("vv_save_backup", {"vv_save_clock", "vv3_second_faction"}),
+            ("vv_save_backup", {"vv_save_clock", "vv3_second_faction", "vv_long_paths"}),
             ("vv_save_clock", set()),
             # Copy Player Slot: Rename Tribe's slot reading and name rule, Back Up Saves, the per-save layout;
             # function-level: the villagers as Last Names reads them, the refuse-if-running helper, the
             # shared Like and Dislike Words boundaries and The Lost Children's ElderTotems.dat.
-            ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_tribe_rename", "vv_last_names",
+            ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_long_paths", "vv_tribe_rename", "vv_last_names",
                               "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
                               "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
             # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
@@ -268,6 +268,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store", "vv_long_names"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
+                              "vv_repair_copies",      # the copies kept before repairs: short names, an index
                               "vv_log_contradictions",
                               # Check Saves & Logs' NOTE for older logs' '?' names (v1.35.89).
                               "vv_legacy_names",
@@ -302,7 +303,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_answered_questions"}),
             # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
             # the pickers' background run of it.
-            ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
+            ("vv_reconcile", {"vv_save_layout", "vv_long_paths", "vv_repair_copies", "vv_log_tools", "vv_last_names", "vv_lost_titles",
                               "vv_log_additions", "vv_genealogy", "vv_tribe_rename", "vv_log_decisions",
                               "vv1_parents_restore", "vv_titles_file",
                               "vv_save_backup",        # a backup first, when an answer settles a custom title (v1.35.71)
@@ -359,7 +360,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Custom Titles file, version 3 and 2 (native/shared/custom_titles.h; v1.35.70).
             ("vv_titles_file", set()),
             # Restore A New Home Parents: the copies of the parents file, the Repairs Made note.
-            ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout"}),
+            ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout", "vv_long_paths",
+                                     "vv_repair_copies"}),
             # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
             ("vv_corrupt_skills", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_tribe_rename",
                                    "vv_save_layout"}),
@@ -390,7 +392,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_answered_questions",    # "the same villager?" asked in the tree (v1.35.80 update)
                                      "vv_tool_fonts"}),          # the tool windows' fonts (the VF1 patcher's)
             # Remove a restarted tribe's villagers from the history (the owner, v1.35.73).
-            ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup"}),
+            ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup", "vv_long_paths"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
                                  "vv_save_layout", "vv_log_additions", "vv_titles_file", "vv_relationships"}),
@@ -404,6 +406,9 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus", "vv_tool_fonts"}),
             # The save folder's folder and file names, old and new (the owner, 2026-10-09).
             ("vv_save_layout", set()),
+            # Paths of any length (the owner, 2026-11-20), and the copies kept before repairs.
+            ("vv_long_paths", {"patcher_files"}),
+            ("vv_repair_copies", {"vv_long_paths", "vv_save_layout"}),
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
             ("vv_game_mechanics", {"vv_tribe_rename",
                                    "vv_game_mechanics_tech_time",  # 0.1-10x Tech Cost: the multiplier read from the exe (function-level)

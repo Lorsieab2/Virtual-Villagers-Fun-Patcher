@@ -154,7 +154,8 @@ class Revive(unittest.TestCase):
                       "  Sex: Male\n", deaths.replace("\r\n", "\n"))
         self.assertNotIn("his grave was removed", deaths)
         self.assertIn("Revived: Lulu, the Golden Child", self.logs("Repairs Log"))
-        copies = list(self.folder.rglob("*" + gcr.COPY_SUFFIX))
+        copies = [k.copy for k in gcr.tools.copies.all_kept(self.folder)
+                  if k.reason == gcr.tools.copies.reason_of(gcr.COPY_SUFFIX)]
         self.assertEqual(len(copies), 1)
         self.assertEqual(copies[0].read_bytes(), before)
 

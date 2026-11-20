@@ -125,7 +125,7 @@ class Apply(unittest.TestCase):
             self.assertEqual(log.count("Grave: Master Builder"), 2)
             self.assertIn("Grave: Apprentice Farmer", log)
             self.assertEqual(additions.plan_apprentice(v.folder, game, 1, v.game_folders).replaces, [])
-            copies = [p for p in v.folder.rglob("*before-grave-job-repair*")]
+            copies = [k for k in vv_graves.tools.copies.all_kept(v.folder) if k.reason == "before-grave-job-repair"]
             self.assertTrue(copies, "the save is copied before it is changed")
         finally:
             v.close()

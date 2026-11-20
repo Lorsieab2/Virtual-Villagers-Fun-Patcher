@@ -69,6 +69,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import vv_long_paths as lp
 import vv_save_backup
 import vv_save_layout as layout
 import vv_tribe_rename as rename
@@ -286,15 +287,14 @@ def highest_numbers(folder: Path) -> dict[str, int]:
     """The game's highest number of each kind, in every log of the save folder (every slot's, the shared
     ones and an older build's folders alike; never the Backups)."""
     highest: dict[str, int] = {}
-    for path in Path(folder).rglob("*.txt"):
-        try:
-            parts = path.relative_to(folder).parts
-        except ValueError:
+    root = Path(folder)
+    # Any length, never the Backups (vv_long_paths); a folder that cannot be listed stops the count.
+    for path in lp.walk(root, skip=lambda d: d.parent == root
+                        and d.name.casefold() == vv_save_backup.BACKUPS_FOLDER.casefold()):
+        if not path.name.casefold().endswith(".txt"):
             continue
-        if parts and parts[0].casefold() == vv_save_backup.BACKUPS_FOLDER.casefold():
-            continue
         try:
-            numbers = record_numbers(path.read_bytes())
+            numbers = record_numbers(lp.read_bytes(path))
         except OSError:
             continue
         for kind, values in numbers.items():
