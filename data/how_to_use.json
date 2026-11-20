@@ -1117,7 +1117,7 @@
     {
       "ids": ["vv5_fog_of_doom_no_restrictions"],
       "guide": [
-        "Off by default and in Select All; on in Owner's Defaults. Needs Fog of Doom Lets Red and Orange Heathens Listen (ticked with it).",
+        "Off by default; on in Owner's Defaults; Select All does not tick it. Needs Fog of Doom Lets Red and Orange Heathens Listen (ticked with it).",
         "The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way.",
         "In the Fog of Doom, orange- and red-masked Heathens listen whatever their Faith: no Earthquake is needed.",
         "Natural fog still does nothing. Not yet seen in a running game."
