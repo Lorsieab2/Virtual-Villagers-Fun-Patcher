@@ -564,6 +564,38 @@ class GrandFeastAndDoublerTests(unittest.TestCase):
         self.assertEqual(feast_flags(stock.v), (0, 0, 0, 1))
         self.assertEqual(stock.credits(), [])
 
+    def test_the_sack_in_the_stew_uses_up_the_trees_fruit_as_the_stock_stew_trip(self) -> None:
+        # The owner (2026-11-19): "it should use up the berries and the fruit".  The sack's fruit goes into the pot
+        # through the stew listener's fruit put-down 0x42EAE7 once -- where "Yellow Fruit Trees are No Longer
+        # Unlimited" takes its 3 for any stewed fruit (tests/test_vv4_yellow_fruit_trees_limited.py,
+        # test_a_stomped_fruit_put_in_the_stew_takes_three) -- and the sack takes nothing more itself, so the fruit
+        # is used up once and no food is paid.  Without that row the tree is the stock unlimited one: the same one
+        # put-down, as the stock fruit trip into the stew.
+        def stewed(h) -> list[int]:
+            seen: list[int] = []
+            h.v.uc.hook_add(UC_HOOK_CODE, lambda *_: seen.append(1), begin=0x42EAE7, end=0x42EAE7)
+            return seen
+        for tree in (1000, None):
+            with self.subTest(limited=tree is not None):
+                h = Hut(tree=tree)
+                grand_feast(h.v)
+                seen = stewed(h)
+                r = h.villager()
+                self.assertEqual(h.drop(r), 1)
+                h.run()
+                self.assertEqual(len(seen), 1)                    # the fruit put in the stew once
+                self.assertEqual(h.taken, [])                     # the sack itself takes no fruit
+                self.assertEqual(h.credits(), [])                 # and pays no food
+                if tree is not None:
+                    self.assertEqual(h.tree, 1000)                # (the stand-in has no 0x42EAE7 hook)
+        stock = Hut(patched=False)
+        grand_feast(stock.v)
+        seen = stewed(stock)
+        stock.villager()
+        stock.v.start(0x64)
+        stock.run()
+        self.assertEqual(len(seen), 1)
+
     def test_with_the_fruit_in_the_sack_goes_to_the_food_bin(self) -> None:
         h = Hut()
         grand_feast(h.v)
