@@ -99,6 +99,23 @@ typedef struct sp_shift {
     int mode;
     unsigned int yfield, text_a, text_b, flag, font_mgr;
     int text_top;
+    /* A tip that asks for more width than the screen holds (the later three's tutorial tips ask for the screen's
+       whole width and more: The Secret City 0x23A + 0x48 wide, The Tree of Life 0x2FA + 0x48, New Believers 0x3EC
+       + 0x48): its text (the pointer at `wrap_text`, in the font of the text manager at `font_mgr`) is wrapped at the
+       width at `wrap_w`, which the constructor measured its height at with `wrap_height_fn` (font; text, width, float
+       scale) ret 0xC.  0: not such a tip.  A tutorial tip (the byte at `tutorial` set and the dword at `tutorial_on`
+       0) places its text at a fixed x the game chose to keep the whole text on the screen (The Tree of Life 0x12,
+       New Believers 0x0A): only its frame runs past the screen's sides, so its width is kept as the game asks. */
+    unsigned int wrap_text, wrap_w, wrap_height_fn;
+    unsigned int tutorial, tutorial_on;
+    int tutorial_is;              /* the dword's value that makes it a tutorial tip (The Lost Children: 1) */
+    /* A New Home's and The Lost Children's tips draw their text's '\n' lines centred, the panel as wide as the widest
+       line: the text comes from the string table, `call lookup_fn` (thiscall(text manager; id) ret 4, esi = the tip)
+       at `lookup_sites` (the constructor's, which measures it, and the body draw's).  Both calls call the companion,
+       which hands over the text with each line wider than the box broken at its spaces; the box: the screen's width
+       capped as the size site caps it (the panel picture's cells are `lookup_cell` wide), less `side` each side. */
+    unsigned int lookup_fn, lookup_sites[2];
+    int lookup_cell;
 } sp_shift;
 #define SP_SHIFT_ASKED 0
 #define SP_SHIFT_MEASURED 1
@@ -169,6 +186,23 @@ typedef struct sp_game {
        later three scroll the text box (sp_class), which then starts under the title and holds the picture first. */
     unsigned int portrait_site, portrait_fn;
     int portrait_args;
+    /* LONG TITLES WRAP (the owner, 2026-11-16: "Long titles wrap; nothing is truncated").  The later three's
+       island-event dialog draws its title ([dialog+0x54], a pointer: the text is never copied) on one line with the
+       centred draw, `call title_fn` at `title_site` (after `push edx; mov ecx, edi`; esi = the dialog), thiscall(holder;
+       text, centre x, y, colour, font) ret 0x14: The Secret City 0x418561 -> 0x40A070, The Tree of Life 0x416F1C ->
+       0x409BE0, New Believers 0x4176B9 -> 0x409EB0.  A title wider than the text box is held there and drawn by the
+       text's draw (sp_body) in as many centred lines as it needs at the top of the scrolled box, the picture and the
+       text below it. */
+    unsigned int title_site, title_fn;
+    /* PRACTICALLY UNLIMITED TEXT in A New Home and The Lost Children (one_popup.h VvfpPopupWholeText).  Each island-
+       event dialog's body draw (plain, encounter, crate) draws its '\n'-broken text in two calls of the centred-lines
+       draw `whole_fn` (text manager; text, x, y, colour, font) ret 0x14: the first line, cut at its '\n', then the
+       rest from that '\n' (`call` at whole_sites[k], after `push eax; push ebx`, ebx = the rest, esi = the dialog).
+       That second call draws the rest of the companion's whole text instead when the field holds only its start:
+       A New Home 0x4279A9, 0x418885, 0x42AA75 -> 0x4094C0; The Lost Children 0x433299, 0x41F4D5, 0x437545 ->
+       0x4096B0. */
+    unsigned int whole_sites[3];
+    unsigned int whole_fn;
 } sp_game;
 
 /* The later three's island-event dialog (sp_class): the title's y and the villager shown. */
@@ -178,7 +212,8 @@ typedef struct sp_game {
 /* The tips (theTipDialog: tutorial and notices), all five games: the box 0x24 from the sides, 0x0A below the top
    (a tutorial tip's text starts 0x24 - 0x1A below it), above twice the OK button's height. */
 static const sp_shift SP_VV1_SHIFTS[] = {
-    {0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20},
+    {0x481AD0u, 0x436006u, 0x40C760u, {0x89, 0x46, 0x70}, 0x6Cu, 2, 0x0A, 0x24, 20,
+     SP_SHIFT_ASKED, 0, 0, 0, 0, 0x68u, 0, 0, 0, 0, 0, 0, 0, 0x433970u, {0x435F37u, 0x4362F7u}, 64},
     /* A New Home's island events: plain (0x4286B0), encounter / two choices (0x41A460), crate / visitor (0x42D0E0). */
     {0x459AE4u, 0x428830u, 0x40C760u, {0x50, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
      SP_SHIFT_MEASURED, 0x6Cu, 0x277Fu, 0, 0, 0x50ACu, 0x23},
@@ -188,7 +223,8 @@ static const sp_shift SP_VV1_SHIFTS[] = {
      SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
 };
 static const sp_shift SP_VV2_SHIFTS[] = {
-    {0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20},
+    {0x48FAC8u, 0x443D86u, 0x40D140u, {0x00, 0x00, 0x00}, 0x74u, 2, 0x0A, 0x24, 20,
+     SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0, 0, 0, 0x4Cu, 0x38u, 1, 0x441680u, {0x443C3Du, 0x4442D5u}, 64},
     /* The Lost Children's island events: plain (0x4348E0), two choices A (0x422380) and B, sacks and vials
        (0x439DD0). */
     {0x476DF8u, 0x434A6Bu, 0x40D140u, {0x50, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
@@ -198,9 +234,12 @@ static const sp_shift SP_VV2_SHIFTS[] = {
     {0x476F30u, 0x439FA4u, 0x40D140u, {0x52, 0x8B, 0xCE}, 0, 0, 0, 0x0C, 20,
      SP_SHIFT_MEASURED, 0x6Cu, 0x74u, 0x2783u, 0x50u, 0x50B0u, 0x23},
 };
-static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
-static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20}};
+static const sp_shift SP_VV3_SHIFTS[] = {{0x47F454u, 0x41DFF1u, 0x40DDD0u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x402480u, 0x4Cu, 0x38u}};
+static const sp_shift SP_VV4_SHIFTS[] = {{0x48D47Cu, 0x41B4B9u, 0x40DE20u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x4026E0u, 0x4Cu, 0x38u}};
+static const sp_shift SP_VV5_SHIFTS[] = {{0x49868Cu, 0x41BD13u, 0x40E310u, {0x50, 0x8B, 0xCE}, 0x74u, 2, 0x0A, 0x24, 20,
+                                          SP_SHIFT_ASKED, 0, 0, 0, 0, 0x70u, 0, 0x58u, 0x5Cu, 0x402690u, 0x4Cu, 0x38u}};
 
 /* The Secret City: the island-event dialog 0x4192F0. */
 static const sp_class SP_VV3_CLASSES[] = {
@@ -239,34 +278,34 @@ static const sp_game SP_GAMES[6] = {
      0x4094B0u, 0x40C197u, {0x8B, 0x4C, 0x24, 0x24}, {0x459AB0u, 0x427378u, 0x40C760u},
      0x40C9A3u, 5, SP_VV1_SHIFTS, 4, 0, 0x402100u, 0x402160u,
      0x481B58u, 0x88u, 0x409501u, 0x409160u, SP_LABEL_PANELS(1), {0, 3, "ultra_wide_button.png"}, 0,
-     0x4188A6u, 0x4375F0u, 3},                                                                         /* vv1 */
+     0x4188A6u, 0x4375F0u, 3, 0, 0, {0x4279A9u, 0x418885u, 0x42AA75u}, 0x4094C0u},                     /* vv1 */
     {0, 0, 0x499BC8u, 0, 0x40A270u, 0x4095D0u, 0x403EFEu, 0x402070u, 800, 600,
      SP_BORROWED_ART, {0, 1, "WideSlider2.png"}, {0, 1, "sliderhandle.png", {0, 3, 12, 27}},
      NULL, 0,
      0x4096A0u, 0x40CB77u, {0x8B, 0x4C, 0x24, 0x24}, {0x476DC4u, 0x432EE8u, 0x40D140u},
      0x40D383u, 5, SP_VV2_SHIFTS, 4, 0, 0x402190u, 0x4021F0u,
      0x48FB48u, 0x90u, 0x4096F1u, 0x409360u, SP_LABEL_PANELS(2), {0, 3, "ultra_wide_button.png"}, 0,
-     0x41F4F6u, 0x445950u, 3},                                                                         /* vv2 */
+     0x41F4F6u, 0x445950u, 3, 0, 0, {0x433299u, 0x41F4D5u, 0x437545u}, 0x4096B0u},                     /* vv2 */
     {0x40A0C0u, 0x409AD0u, 0x4B34A8u, 0x42E6F0u, 0x40AF10u, 0x409F80u, 0x40451Eu, 0x4020A0u, 800, 600,
      {0x1B, 3, 0}, {0x1C, 3, 0}, {0x1D, 1, 0}, {0x1E, 1, 0}, {0x19, 1, 0}, {0x1A, 1, 0, {0, 3, 12, 27}},
      SP_VV3_CLASSES, (int)(sizeof SP_VV3_CLASSES / sizeof SP_VV3_CLASSES[0]),
      0x40A060u, 0x40D807u, {0x8B, 0x4C, 0x24, 0x24}, {0x47F3ACu, 0x41C53Fu, 0x40DDD0u},
      0x40E013u, 5, SP_VV3_SHIFTS, 1, 0x41E433u, 0x4021C0u, 0x402230u, 0x47F498u, 0x6Cu, 0, 0, SP_LABEL_PANELS(3), {0x04, 3, 0}, 0x4A460Cu,
-     0x41853Au, 0x456CA0u, 3},                                                                         /* vv3 */
+     0x41853Au, 0x456CA0u, 3, 0x418561u, 0x40A070u, {0, 0, 0}, 0},                                     /* vv3 */
     {0x409C30u, 0x4094F0u, 0x4CB928u, 0x44C8A0u, 0x40AB10u, 0x409A00u, 0x404B02u, 0x402320u, 800, 600,
      {0xA3, 3, 0}, {0xA4, 3, 0}, {0xA5, 1, 0}, {0xA6, 1, 0}, {0xA1, 1, 0, {1, 1, 258, 30}},
      {0xA2, 1, 0, {3, 5, 16, 21}},
      SP_VV4_CLASSES, (int)(sizeof SP_VV4_CLASSES / sizeof SP_VV4_CLASSES[0]),
      0x409BD0u, 0x40CFC9u, {0x57, 0x51, 0x8B, 0xCD}, {0x48D3C4u, 0x419BE0u, 0x40DE20u},
      0x40E07Cu, 4, SP_VV4_SHIFTS, 1, 0x41B9B0u, 0x402500u, 0x402430u, 0x48D4ECu, 0x6Cu, 0, 0, SP_LABEL_PANELS(4), {0x83, 3, 0}, 0x4B8E34u,
-     0x416EF5u, 0x45F7C0u, 5},                                                                         /* vv4 */
+     0x416EF5u, 0x45F7C0u, 5, 0x416F1Cu, 0x409BE0u, {0, 0, 0}, 0},                                     /* vv4 */
     {0x409F00u, 0x409720u, 0x4DB0E8u, 0x44F760u, 0x40B010u, 0x409C30u, 0x404A92u, 0x4022D0u, 1024, 768,
      {0x81, 3, 0}, {0x82, 3, 0}, {0x83, 1, 0}, {0x84, 1, 0}, {0x7F, 1, 0, {1, 1, 258, 30}},
      {0x80, 1, 0, {3, 5, 16, 21}},
      SP_VV5_CLASSES, (int)(sizeof SP_VV5_CLASSES / sizeof SP_VV5_CLASSES[0]),
      0x409EA0u, 0x40D4B9u, {0x57, 0x51, 0x8B, 0xCD}, {0x4985D4u, 0x41A47Bu, 0x40E310u},
      0x40E56Cu, 4, SP_VV5_SHIFTS, 1, 0x41C200u, 0x4024B0u, 0x4023E0u, 0x4986E8u, 0x6Cu, 0, 0, SP_LABEL_PANELS(5), {0x65, 3, 0}, 0x4C6D24u,
-     0x417692u, 0x466EF0u, 5},                                                                         /* vv5 */
+     0x417692u, 0x466EF0u, 5, 0x4176B9u, 0x409EB0u, {0, 0, 0}, 0},                                     /* vv5 */
 };
 
 #endif /* VVFP_SCROLL_POPUP_H */

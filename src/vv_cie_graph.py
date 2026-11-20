@@ -160,6 +160,7 @@ version 3 refuses it).
 """
 from __future__ import annotations
 
+import contextvars
 import copy
 import json
 import re
@@ -191,6 +192,28 @@ TITLE_BYTES = 47              # CE_TITLE_BYTES 48, NUL included
 BUTTON_BYTES = 39             # CE_BUTTON_BYTES 40, NUL included
 NODE_TEXT_MAX = 1990          # a node's text, bytes
 POPUP_TEXT_MAX = 1990         # a popup's text, bytes (the later games build the popup text in 2,000)
+# PRACTICALLY UNLIMITED TEXT (the owner, 2026-11-16: "With the scrollbar patch active, Custom Island Events should have
+# a practically unlimited character and word count for any text").  With Scrolling Popups (validate(scrolling=True))
+# a text, a title and a label are limited only by these sanity caps, sized to the file (story_custom.h
+# CE_LONG_TEXT_MAX, CE_LONG_LINE_BYTES; story_graph.inc CG_MAX_FILE 1 MiB): the dialog's field holds a long text's
+# start and Scrolling Popups draws the whole (native/shared/one_popup.h); a choice's row grows to as many lines as its
+# label needs and a long title wraps.  Without it the caps above stay (the engine refuses to queue an event whose
+# texts are longer than them where the popups do not scroll: story_graph.inc cg_refusal).
+LONG_TEXT_MAX = 100000        # a node's text and a popup's text, bytes, with scrolling
+LONG_LINE_BYTES = 4095        # a title or a label, bytes, with scrolling (CE_LONG_LINE_BYTES 4096, NUL included)
+MAX_FILE_BYTES = 0x1000000    # a compiled .cieg the game reads (story_graph.inc CG_MAX_FILE, 16 MiB)
+DISPLAY_BYTES = 0x100000      # every popup's words of one run, the engine keeps them (story_graph.inc CG_DISPLAY_BYTES)
+_SCROLL_CAPS: "contextvars.ContextVar[bool]" = contextvars.ContextVar("vv_cie_scroll_caps", default=False)
+
+
+def scroll_caps() -> bool:
+    """True inside validate(scrolling=True): the long caps apply."""
+    return _SCROLL_CAPS.get()
+
+
+def text_cap() -> int:
+    """A node's text at most this many bytes (NODE_TEXT_MAX, or LONG_TEXT_MAX with scrolling)."""
+    return LONG_TEXT_MAX if scroll_caps() else NODE_TEXT_MAX
 MAX_PAGES = 10                # pages a popup may take without scrolling (the shipped event's ADV_MAX_PAGES)
 MAX_POPUPS_PER_RUN = 6        # popups on one history, the question's included (version 1)
 MAX_POPUPS_PER_RUN_V2 = 16    # ... version 2 (questions anywhere): the companion keeps 96 pages a run
@@ -3121,8 +3144,8 @@ def _check_text_v6(where: str, text: str, problems: list[str], g: dict, label: b
                    uses: dict | None = None) -> None:
     """Version 6 text: the character set, every placeholder, escape and brace token (cie-v6-binary.md 5).  `uses`
     collects each pool's highest instance."""
-    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
-        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    if len(text.encode("ascii", "replace")) > text_cap():
+        problems.append(f"{where}: text is longer than {text_cap()} characters" + _without_scrolling())
     bad: set[str] = set()
     for kind, raw in text_tokens(text):
         if kind == "lit":
@@ -3273,8 +3296,8 @@ def _check_text(where: str, text: str, problems: list[str], version: int = 1, g:
     if version >= VERSION_V6 and g is not None:
         _check_text_v6(where, text, problems, g, label)
         return
-    if len(text.encode("ascii", "replace")) > NODE_TEXT_MAX:
-        problems.append(f"{where}: text is longer than {NODE_TEXT_MAX} characters")
+    if len(text.encode("ascii", "replace")) > text_cap():
+        problems.append(f"{where}: text is longer than {text_cap()} characters" + _without_scrolling())
     for raw, p in placeholders(text):
         if p is None:
             problems.append(f"{where}: {raw} is not a placeholder (parentheses are only placeholders)")
@@ -3337,6 +3360,14 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
     done: set[tuple] = set()
     for p in paths:
         game = GAMES[p.ctx.game]
+        total = sum(len(pop.worst.encode("ascii", "replace")) + 1
+                    for pop in (one_popup(p.popups) if scrolling else p.popups))
+        if total > DISPLAY_BYTES:
+            nodes = "+".join(n for pop in p.popups for n in pop.nodes)
+            why = (f"{game.name}: the popups of one run ({nodes[:120]}) hold {total:,} bytes with the longest names; "
+                   f"the game keeps at most {DISPLAY_BYTES:,} for one event")
+            if why not in problems:
+                problems.append(why)
         for pop in (one_popup(p.popups) if scrolling else p.popups):
             key = (game.number, pop.layout, pop.worst, pop.effects, pop.room, tuple(pop.titles))
             if key in done:
@@ -3344,10 +3375,10 @@ def fit_problems(g: dict, paths: list[History], scrolling: bool) -> list[str]:
             done.add(key)
             layout = getattr(game, pop.layout)
             nodes = "+".join(pop.nodes)
-            cap = ONE_POPUP_TEXT_MAX_12 if scrolling and game.number <= 2 else POPUP_TEXT_MAX
+            cap = LONG_TEXT_MAX if scrolling else POPUP_TEXT_MAX
             if len(pop.worst.encode("ascii", "replace")) > cap:
                 problems.append(f"{game.name}: the popup of {nodes} is longer than {cap} bytes "
-                                "with the longest names")
+                                "with the longest names" + ("" if scrolling else _without_scrolling()))
                 continue
             if scrolling:
                 continue
@@ -3392,18 +3423,33 @@ def title_problems(g: dict, title: str, what: str) -> list[str]:
                 out.append(f"{what}: {raw}: a stranger has no name")
     if bad:
         out.append(f"{what} has characters the game cannot show")
-    if len(title) > LABEL_BYTES_V6:
-        out.append(f"{what} is longer than {LABEL_BYTES_V6} characters as written")   # the .cieg's raw title
+    raw_cap = LONG_LINE_BYTES if scroll_caps() else LABEL_BYTES_V6
+    if len(title) > raw_cap:
+        out.append(f"{what} is longer than {raw_cap} characters as written"   # the .cieg's raw title
+                   + _without_scrolling())
     if out:
         return out
     for gn in g["games"]:
         game = GAMES[gn]
         worst = worst_v6(title_case(title), g, game, None)                # section 20
+        if scroll_caps() and len(worst) <= LONG_LINE_BYTES:
+            # With Scrolling Popups a long title wraps (one_popup.h; A New Home's and The Lost Children's text leads
+            # with it, its rest after the picture's gap, cg_title_wrap): only its length is free -- a single word
+            # wider than the title box still cannot wrap.
+            if gn in TITLE_BOX_PX:
+                wide, word = widest_word(worst, lambda w: title_px(gn, w))
+                if wide > TITLE_BOX_PX[gn]:
+                    out.append(f"{game.name}: {what} has a word ({word[:24]!r}) {wide} pixels wide with the longest "
+                               f"names; its popup's title box shows {TITLE_BOX_PX[gn]}")
+            continue
         if title_fits(gn, worst) or title_fits(gn, worst_v6(title_case(title), g, game, None, pronoun_names=True)):
             continue
-        if len(worst) > TITLE_BYTES:
+        if scroll_caps():
+            out.append(f"{what} is longer than {LONG_LINE_BYTES} characters with the longest names")
+        elif len(worst) > TITLE_BYTES:
             out.append(f"{what} is longer than {TITLE_BYTES} characters" + (" with the longest names"
-                                                                            if worst != title else ""))
+                                                                            if worst != title else "")
+                       + _without_scrolling())
         elif gn in TITLE_BOX_PX:
             out.append(f"{game.name}: {what} is {title_px(gn, worst)} pixels wide; its popup shows "
                        f"{TITLE_BOX_PX[gn]}")
@@ -3469,8 +3515,33 @@ def widest_title(g: dict, titles: Iterable[str], layout: "Layout", game: "Game")
     return best
 
 
+def widest_word(text: str, px) -> tuple[int, str]:
+    """The widest of `text`'s words (parted by spaces and line breaks) by `px(word)`, and that word."""
+    best, word = 0, ""
+    for w in text.replace("\n", " ").split(" "):
+        if w:
+            n = px(w)
+            if n > best:
+                best, word = n, w
+    return best, word
+
+
+def _without_scrolling() -> str:
+    """What a too-long text's problem adds without Scrolling Popups (the long caps need it)."""
+    return "" if scroll_caps() else " (with the Scrolling Popups patch on, texts can be practically unlimited)"
+
+
 def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tuple[dict, list[str]]:
-    """(the normalized graph, every problem).  No problems = the graph may be compiled and played."""
+    """(the normalized graph, every problem).  No problems = the graph may be compiled and played.  With
+    `scrolling` (Scrolling Popups installed) the long caps apply (LONG_TEXT_MAX, LONG_LINE_BYTES)."""
+    token = _SCROLL_CAPS.set(bool(scrolling))
+    try:
+        return _validate(data, scrolling, shared_pools)
+    finally:
+        _SCROLL_CAPS.reset(token)
+
+
+def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list[str]]:
     g, problems = normalize(data, shared_pools)
     if problems and not g.get("nodes"):
         return g, problems
@@ -3535,6 +3606,20 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
             for c in n["choices"]:
                 if v6:
                     label = worst_v6(c["label"], lg_labels, game, None, label=True)
+                    if scroll_caps():
+                        # A choice's row grows to as many lines as its label needs (one_popup.h): only the sanity
+                        # cap counts, never the screen's width.
+                        if len(label) > LONG_LINE_BYTES:
+                            problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters "
+                                            f"with the longest names; at most {LONG_LINE_BYTES}")
+                            continue
+                        # Only its length is free: a single word wider than the screen cannot wrap.
+                        wide, word = widest_word(label, lambda w: label_px(gn, w))
+                        if wide > label_max_px(gn):
+                            problems.append(f"{game.name}: the label {c['label']!r} has a word ({word[:24]!r}) that "
+                                            f"runs off the screen with the longest names ({wide} of "
+                                            f"{label_max_px(gn)} pixels)")
+                        continue
                     if not label_fits(gn, label):
                         # Section 15: the engine shows the names as pronouns when they do not fit.
                         fallback = worst_v6(c["label"], lg_labels, game, None, pronoun_names=True, label=True)
@@ -3542,7 +3627,7 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
                             continue
                     if len(label) > LABEL_BYTES_V6:
                         problems.append(f"{game.name}: the label {c['label']!r} is {len(label)} characters with "
-                                        f"the longest names; at most {LABEL_BYTES_V6}")
+                                        f"the longest names; at most {LABEL_BYTES_V6}" + _without_scrolling())
                     elif label_px(gn, label) > label_max_px(gn):
                         problems.append(f"{game.name}: the label {c['label']!r} runs off the screen with the "
                                         f"longest names ({label_px(gn, label)} of {label_max_px(gn)} pixels)")
@@ -3570,6 +3655,12 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
     for ctx in contexts(g):
         paths = walk(g, ctx, problems)
         problems.extend(x for x in fit_problems(g, paths, scrolling) if x not in problems)
+    if not problems:
+        # The file the game reads: at most MAX_FILE_BYTES (the library's scan refuses a larger one).
+        size = len(compile_graph(g))
+        if size > MAX_FILE_BYTES:
+            problems.append(f"the event's file would be {size:,} bytes; the game reads at most {MAX_FILE_BYTES:,} "
+                            "(shorten some texts or split the event)")
     return g, problems
 
 
