@@ -180,6 +180,8 @@ PATCHER_SETTINGS: frozenset[str] = frozenset({
     "VVFP VV4 Louder Flutes.txt",
     "VVFP Island Frequency.txt",
     "VVFP Unicode Font.txt",
+    # Village Solidarity's strength (the row's slider), beside "VVFP Village Solidarity.dll".
+    "VVFP Village Solidarity.txt",
 })
 
 _IN_PLACE = {key.casefold() for key in GAME_READS_IN_PLACE}
