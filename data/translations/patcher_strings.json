@@ -73090,6 +73090,76 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.MIE_NOTE_ADVENTURER.s0",
+   "english": "Content note: Bereavement, Disappearance, Emotional distress",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.MIE_NOTE_CLIMB.s0",
+   "english": "Content note: Bereavement",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.MIE_NOTE_DIVING.s0",
+   "english": "Content note: Bereavement, Disappearance",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.MIE_NOTE_DOLPHINS.s0",
+   "english": "Content note: Serious injury",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.MIE_NOTE_MASK.s0",
+   "english": "Content note: Child death, Disappearance",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
   }
  ]
 }
