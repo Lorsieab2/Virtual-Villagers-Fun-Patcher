@@ -1699,13 +1699,15 @@ def main() -> None:
             jne running_dislike_loop
             jmp detail_success
 
+        # The age is MOVED: the lived age (+0x34C, the life loop's cursor at
+        # 0x42EC74) and a running conception mark (+0x358) move by the same
+        # delta as the shown age (+0x348), as the stock age change at
+        # 0x419543-0x4195BE does -- so the life loop neither replays the
+        # years at once nor skips them, and a pregnancy stays as far along.
         detail_age_18:
-            mov dword ptr [edx + 0x348], 360
-            mov dword ptr [edx + 0x34C], 360
-            cmp dword ptr [edx + 0x358], 0
-            je detail_success
-            mov dword ptr [edx + 0x358], 318
-            jmp detail_success
+            mov eax, 360
+            sub eax, dword ptr [edx + 0x348]
+            jmp detail_shift_age
 
         detail_youth:
             mov eax, dword ptr [edx + 0x348]
@@ -1714,16 +1716,13 @@ def main() -> None:
             jge detail_youth_ready
             mov eax, 100
         detail_youth_ready:
-            mov dword ptr [edx + 0x348], eax
+            sub eax, dword ptr [edx + 0x348]
+        detail_shift_age:
+            add dword ptr [edx + 0x348], eax
+            add dword ptr [edx + 0x34C], eax
             cmp dword ptr [edx + 0x358], 0
-            je detail_youth_not_pregnant
-            lea ecx, [eax - 1]
-            mov dword ptr [edx + 0x34C], ecx
-            sub eax, 42
-            mov dword ptr [edx + 0x358], eax
-            jmp detail_success
-        detail_youth_not_pregnant:
-            mov dword ptr [edx + 0x34C], eax
+            je detail_success
+            add dword ptr [edx + 0x358], eax
             jmp detail_success
 
         detail_mastery:
@@ -2376,14 +2375,8 @@ def main() -> None:
             pop eax
             ret
         preflight_age_check:
+            # Already 18: the age moves by nothing (detail_shift_age).
             cmp dword ptr [edx + 0x348], 360
-            jne preflight_change
-            cmp dword ptr [edx + 0x34C], 360
-            jne preflight_change
-            mov eax, dword ptr [edx + 0x358]
-            test eax, eax
-            je preflight_no_change
-            cmp eax, 318
             jne preflight_change
             jmp preflight_no_change
 
@@ -2396,18 +2389,6 @@ def main() -> None:
             mov eax, 100
         preflight_youth_target:
             cmp ecx, eax
-            jne preflight_change
-            cmp dword ptr [edx + 0x358], 0
-            jne preflight_youth_pregnant
-            cmp dword ptr [edx + 0x34C], eax
-            jne preflight_change
-            jmp preflight_no_change
-        preflight_youth_pregnant:
-            lea ecx, [eax - 1]
-            cmp dword ptr [edx + 0x34C], ecx
-            jne preflight_change
-            sub eax, 42
-            cmp dword ptr [edx + 0x358], eax
             jne preflight_change
             jmp preflight_no_change
 

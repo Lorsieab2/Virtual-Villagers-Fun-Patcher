@@ -469,10 +469,18 @@ int __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
     return 1;
 }
 
-/* Set every eligible villager's raw age field (+0x530) to exactly 360 (18
-   years) regardless of current age.  Per the spec this touches ONLY the raw age
-   field -- never the paired age field or pregnancy timer.  Returns 1 if any
-   villager changed (so the Tech menu charges), 0 if all were already 18. */
+/* Set every eligible villager's age (+0x530) to exactly 360 (18 years)
+   regardless of current age.  The age is MOVED, not just written: the lived
+   age (+0x534, the life loop's cursor -- 0x43BA92 steps every villager whose
+   +0x534 is behind +0x530 one unit at a time until none is, all in one
+   update, job turns included) and a running conception mark (+0x540, the
+   lived age at the conception; the birth is due 40 units later) move by the
+   same delta, as the stock age change does (VV1 0x419543-0x4195BE).  Written
+   alone, as until v1.35.97, a child made 18 lived every missing year at once
+   (New Believers live, 2026-11-20: four to seven conceptions and births each
+   at shown age 360) and an elder stopped living until the age caught up.
+   Returns 1 if any villager changed (so the Tech menu charges), 0 if all were
+   already 18. */
 int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
     int changed = 0, already = 0;
     int i;
@@ -487,7 +495,12 @@ int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
         }
         age = (int *)(record + 0x530);
         if (*age != 360) {
+            int delta = 360 - *age;
             *age = 360;
+            *(int *)(record + 0x534) += delta;
+            if (*(int *)(record + 0x540) != 0) {
+                *(int *)(record + 0x540) += delta;
+            }
             ++changed;
         } else {
             ++already;
