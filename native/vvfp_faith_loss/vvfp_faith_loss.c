@@ -6,18 +6,25 @@
    nearly everyone over a long famine), and 1 in 10.  A Heathen is skipped by the life tick (0x472CB7): it never
    eats, starves, falls ill or loses health, so a believer the drift turns Heathen escapes hunger and sickness.
 
-   THE RULE.  The row's exe bytes count the drift 0x468040's food and sickness losses in ebp and send its final
-   FAITH_ADD through a cave that first calls a rule (scripts/build_apprentice_faith_puddles_features.py: the call
-   at 0x494F14, whose own target 0x494F28 is the rule without this companion).  This companion takes that call:
-     * a marked believer whose crisis is over -- food above 250 ([0x51D34C], so no food roll can apply) and not
-       sick (+0x1C48) -- is unmarked first;
-     * a fall (the sum esi < 0) with food or sickness losses in it (ebp > 0) that takes Faith to 0 or less, where
-       the drift's other changes alone (esi + ebp) would leave Faith above 0, is the low food or sickness taking the
-       last Faith: a marked believer stays at Faith 1 (the sum becomes 1 - Faith); an unmarked one is decided now,
-       once -- rand(10) < 1 (the game's own rand, 0x403660) the fall is made and the believer becomes a Heathen
-       as before; otherwise the believer is marked and stays at Faith 1;
-     * anything else is the drift's own sum: rises, falls that leave Faith above 0, and falls the other changes
-       ("too few believers") make on their own.
+   The owner (2026-11-20, after a small village's believers left far more than they died): once per villager PER
+   CAUSE per crisis, with "too few believers" a crisis too.  Four causes: starvation (food under 10), hunger (food
+   10 to 250), sickness, too few believers (fewer than 12, carried babies counted).
+
+   THE RULE.  The row's exe bytes say in ebp which losses the drift 0x468040 made (bit 0 a food loss, bit 1 the
+   sickness loss; too few believers' loss, the last, complements ebp: scripts/build_apprentice_faith_puddles_
+   features.py FAITH_LOSS_MARKS) and send its final FAITH_ADD through a cave that first calls a rule (the call at
+   0x494F14, whose own target 0x494F28 is the rule without this companion).  This companion takes that call:
+     * each cause a believer is marked for whose crisis is over is unmarked first, on its own: starvation and
+       hunger when food ([0x51D34C]) is above 250, sickness when not sick (+0x1C48), too few believers when the
+       game's own count (0x4713F0 on the manager the drift names at 0x46815F) is 12 or more;
+     * a fall (the sum esi < 0) that takes Faith to 0 or less: the gains are taken first, then the losses one by
+       one in the drift's order (the food loss -- starvation or hunger by the food now -- sickness, too few
+       believers).  The loss that would take the last Faith is its cause's: a cause the believer is marked for
+       holds them at Faith 1 (that loss is not made); an unmarked one is decided now, once -- rand(10) < 1 (the
+       game's own rand, 0x403660) the drift's own sum is made and the believer becomes a Heathen as before;
+       otherwise the believer is marked for that cause and held at Faith 1.  A later loss of another cause in
+       the same drift is decided the same way;
+     * anything else is the drift's own sum: rises and falls that leave Faith above 0.
    A marked believer keeps eating, starving, falling ill and losing health in the life tick like any believer, so
    starvation or sickness kills them as usual.  It is the one place all of it runs -- live, in the load-time
    catch-up, a Time Warp and Choose Time Skip Amount -- since the life tick (0x472D17) is the drift's only caller.
@@ -39,8 +46,10 @@
    above, so a renamed villager's mark is carried, never pruned).  Start Over deletes
    the save's folder, and the file with it (native/shared/save_reset.c).  The save itself is never written.
 
-   FORMAT (little-endian): u32 magic 'VFK1', u32 version 1, u32 game 5, u32 slot, u32 count (0..FL_MARKS_MAX),
-   then `count` entries of 5 u32: identity, record (0..255), keep, stable, age.  Exactly 20 + 20 * count bytes.
+   FORMAT (little-endian): u32 magic 'VFK1', u32 version 2, u32 game 5, u32 slot, u32 count (0..FL_MARKS_MAX),
+   then `count` entries of 6 u32: identity, record (0..255), keep, stable, age, causes (FL_STARVATION ..
+   FL_TOO_FEW, 1 or more).  Exactly 20 + 24 * count bytes.  A version 1 file (entries of 5 u32, one mark for food
+   and sickness together) is read with its marks for starvation, hunger and sickness, and written as version 2.
 
    SAFETY.  One call site, in the row's own cave, checked to hold the row's bytes before it is written (all or
    none, native/shared/install_sites.h).  Our steps run under structured exception handling: a fault gives the
@@ -61,8 +70,22 @@
 #define FL_RAND 0x403660u
 #define FL_FOOD 0x51D34Cu
 #define FL_CRISIS_FOOD 250              /* food above this: no food roll applies */
+#define FL_STARVING 10                  /* food under this: starvation (the drift's own boundary, 0x468044) */
 #define FL_DECIDE 10                    /* rand(10) < 1: the believer becomes a Heathen */
 #define FL_CONVERTS 1
+#define FL_FEW 12                       /* fewer believers than this: too few (0x468174) */
+#define FL_BELIEVERS 0x4713F0u          /* the game's believer count (thiscall on the villager manager) */
+#define FL_BELIEVERS_MANAGER 0x46815Fu  /* the drift's `mov ecx, <manager>` immediate */
+
+/* The causes (a mark's bits). */
+#define FL_STARVATION 1u
+#define FL_HUNGER 2u
+#define FL_SICKNESS 4u
+#define FL_TOO_FEW 8u
+#define FL_CAUSES 15u
+/* ebp from the drift: bit 0 a food loss, bit 1 the sickness loss; complemented (< 0) for too few believers. */
+#define FL_LOST_FOOD 1
+#define FL_LOST_SICK 2
 
 /* New Believers' villager record. */
 #define REC_FIRST 0x48u
@@ -83,7 +106,9 @@
 
 #define FL_MARKS_MAX 256
 #define FL_MAGIC 0x314B4656u            /* 'VFK1' */
-#define FL_VERSION 1u
+#define FL_VERSION 2u
+#define FL_VERSION_1 1u                 /* entries of 5 u32, one mark for food and sickness */
+#define FL_ENTRY_1 20u
 #define FL_HEADER 20u
 #define FL_RESERVE ((int)sizeof(".unreadable-4294967295-999"))   /* sidecar_io.h's set-aside name */
 
@@ -95,6 +120,7 @@ typedef struct {
     unsigned int keep;                  /* the name and sex (what a likes / dislikes change leaves) */
     unsigned int stable;                /* the likes, dislikes and sex (what a rename leaves) */
     int age;                            /* the age last seen */
+    unsigned int causes;                /* the crises the villager was decided to stay through */
 } fl_mark;
 
 static int g_installed;
@@ -128,7 +154,15 @@ static fl_mark mark_of(const unsigned char *rec, int index) {
     m.keep = keep_of(rec);
     m.stable = stable_of(rec);
     m.age = *(const int *)(rec + REC_AGE);
+    m.causes = 0;
     return m;
+}
+
+/* Carry mark `m` to who its villager is `now`, keeping its causes. */
+static void carry(fl_mark *m, const fl_mark *now) {
+    unsigned int causes = m->causes;
+    *m = *now;
+    m->causes = causes;
 }
 
 /* Whether mark `m` is the villager `now` (see THE FILE): the same identity, or in the same record, not younger,
@@ -146,13 +180,13 @@ static int marked_at(const unsigned char *rec, int index) {
     int i;
     for (i = 0; i < g_count; ++i) {
         if (g_marks[i].identity == now.identity) {
-            g_marks[i] = now;
+            carry(&g_marks[i], &now);
             return i;
         }
     }
     for (i = 0; i < g_count; ++i) {
         if (mark_is(&g_marks[i], &now)) {
-            g_marks[i] = now;              /* renamed or re-liked: the mark follows them */
+            carry(&g_marks[i], &now);      /* renamed or re-liked: the mark follows them */
             return i;
         }
     }
@@ -207,11 +241,27 @@ static int marks_path(int slot, char *out, int make) {
 
 static int valid_file(const unsigned char *data, DWORD len, void *ctx) {
     const unsigned int *u = (const unsigned int *)data;
-    if (len < FL_HEADER || u[0] != FL_MAGIC || u[1] != FL_VERSION || u[2] != FL_GAME
+    if (len < FL_HEADER || u[0] != FL_MAGIC || (u[1] != FL_VERSION && u[1] != FL_VERSION_1) || u[2] != FL_GAME
         || u[3] != (unsigned int)*(const int *)ctx || u[4] > FL_MARKS_MAX) {
         return 0;
     }
-    return len == FL_HEADER + sizeof(fl_mark) * u[4];
+    return len == FL_HEADER + (u[1] == FL_VERSION ? sizeof(fl_mark) : FL_ENTRY_1) * u[4];
+}
+
+/* The file's marks (`data`, checked by valid_file) into g_marks: a version 1 mark (food and sickness together)
+   is marked for starvation, hunger and sickness. */
+static void take_file(const unsigned char *data) {
+    const unsigned int *u = (const unsigned int *)data;
+    int i;
+    g_count = (int)u[4];
+    if (u[1] == FL_VERSION) {
+        memcpy(g_marks, data + FL_HEADER, sizeof(fl_mark) * (unsigned int)g_count);
+        return;
+    }
+    for (i = 0; i < g_count; ++i) {
+        memcpy(&g_marks[i], data + FL_HEADER + FL_ENTRY_1 * (unsigned int)i, FL_ENTRY_1);
+        g_marks[i].causes = FL_STARVATION | FL_HUNGER | FL_SICKNESS;
+    }
 }
 
 /* 1 while the slot's file could not be read (locked, a read failed, its folder not known yet): the load is
@@ -238,15 +288,16 @@ static void read_marks(int slot, int merge) {
     } else {
         status = vv_sidecar_load(&g_gate, path, g_buffer, sizeof g_buffer, &got, valid_file, &slot);
         if (status == VV_SIDECAR_LOAD_VALID) {
-            g_count = (int)((const unsigned int *)g_buffer)[4];
-            memcpy(g_marks, g_buffer + FL_HEADER, sizeof(fl_mark) * (unsigned int)g_count);
+            take_file(g_buffer);
         }
         g_load_blocked = status == VV_SIDECAR_LOAD_BLOCKED;
     }
     for (i = 0; i < kept; ++i) {
         for (k = 0; k < g_count && g_marks[k].identity != pending[i].identity; ++k) {
         }
-        if (k == g_count && g_count < FL_MARKS_MAX) {
+        if (k < g_count) {
+            g_marks[k].causes |= pending[i].causes;
+        } else if (g_count < FL_MARKS_MAX) {
             g_marks[g_count++] = pending[i];
         }
     }
@@ -306,8 +357,9 @@ static void keep_living(void) {
                 found = k;
             }
         }
-        if (found >= 0) {
-            g_marks[kept++] = now[found];
+        if (found >= 0 && (g_marks[i].causes & FL_CAUSES) != 0) {
+            carry(&g_marks[i], &now[found]);
+            g_marks[kept++] = g_marks[i];
         }
     }
     g_count = kept;
@@ -400,35 +452,102 @@ static int record_index(const unsigned char *rec) {
     return offset % REC_STRIDE == 0 && offset / REC_STRIDE < (UINT_PTR)g_slots ? (int)(offset / REC_STRIDE) : -1;
 }
 
-static int __cdecl faith_rule(unsigned char *rec, int sum, int losses) {
+/* 0x4713F0 is a thiscall with no stack arguments (the drift: mov ecx, <manager>; call): a fastcall's ecx, with edx
+   unused, is the same call. */
+typedef int (__fastcall *believers_fn)(void *manager, int unused);
+
+/* The game's own believer count (the drift's, 0x4713F0 on the manager it names). */
+static int believers_now(void) {
+    void *manager = *(void *const *)(UINT_PTR)FL_BELIEVERS_MANAGER;
+    return ((believers_fn)(UINT_PTR)FL_BELIEVERS)(manager, 0);
+}
+
+/* The causes of the marked villager `at` whose crises are over. */
+static unsigned int crises_over(int at, const unsigned char *rec) {
+    unsigned int causes = g_marks[at].causes, over = 0;
+    if ((causes & (FL_STARVATION | FL_HUNGER)) && *(const volatile int *)(UINT_PTR)FL_FOOD > FL_CRISIS_FOOD) {
+        over |= FL_STARVATION | FL_HUNGER;
+    }
+    if ((causes & FL_SICKNESS) && rec[REC_SICK] == 0) {
+        over |= FL_SICKNESS;
+    }
+    if ((causes & FL_TOO_FEW) && believers_now() >= FL_FEW) {
+        over |= FL_TOO_FEW;
+    }
+    return causes & over;
+}
+
+static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
     int result = sum;
     __try {
-        int at, faith, index;
+        unsigned int order[3], held, made_marks = 0;
+        int at, faith, index, losses = 0, level, i, too_few;
         bind_slot();
         index = record_index(rec);
         at = marked_at(rec, index);
-        if (at >= 0 && *(const volatile int *)(UINT_PTR)FL_FOOD > FL_CRISIS_FOOD && rec[REC_SICK] == 0) {
-            g_marks[at] = g_marks[--g_count];      /* the crisis is over: the next one is decided afresh */
-            at = -1;
-            write_marks();
+        if (at >= 0) {
+            unsigned int over = crises_over(at, rec);
+            if (over != 0) {                       /* each crisis over on its own: the next is decided afresh */
+                g_marks[at].causes &= ~over;
+                if (g_marks[at].causes == 0) {
+                    g_marks[at] = g_marks[--g_count];
+                    at = -1;
+                }
+                write_marks();
+                if (at >= 0) {
+                    at = marked_at(rec, index);    /* write_marks may have moved it */
+                }
+            }
         }
         faith = *(const int *)(rec + REC_FAITH);
-        if (sum >= 0 || losses <= 0 || faith + sum > 0 || faith + sum + losses <= 0) {
-            return sum;                            /* not the low food or sickness taking the last Faith */
+        if (sum >= 0 || faith + sum > 0) {
+            return sum;                            /* no loss takes the last Faith */
         }
-        if (at < 0) {
-            if (((rand_fn)(UINT_PTR)FL_RAND)(FL_DECIDE) < FL_CONVERTS) {
-                return sum;                        /* 1 in 10: a Heathen, as before */
-            }
-            if (g_count >= FL_MARKS_MAX) {
-                keep_living();                     /* a dead or replaced villager's mark frees its place (Codex, #732) */
-            }
-            if (g_count < FL_MARKS_MAX) {
-                g_marks[g_count++] = mark_of(rec, index);
-                write_marks();
+        /* The losses, in the drift's order. */
+        too_few = lost < 0;
+        if (too_few) {
+            lost = ~lost;
+        }
+        if (lost & FL_LOST_FOOD) {
+            order[losses++] = *(const volatile int *)(UINT_PTR)FL_FOOD < FL_STARVING ? FL_STARVATION : FL_HUNGER;
+        }
+        if (lost & FL_LOST_SICK) {
+            order[losses++] = FL_SICKNESS;
+        }
+        if (too_few) {
+            order[losses++] = FL_TOO_FEW;
+        }
+        level = faith + sum + losses;              /* the Faith after the gains alone */
+        if (losses == 0 || faith <= 0 || level <= 0) {
+            return sum;
+        }
+        held = at >= 0 ? g_marks[at].causes : 0;
+        for (i = 0; i < losses; ++i) {
+            if (level > 1) {
+                --level;                           /* not the last Faith: the loss is made */
+            } else if ((held & order[i]) == 0) {
+                if (((rand_fn)(UINT_PTR)FL_RAND)(FL_DECIDE) < FL_CONVERTS) {
+                    return sum;                    /* 1 in 10: a Heathen, as before (no mark needed) */
+                }
+                held |= order[i];                  /* 9 in 10: marked for this cause, held at Faith 1 */
+                made_marks |= order[i];
             }
         }
-        result = 1 - faith;                        /* stays a believer, at Faith 1 */
+        if (made_marks) {
+            if (at < 0) {
+                if (g_count >= FL_MARKS_MAX) {
+                    keep_living();                 /* a dead or replaced villager's mark frees its place (Codex, #732) */
+                }
+                if (g_count < FL_MARKS_MAX) {
+                    g_marks[g_count] = mark_of(rec, index);
+                    g_marks[g_count++].causes = made_marks;
+                }
+            } else {
+                g_marks[at].causes |= made_marks;
+            }
+            write_marks();
+        }
+        result = level - faith;                    /* stays a believer, at Faith `level` (1 or more) */
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         result = sum;
     }
@@ -483,7 +602,8 @@ int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, con
         fl_mark was = mark_of((const unsigned char *)before, index);
         for (i = 0; i < g_count && !carried; ++i) {
             if (g_marks[i].identity == was.identity || mark_is(&g_marks[i], &was)) {
-                g_marks[i] = mark_of(rec, index);
+                fl_mark now = mark_of(rec, index);
+                carry(&g_marks[i], &now);
                 carried = 1;
             }
         }

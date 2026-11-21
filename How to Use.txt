@@ -1412,13 +1412,16 @@ food, sickness, fewer than 12 believers) and every roll that gives Faith is
 half as likely (plenty of food, the Tribute Statue, Spirituality, a big
 tribe). A falling believer near 0 is no longer protected, so Faith can reach
 0 and the believer becomes a Heathen, as in the normal game. But a Heathen
-never eats, starves or falls ill, so the first time hunger or sickness would
-make a believer a Heathen, it is decided once for that believer: 1 in 10
-becomes a Heathen; the other 9 in 10 stay believers at Faith 1 (hunger and
-sickness never take them lower) and can starve or die of illness as usual.
-That lasts until they are fed (more than 250 food) and well; a later crisis
-is decided again. The patch keeps this in its own file in the save's folder,
-so saving and loading keeps it. Too few believers takes Faith as before.
+never eats, starves or falls ill. There are four crises: starvation (under
+10 food), hunger (10 to 250 food), sickness, and too few believers (fewer
+than 12). The first time one of them would make a believer a Heathen, it is
+decided once for that believer and that crisis: 1 in 10 becomes a Heathen;
+the other 9 in 10 stay believers at Faith 1 (that crisis never takes them
+lower) and can starve or die of illness as usual. Each crisis ends on its
+own: starvation and hunger when there is more than 250 food, sickness when
+cured, too few believers at 12 or more; a later crisis is decided again. The
+patch keeps this in its own file in the save's folder, so saving and loading
+keeps it.
 Preaching and everything else that changes Faith are unchanged. Adds a real
 chance of your villagers becoming heathens. Makes the game that much harder.
 Good Luck!

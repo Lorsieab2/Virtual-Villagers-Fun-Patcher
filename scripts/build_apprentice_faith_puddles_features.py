@@ -57,22 +57,22 @@ STARVING AND SICK BELIEVERS MOSTLY DIE RATHER THAN LEAVE (part of the same row; 
 "villagers should preferentially die if their faith decrease-turn heathen is due to starvation or disease ... so
 most starving villagers die / most sick people die instead of them all turning heathen"; then: decided once per
 villager per crisis, 1 in 10).  A Heathen is skipped by the life tick (0x472CB7): it never eats, starves, falls
-ill or loses health, so a believer the drift turns Heathen is out of reach of hunger and sickness.  The rule, per
-villager: the first time a believer's Faith would reach 0 or less because of the food roll (under 10, or 10 to
-250) or the sickness roll -- the drift's other changes alone would leave Faith above 0 -- it is decided once:
-1 in 10 the believer becomes a Heathen as before; 9 in 10 the believer is marked to stay.  While marked, food and
-sickness losses never take that believer below Faith 1 (other changes, "too few believers" included, apply as
-stock); the mark clears at the first age unit with food above 250 and the believer not sick, so a later crisis
-is decided afresh.  The marks are kept by the row's companion, "VVFP Faith Loss.dll" (native/vvfp_faith_loss), in
-the save's own folder, by villager identity.
+ill or loses health, so a believer the drift turns Heathen is out of reach of hunger and sickness.  The owner
+(2026-11-20, after believers left a small village far more than they died): once per villager PER CAUSE per
+crisis, and "too few believers" is a crisis too.  The rule, per villager: four causes -- starvation (food under
+10), hunger (food 10 to 250), sickness, too few believers (fewer than 12, carried babies counted).  The first time
+one of them would take a believer's last Faith, it is decided once for that cause: 1 in 10 the believer becomes a
+Heathen as before; 9 in 10 the believer is marked for that cause, which then never takes them below Faith 1.  Each
+cause's crisis ends on its own (starvation and hunger: food above 250; sickness: cured; too few believers: 12 or
+more), so a later crisis of that kind is decided afresh.  The marks are kept by the row's companion, "VVFP Faith
+Loss.dll" (native/vvfp_faith_loss), in the save's own folder, by villager identity.
 
-How: the routine keeps a count of the food and sickness losses in ebp, which it does not otherwise use (saved
-and zeroed by an entry cave at 0x494F00; the three loss sites `or esi,-1` / `sub esi,1` become `dec esi; inc
-ebp` -- esi is 0 at both food sites; the epilogue pops it), and its final FAITH_ADD (0x4681DB) goes through a
-cave at 0x494F14 whose first instruction calls the rule (esi the sum, ebp the food and sickness losses, ebx the
-record; it returns the sum to apply in esi).  The companion redirects that call to its own rule (the marks); the
-call's own target, the cave's fallback at 0x494F28, is used only when the companion is not there: the same
-decision made each time instead of once per crisis (1 in 10 converts, else Faith 1).
+How: the routine says in ebp, which it does not otherwise use (saved and zeroed by an entry cave at 0x494F00; the
+epilogue pops it), which losses it made: FAITH_LOSS_MARKS.  Its final FAITH_ADD (0x4681DB) goes through a cave at
+0x494F14 whose first instruction calls the rule (esi the sum, ebp the losses, ebx the record; it returns the sum to
+apply in esi).  The companion redirects that call to its own rule (the marks); the call's own target, the cave's
+fallback at 0x494F28, is used only when the companion is not there: every fall to 0 or less decided each time
+(1 in 10 converts, else Faith 1).
 
 NEW HEATHENS GET A HEATHEN'S FAITH (the owner, 2026-11-08: "Once they turn heathen, have their faith randomly set
 to the typical blue heathen threshold" and "Blue heathen ranges only. NOT CHIEF/ORANGE/RED ETC (READ THE MASK
@@ -279,14 +279,21 @@ FAITH_ENTRY_CAVE, FAITH_TAIL_CAVE, FAITH_RULE_CAVE = 0x494F00, 0x494F14, 0x494F2
 FAITH_STAY_ROLL, FAITH_STAY_CONVERTS = 10, 1        # decided once a crisis: a Heathen on rand(10) < 1
 FAITH_COMPANION = "VVFP Faith Loss.dll"
 FAITH_COMPANION_SOURCE = "assets/faith_loss/VVFP Faith Loss.dll"
-# The three food and sickness loss sites: (va, stock, patched, purpose).  esi is 0 at both food sites (nothing has
-# been added yet), so `dec esi` is the stock `or esi,-1`.
+# The four loss sites: (va, stock, patched, purpose).  ebp says which losses the drift made, in the drift's own order:
+# bit 0 a food loss (at most one: both food sites jump past the other), bit 1 the sickness loss, and -- the last loss
+# -- too few believers turns ebp into its complement (`not ebp`, so ebp < 0, and ~ebp gives the two bits back).  esi
+# is 0 at both food sites (nothing has been added yet), so `dec esi` is the stock `or esi,-1`.  The believers' 9
+# bytes at 0x468179 (FAITH_EDITS) stay as VVFP Faith Notice.dll knows them.
 FAITH_LOSS_MARKS = (
     (0x46805E, "83CEFFEB40", "4E4590EB40",
-     "food under 10, the roll hit: or esi,-1 -> dec esi; inc ebp (one food loss counted); the jmp is kept"),
+     "food under 10, the roll hit: or esi,-1 -> dec esi; inc ebp (ebp bit 0: a food loss); the jmp is kept"),
     (0x46807E, "83CEFFEB20", "4E4590EB20",
      "food 10..250 (or under 10 when its first roll missed), the roll hit: or esi,-1 -> dec esi; inc ebp"),
-    (0x4680BB, "83EE01", "4E4590", "a sick believer, the roll hit: sub esi,1 -> dec esi; inc ebp"),
+    (0x4680BB, "83EE01", "4E4545", "a sick believer, the roll hit: sub esi,1 -> dec esi; inc ebp; inc ebp (ebp bit 1: "
+     "the sickness loss)"),
+    (0x468184, "83EE01EB19", "4EF7D5EB19",
+     "fewer than 12 believers, the roll hit: sub esi,1 -> dec esi; not ebp (ebp < 0: too few believers' loss, ~ebp "
+     "the food and sickness bits); the jmp is kept"),
 )
 
 
@@ -315,20 +322,15 @@ def faith_tail_cave() -> bytes:
 
 
 def faith_rule_cave() -> bytes:
-    """The rule without the companion: a fall to 0 or less that the food or sickness losses (ebp) cause -- the
-    other changes alone (esi + ebp) leave Faith above 0 -- is made on rand(10) < 1, else Faith is left at 1."""
+    """The rule without the companion: a fall that takes Faith to 0 or less (every fall is the drift's losses:
+    starvation, hunger, sickness or too few believers) is made on rand(10) < 1, else Faith is left at 1."""
     return asm(f"""
         test esi,esi
         jge done
-        test ebp,ebp
-        je done
         mov eax,dword ptr [ebx+0x1cf0]
         add eax,esi
         test eax,eax
         jg done
-        add eax,ebp
-        test eax,eax
-        jle done
         push {FAITH_STAY_ROLL}
         call 0x403660
         add esp,4
@@ -348,7 +350,7 @@ def faith_stay_patches() -> list[dict]:
     out = [
         patch(5, DRIFT_ENTRY, asm(f"jmp {FAITH_ENTRY_CAVE:#x}", DRIFT_ENTRY) + b"\x90" * 6,
               "the drift's entry (push ebx; push esi; xor esi,esi; cmp [food],10) -> jmp the entry cave 0x494F00, "
-              "which also saves and zeroes ebp, the count of food and sickness losses"),
+              "which also saves and zeroes ebp, which losses the drift made (FAITH_LOSS_MARKS)"),
     ]
     out += [patch(5, va, bytes.fromhex(after), purpose, bytes.fromhex(before))
             for va, before, after, purpose in FAITH_LOSS_MARKS]
@@ -365,9 +367,8 @@ def faith_stay_patches() -> list[dict]:
               "the tail cave: call the rule (0x494F28; VVFP Faith Loss.dll redirects this call to its per-villager "
               "rule), then FAITH_ADD(esi) and the epilogue", bytes(len(tail))),
         patch(5, FAITH_RULE_CAVE, rule,
-              "the rule without the companion: a fall (esi < 0) that the food or sickness losses (ebp) take to 0 or "
-              "less, the rest alone leaving Faith above 0, is made on rand(10) < 1; otherwise esi = 1 - Faith "
-              "(the believer stays at Faith 1)", bytes(len(rule))),
+              "the rule without the companion: a fall (esi < 0) that takes Faith to 0 or less is made on "
+              "rand(10) < 1; otherwise esi = 1 - Faith (the believer stays at Faith 1)", bytes(len(rule))),
     ]
     return out
 
@@ -383,14 +384,16 @@ def faith_feature() -> dict:
         "stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); "
         "12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer "
         "skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, "
-        "as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Starving and sick believers "
-        "mostly die rather than leave: a Heathen never eats, starves or falls ill, so the first time low food or "
-        "sickness would take a believer's Faith to 0, it is decided once for that believer: 1 in 10 becomes a "
-        "Heathen; the other 9 in 10 stay believers, never pushed below Faith 1 by low food or sickness, and go on "
-        "facing hunger and sickness as usual, so they can starve or die of illness. That lasts until the crisis is "
-        "over for them (food above 250 and not sick); a later crisis is decided afresh. It is remembered through "
-        "saving and loading, by the patch's own file in the save's folder. Too few believers takes Faith as before. "
-        "Preaching, Spreading the Word, "
+        "as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Believers in a crisis mostly "
+        "stay and die rather than leave: a Heathen never eats, starves or falls ill. There are four crises, each "
+        "with its own roll: starvation (food under 10), hunger (food 10 to 250), sickness, and too few believers "
+        "(fewer than 12, the babies they carry counted). The first time one of them would take a believer's last "
+        "Faith, it is decided once for that believer and that crisis: 1 in 10 becomes a Heathen; the other 9 in 10 "
+        "stay believers, and that crisis never takes them below Faith 1 again, so they go on facing hunger and "
+        "sickness as usual and can starve or die of illness. Each crisis ends on its own: starvation and hunger when "
+        "food is above 250 again, sickness when the villager is cured, too few believers when there are 12 or more "
+        "believers again; a later crisis of that kind is decided afresh. It is remembered through saving and "
+        "loading, by the patch's own file in the save's folder. Preaching, Spreading the Word, "
         "island events and every other Faith change are unchanged. Adds a real chance of your "
         "villagers becoming heathens. Makes the game that much harder. Good Luck!")
     return {
@@ -408,22 +411,27 @@ def faith_feature() -> dict:
             "a fall below Faith 5 (0x4681A7) removed. The rise skip above 75 (70%) is unchanged.",
             "A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock "
             "game.",
-            "Starving and sick believers mostly die rather than leave, decided once per villager per crisis: the first "
-            "time the drift's food losses (0x46805E, 0x46807E) or sickness loss (0x4680BB) would take a believer to "
-            "Faith 0 or less -- its other changes alone leaving Faith above 0 -- VVFP Faith Loss.dll (at the tail "
-            "cave's call 0x494F14, before the FAITH_ADD 0x4681DB) makes the fall on rand(10) < 1, else marks the "
-            "villager; while marked, food and sickness losses never take them below Faith 1 (FAITH_ADD(1 - Faith) at "
-            "most), and the life tick goes on with its hunger and sickness (0x472D66 on) as for any believer. The "
-            "mark clears at the first age unit with food above 250 and the villager not sick.",
-            "The marks are kept by villager identity (name, likes and dislikes) in <save folder>\\Virtual Villagers "
-            "Fun Patcher\\Save <S>\\Data\\Faith Loss\\Believers Kept - Save <S>.dat, written when a mark is made "
-            "or cleared and read for the slot the game loads (before its catch-up); only living believers are kept. "
-            "Start Over deletes it with the save's folder.",
-            "Without the companion the cave's own rule (0x494F28) decides each such fall alone: 1 in 10 converts, "
-            "else Faith 1.",
+            "Believers in a crisis mostly stay rather than leave, decided once per villager per cause per crisis. The "
+            "four loss sites (food 0x46805E, 0x46807E; sickness 0x4680BB; too few believers 0x468184) say in ebp "
+            "which losses the drift made. VVFP Faith Loss.dll (at the tail cave's call 0x494F14, before the "
+            "FAITH_ADD 0x4681DB) takes the gains first and then the losses in the drift's order (food -- starvation "
+            "under 10, hunger 10 to 250 -- then sickness, then too few believers); the loss that would take the last "
+            "Faith is that cause's: decided once on rand(10) < 1 (the fall is made, a Heathen), else the villager is "
+            "marked for that cause; a cause the villager is marked for never takes them below Faith 1. The life tick "
+            "goes on with its hunger and sickness (0x472D66 on) as for any believer.",
+            "Each cause's mark clears on its own at the villager's next drift: starvation and hunger when food is "
+            "above 250, sickness when not sick (+0x1C48), too few believers when the game's own count (0x4713F0, the "
+            "manager the drift names at 0x46815F) is 12 or more.",
+            "The marks are kept by villager identity (name, likes and dislikes), with the causes, in <save "
+            "folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Faith Loss\\Believers Kept - Save <S>.dat, "
+            "written when a mark is made or cleared and read for the slot the game loads (before its catch-up); only "
+            "living believers are kept. A version 1 file (one mark for food and sickness) is read as marked for "
+            "starvation, hunger and sickness. Start Over deletes it with the save's folder.",
+            "Without the companion the cave's own rule (0x494F28) decides each fall to 0 or less alone: 1 in 10 "
+            "converts, else Faith 1.",
         ],
         "explicit_non_changes": [
-            "Thirteen immediates and branches inside the routine, its entry, three loss sites, its last call and its "
+            "Thirteen immediates and branches inside the routine, its entry, four loss sites, its last call and its "
             "epilogue; three caves in the .text tail (0x494F00, 0x494F14, 0x494F28). The routine's rolls, their "
             "order and the Faith they move are the stock ones but for the 1-in-10 decision added after them. No "
             "save or villager-record byte is written.",
