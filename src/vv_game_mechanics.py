@@ -1405,6 +1405,10 @@ def minimum(facts: list[Fact]) -> list[Fact]:
                 orphan = True
                 answer = first_sentence(fact.text)
                 lead = answer.split(":", 1)[0]
+                if lead == answer and " -- " in answer:
+                    # A "name -- condition" header (an island event's, say): its name heads the numbers kept under
+                    # it, so two events' "Eat a bit" lines still say whose they are (Codex on #796).
+                    lead = answer.split(" -- ", 1)[0]
                 if (lead != answer and fact.group not in MINIMUM_HIDDEN_GROUPS and not _EXPLAINS.search(lead)
                         and not _TIPS.search(fact.text)):
                     heading = dataclasses.replace(fact, text=lead + ":", due=None, due_kind=None)

@@ -1322,7 +1322,9 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
             most = regrow
             grows = (f"it regrows only {regrow:,.1f} food each age unit ({regrow * hour:,.0f} per real-life hour on "
                      f"{on} speed)" if regrow else "it never grows back")
-            words += f". It cannot feed the village alone: {grows} against {eaten_unit:,.1f} eaten"
+            # In the answer's own sentence, so Minimal Detail (first sentence only) never shows the farmer count
+            # without it (Codex on #796).
+            words += f", but it cannot feed the village alone: {grows} against {eaten_unit:,.1f} eaten"
             if on_it:
                 lasts = on_it / (eaten_unit - regrow) * ctx.unit
                 words += (f"; the {on_it:,.0f} food on it now lasts {gm.about(lasts)} of counted catch-up "
@@ -1361,6 +1363,11 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
     if live_rows:
         live_used, _ = _shared(live_rows, eaten_hour)
         words += f"; live, {_plural(math.ceil(sum(n for _, n in live_used) - 1e-9))} ({_spread(live_used)})"
+    if short > 1e-9:
+        # In the answer's own sentence, so Minimal Detail keeps the shortage beside the farmer count (Codex on #796).
+        words += (f", but even with every source the village is short by about {short:,.1f} food each age unit, "
+                  f"which the {ctx.food:,} in storage covers for {gm.about(ctx.food / short * ctx.unit)} on {on} "
+                  "speed")
     words += (". Farmers go first to the sources that bring the most food per farmer, each only as far as it "
               "regrows; a source that never runs out takes the rest")
     if fish_name is not None:
@@ -1372,10 +1379,6 @@ def farmer_lines(ctx: Context, eaters: int, per_unit: float, bonus_unit: float =
         if live_rows:
             shares.append(f"{fished(live_rows, live_used) / eaten_hour:.0%} live")
         words += f". Fishing brings about {' and '.join(shares)} of the food the village eats"
-    if short > 1e-9:
-        words += (f". Even with every source the village is short by about {short:,.1f} food each age unit, which "
-                  f"the {ctx.food:,} in storage covers for {gm.about(ctx.food / short * ctx.unit)} on {on} "
-                  "speed")
     add(words + ".")
     # The difficulty changes only the eating here (each game's eating step reads it; see DIFFICULTY_AT).
     by_level = []
@@ -1466,7 +1469,10 @@ def fill_lines(ctx: Context) -> list[gm.Fact]:
         if nxt:
             at = s.next_refill if s.next_refill is not None else s.next_at
             ahead = at is not None and at > ctx.village.now and not ctx.paused
-            out.append(gm.Fact("Refills", f"{s.name}, next refill: {nxt[len(s.name) + 1:]}.", s.rule,
+            # A future moment: the live renderer places its date and its one countdown (gm.DUE), never a second,
+            # static "(in ...)" beside it (Codex on #791).
+            when_words = f"at {gm.DUE}" if ahead else nxt[len(s.name) + 1:]
+            out.append(gm.Fact("Refills", f"{s.name}, next refill: {when_words}.", s.rule,
                                due=at if ahead else None, due_kind="refill" if ahead else None))
         out.append(gm.Fact("Refills", f"{s.name}, time to full: {words}.", ok,
                            due=moment if live else None, due_kind="refill" if live else None))

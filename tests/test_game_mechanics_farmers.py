@@ -165,8 +165,9 @@ class ThePage(unittest.TestCase):
                     self.assertRegex(text, r"\. One farmer brings [\d,.]+ food each counted age unit while "
                                            r"catching up \(\d+ job turns x ")
                     # Each source says whether it can feed the village on its own, by its regrowth.
-                    self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone|cannot feed "
-                                           r"the village alone)")
+                    # (a shortage is in the answer's own sentence, so Minimal Detail keeps it: "..., but it cannot")
+                    self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone)|, but it "
+                                           r"cannot feed the village alone")
                 self.assertEqual(sum(f.text.startswith("All food sources together: while catching up")
                                      for f in vitals), 1)
                 self.assertEqual(sum(f.text.startswith("Difficulty: it changes what each villager eats")
