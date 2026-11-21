@@ -388,20 +388,15 @@ static unsigned int sc_filters_on(int game) {
     return on;
 }
 
-#define SC_F(n) (1u << ((n) - 1))
-/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS) and
-   the content filters each one's outcomes touch: The Aspiring Adventurer (a death, a disappearance), The Cave
-   Explorers (a death, the eerie cave), The Climb, The Troubling Signs (a death, a disaster, animals), Diving for
-   Treasure (a death, deep water), The Playful Dolphins (deep water), The Mysterious Mask, The Remembrance Ceremony
-   (twice: grief), The Rumblings (a disaster). */
-/* ...and those that can kill a villager, make one disappear or lose a pregnancy (the population gate): The Aspiring
-   Adventurer, The Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure. */
+/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS) that
+   can kill a villager, make one disappear or lose a pregnancy (the population gate): The Aspiring Adventurer, The
+   Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure. */
 static const unsigned char SC_MORE_DEADLY[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
 
-static const unsigned int SC_MORE_FILTERS[] = {
-    SC_F(3) | SC_F(4) | SC_F(5), SC_F(3) | SC_F(5) | SC_F(13), 0, SC_F(3) | SC_F(21) | SC_F(24),
-    SC_F(3) | SC_F(5) | SC_F(22), SC_F(22), 0, SC_F(5), SC_F(5), SC_F(21),
-};
+/* ...and the content filters each one's outcomes touch (SC_MORE_FILTERS), GENERATED from its content tag table
+   (data/event_collection/content_tags/mie.json) by scripts/build_story_more_filters.py, which
+   scripts/build_vvfp_story_upgrades.ps1 runs before every compile. */
+#include "story_more_filters.h"
 
 /* Whether a ticked content filter keeps More Island Events' entry `k` out (before the draw, and in Pick Island
    Event's list). */

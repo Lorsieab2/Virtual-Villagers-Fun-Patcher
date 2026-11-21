@@ -15,6 +15,22 @@ $vsTools = "C:\Program Files\Microsoft Visual Studio\18\Community\VC\Tools\MSVC\
 
 New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
 
+# Which content filters keep each More Island Events entry out: generated from
+# data\event_collection\content_tags\mie.json before every compile, never by hand
+# (in More Island Events' registry order: its mie_pick.inc).
+foreach ($need in @(
+    (Join-Path $projectRoot "data\event_collection\content_tags\mie.json"),
+    (Join-Path $projectRoot "native\vvfp_more_island_events\mie_pick.inc")
+)) {
+    if (-not (Test-Path -LiteralPath $need)) {
+        throw "Missing $need (story_more_filters.h is generated from it)."
+    }
+}
+& python (Join-Path $projectRoot "scripts\build_story_more_filters.py")
+if ($LASTEXITCODE -ne 0) {
+    throw "Generating story_more_filters.h failed."
+}
+
 & (Join-Path $sdkRoot "bin\$sdkVersion\x86\rc.exe") `
     /nologo `
     /fo (Join-Path $outputRoot "vvfp_story_upgrades.res") `
