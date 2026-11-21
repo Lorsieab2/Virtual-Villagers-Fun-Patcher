@@ -260,6 +260,39 @@ is, nothing is dropped, and in A New Home nothing is judged without Show
 Parents' companion, which alone logs its births.
 `native/parentage_export/pending_harness.c` checks it in all five games.
 
+The same replay delivers twice. The load's catch-up is where most births
+happen, and The Lost Children to New Believers write a Birth at the delivery
+(the executable's birth splice), so a pregnancy the save holds was written as
+two births: the first run's child, who never lived in the saved village, and
+the second run's. Such a held Birth is written with the closing line "Note: Not
+in the village as it was saved ... this birth was not kept" (`birth_not_kept`)
+when a later held Birth of another delivery has the very same parents (names
+and looks) and "Born as", in the same slot, with no Conception, "Lost before
+birth", Death or Disappeared of the mother between -- and, at the save, the
+child's own record no longer holds that child (empty, or somebody of another
+name). The babies of one delivery (twins, triplets) are written one after the
+other and are never compared with each other. An island event after it, any
+Note, or A New Home (its births come a frame later from Show Parents'
+companion and name no father) leave the record as it is.
+
+What else the replay could repeat (checked 2026-11-21): Deaths, Disappeared,
+"Lost before birth", Arrived and Unaccounted records come from "VVFP Cause of
+Death.dll", which the Origins companion installs at the first village frame --
+after the start-up catch-up -- and which records catch-up deaths from the
+village it then sees and from the graves at the save, so nothing of the
+discarded run reaches them. The Village Statistics counters the patcher keeps
+are counted into pending fields inside the block the game saves and loads
+(`native/statistics_export/statistics_store.h`), so loading the village again
+from its save zeroes whatever the discarded run counted; every other row, the
+Village Elders file, the Village Population and Village History logs are read
+from the village at the save. Island events, Pick Island Event, the patcher's
+own events and Village Solidarity move only on a choice the player makes in an
+event's window, never in a catch-up. The one statistic the logs bound -- The
+Lost Children's Twins Birthed, raised by Repair to the log's twin conceptions
+(`statistics_reconcile.inc`, `scripts/vvfp_consistency_check.py`) -- no longer
+counts a Conception marked as not kept, and the consistency check's Babies
+Made bound no longer counts a Birth marked so.
+
 Static reading of The Secret City (`0x4285E0`, called once by `0x46C7D0`):
 at start the game loads its meta block (slot 0, which sets the field to the
 slot played last), then loads each of slots 1-5 in turn to fill the slot

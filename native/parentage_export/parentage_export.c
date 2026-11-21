@@ -2749,11 +2749,16 @@ struct pending_record {
     /* A Conception made by the game's conception routine: the carrier's record, as the routine handed it over
        (NULL for every other record), for conception_not_kept. */
     const unsigned char *mother;
+    /* A Birth written at the delivery: the child's record, as the birth splice handed it over (NULL for
+       every other record), for birth_not_kept. */
+    const unsigned char *child;
 };
 
 /* The carrier's record of the Conception being emitted right now (WriteParentageRecordWithFather sets it around
    its emit_record), so hold_record can keep it with the held record. */
 static const unsigned char *g_conception_mother;
+/* ...and the child's record of the Birth being emitted right now (WriteParentageBirthLitter). */
+static const unsigned char *g_birth_child;
 
 static struct pending_record *pending;
 static int pending_count;
@@ -3512,6 +3517,13 @@ static const char NOT_KEPT_NOTE[] =
     "    loaded the village again from its save and played the same time over, so\n"
     "    this pregnancy was not kept.\n";
 
+/* ...and of a Birth the village, as it was saved, does not hold
+   (birth_not_kept). */
+static const char BIRTH_NOT_KEPT_NOTE[] =
+    "  Note: Not in the village as it was saved: the game played this time, then\n"
+    "    loaded the village again from its save and played the same time over, so\n"
+    "    this birth was not kept.\n";
+
 /* `text` with `note` before its closing blank line; NULL if out of memory, in
    which case the record is written unlabelled. */
 static char *label_record_with(const char *text, const char *note) {
@@ -3653,6 +3665,168 @@ static int conception_not_kept(int game_id, int index, int at_save) {
     return *(const int *)(entry->mother + g->litter - 4u) == 0;
 }
 
+/* A Birth record's parents -- from its "  Mother: " line to the end of the
+   father's "    Body: " line -- and its "  Born as: " word: `*parents` /
+   `*parents_length` and `born` (empty when the record has none).  0 when the
+   record has no such lines. */
+static int birth_identity(const char *text, const char **parents, size_t *parents_length,
+                          char *born, size_t born_size) {
+    const char *mother = strstr(text, "\n  Mother: ");
+    const char *father;
+    const char *end;
+    const char *at;
+    size_t n = 0;
+    int lines;
+
+    born[0] = '\0';
+    if (mother == NULL || born_size == 0) {
+        return 0;
+    }
+    ++mother;
+    father = strstr(mother, "\n  Father: ");
+    if (father == NULL) {
+        return 0;
+    }
+    end = father + 1;
+    for (lines = 0; lines < 3; ++lines) {           /* "  Father:", "    Head:", "    Body:" */
+        end = strchr(end, '\n');
+        if (end == NULL) {
+            return 0;
+        }
+        ++end;
+    }
+    *parents = mother;
+    *parents_length = (size_t)(end - mother);
+    at = strstr(end, "  Born as: ");
+    if (at != NULL) {
+        at += strlen("  Born as: ");
+        while (at[n] != '\0' && at[n] != '\n' && n + 1 < born_size) {
+            born[n] = at[n];
+            ++n;
+        }
+        born[n] = '\0';
+    }
+    return 1;
+}
+
+/* A HELD BIRTH THE SAVED VILLAGE DOES NOT HOLD -- conception_not_kept's
+   other half.  The time the game plays twice before the first save is the
+   load's catch-up, "where most births happen" (village_files_slot below):
+   a pregnancy the save holds is delivered in the first run AND again in the
+   second, and both deliveries were written as real births -- the second
+   run's child (the one the save keeps) and the first run's, who never lived
+   in the saved village.
+
+   In one village played on without a load a woman gives birth again only
+   after a new pregnancy, and every pregnancy is logged as a Conception.  So,
+   for a held Birth B of The Lost Children to New Believers (born at the
+   delivery, its "Born as" known):
+
+     a later held Birth of ANOTHER delivery with the very same parents --
+     mother and father, names and looks -- and the same "Born as", in the
+     same slot, with no Conception, "Lost before birth", Death or Disappeared
+     of the mother between them: B is not in the saved village.
+
+   The babies of one delivery are written one after the other, so the up to
+   two (twins) or three (triplets) records right after B with its parents and
+   "Born as" are B's own delivery and are passed over.  Anything else keeps B
+   as it is: an island event after it, another Birth of the mother with other
+   parents or another "Born as", any Note (a backfilled birth, a Custom Island
+   Event's).  A New Home is never judged: its births come a frame later from
+   Show Parents' companion and name no father.  Such a record is still
+   written, numbered as ever, with BIRTH_NOT_KEPT_NOTE.
+
+   And it is judged only at the save, against the child's own record (the one
+   the birth splice handed over): only when that record no longer holds B's
+   child -- empty, or somebody of another name -- is B marked.  The run the
+   game kept put its own child there, or nobody; a real child who is still in
+   the village is never marked, whatever the log around it says (a second
+   delivery with no Conception between proves the replay only together with
+   this). */
+static int child_not_kept(int game_id, const struct pending_record *entry, int at_save) {
+    const struct game_layout *g = layout_of(game_id);
+    char child[MAX_NAME_BYTES];
+    char now[MAX_NAME_BYTES];
+    if (!at_save || g == NULL || entry->child == NULL
+        || !memory_is_readable(entry->child, g->stride)
+        || !record_field(entry->text, "  Child: ", child, sizeof child)) {
+        return 0;
+    }
+    if (*(const unsigned char *)(entry->child + g->active) != 1) {
+        return 1;                       /* nobody in the child's record */
+    }
+    copy_villager_name(g, entry->child, now, sizeof now);
+    return strcmp(now, child) != 0;
+}
+
+static int birth_not_kept(int game_id, int index, int at_save) {
+    const struct pending_record *entry = &pending[index];
+    const char *parents;
+    size_t parents_length;
+    char born[32];
+    char name[MAX_NAME_BYTES];
+    int siblings;
+    int j;
+
+    if (entry->kind != KIND_BIRTH || game_id == GAME_VV1 || entry->open_entry != 0
+        || entry->text == NULL || strstr(entry->text, "  Note: ") != NULL
+        || !record_field(entry->text, "  Mother: ", name, sizeof name)
+        || strcmp(name, "(unknown)") == 0
+        || !birth_identity(entry->text, &parents, &parents_length, born, sizeof born)) {
+        return 0;
+    }
+    if (strcmp(born, "Single birth") == 0) {
+        siblings = 0;
+    } else if (strcmp(born, "Twin") == 0) {
+        siblings = 1;
+    } else if (strcmp(born, "Triplet") == 0) {
+        siblings = 2;
+    } else {
+        return 0;                       /* how many came together is not known */
+    }
+    for (j = index + 1; j < pending_count; ++j) {
+        const struct pending_record *later = &pending[j];
+        const char *other;
+        size_t other_length;
+        char other_born[32];
+        int same;
+        if (later->game_id != game_id || later->text == NULL) {
+            continue;
+        }
+        if (later->kind == KIND_ISLAND_EVENT) {
+            return 0;                   /* an event may have changed her pregnancy */
+        }
+        if ((later->kind == KIND_CONCEPTION || later->kind == KIND_LOST_BIRTH)
+            && record_names(later->text, "  Mother: ", name)) {
+            return 0;                   /* a new pregnancy of hers, or its end */
+        }
+        if ((later->kind == KIND_DEATH || later->kind == KIND_DISAPPEARED)
+            && record_names(later->text, "  Name: ", name)) {
+            return 0;
+        }
+        if (later->kind != KIND_BIRTH || !record_names(later->text, "  Mother: ", name)) {
+            if (siblings > 0) {
+                siblings = -1;          /* B's delivery is over: its babies come one after the other */
+            }
+            continue;
+        }
+        same = later->slot == entry->slot
+            && strstr(later->text, "  Note: ") == NULL
+            && birth_identity(later->text, &other, &other_length, other_born, sizeof other_born)
+            && other_length == parents_length && memcmp(other, parents, parents_length) == 0
+            && strcmp(other_born, born) == 0;
+        if (!same) {
+            return 0;                   /* another Birth of hers: unsure */
+        }
+        if (siblings > 0) {
+            --siblings;                 /* a brother or sister of B's own delivery */
+            continue;
+        }
+        return child_not_kept(game_id, entry, at_save);
+    }
+    return 0;
+}
+
 /* Write every held record for this game under `village`, in order. Called once
    the village is known.
 
@@ -3716,6 +3890,8 @@ static void flush_pending(int game_id, const char *village, int at_save) {
                 labelled = label_record(entry->text);
             } else if (conception_not_kept(game_id, i, at_save)) {
                 labelled = label_record_with(entry->text, NOT_KEPT_NOTE);
+            } else if (birth_not_kept(game_id, i, at_save)) {
+                labelled = label_record_with(entry->text, BIRTH_NOT_KEPT_NOTE);
             }
             if (labelled != NULL) {
                 text = labelled;
@@ -3774,6 +3950,7 @@ static int hold_record(int game_id, int kind, const unsigned char *records,
     entry->tribe = current_tribe_index(game_id, records);
     entry->open_entry = 0;
     entry->mother = kind == KIND_CONCEPTION ? g_conception_mother : NULL;
+    entry->child = kind == KIND_BIRTH ? g_birth_child : NULL;
     ++pending_count;
     return 1;
 }
@@ -4949,7 +5126,13 @@ __declspec(dllexport) int __stdcall WriteParentageBirthLitter(
        arrival, whether or not the record could be filed now. */
     tell_cause_of_death_birth(game_id, child_record);
     /* The child is the villager a held birth is re-checked against. */
-    return emit_record(game_id, KIND_BIRTH, NULL, text);
+    {
+        int result;
+        g_birth_child = (const unsigned char *)child_record;
+        result = emit_record(game_id, KIND_BIRTH, NULL, text);
+        g_birth_child = NULL;
+        return result;
+    }
 }
 
 /* A New Home: the Birth record of a villager the Births log has none for,

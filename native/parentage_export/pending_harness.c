@@ -823,6 +823,100 @@ int main(int argc, char **argv) {
                 }
                 DeleteFileA(companion);
             }
+
+            /* THE SAME DELIVERIES PLAYED TWICE BEFORE THE FIRST SAVE (The Lost Children to New
+               Believers: their births are written at the delivery, and the load's catch-up is where
+               most births happen).  A pregnancy the save holds is delivered in the first run and
+               again in the second; only the second run's children are in the saved village.  The
+               first run's Birth records are still written -- nothing is dropped -- but marked as
+               not kept; a woman's two real deliveries with a Conception between are never marked,
+               nor a delivery only one run made. */
+            if (G[k].game != 1) {
+                unsigned char *saved = (unsigned char *)malloc(bytes);
+                int all = 0, marked = 0;
+                const char *p;
+                memset(t, 0, bytes);
+                GPUT(0, "Lani", 600, 3, 8, "", "", 21);
+                GPUT(1, "Coko", 700, 9, 4, "", "", 22);
+                GPUT(2, "Tia", 610, 6, 1, "", "", 23);
+                GPUT(3, "Oti", 650, 2, 5, "", "", 24);
+                GPUT(4, "Ema", 620, 11, 7, "", "", 25);
+                GPUT(5, "Mia", 630, 13, 2, "", "", 26);
+                /* As saved: Lani carries one baby, Tia twins, Ema one, Mia one. */
+                *(int *)(GREC(0) + G[k].preg) = 1;
+                *(int *)(GREC(0) + G[k].preg + 4) = 1;
+                *(int *)(GREC(2) + G[k].preg) = 1;
+                *(int *)(GREC(2) + G[k].preg + 4) = 2;
+                *(int *)(GREC(4) + G[k].preg) = 1;
+                *(int *)(GREC(4) + G[k].preg + 4) = 1;
+                *(int *)(GREC(5) + G[k].preg) = 1;
+                *(int *)(GREC(5) + G[k].preg + 4) = 1;
+                memcpy(saved, t, bytes);                    /* the village as saved */
+                /* Run 1: Lani, Tia (twins) and Ema deliver. */
+                GPUT(10, "Ana", 0, 3, 9, "Coko", "Lani", 27);
+                (void)birth(G[k].game, "Ana", 3, 9, "Lani", 3, 8, "Coko", 9, 4, GREC(10));
+                GPUT(11, "Twa", 0, 6, 5, "Oti", "Tia", 28);
+                (void)birth(G[k].game, "Twa", 6, 5, "Tia", 6, 1, "Oti", 2, 5, GREC(11));
+                GPUT(12, "Twb", 0, 6, 5, "Oti", "Tia", 29);
+                (void)birth(G[k].game, "Twb", 6, 5, "Tia", 6, 1, "Oti", 2, 5, GREC(12));
+                GPUT(13, "Eli", 0, 11, 4, "Coko", "Ema", 30);
+                (void)birth(G[k].game, "Eli", 11, 4, "Ema", 11, 7, "Coko", 9, 4, GREC(13));
+                /* The game loads the village again from its save. */
+                memcpy(t, saved, bytes);
+                /* Run 2: Lani and Tia deliver again (other children); Ema does not yet.  Mia
+                   delivers, conceives again by the same father and delivers again: two real
+                   deliveries. */
+                GPUT(10, "Bo", 0, 9, 8, "Coko", "Lani", 31);
+                (void)birth(G[k].game, "Bo", 9, 8, "Lani", 3, 8, "Coko", 9, 4, GREC(10));
+                GPUT(11, "Twc", 0, 2, 1, "Oti", "Tia", 32);
+                (void)birth(G[k].game, "Twc", 2, 1, "Tia", 6, 1, "Oti", 2, 5, GREC(11));
+                GPUT(12, "Twd", 0, 2, 1, "Oti", "Tia", 33);
+                (void)birth(G[k].game, "Twd", 2, 1, "Tia", 6, 1, "Oti", 2, 5, GREC(12));
+                GPUT(13, "Mo", 0, 13, 4, "Coko", "Mia", 34);
+                (void)birth(G[k].game, "Mo", 13, 4, "Mia", 13, 2, "Coko", 9, 4, GREC(13));
+                *(int *)(GREC(5) + G[k].preg) = 631;
+                (void)write(G[k].game, t, GREC(5), GREC(1));
+                GPUT(14, "Mu", 0, 9, 2, "Coko", "Mia", 35);
+                (void)birth(G[k].game, "Mu", 9, 2, "Mia", 13, 2, "Coko", 9, 4, GREC(14));
+                _snprintf(village, sizeof village, "Village: Game %d Births Replayed (Save 1)\n", G[k].game);
+                use_slot(1);
+                vv_village_publish(village);
+                if (ensure_village != NULL) {
+                    (void)ensure_village(G[k].game, village, t);
+                } else {
+                    (void)ensure(G[k].game, village);
+                }
+                {
+                    int number;
+                    for (number = 1; number <= 9; ++number) {
+                        _snprintf(path, MAX_PATH, "%s\\%s %d.txt", folder, G[k].title, number);
+                        text[0] = 0;
+                        f = fopen(path, "rb");
+                        if (f) { n = fread(text, 1, sizeof text - 1, f); text[n] = 0; fclose(f); }
+                        if (strstr(text, "Births Replayed (Save") != NULL) break;
+                    }
+                }
+                CHECK(strstr(text, "Births Replayed (Save") != NULL, "VV%d: the births village's log is written",
+                      G[k].game);
+                p = strstr(text, "Births Replayed (Save");     /* this village's records only */
+                while (p != NULL && (p = strstr(p, "\r\nBirth ")) != NULL) { ++all; p += 8; }
+                p = strstr(text, "Births Replayed (Save");
+                while (p != NULL && (p = strstr(p, "  Note: Not in the village as it was saved")) != NULL) { ++marked; p += 10; }
+                CHECK(all == 9, "VV%d: all nine Birth records are written -- nothing is dropped (%d)", G[k].game, all);
+                CHECK(marked == 3, "VV%d: exactly three births are marked as not kept (%d)", G[k].game, marked);
+                CHECK(not_kept_in(text, "  Child: Ana\r\n") == 1 && not_kept_in(text, "  Child: Bo\r\n") == 0,
+                      "VV%d: Lani's first-run child is marked, the child the save kept is not", G[k].game);
+                CHECK(not_kept_in(text, "  Child: Twa\r\n") == 1 && not_kept_in(text, "  Child: Twb\r\n") == 1
+                      && not_kept_in(text, "  Child: Twc\r\n") == 0 && not_kept_in(text, "  Child: Twd\r\n") == 0,
+                      "VV%d: both first-run twins are marked, the kept twins are not", G[k].game);
+                CHECK(not_kept_in(text, "  Child: Eli\r\n") == 0,
+                      "VV%d: a delivery only one run made is never marked", G[k].game);
+                CHECK(not_kept_in(text, "  Child: Mo\r\n") == 0 && not_kept_in(text, "  Child: Mu\r\n") == 0,
+                      "VV%d: two real deliveries with a Conception between are never marked", G[k].game);
+                CHECK(strstr(text, "    this birth was not kept.\r\n") != NULL,
+                      "VV%d: the Birth's note says the birth was not kept", G[k].game);
+                free(saved);
+            }
 #undef GPUT
 #undef GREC
             free(t);

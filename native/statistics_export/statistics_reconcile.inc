@@ -353,29 +353,48 @@ static void rc_visit_deaths(char *text, void *context) {
 }
 
 /* The Births and Conceptions log: this village's "Conception <n>" records
-   with "  Babies nursing: 2" ("  Babies in pregnancy: 2" in an older log). */
+   with "  Babies nursing: 2" ("  Babies in pregnancy: 2" in an older log) --
+   but never one marked "Not in the village as it was saved" (parentage_export.c
+   conception_not_kept, v1.35.97): the game played that time twice before the
+   first save and the saved village never carried that pregnancy, so it proves
+   no twins.  The mark is the record's closing line, so a record is counted
+   only when it is over. */
+#define RC_NOT_KEPT "  Note: Not in the village as it was saved"
 static void rc_visit_births(char *text, void *context) {
     struct rc_count *c = (struct rc_count *)context;
     char *cursor = text;
     char *line;
-    int ours = 0, open = 0;
+    int ours = 0, open = 0, twins = 0;
     while ((line = rc_line(&cursor)) != NULL) {
         if (strncmp(line, "Village:", 8) == 0) {
+            if (open && twins) {
+                ++c->twins;
+            }
             ours = strcmp(line, c->village) == 0;
-            open = 0;
+            open = twins = 0;
             continue;
         }
         if (line[0] != ' ') {
+            if (open && twins) {
+                ++c->twins;
+            }
             open = ours && strncmp(line, "Conception ", 11) == 0;
+            twins = 0;
             continue;
         }
         if (open && (strcmp(line, "  Babies nursing: 2") == 0
                      || strcmp(line, "  Babies in pregnancy: 2") == 0)) {   /* an older log */
-            ++c->twins;
-            open = 0;
+            twins = 1;
+        }
+        if (open && strncmp(line, RC_NOT_KEPT, sizeof RC_NOT_KEPT - 1) == 0) {
+            open = twins = 0;
         }
     }
+    if (open && twins) {
+        ++c->twins;
+    }
 }
+#undef RC_NOT_KEPT
 
 /* ---- the Village History log --------------------------------------------- */
 
