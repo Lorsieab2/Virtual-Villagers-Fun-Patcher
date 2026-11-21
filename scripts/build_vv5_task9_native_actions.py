@@ -3652,17 +3652,22 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov eax, 360
         sub eax, dword ptr [esi+0x1B8C]
         jz age_already
-        mov edi, eax
-        push eax
-        lea ecx, [esi+0x1B8C]
-        call 0x46F7F0
-        add dword ptr [esi+0x1C3C], edi
-        cmp dword ptr [esi+0x1C4C], 0
-        je age_counted
-        add dword ptr [esi+0x1C4C], edi
-    age_counted:
-        inc dword ptr [ebp-0x10]
-        jmp age_next
+        # Out of line (age_shift, after the ret), padded to the 17 bytes the
+        # write took before: the Story DLL patches this routine's charge
+        # (0x7CE8BF, 0x7CE8D1) at fixed addresses, so nothing here may move.
+        jmp age_shift
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
     age_already:
         inc dword ptr [ebp-0x14]
     age_next:
@@ -3704,6 +3709,18 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         pop ebx
         pop ebp
         ret
+    age_shift:
+        mov edi, eax
+        push eax
+        lea ecx, [esi+0x1B8C]
+        call 0x46F7F0
+        add dword ptr [esi+0x1C3C], edi
+        cmp dword ptr [esi+0x1C4C], 0
+        je age_counted
+        add dword ptr [esi+0x1C4C], edi
+    age_counted:
+        inc dword ptr [ebp-0x10]
+        jmp age_next
     """)
 
 

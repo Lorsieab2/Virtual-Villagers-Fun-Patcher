@@ -338,11 +338,15 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # Re-pinned for the owner's doubler scope (2026-11-17): the two doubler
         # wrappers (+0x820..0x960) became whitelists of the research, duplicate
         # collectible and gathered-food returns; nothing outside them changed.
+        # Re-pinned when Set Age to 18 / Grant Youth / the whole-village age
+        # began moving the lived age (+0x534) and a running conception mark
+        # (+0x540) with the age (v1.35.97) -- those age blocks only, nothing in
+        # any doubler region.
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "D697F8A23301AF3E3DE90D0C2BD26E3715785088D663662F99D8E9CAB04BC5B0",
+            "3AC87C69A12348332D1932B800C35F18D23883423490940E404812A61B6ED7B1",
         )
         # Re-pinned after the companion DLL gained ShowVV2TimeWarp, which owns
         # Time Warp's speed-aware prompt, paused refusal, charge and advance.

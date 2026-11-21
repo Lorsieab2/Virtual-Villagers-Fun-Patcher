@@ -1350,9 +1350,15 @@ def main() -> None:
             # same delta as the shown age (+0x1B8C), so the tick neither
             # replays the years at once nor skips them, and a pregnancy stays
             # as far along (the stock age change, VV1 0x419543-0x4195BE).
+            # 15 bytes, as the old `mov [edx+0x1B8C], 360; jmp detail_success`:
+            # the Story DLL patches detail_appearance's charge (0x489A32) at a
+            # fixed address, so nothing before it may move.
             mov eax, 360
+        age_delta:
             sub eax, dword ptr [edx + 0x1B8C]
             jmp shift_age
+            nop
+            nop
         detail_appearance:
             cmp dword ptr [0x4D6F88], 5000
             jb detail_insufficient
@@ -1367,7 +1373,7 @@ def main() -> None:
             jge youth_ready
             mov eax, 100
         youth_ready:
-            sub eax, dword ptr [edx + 0x1B8C]
+            jmp age_delta
         shift_age:
             add dword ptr [edx + 0x1B8C], eax
             add dword ptr [edx + 0x1C3C], eax

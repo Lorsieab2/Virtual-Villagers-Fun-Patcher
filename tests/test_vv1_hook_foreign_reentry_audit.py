@@ -489,7 +489,11 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x35AB0"): "0E5A636819B1532EC078D7DD7DADAF77F85E78BDA80CD93EBC3E5709058ED99F",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "7DD57F614B206C957C60D7BA3ED02B0FF2DA9DC43B2F693A4BD0A6B810EEB673",
+    # Re-reviewed (v1.35.97): the cave reached from 0x4A700 includes detail_menu's Set Age to 18 / Grant Youth and the
+    # .shr preflight, which now move the lived age (+0x34C) and conception mark (+0x358) by the age's delta.  Those
+    # blocks clobber only EAX (the old ones clobbered EAX and ECX) and the preflight still returns its status in EAX;
+    # no stock re-entry was added.
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "83423CDA24CCD1C70905503FD1F9209FCF3890EA1BFFD528A3DF31E2B7F32005",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
     # Re-reviewed when the never-read DEST_SURFACE_CACHE store was removed:
     # `mov [0x491094], ecx` wrote memory only, so ECX/ESP/flags at the resume

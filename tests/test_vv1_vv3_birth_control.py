@@ -107,10 +107,12 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # look changes no VV1 Origins byte.
     # Re-pinned for the Origins doublers' scope (#805, merged at e09e40511): the only manifest change is the Origins
     # payload at 0x56900 ("after" bytes); no offset is added or removed.
+    # Re-pinned when Set Age to 18 / Grant Youth began moving the lived age and a running conception mark with the
+    # age (v1.35.97): the detail age blocks in the payload at 0x56900 and the .shr preflight only; same offsets.
     "vv1_enable_origins_exclusive_features": {
-        "stock": "F8ECD9CDD66F493F40344BA880B9D48DE04C633E1252BD7E5644BF3F0B17A0CA",
-        "collection_progression": "03C348D7E81DFF29C2C4DB0F0BE1B6A2EAC6F2638438B056AAD260D60CF4ACD8",
-        "immediate_fixed": "03C348D7E81DFF29C2C4DB0F0BE1B6A2EAC6F2638438B056AAD260D60CF4ACD8",
+        "stock": "FA985670A872CC8A6BD6008B9A4813E2C6E6F703FACC1B48DF504E597685D155",
+        "collection_progression": "2F22B819669023967205FBD8C08CA58140F17CA13CB5DF58AC0EB953F9D4D72C",
+        "immediate_fixed": "2F22B819669023967205FBD8C08CA58140F17CA13CB5DF58AC0EB953F9D4D72C",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
