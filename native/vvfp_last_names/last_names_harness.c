@@ -44,6 +44,9 @@
     16. A villager who arrives (the owner, 2026-11-19): a one-word name gets
         a last name drawn from the list; a name with a last name keeps it; a
         last name that would not fit is not given.
+    17. The choose-your-founders screen (The Tree of Life, New Believers): a
+        name that fits is the stock line; a wider one is drawn whole in
+        centred lines broken at its spaces, one line height apart.
 
    Exit code 0 when every check passes. */
 #define _CRT_SECURE_NO_WARNINGS
@@ -96,6 +99,48 @@ static void check(int ok, const char *what) {
     ++checks;
     printf("  %s %s\n", ok ? "ok  " : "FAIL", what);
     failures += !ok;
+}
+
+/* 17: the founders screen's game routines, faked: every letter 10 pixels wide, lines 16 apart; each draw kept. */
+#define FAKE_DRAWS 8
+static struct { char text[FOUNDER_LINE_MAX]; int x, y; unsigned int colour; void *font; } g_draws[FAKE_DRAWS];
+static int g_draw_count;
+static void __fastcall fake_centred(void *holder, void *edx, const char *text, int x, int y, unsigned int colour,
+                                    void *font) {
+    (void)holder;
+    (void)edx;
+    if (g_draw_count < FAKE_DRAWS) {
+        strncpy(g_draws[g_draw_count].text, text, FOUNDER_LINE_MAX - 1);
+        g_draws[g_draw_count].text[FOUNDER_LINE_MAX - 1] = '\0';
+        g_draws[g_draw_count].x = x;
+        g_draws[g_draw_count].y = y;
+        g_draws[g_draw_count].colour = colour;
+        g_draws[g_draw_count].font = font;
+    }
+    ++g_draw_count;
+}
+static int __fastcall fake_width(void *font, void *edx, const char *text, float scale) {
+    (void)font;
+    (void)edx;
+    return (int)(10.0f * scale * (float)strlen(text));
+}
+static int __fastcall fake_line_height(void *font, void *edx, int unused) {
+    (void)font;
+    (void)edx;
+    (void)unused;
+    return 16;
+}
+static int drawn_founder(const char *name, void *font) {
+    static struct founders_site fake;
+    fake.call = 0;
+    fake.centred = (unsigned int)(uintptr_t)fake_centred;
+    fake.width = (unsigned int)(uintptr_t)fake_width;
+    fake.line_height = (unsigned int)(uintptr_t)fake_line_height;
+    g_founders = &fake;
+    g_draw_count = 0;
+    memset(g_draws, 0, sizeof g_draws);
+    founder_name((void *)0x1234, NULL, name, 398, 0x91, 0xFF112233u, font);
+    return g_draw_count;
 }
 
 static const char *const OWN[4] = { NULL, "father", "mother", "random" };
@@ -759,6 +804,28 @@ int main(int argc, char **argv) {
             give_arrival_last_name(name, SITES[g].room);
             check(strchr(name, ' ') == NULL, "a last name that would not fit is not given");
         }
+    }
+
+    printf("17. The choose-your-founders screen (live, 2026-11-20): a long name in lines that fit, never cut\n");
+    {
+        void *font = (void *)0x5678;
+        check(drawn_founder("Ko Wanjiko", font) == 1 && strcmp(g_draws[0].text, "Ko Wanjiko") == 0
+              && g_draws[0].x == 398 && g_draws[0].y == 0x91 && g_draws[0].colour == 0xFF112233u
+              && g_draws[0].font == font, "a name that fits (100 px): one stock line, same place, colour and font");
+        check(drawn_founder("Abcdefghijklmn", font) == 1 && g_draws[0].y == 0x91,
+              "exactly at the room (140 px): one stock line");
+        check(drawn_founder("Pangai Temitope", font) == 2 && strcmp(g_draws[0].text, "Pangai") == 0
+              && strcmp(g_draws[1].text, "Temitope") == 0 && g_draws[0].x == 398 && g_draws[1].x == 398
+              && g_draws[0].y == 0x91 - 8 && g_draws[1].y == 0x91 + 8 && g_draws[1].colour == 0xFF112233u
+              && g_draws[1].font == font, "150 px: two centred lines, 16 apart, about the stock line");
+        check(drawn_founder("Ana Bo Kalamanaka", font) == 2 && strcmp(g_draws[0].text, "Ana Bo") == 0
+              && strcmp(g_draws[1].text, "Kalamanaka") == 0, "words kept together while they fit");
+        check(drawn_founder("Supercalifragilistic", font) == 1
+              && strcmp(g_draws[0].text, "Supercalifragilistic") == 0, "one word wider than the room: whole");
+        check(drawn_founder("A B C D E F G H I J K L M N O P Q R S T U V W X Y Z Abcdefghijklmnop", font) == 4
+              && strstr(g_draws[3].text, "Abcdefghijklmnop") != NULL, "at most four lines, the rest on the last");
+        check(drawn_founder("Pangai Temitope", NULL) == 1 && strcmp(g_draws[0].text, "Pangai Temitope") == 0
+              && g_draws[0].font == NULL, "no font of its own: the stock line");
     }
 
     printf("== %d check(s), %d failure(s) ==\n", checks, failures);

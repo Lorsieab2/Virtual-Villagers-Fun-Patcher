@@ -14,10 +14,11 @@
     "A baby or founder whose family is outside 1-50 gets no last name.",
     "At a birth, the rule recorded by Repair Saves & Logs decides the last name (VvfpRuleLastName2): the father's, the mother's, either at random (50:50), or -- a parent's own rule \"Random last name from the list\" -- a name drawn at random from the game's list, or -- \"Random from the existing Village Names\", the village's rule or a parent's own -- one of the last names the village has ever used (the record's \"used\" lines, the villagers in the game at the birth, VvfpRuleLastName3, and the parents'; the game's list when there are none); every random draw is a fresh, unbiased one for each child. Each such birth adds the names it saw that the record lacks as \"used\" lines (only adding, through a temporary file, never for a slot it cannot tell), so a name stays ever used after its last bearer is gone.",
     "A parent's own rule always beats the village's; parents whose own rules disagree: a fresh coin toss for each child picks the father's or the mother's.",
-    "The whole name always fits the game's own name field: the longest pairing is far below its 23 characters."
+    "The whole name always fits the game's own name field: the longest pairing is far below its 23 characters.",
+    "The choose-your-founders screen (\"Select 5 villagers\") draws a candidate's name that is wider than its room (140 pixels: the names' centres are 148 apart) in two or more lines broken at its spaces, each centred under the villager with the game's own draw, font and colour, so long \"<first name> <last name>\" names no longer run into each other; the whole name is shown, never cut. A name that fits is drawn as before."
   ],
   "explicit_non_changes": [
-    "No executable byte is patched: the companion detours the naming routine's first instruction at run time, after verifying it, the routine's push of the list and the creators' calls to it, and changes nothing if any differs.",
+    "No executable byte is patched: the companion detours the naming routine's first instruction at run time and the founders screen's name call (0x43B80A, on its own), after verifying it, the routine's push of the list and the creators' calls to it, and changes nothing if any differs.",
     "Villagers who already have names keep them; nothing is renamed when a village is loaded.",
     "The first names, sexes, looks and families are the game's own; the save format is unchanged."
   ],
@@ -26,7 +27,7 @@
     {
       "source": "assets/last_names/VVFP Last Names.dll",
       "destination": "VVFP Last Names.dll",
-      "sha256": "F580EF069C02C2E0F25C3B98FF052CC1D5F271FDA543CF1C448C14FF58317D1B"
+      "sha256": "E188FEE56BC80CBD33172BEE8E9AF74CC793B560EDE08F2DC76E96EFA36C5E7D"
     }
   ],
   "runtime_detours": [
@@ -34,6 +35,12 @@
       "va": "0x465DA0",
       "stock_bytes": "81EC9C090000",
       "routine": "the villager naming routine (thiscall villager, family)",
+      "installed_by": "VVFP Last Names.dll, VvfpStartup"
+    },
+    {
+      "va": "0x43B80A",
+      "stock_bytes": "E8D1E3FCFF",
+      "routine": "the choose-your-founders screen's name draw (call of the centred draw 0x409BE0): a name wider than its room is drawn in lines that fit",
       "installed_by": "VVFP Last Names.dll, VvfpStartup"
     }
   ],

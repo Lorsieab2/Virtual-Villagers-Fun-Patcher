@@ -306,6 +306,16 @@ def _golden_record_site(game: int) -> list[tuple[int, int]]:
     row = next(p for p in patcher.load_fun_patches() if p.id == f"vv{game}_super_secret_golden_mushroom")
     last = row.raw["runtime_detours"][-1]
     return [(int(last["va"], 16), len(last["stock_bytes"]) // 2)]
+
+
+def _founders_names_site(game: int) -> list[tuple[int, int]]:
+    """Last Names' choose-your-founders name call (The Tree of Life, New Believers), written on its own after the
+    naming detour: the row's founders runtime detour (scripts/build_last_names_features.py)."""
+    row = next(p for p in patcher.load_fun_patches() if p.id == f"vv{game}_last_names")
+    return [(int(d["va"], 16), len(d["stock_bytes"]) // 2) for d in row.raw["runtime_detours"]
+            if "founders" in d["routine"]]
+
+
 def _serve_pier_holes(m: Machine) -> None:
     """The pier holes companion's PNG header reads, answered from assets/vv4_pier_holes (Images\\vvfp_*.png)."""
     folder = ROOT / "assets" / "vv4_pier_holes"
@@ -363,7 +373,7 @@ CASES = [
          lambda g: [f"vv{g}_island_events"], _startup, reports=False,
          present=("VVFP Parentage Export.dll",)),
     Case("Last Names", "assets/last_names/VVFP Last Names.dll", (1, 2, 3, 4, 5),
-         lambda g: [f"vv{g}_last_names"], _startup, reports=False),
+         lambda g: [f"vv{g}_last_names"], _startup, reports=False, own_group=lambda g: _founders_names_site(g)),
     Case("Lesson Cap", "assets/lesson_cap/VVFP Lesson Cap.dll", (1, 2),
          lambda g: ["vv1_school_lessons_cap_50" if g == 1 else "vv2_teaching_children_cap_50"],
          lambda m, g: m.export("VvfpLessonCapInstall", g)),

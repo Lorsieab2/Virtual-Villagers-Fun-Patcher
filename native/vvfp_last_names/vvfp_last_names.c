@@ -2475,6 +2475,125 @@ static int heathen_sites_are_the_games(void) {
     return NB_HEATHEN_FROM + rel == NB_FRESH_INIT;
 }
 
+/* THE CHOOSE-YOUR-FOUNDERS SCREEN ("Select 5 villagers": The Tree of Life and
+   New Believers; the other three games seed their founders with no such
+   screen).  Its draw writes each candidate's name on one line, centred under
+   them, with the game's centred draw -- The Tree of Life 0x43B80A `call
+   0x409BE0` (centres 97, 245, 398, 546, 698; y 0x91), New Believers 0x43E1EE
+   `call 0x409EB0` (centres 202, 350, 503, 651, 803; y 0xDD), thiscall(holder;
+   text, centre x, y, colour, font) ret 0x14.  The centres are at least 148
+   pixels apart, so a "<first> <last>" name wider than that ran into its
+   neighbour (live, 2026-11-20: "Pangai Temitope" / "Makawa Runako").  That one
+   call comes here instead: a name the game's own width (font; text, 1.0)
+   puts within FOUNDER_NAME_ROOM is drawn exactly as before; a wider one is
+   broken at its spaces into lines that fit, each drawn with the same centred
+   draw, centre, colour and font, one line height (font; 0) apart and centred
+   on the stock line -- the whole name, never cut.  A single word wider than
+   the room stays whole on its own line.  Written on its own after the naming
+   detour (a site that is not stock leaves the screen as it was). */
+struct founders_site {
+    unsigned int call, centred, width, line_height;
+};
+static const struct founders_site FOUNDERS[GAMES + 1] = {
+    { 0 }, { 0 }, { 0 }, { 0 },
+    { 0x43B80Au, 0x409BE0u, 0x402430u, 0x402500u },                      /* The Tree of Life */
+    { 0x43E1EEu, 0x409EB0u, 0x4023E0u, 0x4024B0u },                      /* New Believers */
+};
+#define FOUNDER_NAME_ROOM 140      /* the closest centres are 148 apart: a few pixels between neighbours */
+#define FOUNDER_LINES 4
+#define FOUNDER_LINE_MAX 96
+
+typedef void (__fastcall *founder_centred_fn)(void *holder, void *edx, const char *text, int x, int y,
+                                              unsigned int colour, void *font);
+typedef int (__fastcall *founder_width_fn)(void *font, void *edx, const char *text, float scale);
+typedef int (__fastcall *founder_line_height_fn)(void *font, void *edx, int unused);
+static const struct founders_site *g_founders;
+
+static void __fastcall founder_name(void *holder, void *edx, const char *text, int x, int y, unsigned int colour,
+                                    void *font) {
+    const struct founders_site *f = g_founders;
+    founder_centred_fn centred = (founder_centred_fn)(uintptr_t)f->centred;
+    founder_width_fn width = (founder_width_fn)(uintptr_t)f->width;
+    char lines[FOUNDER_LINES][FOUNDER_LINE_MAX];
+    char trial[FOUNDER_LINE_MAX];
+    int count = 0, i, height, top;
+    const char *p;
+    (void)edx;
+    /* No font of its own (the draw would use the holder's), no text, or a name that fits: the stock line. */
+    if (font == NULL || text == NULL || strlen(text) >= FOUNDER_LINE_MAX
+        || width(font, NULL, text, 1.0f) <= FOUNDER_NAME_ROOM) {
+        centred(holder, NULL, text, x, y, colour, font);
+        return;
+    }
+    lines[0][0] = '\0';
+    for (p = text; *p != '\0';) {
+        size_t n = 0;
+        while (*p == ' ') {
+            ++p;
+        }
+        while (p[n] != '\0' && p[n] != ' ') {
+            ++n;
+        }
+        if (n == 0) {
+            break;
+        }
+        if (count == 0) {
+            count = 1;
+        }
+        if (lines[count - 1][0] == '\0') {
+            memcpy(lines[count - 1], p, n);
+            lines[count - 1][n] = '\0';
+        } else {
+            _snprintf(trial, sizeof trial, "%s %.*s", lines[count - 1], (int)n, p);
+            trial[sizeof trial - 1] = '\0';
+            if (width(font, NULL, trial, 1.0f) <= FOUNDER_NAME_ROOM || count == FOUNDER_LINES) {
+                memcpy(lines[count - 1], trial, sizeof trial);
+            } else {
+                memcpy(lines[count], p, n);
+                lines[count][n] = '\0';
+                ++count;
+            }
+        }
+        p += n;
+    }
+    if (count < 2) {
+        centred(holder, NULL, text, x, y, colour, font);
+        return;
+    }
+    height = ((founder_line_height_fn)(uintptr_t)f->line_height)(font, NULL, 0);
+    if (height <= 0 || height > 64) {
+        centred(holder, NULL, text, x, y, colour, font);
+        return;
+    }
+    top = y - (count - 1) * height / 2;
+    for (i = 0; i < count; ++i) {
+        centred(holder, NULL, lines[i], x, top + i * height, colour, font);
+    }
+}
+
+/* The founders screen's one call, written on its own: the call to the centred draw, or nothing. */
+static void install_founders(int game) {
+    const struct founders_site *f;
+    unsigned char stock[5];
+    unsigned int rel;
+    vvfp_site_write w;
+    if (game < 1 || game > GAMES || FOUNDERS[game].call == 0) {
+        return;
+    }
+    f = &FOUNDERS[game];
+    rel = f->centred - (f->call + 5u);
+    stock[0] = 0xE8;
+    memcpy(stock + 1, &rel, 4);
+    if (!vvfp_site_holds(f->call, stock, sizeof stock)) {
+        return;
+    }
+    g_founders = f;
+    vvfp_site_branch(&w, f->call, sizeof stock, stock, 0xE8, (const void *)founder_name);
+    if (!vvfp_install_sites(&w, 1)) {
+        g_founders = NULL;
+    }
+}
+
 static int install(int game) {
     const struct game_site *s;
     unsigned char bytes[6], load_bytes[6];
@@ -2533,6 +2652,7 @@ static int install(int game) {
         return 0;
     }
     install_state = 1;
+    install_founders(game);
     return 1;
 }
 
