@@ -99,6 +99,23 @@ def names(image: bytes, va: int) -> list[str]:
     return [n.decode("ascii") for n in image[at:image.index(b"\0", at)].split(b",") if n]
 
 
+FOUNDERS = {"vv4": (0x43B80A, 0x409BE0), "vv5": (0x43E1EE, 0x409EB0)}
+FOUNDERS_BEHAVIOR = (
+    "The choose-your-founders screen (\"Select 5 villagers\") draws a candidate's name that is wider than its "
+    "room (140 pixels: the names' centres are 148 apart) in two or more lines broken at its spaces, each centred "
+    "under the villager with the game's own draw, font and colour, so long \"<first name> <last name>\" names "
+    "no longer run into each other; the whole name is shown, never cut. A name that fits is drawn as before."
+)
+
+
+def founders_stock(image: bytes, game: str) -> bytes:
+    call, target = FOUNDERS[game]
+    stock = image[call - 0x400000: call - 0x400000 + 5]
+    rel = int.from_bytes(stock[1:], "little", signed=True)
+    assert stock[0] == 0xE8 and call + 5 + rel == target, (game, stock.hex())
+    return stock
+
+
 def row(game: str, sha: str) -> dict:
     routine, last_list, what = SITES[game]
     pe = pefile.PE(str(STOCK / EXE[game]))
@@ -175,10 +192,13 @@ def row(game: str, sha: str) -> dict:
             f"The whole name always fits the game's own name field: the longest pairing is far below its {ROOM[game]} "
             "characters.",
             *(HEATHENS_BEHAVIOR if heathens else []),
+            *([FOUNDERS_BEHAVIOR] if game in FOUNDERS else []),
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion detours the naming routine's first instruction at "
-            "run time" + (" (and the villager table's load, 0x46FA20)" if heathens else "") + ", after verifying "
+            "run time" + (" (and the villager table's load, 0x46FA20)" if heathens else "")
+            + (f" and the founders screen's name call ({FOUNDERS[game][0]:#X}, on its own)".replace("0X", "0x")
+               if game in FOUNDERS else "") + ", after verifying "
             "it, the routine's push of the list and the creators' calls to it, and changes nothing if any differs.",
             "Villagers who already have names keep them; " + (
                 "when a village is loaded, only a Heathen whose name carries no last name is given one."
@@ -206,6 +226,14 @@ def row(game: str, sha: str) -> dict:
                            "get one right after it",
                 "installed_by": "VVFP Last Names.dll, VvfpStartup",
             }] if heathens else []),
+            *([{
+                "va": f"{FOUNDERS[game][0]:#X}".replace("0X", "0x"),
+                "stock_bytes": founders_stock(image, game).hex().upper(),
+                "routine": "the choose-your-founders screen's name draw (call of the centred draw "
+                           f"{FOUNDERS[game][1]:#X}): a name wider than its room is drawn in lines that fit".replace(
+                               "0X", "0x"),
+                "installed_by": "VVFP Last Names.dll, VvfpStartup",
+            }] if game in FOUNDERS else []),
         ],
         "patches": [],
     }
