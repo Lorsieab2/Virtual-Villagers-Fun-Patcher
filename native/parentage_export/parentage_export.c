@@ -2746,7 +2746,14 @@ struct pending_record {
     int slot;
     char *text;
     int open_entry;     /* a branching Custom Island Event's one entry: its index in event_entries + 1, else 0 */
+    /* A Conception made by the game's conception routine: the carrier's record, as the routine handed it over
+       (NULL for every other record), for conception_not_kept. */
+    const unsigned char *mother;
 };
+
+/* The carrier's record of the Conception being emitted right now (WriteParentageRecordWithFather sets it around
+   its emit_record), so hold_record can keep it with the held record. */
+static const unsigned char *g_conception_mother;
 
 static struct pending_record *pending;
 static int pending_count;
@@ -3498,24 +3505,152 @@ static const char UNVOUCHED_NOTE[] =
     "    not in it when it was -- likely the game's pre-tribe simulation, or a\n"
     "    tribe left unsaved by Start Over.\n";
 
-/* `text` with UNVOUCHED_NOTE before its closing blank line; NULL if out of
-   memory, in which case the record is written unlabelled. */
-static char *label_record(const char *text) {
+/* The closing line of a Conception the village, as it was saved, does not
+   hold (conception_not_kept). */
+static const char NOT_KEPT_NOTE[] =
+    "  Note: Not in the village as it was saved: the game played this time, then\n"
+    "    loaded the village again from its save and played the same time over, so\n"
+    "    this pregnancy was not kept.\n";
+
+/* `text` with `note` before its closing blank line; NULL if out of memory, in
+   which case the record is written unlabelled. */
+static char *label_record_with(const char *text, const char *note) {
     size_t length = strlen(text);
+    size_t note_length = strlen(note);
     size_t body = length;
     char *out;
 
     if (body > 0 && text[body - 1] == '\n') {
         --body;                           /* keep the closing blank line last */
     }
-    out = (char *)malloc(length + sizeof(UNVOUCHED_NOTE));
+    out = (char *)malloc(length + note_length + 1);
     if (out == NULL) {
         return NULL;
     }
     memcpy(out, text, body);
-    memcpy(out + body, UNVOUCHED_NOTE, sizeof(UNVOUCHED_NOTE) - 1);
-    memcpy(out + body + sizeof(UNVOUCHED_NOTE) - 1, text + body, length - body + 1);
+    memcpy(out + body, note, note_length);
+    memcpy(out + body + note_length, text + body, length - body + 1);
     return out;
+}
+
+/* `text` with UNVOUCHED_NOTE before its closing blank line; NULL if out of
+   memory, in which case the record is written unlabelled. */
+static char *label_record(const char *text) {
+    return label_record_with(text, UNVOUCHED_NOTE);
+}
+
+/* The name on a record's first "  <field>: " line (a Conception's or a Birth's
+   "  Mother: "), into `out`; 0 when the record has none. */
+static int record_field(const char *text, const char *field, char *out, size_t out_size) {
+    const char *at = strstr(text, field);
+    size_t n = 0;
+    if (at == NULL || out_size == 0) {
+        return 0;
+    }
+    at += strlen(field);
+    while (at[n] != '\0' && at[n] != '\n' && n + 1 < out_size) {
+        out[n] = at[n];
+        ++n;
+    }
+    out[n] = '\0';
+    return n > 0;
+}
+
+/* Whether `text` has the line "<field><name>". */
+static int record_names(const char *text, const char *field, const char *name) {
+    char line[MAX_NAME_BYTES + 32];
+    _snprintf(line, sizeof line, "%s%s\n", field, name);
+    line[sizeof line - 1] = '\0';
+    return strstr(text, line) != NULL;
+}
+
+/* A HELD CONCEPTION THE SAVED VILLAGE DOES NOT HOLD (the v1.35.97 live tests:
+   New Believers' Manaka five Conception records at age 549, Sanda three at
+   957; A New Home and The Lost Children the same).
+
+   A record made before the village's first save is held and written at that
+   save (emit_record) -- every one of them.  But before that save the game
+   can play the same stretch of time twice from the same save: it plays the
+   village once (the start-up run: the game's own log shows its catch-up twice
+   at every start, a few seconds apart), loads the village again from its
+   save and plays the same time over.  Everything the first run did is gone
+   from the village; its Conception records were held all the same, so the
+   log got a second, third... Conception of the same woman at the same age,
+   each with another father, none followed by a birth, and the saved village
+   carries only the last.
+
+   In one village, played on without a load, that cannot happen: the game
+   makes no carrier pregnant again while she carries (New Believers' partner
+   search 0x470AC2 / 0x470ACB, catch-up 0x46E918, the embrace step 0x468A59 /
+   0x468A61), and a pregnancy ends only in a birth (the life tick, 0x4732D6)
+   or with the carrier's death.  So, for a held Conception C made by the
+   conception routine (its carrier's record known):
+
+     1. a later held Conception of the same carrier -- the same record, the
+        same name -- with no Birth, "Lost before birth", Death or Disappeared
+        of hers between them: C is not in the saved village;
+     2. C is her last held Conception, this is the save, and her record still
+        holds her (present, the same name) but she carries nothing, with no
+        Birth or the rest of hers after C: C is not in the saved village.
+
+   Anything else keeps C as it is -- her record holding somebody else now,
+   a Birth of somebody with her name, an island event after C (an event can
+   change a pregnancy), a Custom Island Event's note on the later record:
+   unsure is never labelled.  A New Home logs its births only through Show
+   Parents' companion, so there, without it, nothing is judged.  Such a record
+   is still written, numbered as ever, with NOT_KEPT_NOTE -- the owner:
+   "nothing should be dropped". */
+static int conception_not_kept(int game_id, int index, int at_save) {
+    const struct pending_record *entry = &pending[index];
+    const struct game_layout *g = layout_of(game_id);
+    char name[MAX_NAME_BYTES];
+    char other[MAX_NAME_BYTES];
+    int j;
+
+    if (entry->kind != KIND_CONCEPTION || entry->mother == NULL || entry->open_entry != 0
+        || !record_field(entry->text, "  Mother: ", name, sizeof name)) {
+        return 0;
+    }
+    if (game_id == GAME_VV1 && !vvfp_patcher_file_exists("VVFP VV1 Parentage.dll")) {
+        return 0;                       /* its births are not logged: nothing to judge by */
+    }
+    for (j = index + 1; j < pending_count; ++j) {
+        const struct pending_record *later = &pending[j];
+        if (later->game_id != game_id || later->text == NULL) {
+            continue;
+        }
+        if (later->kind == KIND_ISLAND_EVENT) {
+            return 0;                   /* an event may have changed her pregnancy */
+        }
+        if ((later->kind == KIND_BIRTH || later->kind == KIND_LOST_BIRTH)
+            && record_names(later->text, "  Mother: ", name)) {
+            return 0;                   /* her pregnancy ended in a birth (or with her) */
+        }
+        if ((later->kind == KIND_DEATH || later->kind == KIND_DISAPPEARED)
+            && record_names(later->text, "  Name: ", name)) {
+            return 0;
+        }
+        if (later->kind == KIND_CONCEPTION && later->mother == entry->mother && later->slot == entry->slot
+            && record_field(later->text, "  Mother: ", other, sizeof other)
+            && strcmp(other, name) == 0) {
+            /* A Custom Island Event's own note (a father it set, a partner who
+               carries) or any other note: not judged. */
+            return strstr(later->text, "  Note: ") == NULL;
+        }
+    }
+    if (!at_save || g == NULL || g->litter < 4u
+        || !memory_is_readable(entry->mother, g->litter + sizeof(int))) {
+        return 0;
+    }
+    if (*(const unsigned char *)(entry->mother + g->active) != 1) {
+        return 0;                       /* gone: died, left, or her record moved */
+    }
+    copy_villager_name(g, entry->mother, other, sizeof other);
+    if (strcmp(other, name) != 0) {
+        return 0;                       /* her record holds somebody else now */
+    }
+    /* The pregnancy field, the dword before the litter (delivery_litter). */
+    return *(const int *)(entry->mother + g->litter - 4u) == 0;
 }
 
 /* Write every held record for this game under `village`, in order. Called once
@@ -3579,9 +3714,11 @@ static void flush_pending(int game_id, const char *village, int at_save) {
             if (now_known && entry->tribe >= 0 && entry->open_entry == 0
                 && !same_tribe(&held_tribes[entry->tribe], scratch_tribe, TRIBE_LOOSE)) {
                 labelled = label_record(entry->text);
-                if (labelled != NULL) {
-                    text = labelled;
-                }
+            } else if (conception_not_kept(game_id, i, at_save)) {
+                labelled = label_record_with(entry->text, NOT_KEPT_NOTE);
+            }
+            if (labelled != NULL) {
+                text = labelled;
             }
             if (entry->open_entry > 0) {
                 outcome = append_event_entry(g, village, entry->open_entry - 1, text);   /* its next part */
@@ -3636,6 +3773,7 @@ static int hold_record(int game_id, int kind, const unsigned char *records,
     entry->slot = game_slot_now(game_id);
     entry->tribe = current_tribe_index(game_id, records);
     entry->open_entry = 0;
+    entry->mother = kind == KIND_CONCEPTION ? g_conception_mother : NULL;
     ++pending_count;
     return 1;
 }
@@ -4154,7 +4292,13 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
     }
-    return emit_record(game_id, 0, records, text);
+    {
+        int result;
+        g_conception_mother = mother;
+        result = emit_record(game_id, 0, records, text);
+        g_conception_mother = NULL;
+        return result;
+    }
 }
 
 /* A New Home: the Conception record of a pregnancy whose father the Custom

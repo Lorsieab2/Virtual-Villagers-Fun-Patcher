@@ -58,7 +58,7 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         source = SOURCE.read_text(encoding="utf-8")
         # The conception passes the table the game handed over; a birth has
         # none, and the tribe is then found where the game keeps it.
-        self.assertIn("return emit_record(game_id, 0, records, text);", source)
+        self.assertIn("result = emit_record(game_id, 0, records, text);", source)
         self.assertIn("return emit_record(game_id, KIND_BIRTH, NULL, text);", source)
 
     def test_an_unknown_village_holds_rather_than_writes(self) -> None:
@@ -129,8 +129,9 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn("#define TRIBE_LOOSE  1", source)
         self.assertIn("  Note: Recorded before this village was saved", source)
         # The note goes before the record's closing blank line.
-        label = source[source.index("static char *label_record("):]
+        label = source[source.index("static char *label_record_with("):]
         self.assertIn("--body;", label[:label.index("\n}")])
+        self.assertIn("return label_record_with(text, UNVOUCHED_NOTE);", source)
         self.assertIn("entry->tribe = current_tribe_index(game_id, records);",
                       function("hold_record"))
 
@@ -201,6 +202,42 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn("if (!roll_back_append(path, original_size)) {", append)
         roll = function("roll_back_append")
         self.assertIn("SetEndOfFile(handle)", roll)
+
+    def test_a_conception_the_saved_village_does_not_hold_is_marked_not_dropped(self) -> None:
+        """v1.35.97 live tests: New Believers' Manaka had five Conception records
+        at age 549, Sanda three at 957, none followed by a birth -- the game
+        played the same time twice before the first save (once, then again
+        from the save) and every held conception of the first run was written.
+
+        Such a record is still written (nothing is dropped) with its own Note:
+        a later held Conception of the same carrier (same record, same name)
+        with no Birth, Lost before birth, Death or Disappeared of hers between,
+        or, at the save, her record still hers and carrying nothing.  Unsure
+        cases keep the record as it is."""
+        flush = function("flush_pending")
+        self.assertIn("} else if (conception_not_kept(game_id, i, at_save)) {", flush)
+        self.assertIn("labelled = label_record_with(entry->text, NOT_KEPT_NOTE);", flush)
+        self.assertNotIn("continue", flush)
+        self.assertEqual(flush.count("append_record("), 1)
+        judge = function("conception_not_kept")
+        # Only conceptions the game's routine made (their carrier's record known).
+        self.assertIn("entry->kind != KIND_CONCEPTION || entry->mother == NULL", judge)
+        # A New Home logs births only through Show Parents' companion.
+        self.assertIn('game_id == GAME_VV1 && !vvfp_patcher_file_exists("VVFP VV1 Parentage.dll")', judge)
+        # What ends a pregnancy keeps the earlier record; an island event makes it unsure.
+        self.assertIn("later->kind == KIND_BIRTH || later->kind == KIND_LOST_BIRTH", judge)
+        self.assertIn("later->kind == KIND_DEATH || later->kind == KIND_DISAPPEARED", judge)
+        self.assertIn("if (later->kind == KIND_ISLAND_EVENT) {", judge)
+        # The same carrier: the record the game handed over, in the same slot, with the same name.
+        self.assertIn("later->mother == entry->mother && later->slot == entry->slot", judge)
+        self.assertIn('return strstr(later->text, "  Note: ") == NULL;', judge)
+        # The last one is judged only at the save, against her own record.
+        self.assertIn("if (!at_save ||", judge)
+        self.assertIn("return *(const int *)(entry->mother + g->litter - 4u) == 0;", judge)
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn('"  Note: Not in the village as it was saved: ', source)
+        self.assertIn("entry->mother = kind == KIND_CONCEPTION ? g_conception_mother : NULL;",
+                      function("hold_record"))
 
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_the_harness_passes_against_the_shipped_dll(self) -> None:

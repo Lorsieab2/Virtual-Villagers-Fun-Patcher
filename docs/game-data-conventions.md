@@ -232,6 +232,34 @@ Save 1's log). A record made with no slot loaded is written at the next save,
 as before. Repair Saves & Logs moves records an older build wrote into the
 wrong save's log (`src/vv_misfiled_records.py`).
 
+### The same village played twice before its first save (v1.35.97)
+
+The simulation can be the player's own village. Live tests of v1.35.97 (New
+Believers, A New Home, The Lost Children) logged several Conception records
+for the same woman at the same age -- Manaka five at 549, Sanda three at 957 --
+each with another father and none followed by a birth, while the save carried
+only the last (the Village Population log written at that save names the last
+record's father; a woman with two such records carried nothing). The game's
+own `ldwLog.txt` shows its catch-up twice at every start, a few seconds apart,
+and A New Home logged the same five women in the same order twice. One village
+played on without a load cannot do that: New Believers never makes a carrier
+pregnant again (partner search `0x470AC2`/`0x470ACB`, catch-up `0x46E918`,
+embrace step `0x468A59`/`0x468A61`) and a pregnancy ends only in a birth
+(`0x4732D6`) or with the carrier. So the game played the time once, loaded the
+village again from its save and played the same time over, and every
+conception of the first run was held and written at the first save.
+
+Since then a held Conception is written with the closing line
+"Note: Not in the village as it was saved" (`conception_not_kept`) when a
+later held Conception of the same carrier -- the same record, the same name --
+follows with no Birth, "Lost before birth", Death or Disappeared of hers
+between, or when, at the save, she is still in her record but carries nothing
+and no Birth of hers followed. Anything unsure (her record holding somebody
+else, an island event after it, a Custom Island Event's note) is left as it
+is, nothing is dropped, and in A New Home nothing is judged without Show
+Parents' companion, which alone logs its births.
+`native/parentage_export/pending_harness.c` checks it in all five games.
+
 Static reading of The Secret City (`0x4285E0`, called once by `0x46C7D0`):
 at start the game loads its meta block (slot 0, which sets the field to the
 slot played last), then loads each of slots 1-5 in turn to fill the slot

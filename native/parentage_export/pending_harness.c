@@ -69,6 +69,7 @@ typedef int (__stdcall *ensure_village_t)(int, const char *, const void *);
 #define PREF_SLOTS  3
 #define SEX         0xDC8   /* 0 male, 1 female (the DLL's GAME_LAYOUTS row) */
 #define SEX_FEMALE  1
+#define PREGNANT    0xE8C   /* nonzero while carrying: the dword before the litter */
 #define OWN_FATHER  0xDF8   /* the villager's own parents, kept for life */
 #define OWN_MOTHER  0xE11
 #define OWN_CAP     0x19
@@ -109,6 +110,8 @@ static void conceive(int mother, int father) {
     strncpy((char *)rec(mother) + FATHER_NAME, (const char *)rec(father) + NAME, FATHER_CAP);
     *(int *)(rec(mother) + HEAD_COPY) = *(int *)(rec(father) + HEAD);
     *(int *)(rec(mother) + BODY_COPY) = *(int *)(rec(father) + BODY);
+    /* ...and she carries (the routine writes the pregnancy before the hook). */
+    *(int *)(rec(mother) + PREGNANT) = *(int *)(rec(mother) + AGE) + 1;
 }
 
 static char folder[MAX_PATH];       /* the Births and Conceptions folder being looked at */
@@ -277,6 +280,20 @@ static int noted_in(const char *log, const char *marker) {
     return note != NULL && (end == NULL || note < end);
 }
 static int noted(const char *marker) { return noted_in(logtext, marker); }
+
+/* Whether the record containing `marker` in `log` is marked as not kept by the saved village. -1 when the
+   marker is not there. */
+static int not_kept_in(const char *log, const char *marker) {
+    const char *at = log != NULL ? strstr(log, marker) : NULL;
+    const char *end;
+    const char *note;
+    if (at == NULL) {
+        return -1;
+    }
+    end = strstr(at, "\r\n\r\n");
+    note = strstr(at, "  Note: Not in the village as it was saved");
+    return note != NULL && (end == NULL || note < end);
+}
 
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
@@ -538,18 +555,18 @@ int main(int argc, char **argv) {
         /* Each game's own record geometry, from the export DLL's GAME_LAYOUTS. */
         static const struct {
             int game; unsigned int stride, slots, base, active, age, head, body,
-                name, cap, likes, father_of, mother_of, parent_cap;
+                name, cap, likes, father_of, mother_of, parent_cap, preg;
             const char *title;
         } G[5] = {
-            {1, 0x3D8, 256, 0, 0x28, 0x348, 0x360, 0x364, 0x370, 0x1C, 0x398, 0, 0, 0,
+            {1, 0x3D8, 256, 0, 0x28, 0x348, 0x360, 0x364, 0x370, 0x1C, 0x398, 0, 0, 0, 0x358,
              "Virtual Villagers 1 Births and Conceptions Log"},
-            {2, 0xE48C, 256, 0, 0x30, 0x530, 0x548, 0x54C, 0x564, 0x18, 0x5F0, 0x57D, 0x596, 0x18,
+            {2, 0xE48C, 256, 0, 0x30, 0x530, 0x548, 0x54C, 0x564, 0x18, 0x5F0, 0x57D, 0x596, 0x18, 0x540,
              "Virtual Villagers 2 Births and Conceptions Log"},
-            {3, 0x1F8C, 150, 0x14, 0xF10, 0xDC4, 0xDF0, 0xDF4, 0xDD4, 0x19, 0xFB4, 0xDF8, 0xE11, 0x19,
+            {3, 0x1F8C, 150, 0x14, 0xF10, 0xDC4, 0xDF0, 0xDF4, 0xDD4, 0x19, 0xFB4, 0xDF8, 0xE11, 0x19, 0xE8C,
              "Virtual Villagers 3 Births and Conceptions Log"},
-            {4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1E60, 0x1BC0, 0x1BD9, 0x19,
+            {4, 0x2E3C, 150, 0x44, 0x1CC4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1E60, 0x1BC0, 0x1BD9, 0x19, 0x1C4C,
              "Virtual Villagers 4 Births and Conceptions Log"},
-            {5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1F5C, 0x1BC0, 0x1BD9, 0x19,
+            {5, 0x2F44, 150, 0x48, 0x1CD4, 0x1B8C, 0x1BB8, 0x1BBC, 0x1B9C, 0x19, 0x1F5C, 0x1BC0, 0x1BD9, 0x19, 0x1C4C,
              "Virtual Villagers 5 Births and Conceptions Log"},
         };
         int k;
@@ -571,6 +588,7 @@ int main(int argc, char **argv) {
             GPUT(0, "Makawa", 487, 24, 20, "", "", 1);
             GPUT(1, "Kao", 434, 22, 2, "", "", 2);
             GPUT(2, "Tufi", 453, 22, 3, "", "", 3);
+            *(int *)(GREC(0) + G[k].preg) = 1;     /* the routine has made her pregnant */
             (void)write(G[k].game, t, GREC(0), GREC(1));
             /* The tribe replaces the whole table. */
             memset(t, 0, bytes);
@@ -578,6 +596,7 @@ int main(int argc, char **argv) {
             GPUT(1, "Yap", 565, 24, 0, "", "", 6);
             GPUT(2, "Epeli", 0, 16, 15, "Yap", "Kuka", -1);
             GPUT(3, "Paka", 542, 9, 2, "", "", 7);
+            *(int *)(GREC(0) + G[k].preg) = 1;
             (void)write(G[k].game, t, GREC(0), GREC(1));
             (void)birth(G[k].game, "", -1, -1, "Kuka", 7, 2, "Yap", 24, 0, GREC(2));
             /* Before the save: Epeli grows, takes up a like, is de-aged by an
@@ -648,6 +667,7 @@ int main(int argc, char **argv) {
             GPUT(0, "Aru", 480, 3, 3, "", "", 8);
             GPUT(1, "Bel", 470, 4, 4, "", "", 9);
             GPUT(2, "Cim", 460, 5, 5, "", "", 10);
+            *(int *)(GREC(0) + G[k].preg) = 1;
             (void)write(G[k].game, t, GREC(0), GREC(1));
             memset(GREC(0) + G[k].name, 0, G[k].cap);
             strncpy((char *)GREC(0) + G[k].name, "Arua", G[k].cap);
@@ -680,6 +700,129 @@ int main(int argc, char **argv) {
                   "VV%d: a founders-only tribe's conception is filed in its own log", G[k].game);
             CHECK(noted_in(text, "  Mother: Aru\r\n") == 0,
                   "VV%d: ...unlabelled, though every founder was renamed and restyled", G[k].game);
+            CHECK(not_kept_in(text, "  Mother: Aru\r\n") == 0,
+                  "VV%d: ...and she still carries it: not marked as not kept", G[k].game);
+
+            /* THE SAME TIME PLAYED TWICE BEFORE THE FIRST SAVE (the v1.35.97 live tests: New
+               Believers' Manaka five Conception records at one age, none followed by a birth;
+               the saved village carried only the last).  The game plays the village once,
+               loads it again from its save and plays the same time over; only the second run
+               is saved.  Run 1's conceptions are still written -- nothing is dropped -- but
+               marked as not kept; one pregnancy that really ended in a birth before the next
+               is never marked. */
+            {
+                static const char *const VV1_PARENTAGE = "VVFP VV1 Parentage.dll";
+                char companion[MAX_PATH];
+                int round, slot;
+                _snprintf(companion, MAX_PATH, "%s\\%s", files_dir, VV1_PARENTAGE);
+                companion[MAX_PATH - 1] = '\0';
+                /* Round 0: Show Parents' companion shipped (A New Home logs its births);
+                   round 1, A New Home only: not shipped, so its births are not logged and
+                   nothing may be judged. */
+                for (round = 0; round < (G[k].game == 1 ? 2 : 1); ++round) {
+                    unsigned char *saved = (unsigned char *)malloc(bytes);
+                    HANDLE h;
+                    if (round == 0) {
+                        h = CreateFileA(companion, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+                        if (h != INVALID_HANDLE_VALUE) CloseHandle(h);
+                    } else {
+                        DeleteFileA(companion);
+                    }
+                    slot = round == 0 ? 5 : 2;
+                    memset(t, 0, bytes);
+                    /* Round 1 is another village (other names and looks), so its records are held
+                       for its own first save, not written under round 0's. */
+                    GPUT(0, round ? "Wikia" : "Wiki", 549, 4 + round, 13, "", "", 11);
+                    GPUT(1, round ? "Cooka" : "Cook", 782, 17 + round, 17, "", "", 12);
+                    GPUT(2, round ? "Oitoa" : "Oito", 549, 7 + round, 0, "", "", 13);
+                    GPUT(3, round ? "Sandaa" : "Sanda", 957, 5 + round, 27, "", "", 14);
+                    GPUT(4, round ? "Upawaa" : "Upawa", 562, 12 + round, 24, "", "", 15);
+                    GPUT(5, round ? "Mataa" : "Mata", 579, 12 + round, 6, "", "", 16);
+                    {
+                        /* The four women (the DLL's GAME_LAYOUTS sex field and female value): a man
+                           who carries gets a Note of his own, which this check is not about. */
+                        static const unsigned int SEX_AT[6] = { 0, 0x350, 0x538, 0xDC8, 0x1B90, 0x1B90 };
+                        static const int FEMALE[6] = { 0, 2, 2, 1, 1, 1 };
+                        static const int WOMEN[4] = { 0, 3, 4, 5 };
+                        int w;
+                        for (w = 0; w < 4; ++w) {
+                            *(int *)(GREC(WOMEN[w]) + SEX_AT[G[k].game]) = FEMALE[G[k].game];
+                        }
+                    }
+                    memcpy(saved, t, bytes);                    /* the village as saved */
+                    /* Run 1: three conceptions. */
+                    *(int *)(GREC(0) + G[k].preg) = 550;
+                    (void)write(G[k].game, t, GREC(0), GREC(1));
+                    *(int *)(GREC(3) + G[k].preg) = 958;
+                    (void)write(G[k].game, t, GREC(3), GREC(2));
+                    *(int *)(GREC(4) + G[k].preg) = 563;
+                    (void)write(G[k].game, t, GREC(4), GREC(2));
+                    /* The game loads the village again from its save. */
+                    memcpy(t, saved, bytes);
+                    /* Run 2: Wiki and Sanda conceive again, with other fathers; Upawa does not.
+                       Mata conceives, gives birth, and conceives again -- two real pregnancies. */
+                    *(int *)(GREC(0) + G[k].preg) = 551;
+                    (void)write(G[k].game, t, GREC(0), GREC(2));
+                    *(int *)(GREC(3) + G[k].preg) = 959;
+                    (void)write(G[k].game, t, GREC(3), GREC(1));
+                    *(int *)(GREC(5) + G[k].preg) = 580;
+                    (void)write(G[k].game, t, GREC(5), GREC(1));
+                    GPUT(6, "Pono", 0, 14, 9, round ? "Cooka" : "Cook", round ? "Mataa" : "Mata", 17);
+                    (void)birth(G[k].game, "Pono", 14, 9, round ? "Mataa" : "Mata", 12 + round, 6,
+                                round ? "Cooka" : "Cook", 17 + round, 17, GREC(6));
+                    *(int *)(GREC(5) + G[k].preg) = 0;          /* delivered */
+                    *(int *)(GREC(5) + G[k].preg) = 621;
+                    (void)write(G[k].game, t, GREC(5), GREC(2));
+                    _snprintf(village, sizeof village, "Village: Game %d Replayed (Save %d)\n", G[k].game, slot);
+                    use_slot(slot);
+                    vv_village_publish(village);
+                    if (ensure_village != NULL) {
+                        (void)ensure_village(G[k].game, village, t);
+                    } else {
+                        (void)ensure(G[k].game, village);
+                    }
+                    {
+                        int number;
+                        for (number = 1; number <= 9; ++number) {
+                            _snprintf(path, MAX_PATH, "%s\\%s %d.txt", folder, G[k].title, number);
+                            text[0] = 0;
+                            f = fopen(path, "rb");
+                            if (f) { n = fread(text, 1, sizeof text - 1, f); text[n] = 0; fclose(f); }
+                            if (strstr(text, "Replayed (Save") != NULL) break;
+                        }
+                    }
+                    CHECK(strstr(text, "Replayed (Save") != NULL, "VV%d: the replayed village's log is written",
+                          G[k].game);
+                    {
+                        int all = 0, marked = 0;
+                        const char *p = text;
+                        while ((p = strstr(p, "\r\nConception ")) != NULL) { ++all; p += 13; }
+                        p = text;
+                        while ((p = strstr(p, "  Note: Not in the village as it was saved")) != NULL) { ++marked; p += 10; }
+                        CHECK(all == 7, "VV%d%s: all seven conceptions are written -- nothing is dropped (%d)",
+                              G[k].game, round ? " without Show Parents" : "", all);
+                        if (round == 0) {
+                            CHECK(marked == 3, "VV%d: exactly three are marked as not kept (%d)", G[k].game, marked);
+                            CHECK(not_kept_in(text, "  Mother: Wiki\r\n") == 1
+                                  && not_kept_in(strstr(text, "  Mother: Wiki\r\n") + 1, "  Mother: Wiki\r\n") == 0,
+                                  "VV%d: Wiki's first run is marked, the run the save kept is not", G[k].game);
+                            CHECK(not_kept_in(text, "  Mother: Sanda\r\n") == 1
+                                  && not_kept_in(strstr(text, "  Mother: Sanda\r\n") + 1, "  Mother: Sanda\r\n") == 0,
+                                  "VV%d: Sanda's likewise", G[k].game);
+                            CHECK(not_kept_in(text, "  Mother: Upawa\r\n") == 1,
+                                  "VV%d: Upawa, who carries nothing in the saved village, is marked", G[k].game);
+                            CHECK(not_kept_in(text, "  Mother: Mata\r\n") == 0
+                                  && not_kept_in(strstr(text, "  Mother: Mata\r\n") + 1, "  Mother: Mata\r\n") == 0,
+                                  "VV%d: Mata's two pregnancies with a birth between are never marked", G[k].game);
+                        } else {
+                            CHECK(marked == 0, "VV1 without Show Parents: its births are not logged, nothing is "
+                                  "marked (%d)", marked);
+                        }
+                    }
+                    free(saved);
+                }
+                DeleteFileA(companion);
+            }
 #undef GPUT
 #undef GREC
             free(t);
