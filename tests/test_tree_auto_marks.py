@@ -191,7 +191,7 @@ class OrdinaryHeathens(Base):
         convert = holder(village, y.name, alive=True)
         self.assertEqual(gen.conversion_snapshot(convert), T2)
         self.assertTrue(gen.is_converted_newcomer(convert))
-        self.assertEqual(convert.generation, 2, "converted while only the founders lived: generation II")
+        self.assertEqual(convert.generation, 2, "the newest believer generation in the snapshot they converted in")
         self.assertFalse(ft.is_founder(village, convert))
         founder = holder(village, x.name, alive=True)
         self.assertEqual(founder.generation, 1)

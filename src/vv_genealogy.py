@@ -2016,7 +2016,7 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
     first = dates[0] if dates else None
     arrivals = [pid for pid, p in people.items() if is_arrival(p, first)]
     converts = {pid for pid in arrivals if is_converted_newcomer(people[pid])}
-    floor = {pid: 2 if pid in converts else 1 for pid in arrivals}
+    floor = {pid: 1 for pid in arrivals}   # owner 2026-11-21: a convert may share the founders' row
     base = dict(floor)
 
     def compute() -> dict[int, int]:

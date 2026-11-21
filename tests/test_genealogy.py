@@ -152,12 +152,12 @@ class ConvertedHeathenTests(unittest.TestCase):
         g = {p.name: p.generation for p in v.people.values()}
         self.assertEqual((g["Fo1"], g["Fo2"], g["Nb"], g["He"]), (1, 1, 1, 1), "founders and Heathens stay")
         self.assertEqual(g["Ki"], 2)
-        # Ma converted while only the founders lived: never the founders' generation, so generation II.
-        self.assertEqual(g["Ma"], 2)
+        # Ma converted while only the founders lived: the founders' generation (owner: Heathens may share it).
+        self.assertEqual(g["Ma"], 1)
         # Za converted in the snapshot that first lists Ki (generation II): generation II.
         self.assertEqual(g["Za"], 2)
         self.assertEqual(g["Mt"], 2)
-        self.assertEqual(g["Baby"], 3, "a converted Heathen's child is one below her")
+        self.assertEqual(g["Baby"], 2, "a converted Heathen's child is one below her")
         self.assertEqual(gen.conversion_snapshot(v.people[3]), S2)
         self.assertEqual(gen.conversion_snapshot(v.people[4]), S3)
         self.assertEqual(gen.conversion_snapshot(v.people[5]), S4)
@@ -203,7 +203,7 @@ class ConvertedHeathenTests(unittest.TestCase):
         # A former Heathen's title only, no Heathen snapshot: the snapshot they first appear in decides...
         late = gen.Person(10, "Late", 10, 10, sex="Male", age=30 * Y, alive=True, first_seen=S4,
                           statuses=["Heathen", "Converted Red Mask Heathen"], factions=[(S4, "Believer")])
-        # ...and one listed a believer from the first snapshot (converted before the logs began) is generation II.
+        # ...and one listed a believer from the first snapshot (converted before the logs began) is generation I.
         early = gen.Person(11, "Early", 11, 11, sex="Male", age=30 * Y, alive=True, first_seen=S1,
                            statuses=["Heathen", "Former Heathen"], factions=[(S1, "Believer")])
         v = self.build({10: late, 11: early})
@@ -212,12 +212,12 @@ class ConvertedHeathenTests(unittest.TestCase):
                              S4: everyone | {8, 10, 11}})
         self.assertIsNone(gen.conversion_snapshot(late))
         self.assertEqual(late.generation, 2)                 # Ki's generation, newest in S4
-        self.assertEqual(early.generation, 2)
+        self.assertEqual(early.generation, 1)
         self.assertFalse(ft.is_founder(v, early))
-        # No History snapshots at all: generation II.
+        # No History snapshots at all: generation I.
         lone = gen.Village(5, 1, "T", {1: gen.Person(1, "Only", 1, 1, sex="Male", alive=True, converted=True)})
         gen._generations(lone, {})
-        self.assertEqual(lone.people[1].generation, 2)
+        self.assertEqual(lone.people[1].generation, 1)
 
     def test_a_converted_heathen_with_known_parents_keeps_their_generation(self) -> None:
         kid = gen.Person(10, "HeKid", 10, 10, sex="Male", age=10 * Y, alive=True, father=6, first_seen=S1,
