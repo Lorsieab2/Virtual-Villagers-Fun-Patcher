@@ -211,9 +211,11 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x39C83"): "AF6CF1CACEA061F182DEEC93716BB036BE9F9635E2F5777E76CADE467D3ED723",
     ("vv1_birth_control", "0x3DD03"): "F4AF5EE81A11110F6F37F8AD2411C0D7F4DA616E3B8EB820C519C5E2734E8614",
-    ("vv1_birth_control", "0x46E96"): "5C9F87C9FA92B6B7BCB38A902E9E81009F206F636B8A09A0BA7FA86040BF358F",
-    ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
+    # One partner per catch-up embrace (2026-11-21): 0x4723D is a jmp inside .text to the stock end of the embrace
+    # step 0x44725C (the exit the second scan's loop already takes), so it has no cave; the pick at 0x46E70 is
+    # written in place and emulated in tests/test_birth_control_one_partner.py.
+    ("vv1_birth_control", "0x4723D"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     # Doubler persistence. Both halves re-verified after the save and restore
     # hooks were found to be on each other's functions and swapped.
     #
@@ -558,9 +560,8 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
 COMPOSED_CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control+origins", "0x39C83"): "967EE2D126D97EF25D26E59CADF4F88E1ACD6B13775532122FA97D6C8E9AC21C",
     ("vv1_birth_control+origins", "0x3DD03"): "B14149577146F1A2C72E7A79B65F5BAA32AEEF8B3EC10D429FD71223C3EF2B04",
-    ("vv1_birth_control+origins", "0x46E96"): "BC63138974420681617BB3D5652C236C19879C83218C73E8AEB79339AF389ACC",
-    ("vv1_birth_control+origins", "0x47084"): "926796ACA098A27162CE31B86F9A1DD23EC740CA7E0FDA70C70177BE34B10703",
     ("vv1_birth_control+origins", "0x477FA"): "95D1ABBD9B240B08828F67C39DEBCA8099F3C9CD96DD4861D3B2988904E8F58E",
+    ("vv1_birth_control+origins", "0x4723D"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
 }
 
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
@@ -596,29 +597,6 @@ REVIEWED: dict[tuple[str, str, int], str] = {
     "0x43DE2E. EDI is stale at this splice point (it holds the RNG(3)+5 "
     "duration), which is exactly the v1.34.11 crash; the cave rebuilds it as "
     "esi+ebx*0x3D8 before jumping here.",
-    (
-        "vv1_birth_control",
-        "0x46E96",
-        0x446EA2,
-    ): "resume past the stock jl. Cave touches only EAX and flags, so EDX "
-    "and ESI reach here exactly as the stock code left them.",
-    (
-        "vv1_birth_control",
-        "0x46E96",
-        0x447036,
-    ): "reject. This is the stock's own jl target from 0x446E9C, and the "
-    "cave preserves ESI (touches only EAX and flags).",
-    (
-        "vv1_birth_control",
-        "0x47084",
-        0x447090,
-    ): "resume past the stock jl. Cave touches only ECX and flags, so ESI "
-    "reaches here unchanged.",
-    (
-        "vv1_birth_control",
-        "0x47084",
-        0x44723D,
-    ): "reject. Stock's own jl target from 0x44708A; no pointer reads.",
     (
         "vv1_birth_control",
         "0x477FA",

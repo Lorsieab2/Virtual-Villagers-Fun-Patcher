@@ -205,14 +205,16 @@ commit `c8d268d` rejects the prior patch proposal:
 The implemented VV1 feature uses an owned executable `.vv1bc` section at raw
 `0x8E000` / VA `0x490000`; it does not consume the historical `.text` gaps or
 the Origins `.shr`/code-patch ranges. The manual hook at `0x3DD03` rejects only
-the category-2 carrier at internal age `>=1000`. The two action-9
-writer-reaching scans at `0x46E96` and `0x47084` add candidate-only upper
-bounds while preserving both stock `>=360` checks. The planner hook at
+the category-2 carrier at internal age `>=1000`. The catch-up embrace
+(opcode 9 of the step runner `0x446C70`, called only from the catch-up job
+turn `0x42E790`) is a one-partner pick since 2026-11-21 (see "One partner per
+catch-up embrace" below); it applies the same candidate-only `360..999` range
+and keeps the initiator's stock `>=360` check. The planner hook at
 `0x477FA` likewise adds only the candidate upper bound before the stock
 initiator check. The chooser tail at `0x39C80`/`0x39C83` now uses the same
 score floor and non-preference fallback as the VV4/VV2/VV3 chooser while
 preserving VV1's native category/skill mapping. Catch-up reuses the
-chooser/action-9 route. Direct event-created births and pending delivery remain
+chooser. Direct event-created births and pending delivery remain
 outside Birth Control ownership; automatic physical-capacity safety is applied
 separately in every public mode. Static verification is complete; runtime/player
 confirmation remains pending.
@@ -262,7 +264,7 @@ gates and remain outside Birth Control ownership. No VV5 Birth Control bytes are
 ## Implementation status
 
 VV1, VV2, and VV3 have independent exact-build Birth Control records. VV1's
-owned helper page and six guarded code hooks, plus VV3's five complete
+owned helper page and its guarded code edits, plus VV3's five complete
 initiator-check removals, are statically verified against their recorded stock
 hashes. VV2 and VV3 already contain the literal VV4/VV5 chooser score floor and
 25% non-preference fallback natively; VV1 now matches that chooser tail without
@@ -273,7 +275,48 @@ physical-capacity safety is separate and applies in every public mode.
 Runtime/player confirmation remains pending. VV4 and VV5 remain native
 no-patch references.
 
+### One partner per catch-up embrace (VV1 and VV2, 2026-11-21)
+
+The owner's decision: "One partner only with BC: Only when Birth Control is
+ticked: one partner per try, and Parenting tries as often as other jobs.
+Without Birth Control, the original 'everyone at once' stays."
+
+Stock VV1 and VV2 run the catch-up embrace as two scans over all 256 villager
+slots in the step runner (VV1 `0x446C70` opcode 9: `0x446E70-0x44704F` then
+`0x447055-0x447256`; VV2 `0x464680` opcode 12: `0x464847-0x464A4E` then
+`0x464A54-0x464C63`). Each scan calls the pregnancy writer for every villager
+who passes and never stops at a conception, so one man's job turn can make
+every eligible woman pregnant. The runners are called only from the catch-up
+job turns (VV1 `0x42E80D`/`0x42E825`, VV2 `0x43B55A`/`0x43B58C`; no absolute
+pointer to either exists). The Tree of Life's catch-up embrace `0x464FA0`
+instead calls its mate selector `0x466DA0` once -- every villager who can pair
+is listed, one is picked with `rand(count)` -- and makes one conception roll.
+
+With Birth Control ticked, VV1 file `0x46E70` and VV2 file `0x64847` replace
+the start of the first scan with that pick, written in place: every villager of
+the other sex who can pair (alive, candidate age `360..999`, health above 0,
+not sick, not pregnant/nursing, with the scans' own initiator checks; the
+initiator has no upper age) is listed, one is picked with the game's own RNG
+(`0x402F10`, `0x4031A0`), and that partner enters the second scan at its food
+refusal (`0x447112`, `0x464B0E`), so the room check, the Parenting check, the
+conception roll and the writer call (`0x447238`, `0x464C4D`) are the stock
+code and the parentage hooks see the frame they always saw. VV1 `0x4723D` and
+VV2 `0x64C52` end the embrace after that one attempt. The candidate age bound
+that VV1's page applied at `0x46E96`/`0x47084` and VV2's 40-byte blocks applied
+at `0x6488D`/`0x64A8F` is now part of the pick, so those edits are gone.
+Without Birth Control the runners are byte-identical to stock.
+
+Live play already pairs one partner per embrace: VV1 step 9 runs `0x43DAD0`
+from the step dispatcher `0x43DEF0`, VV2 step 12 runs `0x44F610` from
+`0x44FBB0`; each takes the one villager found at the initiator's position
+(`0x439350`, `0x449160`) and calls the writer at most once. Nothing live is
+changed. `tests/test_birth_control_one_partner.py` emulates both runners from
+their entries in all three modes.
+
 ### VV2 exact-build implementation (`74778bd6a7d3a17dd990636cf6d4e769466800c6`)
+
+(The two scan blocks below were Birth Control's catch-up age bound until
+2026-11-21; the one-partner pick above replaced them.)
 
 The Lost Children build is exactly 724,992 bytes with SHA-256
 `46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677`.
