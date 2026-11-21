@@ -117,6 +117,11 @@ CHECKS += 6 * 4
 # + 3 in A New Home (the owner, 2026-11-03): a villager whose parents the Show Parents companion keeps
 # was born there and gets no Arrived backfill; one with none still does (vv1_parented_cases)
 CHECKS += 3
+# + 7 in The Tree of Life and New Believers (the live round 7, 2026-11-21): a save while "Select 5
+# villagers" is open writes nothing -- no Arrived record for the candidate on show, whom a Reject
+# replaces in the same record, no roster, no Unaccounted -- and the save after the start writes exactly
+# the five chosen as Arrived 1-5 (arrival_harness.c founder_screen_cases)
+CHECKS += 7 * 2
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

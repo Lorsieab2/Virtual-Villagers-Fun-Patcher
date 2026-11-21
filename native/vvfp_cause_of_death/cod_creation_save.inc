@@ -50,6 +50,7 @@
    start-game step, which sets the start time. */
 
 #define CREATION_RECENT_SECONDS 300u
+#define FOUNDER_SCENE 3u            /* The Tree of Life and New Believers: "Select 5 villagers" */
 
 static const struct {
     unsigned int manager;       /* the save manager singleton's address */
@@ -127,6 +128,30 @@ static void creation_save_slot_now(unsigned char *manager, int slot) {
     const void *const *vtable = *(const void *const *const volatile *)manager;
     ((creation_slot_save_fn)vtable[0x38 / 4])(manager, NULL, slot);
 #endif
+}
+
+/* THE FOUNDER SCREEN IS STILL OPEN (The Tree of Life, New Believers).  Their "Select 5 villagers"
+   screen is the manager's scene 3 (VV4 0x43DB45 / VV5 0x440425: 3 when the new-village flag
+   [0x4DA810] / [0x51FD50] is 0) until the fifth Select runs the start-game step (VV4 0x43BD26 ->
+   0x41FEF0, then scene 0 at 0x43BD2F; VV5 0x43E726 -> 0x4259D0, 0x43E72F).  Every candidate it
+   shows is a real villager record: the screen (VV4 0x43B830 / VV5 0x43E220) puts the next one in
+   record [screen+0x18] -- the number already chosen -- after clearing that record's present byte
+   (+0x1CC4 / +0x1CD4), so a Reject frees the candidate and makes another in the same record.
+   And the game's 600 s autosave (VV4 0x41F1A0 / VV5 0x424660, every frame of every scene) saves
+   the slot whatever the scene: the live round 7 (2026-11-21, VV4 "R7 Test", Save 2) had it save
+   after three Selects with the fourth candidate on screen, and every save hook took that as the
+   new village -- Arrived records for the three chosen and the candidate (Natui Kantigi, then
+   rejected), the Village Roster and History with him, and the real fourth and fifth founders
+   (Maoa Powaka, Gavi Chinaka) never written: the next save found a village saved before.  A save
+   while this screen is open is not the village yet: the logs wait for the save after the start. */
+static int founder_screen_open(void) {
+    unsigned char *manager;
+    if (g_game != 4 && g_game != 5) {
+        return 0;
+    }
+    manager = creation_manager();
+    return manager != NULL
+        && *(const volatile unsigned int *)(manager + CREATION_SAVE[g_game].state) == FOUNDER_SCENE;
 }
 
 /* Whether a founder made for a new village waits for its first save. */

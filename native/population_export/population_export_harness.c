@@ -621,6 +621,34 @@ static void run_game(const struct game *g, write_population_t write) {
           "roster: her OWN father is still printed");
 
     free(log);
+
+    /* THE FOUNDER SCREEN (The Tree of Life, New Believers; the live round 7, 2026-11-21): the game's
+       autosave runs while "Select 5 villagers" is open (the save manager's scene 3), when the records
+       hold the founders chosen so far and the candidate on show, whom a Reject replaces.  That save
+       adds no Village History snapshot -- append-only, it could never be taken back -- while the
+       Population, rewritten at every save, is written as always.  Scene 0 (the village) appends. */
+    if (g->id == 4 || g->id == 5) {
+        static unsigned char manager[0x18000];
+        const unsigned int manager_rva = g->id == 4 ? 0xCB51Cu : 0xDACE0u;
+        const unsigned int scene = g->id == 4 ? 0x171A8u : 0x17E1Cu;
+        *(unsigned char **)(image + manager_rva) = manager;
+        *(unsigned int *)(manager + scene) = 3u;
+        remove_log();
+        CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4,
+              "founder screen open: the Population is written");
+        log = read_log(LOG_ROSTER);
+        CHECK(log != NULL && strstr(log, "Name: Kiwi") != NULL, "founder screen open: the roster lists the records");
+        free(log);
+        log = read_log(LOG_HISTORY);
+        CHECK(log == NULL, "founder screen open: no Village History snapshot is appended");
+        free(log);
+        *(unsigned int *)(manager + scene) = 0u;
+        CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4, "the village: written");
+        log = read_log(LOG_HISTORY);
+        CHECK(log != NULL && strstr(log, "Name: Kiwi") != NULL, "the village: the History snapshot is appended");
+        free(log);
+        *(unsigned char **)(image + manager_rva) = NULL;
+    }
     remove_log();
     VirtualFree(image, 0, MEM_RELEASE);
 }

@@ -124,6 +124,7 @@ struct vvfp_cause_stats {
     int left_tribe;           /* New Believers: believers who became Heathens */
     int lost;                 /* "Lost before birth" records (cod_lost.inc) */
     int creation_saves;       /* saves asked for a new village's founders (cod_creation_save.inc) */
+    int founder_screen_saves; /* saves made while VV4/VV5's founder screen was open: not the village yet */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -728,6 +729,7 @@ static void arrival_noted_birth(int index);
 static void arrival_backfill_at_save(int slot, const void *save_buffer);
 static void report_follow(void);
 static void births_backfill_at_save(int slot, const void *save_buffer);
+static int founder_screen_open(void);     /* cod_creation_save.inc */
 
 /* cod_cie.inc: the bodies the Custom Island Event's "Dies" left (The Secret
    City, The Tree of Life, New Believers). */

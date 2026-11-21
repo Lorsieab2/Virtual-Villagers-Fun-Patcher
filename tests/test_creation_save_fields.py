@@ -160,6 +160,44 @@ class CreationSaveFields(unittest.TestCase):
         self.assertIn("vtable[0x38 / 4])(manager, NULL, slot)", source)
         self.assertIn("typedef int (__fastcall *creation_slot_save_fn)(void *self, void *unused_edx, int slot);", source)
 
+    def test_the_founder_screen_is_scene_3_and_the_autosave_runs_on_it(self):
+        # The live round 7 (2026-11-21, VV4 "R7 Test"): the game's autosave saved while "Select 5
+        # villagers" was open, and the logs took the candidate on show for a founder.  Pinned here:
+        #  - the screen is the manager's scene 3 (VV4 0x43DB45 / VV5 0x440425: `neg; sbb; and -3;
+        #    add 3` of the new-village flag, so 3 when it is 0);
+        #  - each candidate goes in record [screen+0x18], the number chosen so far, after that
+        #    record's present byte is cleared (VV4 0x43B830 / VV5 0x43E220): a Reject replaces the
+        #    candidate in the same record;
+        #  - the autosave (0x41F1A0 / 0x424660) reads no scene: it saves on every screen;
+        #  - the companion holds every save made in scene 3, and the History skips it.
+        cases = {
+            4: (0x43DB30, 0x43DB45, 0x43B830, 0x1CC4),
+            5: (0x440410, 0x440425, 0x43E220, 0x1CD4),
+        }
+        for game, (scene_code, scene_store, candidate, present) in cases.items():
+            scene = FIELDS[game][4]
+            with self.subTest(game=game):
+                code = " ; ".join(self._code(game, scene_code, scene_store - scene_code + 6))
+                self.assertRegex(code, r"neg esi ; sbb esi, esi ; and esi, 0xfffffffd ; add esi, 3 ; call 0x[0-9a-f]+ ; "
+                                       rf"mov dword ptr \[eax \+ {scene:#x}\], esi$", code)
+                make = " ; ".join(self._code(game, candidate, 0x20))
+                self.assertRegex(make, r"^sub esp, 0x10 ; mov eax, dword ptr \[ecx \+ 0x18\] ; mov dword ptr \[esp \+ 4\], ecx ; "
+                                       rf"push eax ; mov ecx, 0x[0-9a-f]+ ; call 0x[0-9a-f]+ ; test eax, eax ; je 0x[0-9a-f]+ ; "
+                                       rf"mov byte ptr \[eax \+ {present:#x}\], 0", make)
+                autosave = " ; ".join(self._code(game, FIELDS[game][0], FIELDS[game][1]))
+                self.assertNotIn(f"{scene:#x}", autosave)
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn("#define FOUNDER_SCENE 3u", source)
+        self.assertIn("CREATION_SAVE[g_game].state) == FOUNDER_SCENE", source)
+        roster = (ROOT / "native/vvfp_cause_of_death/cod_roster.inc").read_text(encoding="utf-8")
+        done = roster[roster.index("static void cod_save_done("):]
+        done = done[:done.index("\n}\n")]
+        self.assertLess(done.index("if (founder_screen_open()) {"), done.index("backfill_at_save(slot, save_buffer);"))
+        population = (ROOT / "native/population_export/population_export.c").read_text(encoding="utf-8")
+        self.assertIn("{ 0, 0, 0, 0, 0xCB51Cu, 0xDACE0u }", population)
+        self.assertIn("{ 0, 0, 0, 0, 0x171A8u, 0x17E1Cu }", population)
+        self.assertIn("if (!founder_screen_open(game_id, module)) {\n        (void)append_history(", population)
+
     def test_the_companion_uses_these_fields(self):
         text = SOURCE.read_text(encoding="utf-8")
         for game, (_r, _l, manager, slot, scene, main, field, start) in FIELDS.items():
