@@ -83,6 +83,7 @@
         "How to use: on a villager's Details screen, tick Parenting for villagers you want as parents and untick it for the rest.",
         "The game no longer picks a villager aged 50 or older as a partner.",
         "While the game is closed (and during a Time Warp), a villager with Parenting ticked tries for a baby as often as other villagers do their jobs, instead of only now and then.",
+        "Each of those tries is with one partner, picked at random, instead of every woman at once.",
         "Pregnancies that have already started are not affected."
       ]
     },

@@ -32,34 +32,31 @@ STOCK = (
 )
 BUILD_SHA256 = "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
 AUDIT_COMMIT = "74778bd6a7d3a17dd990636cf6d4e769466800c6"
+# One partner per catch-up embrace (the owner, 2026-11-21; tests/test_birth_control_one_partner.py emulates it):
+# the one-partner pick written in place of the first catch-up embrace scan (file 0x64847 == VA 0x464847), and the
+# end of the embrace after the second scan's one attempt (file 0x64C52 == VA 0x464C52).  (offset, va, before, after)
 BLOCKS = (
     (
-        0x6488D,
-        0x46488D,
+        0x64847,
+        0x464847,
         bytes.fromhex(
-            "8B530883FA0275073DE80300007C1983BF38050000020F8594010000"
-            "81F9E80300000F8D88010000"
+            "C7442410FF0000008D9EA4ACE300EB098DA424000000008BFF8A8300FBFFFF84C00F84CF0100008B033D680100000F8CC201"
+            "00008B8F3005000081F9680100000F8CB00100008B530883FA0275073DE80300007C1983BF38050000020F859401000081F9"
+            "E80300000F8D880100008B43FC85C00F8E7D0100008B872C05000085C00F8E6F0100003B97380500000F84630100008B4310"
+            "85C00F85580100008B874005000085C00F854A0100008B430C85C00F853F0100008B873C05000085C00F85310100008B8ED4"
         ),
         bytes.fromhex(
-            "8B53083DE80300000F8DA2010000"
-            "9090909090909090909090909090909090909090909090909090"
+            "81BF30050000680100000F8CB300000083BF2C050000000F8EA600000083BF40050000000F859900000083BF3C050000000F"
+            "858C00000081EC0004000033ED33C98D863005000080B800FBFFFF0074338B1081FA680100007C2981FAE80300007D218378"
+            "FC007E1B8B50083B9738050000741083781000750A83780C007504890CAC45058CE400004181F9000100007CB685ED742855"
+            "E8BEE8F9FF83C4048B0C8481C400040000894C241069D98CE400008D9C3330050000E90A02000081C400040000E95A030000"
         ),
-        0x464A3D,
     ),
-    (
-        0x64A8F,
-        0x464A8F,
-        bytes.fromhex(
-            "8B530883FA0275073DE80300007C1983BF38050000020F85A7010000"
-            "81F9E80300000F8D9B010000"
-        ),
-        bytes.fromhex(
-            "8B53083DE80300000F8DB5010000"
-            "9090909090909090909090909090909090909090909090909090"
-        ),
-        0x464C52,
-    ),
+    (0x64C52, 0x464C52, bytes.fromhex("8B44241048"), bytes.fromhex("E912000000")),
 )
+PICK_RAND = 0x4031A0          # the game's RNG, rand(count)
+PICK_ENTERS = 0x464B0E        # the second scan's food refusal, then the stock rolls and writer call 0x464C4D
+EMBRACE_END = 0x464C69        # the end of the embrace step
 
 EXCLUDED_STOCK_WINDOWS = (
     # Direct special outcomes.
@@ -124,41 +121,39 @@ class VV2BirthControlTests(unittest.TestCase):
             with self.assertRaisesRegex(PatcherError, "not one of the five exact supported"):
                 identify(altered)
 
-    def test_manifest_has_exact_two_equal_length_guarded_blocks(self) -> None:
+    def test_manifest_has_the_one_partner_pick_and_the_embrace_end(self) -> None:
         self.assertEqual(self.feature.game_id, "vv2")
         self.assertEqual(self.feature.name, "Birth Control")
         self.assertIn(AUDIT_COMMIT, self.feature.raw["evidence_status"])
-        # The two 40-byte candidate-scan blocks are asserted here. The
-        # chooser fallback-removal patch at 0x49E36 is a different shape and
-        # is covered by its own test below, so this pairing is scoped to the
-        # scan offsets rather than to "every patch in the feature".
-        scan_offsets = {offset for offset, _, _, _, _ in BLOCKS}
-        scans = [
-            patch
-            for patch in self.feature.patches
-            if int(patch["offset"], 0) in scan_offsets
-        ]
-        self.assertEqual(len(scans), 2)
-        for patch, (offset, _, before, after, _) in zip(
-            scans, BLOCKS, strict=True
-        ):
+        # The chooser fallback-removal patch at 0x49E36 and the catch-up gate at 0x3B53C are covered by their own
+        # tests, so this pairing is scoped to the embrace edits rather than to "every patch in the feature".
+        offsets = {offset for offset, _, _, _ in BLOCKS}
+        edits = [patch for patch in self.feature.patches if int(patch["offset"], 0) in offsets]
+        self.assertEqual(len(edits), 2)
+        for patch, (offset, _, before, after) in zip(edits, BLOCKS, strict=True):
             with self.subTest(offset=hex(offset)):
                 self.assertEqual(int(patch["offset"], 0), offset)
                 self.assertEqual(bytes.fromhex(patch["before"]), before)
                 self.assertEqual(bytes.fromhex(patch["after"]), after)
-                self.assertEqual(len(before), 40)
-                self.assertEqual(len(after), 40)
-                self.assertEqual(STOCK.read_bytes()[offset : offset + 40], before)
+                self.assertEqual(len(before), len(after))
+                self.assertEqual(STOCK.read_bytes()[offset : offset + len(before)], before)
 
-    def test_new_blocks_preserve_edx_compare_eax_and_target_exact_boundaries(self) -> None:
-        for _, va, _, after, target in BLOCKS:
-            with self.subTest(va=hex(va)):
-                self.assertEqual(after[:3], bytes.fromhex("8B5308"))
-                self.assertEqual(after[3:8], bytes.fromhex("3DE8030000"))
-                self.assertEqual(after[8:10], bytes.fromhex("0F8D"))
-                displacement = struct.unpack_from("<i", after, 10)[0]
-                self.assertEqual(va + 14 + displacement, target)
-                self.assertEqual(after[14:], b"\x90" * 26)
+    def test_the_pick_calls_the_game_rng_and_enters_the_stock_attempt(self) -> None:
+        (_, va, _, pick), (_, end_va, _, end) = BLOCKS
+
+        def target(code: bytes, at: int, base: int) -> int:
+            return base + at + 5 + struct.unpack_from("<i", code, at + 1)[0]
+
+        calls = [i for i in range(len(pick) - 4) if pick[i] == 0xE8 and target(pick, i, va) == PICK_RAND]
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(pick[calls[0] - 1], 0x55)                   # push ebp: rand(count)
+        self.assertEqual(target(pick, len(pick) - 5, va), EMBRACE_END)  # no one to pick
+        self.assertIn(b"\xE9" + struct.pack("<i", PICK_ENTERS - (va + pick.index(bytes.fromhex("8D9C3330050000"))
+                                                                 + 7 + 5)), pick)
+        self.assertEqual(target(end, 0, end_va), EMBRACE_END)
+        # The stock attempt it enters, unchanged: the food refusal, then the room check 0x44B310.
+        stock = STOCK.read_bytes()
+        self.assertEqual(stock[PICK_ENTERS - 0x400000:PICK_ENTERS - 0x400000 + 6], bytes.fromhex("8B8ED474E500"))
 
     def test_feature_selection_and_deselection_are_all_or_none_in_every_mode(self) -> None:
         for mode in load_patch_modes():
@@ -186,9 +181,9 @@ class VV2BirthControlTests(unittest.TestCase):
                         for edit in deselected_applied
                     )
                 )
-                for offset, _, before, after, _ in BLOCKS:
-                    self.assertEqual(selected[offset : offset + 40], after)
-                    self.assertEqual(deselected[offset : offset + 40], before)
+                for offset, _, before, after in BLOCKS:
+                    self.assertEqual(selected[offset : offset + len(after)], after)
+                    self.assertEqual(deselected[offset : offset + len(before)], before)
                 # The chooser fallback block is 18 bytes, not 40.
                 self.assertEqual(
                     selected[
@@ -211,14 +206,14 @@ class VV2BirthControlTests(unittest.TestCase):
             data = bytearray(STOCK.read_bytes())
             data[BLOCKS[1][0]] ^= 1
             altered.write_bytes(data)
-            with self.assertRaisesRegex(PatcherError, "Byte guard failed at 0x64A8F"):
+            with self.assertRaisesRegex(PatcherError, "Byte guard failed at 0x64C52"):
                 render_patched_bytes(altered, self.build, "collection_progression", [FEATURE_ID])
             self.assertEqual(altered.read_bytes(), data)
 
     def test_only_two_blocks_and_checksum_differ_from_deselected_render(self) -> None:
         allowed = set()
-        for offset, _, _, _, _ in BLOCKS:
-            allowed.update(range(offset, offset + 40))
+        for offset, _, _, after in BLOCKS:
+            allowed.update(range(offset, offset + len(after)))
         allowed.update(
             range(
                 CHOOSER_FALLBACK_OFFSET,
@@ -244,7 +239,7 @@ class VV2BirthControlTests(unittest.TestCase):
         stock = STOCK.read_bytes()
         patched_intervals = [
             range(offset, offset + len(after))
-            for offset, _, _, after, _ in BLOCKS
+            for offset, _, _, after in BLOCKS
         ]
         for offset, expected in EXCLUDED_STOCK_WINDOWS + PREGNANCY_WRITER_CALLS:
             with self.subTest(stock_offset=hex(offset)):
@@ -328,7 +323,7 @@ class VV2BirthControlTests(unittest.TestCase):
                     if edit["owner"] == f"feature:{FEATURE_ID}"
                 ]
                 self.assertEqual(
-                    feature_offsets, [0x6488D, 0x64A8F, CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET]
+                    feature_offsets, [0x64847, 0x64C52, CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET]
                 )
 
     def test_documentation_and_transparency_are_exact_and_deterministic(self) -> None:
@@ -358,11 +353,11 @@ class VV2BirthControlTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         for marker in (
             AUDIT_COMMIT,
-            "0x6488D",
-            "0x64A8F",
-            "0x464A3D",
-            "0x464C52",
-            "writer-reaching opcode-12",
+            "One partner per catch-up embrace",
+            "0x64847",
+            "0x64C52",
+            "0x464B0E",
+            "0x466DA0",
             "no male upper-age gate",
         ):
             self.assertIn(marker, research)
@@ -468,24 +463,18 @@ class VV2BirthControlTests(unittest.TestCase):
         # bytes here would return the wrong sentinel to the caller.
         self.assertNotIn("EB26", patch["after"])
 
-    def test_candidate_scan_patches_drop_a_sex_field_not_a_preference(self) -> None:
-        """The scan patches are not the preference fix and must not move.
+    def test_the_pick_compares_the_sex_field_not_a_preference(self) -> None:
+        """The pick is not the preference fix.
 
         [edi+0x538] is the sex field (2 == female), written at villager
         creation from a 50/50 RNG roll and never from UI input; the real
-        preference is [edi+0x7F8], which the chooser tests. Pinning these two
-        entries keeps a later reading of "the preference gate was NOPed here"
-        from being acted on.
+        preference is [edi+0x7F8], which the chooser tests.  The pick lists partners of the other sex
+        (candidate +0x538, loaded as [eax+8] off the age field, against the initiator's [edi+0x538]) and never
+        reads the preference.
         """
-        patches = {
-            patch["offset"]: patch for patch in self.feature.patches
-        }
-        for offset in ("0x6488D", "0x64A8F"):
-            with self.subTest(offset=offset):
-                self.assertIn(offset, patches)
-                after = bytes.fromhex(patches[offset]["after"])
-                self.assertEqual(after[:3], bytes.fromhex("8B5308"))
-                self.assertEqual(after[14:], b"\x90" * 26)
+        pick = BLOCKS[0][3]
+        self.assertIn(bytes.fromhex("8B50083B9738050000"), pick)
+        self.assertNotIn(struct.pack("<I", 0x7F8), pick)
 
     def test_the_closed_fallback_is_reached_only_by_the_parenting_category(self) -> None:
         """Codex raised this as P1 on #336; the guard already exists in stock.

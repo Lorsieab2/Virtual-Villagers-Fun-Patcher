@@ -1423,32 +1423,32 @@
       "id": "vv2_birth_control",
       "game_id": "vv2",
       "name": "Birth Control",
-      "description": "**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Birth Control owns only those two candidate scans; the conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.",
+      "description": "**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Each try is with one partner only, as in The Tree of Life: the game picks one villager of the other sex at random from those who can pair (18 or older and under 50, not sick, not expecting or nursing) and makes one conception roll. Without Birth Control, one try goes through the whole village and can make every woman who passes pregnant at once. Children are never involved, and the refusal when food is low, the Parenting check, the conception roll, the population limit and huts stay the game's own, so a try can still fail. Live play already pairs a villager with one partner at a time and is not changed by this.** Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor remains in force while its 25% non-preference fallback is removed so an unchecked preference is rejected outright, the catch-up partner pick rejects candidates at internal age 1000 or greater (the initiator has no upper age), and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. The conception roll, pregnancy writer, pregnancy, delivery, and automatic physical-capacity safety remain separate native/automatic paths in every public mode.",
       "output_tag": "Birth Control",
       "behavior_changes": [
-        "The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000.",
+        "Catch-up embrace (opcode 12 of the step runner 0x464680, reached only from the catch-up job turn 0x43B4D0): stock runs two scans over all 256 villager slots (0x464847-0x464A4E, then 0x464A54-0x464C63) and calls the pregnancy writer 0x44B980 for every villager who passes, never stopping at a conception, and both scans refuse a woman initiator of 50 or older. File offset 0x64847 replaces the start of the first scan with a one-partner pick: it lists every villager of the other sex who can pair (alive, internal age 360..999, health above 0, not sick, expecting or nursing; the initiator 360 or older with no upper age, health above 0, not sick, expecting or nursing), picks one with the game's own rand(count) 0x4031A0 -- one pick and one roll, as The Tree of Life's catch-up mate selector 0x466DA0 does -- and sends that partner into the second scan at its food refusal 0x464B0E, so the room check 0x44B310, the Parenting check, rand(300) + 50 - 50 x Medicine <= Parenting and the writer call 0x464C4D are the stock code. File offset 0x64C52 ends the embrace at 0x464C69 after that one attempt, conceived or refused; with no one to pick, the embrace ends at once.",
         "The chooser at 0x449C60 no longer rolls RNG(100) for a villager whose parenting preference is unchecked. File offset 0x49E36 replaces that roll with a jump to the routine's own reject path at 0x449E55, which returns 0. Stock tests the selected category at 0x449E29 (cmp eax,2 / jne 0x449E57) before this point, so Farming, Building, Research and Healing never reach the patched bytes.",
-        "Both complete 40-byte guarded blocks are one atomic VV2-only optional feature.",
-        "Catch-up: the job-turn worker 0x43B4D0 (only for a villager of age 280 units or more, not sick, pregnant or nursing, with 20 health or more) gates the chooser's Children pick (2) with RNG(100) <= 5 at 0x43B53C before queuing opcode 12, the embrace scan (0x449B70), and running it (0x464680). File offset 0x3B53C raises the bound from 5 to 99, so that pick always goes on to the embrace scan, as every other pick goes on to its job. The chooser, the scan's partner rules (both 18 or more, the woman under 50, the 34% refusal under 300 food, the initiator's Parenting check), the conception roll rand(300) + 50 - 50 x Medicine <= Parenting, the population limit and huts are unchanged."
+        "Catch-up: the job-turn worker 0x43B4D0 (only for a villager of age 280 units or more, not sick, pregnant or nursing, with 20 health or more) gates the chooser's Children pick (2) with RNG(100) <= 5 at 0x43B53C before queuing opcode 12, the embrace scan (0x449B70), and running it (0x464680). File offset 0x3B53C raises the bound from 5 to 99, so that pick always goes on to the embrace scan, as every other pick goes on to its job. The chooser, the 34% refusal under 300 food, the initiator's Parenting check, the conception roll rand(300) + 50 - 50 x Medicine <= Parenting, the population limit and huts are unchanged.",
+        "Live play is unchanged: the live embrace (step 12, 0x44F610 from 0x44FBB0) already pairs the villager with the one partner found at its position (0x449160) and calls the writer at most once."
       ],
       "explicit_non_changes": [
         "The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added.",
         "The native VV4/VV5-style chooser score floor, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety remains separately owned and applies in every public mode. The chooser's 25% non-preference fallback is removed for the Parenting category, which is the one change this feature adds there.",
-        "Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
+        "Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the catch-up embrace and the chooser are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
       ],
       "evidence_status": "implemented from exact-build disassembly commit 74778bd6a7d3a17dd990636cf6d4e769466800c6; static verification complete, runtime/player confirmation pending",
       "patches": [
         {
-          "offset": "0x6488D",
-          "before": "8B530883FA0275073DE80300007C1983BF38050000020F859401000081F9E80300000F8D88010000",
-          "after": "8B53083DE80300000F8DA20100009090909090909090909090909090909090909090909090909090",
-          "purpose": "preserve candidate sex in EDX and reject age>=1000 before the first writer-reaching opcode-12 candidate commit"
+          "offset": "0x64847",
+          "before": "C7442410FF0000008D9EA4ACE300EB098DA424000000008BFF8A8300FBFFFF84C00F84CF0100008B033D680100000F8CC20100008B8F3005000081F9680100000F8CB00100008B530883FA0275073DE80300007C1983BF38050000020F859401000081F9E80300000F8D880100008B43FC85C00F8E7D0100008B872C05000085C00F8E6F0100003B97380500000F84630100008B431085C00F85580100008B874005000085C00F854A0100008B430C85C00F853F0100008B873C05000085C00F85310100008B8ED4",
+          "after": "81BF30050000680100000F8CB300000083BF2C050000000F8EA600000083BF40050000000F859900000083BF3C050000000F858C00000081EC0004000033ED33C98D863005000080B800FBFFFF0074338B1081FA680100007C2981FAE80300007D218378FC007E1B8B50083B9738050000741083781000750A83780C007504890CAC45058CE400004181F9000100007CB685ED742855E8BEE8F9FF83C4048B0C8481C400040000894C241069D98CE400008D9C3330050000E90A02000081C400040000E95A030000",
+          "purpose": "catch-up embrace: replace the start of the first partner scan with a one-partner pick -- list every villager of the other sex who can pair (alive, internal age 360..999, health above 0, not sick, expecting or nursing; the initiator 360 or older with no upper age, health above 0, not sick, expecting or nursing), pick one with rand(count) 0x4031A0 and send that partner to the second scan's food refusal 0x464B0E; no one to pick ends the embrace at 0x464C69"
         },
         {
-          "offset": "0x64A8F",
-          "before": "8B530883FA0275073DE80300007C1983BF38050000020F85A701000081F9E80300000F8D9B010000",
-          "after": "8B53083DE80300000F8DB50100009090909090909090909090909090909090909090909090909090",
-          "purpose": "preserve candidate sex in EDX and reject age>=1000 before the second writer-reaching opcode-12 candidate commit"
+          "offset": "0x64C52",
+          "before": "8B44241048",
+          "after": "E912000000",
+          "purpose": "after the one partner's attempt (conceived or refused), end the embrace at 0x464C69 instead of going on to the next villager"
         },
         {
           "offset": "0x49E36",
@@ -4331,17 +4331,18 @@
       "name": "Birth Control",
       "output_tag": "Birth Control",
       "status": "implemented exact-build ordinary-route patch; static verification complete, runtime/player confirmation pending",
-      "description": "**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Children are never involved, and the partner search, the conception roll, the population limit and huts stay the game's own, so a try can still fail.** Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.",
+      "description": "**While catching up (time away and Time Warp), a villager with Parenting ticked whose job choice is Children now tries for a baby on every such job turn, as often as any other job is done, instead of on only 6 job turns in 100. Each try is with one partner only, as in The Tree of Life: the game picks one villager of the other sex at random from those who can pair (18 or older and under 50, not sick, not pregnant) and makes one conception roll. Without Birth Control, one try goes through the whole village and can make every woman who passes pregnant at once. Children are never involved, and the refusal when food is low, the Parenting check, the conception roll, the population limit and huts stay the game's own, so a try can still fail. Live play already pairs a villager with one partner at a time and is not changed by this.** Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the catch-up partner pick and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and REQUIRES the parenting preference to be checked, rejecting an unchecked villager rather than applying the VV4/VV5 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Birth Control owns only its named ordinary-route checks; conception, pregnancy, delivery, direct event births, and pending delivery remain separate native paths, while automatic physical-capacity safety applies in every public mode.",
       "behavior_changes": [
         "The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000.",
-        "The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound.",
+        "Catch-up embrace (opcode 9 of the step runner 0x446C70, reached only from the catch-up job turn 0x42E790): stock runs two scans over all 256 villager slots (0x446E70-0x44704F, then 0x447055-0x447256) and calls the pregnancy writer 0x43BBC0 for every villager who passes, never stopping at a conception, so one man's job turn could make every eligible woman pregnant. File offset 0x46E70 replaces the start of the first scan with a one-partner pick: it lists every villager of the other sex who can pair (alive, internal age 360..999, health above 0, not sick or pregnant, with the same initiator checks the scans make: 360 or older, health above 0, not sick or pregnant), picks one with the game's own rand(count) 0x402F10 -- one pick and one roll, as The Tree of Life's catch-up mate selector 0x466DA0 does -- and sends that partner into the second scan at its food refusal 0x447112, so the room check 0x43A1A0, the Parenting check, rand(300) <= Parenting - 50 + 50 x Fertility and the writer call 0x447238 are the stock code. File offset 0x4723D ends the embrace at 0x44725C after that one attempt, conceived or refused; with no one to pick, the embrace ends at once.",
         "The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check.",
         "The chooser's final score floor at 0x39C80 is raised from 1 to 5, and the tail at 0x39C83 requires a checked parenting preference for category 2: an unchecked villager is rejected instead of reaching the VV4/VV2/VV3 25% non-preference fallback, which this build does not apply.",
-        "Catch-up: the job-turn worker 0x42E790 (only for a villager of age 280 units or more, not sick or pregnant, with 20 health or more) gates the chooser's Children pick (2) with RNG(100) <= 5 at 0x42E7EF before queuing opcode 9, the embrace (0x4399F0), and running it (0x446C70). File offset 0x2E7EF raises the bound from 5 to 99, so that pick always goes on to the embrace, as every other pick goes on to its job. The chooser, the embrace's partner rules (both 18 or more, the 74% refusal under 400 food, the initiator's Parenting check), the conception roll rand(300) <= Parenting - 50 + 50 x Fertility, the population limit and huts are unchanged."
+        "Catch-up: the job-turn worker 0x42E790 (only for a villager of age 280 units or more, not sick or pregnant, with 20 health or more) gates the chooser's Children pick (2) with RNG(100) <= 5 at 0x42E7EF before queuing opcode 9, the embrace (0x4399F0), and running it (0x446C70). File offset 0x2E7EF raises the bound from 5 to 99, so that pick always goes on to the embrace, as every other pick goes on to its job. The chooser, the embrace's partner rules (both 18 or more, the 74% refusal under 400 food, the initiator's Parenting check), the conception roll rand(300) <= Parenting - 50 + 50 x Fertility, the population limit and huts are unchanged.",
+        "Live play is unchanged: the live embrace (step 9, 0x43DAD0 from the step dispatcher 0x43DEF0) already pairs the villager with the one partner found at its position (0x439350) and calls the writer at most once."
       ],
       "explicit_non_changes": [
-        "No male upper-age gate is added. The existing candidate sex/category checks, writer calls, planner action dispatch, pregnancy writer, delivery, save format, fertility, capacity, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode, and only the named chooser tail is redirected.",
-        "Direct event-created births, pending delivery, and every route outside the named ordinary manual/planner/action-9 boundaries are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
+        "No male upper-age gate is added. The stock candidate sex/category checks, the room check, the conception roll, the writer call sites, planner action dispatch, pregnancy writer, delivery, save format, fertility, capacity, messages, and statistics are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode, and only the named chooser tail is redirected.",
+        "Direct event-created births, pending delivery, and every route outside the named ordinary manual, planner and catch-up embrace boundaries are unchanged by Birth Control; automatic physical-capacity safety separately guards their physical allocation in every public mode."
       ],
       "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
       "pe_append_transaction": {
@@ -4353,7 +4354,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DDDC4",
+            "page_sha256": "CD0B47FD55232127A921CD67BFA6CF8D48DA4B7DF2E1E0DBC9B5361F26E66824",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -4382,7 +4383,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DDDC4",
+            "page_sha256": "CD0B47FD55232127A921CD67BFA6CF8D48DA4B7DF2E1E0DBC9B5361F26E66824",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -4411,7 +4412,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DDDC4",
+            "page_sha256": "CD0B47FD55232127A921CD67BFA6CF8D48DA4B7DF2E1E0DBC9B5361F26E66824",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -4442,11 +4443,9 @@
             "overlay_length": 1024,
             "page_virtual_address": "0x490C00",
             "append_source": "generated:vv1_birth_control_page",
-            "page_sha256": "5CEAFF6BDEB44CB98AA54B7ED4707BCD9B12CD406D0AC5BD5D2576E4A752BF23",
+            "page_sha256": "35654DF46207999FB1110F8DC73C25A2B52F3A6910ABCF344295EF04C10A493A",
             "hook_offsets": [
               "0x3DD03",
-              "0x46E96",
-              "0x47084",
               "0x477FA",
               "0x39C83"
             ],
@@ -4467,16 +4466,16 @@
           "purpose": "route the stock manual category-2 carrier branch through the exact age-1000 helper"
         },
         {
-          "offset": "0x46E96",
-          "before": "813868010000",
-          "after": "E9E591040090",
-          "purpose": "add a candidate-only internal-age-1000 upper bound to the first action-9 writer-reaching scan"
+          "offset": "0x46E70",
+          "before": "8D8670D70300C7442414FF000000894424188B5424188A82E0FCFFFF84C00F84A20100008BC28138680100000F8C940100008B4C241081B948030000680100000F8C800100008B42FC85C00F8E750100008BC18B884403000085C90F8E650100008BCA8B51083B90500300000F84540100008B4C24188B411085C00F85450100008B5424108B825803000085C00F85330100008BC18B480C85C90F85260100008BCA8B815403000085C00F85160100008B9610E0030081BAECA20000900100007D136A64E8D7BFFBFF83C40483F8190F",
+          "after": "8B6C241081BD48030000680100000F8CB700000083BD44030000000F8EAA00000083BD58030000000F859D00000083BD54030000000F859000000081EC0004000033FF33C98D864803000080B8E0FCFFFF0074338B1081FA680100007C2981FAE80300007D218378FC007E1B8B50083B9550030000741083781000750A83780C007504890CBC4705D80300004181F9000100007CB685FF742C57E801C0FBFF83C4048B0C8481C400040000894C241469C1D80300008D84304803000089442418E9DD01000081C400040000E91C030000",
+          "purpose": "catch-up embrace: replace the start of the first partner scan with a one-partner pick -- list every villager of the other sex who can pair (alive, internal age 360..999, health above 0, not sick or pregnant; the initiator 360 or older, health above 0, not sick or pregnant), pick one with rand(count) 0x402F10 and send that partner to the second scan's food refusal 0x447112; no one to pick ends the embrace at 0x44725C"
         },
         {
-          "offset": "0x47084",
-          "before": "813968010000",
-          "after": "E93790040090",
-          "purpose": "add a candidate-only internal-age-1000 upper bound to the second action-9 writer-reaching scan"
+          "offset": "0x4723D",
+          "before": "8B4424148B542418",
+          "after": "E91A000000909090",
+          "purpose": "after the one partner's attempt (conceived or refused), end the embrace at 0x44725C instead of going on to the next villager"
         },
         {
           "offset": "0x477FA",
@@ -4514,10 +4513,10 @@
         "The block that picks the embrace duration just before the pairing handler's carrier branch (file 0x3DCD8..0x3DD02, VA 0x43DCD8, in the step-9 handler 0x43DAD0) is rewritten to compute the same duration with the same RNG(3)+5 re-roll rule and then test for the player's drop: when the drop's return address 0x4252BE sits at [esp+0x30] -- the depth the drop's own call chain (0x4252B9 -> 0x445510 -> 0x43DEF0 -> 0x43DAD0) puts it, because the drop queues step 9 on an emptied queue and the handler runs inside that call -- the block performs the stock category-2 comparison itself and continues at the stock push/branch at 0x43DD0A, so the drop never enters 0x43DD03. Every other entry continues into 0x43DD03 exactly as stock.",
         "The player's drop and villagers pairing up on their own both reach this handler through 0x445510. Autonomous pairing (0x447886) queues a walk to the partner before step 9, so its handler runs later from the walk's arrival (0x445C50) and never with the drop's call on the stack: it always passes through 0x43DD03.",
         "Without Birth Control, 0x43DD03 holds the stock comparison this block performs for the drop, so nothing changes: stock A New Home has no age limit on pairing.",
-        "With Birth Control ticked, 0x43DD03 is Birth Control's hook into its .vv1bc page, which refuses a category-2 woman at internal age 1000 (50) or older; this patch steps around that hook for the player's drop only, so a manual drop is no longer refused for her age while villagers pairing up on their own are still refused by Birth Control. Birth Control's own bytes, its other five edits and its page are not touched."
+        "With Birth Control ticked, 0x43DD03 is Birth Control's hook into its .vv1bc page, which refuses a category-2 woman at internal age 1000 (50) or older; this patch steps around that hook for the player's drop only, so a manual drop is no longer refused for her age while villagers pairing up on their own are still refused by Birth Control. Birth Control's own bytes, its other edits and its page are not touched."
       ],
       "explicit_non_changes": [
-        "Birth Control's bytes are not modified: its hook at 0x3DD03, its action-9, planner and chooser hooks, and its .vv1bc page stay exactly as Birth Control writes them; only the manual drop stops reaching the 0x3DD03 hook.",
+        "Birth Control's bytes are not modified: its hook at 0x3DD03, its catch-up embrace, planner and chooser edits, and its .vv1bc page stay exactly as Birth Control writes them; only the manual drop stops reaching the 0x3DD03 hook.",
         "Every other stock manual-drop rule is unchanged and still refuses the drop: same sex, either villager under internal age 360 (18), either villager dead or ill, a woman already expecting or nursing, and the game's own food and population checks.",
         "The stock Parenting skill-attempt roll and the stock conception roll (RNG(300) against Parenting skill and technology) are unchanged and still decide; a drop can fail at either one.",
         "Autonomous pairing still goes through 0x43DD03 (Birth Control's refusal when it is ticked); the partner chooser and candidate scans, catch-up, Island Events and every other birth route, the conception and pregnancy writers, delivery, and automatic physical-capacity safety are unchanged."

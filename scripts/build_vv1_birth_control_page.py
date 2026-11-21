@@ -156,25 +156,11 @@ def build_page(page_va: int = PAGE_VA) -> tuple[bytes, dict[str, object]]:
     asm.emit(bytes.fromhex("01F7"))  # add edi, esi -> edi = candidate record
     asm.jmp(0x43DD9E)
 
-    # The two ordinary action-9 writer-reaching scans retain the stock lower
-    # age bound and add only the candidate upper bound.
-    asm.seek(0x080)
-    asm.emit(bytes.fromhex("813868010000"))
-    asm.jcc(0x8C, "action1_reject")
-    asm.emit(bytes.fromhex("8138E8030000"))
-    asm.jcc(0x8D, "action1_reject")
-    asm.jmp(0x446EA2)
-    asm.label("action1_reject")
-    asm.jmp(0x447036)
-
-    asm.seek(0x0C0)
-    asm.emit(bytes.fromhex("813968010000"))
-    asm.jcc(0x8C, "action2_reject")
-    asm.emit(bytes.fromhex("8139E8030000"))
-    asm.jcc(0x8D, "action2_reject")
-    asm.jmp(0x447090)
-    asm.label("action2_reject")
-    asm.jmp(0x44723D)
+    # Page offsets 0x080..0x0FF are left zero.  They held the candidate
+    # upper bound for the two catch-up embrace scans (0x446E96, 0x447084);
+    # Birth Control now replaces those scans with a one-partner pick written
+    # in place at file 0x46E70 (see data/builds.json), which applies the same
+    # 360..999 candidate range itself, so neither scan runs with it ticked.
 
     # Planner scan: preserve the initiator's stock >=360 check while requiring
     # the scanned candidate to remain in the ordinary 360..999 range.
@@ -233,13 +219,11 @@ def build_page(page_va: int = PAGE_VA) -> tuple[bytes, dict[str, object]]:
     asm.jmp(0x439C9D)
 
     page = asm.finish()
-    # These are the five stock-site rel32 jumps that enter this page.  Keep
+    # These are the three stock-site rel32 jumps that enter this page.  Keep
     # their bytes generated from the same page VA as the internal branches;
     # a composed page must never reuse the standalone 0x490000 displacements.
     hook_sites = {
         "0x3DD03": (0x43DD03, 0x000, 7, b"\x90\x90"),
-        "0x46E96": (0x446E96, 0x080, 6, b"\x90"),
-        "0x47084": (0x447084, 0x0C0, 6, b"\x90"),
         "0x477FA": (0x4477FA, 0x100, 5, b""),
         "0x39C83": (0x439C83, 0x140, 6, b"\x90"),
     }
@@ -257,8 +241,6 @@ def build_page(page_va: int = PAGE_VA) -> tuple[bytes, dict[str, object]]:
         "hook_after": hook_after,
         "hooks": {
             "manual": {"raw": "0x3DD03", "page_offset": "0x0", "length": 7},
-            "action_9_scan_1": {"raw": "0x46E96", "page_offset": "0x80", "length": 6},
-            "action_9_scan_2": {"raw": "0x47084", "page_offset": "0xC0", "length": 6},
             "planner": {"raw": "0x477FA", "page_offset": "0x100", "length": 5},
             "chooser_score_floor": {"raw": "0x39C83", "page_offset": "0x140", "length": 6},
         },

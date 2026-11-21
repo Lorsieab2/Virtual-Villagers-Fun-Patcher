@@ -24,7 +24,7 @@ from vv_fun_patcher import (  # noqa: E402
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV1_PAGE_SHA256 = "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DDDC4"
+VV1_PAGE_SHA256 = "CD0B47FD55232127A921CD67BFA6CF8D48DA4B7DF2E1E0DBC9B5361F26E66824"
 # Expanded modes re-pinned when the population notices began following the cap.
 # Justified before re-pinning: rendering each feature with and without the new
 # builds.json rows, the only differing bytes in Collection Progression and
@@ -35,11 +35,15 @@ VV1_PAGE_SHA256 = "FD6F1D56A5B3CCC623A4AC6083532A05FABD076280B07E26500EBB06784DD
 # 0x2E7F1 set back to 05 and the PE CheckSum recomputed is exactly the previous pin
 # (52E67385.../E512B3F7.../E512B3F7...); the only differing bytes are 0x2E7F1 (cmp eax,5 -> cmp eax,0x63, the
 # catch-up job turn's Children gate) and the PE CheckSum (0x150..0x152). The length is unchanged.
+# Re-pinned for one partner per catch-up embrace (the owner, 2026-11-21). Justified BEFORE re-pinning: rendering
+# 2c8bde201 and the branch, the only differing bytes in all three modes are the PE CheckSum (0x150..0x152), the
+# one-partner pick 0x46E70..0x46F40, 0x47084..0x4708A (the old age hook, back to stock), the exit 0x4723D..0x47245
+# and the page's two cleared scan slots 0x8E080..0x8E0E2. The length is unchanged.
 VV1_STANDALONE_RENDER_SHA256 = {
     "vv1_birth_control": {
-        "stock": "CFF275917DBCF2164E7BDD47808129D7E75C13B3D71C5B362CB49450A46FB475",
-        "collection_progression": "8D8E21D9B23C4009514E77C08B53726AACE8358886EB5F0A3BE20D38A8365B0C",
-        "immediate_fixed": "8D8E21D9B23C4009514E77C08B53726AACE8358886EB5F0A3BE20D38A8365B0C",
+        "stock": "F9B38B21CE681CA04B9BFB071CF0CABFE69B2A4C25B238E8E2EE6624F9157778",
+        "collection_progression": "9067002260B5F7F9A3236313343D93E085B8DBA79EBCF1344656DC2FC932FE24",
+        "immediate_fixed": "9067002260B5F7F9A3236313343D93E085B8DBA79EBCF1344656DC2FC932FE24",
     },
     # Re-pinned for the exact birth hook (Show Parents in Details Screen),
     # now four splices after the pregnancy tick's child-creation calls
@@ -116,6 +120,20 @@ VV1_STANDALONE_RENDER_SHA256 = {
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
+# The catch-up one-partner pick (file 0x46E70, VA 0x446E70): list who can pair, rand(count) 0x402F10, then the
+# second scan's food refusal 0x447112; no one to pick ends the embrace at 0x44725C.
+ONE_PARTNER_STOCK = (
+    "8D8670D70300C7442414FF000000894424188B5424188A82E0FCFFFF84C00F84A20100008BC28138680100000F8C940100008B4C"
+    "241081B948030000680100000F8C800100008B42FC85C00F8E750100008BC18B884403000085C90F8E650100008BCA8B51083B90"
+    "500300000F84540100008B4C24188B411085C00F85450100008B5424108B825803000085C00F85330100008BC18B480C85C90F85"
+    "260100008BCA8B815403000085C00F85160100008B9610E0030081BAECA20000900100007D136A64E8D7BFFBFF83C40483F8190F"
+)
+ONE_PARTNER_PICK = (
+    "8B6C241081BD48030000680100000F8CB700000083BD44030000000F8EAA00000083BD58030000000F859D00000083BD54030000"
+    "000F859000000081EC0004000033FF33C98D864803000080B8E0FCFFFF0074338B1081FA680100007C2981FAE80300007D218378"
+    "FC007E1B8B50083B9550030000741083781000750A83780C007504890CBC4705D80300004181F9000100007CB685FF742C57E801"
+    "C0FBFF83C4048B0C8481C400040000894C241469C1D80300008D84304803000089442418E9DD01000081C400040000E91C030000"
+)
 VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
 def _vv1_birth_control_page() -> bytes:
     """Build the owned VV1 chooser page from its generator."""
@@ -151,8 +169,10 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         patches = _patches("vv1_birth_control")
         expected = {
             0x3DD03: ("83BD5003000002", "E9F82205009090"),
-            0x46E96: ("813868010000", "E9E591040090"),
-            0x47084: ("813968010000", "E93790040090"),
+            # One partner per catch-up embrace (the owner, 2026-11-21): the pick in place of the first scan, and
+            # the end of the embrace after the second scan's one attempt (tests/test_birth_control_one_partner.py).
+            0x46E70: (ONE_PARTNER_STOCK, ONE_PARTNER_PICK),
+            0x4723D: ("8B4424148B542418", "E91A000000909090"),
             0x477FA: ("3950F47C2A", "E901890400"),
             0x39C80: ("83FE01", "83FE05"),
             0x39C83: ("0F8E99FEFFFF", "E9B864050090"),
@@ -201,8 +221,8 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         # crashes on rejection instead of on the age compare.
         manual_reject_restores_edi = bytes.fromhex("8BFB69FFD803000001F7")
         self.assertIn(manual_reject_restores_edi, page[0x000:0x080])
-        self.assertEqual(page[0x080:0x086], bytes.fromhex("813868010000"))
-        self.assertEqual(page[0x0C0:0x0C6], bytes.fromhex("813968010000"))
+        # The catch-up scan hooks are gone: the one-partner pick at file 0x46E70 replaces both scans.
+        self.assertEqual(page[0x080:0x100], b"\x00" * 0x80)
         self.assertEqual(page[0x100:0x107], bytes.fromhex("8178F468010000"))
         # The chooser tail's first jump. Its displacement shrank from 0x3E to
         # 0x2B when the non-preference roll below was removed, because
@@ -329,7 +349,7 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         self.assertEqual(overlay["overlay_preimage"]["length"], 0x400)
         self.assertEqual(
             overlay["hook_offsets"],
-            ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"],
+            ["0x3DD03", "0x477FA", "0x39C83"],
         )
         builds = {build.id: build for build in load_builds()}
         origins_only, _ = render_patched_bytes(
@@ -466,8 +486,9 @@ class VV1VV3BirthControlTests(unittest.TestCase):
             ["vv1_birth_control", "vv1_enable_origins_exclusive_features"],
         )
         self.assertEqual(rendered[0x3DD03:0x3DD03 + 7].hex().upper(), "E9F82E05009090")
-        self.assertEqual(rendered[0x46E96:0x46E96 + 6].hex().upper(), "E9E59D040090")
-        self.assertEqual(rendered[0x47084:0x47084 + 6].hex().upper(), "E9379C040090")
+        # The one-partner pick is written in place and never enters the page, so it does not move with it.
+        self.assertEqual(rendered[0x46E70:0x46F40].hex().upper(), ONE_PARTNER_PICK)
+        self.assertEqual(rendered[0x47084:0x47084 + 6].hex().upper(), "813968010000")
         self.assertEqual(rendered[0x477FA:0x477FA + 5].hex().upper(), "E901950400")
         self.assertEqual(rendered[0x39C83:0x39C83 + 6].hex().upper(), "E9B870050090")
 

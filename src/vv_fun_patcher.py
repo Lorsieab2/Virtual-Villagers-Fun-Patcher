@@ -4860,7 +4860,7 @@ def validate_fun_patch_catalog(
                     raise PatcherError("VV1 composition overlay geometry is malformed.") from exc
                 # VV1 Birth Control's overlay is certified byte for byte: its
                 # exact offset, page VA, generated source, page digest and the
-                # five hook offsets it rewrites. That certification is about
+                # three hook offsets it rewrites. That certification is about
                 # THAT artifact and is kept exactly as it was -- a second
                 # feature using the same mechanism must not loosen it.
                 #
@@ -4878,8 +4878,8 @@ def validate_fun_patch_catalog(
                     or overlay_offset + overlay_length != 0x8F000
                     or page_va != 0x490C00
                     or overlay.get("append_source") != "generated:vv1_birth_control_page"
-                    or overlay.get("page_sha256") != "5CEAFF6BDEB44CB98AA54B7ED4707BCD9B12CD406D0AC5BD5D2576E4A752BF23"
-                    or overlay.get("hook_offsets") != ["0x3DD03", "0x46E96", "0x47084", "0x477FA", "0x39C83"]
+                    or overlay.get("page_sha256") != "35654DF46207999FB1110F8DC73C25A2B52F3A6910ABCF344295EF04C10A493A"
+                    or overlay.get("hook_offsets") != ["0x3DD03", "0x477FA", "0x39C83"]
                 ):
                     raise PatcherError("VV1 composition overlay geometry/source contract drifted.")
                 if overlay_length <= 0 or overlay_offset < 0 or overlay_offset % 0x400:

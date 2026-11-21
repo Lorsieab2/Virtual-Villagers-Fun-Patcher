@@ -201,6 +201,17 @@ _BIRTH_CONTROL_NORMAL = "Normally a {who} whose job choice is Children tries on 
 _BIRTH_CONTROL_PATCHED = ("it tries on every job turn its job choice is Children, as often as any other job is done; "
                           "the partner search, the conception roll, the population limit and huts stay as above, so a "
                           "try can still fail, and children never get job turns.")
+# A New Home and The Lost Children also go from "everyone at once" to one partner per try: Birth Control's pick
+# (A New Home file 0x46E70, The Lost Children 0x64847) lists everyone who can pair, picks one with rand(count) as The
+# Tree of Life's mate selector 0x466DA0 does, and ends the embrace after that one attempt (0x4723D, 0x64C52).
+_BIRTH_CONTROL_NORMAL_ALL = ("Normally a {who} whose job choice is Children tries on only 6 job turns in 100, and one "
+                             "try can make every woman who passes pregnant at once.")
+_BIRTH_CONTROL_PATCHED_ONE = ("it tries on every job turn its job choice is Children, as often as any other job is "
+                              "done, and each try is with one partner only, as in The Tree of Life: one villager of the "
+                              "other sex who can pair (18 or more and under 50, not sick, not {busy}) is picked at "
+                              "random and one conception roll is made. The refusal when food is low, the Parenting "
+                              "check, the conception roll, the population limit and huts stay as above, so a try can "
+                              "still fail, and children never get job turns.")
 
 
 def _entries(village: gm.Village, pending_at: int, health_at: int, faction_at: int | None = None,
@@ -746,7 +757,8 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
                "when the job turn's job is building, the patch's build-first, hut-fixing and new-hut rules apply."),
         _patch(village, VV2_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                "every skill check succeeds, in job turns too."),
-        _patch(village, "vv2_birth_control", _BIRTH_CONTROL_NORMAL.format(who="villager"), _BIRTH_CONTROL_PATCHED),
+        _patch(village, "vv2_birth_control", _BIRTH_CONTROL_NORMAL_ALL.format(who="villager"),
+               _BIRTH_CONTROL_PATCHED_ONE.format(busy="expecting or nursing")),
     ):
         if fact:
             out.append(fact)
@@ -876,7 +888,8 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
                "every skill check succeeds, in job turns too."),
         _patch(village, VV1_MAGIC_FRUIT, "Normally the old-age rolls start at 55, 63 or 71 years (Medicine 1 to 3).",
                "with the Magic Fruit of Life puzzle done they start 7 years later, while catching up too."),
-        _patch(village, "vv1_birth_control", _BIRTH_CONTROL_NORMAL.format(who="villager"), _BIRTH_CONTROL_PATCHED),
+        _patch(village, "vv1_birth_control", _BIRTH_CONTROL_NORMAL_ALL.format(who="villager"),
+               _BIRTH_CONTROL_PATCHED_ONE.format(busy="pregnant")),
     ):
         if fact:
             out.append(fact)
