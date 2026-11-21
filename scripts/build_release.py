@@ -156,6 +156,8 @@ FILES = [
     # Conversions' flag file.
     "assets/fog_listening/VVFP Fog Listening.dll",
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
+    # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
+    "assets/devotion_faith/VVFP Devotion Faith.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -355,6 +357,8 @@ FILES = [
     # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New Believers).
     "data/vv5_fog_of_doom_every_heathen_listens_feature.json",
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
+    # Practicing Devotion Builds Faith and Divine Energy (New Believers).
+    "data/vv5_devotion_builds_faith_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

@@ -1125,6 +1125,16 @@
       ]
     },
     {
+      "ids": ["vv5_devotion_builds_faith"],
+      "guide": [
+        "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
+        "Each time a believer practises Devotion (the game's Devotion check: on 1 Honoring in 8, and on every sermon to a Heathen),",
+        "there is a 1 in 10 chance their Faith rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy.",
+        "Faith never goes above 100 and Divine Energy never above the village's cap. Heathens and the special Heathen roles never get it.",
+        "Works while playing and while catching up. Not yet seen in a running game."
+      ]
+    },
+    {
       "ids": ["vv5_puddles_by_the_lake"],
       "guide": [
         "After The Lake has water, children still go \"Playing in puddles\" when it rains, on the grass above the lake's north-west edge.",
@@ -1471,7 +1481,7 @@
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
-        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches."
+        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy."
       ]
     },
     "owners_defaults": {

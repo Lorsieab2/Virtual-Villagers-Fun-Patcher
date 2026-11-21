@@ -1,0 +1,7 @@
+LIBRARY "VVFP Devotion Faith"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpDevotionFaithInstalled=_VvfpDevotionFaithInstalled@0
+    VvfpDevotionFaithSteps=_VvfpDevotionFaithSteps@0
+    VvfpDevotionFaithGiven=_VvfpDevotionFaithGiven@0
+    VvfpDevotionEnergyGiven=_VvfpDevotionEnergyGiven@0

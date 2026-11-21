@@ -50,6 +50,7 @@ HOSTS = {
 OTHERS = {
     4: (ROOT / "assets" / "cloth_sacks" / "VVFP VV4 Cloth Sacks.dll",
         ROOT / "assets" / "empty_sources" / "VVFP VV4 Empty Sources.dll"),
+    5: (ROOT / "assets" / "devotion_faith" / "VVFP Devotion Faith.dll",),
 }
 LOADS = {0xB8, 0xB9, 0xBA, 0xBB, 0xBD, 0xBE, 0xBF, 0x68}   # mov r32, imm32 (not esp) / push imm32
 
