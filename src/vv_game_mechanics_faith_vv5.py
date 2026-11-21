@@ -27,6 +27,7 @@ HEATHEN_NOTICE = "vv5_heathen_conversion_notice"
 KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
 FOG_LISTENING = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_LIMIT = "vv5_fog_of_doom_no_restrictions"
+DEVOTION_FAITH = "vv5_devotion_builds_faith"
 # No game exe and no patch log was found for the save, so whether a patch is in the game cannot be read; the player
 # can name the game with the window's Browse... button.
 UNTOLD = gm.UNTOLD
@@ -159,6 +160,24 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Chief's Faith set to 100. Solving the Hydroponic Farm: the Heathen Master Farmer +80.",
             "Island events: their own amounts (see Island events)."):
         add(text, sub=True)
+    # Practising Devotion is the skill check 0x46B270 with skill 5: Honoring (behaviour 0xA0, 0x45CB70) goes to the
+    # statue's spot on rand(100) < 50 and there queues the check on rand(100) < 25 (0x45CC92); the sermon end checks the
+    # preacher (0x468E9A).  The check passes on rand(100) <= Devotion + 33 (0x46BB7D; 66 likes learning, 16 dislikes,
+    # +15 / +30 at Learning 2 / 3) and gains (70 - Devotion) / 18 + the Spirituality level (0x46BC82).
+    add(f"Practising Devotion is the game's Devotion skill check. It comes on 1 Honoring in 8 (half of all Honorings "
+        f"go to the statue, and {_p(25)} of those end in the check) and on every sermon to a Heathen, while catching up "
+        f"too. The check passes on a roll of 0 to 99 at or under Devotion + 33 (+66 for a villager who likes learning, "
+        f"+16 for one who dislikes it; Learning 2 or 3 adds 15 or 30); a pass raises Devotion by (70 - Devotion) / 18 "
+        f"plus the Spirituality level.")
+    devotion_faith = village.has(DEVOTION_FAITH)
+    if devotion_faith is not False:
+        where = "in this game" if devotion_faith else UNTOLD
+        # native/vvfp_devotion_faith: the check's entry spliced; two separate rand(10) < 1 rolls (0x403660).
+        add(f"With \"{gm.feature_name(DEVOTION_FAITH)}\" ({where}): each Devotion check of a believer, passed or "
+            f"failed, gives a 1 in 10 chance ({pct(below(10, 1))}) of Faith +1, never above 100, and a separate 1 in "
+            f"10 chance of Divine Energy +1 through the game's own adder, never above the village's cap. Heathens and "
+            f"the six special roles (the Heathen Doctor, the Heathen Chief and the Retired Chief, the three Masters, the "
+            f"Heathen Mommy) never get these rolls.", sub=True)
     if village.has(HEATHEN_MOMMY) is True:
         # Her puzzle's Faith is set at 0x43979C.
         add(f"With \"{gm.feature_name(HEATHEN_MOMMY)}\" (in this game): a new village's Heathen Mommy starts "

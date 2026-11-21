@@ -1505,6 +1505,17 @@ Faith, so no Earthquake is needed. Natural fog still does nothing. The Chief,
 purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never
 listen this way.
 
+PRACTICING DEVOTION BUILDS FAITH AND DIVINE ENERGY (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults and Select All. Each time a believer
+practises Devotion (the game's Devotion check: it comes on 1 Honoring in 8,
+and on every sermon to a Heathen), there is a 1 in 10 chance their Faith
+rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy.
+Small amounts that add up over time, while playing and while catching up.
+Faith never goes above 100 and Divine Energy never above the village's cap.
+Heathens, the Chief (and the Retired Chief), purple-masked Heathens and the
+Heathen Mommy never get it.
+
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
 When it rains, children play in the puddles of the dry lake bed. Once The

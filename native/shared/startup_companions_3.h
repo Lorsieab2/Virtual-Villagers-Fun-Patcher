@@ -41,6 +41,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* Fix Vanilla Bugs (The Tree of Life): the broken piers' ten hole sprites drawn from the owner's redrawn pictures
        (separate files in Images) instead of the stock ones (second word full: placed here at the v1.35.97 merge). */
     "VVFP VV4 Pier Holes.dll",
+    /* Practicing Devotion Builds Faith and Divine Energy (New Believers): each Devotion skill check of a believer gives
+       a 1 in 10 chance of Faith +1 and a separate 1 in 10 chance of Divine Energy +1 (the owner, 2026-11-21). */
+    "VVFP Devotion Faith.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

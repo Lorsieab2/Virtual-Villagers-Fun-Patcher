@@ -36,7 +36,8 @@ MAX_LINE_CHARS = 180
 # (1,250 also covers Every Island Event Can Happen, 2026-11-17.)
 # (and Village Solidarity, 2026-11-17; and Birth Control in The Tree of Life and New Believers, 2026-11-19.)
 # 1,450 since 2026-11-19, when the v1.35.97 merge put every PR's default-off patches into it (1,405); never drop text.
-MAX_GUIDE_CHARS = 1450
+# 1,500 since 2026-11-21, when Practicing Devotion Builds Faith and Divine Energy joined it (1,482).
+MAX_GUIDE_CHARS = 1500
 
 
 @dataclass(frozen=True)

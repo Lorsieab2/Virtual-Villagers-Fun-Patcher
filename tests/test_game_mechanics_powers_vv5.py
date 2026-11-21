@@ -85,6 +85,9 @@ class GodPowers(unittest.TestCase):
             "vv5_age_speed",
             # what a believer's drop does under the Fog of Doom's thick fog (Faith: vv_game_mechanics_faith_vv5)
             "vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions",
+            # a 1 in 10 chance of +1 Divine Energy (and Faith) on each Devotion check, through the stock adder up to the
+            # cap; no power's cost, range or effect changes (Faith: vv_game_mechanics_faith_vv5)
+            "vv5_devotion_builds_faith",
         }
         data = ROOT / "data"
         catalog = [(row.get("id"), row) for row in json.loads((data / "builds.json").read_text(encoding="utf-8"))

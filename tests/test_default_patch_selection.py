@@ -196,7 +196,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_village_solidarity")
                   # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New
                   # Believers, new 2026-11-19).
-                  or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")})
+                  or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")
+                  # Practicing Devotion Builds Faith and Divine Energy (New Believers, new 2026-11-21: off by
+                  # default, on in Owner's Defaults and Select All).
+                  or p == "vv5_devotion_builds_faith"})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,

@@ -290,6 +290,8 @@ def island_event_advisory(patch_id: str) -> tuple[str, bool] | None:
 # Fog of Doom Lets Red and Orange Heathens Listen and its modifier No Restrictions on Fog of Doom Conversions (New Believers).
 FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
+# Practicing Devotion Builds Faith and Divine Energy (New Believers).
+DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -432,6 +434,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Defaults and OFF everywhere else" -- off here and in Select All.  Its modifier No Restrictions on Fog of Doom
     # Conversions is off by default, in Owner's Defaults and in Select All.
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
+    # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
+    # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
+    + [DEVOTION_FAITH_ID]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
