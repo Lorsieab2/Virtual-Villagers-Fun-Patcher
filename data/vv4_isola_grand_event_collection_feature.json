@@ -985,237 +985,237 @@
     {
       "source": "assets/event_collection/vv4/living-st_antholog.pak",
       "destination": "Events/st_antholog.pak",
-      "sha256": "1B1E60576D1C61264532E2623517242FCC6A4D7D6FBC472989054D302D102708"
+      "sha256": "33B998D804E5907818BF58A665240A332A01C47244463D81C691CFE6E9F2BE44"
     },
     {
       "source": "assets/event_collection/vv4/living-st_armor45.pak",
       "destination": "Events/st_armor45.pak",
-      "sha256": "76A4F1BFACD5165D73164EA4C2A4E280E8D62CE57513EDC51862E28E7B0C19FE"
+      "sha256": "19BC597C5A29E17C443BA455281134472E5BED523A761177CE13D1F5EBFF9CD5"
     },
     {
       "source": "assets/event_collection/vv4/living-st_balance.pak",
       "destination": "Events/st_balance.pak",
-      "sha256": "424F85915464C7F11F422DABCEE82352479C484CDA91F94EFCBDE94D8269FF3B"
+      "sha256": "1210FB10F00914807A9CC294C2BA47069C26E615C337F3BBD69B871C46309389"
     },
     {
       "source": "assets/event_collection/vv4/living-st_companio.pak",
       "destination": "Events/st_companio.pak",
-      "sha256": "E1DA33ABDCD3A89A9DB76952193FE38E374C07EA1A04CB5C623C0F8DD10B46CE"
+      "sha256": "47743B7EAFAB3A74E9387A986E753D7B7AC5C1C00989B8820580914ABD8457C5"
     },
     {
       "source": "assets/event_collection/vv4/living-st_critic.pak",
       "destination": "Events/st_critic.pak",
-      "sha256": "F48EE19E998381F8ABB05DADE1A8FED7BC97F898400D673656108DEC6690B765"
+      "sha256": "DA8D3BCE54D12FB28A9BB317D8D269BBA91ED17606AB61A9055AF47DCBDFB188"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il01.pak",
       "destination": "Events/st_da_il01.pak",
-      "sha256": "14A9D2191A5998FAAFA2252DDD9B06119632D27A2CE46DBCD290E64564FF6EFE"
+      "sha256": "7C9B05D5485EA667371C16F5BB4A490CBED728DBBAB709521A6B8A719F7AAE61"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il02.pak",
       "destination": "Events/st_da_il02.pak",
-      "sha256": "68EB3BEDFAADE6CA4E927F77232836D2D8EDED807189117EF80845D30C16C41B"
+      "sha256": "604CD9E7E1736F05F4F2976E9593BE1310B7D71428F2D409D581A44635DD27B2"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il03.pak",
       "destination": "Events/st_da_il03.pak",
-      "sha256": "955813380CC2340E2938203D31724C7BCEFF49DFA2C497E41EBAC4403D372AB5"
+      "sha256": "BD23E3F21873518F1DAF18915465EA5D64EF5B896B8B4828AF3579A707935C79"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il04.pak",
       "destination": "Events/st_da_il04.pak",
-      "sha256": "AA1C66B4DF6C5B197C9FC48D12B03E181688D832261BA611E7FA88D20DF0CBFB"
+      "sha256": "16C2D6511B486908F9578224C651D182751C4C22074EFDF74E79A54592AC05F1"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il05.pak",
       "destination": "Events/st_da_il05.pak",
-      "sha256": "362AA40DF04996A0021EF599A0E69493F264C63648CE2F28A7C52579BE88FC23"
+      "sha256": "F7F3225FCEA8B7BF3C4CF66E649EADE03D69E3B5196044B5FED7D164A762C35B"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il06.pak",
       "destination": "Events/st_da_il06.pak",
-      "sha256": "B42C5045D86ED813922D42BB6B72FDAACA2DFCEDA4F874E69E7D5D7394A19697"
+      "sha256": "27C5AD18BCD989D35D1DF21172B29AF489B47939B380E806A18143075C906E2C"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il07.pak",
       "destination": "Events/st_da_il07.pak",
-      "sha256": "60E758D6C0EFD200DE44133764A631A7D0E37B936BCDC1FFFFDF6D16C14A5388"
+      "sha256": "75308D05F3B73E8B08EB4D497A97EB18152B30F6FB65F92E34FB66C5B2C8DDD0"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il08.pak",
       "destination": "Events/st_da_il08.pak",
-      "sha256": "FA3A50A1E491CD57C41D2F73B387CCDF29B31D1DC4CA79F55A785F39866D28B8"
+      "sha256": "5B08BA7283D233721761916622034B75E57E25C8D35F48E775B976112E37BC09"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il09.pak",
       "destination": "Events/st_da_il09.pak",
-      "sha256": "A44FF189599D511D0E5C000F531A214A6201AA6A982B53B9FEC63B5F3AA5BD42"
+      "sha256": "4CABA905B1FCF69605C692E84BCAB54A74F51E9C9C1F9E7DCBF4A4B4ACD3CD21"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_il10.pak",
       "destination": "Events/st_da_il10.pak",
-      "sha256": "434600BA2038458A3938FDCB32A92ED827069418D75DA5EE87801E0547EB8D2D"
+      "sha256": "44DF29DC91BE026AA4C1F5EDCED50CA7679A6B0460316630221EF985C92A74B5"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_lo.pak",
       "destination": "Events/st_da_lo.pak",
-      "sha256": "A2589BD5BFD3EE0EA1309B090A976AD39D11B232DE0897A8D73AA78B91122171"
+      "sha256": "F5732A01F94600CC966E1C7450D25126C4F441575C356939109F6D1BD7EF4C04"
     },
     {
       "source": "assets/event_collection/vv4/living-st_da_wd.pak",
       "destination": "Events/st_da_wd.pak",
-      "sha256": "A53F4C3053F1355C3FBD285E14FEEB75A062279F1774F2BB73F2B89D4B6C4E00"
+      "sha256": "55016E04ED7D04166E6273E04A2F21FA2D9F7D468CB0C1563F5B731D87FAF56B"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_ad.pak",
       "destination": "Events/st_draft_ad.pak",
-      "sha256": "E4D0572B09E8B8AC72D4DEEBE6044FC5164E12E44EF08281AD35495C2A37B1F3"
+      "sha256": "04AEAC3034D03BDE06A6EFD575782F73A9256A40E0A1C710874B2BDD2DA2719D"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_ar.pak",
       "destination": "Events/st_draft_ar.pak",
-      "sha256": "CC2ED364ED3D3FCA8A560F8714719AA4DE4A4FC85801732A670CA92E03A6D1BF"
+      "sha256": "466CCAB4CA8C350B6DF582CD5846D720167043D75B8EF12F7F6EAD64FDF025B7"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_bl.pak",
       "destination": "Events/st_draft_bl.pak",
-      "sha256": "5444833EBBB360F4DCDBE7E4D6769E873F0DB5D2B3592EF84A09A1CD3AC7A6D3"
+      "sha256": "F283ADF331B5E1C43D9A9D319F8AAFA103ED6FB08951FA5BB010EB8EDFA5A757"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_da.pak",
       "destination": "Events/st_draft_da.pak",
-      "sha256": "11ADEE2660DEC47296F314855E60694FAB262DEFA9B7A63E34A9D709DE7E613F"
+      "sha256": "B20B98AEC31022BC88149DC82DDF305E62A8FEA2EF351B7E6F998673EEB47E50"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_de.pak",
       "destination": "Events/st_draft_de.pak",
-      "sha256": "9B55F5E869579F41D3A2866EE8A3332943245049C45594CC90ABCA838D960A10"
+      "sha256": "A1F899F94629C9AD0EE18330C9A52C2080736D82C2A978AE19D9EDC93FF9D168"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_di.pak",
       "destination": "Events/st_draft_di.pak",
-      "sha256": "36CBDB2FC6B01E09600B3616BF4DB5D8E0B22EBE88A8DD51AC7E878F4602DF21"
+      "sha256": "7D073A5A9042E14841B9F2730D4A668166A79CEE446C530BD4EBF44117E847CB"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_dr.pak",
       "destination": "Events/st_draft_dr.pak",
-      "sha256": "A23FDDFC9C74A5C1B060F0CF54A7F47C941212411CBA77192F0B712013143ABF"
+      "sha256": "249274487A486B7671857F6CE4C66E039FB495B47E1C3502CEA8ADA69E5ACA3B"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_fa.pak",
       "destination": "Events/st_draft_fa.pak",
-      "sha256": "158F06EF1D5C7D2501A472B989507E53DA6853A3F663E0CC1F02E81F7067DB62"
+      "sha256": "C550B4AA2CBF39554791671B987BE1B3C1BE7B7899D491FA79C87A9CCB169F73"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_fe.pak",
       "destination": "Events/st_draft_fe.pak",
-      "sha256": "72740BE66459885E781CB7A351DFF6B4B9C46566A387C036FA981CABDA9A7BE5"
+      "sha256": "1906F5CEDD2C3AB3180F81E9087908DA64254EF15F814ED865B44A745C1090AD"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_he.pak",
       "destination": "Events/st_draft_he.pak",
-      "sha256": "2094240FF0B593086F30877D447702D61FC9212F10AFF483F5D5E9EBFCA344FC"
+      "sha256": "39CFE8A487C88D86BAC81B5067A98DAF797493B7EF1782E1B185BD1EB1298430"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_hi.pak",
       "destination": "Events/st_draft_hi.pak",
-      "sha256": "9641618A0D643A631F86FCD49E5F7B6F751DD48254C6DABC38AB127D4A655813"
+      "sha256": "A88B9ABEDBA1A581CDB5DE2895F8F533088E267371F7DA5DECAC9146BB02A019"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_ho.pak",
       "destination": "Events/st_draft_ho.pak",
-      "sha256": "1B63CAD555F9B771A706EA6DDD0A62AE6D83336D35D0710CDF8ADB1F2780A3DF"
+      "sha256": "4E3EB8A5ADF1F0C7D95124C6986BB80644C1DCE5DF3D083947CA407FA395A7D9"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_hu.pak",
       "destination": "Events/st_draft_hu.pak",
-      "sha256": "8F9B651259C9E286CA86D8FA9D10278206F31BE25F266AA632C92DBE776415A7"
+      "sha256": "55ACC3FB4CFA8C1E9A26003986BB578FFE67D892710D6C8DAC4FAD2E88A84F50"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_hz.pak",
       "destination": "Events/st_draft_hz.pak",
-      "sha256": "00EFE1C52E457F85132C9EF78A46D415941DCFE1923E6339C5F856F4F1CC7833"
+      "sha256": "21238CBBA09618A967742CBE9C8A1B53B965981A9B97FF87C905FB4D3DDBDBAD"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_ju.pak",
       "destination": "Events/st_draft_ju.pak",
-      "sha256": "FAA48B23696468DE674663185C1107BA5F650768069D6623B6DC9D046D610126"
+      "sha256": "7B0415B50CAD0B365A5E59C087A4D359993855DD3D20F3035E1FC24820B58254"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_lc.pak",
       "destination": "Events/st_draft_lc.pak",
-      "sha256": "9E3530A39D3D0FB8859F044F7F09F9ADDDC84C4CB4AA2044D1B44A94AAF676DE"
+      "sha256": "A4DE120B57F47AD521C8719C08FD6D1339E6BD8D8101BB31C8F1F94D4FC4CFB8"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l2.pak",
       "destination": "Events/st_draft_l2.pak",
-      "sha256": "640D0566FB39110E0958C3A10C69B8D263BA1CEE251744626A49D1018767A425"
+      "sha256": "7566DE4718F4E143E09D2A1B1137FB2516C18E70D8E350B5F11B357DA86584CC"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l3.pak",
       "destination": "Events/st_draft_l3.pak",
-      "sha256": "2850997EBD26278E83DAC2C58E7A361B62CA40DA76CD4ECA9284E917A7B3096F"
+      "sha256": "0B64E29D9C4545038BA9DCACC2FDD373E167F9F550EE0C62F467AA4DE6FA48D0"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l4.pak",
       "destination": "Events/st_draft_l4.pak",
-      "sha256": "465921E61ADB989021564805D76A6844354D203B812D94428AF8D79462956D5D"
+      "sha256": "6FFAFA2969B9250951067B11B094E84BC133B1568243367F44335DDBD6C0E0DD"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l5.pak",
       "destination": "Events/st_draft_l5.pak",
-      "sha256": "70ACDE84CF2B9D01AA6FADA3702822EA8CCDEB53AACFBA1C4935BF44C15793E2"
+      "sha256": "4BE93E3BC826723E200BDDB0DB2A3888A4E068AAB71BF3506889F8CEA6880E24"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l6.pak",
       "destination": "Events/st_draft_l6.pak",
-      "sha256": "49EBF992B771F0F3C0D2F0CCDFBE1B2E69243FD6B337F91F28DF8B47E0C980DB"
+      "sha256": "D36E34DDB15837FCC87C368B0BEDF27FD37660222FDA43602EA7A882F7E3512F"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l7.pak",
       "destination": "Events/st_draft_l7.pak",
-      "sha256": "5E143F01F99523CAC68F69A1AE10CD1DC062685F59D9A29D481F1BA4BD65B249"
+      "sha256": "FE7D18BF8E35603FC5AA6E6CCEE5CD2ED050A45A321916EE0C3351A79C482AF5"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l8.pak",
       "destination": "Events/st_draft_l8.pak",
-      "sha256": "341D8350B7A1D95D225F0E1BCD30A2C80763A4FA0FAFDF35483A1DE9B98E14A0"
+      "sha256": "D8B6B7EC891C4E5C8697B3356D1897EB3412C8580C755FB82019CB91933C5EC2"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_l9.pak",
       "destination": "Events/st_draft_l9.pak",
-      "sha256": "3B6248E8E50047CFDEA23A6905C3458FE2E5EF93646EB8E7EF85F70AB8434995"
+      "sha256": "7BB6B8EA4CC7B65BB096F3696FF3DADA37DA93E7359E38868EFA2C1807F60FFA"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_10.pak",
       "destination": "Events/st_draft_10.pak",
-      "sha256": "A484D640A298441100FBFFF05BEF5B97BD310C0B1D2CD93631A0871AF6675A06"
+      "sha256": "E1C951CF8A8C829818532CBFD4524489945753322A255B37C825D4FB0F0AC569"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_li.pak",
       "destination": "Events/st_draft_li.pak",
-      "sha256": "11424F9D0B5064CD59F5EC97D0C32F3ADAF637BA998F57B2556489A1D85EF3B5"
+      "sha256": "08C6889451A5EB062A98CB0160782521012E3FA5D3E69DA039ACE1DD93867F01"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_na.pak",
       "destination": "Events/st_draft_na.pak",
-      "sha256": "70282DCEE6E238DB52AF3DCCB7485567A8B4A40724ED35C0FB7FF24044460960"
+      "sha256": "7ECBAD79C664AA4453BA0585285A2EAF8549F0B3C568484A19421059A5A27E83"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_rm.pak",
       "destination": "Events/st_draft_rm.pak",
-      "sha256": "CACB2B31F7CAEA011A2B820AF83E7263B8D945888ED22B30FB67A8C956270CA4"
+      "sha256": "12A2EDF1059C1E6EF47063285E4FB2BB210175C8A1A2DCCECD9111DBF8AA549A"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_su.pak",
       "destination": "Events/st_draft_su.pak",
-      "sha256": "E10BDC4CF647FC001C806DED8AFFD49DB2D78E7078E0E15D51F20BCBA8D3CA10"
+      "sha256": "8D5880C6F445D946AC5B05658552B80572AF89738F96328A61BF1C3F942F86F3"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_ti.pak",
       "destination": "Events/st_draft_ti.pak",
-      "sha256": "E31DF795F3B1F9B9BFC178CC64495B4680EF210145A2E1BFE2F8C2980ED4A461"
+      "sha256": "B219BD087632EA3AD33D6F55E0A3009C470E91BDF62FCDD013CB6CD14DA4550E"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_tr.pak",
@@ -1225,57 +1225,57 @@
     {
       "source": "assets/event_collection/vv4/living-st_draft_tt.pak",
       "destination": "Events/st_draft_tt.pak",
-      "sha256": "420F9E15064B8E2C26D359A521C5E5D741A7DCE9FBCE89E42D878C4B7BC9A2EF"
+      "sha256": "AB3207EB8B55EF95A1DB87ACEEBC52FBFBE9A652A8D97E88F6010F6DAFD89DA7"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_vf.pak",
       "destination": "Events/st_draft_vf.pak",
-      "sha256": "49DFA7E84EEB552A3FAAC60DFF95CFAC6E2AA7F77E0C3BF262188364C2CC6DF4"
+      "sha256": "D8E9BC8942C06B062A8BFB0E6D814097BE8989B16B9A5596F8AF4D97D72BD342"
     },
     {
       "source": "assets/event_collection/vv4/living-st_fathers3.pak",
       "destination": "Events/st_fathers3.pak",
-      "sha256": "BA1642253087D2315CC87EC6427615FACDA587BEA11EEB5CAF1B5D3093D58C16"
+      "sha256": "B7D89A38B8F7A8A0B4D52A55F9AC035A15D363437CBC3D68D95D6C6F0CEAF840"
     },
     {
       "source": "assets/event_collection/vv4/living-st_horizon.pak",
       "destination": "Events/st_horizon.pak",
-      "sha256": "6E1FA71B7219006B5F9780FA4C46C3F82DA331680092130FB164CC6771E7EAA0"
+      "sha256": "0B261EF99711D7761E80042D95EA327A4928C6094332185DB747C23083ECBC11"
     },
     {
       "source": "assets/event_collection/vv4/living-st_living.pak",
       "destination": "Events/st_living.pak",
-      "sha256": "68AD087BF63793370CA0198B3D96C3D78EF5860B001FC2DF984230E70CD00B5B"
+      "sha256": "4A8115780BE07A17289EDB6A22ECF54E5257D23FC05844EAEDEBBCF6B3BD9B5E"
     },
     {
       "source": "assets/event_collection/vv4/living-st_mie.pak",
       "destination": "Events/st_mie.pak",
-      "sha256": "47A7841E81B7A0579A79005415F7E34C8857271FD081DF0B5E181CCB84AC40B7"
+      "sha256": "CBB81850C2E4FB942F79C429CD8E80F528652519B1FE32A259F554182484582C"
     },
     {
       "source": "assets/event_collection/vv4/living-st_moments5.pak",
       "destination": "Events/st_moments5.pak",
-      "sha256": "D1F63C00BDCCFF197886FEE66DF9345B42CD34B1BB54DEC0CDEA1A00D0E5ACF6"
+      "sha256": "64BC7AB0F789420AE39D7B384ED602E556764A2483B559AC6BDD16E10D68724C"
     },
     {
       "source": "assets/event_collection/vv4/living-st_openq97.pak",
       "destination": "Events/st_openq97.pak",
-      "sha256": "3E145FFD6B329FB5ECCCA80D03BA8664CB849DA64F6DC7B77378806E7A0AFDAE"
+      "sha256": "3BB335857588632A7305C45778A25CFCE2293A0518D67B6B57566A0810E6317A"
     },
     {
       "source": "assets/event_collection/vv4/living-st_rewrites.pak",
       "destination": "Events/st_rewrites.pak",
-      "sha256": "BA661E0F909F7EC407F5883E23D71E22E9E1ECDC2C02C5AEC1ECFA7C69A5E8FE"
+      "sha256": "4D5F4A676F5344B45F428716B9F77E00F9890453E89B6ADD93C9A5C6D0592F36"
     },
     {
       "source": "assets/event_collection/vv4/living-st_rolemode.pak",
       "destination": "Events/st_rolemode.pak",
-      "sha256": "6518C08F89AF034B9D786DD869836F8A55E5CF05B87A00FBA7204B01BB634B4A"
+      "sha256": "02FC2472E9DBB8130BD0A2F053532B5550177C45C681860166A98ACFC7AE0C7A"
     },
     {
       "source": "assets/event_collection/vv4/living-st_v28.pak",
       "destination": "Events/st_v28.pak",
-      "sha256": "0884784C8F1C3D46E2B7278E238AC1A19F2E1863CF6C855DC3BD2F121C73EB6D"
+      "sha256": "575ECD4A69898945D3776BC64C6D3A3DD66AC0B8EEBE843A6A09A444DDC3D240"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",

@@ -896,6 +896,62 @@ class Pages(unittest.TestCase):
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
+class ContentNote(unittest.TestCase):
+    """Content Notes for Island Events (R6 live, 2026-11-21): with the row installed (the installed patches' list
+    names vvN_island_event_content_notes) the question starts with the tag table's note, as the collection's events
+    and their mixer versions do; without it, nothing changes."""
+
+    NOTE = "Content note: Bereavement, Disappearance, Emotional distress"   # content_tags/mie.json mie_adventurer
+
+    def village(self, game: int, listed: bytes | None) -> Village:
+        v = Village(game)
+        p = v.p
+        opened = []
+
+        def create(pr):
+            opened.append(pr.wstring(pr.arg(0)))
+            return (0x5150 if listed is not None and pr.wstring(pr.arg(0)).endswith(
+                "\\Virtual Villagers Fun Patcher Files\\VVFP Installed Patches.txt") else 0xFFFFFFFF), 28
+
+        def read(pr):
+            data = (listed or b"")[:pr.arg(2)]
+            pr.write(pr.arg(1), data)
+            pr.put32(pr.arg(3), len(data))
+            return 1, 20
+        p.api_handlers["CreateFileW"] = create
+        p.api_handlers["ReadFile"] = read
+        p.api_handlers["CloseHandle"] = lambda pr: (1, 4)
+        v.opened = opened
+        v.villager(0, NAMES[game], True)
+        v.villager(1, NAMES[game][::-1], False)
+        return v
+
+    def test_the_question_starts_with_the_note_only_with_the_row(self) -> None:
+        for game in GAMES:
+            width, lines = PAGE[game]
+            for listed, shown in ((f"vv{game}_more_island_events\r\nvv{game}_island_event_content_notes\r\n".encode(),
+                                   True),
+                                  (f"# a note\nvv{game}_more_island_events\nvv{game}_island_event_filter_f04\n".encode(),
+                                   False),
+                                  (f"vv{game}_island_event_content_notes_x\nisland_event_content_note\n".encode(),
+                                   False),
+                                  (None, False)):
+                with self.subTest(game=game, listed=listed):
+                    v = self.village(game, listed)
+                    v.begin(rolls(game=game, find=1, end=0))
+                    first = v.pages(0)[0]
+                    # its own paragraph first (on a page of its own when the next one does not fit beside it)
+                    self.assertEqual(first == self.NOTE or first.startswith(self.NOTE + "\n"), shown, first[:80])
+                    for which in (0, 1, 2):
+                        for page in v.pages(which):
+                            self.assertLessEqual(wrap_lines(page, width), lines, page)
+                            if which:
+                                self.assertNotIn("Content note", page)     # only the question's first text
+                    self.assertIn(adv.fill("INTRO_1", "f", NAMES[game][:LONGEST[game]]),
+                                  " ".join(v.pages(0)).replace("\n", " "))
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
 class EveryBuild(unittest.TestCase):
     def others(self, game: int) -> list[str]:
         return [p.id for p in patcher.load_public_fun_patches()

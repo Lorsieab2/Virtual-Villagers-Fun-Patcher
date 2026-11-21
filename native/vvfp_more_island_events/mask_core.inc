@@ -188,7 +188,7 @@ static void mk_compose(const adv_game *layout) {
     const char *p[2];
     p[0] = mk_paragraph(0, intro);
     p[1] = NULL;
-    adv_popup(layout, &mk.intro, p);
+    adv_popup_noted(layout, &mk.intro, MIE_NOTE_MASK, p);
     for (e = 0; e < MK_ENDINGS; ++e) {
         mk_compose_ending(layout, e);
     }

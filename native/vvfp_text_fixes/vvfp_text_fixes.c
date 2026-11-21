@@ -36,6 +36,8 @@
          vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0) when the field holds exactly CAPTION_MARK, else the field.
      Nothing is written past the field; the field is never saved (the save keeps only the record's windows).
      Picking is the game's own.  Installed with the loader's site, all or none.
+       - the Action label draws a caption wider than the bar's visible part with its letters a pixel closer, so the
+         whole caption shows before the panel's stone frame (tf_action_draw, below; R6 live, 2026-11-21).
    * New Believers' lab equipment line (the owner, 2026-11-18): a click on the ground at place 35 writes
      "<n> of 12 pieces of lab equipment collected" (0x443AC0: sprintf of the format "%d%s12 %s" at 0x49A350, pushed
      at 0x443BB0, with strings 1183 " of " and 1184), but n counts all 24 pieces (0x413F50(0x50 ...)), so players
@@ -108,6 +110,29 @@ static const unsigned char CAPTION_SHOWN_AROUND[22] = { 0x8B, 0x54, 0x24, 0x10, 
 /* what the harvest writes into the 0x27-byte field: the mark the Action line draws the full caption for */
 static const char CAPTION_MARK[] = "Harvesting berries with a cutting tool";
 static const char caption_english[] = "Harvesting blackberries with a cutting tool";
+
+/* The Action line drawn whole (R6 live check, 2026-11-21: "Harvesting blackberries with a cutting to").  The label
+   (0x40D8A0, x 0x12E, left-aligned, Arial Bold, letter spacing 0) has no width of its own: the game draws the whole
+   text, but the villager panel's stone frame (the arrows and Detail) is drawn over the bar from about x 650, so a
+   caption wider than the bar's visible part is hidden there.  The owner's caption is 368 pixels; the bar shows 344.
+   So the Action label gets its own copy of the label class's vtable (LABEL_VTABLE, 8 slots after its RTTI locator)
+   whose draw slot (6: 0x40D3A0, the stock draw: shown -> the text control's draw 0x40CE20) is tf_action_draw: when
+   the label's text is wider than ACTION_RIGHT allows, the font's letter spacing (ldwFontImpl +8, read by the game's
+   width routine 0x402430 and its draw 0x409700 for every glyph) is made 1 -- at most ACTION_TIGHTEN_MAX -- pixel
+   smaller for that one draw, and put back at once.  Every word stays, in the game's own font and colour; the
+   letters are a pixel closer.  Any Action caption that does not fit is drawn so (a translation's too), every other
+   one exactly as before.  Nothing is written to the game's code or data but the one label's vtable pointer. */
+#define LABEL_VTABLE 0x48A96Cu
+#define LABEL_SLOTS 8
+#define LABEL_DRAW_SLOT 6
+#define LABEL_DRAW 0x40D3A0u
+#define FONT_WIDTH 0x402430u               /* (font; text, float scale) ret 8: the widest line, less one spacing */
+#define ACTION_RIGHT 646                   /* the bar's visible part ends here (the label's own coordinates) */
+#define ACTION_TIGHTEN_MAX 2
+/* the RTTI locator, then the 8 slots */
+static const unsigned int LABEL_VT_STOCK[LABEL_SLOTS + 1] = { 0x4AE704u, 0x40D950u, 0x40A430u, 0x40D2B0u, 0x40D320u,
+                                                              0x40D340u, 0x40D360u, 0x40D3A0u, 0x40A830u };
+static unsigned int g_action_vt[LABEL_SLOTS + 1];   /* the Action label's copy: [0] the locator, then the slots */
 
 /* New Believers' lab equipment line (see the top): the ground click's format push and the stock format. */
 #define LAB_SITE 0x443BB0u
@@ -348,12 +373,73 @@ static const char *__cdecl tf_caption(const char *looked_up) {
     return text;
 }
 
-/* The villager panel's Action line: the text its label gets for the caption field `field`. */
-static const char *__cdecl tf_caption_shown(const char *field) {
+typedef void (__fastcall *tf_draw_fn)(void *self, void *edx);
+typedef int (__fastcall *tf_width_fn)(void *font, void *edx, const char *text, float scale);
+
+/* The pixels by which the font's letter spacing is made smaller for this draw of the Action label's text control
+   `ctl` (0: it fits, or it is not a plain left-aligned label with its own font), and that spacing in `*spacing`. */
+static int tf_action_tighten(unsigned char *ctl, int **spacing) {
+    const char *text;
+    unsigned char *font, *impl;
+    int width, room, gaps, d;
+    *spacing = NULL;
+    if (!tf_readable(ctl, 0x5C) || ctl[0x24] != 0 || *(int *)(ctl + 0x40) != 0) {
+        return 0;                              /* a text box, or not left-aligned: as the game draws it */
+    }
+    text = *(const char **)(ctl + 0x30);
+    font = *(unsigned char **)(ctl + 0x3C);
+    if (text == NULL || font == NULL || !tf_readable(font, 8)) {
+        return 0;
+    }
+    impl = *(unsigned char **)(font + 4);
+    gaps = tf_length(text, TF_MAX_TEXT) - 1;
+    if (impl == NULL || !tf_readable(impl, 12) || gaps < 1) {
+        return 0;
+    }
+    width = ((tf_width_fn)(UINT_PTR)FONT_WIDTH)(font, NULL, text, 1.0f);
+    room = ACTION_RIGHT - *(int *)(ctl + 8) - *(int *)(ctl + 0x44);
+    if (width <= room) {
+        return 0;
+    }
+    d = (width - room + gaps - 1) / gaps;
+    *spacing = (int *)(impl + 8);
+    return d < ACTION_TIGHTEN_MAX ? d : ACTION_TIGHTEN_MAX;
+}
+
+/* The Action label's draw (its vtable's slot LABEL_DRAW_SLOT): the stock draw, its letters closer when its text is
+   wider than the bar shows. */
+static void __fastcall tf_action_draw(unsigned char *label, void *edx) {
+    int *spacing = NULL, saved = 0, d = 0;
+    (void)edx;
+    __try {
+        if (label[8] != 0) {                   /* shown (the stock draw's own test) */
+            d = tf_action_tighten(*(unsigned char **)(label + 0x10), &spacing);
+        }
+        if (d > 0 && spacing != NULL) {
+            saved = *spacing;
+            *spacing = saved - d;
+        } else {
+            spacing = NULL;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        spacing = NULL;
+    }
+    ((tf_draw_fn)(UINT_PTR)LABEL_DRAW)(label, NULL);
+    if (spacing != NULL) {
+        *spacing = saved;
+    }
+}
+
+/* The villager panel's Action line: the text its label gets for the caption field `field`; the label (`label`, the
+   game's own, still with the label class's vtable) gets the Action label's draw (above). */
+static const char *__cdecl tf_caption_shown(const char *field, unsigned int *label) {
     const char *text = field;
     __try {
         if (tf_same(field, CAPTION_MARK)) {
             text = tf_caption_full();
+        }
+        if (tf_readable(label, 0x14) && label[0] == LABEL_VTABLE) {
+            label[0] = (unsigned int)(UINT_PTR)&g_action_vt[1];
         }
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         text = field;
@@ -367,9 +453,10 @@ static __declspec(naked) void tf_caption_shown_stub(void) {
     __asm {
         add edx, 0x1CE4
         push ecx
+        push ecx
         push edx
         call tf_caption_shown
-        add esp, 4
+        add esp, 8
         pop ecx
         push eax
         push CAPTION_SHOWN_ON
@@ -448,9 +535,13 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         if (!vvfp_site_holds(CAPTION_LOOKUP, CAPTION_LOOKUP_STOCK, sizeof CAPTION_LOOKUP_STOCK)
             || !vvfp_site_holds(CAPTION_ON, CAPTION_ON_STOCK, sizeof CAPTION_ON_STOCK)
             || !vvfp_site_holds(CAPTION_SHOWN_SITE - CAPTION_SHOWN_BEFORE, CAPTION_SHOWN_AROUND,
-                                sizeof CAPTION_SHOWN_AROUND)) {
+                                sizeof CAPTION_SHOWN_AROUND)
+            || !vvfp_site_holds(LABEL_VTABLE - 4u, (const unsigned char *)LABEL_VT_STOCK, sizeof LABEL_VT_STOCK)) {
             return;
         }
+        /* the Action label's vtable: the label class's own, with the draw that keeps its caption in the bar */
+        memcpy(g_action_vt, (const void *)(UINT_PTR)(LABEL_VTABLE - 4u), sizeof g_action_vt);
+        g_action_vt[1 + LABEL_DRAW_SLOT] = (unsigned int)(UINT_PTR)tf_action_draw;
         vvfp_site_branch(&site[1], CAPTION_SITE, sizeof CAPTION_STOCK, CAPTION_STOCK, 0xE9,
                          (const void *)tf_caption_stub);
         vvfp_site_branch(&site[2], CAPTION_SHOWN_SITE, CAPTION_SHOWN_LENGTH,

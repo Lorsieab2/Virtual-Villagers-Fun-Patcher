@@ -579,6 +579,96 @@ static void adv_popup(const adv_game *g, adv_pages *pages, const char *const *pa
     adv_flush(&w);
 }
 
+/* ---- Content Notes for Island Events (v1.35.97; src/vv_event_content.py) ----------------------------------------
+
+   With the row Content Notes for Island Events (vvN_island_event_content_notes) installed, an event that may touch a
+   sensitive subject starts with "Content note: <labels>" -- the same line the collection's events and their mixer
+   versions show (each compiled event's first text).  These events' labels are their tag table's
+   (data/event_collection/content_tags/mie.json "notes", tests/test_content_notes_everywhere.py holds them equal).
+   A ticked content filter never drops one of these events' outcomes (Story / Cheat Upgrades keeps the whole event
+   out instead, story_collection.inc sc_more_filtered), so every label is always shown.
+
+   The installed patches' list ("VVFP Installed Patches.txt", src/vv_fun_patcher.py _write_installed_patches) is
+   read once a run, as Story / Cheat Upgrades reads it (story_graph.inc cg_installed_load): the line itself or the
+   line without its "vv<N>_" prefix in game N. */
+#define MIE_NOTE_ADVENTURER  "Content note: Bereavement, Disappearance, Emotional distress"
+#define MIE_NOTE_CAVE        "Content note: Bereavement, Disappearance, Emotional distress"
+#define MIE_NOTE_CLIMB       "Content note: Bereavement"
+#define MIE_NOTE_DIVING      "Content note: Bereavement, Disappearance"
+#define MIE_NOTE_DOLPHINS    "Content note: Serious injury"
+#define MIE_NOTE_MASK        "Content note: Child death, Disappearance"
+#define MIE_NOTE_TROUBLING   "Content note: Bereavement, Disappearance"
+
+#define ADV_INSTALLED_BYTES 16384
+#define ADV_NOTES_ROW "island_event_content_notes"
+
+static int adv_notes_state = -1;       /* -1 not read yet, else 0 / 1 */
+
+static int adv_installed_line_is(const char *at, int len, int game, const char *id) {
+    int n = lstrlenA(id);
+    if (len > 4 && at[0] == 'v' && at[1] == 'v' && at[2] == (char)('0' + game) && at[3] == '_') {
+        at += 4;
+        len -= 4;
+    }
+    return len == n && memcmp(at, id, (size_t)n) == 0;
+}
+
+/* Whether Content Notes for Island Events is installed in `game`. */
+static int adv_notes_on(int game) {
+    static char list[ADV_INSTALLED_BYTES];
+    wchar_t path[VVFP_PATCHER_FILES_PATH_CAP];
+    HANDLE file;
+    DWORD got = 0;
+    const char *p;
+    if (adv_notes_state >= 0) {
+        return adv_notes_state;
+    }
+    adv_notes_state = 0;
+    if (vvfp_patcher_file_path_w(path, VVFP_PATCHER_FILES_PATH_CAP, "VVFP Installed Patches.txt") == 0) {
+        return 0;
+    }
+    file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                       FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(file, list, sizeof list - 1, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(file);
+    list[got] = '\0';
+    for (p = list; *p != '\0';) {
+        const char *end = p;
+        while (*end != '\0' && *end != '\n' && *end != '\r') {
+            ++end;
+        }
+        if (*p != '#' && adv_installed_line_is(p, (int)(end - p), game, ADV_NOTES_ROW)) {
+            adv_notes_state = 1;
+            break;
+        }
+        p = end;
+        while (*p == '\n' || *p == '\r') {
+            ++p;
+        }
+    }
+    return adv_notes_state;
+}
+
+/* A question popup that starts the event: `note` (an MIE_NOTE_*) as its first paragraph when Content Notes for
+   Island Events is installed, then the paragraphs (NULL-ended, at most 7). */
+static void adv_popup_noted(const adv_game *g, adv_pages *pages, const char *note, const char *const *paragraphs) {
+    const char *with[9];
+    int i, n = 0;
+    if (note != NULL && adv_notes_on(g->game)) {
+        with[n++] = note;
+    }
+    for (i = 0; paragraphs[i] != NULL && n < 8; ++i) {
+        with[n++] = paragraphs[i];
+    }
+    with[n] = NULL;
+    adv_popup(g, pages, with);
+}
+
 /* ---- Composing ----------------------------------------------------------------------------------------------- */
 
 static char adv_buf[8][ADV_PIECE_BYTES];
@@ -780,7 +870,7 @@ static int adv_begin(const adv_game *g) {
     p[1] = adv_one(1, ADV_INTRO_2);
     p[2] = NULL;
     adv.intro.count = 0;
-    adv_popup(g, &adv.intro, p);
+    adv_popup_noted(g, &adv.intro, MIE_NOTE_ADVENTURER, p);
     adv_compose_a(g);
     adv_compose_b(g);
     adv_find_tallest(g);

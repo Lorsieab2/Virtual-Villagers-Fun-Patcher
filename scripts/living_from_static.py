@@ -23,6 +23,10 @@ recasts; only a version that fails validation is ever dropped (static_only, with
 Each source is one series, `living_st_<source>`: the draw counts a series as one event, so the mixer versions never
 swamp the static events.  Mixer versions have no outcome records (living-pack.md 2.4: count 0).
 
+Every version carries its static event's content controls (src/vv_event_content.py, with_content): the same
+"Content note: ..." first line, the same content filters dropping the same outcomes and the same story traits, from
+the static event's source's tag table (the nodes the version still has).
+
     python scripts/living_from_static.py            # print the counts (writes nothing)
 
 Nothing here touches a game, a save or an exe.
@@ -266,6 +270,14 @@ def quiet_versions(e: dict, g0: dict, rng: random.Random, pers: list[str]) -> li
     return out
 
 
+def with_content(e: dict, g: dict) -> dict:
+    """Version graph `g` (validated) of static event `e` with the content controls written in
+    (src/vv_event_content.py inject): the static event's source's tag table, the same as its own .cieg."""
+    import vv_event_content as content
+    source = e.get("source", "v28")
+    return content.inject(g, content.node_tags_for(source, e["id"], g), content.extras_for(source, e["id"], g))[0]
+
+
 def build(events: list[dict], bank: mx.Bank | None = None) -> tuple[list[mx.Variant], dict[str, str]]:
     """Every static event's mixer versions as mixer Variants (validated and compiled), and the static-only events
     {id: reason}."""
@@ -294,6 +306,11 @@ def build(events: list[dict], bank: mx.Bank | None = None) -> tuple[list[mx.Vari
                     continue          # the frame does not fit this page, or the outcome left out is one a later
                     #                   page asks about ("visited"): this version is left out
                 raise SystemExit(f"living_from_static: {e['id']} k={v['k']}: " + "; ".join(problems[:4]))
+            # The content controls, as the static event's own compiled file has them (build_event_collection_features
+            # compile_events): its source's node tags (the nodes this version still has), so the version shows the
+            # same "Content note: ..." line and the same content filters drop the same outcomes (R6, 2026-11-21:
+            # every mixer version had lost its note).
+            g = with_content(e, g)
             var = mx.Variant(seed=e["id"], manifest_id=sid, series=series, bank=BANK_STATIC, cat_index=0,
                              seed_index=si, k=v["k"], games=list(e["games"]), flags=0, graph=g, outcomes=[],
                              plan={"static": e, "frame": v["frame"], "order": v["order"], "node_index": {}},

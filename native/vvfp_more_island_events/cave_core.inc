@@ -165,7 +165,7 @@ static void cave_compose(const adv_game *g) {
     const char *p[4];
     int side;
     p[0] = cave_one(0, CAVE_INTRO); p[1] = NULL;
-    adv_popup(g, &cave.question[CAVE_Q_START], p);
+    adv_popup_noted(g, &cave.question[CAVE_Q_START], MIE_NOTE_CAVE, p);
     p[0] = cave_one(0, CAVE_EXPLORE_1); p[1] = cave_one(1, CAVE_EXPLORE_2); p[2] = NULL;
     adv_popup(g, &cave.question[CAVE_Q_DEEPER], p);
     p[0] = cave_one(0, CAVE_DEEPER); p[1] = cave_join(1, CAVE_A_SCREAM, " ", WRONG[cave.wrong], 0);

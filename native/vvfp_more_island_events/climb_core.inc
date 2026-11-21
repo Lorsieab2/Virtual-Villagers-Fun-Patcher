@@ -113,7 +113,7 @@ static void climb_compose(const adv_game *g) {
     int e;
     p[1] = NULL;
     p[0] = climb_join(0, CLIMB_INTRO, -1, 0);
-    adv_popup(g, &climb.intro, p);
+    adv_popup_noted(g, &climb.intro, MIE_NOTE_CLIMB, p);
     for (e = CLIMB_E_FALL; e <= CLIMB_E_SUMMIT; ++e) {   /* the plan's popup, then the climb's (the owner: "Then") */
         p[0] = climb_join(0, CLIMB_PLAN, -1, 0);
         adv_popup(g, &climb.endings[e], p);

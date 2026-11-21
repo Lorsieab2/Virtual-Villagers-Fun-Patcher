@@ -96,7 +96,11 @@ static void dp_popup(const adv_game *g, adv_pages *pages, int a, int b, int c, i
 
 /* Every ending's popups (src/vv_playful_dolphins.py pages_of). */
 static void dp_compose(const adv_game *g) {
-    dp_popup(g, &dp.intro, DP_INTRO, -1, -1, 0);
+    const char *intro[2];
+    dp_piece(dp_buf[0], ADV_PIECE_BYTES, DP_INTRO, 0);
+    intro[0] = dp_buf[0];
+    intro[1] = NULL;
+    adv_popup_noted(g, &dp.intro, MIE_NOTE_DOLPHINS, intro);     /* the question, its content note first */
     dp_popup(g, &dp.endings[DP_E_HUNT], DP_SWIM, DP_HUNT_1, DP_HUNT_2, dp.hunt_award);
     dp_popup(g, &dp.endings[DP_E_SLAP], DP_SWIM, DP_SLAP, -1, 0);
     dp_popup(g, &dp.endings[DP_E_BACK], DP_BACK, -1, -1, dp.back_award);
