@@ -631,18 +631,24 @@ class EffectsWaitForTheirPage(unittest.TestCase):
                     self.assertEqual(again.log()[0::2], (1, whole), "the same entry, continued: nothing twice")
 
     def test_a_question_s_entry_has_its_choice_and_none_when_nothing_changed(self):
+        # A page with no effects is still a job when it carries a Village Solidarity tag (story_graph.inc: made with
+        # the page), so the owner's A7 ("neutral") is logged as a page; the same ending untagged changes nothing at
+        # all and its entry says "Changes: none".
+        untagged = copy.deepcopy(GRAPH)
+        del untagged["nodes"]["A7"]["solidarity"]
+        bare = cg.compile_graph(untagged)
         for game in GAMES:
             if not have_stock(game):
                 continue
             run = Run(game)
             n = int(game[2:])
-            for end, expect_pages in (("H3", 1), ("A7", 0)):
-                h = next(h for h in histories(n) if h.end == end)
+            for end, data, expect_pages in (("H3", CIEG, 1), ("A7", CIEG, 1), ("A7 untagged", bare, 0)):
+                h = next(h for h in histories(n) if h.end == end.split()[0])
                 run.reset()
                 run.rolls(ROLLS)
                 run.force([x for x in h.nodes if x != GRAPH["start"]] + QUIET[1 - h.choice])
                 run.log(1)
-                self.assertIsNone(run.queue())
+                self.assertIsNone(run.queue(data))
                 run.play(button=h.choice)
                 count, _now, filed = run.log()
                 label = GRAPH["nodes"]["intro"]["choices"][h.choice]["label"]
@@ -770,8 +776,11 @@ class RolesAndRefusals(unittest.TestCase):
                 for i, *_ in PEOPLE:
                     run.p.put32(run.v.record(i) + run.v.L["pregnant"], 0)
                 shown = run.play(button=0)
-                self.assertEqual(run.state()["phase"], IDLE)
+                # The run is over with its last page: IDLE, or DONE while its file waits for a save to hold the
+                # last page's job (the owner's A7 carries a Village Solidarity tag).
+                self.assertIn(run.state()["phase"], (IDLE, DONE), "the run ends with its last page")
                 self.assertTrue(shown)
+                self.assertIn("make it back to the village safely", norm(shown[-1][1]))
 
     def test_an_event_not_made_for_this_game_is_refused(self):
         data = dict(GRAPH)
