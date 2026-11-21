@@ -7,10 +7,11 @@ How the new island events come into a game, in all five games (v1.35.97). The co
 
 ## The owner's rules
 
-- The stock island events' chances never change.
-- The new events are rare, but a seven-day playthrough sees some.
-- They never replace a rescue event.
-- Default ON in Owner's Defaults, OFF everywhere else.
+- The stock island events' chances among themselves never change (the game's own draw is never widened).
+- Since 2026-11-15 (the owner) a new event takes a natural event's place, 30-50% of the time; the game's own event
+  does not come that time. This replaced the separate rare roll of 2026-11-14.
+- They never replace a rescue event or the two opening events.
+- Off by default; Owner's Defaults, Select All and Classic VV Difficulty (The Tree of Life, New Believers) tick both.
 
 ## Never a share of the game's own draw
 
@@ -28,7 +29,7 @@ steps in when one of its events is **due**:
 | The Secret City, The Tree of Life, New Believers | the selector's own list and `rand(count)` | no entry is added; the due event's object is put in slot 0 and Story / Cheat Upgrades' pick presents it |
 | Single-result choosers (A New Home, The Lost Children) | the stock chooser | the chooser's first draw answers the due event's case |
 
-An event is due when Pick Island Event picked it, or when the rare roll below drew it.
+An event is due when Pick Island Event picked it, or when the natural-event replacement below drew it.
 `tests/test_more_island_events_stock_odds.py` runs each game's selection 10,000 times with the
 companion installed: every stock event keeps its 1/c share, the draw's call in The Lost Children
 is never written while nothing is due, and A New Home's and The Lost Children's choosers give the
@@ -40,14 +41,16 @@ The separate rare roll between natural events is gone. Instead:
 
 1. **At each natural island event** the game is about to deliver -- 3 seconds before its island timer is due, once
    for that natural time, with nothing else armed or on its way (and in New Believers no God Power armed) -- the game's
-   own random routine rolls 50 of 100 (`SC_REPLACE_PERCENT`).
+   own random routine rolls a chance in 30..50 percent each time (`SC_REPLACE_PERCENT_MIN`, `SC_REPLACE_PERCENT_SPAN`)
+   and then passes it.
 2. **On a pass**, one new event (More Island Events' or the collection's, the draw below) is armed **instead**: the
    game's own event does not happen that time. When no new event can be cast, the game's own event comes as always.
 3. **Never replaced:** the village's two opening events (`CE_OPENING_EVENTS`), a rescue event (the trouble guard holds
    the game's own rescue rule), and nothing while the village is in trouble.
-4. **Population:** only when the village has **61 or more** villagers (`SC_MIN_POPULATION`: the living villagers the
-   game lists and the babies being carried, as the game's own rescue rule counts its population; New Believers'
-   believers only). Below 61 nothing is replaced.
+4. **Population:** an event that can kill a villager, make one disappear or lose a pregnancy is drawn only when the
+   village has **61 or more** villagers (`SC_MIN_POPULATION`: the living villagers the game lists and the babies being
+   carried, as the game's own rescue rule counts its population; New Believers' believers only). Below 61 the other
+   new events can still replace a natural event (`sc_gate` in `sc_apply`).
 5. **The schedule goes on:** the new event is armed as a purchase arms one; once the island timer's keeper has the
    arm, its kept time is set to a new natural time after this one, drawn as the game's own trigger draws one (A New
    Home 12-23 hours, The Lost Children 10-19, the later three 8-15). The delivery counts as one island event.

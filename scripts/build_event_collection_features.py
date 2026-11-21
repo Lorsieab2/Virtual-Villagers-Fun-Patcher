@@ -566,10 +566,11 @@ def description(game: int, count: int, living_count: int = 0) -> str:
     return (
         "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; "
         "the credits come with it, in \"Virtual Villagers Fun Patcher Files\\" + FOLDER + "\\" + CREDITS_NAME + "\"). " + PLAIN + " "
-        "It never takes a share of the game's own draw: one of these events -- or one of More Island Events' -- "
-        "then comes in the natural event's place (Story / "
-        "Cheat Upgrades), never while the village is in trouble (the game's own rescue rule, little food, much "
-        "sickness, few grown villagers); when none can happen, the game's own event comes. Each event needs the villagers it names "
+        "When one of these events -- or one of More Island Events' -- comes (Story / Cheat Upgrades), the game's own "
+        "event does not come that time; never while the village is in trouble (the game's own rescue rule, little "
+        "food, much sickness, few grown villagers), and when none can happen, the game's own event comes. It never "
+        "takes a share of the game's own draw, so the game's own events keep their chances among themselves. "
+        "Each event needs the villagers it names "
         "(never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event "
         "lists them (with what each needs), and the Custom Island Event library has them in its own \"" + NAME
         + "\" group. " + (f"{count} events in this game in this build. " if count else "")
@@ -625,8 +626,9 @@ def row(game: int, files: list[tuple[str, str, bytes]], count: int, living_count
             "are story only. Each change has its line in the event's Island Events log entry.",
         ] if game == 4 else []),
         "explicit_non_changes": [
-            "No executable byte is patched and no island event of the game's own changes, in its timing or its "
-            "chances: the stock draw is never widened.",
+            "No executable byte is patched and no island event of the game's own changes, nor its chance among the "
+            "game's own events: the stock draw is never widened. A natural event a new event replaces does not come "
+            "that time; the next natural time is drawn as the game's own trigger draws it.",
             "Nothing is written to the save; the due roll is kept beside it, deleted once delivered or cancelled.",
         ],
         "evidence_status": ("the roll, its edge, its rates, the due time, the waits, the trouble guard, the choice and "
