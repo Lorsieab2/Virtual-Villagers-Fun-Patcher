@@ -201,6 +201,7 @@ class OrdinaryHeathens(Base):
         self.assertEqual(back.generation, 1)
         self.assertTrue(ft.is_founder(village, back))
         self.assertEqual(holder(village, w.name, alive=True).generation, 1, "a Heathen who never converted")
+        self.assertFalse(ft.is_founder(village, holder(village, w.name, alive=True)), "a Heathen is never a founder")
 
     def test_a_dead_heathen_by_their_latest_snapshot(self) -> None:
         v = self.village("huttest", 5)

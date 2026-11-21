@@ -1988,6 +1988,15 @@ def is_converted_newcomer(p: Person) -> bool:
             and not getattr(p, "founder_record", False) and converted_heathen(p))
 
 
+def heathen_not_founder(p: Person) -> bool:
+    """New Believers: a Heathen with no recorded parent -- one now, or one who converted -- is never called a
+    founder (the owner, 2026-11-21: "I would prefer they aren't labeled as founders").  They may still share the
+    founders' generation.  A founder ("How: Founder") who left for the Heathens and came back is still a founder."""
+    if p.father is not None or p.mother is not None or p.upcoming or getattr(p, "founder_record", False):
+        return False
+    return getattr(p, "heathen", False) or converted_heathen(p) or (isinstance(p, Person) and is_unconverted_heathen(p))
+
+
 def conversion_snapshot(p: Person) -> str | None:
     """The History snapshot that first lists them a Believer after one that listed them a Heathen: their
     conversion, as near as the snapshots tell it.  None when no snapshot shows the change (converted before the
@@ -2682,6 +2691,8 @@ def report(village: Village, game_title: str) -> str:
             how = f"arrived ({CONVERTED_HOW})"
         elif is_arrival(p, min(snapshot_dates(village), default=None)):
             how = f"arrived ({p.how})" if p.how else "arrived"
+        elif heathen_not_founder(p):
+            how = "a Heathen"
         else:
             how = "founder"
         seen = f", first seen {p.first_seen}" if p.first_seen else ""

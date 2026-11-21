@@ -5287,6 +5287,8 @@ def is_founder(village: gen.Village, p: gen.Person) -> bool:
     record with a known "How" other than Founder, or first seen after the village's first snapshot)."""
     if p.upcoming or getattr(p, "placeholder", False) or p.generation != 1 or p.father is not None or p.mother is not None:
         return False                    # a default father is a name only, never one of the founders
+    if gen.heathen_not_founder(p):
+        return False                    # a Heathen is never labeled a founder (the owner, 2026-11-21)
     return not gen.is_arrival(p, min(gen.snapshot_dates(village), default=None))
 
 

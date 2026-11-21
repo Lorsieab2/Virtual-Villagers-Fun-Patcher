@@ -169,11 +169,18 @@ class ConvertedHeathenTests(unittest.TestCase):
             self.assertFalse(ft.is_founder(v, v.people[pid]), v.people[pid].name)
         for pid in (1, 2, 7):
             self.assertTrue(ft.is_founder(v, v.people[pid]), v.people[pid].name)
+        # The owner (2026-11-21): "I would prefer they aren't labeled as founders" -- a Heathen who never converted
+        # is not a founder either, though he shares the founders' generation.
+        self.assertFalse(ft.is_founder(v, v.people[6]))
+        self.assertEqual(v.people[6].generation, 1)
         text = gen.report(v, "Virtual Villagers 5")
         for name in ("Ma", "Za", "Mt"):
             line = next(line for line in text.splitlines() if f". {name} " in line or f". {name}," in line)
             self.assertIn("arrived (Converted from the Heathens)", line)
             self.assertNotIn("founder", line)
+        he = next(line for line in text.splitlines() if ". He " in line or ". He," in line)
+        self.assertIn("a Heathen", he)
+        self.assertNotIn("founder", he)
         nb = next(line for line in text.splitlines() if ". Nb" in line)
         self.assertIn("founder", nb)
 
