@@ -137,9 +137,9 @@ def row(game: int, dll_sha: str) -> dict:
             + ".inc."
         ] if sites else []),
         "explicit_non_changes": [
-            "The game's own island events and their chances never change: the Story companion's rare roll is the "
-            "only draw the factor touches, and it is never in place of a natural event; the game's own events only "
-            "move the score, read after their results are applied.",
+            "The game's own island events and their chances among themselves never change: the factor touches only "
+            "the Story companion's draw among the patcher's new events (which come in a natural event's place, "
+            "Story / Cheat Upgrades); the game's own events only move the score, read after their results are applied.",
             "Nothing changes work, helping, idling, skills, health, food or tech: real effects of an event stay "
             "exactly as the event gives them.",
             "Nothing is written to the save or to a villager record; " + (

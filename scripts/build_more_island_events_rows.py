@@ -16,8 +16,9 @@ def reward_words(game: int) -> str:
 
 
 # Every event's way in (collection_design.md C2): never a share of the stock draw.
-RARE = ("it never takes a share of the game's own draw: it comes in a natural island event's place (Story / Cheat "
-        "Upgrades: 30-50% of the natural events) or through Pick Island Event")
+RARE = ("it never takes a share of the game's own draw: it comes only in a natural island event's place (Story / "
+        "Cheat Upgrades: 30-50% of the natural events, and the game's own event does not come that time) or through "
+        "Pick Island Event")
 
 CAVE_DESCRIPTION = (
     " And The Cave Explorers (A New Home only): once The Cave puzzle is done, two friends of 18 or more, at most 5 "
@@ -338,35 +339,26 @@ SCALE = {
     5: "with Island Events Scale With Population or With Stored Food and Tech Points ticked, the amount scales as "
        "that patch scales the game's own events",
 }
+# How they come (the owner, 2026-11-15; native/vvfp_story_upgrades/story_collection.inc sc_step).
+_HOW = ("Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two "
+        "opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the "
+        "village has 61 or more villagers. "
+        "When one of these events (or an Isola Grand Event Collection event) comes, the game's own event does not "
+        "come that time; never while the village is in trouble, and when none can happen the game's own event comes. "
+        "It never takes a share of the game's own draw, so the game's own events keep their chances among "
+        "themselves. Pick Island Event can pick it")
 HOW = {
-    1: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
-       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
-       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
-       "can pick it; it comes as one of the villager encounters, never the "
-       "village's first island event",
-    2: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
-       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
-       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
-       "can pick it; it comes as one of the two-choice island events, never "
-       "the village's first island event",
-    3: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
-       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
-       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
-       "can pick it",
-    4: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
-       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
-       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
-       "can pick it",
-    5: "Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. "
-       "It never takes a share of the game's own draw: one of these events (or an Isola Grand Event Collection "
-       "event) comes in the natural event's place, never while the village is in trouble, and Pick Island Event "
-       "can pick it",
+    1: _HOW + "; it comes as one of the villager encounters, never the village's first island event",
+    2: _HOW + "; it comes as one of the two-choice island events, never the village's first island event",
+    3: _HOW,
+    4: _HOW,
+    5: _HOW,
 }
 
 
 def description(game: int) -> str:
-    classic = ("Off by default; part of Classic VV Difficulty; Owner's Defaults ticks it."
-               if game in CLASSIC else "Off by default; Owner's Defaults ticks it.")
+    classic = ("Off by default; part of Classic VV Difficulty; Owner's Defaults and Select All tick it."
+               if game in CLASSIC else "Off by default; Owner's Defaults and Select All tick it.")
     return (
         "Adds new island events, written by the owner, beside the game's own (more come in later versions). "
         + ("Four here: " if game in (1, 2) else "Five here: " if game in (3, 4) else "Three here: ")
@@ -434,8 +426,9 @@ def row(game: int, sha: str) -> dict:
         "explicit_non_changes": [
             "No executable byte is patched: the companion writes each site at run time, only after verifying every "
             "site's stock bytes (all of them, or none); without it the event does not exist.",
-            "Every stock event, its odds, the island-event timer and counting, the rescue rules and Custom Island "
-            "Events are unchanged; nothing is saved by the companion.",
+            "Every stock event, its chance in the game's own draw, the island-event timer and counting, the rescue "
+            "rules and Custom Island Events are unchanged by this companion (Story / Cheat Upgrades decides when a "
+            "new event takes a natural event's place); nothing is saved by the companion.",
         ],
         "evidence_status": ("implemented from exact-build disassembly; the draw, the popup pages, both choices' "
                             "effects and the install with every other patch emulated on the stock executable in "
