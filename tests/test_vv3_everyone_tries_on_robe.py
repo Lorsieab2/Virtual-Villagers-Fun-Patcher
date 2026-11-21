@@ -266,17 +266,19 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # the fix-huts overlay's stubs (0xCBA0C, 0xCBA2A..0xCBAFE) differ, in every mode; same length.
     # Re-pinned on the v1.35.97 integration branch for Birth Control's catch-up gate (#829, which itself says only
     # 0x5BF63 and the PE CheckSum differ): a fresh render of the merged catalog.
+    # Re-pinned when All Villagers are 18 (the village-wide VVFPOWU payload at 0x7B820) began moving the lived age
+    # (+0xE74) and a running conception mark (+0xE8C) with the age (v1.35.97): that payload and the PE CheckSum only.
     "stock": (
-        "05003C3C01BFA7CCE2CB57E0DB4E5A05663B1A2FAB3ED723F9ACB6DACDE8F44E",
-        "D9B40D00",
+        "D0D8EAE4F0D80CBBA8438B2E635CAB62BD54FC5F4E4A51C6702BFA4FF34657DB",
+        "2CCB0D00",
     ),
     "collection_progression": (
-        "8CCF0A54289C8C508966D5B5F2BCD04D91E78FA86D22F98B460B23D5C5109B3E",
-        "D9CD0D00",
+        "745719D7E5DAFD923027471417CBE57D48629F7BD375D2D93894315D7CC91C9C",
+        "2DE40C00",
     ),
     "immediate_fixed": (
-        "2CF886F8C319DF3515EC3BD91C123B7B3E92C9C0DE1D79414ACC95292FD929A6",
-        "D80F0D00",
+        "DD2876EFC22A8E4ED74627D888A225258DCABA7F7D2F0B8920D45E1EC910CB06",
+        "2B260D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
