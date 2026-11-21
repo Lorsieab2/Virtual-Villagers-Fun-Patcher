@@ -1,4 +1,5 @@
-"""Write which island-event content filters keep each of More Island Events' events out, from the events' content tag
+"""Write which island-event content filters keep each of More Island Events' events out, and which of them are deadly
+(the population gate, SC_MORE_DEADLY: tagged F01..F04), from the events' content tag
 table (data/event_collection/content_tags/mie.json, written by scripts/build_event_content_tags.py) -- never by hand,
 so the two can never disagree.  "VVFP Story Upgrades.dll" (story_collection.inc sc_more_filtered) keeps a More Island
 Events entry out of the draw and Pick Island Event's list when any filter its tag table names is ticked.  It writes
@@ -72,6 +73,20 @@ def mask(filters: list[str]) -> int:
     return bits
 
 
+# The filters that mean a villager is gone for good: F01 Child and baby deaths, F02 Pregnancy loss, stillbirth and
+# death in childbirth, F03 All deaths in events, F04 Disappearances.  An event whose tags name any of them is DEADLY
+# (SC_MORE_DEADLY: the 61-villager population gate).  Checked against every event's real outcomes (2026-11-21): each
+# such event kills (adv_game.kill) or removes (adv_game.vanish) a villager on some path -- The Aspiring Adventurer,
+# The Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure, The Mysterious Mask -- and no other does
+# (The Playful Dolphins' tail slap leaves at least 1 health; The Rumblings damages structures; The Remembrance
+# Ceremony removes no one).
+DEADLY_FILTERS = ("F01", "F02", "F03", "F04")
+
+
+def deadly(filters: list[str]) -> int:
+    return 1 if any(code in DEADLY_FILTERS for code in filters) else 0
+
+
 def table() -> list[tuple[str, str, tuple[int, ...], list[str], int]]:
     """Each registry entry in order: (entry id, tag table event, games, filters, mask)."""
     tags = tag_table()
@@ -103,7 +118,15 @@ def render() -> str:
         names = " ".join(filters) if filters else "none"
         comma = "," if k < len(rows) - 1 else ""
         lines.append(f"    0x{bits:08X}u{comma}   /* {k}: {ident} ({event}): {names} */")
-    lines += ["};", f"#define SC_MORE_FILTER_COUNT {len(rows)}", "", "#endif", ""]
+    lines += ["};", f"#define SC_MORE_FILTER_COUNT {len(rows)}", "",
+              "/* Whether each entry can kill a villager, make one disappear or lose a pregnancy (the population gate:",
+              "   drawn only at 61 or more villagers unless No Safeguards is on): 1 when its tags name any of",
+              f"   {' '.join(DEADLY_FILTERS)}, the same order. */",
+              "static const unsigned char SC_MORE_DEADLY[] = {"]
+    for k, (ident, event, games, filters, bits) in enumerate(rows):
+        comma = "," if k < len(rows) - 1 else ""
+        lines.append(f"    {deadly(filters)}{comma}   /* {k}: {ident} */")
+    lines += ["};", "", "#endif", ""]
     return "\n".join(lines)
 
 

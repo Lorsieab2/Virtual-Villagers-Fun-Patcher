@@ -11,7 +11,9 @@ scripts/build_vvfp_story_upgrades.ps1 before every compile).  Shown here:
     mie.json names for its event, by its registry index (mie_pick.inc MIE_PICKS);
   * the committed header is exactly what the generator writes now, the source includes it and keeps no table of its
     own;
-  * the shipped DLL (and the test build) hold that very table.
+  * the shipped DLL (and the test build) hold that very table;
+  * the population gate's table SC_MORE_DEADLY is generated from the same tags (any of F01..F04), matches every
+    event's real outcomes, and marks The Mysterious Mask deadly (owner, 2026-11-21).
 """
 from __future__ import annotations
 
@@ -85,6 +87,64 @@ class TheTableMatchesTheTagTable(unittest.TestCase):
         self.assertEqual(table[idx["playful_dolphins"]], bit(6) | bit(25))
         self.assertFalse(table[idx["playful_dolphins"]] & bit(22))
         self.assertEqual(table[idx["the_climb"]], bit(3) | bit(5))
+
+
+def shipped_deadly() -> list[int]:
+    text = HEADER.read_text(encoding="ascii")
+    body = re.search(r"SC_MORE_DEADLY\[\] = \{(.*?)\};", text, re.S).group(1)
+    body = re.sub(r"/\*.*?\*/", "", body, flags=re.S)
+    return [int(v) for v in re.findall(r"\b([01])\b", body)]
+
+
+# Independent of the generator: the events whose real outcomes kill or remove a villager for good (adv_game.kill /
+# adv_game.vanish in native/vvfp_more_island_events: adv_core, cave_core, climb_core, troubling_core, dive_core,
+# mask_core).  The Playful Dolphins (health floored at 1), The Rumblings (structures) and The Remembrance Ceremony
+# remove no one.
+REMOVES_VILLAGERS = {"aspiring_adventurer", "cave_explorers", "the_climb", "troubling_signs",
+                     "diving_for_treasure", "mysterious_mask"}
+
+
+class TheDeadlyTableMatchesTheTagTable(unittest.TestCase):
+    """SC_MORE_DEADLY (the 61-villager population gate) is generated from the same tags: F01..F04.  It was written by
+    hand and left The Mysterious Mask (five villagers taken for good) out of the gate."""
+
+    def test_every_event_in_every_game(self) -> None:
+        tags = json.loads(TAGS.read_text(encoding="utf-8"))["events"]
+        deadly = shipped_deadly()
+        picks = gen.picks()
+        self.assertEqual(len(deadly), len(picks))
+        checked = 0
+        for game in (1, 2, 3, 4, 5):
+            in_game = [(k, ident) for k, (ident, games) in enumerate(picks) if game in games]
+            self.assertTrue(in_game, f"VV{game} has no More Island Events entry")
+            for k, ident in in_game:
+                with self.subTest(game=game, event=ident):
+                    filters = tags[EVENT_OF[ident]]["filters"]
+                    by_tags = int(any(c in ("F01", "F02", "F03", "F04") for c in filters))
+                    self.assertEqual(deadly[k], by_tags, f"VV{game} {ident}: tags {sorted(filters)}")
+                    self.assertEqual(deadly[k], gen.deadly(sorted(set(filters))))
+                    self.assertEqual(deadly[k], int(ident in REMOVES_VILLAGERS),
+                                     f"VV{game} {ident}: the deadly mark does not match its real outcomes")
+                    checked += 1
+        self.assertGreaterEqual(checked, 20)
+
+    def test_the_mask_is_deadly(self) -> None:
+        idx = {ident: k for k, (ident, _g) in enumerate(gen.picks())}
+        self.assertEqual(shipped_deadly()[idx["mysterious_mask"]], 1)
+
+    def test_source_keeps_no_deadly_table_of_its_own(self) -> None:
+        text = COLLECTION.read_text(encoding="utf-8")
+        self.assertNotIn("SC_MORE_DEADLY[] =", text)
+        self.assertIn("SC_MORE_DEADLY[k_more]", text)
+
+    def test_the_dlls_hold_this_table(self) -> None:
+        blob = bytes(shipped_deadly())
+        for dll in (DLL, TEST_DLL):
+            with self.subTest(dll=dll.name):
+                if not dll.is_file():
+                    self.skipTest(f"{dll} not built")
+                self.assertTrue(blob in dll.read_bytes(),
+                                f"{dll.name} is not built from this table (run scripts/build_vvfp_story_upgrades.ps1)")
 
 
 class TheTableIsGenerated(unittest.TestCase):

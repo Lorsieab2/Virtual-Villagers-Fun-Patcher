@@ -18,4 +18,20 @@ static const unsigned int SC_MORE_FILTERS[] = {
 };
 #define SC_MORE_FILTER_COUNT 10
 
+/* Whether each entry can kill a villager, make one disappear or lose a pregnancy (the population gate:
+   drawn only at 61 or more villagers unless No Safeguards is on): 1 when its tags name any of
+   F01 F02 F03 F04, the same order. */
+static const unsigned char SC_MORE_DEADLY[] = {
+    1,   /* 0: aspiring_adventurer */
+    1,   /* 1: cave_explorers */
+    1,   /* 2: the_climb */
+    1,   /* 3: troubling_signs */
+    1,   /* 4: diving_for_treasure */
+    0,   /* 5: playful_dolphins */
+    1,   /* 6: mysterious_mask */
+    0,   /* 7: remembrance_ceremony */
+    0,   /* 8: remembrance_ceremony_nb */
+    0   /* 9: the_rumblings */
+};
+
 #endif
