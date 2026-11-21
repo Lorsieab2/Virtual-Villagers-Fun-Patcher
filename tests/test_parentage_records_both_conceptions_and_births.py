@@ -86,7 +86,7 @@ class BothRecordKindsTests(unittest.TestCase):
         # conception. The conception export passes kind 0 (KIND_CONCEPTION);
         # the birth export renders its own "Birth" block and passes KIND_BIRTH.
         self.assertIn("result = emit_record(game_id, 0, records, text);", conception)
-        self.assertIn("return emit_record(game_id, KIND_BIRTH, NULL, text);", birth)
+        self.assertIn("result = emit_record(game_id, KIND_BIRTH, NULL, text);", birth)
         self.assertIn("KIND_CONCEPTION = 0, KIND_BIRTH = 1, KIND_DEATH = 2", self.source)
         self.assertIn('"Birth\\n"', birth)
         # Neither may write the other's marker: one record kind printing the

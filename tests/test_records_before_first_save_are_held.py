@@ -239,6 +239,40 @@ class RecordsBeforeFirstSaveAreHeld(unittest.TestCase):
         self.assertIn("entry->mother = kind == KIND_CONCEPTION ? g_conception_mother : NULL;",
                       function("hold_record"))
 
+    def test_a_birth_the_saved_village_does_not_hold_is_marked_not_dropped(self) -> None:
+        """The same replay delivers a pregnancy the save holds twice -- once in
+        the run the game throws away, again in the run it saves -- and The Lost
+        Children to New Believers write a Birth at each delivery.  The first
+        run's Birth is still written (nothing is dropped) with its own Note: a
+        later held Birth of another delivery with the very same parents and
+        "Born as", with no Conception, Lost before birth, Death or Disappeared
+        of the mother between.  Unsure cases keep the record as it is."""
+        flush = function("flush_pending")
+        self.assertIn("} else if (birth_not_kept(game_id, i, at_save)) {", flush)
+        self.assertIn("labelled = label_record_with(entry->text, BIRTH_NOT_KEPT_NOTE);", flush)
+        self.assertEqual(flush.count("append_record("), 1)
+        judge = function("birth_not_kept")
+        # ...and only at the save, when the child's own record no longer holds that child.
+        self.assertIn("return child_not_kept(game_id, entry, at_save);", judge)
+        kept = function("child_not_kept")
+        self.assertIn("if (!at_save ||", kept)
+        self.assertIn("return strcmp(now, child) != 0;", kept)
+        self.assertIn("entry->child = kind == KIND_BIRTH ? g_birth_child : NULL;", function("hold_record"))
+        # Births only, never A New Home's (they name no father), never one with a Note.
+        self.assertIn("entry->kind != KIND_BIRTH || game_id == GAME_VV1", judge)
+        self.assertIn('strstr(entry->text, "  Note: ") != NULL', judge)
+        # A new pregnancy of hers or its end keeps the earlier record; an island event makes it unsure.
+        self.assertIn("later->kind == KIND_CONCEPTION || later->kind == KIND_LOST_BIRTH", judge)
+        self.assertIn("later->kind == KIND_DEATH || later->kind == KIND_DISAPPEARED", judge)
+        self.assertIn("if (later->kind == KIND_ISLAND_EVENT) {", judge)
+        # The very same parents and Born as, in the same slot; the delivery's own babies are passed over.
+        self.assertIn("memcmp(other, parents, parents_length) == 0", judge)
+        self.assertIn("strcmp(other_born, born) == 0", judge)
+        self.assertIn("later->slot == entry->slot", judge)
+        self.assertIn("--siblings;", judge)
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn('"    this birth was not kept.\\n"', source)
+
     @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")
     def test_the_harness_passes_against_the_shipped_dll(self) -> None:
         result = subprocess.run(

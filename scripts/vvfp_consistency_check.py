@@ -414,6 +414,10 @@ class LogRecord:
     how: str = ""              # an Arrived record's "How:" ("unknown": the backfill knew nothing of it)
     heading: str = ""          # an Arrived record's own "Arrived <n>"
     recorded_afterwards: bool = False   # an Arrived record's "Note: Recorded afterwards ..."
+    # A Conception or Birth marked "Note: Not in the village as it was saved" (v1.35.97,
+    # parentage_export.c conception_not_kept / birth_not_kept): the game played that time twice
+    # before the first save, and the saved village never held it -- it bounds no counter.
+    not_kept: bool = False
     number: str = ""           # a Birth record's own heading ("Birth 252"; an older log's plain "Birth")
 
 
@@ -582,6 +586,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet|Golden Child)\s*$", line)
                 if m:
                     rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3, "Golden Child": 1}[m.group(1)]
+                if line.startswith("  Note: Not in the village as it was saved"):
+                    rec.not_kept = True
             birth = is_birth_heading(kind)
             if birth or kind.startswith("Conception"):
                 main = rec.child if birth else rec.mother
@@ -1364,13 +1370,13 @@ def check_statistics(game_dir: Path, slot: int, game: int, roster: list[Villager
         rep.add(label, "OK" if oldest >= now else "NOTE",
                 f"Oldest Villager {oldest} {'>=' if oldest >= now else '<'} the oldest living now ({now})")
     babies = num("Babies Made")
-    nb = sum(r.kind == "birth" for r in births)
+    nb = sum(r.kind == "birth" and not r.not_kept for r in births)
     if babies is not None:
         rep.add(label, "OK" if babies >= nb else "NOTE",
                 f"Babies Made {babies} {'>=' if babies >= nb else '<'} the {nb} Birth records in the log "
                 "(the log is a lower bound: births before it began are not in it)")
     twins = num("Twins Birthed")
-    nt = sum(r.kind == "conception" and r.babies == 2 for r in births)
+    nt = sum(r.kind == "conception" and r.babies == 2 and not r.not_kept for r in births)
     if twins is not None:
         rep.add(label, "OK" if twins >= nt else "NOTE",
                 f"Twins Birthed {twins} {'>=' if twins >= nt else '<'} the {nt} twin conceptions in the log")
@@ -1409,7 +1415,8 @@ def check_counters(game_dir: Path, slot: int, game: int, births: list[LogRecord]
         return
     checks = [("villagers_buried", "Villagers Buried", graves, "Death records with a grave in the Deaths log")]
     if game == 2:
-        checks.append(("twins_birthed", "Twins Birthed", sum(r.kind == "conception" and r.babies == 2 for r in births),
+        checks.append(("twins_birthed", "Twins Birthed", sum(r.kind == "conception" and r.babies == 2 and not r.not_kept
+                                                                  for r in births),
                        "twin conceptions in the Births log"))
     for k, row, bound, what in checks:
         if k not in counters:
