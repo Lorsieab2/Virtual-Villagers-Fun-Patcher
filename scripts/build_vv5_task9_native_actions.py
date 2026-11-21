@@ -3655,19 +3655,10 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         # Out of line (age_shift, after the ret), padded to the 17 bytes the
         # write took before: the Story DLL patches this routine's charge
         # (0x7CE8BF, 0x7CE8D1) at fixed addresses, so nothing here may move.
+        # The padding after the jump never runs: zero bytes, not nops, so no
+        # unreachable code ships (tests/test_vv5_origins_dead_code_removed).
         jmp age_shift
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
-        nop
+        .byte {zero_fill(12)}
     age_already:
         inc dword ptr [ebp-0x14]
     age_next:

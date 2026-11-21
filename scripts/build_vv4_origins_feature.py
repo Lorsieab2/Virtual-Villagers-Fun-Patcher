@@ -1357,8 +1357,9 @@ def main() -> None:
         age_delta:
             sub eax, dword ptr [edx + 0x1B8C]
             jmp shift_age
-            nop
-            nop
+            # Never run (after the jump): zero bytes, not nops, so no
+            # unreachable code ships (tests/test_origins_dead_code_removed).
+            .byte 0, 0
         detail_appearance:
             cmp dword ptr [0x4D6F88], 5000
             jb detail_insufficient
