@@ -106,7 +106,7 @@ class BeforeTheUnlock(unittest.TestCase):
         self.assertIn(NOT_YET + UNLOCK[2] + "; until then the lake's fish are a limited source that never grows back "
                       "(700 left", page)
         self.assertIn("Fish: 700 (they never grow back)", page)
-        self.assertRegex(page, r"Fish alone: while catching up, .*It cannot feed the village alone")
+        self.assertRegex(page, r"Fish alone: while catching up, [^.]*, but it cannot feed the village alone")
 
 
 class AfterTheUnlock(unittest.TestCase):

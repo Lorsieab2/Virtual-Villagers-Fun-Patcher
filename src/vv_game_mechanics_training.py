@@ -26,9 +26,10 @@ the fixture saves hold 0, 1 and task numbers there.
     below 6, and the work objects' handlers VV4 0x430210 / VV5 0x434D20).
   * New Believers' tip 701 (eTTipInstruct39): "A villager will not seek a mate on their own unless they are trained
     and Parenting is set as their preferred skill."
-  * Villagers Work Their Own Job First (native/vvfp_work_first, PR #807): untrained_dispatch lifts the mark for one
-    dispatch of the villager's selected job (never Parenting) and puts it back; the beginners' gate (VV4 0x461E69,
-    VV5 0x46A594) lets the selected job through to the rand(100) < skill + 40 roll.
+  * Villagers Work Their Own Job First (native/vvfp_work_first, PRs #807 / #826; feature id
+    vvN_builders_and_healers_work_first): untrained_dispatch lifts the mark for every request of the scheduler and
+    the catch-up worker, one call at a time, and puts it back when the call left it 0; which job, and whether at all,
+    stays the game's picker's (above skill 5, then skill + 40 in 100).  Never for a New Believers Heathen.
 Nothing here writes anything.
 """
 from __future__ import annotations
@@ -42,7 +43,7 @@ C = gm.CODE
 FLOOR = {1: 1, 2: 5, 3: 5, 4: 5, 5: 5}
 MARK = 0xB8                                 # the task field in the saved villager entry (record +0x1C54)
 UNTRAINED = 1
-WORK_FIRST = "vv{}_work_first"
+WORK_FIRST = "vv{}_builders_and_healers_work_first"   # the skill-practice patch kept this id (data/vvN_work_first_feature.json)
 WORK_FIRST_NAME = "Villagers Work Their Own Job First"
 
 
@@ -80,14 +81,14 @@ def mark_lines(village: gm.Village) -> list[tuple[str, bool | str, bool]]:
          "before the mark is looked at, so an untrained villager can conceive in time away.", C, True),
         ("The mark is kept in the save, so an untrained villager is still untrained after loading.", gm.SAVE, True),
     ]
-    # Only the skill-practice version of the patch (id vvN_work_first, PR #807) lifts the mark; the older "Builders
-    # and Healers Work First" (vvN_builders_and_healers_work_first) does not, so nothing is said unless the game is
-    # known to have the new one.
+    # The skill-practice patch (PRs #807 / #826) kept the id vvN_builders_and_healers_work_first and lifts the mark
+    # for every request (native/vvfp_work_first untrained_dispatch); said only when the game is known to have it.
     if village.has(WORK_FIRST.format(game)) is True:
-        out.append((f"With the patcher's \"{WORK_FIRST_NAME}\" (in this game): the mark no longer blocks the villager's "
-                    "preferred job (never Parenting): when the patch puts that job first, the game is asked for it "
-                    "with the mark lifted for that one request. Every other job stays blocked until a drop clears "
-                    "the mark. The preferred job also gets past the skill-5 floor to the (skill + 40) roll.", C, True))
+        out.append((f"With the patcher's \"{WORK_FIRST_NAME}\" (in this game): the mark no longer blocks anything: "
+                    "every time the game asks for a job, the mark is lifted for that one request, so a skilled "
+                    "villager works on their own and seeks a mate as a trained one does. Which job, and whether at "
+                    "all, is still the game's own choice above (skill above 5, then (skill + 40) times in 100)"
+                    + (". New Believers' Heathens are left as they are" if game == 5 else "") + ".", C, True))
     return out
 
 

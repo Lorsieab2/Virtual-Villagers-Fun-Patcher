@@ -45,6 +45,8 @@ class TechDoubler(unittest.TestCase):
         # native/vv1_origins_icons VV_DOUBLER_TECH_OFFSET 0x9E90, file offset state + 4.
         self.assertEqual(tech_time.DOUBLER_TECH_AT[1][0], 0x9E94)
         data = bytearray(0xABDC + 12)
+        self.assertIsNone(tech_time.doubler_owned(1, bytes(data)))     # 0 with no migration marker: cannot say
+        struct.pack_into("<I", data, tech_time.VV1_DOUBLER_MIGRATED_AT, 1)
         self.assertIs(tech_time.doubler_owned(1, bytes(data)), False)
         struct.pack_into("<I", data, 0x9E94, 1)
         self.assertIs(tech_time.doubler_owned(1, bytes(data)), True)

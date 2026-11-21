@@ -1810,7 +1810,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
         if sol is not None:
             # Village Solidarity (any version): the page raises, lowers or leaves the village's score; kept only
             # when given, so an untagged graph normalizes and compiles exactly as before.
-            if sol not in SOLIDARITY_CODES:
+            if not isinstance(sol, str) or sol not in SOLIDARITY_CODES:   # a list or object is a problem, never a crash
                 problems.append(f"{where}: solidarity is raise, lower or neutral")
             elif t == "branch":
                 problems.append(f"{where}: a branch shows no page, so it has no solidarity tag")

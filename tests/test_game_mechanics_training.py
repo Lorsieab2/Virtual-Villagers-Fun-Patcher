@@ -86,11 +86,18 @@ class Page(unittest.TestCase):
                     self.assertNotIn("0x", text)
 
     def test_work_first_line_follows_the_patch(self) -> None:
-        for has, shown in ((frozenset(), False), (frozenset({"vv4_work_first"}), True), (None, False),
-                           (frozenset({"vv4_builders_and_healers_work_first"}), False)):
+        # The skill-practice Work First that lifts the mark ships with the id vvN_builders_and_healers_work_first
+        # (data/vv4_work_first_feature.json); "vv4_work_first" is no patch.
+        import json
+        for game in (4, 5):
+            feature = json.loads((ROOT / "data" / f"vv{game}_work_first_feature.json").read_text(encoding="utf-8"))
+            self.assertEqual(feature["id"], training.WORK_FIRST.format(game))
+        for has, shown in ((frozenset(), False), (frozenset({"vv4_work_first"}), False), (None, False),
+                           (frozenset({"vv4_builders_and_healers_work_first"}), True)):
             village = gm.Village(Path("."), 4, 1, Path("4.ldw"), b"", has, t.NOW, general=True)
             text = "\n".join(f.text for f in training.facts(village))
-            self.assertEqual("the mark no longer blocks the villager's preferred job" in text, shown)
+            self.assertEqual("the mark no longer blocks anything" in text, shown)
+            self.assertNotIn("skill-5 floor", text)
 
 
 class Save(unittest.TestCase):

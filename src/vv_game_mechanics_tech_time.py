@@ -339,12 +339,31 @@ DOUBLER_TECH_AT = {1: (0x9E90 + 4, 0xFFFFFFFF), 2: (0x2EAE8 + 4, 1), 3: (0x4F0 +
                    5: (0x7C4 + 0x30, 1)}
 
 
+# A New Home's "ownership lives in the save" marker (native/vv1_origins_icons VV_DOUBLER_MIGRATED_OFFSET 0x9E98,
+# value 1; file = state + 4).  Without it a 0 in the field may be an older save whose doubler is still in the
+# patcher's vv1_doublers_<slot>.dat until the village is loaded and saved again (Vv1DoublerRestore; Codex on #815).
+VV1_DOUBLER_MIGRATED_AT = 0x9E98 + 4
+
+
 def doubler_owned(game: int, data: bytes) -> bool | None:
-    """Whether this save owns the Origins Tech Point Doubler; None when the save ends before its field."""
+    """Whether this save owns the Origins Tech Point Doubler; None when the save cannot say: it ends before its
+    field, or (A New Home) the field is 0 in a save from before the doubler moved into it."""
     at, bit = DOUBLER_TECH_AT.get(game, (None, 0))
     if at is None or at + 4 > len(data):
         return None
-    return struct.unpack_from("<I", data, at)[0] & bit != 0
+    owned = struct.unpack_from("<I", data, at)[0] & bit != 0
+    if game == 1 and not owned and (VV1_DOUBLER_MIGRATED_AT + 4 > len(data)
+                                    or struct.unpack_from("<I", data, VV1_DOUBLER_MIGRATED_AT)[0] != 1):
+        return None
+    return owned
+
+
+def doubler_factor(village) -> int:
+    """2 when the game has the patcher's Origins features and this save owns the Tech Point Doubler (every game's
+    doubles the points research earns, PR #805), else 1: the times below count it."""
+    if village.has(f"vv{village.game}_enable_origins_exclusive_features") is not True:
+        return 1
+    return 2 if doubler_owned(village.game, village.data) is True else 1
 
 
 def lab_bonus(game: int, data: bytes) -> float:
@@ -456,7 +475,8 @@ def glance(ctx, everyone) -> str | None:
         return None
     never = village.has(f"vv{game}_learning_never_fails") is True
     lab = lab_bonus(game, village.data)
-    rate = lambda owned: per_unit(game, owned, RESEARCH_SHOWN, lab, False, never)  # noqa: E731
+    doubled = doubler_factor(village)
+    rate = lambda owned: per_unit(game, owned, RESEARCH_SHOWN, lab, False, never) * doubled  # noqa: E731
     if game == 5:
         import vv_game_mechanics_vv5 as vv5
         if _i32(village.data, vv5.PROJECTS + 8 * 4) < vv5.PUZZLE_THRESHOLDS[4]:
@@ -495,7 +515,10 @@ def lines(ctx, everyone) -> list[gm.Fact]:
     rule = GAMES[game]
     never = village.has(f"vv{game}_learning_never_fails") is True
     lab = lab_bonus(game, village.data)
-    rate = lambda owned: per_unit(game, owned, RESEARCH_SHOWN, lab, False, never)  # noqa: E731
+    # An owned Tech Point Doubler is counted in every rate and time (Codex on #815: Minimal Detail hides the line
+    # that used to halve them by words alone).
+    doubled = doubler_factor(village)
+    rate = lambda owned: per_unit(game, owned, RESEARCH_SHOWN, lab, False, never) * doubled  # noqa: E731
     adults = workers(everyone or [])
     both = game == 3 and village.has("vv3_both_factions") is True
     multiplied = village.has(multiplier_feature(game)) is True
@@ -558,7 +581,7 @@ def lines(ctx, everyone) -> list[gm.Fact]:
                            "price, so the points still needed and the times above, worked out from the normal "
                            "prices, would each be larger (or smaller below 1)"), gm.CODE)
     if rule.fire:
-        fired = per_unit(game, levels, RESEARCH_SHOWN, lab, True, never) if now else 0.0
+        fired = per_unit(game, levels, RESEARCH_SHOWN, lab, True, never) * doubled if now else 0.0
         if fired:
             add(f"With the fire burning through the whole catch-up, one researcher earns {fired:,.2f} tech points "
                 f"each counted age unit instead of {now:,.2f}: every time above is {now / fired:.3f} times as long.")
@@ -575,13 +598,15 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         # pay and its research-table bonuses (The Secret City's chief, Magic and potion points, The Tree of Life's Lab
         # Equipment, the fire's point), so the times halve in all five games.
         lead = (origins + ": an owned Tech Point Doubler doubles the tech points research earns, so every time "
-                "above halves")
+                "halves")
         if owned is None:
-            # Only a save that ends before the field (DOUBLER_TECH_AT) reaches here.
-            add(lead + "; whether this village owns one: this save ends before its field, and the Tech screen's "
-                "Upgrades list says \"Remove\" on its row when it does.", gm.CODE)
+            # A save that ends before the field (DOUBLER_TECH_AT), or an older A New Home save whose doubler is
+            # still in the patcher's file: the times above are without it.
+            add(lead + "; whether this village owns one is not in this save (an older or shorter save), so the "
+                "times above are without it; the Tech screen's Upgrades list says \"Remove\" on its row when it "
+                "does.", gm.CODE)
         else:
-            add(lead + (": this save owns one, so each time above takes half as long as it says." if owned else
+            add(lead + (": this save owns one, and the rate and every time above already count it." if owned else
                         ": this save does not own one."), gm.SAVE)
     chosen = farmers_mod.game_module(game).FARMING_CHOSEN
     add(f"How it is worked out: points still needed ÷ (job turns x the share of turns that choose Research, "
@@ -596,8 +621,14 @@ def lines(ctx, everyone) -> list[gm.Fact]:
         f"{gm.duration(gm.AWAY_LIMITS[game]['band_end'])} for each catch-up needed.", True)
     # The Secret City: the potion 0x4593F2, the Chief's supervision 0x4593AF; The Tree of Life: the glow 0x464E46.
     # The owner, 2026-11-18 ("nothing withheld"): what the times leave out is given with its value.
-    add("Outside the times above, each with its value: liking or disliking learning changes only the test for "
-        "gaining skill, never the Research test or its pay, so it changes no time here; "
+    # The Research test is the games' one skill test (VV2 0x44E170, VV3 0x45A2C0, VV4 0x462A80, VV5 0x46B270), which
+    # adds 66 instead of 33 for a villager who likes learning and 16 for one who dislikes it (the chances modules'
+    # skill-test rolls); A New Home has no learning like (Codex on #815).
+    learning = ("" if game == 1 else
+                "liking learning makes the Research test pass 33 more times in 100 (up to always) and disliking it "
+                "17 fewer, so such a researcher's times are shorter or longer than these (unless Learning Skills "
+                "Never Fails is installed); ")
+    add("Outside the times above, each with its value: " + learning
         + {3: "the potion \"scientific clarity\" adds 1 to each success for 10 real-life minutes (the same at every "
               "speed); a supervising Tribal Chief adds a third (Science 0) or a quarter (Science 1 or more) of a "
               "success, 25, 50 or 75% of the time at Leadership 1, 2 or 3 (it needs the chief dropped there in live "

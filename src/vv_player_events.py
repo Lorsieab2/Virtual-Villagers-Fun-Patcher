@@ -2366,6 +2366,9 @@ def full_text(graph: dict, meta: dict | None = None) -> str:
 # ---- Mixer pieces --------------------------------------------------------------------------------------------------
 
 AGE_LIMIT = 120                     # the oldest a piece's role may ask (the engine's pc_validate and cg_load)
+# The most roles one piece may have: the engine's pc_check (story_procedural.inc PC_MAX_SLOTS) refuses the WHOLE
+# pieces file when one piece has more, so such a piece is reported and left out instead (Codex on #774).
+PIECE_MAX_SLOTS = 64
 PIECE_KINDS = {"setup": 1, "approach": 2, "outcome": 3, "flavour": 4, "flavor": 4, "opening": 4,
                "flavour line": 4, "frame": 5, "personality frame": 5}
 MOODS = {"warm": 0, "funny": 0, "ordinary": 0, "social": 1, "curious": 1, "mixed": 1, "serious": 2, "solemn": 2,
@@ -2490,6 +2493,9 @@ def finish_piece(it: Item, ln0: int, romance_is_error: bool = True) -> Item:
         it.problem(ln0, "a setup or an approach needs its Family")
     if p["kind"] == 3 and not p["links"]:
         it.problem(ln0, "an outcome lists the approaches it Answers")
+    if len(p["slots"]) > PIECE_MAX_SLOTS:
+        it.problem(ln0, f"a piece has at most {PIECE_MAX_SLOTS} roles ({len(p['slots'])} here); the game would refuse "
+                        "the whole file, so this piece is left out")
     if p["label"]:
         bad = title_case_problem(p["label"])
         if bad:
@@ -2971,6 +2977,17 @@ def check_items(items: list[Item]) -> list[Problem]:
     return out
 
 
+def _any_loss(e: dict) -> bool:
+    """A food / tech effect that can take away in some game: its amount, the top of its range, or any game's own
+    amount or range (per_game) below 0 (Codex on #831: a positive fallback with negative per_game amounts)."""
+    values = [e.get("amount"), e.get("max")]
+    per = e.get("per_game")
+    if isinstance(per, dict):
+        for v in per.values():
+            values += list(v) if isinstance(v, (list, tuple)) else [v]
+    return any(isinstance(v, int) and not isinstance(v, bool) and v < 0 for v in values)
+
+
 def rule_problem(it: Item, rules: dict[str, bool]) -> str | None:
     """The first ticked rule the event or piece breaks."""
     effects = [e for n in (it.graph or {}).get("nodes", {}).values() for e in n.get("effects", []) or []] \
@@ -2981,8 +2998,7 @@ def rule_problem(it: Item, rules: dict[str, bool]) -> str | None:
         for e in effects:
             if e.get("do") in kinds:
                 return f"breaks your rule \"{words}\" ({e['do']})"
-            if key == "no_losses" and e.get("do") in ("food", "tech") and (
-                    e.get("loss") or (isinstance(e.get("amount"), int) and e["amount"] < 0)):
+            if key == "no_losses" and e.get("do") in ("food", "tech") and (e.get("loss") or _any_loss(e)):
                 return f"breaks your rule \"{words}\""
     return None
 
