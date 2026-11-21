@@ -388,13 +388,10 @@ static unsigned int sc_filters_on(int game) {
     return on;
 }
 
-/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS) that
-   can kill a villager, make one disappear or lose a pregnancy (the population gate): The Aspiring Adventurer, The
-   Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure. */
-static const unsigned char SC_MORE_DEADLY[] = { 1, 1, 1, 1, 1, 0, 0, 0, 0, 0 };
-
-/* ...and the content filters each one's outcomes touch (SC_MORE_FILTERS), GENERATED from its content tag table
-   (data/event_collection/content_tags/mie.json) by scripts/build_story_more_filters.py, which
+/* More Island Events' entries in its registry's order (native/vvfp_more_island_events/mie_pick.inc MIE_PICKS): the
+   content filters each one's outcomes touch (SC_MORE_FILTERS) and whether it can kill a villager, make one disappear
+   or lose a pregnancy (SC_MORE_DEADLY, the population gate: tagged F01..F04), both GENERATED from its content tag
+   table (data/event_collection/content_tags/mie.json) by scripts/build_story_more_filters.py, which
    scripts/build_vvfp_story_upgrades.ps1 runs before every compile. */
 #include "story_more_filters.h"
 

@@ -50,7 +50,9 @@ The separate rare roll between natural events is gone. Instead:
 4. **Population:** an event that can kill a villager, make one disappear or lose a pregnancy is drawn only when the
    village has **61 or more** villagers (`SC_MIN_POPULATION`: the living villagers the game lists and the babies being
    carried, as the game's own rescue rule counts its population; New Believers' believers only). Below 61 the other
-   new events can still replace a natural event (`sc_gate` in `sc_apply`).
+   new events can still replace a natural event (`sc_gate` in `sc_apply`). More Island Events' deadly events are
+   `SC_MORE_DEADLY` (story_more_filters.h, generated from content_tags/mie.json: any of F01-F04): The Aspiring
+   Adventurer, The Cave Explorers, The Climb, The Troubling Signs, Diving for Treasure and The Mysterious Mask.
 5. **The schedule goes on:** the new event is armed as a purchase arms one; once the island timer's keeper has the
    arm, its kept time is set to a new natural time after this one, drawn as the game's own trigger draws one (A New
    Home 12-23 hours, The Lost Children 10-19, the later three 8-15). The delivery counts as one island event.
