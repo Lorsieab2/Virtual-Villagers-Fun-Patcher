@@ -86,4 +86,5 @@ Each game's patcher page has an **Island Events** section: More Island Events, t
 the owner's red content advisories), **Content Notes for Island Events** (on in
 Owner's Defaults, off elsewhere) and the 28 **content filters** (off everywhere). They are names in "VVFP Installed
 Patches.txt" only; the collection's compiled events carry what each does (cie-v6-binary.md 31), and More Island
-Events' events are kept out whole by `SC_MORE_FILTERS` (story_collection.inc). The game's own events never change.
+Events' events are kept out whole by `SC_MORE_FILTERS` (story_more_filters.h, generated from content_tags/mie.json by
+scripts/build_story_more_filters.py on every Story Upgrades build). The game's own events never change.
