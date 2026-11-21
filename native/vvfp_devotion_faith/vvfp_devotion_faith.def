@@ -5,3 +5,4 @@ EXPORTS
     VvfpDevotionFaithSteps=_VvfpDevotionFaithSteps@0
     VvfpDevotionFaithGiven=_VvfpDevotionFaithGiven@0
     VvfpDevotionEnergyGiven=_VvfpDevotionEnergyGiven@0
+    VvfpDevotionFaithRoll=_VvfpDevotionFaithRoll@0

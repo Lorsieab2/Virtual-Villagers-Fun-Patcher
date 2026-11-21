@@ -1516,7 +1516,8 @@ Off by default; on in Owner's Defaults and Select All. Each time a believer
 practises Devotion (the game's Devotion check: it comes on 1 Honoring in 8,
 and on every sermon to a Heathen), there is a 1 in 10 chance their Faith
 rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy.
-Small amounts that add up over time, while playing and while catching up.
+With Faith Loss is Doubled/Gains Halved also ticked, the Faith chance is
+1 in 20; the Divine Energy chance stays 1 in 10. Small amounts that add up over time, while playing and while catching up.
 Faith never goes above 100 and Divine Energy never above the village's cap.
 Heathens, the Chief (and the Retired Chief), purple-masked Heathens and the
 Heathen Mommy never get it.

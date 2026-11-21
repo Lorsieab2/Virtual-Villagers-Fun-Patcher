@@ -1131,6 +1131,7 @@
         "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
         "Each time a believer practises Devotion (the game's Devotion check: on 1 Honoring in 8, and on every sermon to a Heathen),",
         "there is a 1 in 10 chance their Faith rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy.",
+        "With Faith Loss is Doubled/Gains Halved also ticked, the Faith chance is 1 in 20; the Divine Energy chance stays 1 in 10.",
         "Faith never goes above 100 and Divine Energy never above the village's cap. Heathens and the special Heathen roles never get it.",
         "Works while playing and while catching up. Not yet seen in a running game."
       ]

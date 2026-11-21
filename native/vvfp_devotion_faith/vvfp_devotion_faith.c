@@ -21,17 +21,27 @@
    Heathen Doctor, the Heathen Chief -- and the Retired Chief, who keeps that role --, the three Masters, the Heathen
    Mommy; the Earthquake God Power skips the same six) gets two separate rolls, each made with the game's own
    rand(n) 0x403660 (1 in 10 each; the owner, 2026-11-21: "1 in 10 for both is good"):
-     * rand(10) < 1: Faith (+0x1CF0, a whole number) +1, a plain write, never above the game's maximum 100 (the
-       setter 0x467F90's clamp); a believer already at 100 is left alone;
+     * rand(10) < 1 -- rand(20) < 1 when "Faith Loss is Doubled/Gains Halved" is ticked (the owner, 2026-11-21:
+       that row halves this Faith chance too, 1 in 10 becomes 1 in 20) --: Faith (+0x1CF0, a whole number) +1, a
+       plain write, never above the game's maximum 100 (the setter 0x467F90's clamp); a believer already at 100 is
+       left alone;
      * rand(10) < 1: Divine Energy +1 through the game's own adder 0x424F80 on the village manager (read from the
        word 0x4DACE0 its getter 0x425950 keeps it in), which keeps it at most the village's cap (+0x17D60).
    Then the stock check runs exactly as before (the five bytes re-run, back at 0x46B275), so the skill, its odds and
    everything after it are the game's own.  Every other skill, every Heathen and the six special roles go straight
-   on with no roll made.  1 in 10: rand() % 10 < 1 comes 3,277 times in 32,768 (10.00%).
+   on with no roll made.  1 in 10: rand() % 10 < 1 comes 3,277 times in 32,768 (10.00%); 1 in 20: rand() % 20 < 1
+   comes 1,639 times (5.00%).
+
+   FAITH LOSS IS DOUBLED/GAINS HALVED.  That row is ticked when its own executable byte is in the game: the Faith
+   drift's "food 8,000 or more" gain roll, rand(100) < 20 at 0x46809B (the immediate 0x14), is 0x0A (< 10) in a
+   game the row patched (data/vv5_faith_loss_feature.json, file offset 0x6809B; no other row writes it).  Read once
+   at startup -- the executable's bytes are in place before the game runs -- never because a DLL file happens to be
+   in the folder.  Divine Energy is not Faith: its chance stays 1 in 10 either way.
 
    HOW.  The site is spliced at run time, after its stock bytes are checked (native/shared/install_sites.h); no
    executable byte is patched.  The rolls are made with every register and flag saved, under structured exception
-   handling (a fault: nothing more happens; the stock check still runs).  Started by VVFP More Companions.dll (the
+   handling (a fault: nothing more happens; the stock check still runs).  It reads one executable byte at startup
+   (above) and writes none.  Started by VVFP More Companions.dll (the
    third word, native/shared/startup_companions_3.h).  Nothing is written but the villager's Faith and the village's
    Divine Energy; no file, no text.  No debug output. */
 #include <windows.h>
@@ -55,6 +65,9 @@
 #define DF_ROLE_FIRST_SPECIAL 12
 #define DF_ROLE_LAST_SPECIAL 17
 #define DF_ROLL 10                      /* rand(10) < 1: 1 in 10 (the owner, 2026-11-21) */
+#define DF_ROLL_HALVED 20               /* Faith with Faith Loss is Doubled/Gains Halved: rand(20) < 1, 1 in 20 */
+#define DF_GAIN_SITE 0x46809Bu          /* the drift's food 8,000+ gain roll's immediate: 0x14 (< 20) in stock */
+#define DF_GAIN_HALVED 0x0A             /* rand(100) < 10: Faith Loss is Doubled/Gains Halved */
 
 static const unsigned char SITE_STOCK[5] = {
     0x83, 0xEC, 0x0C,                   /* sub esp, 0Ch */
@@ -66,6 +79,7 @@ typedef int (__cdecl *df_rand_fn)(int n);
 typedef void (__fastcall *df_add_fn)(void *manager, void *unused, int amount);
 
 static int g_installed;
+static int g_faith_roll = DF_ROLL;      /* DF_ROLL_HALVED when Faith Loss is Doubled/Gains Halved is ticked */
 static unsigned int g_steps;            /* Devotion practice steps seen this session (the tests read them) */
 static unsigned int g_faith;            /* Faith points given this session */
 static unsigned int g_energy;           /* Divine Energy rolls won this session (before the cap) */
@@ -81,7 +95,7 @@ static void df_practice(const unsigned char *villager) {
         return;                         /* a puzzle Heathen's role (the Retired Chief keeps the Chief's) */
     }
     ++g_steps;
-    if (((df_rand_fn)DF_RAND)(DF_ROLL) < 1) {
+    if (((df_rand_fn)DF_RAND)(g_faith_roll) < 1) {
         faith = (int *)(record + DF_FAITH);
         if (*faith < DF_FAITH_MAX) {
             *faith += 1;
@@ -142,6 +156,22 @@ unsigned int __stdcall VvfpDevotionEnergyGiven(void) {
     return g_energy;
 }
 
+/* 1 when the executable carries Faith Loss is Doubled/Gains Halved (its halved gain byte), else 0. */
+static int df_faith_loss_ticked(void) {
+    int ticked = 0;
+    __try {
+        ticked = *(const volatile unsigned char *)(UINT_PTR)DF_GAIN_SITE == DF_GAIN_HALVED;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        ticked = 0;
+    }
+    return ticked;
+}
+
+/* The Faith roll's n: 10, or 20 with Faith Loss is Doubled/Gains Halved (the tests). */
+int __stdcall VvfpDevotionFaithRoll(void) {
+    return g_faith_roll;
+}
+
 /* Called once by VVFP More Companions.dll before WinMain, on the game's own thread. */
 void __stdcall VvfpStartup(int game, unsigned int shipped) {
     vvfp_site_write site;
@@ -151,6 +181,7 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     }
     vvfp_site_branch(&site, DF_SITE, (int)sizeof SITE_STOCK, SITE_STOCK, 0xE9, (const void *)df_stub);
     if (vvfp_install_sites(&site, 1)) {
+        g_faith_roll = df_faith_loss_ticked() ? DF_ROLL_HALVED : DF_ROLL;
         g_installed = 1;
     }
 }

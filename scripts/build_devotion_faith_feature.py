@@ -27,7 +27,8 @@ INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP More Companions.dll, t
 SITE = (0x46B270, "83EC0C5355",
         "the skill check 0x46B270's entry (`sub esp, 0Ch / push ebx / push ebp`; thiscall on the villager, the skill "
         "at [esp+4]). For skill 5 (Devotion), a believer (+0x1CEC 0) outside roles 12-17 (+0x1CFC) gets two "
-        "separate rand(10) < 1 rolls (the game's rand 0x403660): Faith (+0x1CF0) +1 below 100; Divine Energy +1 "
+        "separate rand(10) < 1 rolls (the game's rand 0x403660): Faith (+0x1CF0) +1 below 100 (rand(20) < 1 when "
+        "Faith Loss is Doubled/Gains Halved's byte 0x46809B is 0x0A); Divine Energy +1 "
         "through the village manager's (the word 0x4DACE0) adder 0x424F80 (kept at most the cap). Then the five bytes re-run and the "
         "stock check goes on at 0x46B275")
 
@@ -43,8 +44,9 @@ def description() -> str:
         "in the normal game.** **Faith never goes above 100 and Divine Energy never above the village's cap** "
         "(the game's own limits). **Believers only:** Heathens never practise Devotion, and the Heathen Doctor, the "
         "Heathen Chief (and the Retired Chief), the three Masters and the Heathen Mommy never get these rolls. "
-        "**\"Faith Loss is Doubled/Gains Halved\" does not change these chances; Spirituality and Learning change "
-        "how often the Devotion check passes, not these rolls.** **Works the same with every other patch and in "
+        "**With \"Faith Loss is Doubled/Gains Halved\" also ticked, the Faith chance is halved to 1 in 20; the "
+        "Divine Energy chance stays 1 in 10.** **Spirituality and Learning change how often the Devotion check "
+        "passes, not these rolls.** **Works the same with every other patch and in "
         "every population mode.** **Not yet seen in a running game** (checked by emulation of the stock "
         f"executable). The companion is \"{DLL_NAME}\"; it never writes a save or a file."
     )
@@ -72,6 +74,10 @@ def row(dll_sha: str) -> dict:
             "0x4DACE0 the getter 0x425950 keeps it in, never the getter) adder "
             "0x424F80, which keeps it from 0 to the cap (+0x17D60). rand(10) is the game's 0x403660 (rand() % 10): "
             "3,277 values in 32,768, 10.00% (the owner, 2026-11-21: \"1 in 10 for both is good\").",
+            "With Faith Loss is Doubled/Gains Halved ticked -- read at startup from that row's own executable byte, "
+            "the Faith drift's food 8,000+ gain roll immediate at 0x46809B: 0x0A (rand(100) < 10) where the stock "
+            "game has 0x14 -- the Faith roll is rand(20) < 1, 1,639 values in 32,768, 5.00% (the owner, 2026-11-21: "
+            "that row halves this Faith chance too); the Divine Energy roll stays rand(10) < 1.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the one site at run time, only after verifying its "
@@ -79,7 +85,8 @@ def row(dll_sha: str) -> dict:
             "Every other skill's check, Heathens and roles 12-17 make no roll at all (the game's random numbers are "
             "drawn only for a believer's Devotion check).",
             "The Devotion check's odds and gain, Spirituality, Learning, the Faith drift, Faith Loss is Doubled/Gains "
-            "Halved, preaching's own Faith for the Heathen, and the Divine Energy income and cap are the game's own.",
+            "Halved's own rolls, preaching's own Faith for the Heathen, and the Divine Energy income and cap are the "
+            "game's own.",
             "Nothing is written but the villager's Faith and the village's Divine Energy; no file.",
         ],
         "companion_files": [

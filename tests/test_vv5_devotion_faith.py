@@ -47,6 +47,8 @@ SITE_STOCK = bytes.fromhex("83EC0C5355")
 ENERGY, ENERGY_CAP = 0x17D64, 0x17D60
 MANAGER_WORD = 0x4DACE0
 DRAWS = 32768
+FAITH_LOSS = "vv5_faith_loss_doubled_gains_halved"
+GAIN_SITE = 0x46809B                                       # Faith Loss's halved gain byte: 0x14 stock, 0x0A ticked
 
 
 class Island(Machine):
@@ -207,7 +209,7 @@ class TheRow(unittest.TestCase):
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
         self.assertEqual(names, ["VvfpDevotionEnergyGiven", "VvfpDevotionFaithGiven", "VvfpDevotionFaithInstalled",
-                                 "VvfpDevotionFaithSteps", "VvfpStartup"])
+                                 "VvfpDevotionFaithRoll", "VvfpDevotionFaithSteps", "VvfpStartup"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA", "OutputDebugStringW",
                                     "MessageBoxA", "MessageBoxW", "CreateFileA", "DeleteFileW", "MoveFileW", "RegSetValueExW", "Sleep", "CreateThread"}, set())
@@ -215,8 +217,42 @@ class TheRow(unittest.TestCase):
         self.assertNotIn("OutputDebugString", source)
 
     def test_the_stock_odds_one_in_ten(self):
-        """rand(10) < 1 with the game's rand() % 10: 3,277 of the C library's 32,768 values, 10.00%."""
+        """rand(10) < 1 with the game's rand() % 10: 3,277 of the C library's 32,768 values, 10.00%; rand(20) < 1
+        (Faith with Faith Loss is Doubled/Gains Halved): 1,639, 5.00%."""
         self.assertEqual(sum(1 for v in range(DRAWS) if v % 10 < 1), 3277)
+        self.assertEqual(sum(1 for v in range(DRAWS) if v % 20 < 1), 1639)
+
+    def test_faith_loss_halves_the_faith_chance_in_the_text(self):
+        """The owner (2026-11-21): with Faith Loss is Doubled/Gains Halved ticked, the Devotion Faith chance is 1 in
+        20; Divine Energy stays 1 in 10.  Said in bold in the row, and in the guide, README and Game Mechanics."""
+        row = json.loads(FEATURE.read_text(encoding="utf-8"))
+        self.assertIn("**With \"Faith Loss is Doubled/Gains Halved\" also ticked, the Faith chance is halved to 1 in "
+                      "20; the Divine Energy chance stays 1 in 10.**", row["description"])
+        self.assertNotIn("does not change these chances", row["description"])
+        guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
+        entry = next(e for e in guide["patches"] if ROW in e.get("ids", []))
+        self.assertTrue(any("Faith chance is 1 in 20" in line for line in entry["guide"]))
+        self.assertIn("1 in 20", (ROOT / "How to Use.txt").read_text(encoding="utf-8").split(
+            NAME.upper() + " (NEW BELIEVERS)")[1].split("\n\n")[1])
+        import vv_game_mechanics as gm
+        import vv_game_mechanics_faith_vv5 as faith
+
+        class Village:
+            general = True
+
+            def __init__(self, loss):
+                self._loss = loss
+
+            def has(self, feature):
+                return {faith.DEVOTION_FAITH: True, faith.FAITH_LOSS: self._loss}.get(feature, False)
+
+        for loss, faith_text in ((True, "a 1 in 20 chance (5.00%) of Faith +1"),
+                                 (False, "a 1 in 10 chance (10.00%) of Faith +1")):
+            with self.subTest(faith_loss=loss):
+                mine = [f.text for f in faith.lines(Village(loss)) if gm.feature_name(ROW) in f.text]
+                self.assertEqual(len(mine), 1)
+                self.assertIn(faith_text, mine[0])
+                self.assertIn("a separate 1 in 10 chance of Divine Energy +1", mine[0])
 
     def test_who_practises_devotion_in_the_stock_game(self):
         """The stock code the row hangs on: Honoring queues the Devotion check (push 5 / call 0x474780 at 0x45CC97) on
@@ -237,8 +273,8 @@ class TheRow(unittest.TestCase):
 class Practising(unittest.TestCase):
     maxDiff = None
 
-    def island(self, mode="collection_progression", *, big=False, start=True) -> Island:
-        rows = [ROW] + (["vv5_population_256"] if big else [])
+    def island(self, mode="collection_progression", *, big=False, start=True, faith_loss=False) -> Island:
+        rows = [ROW] + (["vv5_population_256"] if big else []) + ([FAITH_LOSS] if faith_loss else [])
         v = Island(render(5, with_requirements(5, rows), mode), big=big)
         if start:
             v.export("VvfpStartup", 5, 0)
@@ -259,6 +295,41 @@ class Practising(unittest.TestCase):
                         self.assertEqual(v.faith(record), 51 if faith_roll == 0 else 50)
                         self.assertEqual(v.energy(), 101 if energy_roll == 0 else 100)
                         self.assertEqual(v.export("VvfpDevotionFaithSteps"), 1)
+
+    def test_devotion_only_faith_and_energy_both_one_in_ten(self):
+        v = self.island()
+        self.assertEqual(v.export("VvfpDevotionFaithRoll"), 10)
+        villager, record = v.villager(1, faith=50)
+        v.energy(100, cap=200)
+        v.queue = [0, 0]
+        v.check(villager)
+        self.assertEqual(v.rolls[:2], [10, 10], "Faith rand(10), Divine Energy rand(10)")
+        self.assertEqual((v.faith(record), v.energy()), (51, 101))
+
+    def test_with_faith_loss_doubled_faith_one_in_twenty_energy_one_in_ten(self):
+        """The owner (2026-11-21): both rows ticked, the Faith roll is rand(20) < 1 (1 in 20); Divine Energy stays
+        rand(10) < 1 (1 in 10), in every mode and with 256 Villagers."""
+        cases = [(mode, False) for mode in MODES] + [("immediate_fixed", True)]
+        for mode, big in cases:
+            exe = render(5, with_requirements(5, [ROW, FAITH_LOSS] + (["vv5_population_256"] if big else [])), mode)
+            self.assertEqual(exe[GAIN_SITE - 0x400000], 0x0A, "the row's halved gain byte")
+            for faith_roll, energy_roll in ((0, 0), (1, 0), (9, 0), (10, 9), (19, 1), (0, 9)):
+                with self.subTest(mode=mode, big=big, faith_roll=faith_roll, energy_roll=energy_roll):
+                    v = self.island(mode, big=big, faith_loss=True)
+                    self.assertEqual(v.export("VvfpDevotionFaithRoll"), 20)
+                    villager, record = v.villager(1, faith=50)
+                    v.energy(100, cap=200)
+                    v.queue = [faith_roll, energy_roll]
+                    v.check(villager)
+                    self.assertEqual(v.rolls[:2], [20, 10], "Faith rand(20), Divine Energy rand(10)")
+                    self.assertEqual(v.faith(record), 51 if faith_roll == 0 else 50)
+                    self.assertEqual(v.energy(), 101 if energy_roll == 0 else 100)
+
+    def test_faith_loss_alone_does_not_touch_the_devotion_check(self):
+        """Faith Loss is Doubled/Gains Halved without this row: no companion, the stock check, no roll of ours."""
+        exe = render(5, with_requirements(5, [FAITH_LOSS]), "collection_progression")
+        self.assertEqual(exe[CHECK - 0x400000:CHECK - 0x400000 + 5], SITE_STOCK)
+        self.assertEqual(stock_path(5).read_bytes()[GAIN_SITE - 0x400000], 0x14, "the stock gain byte")
 
     def test_with_256_villagers(self):
         for index in (0, 149, 150, 255):

@@ -172,12 +172,22 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     devotion_faith = village.has(DEVOTION_FAITH)
     if devotion_faith is not False:
         where = "in this game" if devotion_faith else UNTOLD
-        # native/vvfp_devotion_faith: the check's entry spliced; two separate rand(10) < 1 rolls (0x403660).
+        # native/vvfp_devotion_faith: the check's entry spliced; two separate rand(10) < 1 rolls (0x403660), the Faith
+        # one rand(20) < 1 when Faith Loss is Doubled/Gains Halved's byte 0x46809B is in the game (the owner,
+        # 2026-11-21).
+        if faith_loss is True:
+            chance = (f"a 1 in 20 chance ({pct(below(20, 1))}) of Faith +1 (halved by "
+                      f"\"{gm.feature_name(FAITH_LOSS)}\", in this game)")
+            halved = ""
+        else:
+            chance = f"a 1 in 10 chance ({pct(below(10, 1))}) of Faith +1"
+            halved = (f" With \"{gm.feature_name(FAITH_LOSS)}\" also ticked, the Faith chance is 1 in 20 "
+                      f"({pct(below(20, 1))}); the Divine Energy chance stays 1 in 10.")
         add(f"With \"{gm.feature_name(DEVOTION_FAITH)}\" ({where}): each Devotion check of a believer, passed or "
-            f"failed, gives a 1 in 10 chance ({pct(below(10, 1))}) of Faith +1, never above 100, and a separate 1 in "
+            f"failed, gives {chance}, never above 100, and a separate 1 in "
             f"10 chance of Divine Energy +1 through the game's own adder, never above the village's cap. Heathens and "
             f"the six special roles (the Heathen Doctor, the Heathen Chief and the Retired Chief, the three Masters, the "
-            f"Heathen Mommy) never get these rolls.", sub=True)
+            f"Heathen Mommy) never get these rolls.{halved}", sub=True)
     if village.has(HEATHEN_MOMMY) is True:
         # Her puzzle's Faith is set at 0x43979C.
         add(f"With \"{gm.feature_name(HEATHEN_MOMMY)}\" (in this game): a new village's Heathen Mommy starts "
