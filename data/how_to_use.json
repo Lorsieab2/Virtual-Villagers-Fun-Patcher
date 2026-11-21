@@ -1113,7 +1113,7 @@
         "From Faith -10 up they will not listen: only the Earthquake God Power raises their Faith further.",
         "The first time that happens in a village, a popup says so (once per village; Start Over resets it; needs Story / Cheat Upgrades).",
         "Natural fog and other weather do nothing. Blue-masked Heathens are unchanged (they already listen).",
-        "The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. Not yet seen in a running game."
+        "The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. Seen working in a running game (the owner's hand test, v1.35.97)."
       ]
     },
     {
@@ -1122,7 +1122,7 @@
         "Off by default; on in Owner's Defaults; Select All does not tick it. Needs Fog of Doom Lets Red and Orange Heathens Listen (ticked with it).",
         "The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way.",
         "In the Fog of Doom, orange- and red-masked Heathens listen whatever their Faith: no Earthquake is needed.",
-        "Natural fog still does nothing. Not yet seen in a running game."
+        "Natural fog still does nothing. Seen working in a running game (the owner's hand test, v1.35.97)."
       ]
     },
     {
