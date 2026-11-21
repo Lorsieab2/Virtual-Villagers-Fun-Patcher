@@ -32,9 +32,11 @@ STOCK = (
 )
 BUILD_SHA256 = "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
 AUDIT_COMMIT = "74778bd6a7d3a17dd990636cf6d4e769466800c6"
-# One partner per catch-up embrace (the owner, 2026-11-21; tests/test_birth_control_one_partner.py emulates it):
-# the one-partner pick written in place of the first catch-up embrace scan (file 0x64847 == VA 0x464847), and the
-# end of the embrace after the second scan's one attempt (file 0x64C52 == VA 0x464C52).  (offset, va, before, after)
+# One partner per catch-up embrace in every mode (the owner, 2026-11-21: "One partner always";
+# tests/test_birth_control_one_partner.py emulates it).  The patcher's automatic safety rows write the one-partner
+# pick in place of the first catch-up embrace scan (file 0x64847 == VA 0x464847), with the stock scans' eligibility
+# (the woman of the pair under 50), and end the embrace after the second scan's one attempt (file 0x64C52 == VA
+# 0x464C52).  (offset, va, before, after)
 BLOCKS = (
     (
         0x64847,
@@ -44,15 +46,28 @@ BLOCKS = (
             "00008B8F3005000081F9680100000F8CB00100008B530883FA0275073DE80300007C1983BF38050000020F859401000081F9"
             "E80300000F8D880100008B43FC85C00F8E7D0100008B872C05000085C00F8E6F0100003B97380500000F84630100008B4310"
             "85C00F85580100008B874005000085C00F854A0100008B430C85C00F853F0100008B873C05000085C00F85310100008B8ED4"
+            "74E50081B9A4EA02002C0100007D136A64E87BE8F9FF83C40483F8410F8F0C"
         ),
         bytes.fromhex(
-            "81BF30050000680100000F8CB300000083BF2C050000000F8EA600000083BF40050000000F859900000083BF3C050000000F"
-            "858C00000081EC0004000033ED33C98D863005000080B800FBFFFF0074338B1081FA680100007C2981FAE80300007D218378"
-            "FC007E1B8B50083B9738050000741083781000750A83780C007504890CAC45058CE400004181F9000100007CB685ED742855"
-            "E8BEE8F9FF83C4048B0C8481C400040000894C241069D98CE400008D9C3330050000E90A02000081C400040000E95A030000"
+            "81BF30050000680100000F8CD200000083BF2C050000000F8EC500000083BF40050000000F85B800000083BF3C050000000F"
+            "85AB00000083BF3805000002751081BF30050000E80300000F8D9200000081EC0004000033ED33C98D863005000080B800FB"
+            "FFFF0074398B1081FA680100007C2F81FAE80300007C068378080274218378FC007E1B8B50083B9738050000741083781000"
+            "750A83780C007504890CAC45058CE400004181F9000100007CB085ED742855E89FE8F9FF83C4048B0C8481C400040000894C"
+            "241069D98CE400008D9C3330050000E9EB01000081C400040000E93B030000"
         ),
     ),
     (0x64C52, 0x464C52, bytes.fromhex("8B44241048"), bytes.fromhex("E912000000")),
+)
+# Birth Control's own edits inside that pick: step over the stock rule that a woman who tries must be under 50, and
+# bound every partner under 50, man or woman.  (offset, va, before, after)
+OVERLAYS = (
+    (
+        0x6487E,
+        0x46487E,
+        bytes.fromhex("83BF3805000002751081BF30050000E80300000F8D92000000"),
+        bytes.fromhex("EB179090909090909090909090909090909090909090909090"),
+    ),
+    (0x648C0, 0x4648C0, bytes.fromhex("7C06837808027421"), bytes.fromhex("7D27909090909090")),
 )
 PICK_RAND = 0x4031A0          # the game's RNG, rand(count)
 PICK_ENTERS = 0x464B0E        # the second scan's food refusal, then the stock rolls and writer call 0x464C4D
@@ -125,18 +140,30 @@ class VV2BirthControlTests(unittest.TestCase):
         self.assertEqual(self.feature.game_id, "vv2")
         self.assertEqual(self.feature.name, "Birth Control")
         self.assertIn(AUDIT_COMMIT, self.feature.raw["evidence_status"])
-        # The chooser fallback-removal patch at 0x49E36 and the catch-up gate at 0x3B53C are covered by their own
-        # tests, so this pairing is scoped to the embrace edits rather than to "every patch in the feature".
-        offsets = {offset for offset, _, _, _ in BLOCKS}
-        edits = [patch for patch in self.feature.patches if int(patch["offset"], 0) in offsets]
-        self.assertEqual(len(edits), 2)
-        for patch, (offset, _, before, after) in zip(edits, BLOCKS, strict=True):
-            with self.subTest(offset=hex(offset)):
-                self.assertEqual(int(patch["offset"], 0), offset)
+        # The pick and the embrace end are automatic safety rows (every mode); Birth Control's embrace edits are the
+        # two age-bound overlays inside the pick.  The chooser fallback-removal patch at 0x49E36 and the catch-up
+        # gate at 0x3B53C are covered by their own tests.
+        safety = {int(patch["offset"], 0): patch for patch in self.build.safety_patches}
+        for offset, _, before, after in BLOCKS:
+            with self.subTest(safety=hex(offset)):
+                patch = safety[offset]
                 self.assertEqual(bytes.fromhex(patch["before"]), before)
                 self.assertEqual(bytes.fromhex(patch["after"]), after)
                 self.assertEqual(len(before), len(after))
                 self.assertEqual(STOCK.read_bytes()[offset : offset + len(before)], before)
+        self.assertFalse({int(p["offset"], 0) for p in self.feature.patches} & set(safety))
+        offsets = {offset for offset, _, _, _ in OVERLAYS}
+        edits = [patch for patch in self.feature.patches if int(patch["offset"], 0) in offsets]
+        self.assertEqual(len(edits), 2)
+        pick_offset, _, _, pick = BLOCKS[0]
+        for patch, (offset, _, before, after) in zip(edits, OVERLAYS, strict=True):
+            with self.subTest(overlay=hex(offset)):
+                self.assertEqual(int(patch["offset"], 0), offset)
+                self.assertEqual(bytes.fromhex(patch["before"]), before)
+                self.assertEqual(bytes.fromhex(patch["after"]), after)
+                self.assertEqual(len(before), len(after))
+                # Over the safety pick's own bytes, inside the pick.
+                self.assertEqual(pick[offset - pick_offset : offset - pick_offset + len(before)], before)
 
     def test_the_pick_calls_the_game_rng_and_enters_the_stock_attempt(self) -> None:
         (_, va, _, pick), (_, end_va, _, end) = BLOCKS
@@ -171,7 +198,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 ]
                 self.assertEqual(
                     [int(edit["offset"], 0) for edit in selected_feature],
-                    [block[0] for block in BLOCKS] + [CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET],
+                    [block[0] for block in OVERLAYS] + [CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET],
                 )
                 self.assertEqual(selected[CATCH_UP_OFFSET:CATCH_UP_OFFSET + 3], CATCH_UP_AFTER)
                 self.assertEqual(deselected[CATCH_UP_OFFSET:CATCH_UP_OFFSET + 3], CATCH_UP_BEFORE)
@@ -181,7 +208,10 @@ class VV2BirthControlTests(unittest.TestCase):
                         for edit in deselected_applied
                     )
                 )
-                for offset, _, before, after in BLOCKS:
+                # The one-partner pick is there either way; Birth Control changes only its age bound.
+                for offset, _, _, after in BLOCKS:
+                    self.assertEqual(deselected[offset : offset + len(after)], after)
+                for offset, _, before, after in OVERLAYS:
                     self.assertEqual(selected[offset : offset + len(after)], after)
                     self.assertEqual(deselected[offset : offset + len(before)], before)
                 # The chooser fallback block is 18 bytes, not 40.
@@ -212,7 +242,7 @@ class VV2BirthControlTests(unittest.TestCase):
 
     def test_only_two_blocks_and_checksum_differ_from_deselected_render(self) -> None:
         allowed = set()
-        for offset, _, _, after in BLOCKS:
+        for offset, _, _, after in OVERLAYS:
             allowed.update(range(offset, offset + len(after)))
         allowed.update(
             range(
@@ -270,7 +300,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 }
                 self.assertEqual(
                     feature_offsets,
-                    {block[0] for block in BLOCKS} | {CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET},
+                    {block[0] for block in OVERLAYS} | {CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET},
                 )
                 safety_offsets = {
                     int(edit["offset"], 0)
@@ -278,6 +308,7 @@ class VV2BirthControlTests(unittest.TestCase):
                     if edit["owner"] == "automatic:safety"
                 }
                 self.assertTrue(DELIVERY_SAFETY_OFFSETS.issubset(safety_offsets))
+                self.assertTrue({block[0] for block in BLOCKS}.issubset(safety_offsets))
                 self.assertEqual(
                     rendered[0x3BE8E:0x3BE93], bytes.fromhex("E98D800300")
                 )
@@ -323,7 +354,7 @@ class VV2BirthControlTests(unittest.TestCase):
                     if edit["owner"] == f"feature:{FEATURE_ID}"
                 ]
                 self.assertEqual(
-                    feature_offsets, [0x64847, 0x64C52, CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET]
+                    feature_offsets, [0x6487E, 0x648C0, CHOOSER_FALLBACK_OFFSET, CATCH_UP_OFFSET]
                 )
 
     def test_documentation_and_transparency_are_exact_and_deterministic(self) -> None:

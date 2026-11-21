@@ -91,9 +91,10 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    often as other villagers do their jobs, instead of on 6 job turns in 100.
    The game's own chances, the population limit and huts still decide; live
    play is unchanged. In A New Home, The Lost Children and The Secret City
-   their "Birth Control" does this too; in A New Home and The Lost Children
-   each such try is also with one partner, picked at random, as in The Tree
-   of Life, instead of every woman who passes at once.
+   their "Birth Control" does this too. In A New Home and The Lost Children
+   every catch-up try is now with one partner, ticked or not, as in the later
+   games: a man picks one woman at random from every woman who can pair, a
+   woman one man from every man who can.
    Also optional for The Tree of Life and New Believers, and off by default:
    "Food Gains are Flat, like VV1-3 (Harder Games)". A blackberry pick (The
    Tree of Life) or a noni pick (New Believers) pays a flat 7, 3 or 2 food on
@@ -1085,13 +1086,14 @@ interrupted recovery gives no health.
 
 VV2 BIRTH CONTROL
 
-While catching up, one embrace is one partner: the catch-up embrace's two
-whole-village scans are replaced by a pick of one villager of the other sex who
-can pair (under 50, the initiator any age), made at random with the game's own
-roll, followed by the game's own food, room, Parenting and conception checks
-for that one partner. Without Birth Control one embrace can make every woman
-who passes pregnant at once. Live pairing already takes one partner and is
-unchanged. The stock manual carrier/female-only
+While catching up, a villager with Parenting ticked whose job choice is
+Children tries on every such job turn instead of 6 in 100. Each try is with one
+partner, picked at random from everyone of the other sex who can pair, with or
+without Birth Control (the patcher does this in every mode); Birth Control adds
+that the partner must be under 50, whatever the sex, and the one who tries may
+be any age. The game's own food, room, Parenting and conception checks decide
+for that one partner. Live pairing already takes one partner and is unchanged.
+The stock manual carrier/female-only
 gate remains unchanged, and no male upper-age gate is added. Direct/event
 births, pending delivery, saves, RNG, food, fertility, capacity, messages,
 statistics, Love Note, Gong grant, and Silver Mirror clone are unchanged by

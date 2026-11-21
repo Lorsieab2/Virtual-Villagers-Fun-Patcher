@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
     ALTERNATIVE_FUN_PATCH_IDS,
+    BIRTH_CONTROL_PICK_OVERLAYS,
     SHARED_SECTION_HEADERS,
     DEFAULT_PATCH_MODE,
     PatcherError,
@@ -1024,9 +1025,11 @@ class ManifestTests(unittest.TestCase):
             # trampoline plus a cave. See tests/test_slot_scan_saturation_guard.py.
             # v1.35.58: every creation asks the records (scripts/
             # build_slot_guards.py, scripts/build_record_guards_vv345.py).
+            # vv1/vv2 + 2: the catch-up one-partner pick and the embrace end (the owner, 2026-11-21: "One partner
+            # always"; tests/test_birth_control_one_partner.py).
             expected_safety_counts = {
-                "vv1": 24,
-                "vv2": 29,   # + the babies still owed (Codex, #543); + the Esteemed Elder totem guard (v1.35.77)
+                "vv1": 26,
+                "vv2": 31,   # + the babies still owed (Codex, #543); + the Esteemed Elder totem guard (v1.35.77)
                 "vv3": 20,   # v1.35.97: the misplaced Crystal rows retired (its condition asks the room predicate)
                 "vv4": 18,
                 "vv5": 21,
@@ -1242,6 +1245,8 @@ class ManifestTests(unittest.TestCase):
             0x342A4,
             0x34467,
             0x344A3,
+            # one partner per catch-up try (the owner, 2026-11-21): the pick and the embrace end
+            0x64847, 0x64C52,
         }
         safety_offsets = {
             int(patch["offset"], 0) for patch in build.safety_patches
@@ -1301,9 +1306,22 @@ class ManifestTests(unittest.TestCase):
                             "feature:vv2_enable_origins_exclusive_features",
                         )
                     }
+                    # The second: Birth Control's partner age bound, written into the automatic one-partner
+                    # pick at exactly the ranges BIRTH_CONTROL_PICK_OVERLAYS names.
+                    bc_bound = {
+                        (offset, offset + len(after) // 2)
+                        for (game, offset), (_before, after, _owner) in BIRTH_CONTROL_PICK_OVERLAYS.items()
+                        if game == "vv2"
+                    }
                     for index, (start, end, owner) in enumerate(records):
                         for prior_start, prior_end, prior_owner in records[:index]:
                             if {(owner, prior_owner), (prior_owner, owner)} & intentional:
+                                continue
+                            if (
+                                owner == "feature:vv2_birth_control"
+                                and prior_owner == "automatic:safety"
+                                and (start, end) in bc_bound
+                            ):
                                 continue
                             self.assertFalse(
                                 start < prior_end and prior_start < end,
@@ -1870,6 +1888,8 @@ class StockIntegrationTests(unittest.TestCase):
                         # The record guards' section-permission header writes
                         # are shared, byte for byte, with the one feature that
                         # makes the same write (SHARED_SECTION_HEADERS).
+                        # Likewise Birth Control's partner age bound, written into the one-partner pick
+                        # (BIRTH_CONTROL_PICK_OVERLAYS: exact range, exact bytes, exact owner).
                         feature_ranges = [
                             (
                                 int(record["offset"], 0),
@@ -1880,6 +1900,8 @@ class StockIntegrationTests(unittest.TestCase):
                             if record["owner"] != "automatic:safety"
                             and SHARED_SECTION_HEADERS.get((build.id, int(record["offset"], 0)))
                             != (record["before"].upper(), record["after"].upper())
+                            and BIRTH_CONTROL_PICK_OVERLAYS.get((build.id, int(record["offset"], 0)))
+                            != (record["before"].upper(), record["after"].upper(), record["owner"])
                         ]
                         for safety_start, safety_end in safety_ranges:
                             for feature_start, feature_end in feature_ranges:

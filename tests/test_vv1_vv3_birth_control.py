@@ -113,15 +113,21 @@ VV1_STANDALONE_RENDER_SHA256 = {
     # payload at 0x56900 ("after" bytes); no offset is added or removed.
     # Re-pinned when Set Age to 18 / Grant Youth began moving the lived age and a running conception mark with the
     # age (v1.35.97): the detail age blocks in the payload at 0x56900 and the .shr preflight only; same offsets.
+    # Re-pinned for one partner per catch-up try in every mode (the owner, 2026-11-21: "One partner always").
+    # Justified BEFORE re-pinning: rendering 197a66ac6 and the branch, the only differing bytes in all three modes
+    # are the PE CheckSum (0x150..0x151), the automatic one-partner pick 0x46E70..0x46F3F and the embrace end
+    # 0x4723D..0x47244; Origins' own bytes are untouched.  (The Birth Control pins above are byte-identical: with
+    # Birth Control the pick plus its bound is exactly the pick Birth Control wrote before.)
     "vv1_enable_origins_exclusive_features": {
-        "stock": "FA985670A872CC8A6BD6008B9A4813E2C6E6F703FACC1B48DF504E597685D155",
-        "collection_progression": "2F22B819669023967205FBD8C08CA58140F17CA13CB5DF58AC0EB953F9D4D72C",
-        "immediate_fixed": "2F22B819669023967205FBD8C08CA58140F17CA13CB5DF58AC0EB953F9D4D72C",
+        "stock": "CB8305BE305EB78B4A58B40EE0107CF912DE4DF41FBBC6474D4B74BD956D50E6",
+        "collection_progression": "F34EFD7E2CFADA5140617646B56384696AFEEB9E5B378AB98B4A8F9AC01E0E7A",
+        "immediate_fixed": "F34EFD7E2CFADA5140617646B56384696AFEEB9E5B378AB98B4A8F9AC01E0E7A",
     },
 }
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
-# The catch-up one-partner pick (file 0x46E70, VA 0x446E70): list who can pair, rand(count) 0x402F10, then the
-# second scan's food refusal 0x447112; no one to pick ends the embrace at 0x44725C.
+# The catch-up one-partner pick (file 0x46E70, VA 0x446E70), an automatic safety row in every mode (the owner,
+# 2026-11-21: "One partner always"): list who can pair by the stock scans' rules (no upper age), rand(count)
+# 0x402F10, then the second scan's food refusal 0x447112; no one to pick ends the embrace at 0x44725C.
 ONE_PARTNER_STOCK = (
     "8D8670D70300C7442414FF000000894424188B5424188A82E0FCFFFF84C00F84A20100008BC28138680100000F8C940100008B4C"
     "241081B948030000680100000F8C800100008B42FC85C00F8E750100008BC18B884403000085C90F8E650100008BCA8B51083B90"
@@ -130,10 +136,13 @@ ONE_PARTNER_STOCK = (
 )
 ONE_PARTNER_PICK = (
     "8B6C241081BD48030000680100000F8CB700000083BD44030000000F8EAA00000083BD58030000000F859D00000083BD54030000"
-    "000F859000000081EC0004000033FF33C98D864803000080B8E0FCFFFF0074338B1081FA680100007C2981FAE80300007D218378"
-    "FC007E1B8B50083B9550030000741083781000750A83780C007504890CBC4705D80300004181F9000100007CB685FF742C57E801"
-    "C0FBFF83C4048B0C8481C400040000894C241469C1D80300008D84304803000089442418E9DD01000081C400040000E91C030000"
+    "000F859000000081EC0004000033FF33C98D864803000080B8E0FCFFFF0074338B1081FA680100007C29909090909090909083"
+    "78FC007E1B8B50083B9550030000741083781000750A83780C007504890CBC4705D80300004181F9000100007CB685FF742C57E8"
+    "01C0FBFF83C4048B0C8481C400040000894C241469C1D80300008D84304803000089442418E9DD01000081C400040000E91C0300"
+    "00"
 )
+# Birth Control's partner bound inside that pick: eight NOPs -> cmp edx,1000 / jge (file 0x46ECE).
+ONE_PARTNER_BOUND = ("9090909090909090", "81FAE80300007D21")
 VV1_STOCK = ROOT / "inputs" / "vv1-stock-copy" / "Virtual Villagers - A New Home.exe"
 def _vv1_birth_control_page() -> bytes:
     """Build the owned VV1 chooser page from its generator."""
@@ -169,17 +178,24 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         patches = _patches("vv1_birth_control")
         expected = {
             0x3DD03: ("83BD5003000002", "E9F82205009090"),
-            # One partner per catch-up embrace (the owner, 2026-11-21): the pick in place of the first scan, and
-            # the end of the embrace after the second scan's one attempt (tests/test_birth_control_one_partner.py).
-            0x46E70: (ONE_PARTNER_STOCK, ONE_PARTNER_PICK),
-            0x4723D: ("8B4424148B542418", "E91A000000909090"),
+            # One partner per catch-up embrace is an automatic safety row (below); Birth Control adds only the
+            # partner age bound inside the pick (tests/test_birth_control_one_partner.py).
+            0x46ECE: ONE_PARTNER_BOUND,
             0x477FA: ("3950F47C2A", "E901890400"),
             0x39C80: ("83FE01", "83FE05"),
             0x39C83: ("0F8E99FEFFFF", "E9B864050090"),
             # Catch-up babies (the owner, 2026-11-19): the job turn's Children gate RNG(100) <= 5 -> <= 99.
             0x2E7EF: ("83F805", "83F863"),
         }
-        self.assertEqual(len(patches), 7)
+        safety = {
+            int(row["offset"], 0): (row["before"], row["after"])
+            for row in json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))["games"][0][
+                "safety_patches"]
+        }
+        self.assertEqual(safety[0x46E70], (ONE_PARTNER_STOCK, ONE_PARTNER_PICK))
+        self.assertEqual(safety[0x4723D], ("8B4424148B542418", "E91A000000909090"))
+        self.assertEqual(bytes.fromhex(ONE_PARTNER_PICK)[0x5E:0x66].hex().upper(), ONE_PARTNER_BOUND[0])
+        self.assertEqual(len(patches), 6)
         for patch in patches:
             offset = int(patch["offset"], 0)
             with self.subTest(offset=hex(offset)):
@@ -487,7 +503,10 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         )
         self.assertEqual(rendered[0x3DD03:0x3DD03 + 7].hex().upper(), "E9F82E05009090")
         # The one-partner pick is written in place and never enters the page, so it does not move with it.
-        self.assertEqual(rendered[0x46E70:0x46F40].hex().upper(), ONE_PARTNER_PICK)
+        self.assertEqual(
+            rendered[0x46E70:0x46F40].hex().upper(),
+            ONE_PARTNER_PICK[:0x5E * 2] + ONE_PARTNER_BOUND[1] + ONE_PARTNER_PICK[0x66 * 2:],
+        )
         self.assertEqual(rendered[0x47084:0x47084 + 6].hex().upper(), "813968010000")
         self.assertEqual(rendered[0x477FA:0x477FA + 5].hex().upper(), "E901950400")
         self.assertEqual(rendered[0x39C83:0x39C83 + 6].hex().upper(), "E9B870050090")

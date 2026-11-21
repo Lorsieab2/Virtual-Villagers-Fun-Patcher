@@ -1,23 +1,27 @@
-"""Birth Control, A New Home and The Lost Children: one partner per catch-up embrace.
+"""A New Home and The Lost Children: one partner per catch-up try, with or without Birth Control.
 
-The owner (2026-11-21): "One partner only with BC: Only when Birth Control is ticked: one partner per try, and
-Parenting tries as often as other jobs. Without Birth Control, the original 'everyone at once' stays."
+The owner (2026-11-21): Birth Control must work more or less the same in all five games, so in A New Home and The
+Lost Children the catch-up embrace pairs ONE partner per try whether Birth Control is ticked or not, as in The Secret
+City, The Tree of Life and New Believers.  A man who tries picks his one partner from every woman who can pair; a
+woman who tries picks hers from every man who can.  One conception roll per try.  Birth Control only changes how often
+a Children-choice villager with Parenting ticked tries (every such job turn instead of 6 in 100), and bounds the
+partner under 50 as it does in the later games.
 
 The catch-up embrace is one step of each game's step runner (A New Home 0x446C70 opcode 9, The Lost Children
 0x464680 opcode 12), reached only from the catch-up job turn.  Stock runs two scans over all 256 villager slots and
 calls the pregnancy writer for every villager who passes, never stopping at a conception, so one man's job turn can
-make every eligible woman pregnant.  The Tree of Life's catch-up embrace (0x464FA0) instead asks its mate selector
-0x466DA0 once -- every villager who can pair is listed and one is picked with rand(count) -- and makes one conception
-roll.  Birth Control now does the same in A New Home and The Lost Children; live play already pairs one partner at a
-time (A New Home 0x43DAD0, The Lost Children 0x44F610: the partner is the one villager found at the initiator's
-position) and is not changed.
+make every eligible woman pregnant.  The patcher's automatic safety rows (every mode) replace the start of the first
+scan with a one-partner pick using the stock scans' own eligibility, and end the embrace after that one attempt.
+Live play already pairs one partner at a time (A New Home 0x43DAD0, The Lost Children 0x44F610) and is not changed.
 
-The step runner is EMULATED FROM ITS ENTRY in the executable the patcher renders, in all three population modes,
-with and without Birth Control.  Its leaf calls (the RNG, the skill check, the room check, the best-skill lookup, the
-pregnancy writer, the queue pop and the update) are scripted; any other call stops the run and fails the test.
+The step runner is EMULATED FROM ITS ENTRY, in the stock executable and in the executable the patcher renders in all
+three population modes, with and without Birth Control.  Its leaf calls (the RNG, the skill check, the room check, the
+best-skill lookup, the pregnancy writer, the queue pop and the update) are scripted; any other call into the game's
+code stops the run and fails the test.
 """
 from __future__ import annotations
 
+import json
 import struct
 import sys
 import unittest
@@ -43,16 +47,19 @@ MALE, FEMALE = 1, 2
 G = {
     "vv1": dict(runner=0x446C70, step=9, stride=0x3D8, alive=0x28, steptype=0x44, health=0x344, age=0x348, sex=0x350,
                 sick=0x354, preg=0x358, look=0x36C, parenting=0x3BC, gptr=0x3E010, food=0xA2EC, food_ok=400,
-                tech=0xA2DC, writer=0x43BBC0, writer_return=0x44723D, pick_return=0x446F0F,
+                tech=0xA2DC, writer=0x43BBC0, writer_return=0x44723D, pick_return=0x446F0F, text_end=0x457000,
                 calls={0x402F10: ("rand", 0), 0x43D440: ("skill", 8), 0x43A1A0: ("room", 0), 0x43B520: ("best", 8),
                        0x43BBC0: ("writer", 16), 0x445C50: ("pop", 4), 0x439470: ("update", 4)},
-                runner_span=(0x446C70, 0x447294)),
+                runner_span=(0x446C70, 0x447294),
+                safety=((0x46E70, 208), (0x4723D, 8)), overlays=((0x46ECE, 8),)),
     "vv2": dict(runner=0x464680, step=12, stride=0xE48C, alive=0x30, steptype=0x4C, health=0x52C, age=0x530,
                 sex=0x538, sick=0x53C, preg=0x540, look=0x548, parenting=0x7E4, gptr=0xE574D4, food=0x2EAA4,
-                food_ok=300, tech=0x2EA8C, writer=0x44B980, writer_return=0x464C52, pick_return=0x4648E2,
+                food_ok=300, tech=0x2EA8C, writer=0x44B980, writer_return=0x464C52, pick_return=0x464901,
+                text_end=0x474000,
                 calls={0x4031A0: ("rand", 0), 0x44E170: ("skill", 8), 0x44B310: ("room", 0), 0x44B4D0: ("best", 8),
                        0x44B980: ("writer", 28), 0x449380: ("pop", 4), 0x4492A0: ("update", 4)},
-                runner_span=(0x464680, 0x464CC8)),
+                runner_span=(0x464680, 0x464CC8),
+                safety=((0x64847, 231), (0x64C52, 5)), overlays=((0x6487E, 25), (0x648C0, 8))),
 }
 BUILDS = {build.id: build for build in load_builds()}
 STOCK = {g: ROOT / "research" / "stock-executables" / BUILDS[g].input_name for g in G}
@@ -106,11 +113,10 @@ class Runner:
             self.returned = True
             mu.emu_stop()
             return
-        if not 0x401000 <= address < 0x500000 or self.g["runner_span"][0] <= address < self.g["runner_span"][1]:
+        if not 0x401000 <= address < self.g["text_end"] or self.g["runner_span"][0] <= address < self.g["runner_span"][1]:
             return
         leaf = self.g["calls"].get(address)
         if leaf is None:
-            # Birth Control's own code lives inside the runner; anything else is a call this test does not expect.
             self.unexpected.append(address)
             mu.emu_stop()
             return
@@ -120,7 +126,7 @@ class Runner:
         value = 0
         if name == "rand":
             (bound,) = struct.unpack("<i", mu.mem_read(sp + 4, 4))
-            if ret == self.g["pick_return"]:     # Birth Control's partner pick, rand(count)
+            if ret == self.g["pick_return"]:     # the partner pick, rand(count)
                 value = self.pick
                 self.picks.append(bound)
             else:
@@ -190,7 +196,6 @@ class Runner:
         return [mother for mother, _ in self.writes]
 
 
-
 def village(initiator: int = MALE) -> list[Villager]:
     """Slot 0 initiates; slots 1-10 are partners of the other sex who can pair; 11-16 are of the other sex but cannot
     (expecting, sick, 15, 50, dead, no health); 17-21 are of the initiator's sex."""
@@ -201,107 +206,143 @@ def village(initiator: int = MALE) -> list[Villager]:
         + [Villager(initiator) for _ in range(5)])
 
 
+def _stock_rows(game: str) -> list[dict[str, str]]:
+    data = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+    return next(item for item in data["games"] if item["id"] == game)["safety_patches"]
+
+
 @unittest.skipUnless(STOCK_PRESENT, "the stock executables (research/stock-executables) are gitignored and absent")
 class OnePartnerTests(unittest.TestCase):
-    def test_unticked_the_runner_is_byte_identical_to_stock(self) -> None:
+    def test_stock_one_man_makes_every_woman_who_passes_pregnant(self) -> None:
+        # The emulation's reference: the untouched stock runner.  A New Home has no upper age on the scan, so the
+        # 50-year-old woman conceives too; The Lost Children refuses a woman of 50 or older.
+        expected = {"vv1": list(range(1, 11)) + [14], "vv2": list(range(1, 11))}
+        for game in G:
+            with self.subTest(game=game):
+                run = Runner(game, STOCK[game].read_bytes()).embrace(village())
+                self.assertEqual(sorted(run.mothers), expected[game])
+                self.assertEqual(run.picks, [])
+
+    def test_the_runner_edits_are_the_safety_rows_and_birth_controls_age_bound_only(self) -> None:
         for game, g in G.items():
             stock = STOCK[game].read_bytes()
             lo, hi = (va - 0x400000 for va in g["runner_span"])
+            safety = {o for start, n in g["safety"] for o in range(start, start + n)}
+            overlays = {o for start, n in g["overlays"] for o in range(start, start + n)}
+            rows = {int(row["offset"], 16) for row in _stock_rows(game)}
+            self.assertLessEqual({start for start, _ in g["safety"]}, rows)
             for mode in MODES:
                 with self.subTest(game=game, mode=mode):
-                    self.assertEqual(rendered(game, False, mode)[lo:hi], stock[lo:hi])
+                    off = rendered(game, False, mode)
+                    on = rendered(game, True, mode)
+                    self.assertLessEqual({o for o in range(lo, hi) if off[o] != stock[o]}, safety)
+                    self.assertEqual({o for o in range(lo, hi) if on[o] != off[o]} - overlays, set())
+                    self.assertTrue({o for o in range(lo, hi) if on[o] != off[o]})
 
-    def test_unticked_one_man_makes_every_woman_who_passes_pregnant(self) -> None:
-        # Stock A New Home has no upper age on the scan, so the 50-year-old woman conceives too; stock The Lost
-        # Children refuses a woman of 50 or older.
-        expected = {"vv1": list(range(10, 0, -1)) + [14], "vv2": list(range(10, 0, -1))}
-        for game in G:
-            for mode in MODES:
-                with self.subTest(game=game, mode=mode):
-                    run = Runner(game, rendered(game, False, mode)).embrace(village())
-                    self.assertEqual(sorted(run.mothers), sorted(expected[game]))
-                    self.assertEqual(run.picks, [])
-
-    def test_ticked_one_partner_is_picked_at_random_from_those_who_can_pair(self) -> None:
+    def test_a_man_picks_one_woman_from_every_woman_who_can_pair(self) -> None:
+        # Unticked, the women he can pick from are exactly the women stock would make pregnant; Birth Control bounds
+        # the partner under 50 in both games.
+        expected = {("vv1", False): list(range(1, 11)) + [14], ("vv2", False): list(range(1, 11)),
+                    ("vv1", True): list(range(1, 11)), ("vv2", True): list(range(1, 11))}
         for game, g in G.items():
-            for mode in MODES:
-                runner = Runner(game, rendered(game, True, mode))
-                for pick in range(10):
-                    with self.subTest(game=game, mode=mode, pick=pick):
-                        run = runner.embrace(village(), pick=pick)
-                        # One pick among the ten who can pair, in slot order, and one conception roll.
-                        self.assertEqual(run.picks, [10])
+            for bc in (False, True):
+                for mode in MODES:
+                    runner = Runner(game, rendered(game, bc, mode))
+                    count = len(expected[(game, bc)])
+                    for pick in range(count):
+                        with self.subTest(game=game, birth_control=bc, mode=mode, pick=pick):
+                            run = runner.embrace(village(), pick=pick)
+                            self.assertEqual(run.picks, [count])
+                            self.assertEqual(run.rolls.count(300), 1)
+                            self.assertEqual(run.mothers, [expected[(game, bc)][pick]])
+                            # Through the stock call site, so the parentage hooks see the frame they expect.
+                            self.assertEqual(run.writes[0][1], g["writer_return"])
+
+    def test_a_woman_picks_one_man_from_every_man_who_can_pair(self) -> None:
+        # She is the mother; the pick's count is how many men she picks from.  Unticked: A New Home has no upper
+        # age, The Lost Children bounds only the woman, so the 50-year-old man counts in both; Birth Control bounds
+        # the partner under 50.
+        counts = {("vv1", False): 11, ("vv2", False): 11, ("vv1", True): 10, ("vv2", True): 10}
+        for game in G:
+            for bc in (False, True):
+                for mode in MODES:
+                    runner = Runner(game, rendered(game, bc, mode))
+                    for pick in (0, 6, counts[(game, bc)] - 1):
+                        with self.subTest(game=game, birth_control=bc, mode=mode, pick=pick):
+                            run = runner.embrace(village(FEMALE), pick=pick)
+                            self.assertEqual(run.picks, [counts[(game, bc)]])
+                            self.assertEqual(run.rolls.count(300), 1)
+                            self.assertEqual(run.mothers, [0])
+
+    def test_a_woman_who_tries_at_50(self) -> None:
+        # Stock The Lost Children refuses a woman of 50 or older who tries; Birth Control, like The Tree of Life,
+        # bounds only the partner.  Stock A New Home has no upper age.
+        expected = {("vv1", False): [0], ("vv1", True): [0], ("vv2", False): [], ("vv2", True): [0]}
+        for game in G:
+            for bc in (False, True):
+                with self.subTest(game=game, birth_control=bc):
+                    folk = village(FEMALE)
+                    folk[0].age = OLD
+                    run = Runner(game, rendered(game, bc)).embrace(folk)
+                    self.assertEqual(run.mothers, expected[(game, bc)])
+                    if not expected[(game, bc)]:
+                        self.assertEqual((run.picks, run.rolls), ([], []))
+
+    def test_a_failed_roll_is_the_whole_try(self) -> None:
+        for game in G:
+            for bc in (False, True):
+                for mode in MODES:
+                    with self.subTest(game=game, birth_control=bc, mode=mode):
+                        run = Runner(game, rendered(game, bc, mode)).embrace(village(), pick=3, conceive=False)
+                        self.assertEqual(run.mothers, [])
                         self.assertEqual(run.rolls.count(300), 1)
-                        self.assertEqual(run.mothers, [1 + pick])
-                        # Through the stock call site, so the parentage hooks see the frame they expect.
-                        self.assertEqual(run.writes[0][1], g["writer_return"])
+                        self.assertEqual(len(run.picks), 1)
 
-    def test_ticked_a_failed_roll_is_the_whole_try(self) -> None:
+    def test_the_low_food_refusal_ends_the_try(self) -> None:
         for game in G:
-            for mode in MODES:
-                with self.subTest(game=game, mode=mode):
-                    run = Runner(game, rendered(game, True, mode)).embrace(village(), pick=3, conceive=False)
+            for bc in (False, True):
+                with self.subTest(game=game, birth_control=bc):
+                    run = Runner(game, rendered(game, bc)).embrace(village(), pick=2, food=0, refuse=True)
                     self.assertEqual(run.mothers, [])
-                    self.assertEqual(run.rolls.count(300), 1)
-                    self.assertEqual(run.picks, [10])
+                    self.assertEqual(run.rolls, [100])
+                    run = Runner(game, rendered(game, bc)).embrace(village(), pick=2, food=0, refuse=False)
+                    self.assertEqual(run.mothers, [3])
 
-    def test_ticked_the_low_food_refusal_ends_the_try(self) -> None:
+    def test_no_one_to_pair_with_ends_the_try_without_a_roll(self) -> None:
+        lonely = [Villager(MALE), Villager(FEMALE, pregnant=True), Villager(FEMALE, sick=True), Villager(MALE)]
         for game in G:
-            with self.subTest(game=game):
-                run = Runner(game, rendered(game, True)).embrace(village(), pick=2, food=0, refuse=True)
-                self.assertEqual(run.mothers, [])
-                self.assertEqual((run.picks, run.rolls), ([10], [100]))
-                run = Runner(game, rendered(game, True)).embrace(village(), pick=2, food=0, refuse=False)
-                self.assertEqual(run.mothers, [3])
-
-    def test_ticked_a_woman_initiator_conceives_with_one_man(self) -> None:
-        for game in G:
-            for mode in MODES:
-                with self.subTest(game=game, mode=mode):
-                    run = Runner(game, rendered(game, True, mode)).embrace(village(FEMALE), pick=7)
-                    self.assertEqual(run.picks, [10])
-                    self.assertEqual(run.mothers, [0])
-
-    def test_ticked_no_one_to_pair_with_ends_the_try_without_a_roll(self) -> None:
-        lonely = [Villager(MALE), Villager(FEMALE, pregnant=True), Villager(FEMALE, age=OLD), Villager(MALE)]
-        for game in G:
-            for initiator in (Villager(MALE, age=YOUNG), Villager(MALE, sick=True)):
-                with self.subTest(game=game, initiator=vars(initiator)):
-                    run = Runner(game, rendered(game, True)).embrace([initiator] + [Villager(FEMALE)] * 3)
+            for bc in (False, True):
+                for initiator in (Villager(MALE, age=YOUNG), Villager(MALE, sick=True)):
+                    with self.subTest(game=game, birth_control=bc, initiator=vars(initiator)):
+                        run = Runner(game, rendered(game, bc)).embrace([initiator] + [Villager(FEMALE)] * 3)
+                        self.assertEqual((run.mothers, run.picks, run.rolls), ([], [], []))
+                with self.subTest(game=game, birth_control=bc, village="no partner"):
+                    run = Runner(game, rendered(game, bc)).embrace(lonely)
                     self.assertEqual((run.mothers, run.picks, run.rolls), ([], [], []))
-            with self.subTest(game=game, village="no partner"):
-                run = Runner(game, rendered(game, True)).embrace(lonely)
-                self.assertEqual((run.mothers, run.picks, run.rolls), ([], [], []))
 
-    def test_ticked_the_initiator_has_no_upper_age(self) -> None:
-        # The Lost Children's stock scans refuse a woman initiator of 50 or older; Birth Control, like The Tree of
-        # Life, bounds only the partner.
+    def test_every_slot_can_be_picked(self) -> None:
         for game in G:
-            with self.subTest(game=game):
-                folk = village(FEMALE)
-                folk[0].age = OLD
-                self.assertEqual(Runner(game, rendered(game, True)).embrace(folk, pick=0).mothers, [0])
-
-    def test_ticked_every_slot_can_be_picked(self) -> None:
-        # The pick covers all 256 slots: a partner in the last slot is listed and reachable.
-        for game in G:
-            with self.subTest(game=game):
-                folk = [Villager(MALE)] + [Villager(MALE)] * 254 + [Villager(FEMALE)]
-                run = Runner(game, rendered(game, True, "immediate_fixed")).embrace(folk)
-                self.assertEqual((run.picks, run.mothers), ([1], [255]))
+            for bc in (False, True):
+                with self.subTest(game=game, birth_control=bc):
+                    folk = [Villager(MALE)] + [Villager(MALE)] * 254 + [Villager(FEMALE)]
+                    run = Runner(game, rendered(game, bc, "immediate_fixed")).embrace(folk)
+                    self.assertEqual((run.picks, run.mothers), ([1], [255]))
 
     def test_a_new_home_with_origins_keeps_the_one_partner_pick(self) -> None:
-        run = Runner("vv1", rendered("vv1", True, "collection_progression", origins=True)).embrace(village(), pick=4)
-        self.assertEqual((run.picks, run.mothers), ([10], [5]))
+        for bc in (False, True):
+            with self.subTest(birth_control=bc):
+                run = Runner("vv1", rendered("vv1", bc, "collection_progression", origins=True)).embrace(
+                    village(), pick=4)
+                self.assertEqual((run.picks, run.mothers), ([11 if not bc else 10], [5]))
 
     def test_the_rows_say_so_in_plain_words(self) -> None:
         catalog = {p.id: p for p in load_fun_patches()}
         for game in G:
             with self.subTest(game=game):
                 text = catalog[f"{game}_birth_control"].description
-                self.assertIn("Each try is with one partner only", text)
-                self.assertIn("Without Birth Control, one try goes through the whole village", text)
-                self.assertIn("Live play already pairs a villager with one partner at a time", text)
+                self.assertIn("one partner", text)
+                self.assertIn("whether Birth Control is ticked or not", text)
+                self.assertNotIn("Without Birth Control, one try goes through the whole village", text)
 
 
 if __name__ == "__main__":
