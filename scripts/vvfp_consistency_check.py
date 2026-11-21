@@ -52,6 +52,8 @@ except ImportError:                     # run on its own: src/ is beside scripts
 # (src/vv_game_text.py), so a name like "Šárka" is the same person in the save and in the logs, and
 # village_id() hashes the very bytes the companions hash.
 from vv_game_text import GAME_TEXT  # noqa: E402
+# A Conception or Birth the saved village never held (src/vv_not_kept.py): one rule for every reader.
+from vv_not_kept import is_not_kept, is_not_kept_line  # noqa: E402,F401
 
 GAME_TITLES = {
     1: "A New Home", 2: "The Lost Children", 3: "The Secret City",
@@ -514,13 +516,17 @@ def whole(p: Person | None) -> bool:
     return p is None or not p.name or (p.head is not None and p.body is not None)
 
 
-def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[BirthsLog, list[Path]]:
+def births_log(game_dir: Path, game: int, slot: int, headers=None,
+               keep_not_kept: bool = False) -> tuple[BirthsLog, list[Path]]:
     """This slot's Birth and Conception records, in log order, from every numbered file (the
     same reading the in-game cross-check and the owner's repair tool do).  The village is the
     slot's LATEST header, whether or not a record follows it yet (Codex, #522: a new village
     whose header is all its file holds so far is not the previous village).  `headers`, when
     given, keeps the records under any of those headers instead -- "every" for all of the slot's
-    (the Family Tree Maker: a renamed village's records before its rename, Codex, #555)."""
+    (the Family Tree Maker: a renamed village's records before its rename, Codex, #555).
+    A Conception or Birth carrying the not-kept Note (src/vv_not_kept.py: the game played that time
+    twice before the first save) is left out -- the saved village never held it, so it is nobody's
+    parent, child or pregnancy -- unless `keep_not_kept` (then marked `not_kept`)."""
     files = game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log", slot)
     records: list[LogRecord] = []
     renames: list[tuple[str, tuple]] = []        # (village header, (old, new, head, body))
@@ -586,7 +592,7 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet|Golden Child)\s*$", line)
                 if m:
                     rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3, "Golden Child": 1}[m.group(1)]
-                if line.startswith("  Note: Not in the village as it was saved"):
+                if is_not_kept_line(line):
                     rec.not_kept = True
             birth = is_birth_heading(kind)
             if birth or kind.startswith("Conception"):
@@ -604,6 +610,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 rec.kind = "lost"
             else:
                 continue
+            if rec.not_kept and not keep_not_kept:
+                continue                          # never in the saved village: no parent, child or pregnancy
             records.append(rec)
     out = BirthsLog(r for r in records if (r.village == latest if headers is None else
                                            headers == "every" or r.village in headers))

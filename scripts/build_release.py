@@ -786,6 +786,8 @@ FILES = [
     # Repair Saves & Logs: records written into another save's log, moved to their own (2026-10-31).
     "src/vv_misfiled_records.py",
     "src/vv_sex_changes.py",
+    # The Conception and Birth records the saved village never held (v1.35.97), skipped by every log reader.
+    "src/vv_not_kept.py",
     # Game Mechanics (Tools tab): its window, the page and each game's module (found by name).
     "src/vv_game_mechanics_window.py",
     # The tool windows' fonts (the VF1 patcher's), shared by every Tools tab window.

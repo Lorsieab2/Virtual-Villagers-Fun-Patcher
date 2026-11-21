@@ -484,8 +484,11 @@ class ParsingFixtures(unittest.TestCase):
             "Conception 2\n  Mother: Ann\n    Age at conception: 600\n    Sex: Female\n    Head: 1\n    Body: 2\n"
             "  Father: Cy\n    Age at conception: 600\n    Sex: Male\n    Head: 5\n    Body: 6\n"
             "  Babies nursing: 2\n\n", encoding="latin-1")
-        births, _ = checker.births_log(game, 2, 1)
+        births, _ = checker.births_log(game, 2, 1, keep_not_kept=True)
         self.assertEqual([r.not_kept for r in births if r.kind == "conception"], [True, False])
+        # Every reader leaves it out (src/vv_not_kept.py): the saved village never held that pregnancy.
+        births, _ = checker.births_log(game, 2, 1)
+        self.assertEqual([r.father.name for r in births if r.kind == "conception"], ["Cy"])
 
     def test_a_truncated_elders_file_is_unchecked_not_a_crash(self):
         game = Path(self.enterContext(tempfile.TemporaryDirectory())) / "g"

@@ -31,6 +31,7 @@ from pathlib import Path
 import vv_log_tools as tools
 import vv_save_layout as layout
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
+from vv_not_kept import is_not_kept
 
 DONT_KNOW = "Don't know (add nothing)"
 
@@ -225,6 +226,12 @@ class Block:
             return int(v) if v is not None else None
         except ValueError:
             return None
+
+    @property
+    def not_kept(self) -> bool:
+        """A Conception or Birth the saved village never held (src/vv_not_kept.py: the game played that
+        time twice before the first save): nobody's parent, child or pregnancy to any planner."""
+        return is_not_kept(self.lines)
 
     @property
     def identity(self) -> tuple:
@@ -683,7 +690,8 @@ def plan_born_as(folder: Path, game: int, slot: int) -> Kind:
     paths = checker.births_layout_files(folder, game)
     for path in paths:
         lines = read_lines(path)
-        all_blocks = [b for b in blocks(path, lines) if b.of(slot, game, villages)]
+        # A record the saved village never held (src/vv_not_kept.py) is no pregnancy and no delivery.
+        all_blocks = [b for b in blocks(path, lines) if b.of(slot, game, villages) and not b.not_kept]
         last_babies: dict[tuple, int] = {}
         k = 0
         while k < len(all_blocks):
@@ -777,7 +785,9 @@ def plan_golden(folder: Path, game: int, slot: int) -> Kind:
     paths = checker.births_layout_files(folder, game)
     every: list[Block] = []
     for path in paths:
-        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+        # A pregnancy the saved village never held (src/vv_not_kept.py) is never offered as the one the
+        # puzzle ended, and a Birth it never held is no Golden Child's.
+        every += [b for b in blocks(path) if b.of(slot, game, villages) and not b.not_kept]
     for k, b in enumerate(every):
         if not (b.heading.startswith("Arrived") and b.value("Special villager") == "Golden Child"):
             continue
@@ -943,7 +953,8 @@ def plan_lost(folder: Path, game: int, slot: int) -> Kind:
     older = [path for path in checker.births_layout_files(folder, game) if path not in current]
     every: list[Block] = []
     for path in older + current:
-        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+        # A Conception the saved village never held (src/vv_not_kept.py) left no baby to lose.
+        every += [b for b in blocks(path) if b.of(slot, game, villages) and not b.not_kept]
     last: dict[tuple, Block | None] = {}           # mother -> her last Conception, None once closed
     for b in every:
         mother = _sub_identity(b, "Mother")
@@ -1155,7 +1166,7 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
                 (converted if b.value("How") == CONVERTED else believer).add(b.identity)
             elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") == LEFT_FOR_THE_HEATHENS:
                 left.add(b.identity)
-            elif checker.is_birth_heading(b.heading):
+            elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
                 child = _sub_identity(b, "Child")
                 if child:
                     believer.add(child)
@@ -1239,7 +1250,8 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None) 
             if ARRIVED_HEADING.match(b.heading):
                 add(b.identity, 1 if b.value("How") == CONVERTED else 0)
             elif checker.is_birth_heading(b.heading):
-                add(_sub_identity(b, "Child"), 0)
+                if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
+                    add(_sub_identity(b, "Child"), 0)
             elif DISAPPEARED_HEADING.match(b.heading):
                 add(b.identity, 2 if b.value("What happened") == LEFT_FOR_THE_HEATHENS else 3)
             elif b.heading.startswith("Death"):
@@ -1404,7 +1416,8 @@ def plan_backfilled_arrivals(folder: Path, game: int, slot: int, living: dict[tu
                               slot)
     every: list[Block] = []
     for path in paths:
-        every += [b for b in blocks(path) if b.of(slot, game, villages)]
+        # A Birth the saved village never held (src/vv_not_kept.py) records nobody.
+        every += [b for b in blocks(path) if b.of(slot, game, villages) and not b.not_kept]
     by_key: dict[tuple, list[Block]] = {}
     for b in every:
         k = _sub_identity(b, "Child") if is_birth(b.heading) else (

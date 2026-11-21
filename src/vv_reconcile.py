@@ -407,6 +407,8 @@ def read_logs(folder: Path, game: int, slot: int, villages: set[str] | None) -> 
                     census = snapshots[b.date] = Census(f"the Village History snapshot of {b.date}", b.date,
                                                         "history", [], path)
                 census.people.append(_snapshot_person(b))
+            elif BIRTH.match(head) and b.not_kept:
+                continue                  # never in the saved village (src/vv_not_kept.py): nobody was born
             elif BIRTH.match(head):
                 child = _sub_person(b.lines, "Child")
                 if child is not None:
