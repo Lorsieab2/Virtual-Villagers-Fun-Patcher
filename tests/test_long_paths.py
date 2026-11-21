@@ -265,7 +265,8 @@ class Budget(unittest.TestCase):
                 self.assertNotIn("Virtual Villagers 1 ", place.rpartition("\\")[2])
         # A save folder of 142 characters (a long Documents folder, the longest game title and a long
         # copy's name): every new copy is under 260.
-        save_folder = "C:\\Users\\A Player With A Long Name\\OneDrive - Household\\Documents\\LDW\\" \
+        # ("Homes" stands in for the 5-letter home folder, so no account path ships in the archive.)
+        save_folder = "C:\\Homes\\A Player With A Long Name\\OneDrive - Household\\Documents\\LDW\\" \
                       "Virtual Villagers - The Tree of Life - Modded 256 Test"
         self.assertLessEqual(len(save_folder) + 1 + copies.COPY_RELATIVE_MAX, 259)
 
@@ -287,7 +288,7 @@ class Budget(unittest.TestCase):
         self.assertLessEqual(long_place, 100)
         # The owner's longest save folder (OneDrive Documents, "... Modded 256 LiveCheck97 IF NoBC") fits
         # every backed-up file of the patcher's own; any save folder up to 158 characters fits the Long Paths.
-        owners = "C:\\Users\\Owner\\OneDrive\\Documents\\LDW\\" \
+        owners = "C:\\Homes\\Owner\\OneDrive\\Documents\\LDW\\" \
                  "Virtual Villagers - The Tree of Life - Modded 256 LiveCheck97 IF NoBC"
         self.assertLessEqual(len(owners) + 1 + backup_dir + deepest, 259)
         self.assertLessEqual(158 + 1 + long_place, 259)
