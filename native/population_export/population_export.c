@@ -1532,6 +1532,26 @@ static int build_history_path(int slot, wchar_t *destination) {
     return 0;
 }
 
+/* The Tree of Life and New Believers: whether their "Select 5 villagers" screen is still open --
+   the save manager's scene ([0x4CB51C]+0x171A8 / [0x4DACE0]+0x17E1C) is 3 from the new village's
+   founder screen until the fifth Select starts the game (VV4 0x43BD2F / VV5 0x43E72F set 0).  The
+   game's 600 s autosave runs on every screen, and the records then hold the founders chosen so far
+   AND the candidate on show, whom a Reject replaces (vvfp_cause_of_death cod_creation_save.inc;
+   the live round 7, 2026-11-21: a History snapshot listing a rejected candidate as a villager).
+   Such a save is not the village yet, so it adds no History snapshot (append-only: it could never
+   be taken back); the Population, rewritten at every save, is written as always.  Read from the
+   module the export walks (`module`: the game's own image live, a harness's stand-in image). */
+static int founder_screen_open(int game_id, const unsigned char *module) {
+    static const unsigned int MANAGER_RVA[6] = { 0, 0, 0, 0, 0xCB51Cu, 0xDACE0u };
+    static const unsigned int SCENE[6] = { 0, 0, 0, 0, 0x171A8u, 0x17E1Cu };
+    const unsigned char *manager;
+    if (game_id != GAME_VV4 && game_id != GAME_VV5) {
+        return 0;
+    }
+    manager = *(const unsigned char *const volatile *)(module + MANAGER_RVA[game_id]);
+    return manager != NULL && *(const volatile unsigned int *)(manager + SCENE[game_id]) == 3u;
+}
+
 /* Append this save's roster to the history.
 
    Failure is deliberately not fatal to the export: the roster is the feature
@@ -1720,7 +1740,9 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     /* The permanent history, appended AFTER the roster is safely
        published so a history failure can never cost the player their
        roster. Its return is ignored for the same reason. */
-    (void)append_history(g, villagers, game_id, village);
+    if (!founder_screen_open(game_id, module)) {
+        (void)append_history(g, villagers, game_id, village);
+    }
 
     /* And the parentage log, created empty-but-headed if this village has
        none yet. Also after the roster, and also ignoring its result: the

@@ -1167,6 +1167,15 @@ static void cod_save_done(int slot, const void *save_buffer) {
         }
         cw_saved(slot);   /* ...and their own cause words (cod_cie_words.inc), to match */
         saved_slot = slot;
+        /* The Tree of Life and New Believers: a save while "Select 5 villagers" is still open (the
+           game's autosave runs on every screen) holds the founders chosen so far AND the candidate
+           on show, whom a Reject replaces in the same record (cod_creation_save.inc).  That is not
+           the village: no Arrived record, no roster, no Unaccounted -- every report waits, and the
+           save after the start (asked for by creation_save_tick) writes exactly the founders. */
+        if (founder_screen_open()) {
+            COD_COUNT(founder_screen_saves);
+            return;
+        }
         /* Every grave in the Deaths log first, so the reconciliation knows
            the villagers whose graves were recorded from now. */
         backfill_at_save(slot, save_buffer);
