@@ -24,7 +24,7 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         entry = next(item for item in manifest["fun_patches"] if item["id"] == "vv1_birth_control")
         self.assertTrue(entry.get("enabled", True))
         self.assertEqual([patch["offset"] for patch in entry["patches"]], [
-            "0x3DD03", "0x46E70", "0x4723D", "0x477FA", "0x39C80", "0x39C83", "0x2E7EF"
+            "0x3DD03", "0x46ECE", "0x477FA", "0x39C80", "0x39C83", "0x2E7EF"
         ])
         self.assertIn("static verification complete", entry["status"])
         self.assertIn("generated:vv1_birth_control_page", json.dumps(entry))

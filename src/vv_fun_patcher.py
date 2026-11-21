@@ -1343,6 +1343,23 @@ SHARED_SECTION_HEADERS = {
 }
 
 
+# A New Home and The Lost Children: the catch-up embrace pairs one partner per
+# try in every mode -- an automatic safety row, like The Tree of Life's own
+# catch-up -- with each game's stock partner ages.  Birth Control then writes
+# its partner age bound INTO that pick: these exact ranges, over exactly these
+# safety bytes, and nothing else of the pick.  (game, offset): (before, after,
+# owner).
+BIRTH_CONTROL_PICK_OVERLAYS = {
+    ("vv1", 0x46ECE): ("9090909090909090", "81FAE80300007D21", "feature:vv1_birth_control"),
+    ("vv2", 0x6487E): (
+        "83BF3805000002751081BF30050000E80300000F8D92000000",
+        "EB179090909090909090909090909090909090909090909090",
+        "feature:vv2_birth_control",
+    ),
+    ("vv2", 0x648C0): ("7C06837808027421", "7D27909090909090", "feature:vv2_birth_control"),
+}
+
+
 RESET_HOOK_OWNERS = {
     "vv1": frozenset({
         "feature:vv1_enable_origins_exclusive_features",
@@ -10309,8 +10326,16 @@ def render_patched_bytes(
                         == (before.hex().upper(), after.hex().upper())
                         and after == data[offset:end]
                     )
+                    allowed_birth_control_pick_overlay = (
+                        prior_owner == "automatic:safety"
+                        and prior_start <= offset
+                        and end <= prior_end
+                        and BIRTH_CONTROL_PICK_OVERLAYS.get((build.id, offset))
+                        == (before.hex().upper(), after.hex().upper(), owner)
+                    )
                     if (
-                        allowed_vv5_individual_overlay
+                        allowed_birth_control_pick_overlay
+                        or allowed_vv5_individual_overlay
                         or allowed_vv5_running_overlay
                         or allowed_shared_section_header
                         or allowed_vv3_individual_running_overlay
