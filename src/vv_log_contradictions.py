@@ -115,6 +115,8 @@ def _born_and_arrived(folder: Path, game: int, slot: int) -> list[Found]:
         for b in additions.blocks(path, texts[path]):
             if not b.of(slot, game, villages):
                 continue
+            if additions.is_birth(b.heading) and b.not_kept:
+                continue                  # never in the saved village (src/vv_not_kept.py): nobody's record
             if additions.is_birth(b.heading):
                 key = _child(b)
                 if key:
@@ -484,7 +486,8 @@ def false_unaccounted(folder: Path, game: int, slot: int) -> list[UnaccountedVer
                 head, body = b.int_value("Head"), b.int_value("Body")
                 if b.value("Old name") and b.value("Name"):
                     renamed[(b.value("Old name"), head, body)] = b.value("Name")
-            elif additions.is_birth(b.heading) or re.fullmatch(r"Arrived \d+", b.heading):
+            elif ((additions.is_birth(b.heading) and not b.not_kept)     # src/vv_not_kept.py
+                  or re.fullmatch(r"Arrived \d+", b.heading)):
                 births_records.append(b)
 
     def names_of(name: str | None, head, body) -> set:

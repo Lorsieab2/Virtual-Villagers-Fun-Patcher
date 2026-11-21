@@ -163,6 +163,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
+               # The Conception and Birth records the saved village never held (v1.35.97).
+               "vv_not_kept",
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
                # the patcher makes for them (v1.35.87).
                "vv_game_text", "vv_font_glyphs",
@@ -560,8 +562,10 @@ class ReleasesLinkTests(unittest.TestCase):
                 # every byte kept.  vv_game_text imports only the standard library.  Any window may use the
                 # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).  Any tool that
                 # matches villagers may read the save's Sex Changes log (vv_sex_changes, the save layout only).
+                # Any log reader may skip the records the saved village never held (vv_not_kept, no imports).
                 self.assertEqual(imported - set(sys.stdlib_module_names) - may_import
-                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars", "vv_sex_changes"},
+                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars", "vv_sex_changes",
+                                    "vv_not_kept"},
                                  set())
         tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)

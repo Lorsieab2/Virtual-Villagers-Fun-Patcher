@@ -352,6 +352,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
             elif head == "Name changed":
                 if b.value("Old name") and b.value("Name"):
                     out.renames.append((b.value("Old name"), b.value("Name")))
+            elif rc.BIRTH.match(head) and b.not_kept:
+                continue                  # never in the saved village (src/vv_not_kept.py): no villager's look
             elif rc.BIRTH.match(head):
                 child = _sub_lines(b.lines, "Child")
                 if child and child["Name"] and not child["Name"].startswith("("):

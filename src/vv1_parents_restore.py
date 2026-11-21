@@ -41,6 +41,7 @@ import vv_repair_copies as repair_copies
 import vv_save_backup
 import vv_save_layout as layout
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
+from vv_not_kept import is_not_kept
 
 MAGIC = b"VP02"
 HEADER = 12
@@ -270,6 +271,8 @@ def _births_log_parents(folder: Path, slot: int) -> dict[tuple[str, int, int], s
             heads = [ln for ln in lines if ln and not ln.startswith(" ") and not ln.startswith("Village:")]
             if not ours or not heads or not re.match(r"^Birth( \d+)?\s*$", heads[0]):
                 continue
+            if is_not_kept(lines):
+                continue                  # never in the saved village (src/vv_not_kept.py): nobody's parents
             who: dict[str, list] = {}
             cur = None
             for ln in lines:

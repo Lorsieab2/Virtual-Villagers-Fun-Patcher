@@ -260,6 +260,13 @@ is, nothing is dropped, and in A New Home nothing is judged without Show
 Parents' companion, which alone logs its births.
 `native/parentage_export/pending_harness.c` checks it in all five games.
 
+The patcher's own log readers follow the same Note (`src/vv_not_kept.py`, one helper matched on the
+companion's exact first line): Check Saves & Logs, the Family Tree Maker (and so Last Names and the
+Matchmaker), A New Home's parents restore, Repair Saves & Logs' backfills (Born as, the Golden Child, Lost
+before birth, backfilled Arrived records, Faction and Left the tribe), the contradictions and reconcile
+readers, original looks and the history revision all skip a Conception or Birth carrying it -- nobody's
+pregnancy, child or parent -- and never remove or rewrite the record itself.
+
 The same replay delivers twice. The load's catch-up is where most births
 happen, and The Lost Children to New Believers write a Birth at the delivery
 (the executable's birth splice), so a pregnancy the save holds was written as

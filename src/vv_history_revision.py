@@ -406,6 +406,10 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
                 note_person(p, b.value("Sex"), None if DEPARTED.match(head) else age,
                             _words(b.value("Likes")), _words(b.value("Dislikes")), path, b.start, head)
                 records.append(("person", path, b.start, count, head, p.key))
+            elif (BIRTH.match(head) or CONCEPTION.match(head)) and b.not_kept:
+                # Never in the saved village (src/vv_not_kept.py): its child is nobody, it ties no snapshot
+                # to the tribe, and the record is left exactly as it is.
+                continue
             elif BIRTH.match(head):
                 child, mother, father = _sub(b.lines, "Child"), _sub(b.lines, "Mother"), _sub(b.lines, "Father")
                 if child is not None:

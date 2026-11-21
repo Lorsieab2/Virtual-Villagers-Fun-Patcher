@@ -776,13 +776,14 @@ class GuiTests(unittest.TestCase):
 
         # Its own modules, the save folder's names (src/vv_save_layout.py) and the Custom Titles file's
         # reader (src/vv_titles_file.py, v1.35.70), and the games' text decoding (src/vv_game_text.py, v1.35.87),
-        # ship beside it and are themselves stdlib-only.
+        # ship beside it and are themselves stdlib-only; so is the rule for the records the saved village never
+        # held (src/vv_not_kept.py, v1.35.97).
         self.assertEqual(imports(ROOT / "scripts" / "vvfp_consistency_check.py"),
-                         {"vv_save_layout", "vv_titles_file", "vv_game_text"})
+                         {"vv_save_layout", "vv_titles_file", "vv_game_text", "vv_not_kept"})
         # vv_game_text reads the Unicode 18.0 tables through vv_unicode18 (v1.35.90), also stdlib-only.
         self.assertEqual(imports(ROOT / "src" / "vv_game_text.py"), {"vv_unicode18"})
         self.assertEqual(imports(ROOT / "src" / "vv_unicode18.py"), set())
-        for module in ("vv_save_layout", "vv_titles_file", "vv_game_text", "vv_unicode18"):
+        for module in ("vv_save_layout", "vv_titles_file", "vv_game_text", "vv_unicode18", "vv_not_kept"):
             if module not in ("vv_game_text",):
                 self.assertEqual(imports(ROOT / "src" / f"{module}.py"), set())
             self.assertIn(f'"src/{module}.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
