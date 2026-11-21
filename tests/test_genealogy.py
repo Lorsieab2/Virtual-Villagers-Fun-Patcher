@@ -103,6 +103,133 @@ class GenerationTests(unittest.TestCase):
         self.assertLess(v.people[1].number, v.people[4].number)     # 70 before 67 years old
 
 
+S1, S2, S3, S4 = "2026-11-19 23:33:16", "2026-11-19 23:43:17", "2026-11-20 09:20:06", "2026-11-21 06:43:52"
+
+
+class ConvertedHeathenTests(unittest.TestCase):
+    """The owner (2026-11-21): "heathens that are converted should not be founders in Family Tree Maker.  When
+    converted they should go under the generation they were converted at."  The village is the shape of the
+    owner's New Believers village (Kalahuna Tribe 5): the founders Fo1 (m) and Fo2 (f) believers from the first
+    snapshot with the Heathens beside them; Ma converts while only the founders live (as Manava Bahati did); the
+    founders' child Ki is first seen in the snapshot Za converts in (as Alitipa Akikai and Zania Uzumati); Mt
+    converts later still (as Matai Bahati); He never converts; Nb is a founder who left for the Heathens and came
+    back."""
+
+    def build(self, extra=None) -> gen.Village:
+        people: dict[int, gen.Person] = {}
+
+        def add(pid, name, sex, father=None, mother=None, factions=(), **more):
+            people[pid] = gen.Person(pid, name, pid, pid, sex=sex, age=30 * Y, alive=True, father=father,
+                                     mother=mother, first_seen=S1, factions=list(factions), **more)
+
+        add(1, "Fo1", "Male", arrived=True, how="Founder", founder_record=True,
+            factions=[(d, "Believer") for d in (S1, S2, S3, S4)])
+        add(2, "Fo2", "Female", arrived=True, how="Founder", founder_record=True,
+            factions=[(d, "Believer") for d in (S1, S2, S3, S4)])
+        add(3, "Ma", "Female", arrived=True, how=gen.CONVERTED_HOW, converted=True,
+            factions=[(S1, "Heathen")] + [(d, "Believer") for d in (S2, S3, S4)])
+        add(4, "Za", "Female", arrived=True, how=gen.CONVERTED_HOW, converted=True,
+            factions=[(S1, "Heathen"), (S2, "Heathen"), (S3, "Believer"), (S4, "Believer")])
+        add(5, "Mt", "Female", arrived=True, how=gen.CONVERTED_HOW, converted=True,
+            factions=[(S1, "Heathen"), (S2, "Heathen"), (S3, "Heathen"), (S4, "Believer")])
+        add(6, "He", "Male", heathen=True, factions=[(d, "Heathen") for d in (S1, S2, S3, S4)])
+        # The founder who left and came back: "How: Founder" first, then a conversion's Arrived record.
+        add(7, "Nb", "Male", arrived=True, how=gen.CONVERTED_HOW, converted=True, founder_record=True,
+            factions=[(S1, "Believer"), (S2, "Heathen"), (S3, "Believer"), (S4, "Believer")])
+        add(8, "Ki", "Female", father=1, mother=2, factions=[(S3, "Believer"), (S4, "Believer")])
+        people[8].first_seen = S3
+        add(9, "Baby", "Male", father=1, mother=3)          # Ma's child: one below her
+        people[9].upcoming = True
+        for pid, person in (extra or {}).items():
+            people[pid] = person
+        v = gen.Village(5, 1, "Test Tribe", people)
+        everyone = set(range(1, 8))
+        gen._generations(v, {S1: everyone, S2: everyone, S3: everyone | {8}, S4: everyone | {8}})
+        return v
+
+    def test_the_owners_village_shape(self) -> None:
+        v = self.build()
+        g = {p.name: p.generation for p in v.people.values()}
+        self.assertEqual((g["Fo1"], g["Fo2"], g["Nb"], g["He"]), (1, 1, 1, 1), "founders and Heathens stay")
+        self.assertEqual(g["Ki"], 2)
+        # Ma converted while only the founders lived: never the founders' generation, so generation II.
+        self.assertEqual(g["Ma"], 2)
+        # Za converted in the snapshot that first lists Ki (generation II): generation II.
+        self.assertEqual(g["Za"], 2)
+        self.assertEqual(g["Mt"], 2)
+        self.assertEqual(g["Baby"], 3, "a converted Heathen's child is one below her")
+        self.assertEqual(gen.conversion_snapshot(v.people[3]), S2)
+        self.assertEqual(gen.conversion_snapshot(v.people[4]), S3)
+        self.assertEqual(gen.conversion_snapshot(v.people[5]), S4)
+
+    def test_never_a_founder_in_the_tree_or_the_report(self) -> None:
+        v = self.build()
+        gen.number_people(v)
+        for pid in (3, 4, 5):
+            self.assertFalse(ft.is_founder(v, v.people[pid]), v.people[pid].name)
+        for pid in (1, 2, 7):
+            self.assertTrue(ft.is_founder(v, v.people[pid]), v.people[pid].name)
+        text = gen.report(v, "Virtual Villagers 5")
+        for name in ("Ma", "Za", "Mt"):
+            line = next(line for line in text.splitlines() if f". {name} " in line or f". {name}," in line)
+            self.assertIn("arrived (Converted from the Heathens)", line)
+            self.assertNotIn("founder", line)
+        nb = next(line for line in text.splitlines() if ". Nb" in line)
+        self.assertIn("founder", nb)
+
+    def test_the_newest_generation_of_the_tribe_then_not_the_heathens(self) -> None:
+        # A later conversion, with generation III begun among the believers: generation III.  A Heathen of a later
+        # generation listed in that snapshot is not the tribe.
+        extra = {
+            10: gen.Person(10, "Gr", 10, 10, sex="Male", age=Y, alive=True, father=1, mother=8, first_seen=S4,
+                           factions=[(S4, "Believer")]),
+            11: gen.Person(11, "Conv", 11, 11, sex="Male", age=30 * Y, alive=True, first_seen=S1, converted=True,
+                           factions=[(S1, "Heathen"), (S4, "Believer")]),
+        }
+        v = self.build(extra)
+        everyone = set(range(1, 8))
+        gen._generations(v, {S1: everyone | {11}, S2: everyone | {11}, S3: everyone | {8, 11},
+                             S4: everyone | {8, 10, 11}})
+        self.assertEqual(v.people[10].generation, 3)
+        self.assertEqual(v.people[11].generation, 3)
+        # The Heathen He made generation IV (a hand-made record): the convert still goes by the believers.
+        v.people[6].father = 10
+        gen._generations(v, {S1: everyone | {11}, S2: everyone | {11}, S3: everyone | {8, 11},
+                             S4: everyone | {8, 10, 11}})
+        self.assertEqual(v.people[6].generation, 4)
+        self.assertEqual(v.people[11].generation, 3)
+
+    def test_fallbacks_when_no_snapshot_shows_the_conversion(self) -> None:
+        # A former Heathen's title only, no Heathen snapshot: the snapshot they first appear in decides...
+        late = gen.Person(10, "Late", 10, 10, sex="Male", age=30 * Y, alive=True, first_seen=S4,
+                          statuses=["Heathen", "Converted Red Mask Heathen"], factions=[(S4, "Believer")])
+        # ...and one listed a believer from the first snapshot (converted before the logs began) is generation II.
+        early = gen.Person(11, "Early", 11, 11, sex="Male", age=30 * Y, alive=True, first_seen=S1,
+                           statuses=["Heathen", "Former Heathen"], factions=[(S1, "Believer")])
+        v = self.build({10: late, 11: early})
+        everyone = set(range(1, 8))
+        gen._generations(v, {S1: everyone | {11}, S2: everyone | {11}, S3: everyone | {8, 11},
+                             S4: everyone | {8, 10, 11}})
+        self.assertIsNone(gen.conversion_snapshot(late))
+        self.assertEqual(late.generation, 2)                 # Ki's generation, newest in S4
+        self.assertEqual(early.generation, 2)
+        self.assertFalse(ft.is_founder(v, early))
+        # No History snapshots at all: generation II.
+        lone = gen.Village(5, 1, "T", {1: gen.Person(1, "Only", 1, 1, sex="Male", alive=True, converted=True)})
+        gen._generations(lone, {})
+        self.assertEqual(lone.people[1].generation, 2)
+
+    def test_a_converted_heathen_with_known_parents_keeps_their_generation(self) -> None:
+        kid = gen.Person(10, "HeKid", 10, 10, sex="Male", age=10 * Y, alive=True, father=6, first_seen=S1,
+                         converted=True, factions=[(S1, "Heathen"), (S4, "Believer")])
+        v = self.build({10: kid})
+        everyone = set(range(1, 8))
+        gen._generations(v, {S1: everyone | {10}, S2: everyone | {10}, S3: everyone | {8, 10},
+                             S4: everyone | {8, 10}})
+        self.assertEqual(kid.generation, 2)
+        self.assertFalse(gen.is_converted_newcomer(kid))
+
+
 class KinshipTests(unittest.TestCase):
     def test_relationships(self) -> None:
         v = village()
