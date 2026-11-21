@@ -339,11 +339,12 @@ class FaithNoticeCompanion(unittest.TestCase):
     def test_with_faith_loss_the_reasons_follow_the_doubled_thresholds(self):
         """A roll of 15 hits food 10..250 only with Faith Loss (< 20; stock < 10); a believers roll of 15 with 4
         believers hits only with Faith Loss (< 16; stock < 8).  The rolls in the drift's order: food, the believers'
-        roll, then (stock) the skip below Faith 5 or (Faith Loss, a food fall to 0) the 3-in-10 roll."""
+        roll, then (stock) the skip below Faith 5 or (Faith Loss, any fall to 0 -- too few believers' included, the
+        owner 2026-11-20) the 1-in-10 roll."""
         for ids, hits in (((), False), ((FAITH_LOSS,), True)):
             with self.subTest(ids=ids):
                 for case, reason in ((dict(food=100, rolls=[15, 99, 0]), HUNGER),
-                                     (dict(food=1000, believers=4, rolls=[15, 99]), BELIEVERS)):
+                                     (dict(food=1000, believers=4, rolls=[15, 0]), BELIEVERS)):
                     v = Village(rendered(ids))
                     after = v.drift(faith=1, **case)
                     if hits:

@@ -351,28 +351,26 @@ class FaithLoss(unittest.TestCase):
         self.assertIsNone(drift(patched, faith=80, **rise), "a rise above 75 is still skipped 70%")
 
     def test_without_its_companion_the_rule_is_1_in_10_each_time(self):
-        """The cave's own rule (the companion decides once a crisis, tests/test_faith_loss_marks.py): a fall that the
-        food or sickness losses take to 0 or less -- the drift's other changes alone leaving Faith above 0 -- is made
-        on rand(10) < 1; otherwise the believer is left at Faith 1.  A fall the other changes make on their own is
-        made as stock."""
+        """The cave's own rule (the companion decides once per cause per crisis, tests/test_faith_loss_marks.py):
+        every fall that takes Faith to 0 or less -- starvation, hunger, sickness or too few believers (the owner,
+        2026-11-20) -- is made on rand(10) < 1; otherwise the believer is left at Faith 1."""
         patched = rendered(5, (FAITH,))
         cases = (
-            ("food under 10", dict(food=5), {0x468056: 0}, 1, 0),
-            ("food 10 to 250", dict(food=100), {0x468076: 0}, 1, 0),
-            ("food under 10, its second roll", dict(food=5), {0x468076: 0}, 1, 0),
-            ("sickness", dict(sick=1), {0x4680B3: 0}, 1, 0),
+            ("food under 10", dict(food=5), {0x468056: 0}, 1),
+            ("food 10 to 250", dict(food=100), {0x468076: 0}, 1),
+            ("food under 10, its second roll", dict(food=5), {0x468076: 0}, 1),
+            ("sickness", dict(sick=1), {0x4680B3: 0}, 1),
+            ("too few believers", dict(believers=3), {0x468171: 0}, 1),
             ("food, sickness and too few believers", dict(food=100, sick=1, believers=3),
-             {0x468076: 0, 0x4680B3: 0, 0x468171: 0}, 3, 1),
+             {0x468076: 0, 0x4680B3: 0, 0x468171: 0}, 3),
         )
-        for name, case, forced, fall, others in cases:
+        for name, case, forced, fall in cases:
             for faith in (1, 2, 3, 4):
                 for k in range(10):
                     with self.subTest(name, faith=faith, roll=k):
                         got = drift(patched, faith=faith, forced={**forced, STAY_ROLL: k}, **case)
                         if faith - fall > 0:
                             self.assertEqual(got, -fall, "a fall that leaves Faith above 0 is not decided")
-                        elif faith - others <= 0:
-                            self.assertEqual(got, -fall, "too few believers alone takes the last Faith: as stock")
                         elif k < 1:
                             self.assertEqual(got, -fall, "1 in 10 the believer becomes a Heathen")
                         else:
@@ -380,11 +378,12 @@ class FaithLoss(unittest.TestCase):
         exact = sum(1 for v in range(32768) if v % 10 < 1)
         self.assertEqual(exact, 3277, "rand(10) < 1 comes 3,277 times in 32,768 (10.00%)")
 
-    def test_too_few_believers_alone_and_every_rise_are_unchanged(self):
+    def test_too_few_believers_is_decided_too_and_every_rise_is_unchanged(self):
         stock, patched = rendered(5, ()), rendered(5, (FAITH,))
         for faith in (1, 2, 30):
             for k in range(10):
-                self.assertEqual(drift(patched, faith=faith, believers=5, forced={0x468171: 0, STAY_ROLL: k}), -1)
+                want = -1 if faith > 1 or k < 1 else 0
+                self.assertEqual(drift(patched, faith=faith, believers=5, forced={0x468171: 0, STAY_ROLL: k}), want)
         self.assertEqual(drift(stock, faith=50, food=9000, forced={0x468096: 0}), 1)
         self.assertEqual(drift(patched, faith=50, food=9000, forced={0x468096: 0}), 1)
         self.assertEqual(drift(patched, faith=50, food=5, forced={0x468056: 0}), -1,

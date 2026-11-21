@@ -102,15 +102,17 @@ def lines(village: gm.Village) -> list[gm.Fact]:
                 f"(believers / 5) in 100 -> (believers / 10) in 100, rounded down (50 believers {_p(10)} -> {_p(5)}).",
                 f"A fall with Faith below 5: skipped {_p(50)} of the time -> never skipped, so a falling believer can "
                 f"reach 0 and become a Heathen; a rise above 75 is still skipped {_p(70)} of the time.",
-                # The roll is rand(10) < 1; the patch's hook at 0x4681DB, its cave 0x494F14.
-                f"Starving and sick believers mostly die rather than leave, decided once per villager per crisis. The "
-                f"first time low food or sickness would take a believer's last Faith (the drift's other changes alone "
-                f"leaving it above 0), 1 time in 10 ({pct(below(10, 1))}) they become a Heathen. Otherwise they are "
-                "marked, and low food and sickness never take them below Faith 1, so they go on eating, starving and "
-                "falling ill like any believer (a Heathen does none of that). The mark clears at the first age unit "
-                "with food above 250 and the villager not sick; a later crisis is decided afresh. Too few believers "
-                "takes Faith as in the normal game. The marks are kept by villager in the patcher's file in the save's "
-                "folder (\"Faith Loss\\Believers Kept - Save <S>.dat\").",
+                # The roll is rand(10) < 1; the patch's hook at 0x4681DB, its cave 0x494F14; the four loss sites
+                # 0x46805E, 0x46807E, 0x4680BB, 0x468184 (scripts/build_apprentice_faith_puddles_features.py).
+                f"Believers in a crisis mostly stay and die rather than leave, decided once per villager for each "
+                f"crisis. There are four: starvation (food under 10), hunger (food 10 to 250), sickness, and too few "
+                f"believers (fewer than 12). The first time one of them would take a believer's last Faith, 1 time in "
+                f"10 ({pct(below(10, 1))}) they become a Heathen. Otherwise they are marked for that crisis, which "
+                "never takes them below Faith 1 again, so they go on eating, starving and falling ill like any "
+                "believer (a Heathen does none of that). Each crisis ends on its own: starvation and hunger when food "
+                "is above 250, sickness when the villager is cured, too few believers at 12 or more believers; a later "
+                "crisis of that kind is decided afresh. The marks are kept by villager in the patcher's file in the "
+                "save's folder (\"Faith Loss\\Believers Kept - Save <S>.dat\").",
                 "A thriving village (8,000 food or more, Spirituality, the Tribute Statue, 12 or more believers, "
                 "nobody sick) still rises towards 100: only the chances change, and no loss roll fires there."):
             add(text, sub=True)

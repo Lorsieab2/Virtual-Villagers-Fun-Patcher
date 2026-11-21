@@ -1,9 +1,11 @@
-"""Faith Loss is Doubled/Gains Halved: starving and sick believers are decided once a crisis (New Believers).
+"""Faith Loss is Doubled/Gains Halved: believers in a crisis are decided once per cause per crisis (New Believers).
 
 The owner (2026-11-08): "villagers should preferentially die if their faith decrease-turn heathen is due to starvation
 or disease", then: decided once per villager, not on every roll (a roll each age unit would still convert nearly
-everyone over a long famine), and "1 in 10 become Heathens and 9 in 10 are marked to stay believers until fed (food
-above 250) and healthy".
+everyone over a long famine), 1 in 10 become Heathens.  The owner (2026-11-20, after a village of 5 to 7 believers
+lost five to the Heathens and none to death): once per villager PER CAUSE per crisis -- starvation (food under 10),
+hunger (food 10 to 250), sickness, and too few believers (fewer than 12) now too -- each crisis ending on its own
+(food above 250; cured; 12 or more believers).
 
 "VVFP Faith Loss.dll" (the shipped DLL) runs in the emulator beside New Believers' executable rendered with the row,
 with the drift 0x468040's own code: the game routines it asks are stubbed, rand gives a seeded random stream, and
@@ -44,6 +46,7 @@ SAVE_MANAGER, SLOT_FIELD = 0x4DACE0, 0x17D80
 STRIDE, FIRST = 0x2F44, 0x48
 NAME, HEALTH, SICK, PRESENT, HEATHEN, FAITH, LIKES = 0x1B9C, 0x1C40, 0x1C48, 0x1CD4, 0x1CEC, 0x1CF0, 0x1F5C
 AGE, DISLIKES = 0x1B8C, 0x1F68
+STARVATION, HUNGER, SICKNESS, TOO_FEW = 1, 2, 4, 8          # a mark's causes
 
 _renders: dict = {}
 
@@ -126,11 +129,18 @@ class Files:
             return 1, 4
         h["DeleteFileA"] = delete
 
-    def marks(self) -> list[int]:
+    def entries(self) -> list[tuple]:
         (data,) = [v for k, v in self.files.items() if k.endswith("believers kept - save 1.dat")]
         magic, version, game, slot, count = struct.unpack_from("<5I", data)
         self.assertion = (magic, version, game, slot)
-        return [struct.unpack_from("<5I", data, 20 + 20 * i)[0] for i in range(count)]
+        assert len(data) == 20 + 24 * count, len(data)
+        return [struct.unpack_from("<6I", data, 20 + 24 * i) for i in range(count)]
+
+    def marks(self) -> list[int]:
+        return [e[0] for e in self.entries()]
+
+    def causes(self) -> list[int]:
+        return [e[5] for e in self.entries()]
 
 
 class Game:
@@ -247,48 +257,132 @@ class OnceACrisis(unittest.TestCase):
             g.unit()
         self.assertGreater(sum(g.heathen(r) for r in g.records), 30)
 
-    def test_the_mark_clears_when_fed_and_well_and_the_next_crisis_is_decided_afresh(self):
-        g = Game(rendered((FAITH_LOSS,)), Files(), n=1)
+    def test_each_crisis_ends_on_its_own_and_the_next_is_decided_afresh(self):
+        files = Files()
+        g = Game(rendered((FAITH_LOSS,)), files, n=1)
         (rec,) = g.records
         g.p.put32(rec + FAITH, 1)
-        g.forced = [0, 99, 5]                          # the food roll hits, the believers' roll misses, 5: stays
+        g.forced = [0, 99, 5]                          # the hunger roll hits, the believers' roll misses, 5: stays
         g.drift(rec)
         self.assertEqual((g.faith(rec), g.heathen(rec), g.marked()), (1, False, 1))
-        g.forced = [0, 99, 0]                          # marked: no decision, still Faith 1
+        g.forced = [0, 99, 0]                          # marked for hunger: no decision, still Faith 1
         g.drift(rec)
         self.assertEqual((g.faith(rec), g.heathen(rec), g.decisions), (1, False, 1))
-        g.drift(rec, sick=1)                           # sick and starving: still a crisis
-        self.assertEqual(g.marked(), 1)
-        g.food = 251
+        g.forced = [99, 0, 99, 5]                      # hungry and now sick: sickness is decided on its own
         g.drift(rec, sick=1)
-        self.assertEqual(g.marked(), 1, "fed but sick: the crisis goes on")
-        g.forced = [99, 99, 99]
-        g.drift(rec)                                   # fed and well: the mark clears
+        self.assertEqual((g.faith(rec), g.decisions, files.causes()), (1, 2, [HUNGER | SICKNESS]))
+        g.food = 251
+        g.forced = [99, 99]
+        g.drift(rec, sick=1)                           # fed but sick: hunger is over, sickness goes on
+        self.assertEqual((g.marked(), files.causes()), (1, [SICKNESS]))
+        g.forced = [99]
+        g.drift(rec)                                   # cured: the sickness mark clears too
         self.assertEqual(g.marked(), 0)
         g.food = 100
         g.p.put32(rec + FAITH, 1)
-        g.forced = [0, 99, 0]                          # a new crisis: decided afresh, 0: a Heathen
+        g.forced = [0, 99, 0]                          # a new hunger: decided afresh, 0: a Heathen
         g.drift(rec)
-        self.assertEqual(g.decisions, 2)
+        self.assertEqual(g.decisions, 3)
         self.assertTrue(g.heathen(rec))
 
-    def test_sickness_is_a_crisis_too_and_too_few_believers_is_unchanged(self):
-        g = Game(rendered((FAITH_LOSS,)), Files(), n=2)
-        a, b = g.records
+    def test_each_cause_is_decided_once_per_crisis_too_few_believers_included(self):
+        """The owner (2026-11-20): one roll per villager per cause per crisis; too few believers goes through the
+        same once-a-crisis 1 in 10, and ends when the village has 12 or more believers again."""
+        files = Files()
+        g = Game(rendered((FAITH_LOSS,)), files, n=3)
+        a, b, c = g.records
         g.food = 1000
         g.p.put32(a + FAITH, 1)
-        g.forced = [0, 99, 5]                          # the sickness roll hits; stays
+        g.forced = [0, 99, 5]                          # sickness takes the last Faith: decided, stays
         g.drift(a, sick=1)
-        self.assertEqual((g.faith(a), g.heathen(a), g.marked()), (1, False, 1))
+        g.forced = [0, 99, 0]                          # again: held, no roll
+        g.drift(a, sick=1)
+        self.assertEqual((g.faith(a), g.heathen(a), g.decisions), (1, False, 1))
         g.believers = 3
-        g.forced = [0]                                 # too few believers alone takes the last Faith: as stock
-        g.drift(a)
-        self.assertTrue(g.heathen(a), "a marked believer still leaves when too few believers take the Faith")
+        g.forced = [99, 0, 5]                          # too few believers takes the last Faith: its own roll
+        g.drift(a, sick=1)
+        self.assertEqual((g.faith(a), g.decisions, files.causes()), (1, 2, [SICKNESS | TOO_FEW]))
+        g.forced = [99, 0, 0]
+        g.drift(a, sick=1)                             # held, no roll
+        g.food = 5
+        g.forced = [0, 99, 99, 5]                      # starvation: its own roll
+        g.drift(a, sick=1)
+        g.food = 100
+        g.forced = [0, 99, 99, 5]                      # hunger: its own roll
+        g.drift(a, sick=1)
+        self.assertEqual((g.faith(a), g.decisions), (1, 4))
+        self.assertEqual(files.causes(), [STARVATION | HUNGER | SICKNESS | TOO_FEW])
+        g.food = 5
+        g.forced = [0, 0, 0, 0]                        # every cause at once: all held
+        g.drift(a, sick=1)
+        self.assertEqual((g.faith(a), g.heathen(a), g.decisions), (1, False, 4))
+        g.believers = 12
+        g.forced = [0, 0, 99, 0]
+        g.drift(a, sick=1)                             # 12 believers again: that crisis is over
+        self.assertEqual((g.decisions, files.causes()), (4, [STARVATION | HUNGER | SICKNESS]))
+        g.believers = 3
+        g.food = 1000
+        g.forced = [99, 0, 0]                          # a new too-few crisis: decided afresh, 0: a Heathen
+        g.drift(a, sick=1)
+        self.assertEqual(g.decisions, 5)
+        self.assertTrue(g.heathen(a))
+        # Too few believers alone, never decided: 1 in 10 a Heathen, else held.
         g.p.put32(b + FAITH, 1)
-        g.forced = [0]
+        g.forced = [0, 0]
         g.drift(b)
         self.assertTrue(g.heathen(b))
-        self.assertEqual(g.decisions, 1, "no decision for a fall that is not food or sickness")
+        # Two losses in one drift at Faith 2: the hunger loss is made, too few believers takes the last Faith and is
+        # the one decided.
+        g.food = 100
+        g.p.put32(c + FAITH, 2)
+        g.forced = [0, 0, 5]
+        g.drift(c)
+        self.assertEqual((g.faith(c), g.heathen(c), g.decisions), (1, False, 7))
+        self.assertIn(TOO_FEW, files.causes())
+
+    def test_a_small_starving_village_mostly_stays_and_dies(self):
+        """The owner's village (5 to 7 believers, hungry): 120 believers counted as 8 by the game through 300 age
+        units of food 100.  Each is decided at most twice (hunger, too few believers), so about 1 - 0.9^2 = 19%
+        become Heathens; before, a believer held at Faith 1 left on the first too-few roll (8% each age unit here),
+        so nearly every one did."""
+        g = Game(rendered((FAITH_LOSS,)), Files(), n=120, seed=11)
+        g.believers = 8
+        for rec in g.records:
+            g.p.put32(rec + FAITH, 30)
+        for _ in range(300):
+            g.unit()
+        heathens = sum(g.heathen(r) for r in g.records)
+        self.assertLessEqual(g.decisions, 2 * 120)
+        self.assertGreaterEqual(g.decisions, 120)
+        self.assertGreaterEqual(heathens, 8)
+        self.assertLessEqual(heathens, 40, "about 23 of 120 expected")
+        for rec in g.records:
+            if not g.heathen(rec):
+                self.assertGreaterEqual(g.faith(rec), 1)
+
+    def test_a_version_1_file_is_read_as_marked_for_food_and_sickness(self):
+        files = Files()
+        exe = rendered((FAITH_LOSS,))
+        g = Game(exe, files, n=1)
+        rec = g.records[0]
+        g.p.put32(rec + FAITH, 1)
+        g.forced = [0, 99, 5]
+        g.drift(rec)
+        (entry,) = files.entries()
+        key = next(k for k in files.files if k.endswith("believers kept - save 1.dat"))
+        files.files[key] = struct.pack("<5I", 0x314B4656, 1, 5, 1, 1) + struct.pack("<5I", *entry[:5])
+        again = Game(exe, files, n=1)
+        r = again.records[0]
+        again.food = 5
+        again.p.put32(r + FAITH, 1)
+        again.forced = [0, 99, 0]
+        again.drift(r, sick=1)                         # starvation and sickness: held, no roll
+        self.assertEqual((again.heathen(r), again.decisions), (False, 0))
+        again.believers = 3
+        again.forced = [99, 99, 99, 0, 5]              # too few believers was never decided: its own roll
+        again.drift(r, sick=1)
+        self.assertEqual((again.decisions, files.causes()), (1, [STARVATION | HUNGER | SICKNESS | TOO_FEW]))
+        self.assertEqual(files.assertion[1], 2, "written as version 2")
 
     def test_the_marks_survive_a_reload_and_keep_only_living_believers(self):
         files = Files()
@@ -300,7 +394,8 @@ class OnceACrisis(unittest.TestCase):
             g.drift(rec)
         self.assertEqual(g.marked(), 3)
         self.assertEqual(len(files.marks()), 3)
-        self.assertEqual(files.assertion, (0x314B4656, 1, 5, 1))
+        self.assertEqual(files.assertion, (0x314B4656, 2, 5, 1))
+        self.assertEqual(files.causes(), [HUNGER] * 3)
         again = Game(exe, files, n=3)                  # the game quit and loaded again: the same village
         for rec in again.records:
             again.p.put32(rec + FAITH, 1)
