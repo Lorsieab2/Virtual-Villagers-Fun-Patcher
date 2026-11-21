@@ -2132,7 +2132,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "8C042BAFC72F3A898EDACBFD194FDA7BA7925779B13351E44BF2691F6887AF64"
+          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
         },
         {
           "source": "assets/herb_study/VVFP Herb Study.dll",
@@ -2923,7 +2923,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "8C042BAFC72F3A898EDACBFD194FDA7BA7925779B13351E44BF2691F6887AF64"
+          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
         },
         {
           "source": "assets/herb_study/VVFP Herb Study.dll",
@@ -3092,7 +3092,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "8C042BAFC72F3A898EDACBFD194FDA7BA7925779B13351E44BF2691F6887AF64"
+          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
         }
       ],
       "runtime_detours": [
@@ -3568,7 +3568,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "8C042BAFC72F3A898EDACBFD194FDA7BA7925779B13351E44BF2691F6887AF64"
+          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
         },
         {
           "source": "assets/vv4_frogs/VVFP VV4 Frogs.dll",
@@ -6214,7 +6214,7 @@
         {
           "source": "assets/text_fixes/VVFP Text Fixes.dll",
           "destination": "VVFP Text Fixes.dll",
-          "sha256": "8C042BAFC72F3A898EDACBFD194FDA7BA7925779B13351E44BF2691F6887AF64"
+          "sha256": "2C85FCD0B5571E4B9C15F29A159FE395840841F29ABA37623AF2004ECAEF7943"
         }
       ],
       "runtime_detours": [

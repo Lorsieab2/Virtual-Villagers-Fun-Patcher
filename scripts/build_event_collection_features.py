@@ -346,13 +346,16 @@ def apply_solidarity_tags(ident: str, g: dict) -> str:
         raise SystemExit(f"{SOLIDARITY_TAGS.relative_to(ROOT)}: {ident}: kind is cooperative or repair")
     return kind
 
-def compile_events(src: Path = DATA) -> list[dict]:
-    """Every event under `src`: {id, title, games, weight, series, credit, lines, cieg}.  A problem fails the build."""
+def compile_events(src: Path = DATA, only: set[str] | None = None) -> list[dict]:
+    """Every event under `src`: {id, title, games, weight, series, credit, lines, cieg}.  A problem fails the build.
+    `only`: just those collection ids (the tests)."""
     pools = shared_pools(src)
     out, seen = [], {}
     for path in event_files(src):
         data = json.loads(path.read_text(encoding="utf-8"))
         if data.get("format") != "vvfp-cie-graph" or not isinstance(data.get("collection"), dict):
+            continue
+        if only is not None and str(data["collection"].get("id", "")) not in only:
             continue
         g, problems = cie.validate(graph_for_engine(data), scrolling=True, shared_pools=pools)   # the rows require Scrolling Popups
         if problems:

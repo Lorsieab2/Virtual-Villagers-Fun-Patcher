@@ -486,6 +486,85 @@ class TheCompanion(unittest.TestCase):
                         self.assertEqual((shown, at), (field, villager + FIELD))   # the field itself, as stock
                     self.assertEqual(self.cstring(p, villager + FIELD), field)     # the field is only read
 
+    # -- The Tree of Life: the Action line drawn whole (R6 live, 2026-11-21) -----------------------------------------
+    def action_label(self, p, text: bytes, *, spacing: int = 0, x: int = 0x12E) -> tuple[int, int, int]:
+        """A label as the game makes it (0x40D8A0: the label class's vtable, its text control at +0x10, shown), its
+        control left-aligned at `x` with the label's text and a font whose letter spacing is `spacing`; returns
+        (label, control, the spacing's address)."""
+        label, ctl, font, impl, buf = p.alloc(0x40), p.alloc(0x60), p.alloc(0x10), p.alloc(0x40), p.alloc(256)
+        p.put32(label, 0x48A96C)
+        p.write(label + 8, b"\x01")
+        p.put32(label + 0x10, ctl)
+        p.write(buf, text + b"\0")
+        p.put32(ctl + 8, x)
+        p.put32(ctl + 0x30, buf)
+        p.put32(ctl + 0x3C, font)
+        p.put32(font + 4, impl)
+        p.put32(impl + 8, spacing & 0xFFFFFFFF)
+        return label, ctl, impl + 8
+
+    def drawn_spacing(self, p, label: int, spacing_at: int, width: int) -> tuple[int, int]:
+        """Calls the label's draw through its vtable (slot 6, as the panel's child loop 0x40C2A0 does) with the
+        game's width routine answering `width`; returns (the spacing the stock draw saw, the spacing after)."""
+        seen = []
+
+        def width_routine(proc):
+            return width, 8                                   # thiscall (font; text, scale): ret 8
+
+        def stock_draw(proc):
+            seen.append(struct.unpack("<i", proc.read(spacing_at, 4))[0])
+            return 0, 0
+
+        p.stubs[0x402430] = width_routine
+        p.stubs[0x40D3A0] = stock_draw
+        draw = p.u32(p.u32(label) + 4 * 6)
+        p.call(draw, [], ecx=label)
+        return seen[0], struct.unpack("<i", p.read(spacing_at, 4))[0]
+
+    def test_the_action_label_draws_a_caption_too_wide_for_the_bar_a_pixel_closer(self) -> None:
+        new = CAPTION["new"].encode()
+        p = self.process(4)
+        label, _ctl, spacing_at = self.action_label(p, new)
+        villager = p.alloc(0x2000)
+        p.write(villager + FIELD, CAPTION["mark"].encode() + b"\0")
+        panel = p.alloc(0x200)
+        p.put32(panel + 0xE4, label)
+        esp = p.alloc(0x400) + 0x200
+        p.put32(esp + 0x10, villager)
+        p.set_reg("esp", esp)
+        p.set_reg("ebp", panel)
+        p.run(*SHOWN_RUN)
+        self.assertEqual(p.reg("ecx"), label)
+        self.assertNotEqual(p.u32(label), 0x48A96C)               # the Action label has its own vtable...
+        vt = p.u32(label)
+        stock_vt = [p.u32(0x48A968 + 4 * i) for i in range(9)]
+        self.assertEqual([p.u32(vt - 4 + 4 * i) for i in range(9) if i != 7], stock_vt[:7] + stock_vt[8:])
+        self.assertNotEqual(p.u32(vt + 4 * 6), 0x40D3A0)          # ...whose draw is the companion's
+        # the owner's caption (368 pixels in Arial Bold) where the bar shows 646 - 302 = 344: a pixel closer, put back
+        self.assertEqual(self.drawn_spacing(p, label, spacing_at, 368), (-1, 0))
+        # a caption that fits is drawn as the game draws it
+        self.assertEqual(self.drawn_spacing(p, label, spacing_at, 344), (0, 0))
+        self.assertEqual(self.drawn_spacing(p, label, spacing_at, 200), (0, 0))
+        # far too wide (a long translation): at most two pixels closer
+        self.assertEqual(self.drawn_spacing(p, label, spacing_at, 344 + 42 * 5), (-2, 0))
+        # another label of the panel keeps the label class's vtable
+        other, _c, _s = self.action_label(p, b"Master Scientist")
+        self.assertEqual(p.u32(other), 0x48A96C)
+
+    def test_without_the_companion_the_action_label_is_the_games(self) -> None:
+        p = self.process(4, install=False)
+        label, _ctl, _s = self.action_label(p, CAPTION["new"].encode())
+        villager = p.alloc(0x2000)
+        p.write(villager + FIELD, b"Sleeping\0")
+        panel = p.alloc(0x200)
+        p.put32(panel + 0xE4, label)
+        esp = p.alloc(0x400) + 0x200
+        p.put32(esp + 0x10, villager)
+        p.set_reg("esp", esp)
+        p.set_reg("ebp", panel)
+        p.run(*SHOWN_RUN)
+        self.assertEqual(p.u32(label), 0x48A96C)
+
     # -- New Believers: the lab equipment line ------------------------------------------------------------------
     def lab_line(self, p, count: int) -> bytes:
         """Runs the ground click's own format step (0x443BAB: push the count / the buffer / the pushed format /
@@ -544,7 +623,8 @@ class TheCompanion(unittest.TestCase):
             p = self.process(game)
             self.assertEqual(p.export("VvfpTextFixesCaptionInstalled"), 0)
         for at in (0x451CE6, 0x451CEA, CAPTION_SITE, CAPTION_SITE + 8, 0x451CFF, 0x451D03,
-                   SHOWN_SITE - 10, SHOWN_SITE - 1, SHOWN_SITE, SHOWN_SITE + 6, SHOWN_SITE + 7, SHOWN_SITE + 11):
+                   SHOWN_SITE - 10, SHOWN_SITE - 1, SHOWN_SITE, SHOWN_SITE + 6, SHOWN_SITE + 7, SHOWN_SITE + 11,
+                   0x48A968, 0x48A984, 0x48A98B):                   # the label class's vtable (the Action label's)
             with self.subTest(at=hex(at)):
                 data = bytearray(STOCK[4].read_bytes())
                 pe = pefile.PE(data=bytes(data), fast_load=True)

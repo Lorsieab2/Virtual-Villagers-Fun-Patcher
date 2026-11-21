@@ -163,7 +163,7 @@ static void ts_compose(const adv_game *g) {
     p[0] = ts_one(0, TS_INTRO_1, 0);
     p[1] = ts_one(1, TS_INTRO_2, 0);
     p[2] = NULL;
-    adv_popup(g, &ts.intro, p);
+    adv_popup_noted(g, &ts.intro, MIE_NOTE_TROUBLING, p);
     for (k = 0; k < TS_GROUPS; ++k) {
         ts.speaker = k;                                   /* the asked group's own advisor */
         p[0] = ts_one(0, ADVICE[k], 0);

@@ -127,8 +127,11 @@ static void dv_popup(const adv_game *g, adv_pages *pages, int a, int b, int numb
    ending in a popup of its own; the sinking's outcome in another. */
 static void dv_compose(const adv_game *g) {
     static const int FINDS[4] = { DV_FIND_A, DV_FIND_B, DV_FIND_C, DV_FIND_D };
+    const char *intro[2];
     int e;
-    dv_popup(g, &dv.intro, DV_INTRO, -1, 0);
+    intro[0] = dv_one(0, DV_INTRO, 0);
+    intro[1] = NULL;
+    adv_popup_noted(g, &dv.intro, MIE_NOTE_DIVING, intro);       /* the question, its content note first */
     for (e = DV_E_A; e <= DV_E_C; ++e) {
         dv_popup(g, &dv.endings[e], DV_DEEPER, FINDS[e], e == DV_E_A ? dv.tech_award : dv.food_award);
     }

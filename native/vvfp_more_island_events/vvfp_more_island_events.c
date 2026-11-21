@@ -20,6 +20,7 @@
 #include <string.h>
 
 #include "../shared/install_sites.h"
+#include "../shared/patcher_files.h"     /* the installed patches' list (Content Notes, adv_core.inc) */
 #include "../shared/vvfp_translate.h"
 #include "../shared/vv3_villager_table.h"
 #include "../shared/vv4_villager_table.h"
