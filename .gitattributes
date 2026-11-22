@@ -165,6 +165,14 @@ docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collecti
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Pondering[[:space:]]How[[:space:]]Life[[:space:]]Has[[:space:]]Gone[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Tree[[:space:]]of[[:space:]]Life[[:space:]]Supplies[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Living[[:space:]]Culture[[:space:]]*[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+# Island Traders and Village Moments (data/event_collection/DRAFT_TRD.sha256, DRAFT_VFX.sha256): committed with LF
+# but missing this rule, so a Windows CI checkout (core.autocrlf=true) wrote CRLF and the build refused the source.
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Island[[:space:]]Traders[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+/docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Village[[:space:]]Moments[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
+# Rewrites and Balance (data/event_collection/REWRITES.sha256, BALANCE.sha256): committed with CRLF, so they already
+# check out unchanged; the rule keeps them that way whatever the clone's settings.
+/docs/more-island-events/Isola[[:space:]]Rewritten[[:space:]]Events[[:space:]]S001-MY115.txt -text
+/docs/more-island-events/Isola[[:space:]]Balance[[:space:]]Events[[:space:]]B001-B360.txt -text
 # The owner-approved files, group D (frozen byte for byte; scripts/drafts_d/)
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Role[[:space:]]Models[[:space:]]RM-41[[:space:]]to[[:space:]]RM-90[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
 /docs/more-island-events/New[[:space:]]Events[[:space:]]-[[:space:]]Beyond[[:space:]]the[[:space:]]Horizon[[:space:]]081[[:space:]]to[[:space:]]130[[:space:]](draft[[:space:]]for[[:space:]]owner).txt -text
