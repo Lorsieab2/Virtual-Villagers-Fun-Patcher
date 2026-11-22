@@ -1067,6 +1067,16 @@ NOT_A_BUILDER = {"vv1": 2, "vv2": 2, "vv3": 1, "vv4": 1, "vv5": 1}
 BUILDING_PICK = {"vv1": dict(preferred_pick=4), "vv2": dict(preferred_pick=5), "vv3": {}, "vv4": {}, "vv5": {}}
 
 
+def sewing_pick(m: Machine, pick: int) -> None:
+    """Holds Work First's own random pick (VvfpWorkFirstStats.pick; -1 the
+    real one) -- in The Lost Children's Building case, 4 of 5 examines the
+    finished sewing hut (item 30).  Its generator seeds from the time stamp,
+    so a test that reaches that case with the decision's roll passed must
+    hold it."""
+    if "work_first" in m.exports:
+        m.mu.mem_write(m.exports["work_first"]["VvfpWorkFirstStats"] + 12, struct.pack("<i", pick))
+
+
 def _not_a_builder(game: str) -> dict:
     """The "idle hut fix" scenario for a villager NOT checked on Building to
     whom the game gives Building anyway (the chooser's own skill pick)."""
@@ -1096,10 +1106,25 @@ class NotCheckedOnBuildingTests(unittest.TestCase):
             with self.subTest(game=game, roll="fails"):
                 m = WORLD[game](rows=ROWS[game], force=FORCE_PASS, **kw)
                 m.preference_force(FORCE_FAIL)
+                sewing_pick(m, 0)
                 m.decide()
                 self.assertEqual(effects(m), effects(stock), "a failed 14% roll is the stock decision")
                 self.assertEqual(OUTCOME[game](m), OUTCOME[game](stock))
                 self.assertNotEqual(OUTCOME[game](m), expected)
+
+    def test_the_14_percent_roll_leaves_the_sewing_hut_examine_alone(self):
+        # The Lost Children: when fix-huts stands aside (the 14% roll failed)
+        # the game's own Building case runs, and Work First's item 30 may
+        # examine the finished sewing hut instead of the rand(4) hut -- on the
+        # decision's roll and its own one-in-five pick.  That is not a
+        # Building Fix Huts action and not on the owner's 14% list: the game
+        # already chose Building and an examine; only the hut differs.
+        kw = _not_a_builder("vv2")
+        m = lost_children(rows=ROWS["vv2"], force=FORCE_PASS, **kw)
+        m.preference_force(FORCE_FAIL)
+        sewing_pick(m, 4)
+        m.decide()
+        self.assertEqual(v2_outcome(m), [("examine", 7)])
 
     def test_a_builder_never_meets_the_14_percent_roll(self):
         for game in GAMES:
