@@ -52,7 +52,7 @@ def description() -> str:
         "game's way, when their Faith rises above 0. **Only the Fog of Doom God Power counts: natural fog, a "
         "Tempest and every other weather do nothing.** Blue-masked Heathens are unchanged (they already listen in "
         "the normal game). The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. **Works the same with every other patch and in every "
-        "population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). "
+        "population mode.** **Seen working in a running game** (the owner's hand test, v1.35.97). "
         "The companion is \"VVFP Fog Listening.dll\"; it never writes a save, only one small file in the save's "
         "own patcher folder that marks the message as shown."
     )
@@ -143,8 +143,8 @@ def free_description() -> str:
         f"**Needs \"{NAME}\": ticking this patch ticks it too, and unticking that one unticks this one.** "
         + FREE_OWNER_TEXT + " (\"Yellow\" is the game's orange mask.) Natural fog and every other weather still do "
         "nothing; the listening, the Faith it gives and the conversion are the normal game's, as for a blue-masked "
-        "Heathen. The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. **Off by default; on in Owner's Defaults; off in Select All.** **Not yet seen in a running game** (checked by emulation of the stock "
-        f"executable). The patch adds one small file, \"{FREE_FLAG}\", to the patcher's folder, which tells "
+        "Heathen. The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way. **Off by default; on in Owner's Defaults; off in Select All.** **Seen working in a running game** (the owner's "
+        f"hand test, v1.35.97). The patch adds one small file, \"{FREE_FLAG}\", to the patcher's folder, which tells "
         f"\"{DLL_NAME}\" to leave out the Faith limit."
     )
 
