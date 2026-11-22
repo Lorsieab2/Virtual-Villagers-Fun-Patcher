@@ -493,6 +493,23 @@ class WindowsProcessesTests(unittest.TestCase):
             processes.suspend(4, "System")  # the System process: access denied
 
 
+class BackupOrderTests(unittest.TestCase):
+    """Codex review on #769: a backup's order is the " N" after the date and time, never the HHMM."""
+
+    def test_two_backups_in_one_minute_keep_their_order(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            backups = Path(tmp) / backup.BACKUPS_FOLDER
+            when = datetime(2026, 11, 22, 13, 5, 7)
+            first, n1 = backup.new_short_folder(backups, when)
+            second, n2 = backup.new_short_folder(backups, when)
+            self.assertEqual((first.name, n1, second.name, n2), ("2026-11-22 1305", 1, "2026-11-22 1305 2", 2))
+            backup._finish_backup(first, when, "")
+            backup._finish_backup(second, when, "")
+            index = backup.backups_index(backups)
+            self.assertEqual(index[first.name.casefold()][2], 1)
+            self.assertEqual(index[second.name.casefold()][2], 2)
+
+
 class SaveFolderScannersIgnoreBackupsTests(unittest.TestCase):
     """Nothing else in the patcher may read, migrate or delete a backup.
 

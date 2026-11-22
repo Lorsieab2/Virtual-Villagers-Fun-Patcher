@@ -408,7 +408,9 @@ def _new_backup_folder(save_folder: Path, now: datetime, suffix: str = "") -> Pa
 def _finish_backup(staging: Path, now: datetime, suffix: str) -> Path:
     """A verified backup becomes one: its line in the Backups index (its order: the number its name ends
     in, 1 when none)."""
-    found = re.search(r" (\d+)$", staging.name)
+    # Only the " N" short_backup_name adds after the date and time: the bare "YYYY-MM-DD HHMM" is order 1,
+    # never its HHMM (Codex review on #769: "2026-11-22 1305" was read as order 1305).
+    found = re.fullmatch(r"\d{4}-\d{2}-\d{2} \d{4} (\d+)", staging.name)
     label = suffix.strip()
     if label and not label.startswith("("):
         label = f"({label})"
