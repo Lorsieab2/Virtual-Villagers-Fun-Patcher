@@ -527,7 +527,7 @@ class RegistrationTests(unittest.TestCase):
         howto = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
         doc = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        self.assertIn("2-10X TECH COST (ALL FIVE GAMES)", howto)
+        self.assertIn("0.1-10X TECH COST (ALL FIVE GAMES)", howto)
         for game in GAMES:
             with self.subTest(game=game):
                 row = public[IDS[game]]

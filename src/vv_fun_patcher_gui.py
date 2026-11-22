@@ -432,7 +432,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     + ["vv5_heathens_keep_masks_when_converted"]
     # Fog of Doom Lets Red and Orange Heathens Listen (New Believers; the owner, 2026-11-19): a new option, so "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.  Its modifier No Restrictions on Fog of Doom
-    # Conversions is off by default, in Owner's Defaults and in Select All.
+    # Conversions is off by default and in Select All, on in Owner's Defaults (the owner, 2026-11-20).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
@@ -512,8 +512,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     + ONE_TIME_COLLECTIBLES_IDS
     # Village Solidarity: on in Owner's Defaults only (the owner, 2026-11-17).
     + ["vv%d_village_solidarity" % game for game in range(1, 6)]
-    # Fog of Doom Lets Red and Orange Heathens Listen: on in Owner's Defaults only; No Restrictions on Fog of Doom Conversions
-    # off everywhere (the owner, 2026-11-19).
+    # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions: on in Owner's
+    # Defaults only (the owner, 2026-11-19 and 2026-11-20).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)

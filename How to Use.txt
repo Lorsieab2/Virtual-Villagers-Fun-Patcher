@@ -537,38 +537,42 @@ those clouds move away from the mouse as they do in The Tree of Life and New
 Believers. While Disable Clouds is ticked the clouds are hidden, so the push
 cannot be seen: untick Disable Clouds to see it.
 
-2-10X TECH COST (ALL FIVE GAMES)
+0.1-10X TECH COST (ALL FIVE GAMES)
 
-Off by default. With 2-10x Tech Cost, every technology level on the Tech
-screen costs 2 to 10 times its normal price in tech points: you choose how
-many times with the 2-10x Tech Cost slider beside the patch settings (a whole
-number, 3 unless you move it), and it is written into the game when you
+Off by default. With 0.1-10x Tech Cost, every technology level on the Tech
+screen costs 0.1 to 10 times its normal price in tech points: you choose how
+many times with the 0.1-10x Tech Cost slider (in steps of 0.1, 3 unless you
+move it; 1 is the normal price), and it is written into the game when you
 patch. At 3, in A New Home, Farming level 2 costs 18,000 instead of 6,000; at
-10, Medicine level 3 costs 2,500,000 instead of 250,000. The Tech screen
+10, Medicine level 3 costs 2,500,000 instead of 250,000; below 1 technologies
+are cheaper, each price a whole tech point and never below 1. The Tech screen
 shows the multiplied price, a level cannot be bought with fewer tech points
 (nothing is spent), and buying takes the multiplied price. In The Secret City
 choosing a faction (Nature or Magic) costs that many times too. Research,
 tech points from anywhere else, other tech-point costs (such as clothes) and
 the patcher's own upgrades are unchanged. The higher you set it, the harder
-the game. Default Patches and Select All never tick it; Owner's Defaults ticks
-it in all five games and sets the slider to 2. Patch again after moving the
-slider.
+the game; the lower, the easier. Default Patches and Select All never tick
+it; Owner's Defaults ticks it in all five games and sets the slider to 2.
+Patch again after moving the slider.
 
-2-10X SICKNESS (ALL FIVE GAMES)
+0.1-10X SICKNESS (ALL FIVE GAMES)
 
-Off by default. Villagers fall sick 2 to 10 times as often: you choose how
-many times with the 2-10x Sickness slider beside the patch settings (2 unless
-you move it). Every Medicine level and difficulty keeps its own chance,
-multiplied, and so does Sickness works like VV1-3. Healers, the fire, Easy's
-cures and events work as before. Patch again after moving the slider.
+Off by default. Villagers fall sick 0.1 to 10 times as often: you choose how
+many times with the 0.1-10x Sickness slider (in steps of 0.1, 2 unless you
+move it; 1 is the normal game, above 1 harder, below 1 easier). Every
+Medicine level and difficulty keeps its own chance, multiplied, and so does
+Sickness works like VV1-3. Healers, the fire, Easy's cures and events work as
+before. Patch again after moving the slider.
 
-HUNGRIER VILLAGERS (2-10X MEALS) (ALL FIVE GAMES)
+HUNGRIER VILLAGERS (0.1-10X MEALS) (ALL FIVE GAMES)
 
-Off by default. Every villager's meal takes 2 to 10 times the normal food: you
-choose how many times with the Hungrier Villagers slider beside the patch
-settings (a whole number, 2 unless you move it), and it is written into the
-game when you patch. Normally a meal takes 2 food, and on Normal or Hard
-difficulty often 2 more; both are multiplied. Food never goes below 0: when it
+Off by default. Every villager's meal takes 0.1 to 10 times the normal food:
+you choose how many times with the Hungrier Villagers slider (in steps of 0.1,
+2 unless you move it; 1 is the normal game, above 1 harder, below 1 easier),
+and it is written into the game when you patch. Normally a meal takes 2 food,
+and on Normal or Hard difficulty often 2 more; both are multiplied. A meal is
+whole food, so a number like 0.3 takes 2 x that on average. Food never goes
+below 0: when it
 runs out, the game's own starvation rules take over. Skipped meals when food is
 low, the snack at the food bin, events and everything that brings food in are
 unchanged. Patch again after moving the slider.
@@ -577,14 +581,16 @@ CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
 
 Off by default; its title is drawn in red. Ticking it ticks the harder-game
 patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
-Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
+Villagers, 0.1-10x Tech Cost and Science Collectibles Only Count When Complete,
 plus Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like
 VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
 Life (with Yellow Fruit Trees are No Longer Unlimited there), Faith
 Loss is Doubled/Gains Halved in New Believers, and Sickness works
 like VV1-3 in both (villagers fall sick as in The Secret City: more often
-while the fire is out and on Hard). Unticking any of them unticks Classic VV
-Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
+while the fire is out and on Hard), with Difficulty Settings, Island Events
+Scale With Population (like The Lost Children), More Island Events, the Isola
+Grand Event Collection and Scrolling Popups. Unticking any of them unticks
+Classic VV Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
 
 RESPECTING THE LEGACY OF ISOLA (NEW BELIEVERS)
 
