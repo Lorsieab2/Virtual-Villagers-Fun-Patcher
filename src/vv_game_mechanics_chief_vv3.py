@@ -42,7 +42,7 @@ THE PATCHER'S PATCHES (scripts/ and data/ of this repository).
   * vv3_learning_never_fails: every work skill test passes, so more payoffs ask the roll; the roll is unchanged.
   * vv3_builders_and_healers_work_first: builders pick building work about 3 times in 4; the chief is untouched.
   * vv3_population_256: the chief search (0x45EF30, 0x45FC10) covers 256 records.
-  * vv3_sickness_multiplier: sickness comes more often; a sick chief gives no bonus.
+  * vv3_sickness_multiplier: sickness comes more or less often; a sick chief gives no bonus.
   None of the others touches the chief's site, the roll or the bonus.  The Secret City has no Food Mastery and no
   Food Gains are Flat patch (its fruit, honey and fish pay fixed amounts by speed).
 """
@@ -214,10 +214,10 @@ def facts(village: gm.Village, leadership: int, science: int, solved) -> list[gm
                        "itself is not changed"), gm.CODE, True)
     add(_patch(village, "vv3_population_256", "the game finds the chief among all 256 villagers"), gm.CODE,
         True)
-    add(_patch(village, "vv3_sickness_multiplier", "sickness comes more often, and a sick chief adds "
+    add(_patch(village, "vv3_sickness_multiplier", "sickness comes more or less often, and a sick chief adds "
                        "nothing until cured"), gm.CODE, True)
     add("No other patch changes the chief's site, the roll or the bonus. The Secret City has no Food Mastery and no "
         "\"Food Gains are Flat\" patch: its fruit, honey and fish pay fixed amounts by speed, and the chief's bonus "
-        "is worked out from those. Hungrier Villagers changes only the eating, and 2-10x Tech Cost only the prices.",
+        "is worked out from those. Hungrier Villagers changes only the eating, and 0.1-10x Tech Cost only the prices.",
         gm.CODE, True)
     return out
