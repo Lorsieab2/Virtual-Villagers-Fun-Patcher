@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unopened Letter",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl001_unopened_letter",
+  "source": "companion",
+  "lines": [
+   3793,
+   3807
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3797",
+  "ledger": [
+   {
+    "src": "L3794",
+    "kind": "structural",
+    "why": "the group heading 'FAMILY SECRETS & RELATIONSHIPS'"
+   },
+   {
+    "src": "L3798",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L3806",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L3807",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "An elder finds a sealed letter written by a deceased partner.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An elder finds a sealed letter written by a deceased partner.",
+   "src": "L3799",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L3800"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L3801"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L3802"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The letter reveals a forgotten act of kindness.",
+   "src": "L3803"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "It contains an apology that comes decades too late.",
+   "src": "L3804"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The elder chooses not to read it and passes it to a descendant.",
+   "src": "L3805"
+  }
+ }
+}

@@ -1,0 +1,293 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's New Companion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam09_elder",
+  "source": "anthology",
+  "lines": [
+   28420,
+   28433
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28420",
+  "ledger": [
+   {
+    "src": "L28421",
+    "kind": "sensitivity",
+    "before": "Two elders enjoy",
+    "after": "(elder1) and (elder2), two elders, enjoy",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28424",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28432",
+    "kind": "sensitivity",
+    "before": "A younger relative",
+    "after": "(relative), a younger relative,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two elders enjoy each other's company, but their adult relatives keep interfering.",
+  "label_case": "title",
+  "cast_only": [
+   "elder1",
+   "elder2",
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder1": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder2": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder1) and (elder2), two elders, enjoy each other's company, but their adult relatives keep interfering.",
+   "src": "L28421",
+   "choices": [
+    {
+     "label": "Ask Relatives for Privacy",
+     "next": "a",
+     "src": "L28422"
+    },
+    {
+     "label": "Invite the Relatives to Get Acquainted",
+     "next": "b",
+     "src": "L28425"
+    },
+    {
+     "label": "Keep the Relationship Quiet for Now",
+     "next": "c",
+     "src": "L28428"
+    },
+    {
+     "label": "Explain That Affection Has No Age Limit",
+     "next": "d",
+     "src": "L28431"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The relatives respect the elders' independence.",
+   "src": "L28423"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(relative) needs time to adjust but stops intruding.",
+   "src": "L28424"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The gathering becomes awkward, and the elders leave early.",
+   "src": "L28427"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A misunderstanding grows until they speak openly.",
+   "src": "L28430"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(relative), a younger relative, offers a heartfelt apology.",
+   "src": "L28432"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A warm meal helps everyone relax together.",
+   "src": "L28426",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L28426"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L28426"
+    },
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L28426"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A warm meal helps everyone relax together.",
+   "src": "L28426"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The elders enjoy peaceful afternoons away from gossip.",
+   "src": "L28429",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L28429"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L28429"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The elders enjoy peaceful afternoons away from gossip.",
+   "src": "L28429"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The elders laugh that they never expected to explain romance again.",
+   "src": "L28433",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L28433"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L28433"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "The elders laugh that they never expected to explain romance again.",
+   "src": "L28433"
+  }
+ }
+}

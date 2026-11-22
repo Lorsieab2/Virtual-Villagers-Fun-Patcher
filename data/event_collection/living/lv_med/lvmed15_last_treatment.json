@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Treatment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed15_last_treatment",
+  "source": "living",
+  "lines": [
+   20401,
+   20412
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20401",
+  "ledger": [
+   {
+    "src": "L20412",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A gravely ill adult has endured many procedures and asks whether one more attempt will truly help."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gravely ill adult has endured many procedures and asks whether one more attempt will truly help.",
+   "src": "L20402",
+   "choices": [
+    {
+     "label": "Offer one final experimental intervention.",
+     "next": "a",
+     "src": "L20403"
+    },
+    {
+     "label": "Offer comfort-focused care instead.",
+     "next": "b",
+     "src": "L20406"
+    },
+    {
+     "label": "Ask the patient what they most hope for.",
+     "next": "c",
+     "src": "L20409"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient consents and gains a little more time, though the illness remains.",
+   "src": "L20404"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The attempt fails, and the patient dies after a difficult recovery.",
+   "src": "L20405",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20405"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient lives longer than expected, and the healers continue easing symptoms.",
+   "src": "L20408"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient chooses relief from pain over another operation.",
+   "src": "L20410"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient requests a limited trial with a clear promise to stop if it becomes unbearable.",
+   "src": "L20411"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient spends their remaining days sharing stories and resting.",
+   "src": "L20407",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "patient",
+     "mood": "good",
+     "src": "L20407"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient spends their remaining days sharing stories and resting.",
+   "src": "L20407"
+  }
+ }
+}

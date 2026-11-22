@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Wings Without Touching",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim029_wings_without",
+  "source": "moments500",
+  "lines": [
+   481,
+   495
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L482",
+  "ledger": [
+   {
+    "src": "L481",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L485",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L486",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L489",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L490",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L493",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L494",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L483",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L487",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L491",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L495",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder teaches how to observe delicate wings without touching them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. Someone sketches the colors before forgetting them.",
+   "src": "L483"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. The group stays a little longer, hoping to see another species.",
+   "src": "L487"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. The butterfly is gently released after everyone has looked.",
+   "src": "L491"
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L495",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L495"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, teaches how to observe delicate wings without touching them. (Name1) is amazed by a pattern almost invisible from afar.",
+   "src": "L495"
+  }
+ }
+}

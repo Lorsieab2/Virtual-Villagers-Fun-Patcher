@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Bones in the Bank",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his37_bones_bank",
+  "source": "draft_his",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a scientist or an adult and an elder)"
+   },
+   {
+    "src": "L446",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The rains have uncovered old bones in the stream bank: study them and rebury them, or cover them again now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After the heavy rains, part of the stream bank has washed away, and old bones are showing in the earth: a person, buried a very long time ago, with a necklace of shells and a small stone tool beside them. (subject) wants to study them carefully before anything is moved. (friend) wants them covered again right away, with respect.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Study Them, Then Rebury Them",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Cover Them Again Now",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They agree on a middle way. (subject) looks carefully but doesn't take anything away: the way the person was laid, the shells, the tool. (subject.He/she) draws it all on bark. Then they rebury the person together, a little higher up, safe from the stream. (friend) says a few words. (subject) keeps the drawing, and says it tells them something about the people who were here before.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gives way. (friend) and (subject.he/she) cover the bones again with fresh earth and stones, so the stream can't reach them. (friend) speaks quietly over the grave. (subject) is a little sad about all the things they'll never know. But (subject.he/she) also feels that whoever it was would rather be left in peace than drawn on bark. They walk home without talking.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) gives way. (friend) and (subject.he/she) cover the bones again with fresh earth and stones, so the stream can't reach them. (friend) speaks quietly over the grave. (subject) is a little sad about all the things they'll never know. But (subject.he/she) also feels that whoever it was would rather be left in peace than drawn on bark. They walk home without talking.",
+   "src": "L449"
+  }
+ }
+}

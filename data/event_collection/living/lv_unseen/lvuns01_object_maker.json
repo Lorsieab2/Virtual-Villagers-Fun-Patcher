@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Object with No Maker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns01_object_maker",
+  "source": "living",
+  "lines": [
+   22180,
+   22191
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22180",
+  "ledger": [
+   {
+    "src": "L22191",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A polished fragment washes ashore, bearing markings no villager recognizes.",
+  "cast_only": [
+   "scholar"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scholar": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A polished fragment washes ashore, bearing markings no villager recognizes.",
+   "src": "L22181",
+   "choices": [
+    {
+     "label": "Study it without guessing its origin.",
+     "next": "a",
+     "src": "L22182"
+    },
+    {
+     "label": "Warn the village about distant strangers.",
+     "next": "b",
+     "src": "L22185"
+    },
+    {
+     "label": "Place it in a public collection.",
+     "next": "c",
+     "src": "L22188"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A scholar finds repeating marks but cannot interpret them.",
+   "src": "L22183"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The fragment resists familiar tools, leaving its purpose unknown.",
+   "src": "L22184"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Families prepare supplies, though no stranger appears.",
+   "src": "L22186"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A fearful rumor spreads farther than the evidence warrants.",
+   "src": "L22187"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children imagine marvelous lands beyond the horizon.",
+   "src": "L22189"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder objects that the object may be sacred, and debate continues.",
+   "src": "L22190"
+  }
+ }
+}

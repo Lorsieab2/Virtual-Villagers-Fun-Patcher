@@ -1,0 +1,181 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mangrove and the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife17_mangrove",
+  "source": "living",
+  "lines": [
+   20850,
+   20861
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20850",
+  "ledger": [
+   {
+    "src": "L20861",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Boatbuilders want mangrove wood, while fishers say young fish shelter among its roots.",
+  "cast_only": [
+   "boatbuilder",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "boatbuilder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Boatbuilders want mangrove wood, while fishers say young fish shelter among its roots.",
+   "src": "L20851",
+   "choices": [
+    {
+     "label": "Harvest selected trees and replant.",
+     "next": "a",
+     "src": "L20852"
+    },
+    {
+     "label": "Use fallen wood and other materials.",
+     "next": "b",
+     "src": "L20855"
+    },
+    {
+     "label": "Protect the entire grove.",
+     "next": "c",
+     "src": "L20858"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The boat is finished, and saplings are planted for the future.",
+   "src": "L20853"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The new trees struggle, revealing that replacement takes more than planting.",
+   "src": "L20854"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The canoe takes longer to build, but the mangrove remains intact.",
+   "src": "L20856"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The substitute wood cracks, forcing the builders to adapt.",
+   "src": "L20857"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Fishers celebrate healthier shallows.",
+   "src": "L20859",
+   "text_only": [
+    {
+     "what": "celebrate",
+     "reason": "rule 7: the fishers' own gladness, not a village celebration",
+     "src": "L20859"
+    }
+   ]
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Boatbuilders resent the restriction and propose a village council.",
+   "src": "L20860",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "boatbuilder",
+     "mood": "bad",
+     "src": "L20860"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Boatbuilders resent the restriction and propose a village council.",
+   "src": "L20860"
+  }
+ }
+}

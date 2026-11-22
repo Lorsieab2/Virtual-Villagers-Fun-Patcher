@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Never Cries",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn056_child_never",
+  "source": "companion",
+  "lines": [
+   3180,
+   3186
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3180",
+  "ledger": [
+   {
+    "src": "L3182",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3186",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A caregiver worries that a child never shows sadness.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A caregiver worries that a child never shows sadness.",
+   "src": "L3181",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The child shares feelings through drawing.",
+   "src": "L3183",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3183"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A trusted adult offers quiet companionship.",
+   "src": "L3184",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3184"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The caregiver learns that people express emotions differently.",
+   "src": "L3185",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3185"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

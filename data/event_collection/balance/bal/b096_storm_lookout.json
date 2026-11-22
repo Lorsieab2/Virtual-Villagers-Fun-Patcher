@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Storm at the Lookout",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b096_storm_lookout",
+  "source": "balance",
+  "lines": [
+   4338,
+   4379
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L4338",
+  "ledger": [
+   {
+    "src": "L4339",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4340",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4348",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4357",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4345",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4346",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4349",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4358",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4351",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4354",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4363",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4366-4379",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is on watch at the lookout rock when a sudden squall comes over the ridge, all wind and rain and lightning.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) is on watch at the lookout rock when a sudden squall comes over the ridge, all wind and rain and lightning. The lookout has a little lean-to of palm leaves, and a long flat rock where the watchers lie to see the sea.\nLightning is hitting the ridge, closer each time. (Name) can shelter in the lean-to, or run down the hill to the village through the open grass.\nWhat should (name) do?",
+   "choices": [
+    {
+     "label": "Shelter in the Lean-To",
+     "next": "c1",
+     "src": "L4345"
+    },
+    {
+     "label": "Run for the Village",
+     "next": "c2",
+     "src": "L4346"
+    }
+   ],
+   "src": "L4341-4343"
+  },
+  "c1o1": {
+   "text": "Lightning strikes the lookout rock a body length away. (Name) is thrown against the post of the lean-to and lies there stunned until the squall passes. (He/She) walks down to the village, singed and shaky, and knows everybody and everything, except (his/her) own name, which the flash seems to have burned away. It never comes back. The village calls (him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L4352",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The lean-to holds. The lightning moves on over the sea. (Name) crawls out, soaked and alive, and sees, far out on the water, a canoe that had been caught in the squall, heading safely for the reef. (He/She) waves both arms until they see (him/her), and guides them in by shouting.",
+   "src": "L4355"
+  },
+  "c1": {
+   "text": "(Name) crawls under the palm leaves and curls up small. The rain roars on the leaves. Then the whole world goes white...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4349"
+  },
+  "c2o1": {
+   "text": "(Name) makes it home, drenched and shaking, as the lightning walks across the hill behind (him/her). (He/She) has always loved the rain, standing in it with (his/her) face up. Not anymore. From then on, at the first drop, (he/she) is indoors, and listens to the storms from under (his/her) blanket.",
+   "children": [
+    {
+     "next": "c2o1_c1"
+    }
+   ],
+   "src": "L4361"
+  },
+  "c2o2": {
+   "text": "(Name) makes it home, drenched and laughing with relief, and stands in the doorway watching the lightning walk away over the sea. \"That,\" (he/she) says to anyone who will listen, \"was the best run of my life.\"",
+   "src": "L4364"
+  },
+  "c2": {
+   "text": "(Name) runs down through the long grass, rain in (his/her) eyes, the thunder right on top of (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4358"
+  },
+  "c2o1_gx": {
+   "type": "branch"
+  },
+  "c2o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "rain",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o1_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o1_gx"
+    }
+   ]
+  }
+ }
+}

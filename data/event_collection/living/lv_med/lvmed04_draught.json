@@ -1,0 +1,236 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleeping Draught",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed04_draught",
+  "source": "living",
+  "lines": [
+   20258,
+   20269
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20258",
+  "ledger": [
+   {
+    "src": "L20269",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A healer has made a powerful plant mixture that may dull pain during surgery but could also stop a patient from breathing."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer has made a powerful plant mixture that may dull pain during surgery but could also stop a patient from breathing.",
+   "src": "L20259",
+   "choices": [
+    {
+     "label": "Use a small, uncertain dose with consent.",
+     "next": "a",
+     "src": "L20260"
+    },
+    {
+     "label": "Operate with the safest pain relief already known.",
+     "next": "b",
+     "src": "L20263"
+    },
+    {
+     "label": "Postpone surgery and investigate the mixture.",
+     "next": "c",
+     "src": "L20266"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient sleeps through part of the procedure but wakes frightened and weak.",
+   "src": "L20261",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20261"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient becomes dangerously unresponsive, and the healers abandon the operation.",
+   "src": "L20262",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L20262"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient survives but remembers a difficult ordeal.",
+   "src": "L20264"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient asks the healer to stop before the operation is complete.",
+   "src": "L20265"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healer learns that preparations vary greatly in strength.",
+   "src": "L20267",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20267"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "A safer method of easing pain is found, though it cannot guarantee comfort.",
+   "src": "L20268",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20268"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20268"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "A safer method of easing pain is found, though it cannot guarantee comfort.",
+   "src": "L20268",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20268"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20268"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

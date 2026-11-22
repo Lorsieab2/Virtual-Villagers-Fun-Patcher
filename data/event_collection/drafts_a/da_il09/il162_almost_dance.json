@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Almost Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il162_almost_dance",
+  "source": "da_il09",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "There is music at the fire, and two teens looking for each other to ask for a dance keep missing each other.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's music at the fire tonight, and (subject) has decided to ask (friend) to dance. (subject.He/She) has been working up to it for ages. (subject.He/She) takes a deep breath, turns round, and (friend) isn't there. (friend) has gone to look for (subject), to ask (subject.him/her) the same thing. They have now missed each other three times.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Stand Still and Wait",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Give Up and Sit Down",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) decides the only sensible thing is to stand perfectly still. A moment later (friend) comes round the fire, sees (subject.him/her), and stops. \"There you are,\" they both say. Then neither of them can think of the next bit. In the end (friend) just holds out a hand, and (subject) takes it, and they dance, very badly and very happily, until the music stops.",
+   "src": "L26"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits down on a log, sure the moment has passed. A minute later (friend) sits down on the same log, also sure the moment has passed. They look at each other. They both start laughing. They don't dance after all, but they sit and talk and watch everyone else dance until the fire burns down, and that turns out to be just as good.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) sits down on a log, sure the moment has passed. A minute later (friend) sits down on the same log, also sure the moment has passed. They look at each other. They both start laughing. They don't dance after all, but they sit and talk and watch everyone else dance until the fire burns down, and that turns out to be just as good.",
+   "src": "L29"
+  }
+ }
+}

@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One of Those Days",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo11_one_those_days",
+  "source": "da_lo",
+  "lines": [
+   129,
+   138
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L129",
+  "ledger": [
+   {
+    "src": "L130",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has had one of those days, one small bad thing after another: is it bad luck, or just a day?",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has had one of those days. (subject.He/She) stubbed a toe, dropped the water jar, burned the fish, sat in something damp and lost a sandal in the mud. Nothing serious. Just one small bad thing after another, all day, as though the whole island has decided to tease (subject.him/her). Now (subject.he/she) is sitting outside, scowling at the sky.",
+   "src": "L132",
+   "choices": [
+    {
+     "label": "Decide It's Bad Luck",
+     "next": "a",
+     "src": "L134"
+    },
+    {
+     "label": "Decide It's Just a Day",
+     "next": "b",
+     "src": "L137"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"It's bad luck,\" (subject) tells (friend). \"I've used up all my bad luck for the year. Maybe two years.\" (friend) considers this. \"Then tomorrow should be wonderful.\" (subject) is cheered by this logic. The next day is perfectly ordinary. (subject) decides that's the luck evening itself out.",
+   "src": "L135",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L135"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"It's bad luck,\" (subject) tells (friend). \"I've used up all my bad luck for the year. Maybe two years.\" (friend) considers this. \"Then tomorrow should be wonderful.\" (subject) is cheered by this logic. The next day is perfectly ordinary. (subject) decides that's the luck evening itself out.",
+   "src": "L135"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"It's not luck,\" says (subject), after a while. \"It's just a day. Some days are like this.\" (friend) sits down beside (subject.him/her). \"Want to hear about my day?\" (friend)'s day, it turns out, was even worse: it involved a crab and a very embarrassing moment by the stream. By the end of the story, (subject) is laughing so hard (subject.he/she) forgets to be cross.",
+   "src": "L138",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L138"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"It's not luck,\" says (subject), after a while. \"It's just a day. Some days are like this.\" (friend) sits down beside (subject.him/her). \"Want to hear about my day?\" (friend)'s day, it turns out, was even worse: it involved a crab and a very embarrassing moment by the stream. By the end of the story, (subject) is laughing so hard (subject.he/she) forgets to be cross.",
+   "src": "L138"
+  }
+ }
+}

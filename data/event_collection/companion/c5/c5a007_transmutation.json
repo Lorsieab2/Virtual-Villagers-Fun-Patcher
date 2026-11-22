@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Impossible Transmutation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a007_transmutation",
+  "source": "companion",
+  "lines": [
+   217,
+   239
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L222",
+  "ledger": [
+   {
+    "src": "L218",
+    "kind": "structural",
+    "why": "the group heading 'ALCHEMY'"
+   },
+   {
+    "src": "L224",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L228",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L233",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L235",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L237",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L239",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "An alchemist insists that ordinary beach sand can be turned into something precious."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "alchemist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An alchemist insists that ordinary beach sand can be turned into something precious.",
+   "src": "L226",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L229"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L230"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L231"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "The result is beautiful but cannot be identified.",
+   "src": "L237"
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "The experiment produces an unexpectedly useful glassy material.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "alchemist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L233"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "The experiment produces an unexpectedly useful glassy material.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "alchemist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__fx": {
+   "name": "Outcome 2",
+   "text": "The crucible fails, leaving only an expensive lesson.",
+   "src": "L235",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L235"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome 2",
+   "text": "The crucible fails, leaving only an expensive lesson.",
+   "src": "L235"
+  }
+ }
+}

@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Whale That Did Not Return",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir31_whale",
+  "source": "living",
+  "lines": [
+   21634,
+   21645
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21634",
+  "ledger": [
+   {
+    "src": "L21645",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A family waits each season for a familiar whale that no longer appears.",
+  "cast_only": [
+   "villager",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family waits each season for a familiar whale that no longer appears.",
+   "src": "L21635",
+   "choices": [
+    {
+     "label": "Hold a remembrance for the whale.",
+     "next": "a",
+     "src": "L21636"
+    },
+    {
+     "label": "Continue recording whale visits.",
+     "next": "b",
+     "src": "L21639"
+    },
+    {
+     "label": "Tell stories of the whale's visits.",
+     "next": "c",
+     "src": "L21642"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family honors the animal without claiming to know its fate.",
+   "src": "L21637"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child hopes it may still be swimming elsewhere.",
+   "src": "L21638"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The catalogue reveals changing migration patterns over many years.",
+   "src": "L21640"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The absence remains unexplained, frustrating the researchers.",
+   "src": "L21641"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The stories inspire young villagers to watch the horizon.",
+   "src": "L21643"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder reminds the storytellers not to confuse memory with certainty.",
+   "src": "L21644"
+  }
+ }
+}

@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Young Cartographer's Map",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth14_young",
+  "source": "living",
+  "lines": [
+   23539,
+   23553
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23539",
+  "ledger": [
+   {
+    "src": "L23553",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rookie's map contradicts the leader's recollection of a mountain pass.",
+  "cast_only": [
+   "cartographer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "cartographer": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rookie's map contradicts the {@chief}'s recollection of a mountain pass.",
+   "src": "L23540",
+   "choices": [
+    {
+     "label": "Trust the {@chief}'s memory.",
+     "next": "a",
+     "src": "L23541"
+    },
+    {
+     "label": "Follow the new map.",
+     "next": "b",
+     "src": "L23544"
+    },
+    {
+     "label": "Compare the routes with scouts.",
+     "next": "c",
+     "src": "L23547"
+    },
+    {
+     "label": "Let the cartographer explain their work.",
+     "next": "d",
+     "src": "L23550"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The travelers avoid a known hazard.",
+   "src": "L23542"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A changed river makes the old route impassable.",
+   "src": "L23543"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An omitted cliff forces a dangerous retreat.",
+   "src": "L23546"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The delay leaves the travelers short of provisions.",
+   "src": "L23549"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The {@chief} respects the careful measurements.",
+   "src": "L23551"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The {@chief} dismisses the explanation and later regrets it.",
+   "src": "L23552"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The party discovers a shorter passage.",
+   "src": "L23545",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23545"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The party discovers a shorter passage.",
+   "src": "L23545"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The scouts find a safer way.",
+   "src": "L23548",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23548"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The scouts find a safer way.",
+   "src": "L23548"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

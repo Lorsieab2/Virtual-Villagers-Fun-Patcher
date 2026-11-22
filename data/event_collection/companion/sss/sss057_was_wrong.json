@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Was Wrong",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss057_was_wrong",
+  "source": "companion",
+  "lines": [
+   6649,
+   6657
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6649",
+  "ledger": [
+   {
+    "src": "L6657",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A proud researcher dismisses an apprentice's observation, only to find the apprentice was right.",
+  "cast_only": [
+   "researcher",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A proud researcher publicly dismisses an apprentice's observation, only to find the apprentice was correct.",
+   "src": "L6650",
+   "choices": [
+    {
+     "label": "Apologize openly",
+     "next": "a",
+     "src": "L6651"
+    },
+    {
+     "label": "Correct the records without explanation",
+     "next": "b",
+     "src": "L6653"
+    },
+    {
+     "label": "Invite the apprentice to co-lead",
+     "next": "c",
+     "src": "L6655"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The data improve, but resentment remains.",
+   "src": "L6654"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They work productively, though the mentor struggles with pride.",
+   "src": "L6656"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Trust slowly improves and the apprentice gains confidence.",
+   "src": "L6652",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L6652"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Trust slowly improves and the apprentice gains confidence.",
+   "src": "L6652"
+  }
+ }
+}

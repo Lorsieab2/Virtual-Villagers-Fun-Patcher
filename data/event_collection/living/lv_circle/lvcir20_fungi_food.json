@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fungi in the Food Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir20_fungi_food",
+  "source": "living",
+  "lines": [
+   21491,
+   21502
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21491",
+  "ledger": [
+   {
+    "src": "L21502",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A cook finds unfamiliar mushrooms growing near edible plants."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A cook finds unfamiliar mushrooms growing near edible plants.",
+   "src": "L21492",
+   "choices": [
+    {
+     "label": "Gather them for a meal.",
+     "next": "a",
+     "src": "L21493"
+    },
+    {
+     "label": "Leave them and study their growth.",
+     "next": "b",
+     "src": "L21496"
+    },
+    {
+     "label": "Cultivate a known edible kind separately.",
+     "next": "c",
+     "src": "L21499"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The cook mistakes an unfamiliar kind, and the food is discarded before serving.",
+   "src": "L21494",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21494"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The cook becomes ill, and the village stops gathering unknown fungi.",
+   "src": "L21495",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "cook",
+     "src": "L21495"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A novice misidentifies two similar mushrooms.",
+   "src": "L21498"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The cook develops a small reliable harvest.",
+   "src": "L21500",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21500"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The growing bed fails during a dry spell.",
+   "src": "L21501"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The fungi spread through dead leaves and enrich the scientist's notes.",
+   "src": "L21497",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21497"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21497"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The fungi spread through dead leaves and enrich the scientist's notes.",
+   "src": "L21497",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L21497"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

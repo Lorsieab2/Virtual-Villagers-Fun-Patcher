@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il012_wrong_dream",
+  "source": "da_il02",
+  "lines": [
+   33,
+   47
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L33",
+  "ledger": [
+   {
+    "src": "L35",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L47",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager wakes from a vivid dream in which a friend sold their sandals to buy a purple chicken.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) wakes from an extraordinarily vivid dream in which (friend) stole (subject.his/her) favorite sandals, sold them to a passing trader, and used the proceeds to purchase a magnificent purple chicken. (subject) knows perfectly well that none of this happened. Unfortunately, (subject.he/she) is still a little annoyed.",
+   "src": "L37",
+   "choices": [
+    {
+     "label": "Tell (friend) About the Dream",
+     "next": "a",
+     "src": "L39"
+    },
+    {
+     "label": "Keep the Dream Private",
+     "next": "b",
+     "src": "L43"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "By lunchtime (subject) has forgotten most of the dream. Then (friend) walks past carrying a pair of sandals. (subject) stares suspiciously. (friend) has absolutely no idea why.",
+   "src": "L45"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"A purple chicken?\" (friend) asks. \"Why purple?\" (subject) doesn't know. (friend) considers this. \"I would have bought a blue one.\" Somehow this makes (subject) even more annoyed. Neither can stop laughing.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"A purple chicken?\" (friend) asks. \"Why purple?\" (subject) doesn't know. (friend) considers this. \"I would have bought a blue one.\" Somehow this makes (subject) even more annoyed. Neither can stop laughing.",
+   "src": "L41"
+  }
+ }
+}

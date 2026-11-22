@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Row of the Mat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim146_last_row_mat",
+  "source": "draft_tim2",
+  "lines": [
+   149,
+   154
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L149",
+  "ledger": [
+   {
+    "src": "L150",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L151",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L152",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L153",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L154",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager weaves the last row of a new sleeping mat.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) weaves the last row of a new sleeping mat. The finished mat is spread out, and (name1) lies down on it at once.",
+   "src": "L150,L151"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) weaves the last row of a new sleeping mat. (name1) notices one crooked row and decides it gives the mat character.",
+   "src": "L150,L152"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) weaves the last row of a new sleeping mat. A child asks to be the first to sit on it, and (name1) agrees.",
+   "src": "L150,L153"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) weaves the last row of a new sleeping mat. The smell of fresh fibers fills the hut that night.",
+   "src": "L150,L154"
+  }
+ }
+}

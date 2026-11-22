@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Hornets by the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat36_hornets_path",
+  "source": "draft_nat",
+  "lines": [
+   422,
+   431
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L422",
+  "ledger": [
+   {
+    "src": "L423",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L428",
+    "kind": "instruction",
+    "text": "[effect: small health loss for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A hornets' nest beside the path to the stream has stung two villagers: move it at night, or use the long path until autumn.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A colony of hornets has built a great papery nest in a low tree right beside the path to the stream, and they have strong opinions about anyone walking past. Two villagers have already been stung. (subject) wants the nest gone. (friend) knows an old way of moving a nest: at night, very carefully, with smoke and a sack.",
+   "src": "L425",
+   "choices": [
+    {
+     "label": "Move It at Night",
+     "next": "o1",
+     "src": "L427"
+    },
+    {
+     "label": "Use the Long Path Until Autumn",
+     "next": "o2",
+     "src": "L430"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They wait until the dead of night, when the hornets are sleepy. (friend) calms them with smoke, wraps the nest in the sack, and carries it off to a tree far from any path. (subject) stands well back, holding a torch and every one of (subject.his/her) nerves. It works. Mostly. (friend) gets stung once on the hand, and swears very creatively. The path is safe again.",
+   "src": "L428",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L428"
+    },
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": -1,
+     "max": -1,
+     "src": "L428"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) agrees not to disturb them. Everyone walks to the stream by the long path for the rest of the season, complaining. The hornets go about their business. When the cooler weather comes, the nest goes quiet and empty, and the path opens again. It cost a lot of extra walking. Nobody got stung after that, and the hornets were never bothered.",
+   "src": "L431"
+  }
+ }
+}

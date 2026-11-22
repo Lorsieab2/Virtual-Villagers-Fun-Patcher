@@ -1,0 +1,81 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Are the Ants Doing with That Flower?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd49_what_are_ants",
+  "source": "da_wd",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A line of ants marches through a villager's hut carrying a whole red flower like a festival float.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A long line of ants is marching through (name1)'s hut, in at the door and out through a gap in the wall. That's not so unusual. What is unusual is that in the middle of the line, carried along on dozens of tiny backs, is a whole red flower, much bigger than all of them, bobbing along like a festival float.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Watch Where It Goes",
+     "next": "a",
+     "src": "L577"
+    },
+    {
+     "label": "Open the Door Wider",
+     "next": "b",
+     "src": "L580"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) follows the line outside, round the back of the hut, and across the path to a little mound of earth where the flower, after a great deal of effort, disappears into the ground, petal by petal. (name1) sits back on (his/her) heels. (He/She) has never wondered what ants do with flowers. Now (he/she) can't stop wondering.",
+   "src": "L578",
+   "text_only": [
+    {
+     "what": "\"disappears\"",
+     "reason": "the word's everyday sense (a thing, a sound or a worry disappears); nobody goes missing",
+     "src": "L578"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) opens the door as wide as it will go, and moves the water jar, so the ants have a clear road. The flower passes through without a hitch. (name1) feels oddly helpful, like a road builder for very small people. Later (he/she) finds a single red petal left behind on the floor, and keeps it.",
+   "src": "L581"
+  }
+ }
+}

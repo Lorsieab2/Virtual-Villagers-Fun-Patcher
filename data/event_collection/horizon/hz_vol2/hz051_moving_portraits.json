@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The World of Moving Portraits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz051_moving_portraits",
+  "source": "horizon",
+  "lines": [
+   707,
+   717
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L707",
+  "ledger": [],
+  "description": "A painter asks whether distant people could capture images that move and voices that sound long after their owners depart.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A painter asks whether distant people could capture images that move and voices that sound long after their owners depart.",
+   "src": "L708",
+   "choices": [
+    {
+     "label": "Celebrate Remembrance.",
+     "next": "a",
+     "src": "L709"
+    },
+    {
+     "label": "Question the Image.",
+     "next": "b",
+     "src": "L712"
+    },
+    {
+     "label": "Consider Privacy.",
+     "next": "c",
+     "src": "L715"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A parent imagines hearing a deceased relative laugh again, then grows quiet.",
+   "src": "L710"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder worries that a preserved moment might become mistaken for a whole life.",
+   "src": "L711"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A storyteller imagines false scenes made to resemble truth.",
+   "src": "L713"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A researcher proposes asking who made the image and what lies outside its frame.",
+   "src": "L714"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A child dislikes the thought of being watched without permission.",
+   "src": "L716",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike",
+     "src": "L716"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A performer wonders whether some people would gladly share their songs with strangers.",
+   "src": "L717"
+  }
+ }
+}

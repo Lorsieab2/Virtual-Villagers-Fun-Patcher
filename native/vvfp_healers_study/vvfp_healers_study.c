@@ -78,10 +78,10 @@ __declspec(dllexport) struct vvfp_healers_stats VvfpHealersStudyStats = { 0 };
    scheduler (A New Home 0x448220, The Lost Children 0x461850) or, in
    catch-up, of the catch-up worker (The Lost Children 0x43B4D0), both of
    which "VVFP Fix Huts.dll" (Builders Fix Huts When Idle) wraps -- so the
-   catch-up site below and Builders and Healers Work First's hook on the
+   catch-up site below and Villagers Work Their Own Job First's hook on the
    pick it then dispatches share one roll (Codex on #494); when that DLL is loaded
    this companion asks its VvfpFixHutsRoll, so a healer's decision that also
-   meets Builders and Healers Work First rolls once.  Without it (this row
+   meets Villagers Work Their Own Job First rolls once.  Without it (this row
    ticked alone) there is nothing else in the decision to share with, and
    this site is reached at most once per scheduler run: it draws a 50% roll
    of its own each time it would act.  The shared roll passes three times in
@@ -264,15 +264,15 @@ static __declspec(naked) void vv1_stub(void) {
    Healing and nobody is sick, so a villager dropped on the medical cactus
    stops studying in catch-up whenever catch-up picks anything else -- the
    same gap The Lost Children has, and this patch's job to fill.
-   The site is that dispatch, which Builders and Healers Work First's own
+   The site is that dispatch, which Villagers Work Their Own Job First's own
    catch-up site (0x42E7E0) also falls through to for a non-research pick.
    A villager in plant-study state 9, on the decision's roll, gets the
    scheduler's own continuation 0x447CD0(index, 60) (any food level: the
    stock catch-up never makes the call); if it starts a job the worker's
    queue processor runs (0x42E821).  Otherwise the pick is dispatched exactly
    as the stock call would, with the stock return address 0x42E821 pushed,
-   so a dispatcher hook that recognises the worker's call (Builders and
-   Healers Work First) still does.
+   so a dispatcher hook that recognises the worker's call (Villagers Work Their Own
+   Job First) still does.
    edi = the worker, [edi+4] = village, esi = index, eax = the pick. */
 #define VV1_CU_SITE      0x42E817u
 #define VV1_CU_DONE      0x42E821u
@@ -397,7 +397,7 @@ static __declspec(naked) void vv2_stub(void) {
    starts a job the worker's "done" runs (0x43B588, its queue processor).
    Otherwise the pick is dispatched exactly as the stock call would, with
    the stock return address 0x43B588 pushed, so a dispatcher hook that
-   recognises the worker's call (Builders and Healers Work First) still does.
+   recognises the worker's call (Villagers Work Their Own Job First) still does.
    The worker's research pick (job 2) never reaches this site: catch-up gives
    it its own research step, as in the stock game.
    ebx = the worker, [ebx+4] = village, edi = index, ebp = the pick; ecx =

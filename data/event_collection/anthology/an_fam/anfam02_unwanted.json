@@ -1,0 +1,316 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwanted Dinner",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam02_unwanted",
+  "source": "anthology",
+  "lines": [
+   28315,
+   28328
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28315",
+  "ledger": [
+   {
+    "src": "L28316",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28318",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28319",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28321",
+    "kind": "sensitivity",
+    "before": "The cook",
+    "after": "(cook)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28321",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28322",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28324",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28325",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28327",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28328",
+    "kind": "sensitivity",
+    "before": "The cook",
+    "after": "(cook)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child refuses a familiar meal and insists they hate it.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) refuses a familiar meal and insists they hate it.",
+   "src": "L28316",
+   "choices": [
+    {
+     "label": "Offer a Small Taste Without Pressure",
+     "next": "a",
+     "src": "L28317"
+    },
+    {
+     "label": "Ask What Tastes Wrong",
+     "next": "b",
+     "src": "L28320"
+    },
+    {
+     "label": "Let the Child Choose from Available Food",
+     "next": "c",
+     "src": "L28323"
+    },
+    {
+     "label": "Explain That Insulting the Cook Is Unkind",
+     "next": "d",
+     "src": "L28326"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28316"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) discovers they enjoy one ingredient.",
+   "src": "L28318"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) still dislikes the meal and eats something else.",
+   "src": "L28319",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28319"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(cook) learns the food is too salty for (child).",
+   "src": "L28321",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28321"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) cannot explain the dislike, but feels heard.",
+   "src": "L28322",
+   "text_only": [
+    {
+     "what": "\"dislike\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28322"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) struggles to choose and asks for help.",
+   "src": "L28325"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) apologizes for the remark without changing their taste.",
+   "src": "L28327"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(child) selects a simple alternative and eats contentedly.",
+   "src": "L28324",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28324"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(child) selects a simple alternative and eats contentedly.",
+   "src": "L28324"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(cook) admits the recipe was an experiment and laughs.",
+   "src": "L28328",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L28328"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "(cook) admits the recipe was an experiment and laughs.",
+   "src": "L28328"
+  }
+ }
+}

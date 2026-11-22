@@ -1,0 +1,323 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Calm Before the Storm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new160_calm_before",
+  "source": "rewrites",
+  "lines": [
+   7739,
+   7794
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7739",
+  "ledger": [
+   {
+    "src": "L7740",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7741",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7750",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7757",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7764",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7771",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7745",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7746",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7747",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7748",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7751",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7758",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7765",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7772",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7752",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7754",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7759",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7761",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7766",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7768",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7773",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7775",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7778-7794",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Not calm: flat, glassy, like a sheet of polished stone, all the way to the horizon.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The sea goes flat. Not calm: flat, glassy, like a sheet of polished stone, all the way to the horizon. The birds go quiet. The insects go quiet. Even the babies go quiet.\nFar offshore, a dark wall of cloud is building, taller and taller, the colour of a bruise.\n(Name), the navigator, has seen this exactly once before, many years ago. (He/She) does not like it at all. (He/She) says so, loudly, running up and down the beach, until every head in the village has turned to look at (him/her), and then at the clouds. There isn't much time. What should (name) do first?",
+   "choices": [
+    {
+     "label": "Bring in the Drying Fish",
+     "next": "c1",
+     "src": "L7745"
+    },
+    {
+     "label": "Count Heads Before It Hits",
+     "next": "c2",
+     "src": "L7746"
+    },
+    {
+     "label": "Watch the Clouds Build",
+     "next": "c3",
+     "src": "L7747"
+    },
+    {
+     "label": "Tie Down Everything That Moves",
+     "next": "c4",
+     "src": "L7748"
+    }
+   ],
+   "src": "L7742-7744"
+  },
+  "c1o1": {
+   "text": "Quick hands bring the fish in from the drying racks before the storm breaks, saving every last one as usable food for the stores. They get the last basket under cover just as the first fat drops of rain hit the sand.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7753",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The storm arrives faster than anyone expected, howling in before the racks are half cleared. A basket of stored food is caught out in the rain and the wind, and is ruined.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7755",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) sends everyone running for the drying racks...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7751"
+  },
+  "c2o1": {
+   "text": "Everyone is accounted for and sheltering before the first gust arrives. The storm screams over the island all night. In the morning, the village crawls out to a mess of fallen branches and seaweed, but everyone is safe, and (name) is thanked by every family.",
+   "src": "L7760"
+  },
+  "c2o2": {
+   "text": "At the last moment, (name) runs back down to the beach to drag the canoes higher. The storm hits while (he/she) is still out there. A piece of flying debris strikes (him/her) and knocks (him/her) down on the sand. The others haul (him/her) inside, and (he/she) needs the healers' care for some time.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L7762",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) runs through the village, counting everyone, sending them indoors...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7758"
+  },
+  "c3o1": {
+   "text": "Comparing what (he/she) sees now to (his/her) memory of the last time, (name) works out that the strange calm always lasts about half a day before a storm like this hits. It's a useful pattern for giving the village warning, and from then on, whenever the sea goes glassy, the village knows it has until dusk.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7767",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The cloud shapes change too fast to read, boiling and tumbling. (Name) gives up and runs back down before the storm catches (him/her) on the bluff, deciding to wait for more evidence next time. From somewhere safer.",
+   "src": "L7769"
+  },
+  "c3": {
+   "text": "(Name) climbs the bluff and watches the cloud wall grow, marking the sun's position, trying to remember everything about the last time...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7765"
+  },
+  "c4o1": {
+   "text": "Workers lash down every roof and canoe before nightfall, and the village rides out the storm. It roars and rages, but every hut stands, and every canoe is still there in the morning. (Name) sleeps for a whole day afterwards.",
+   "src": "L7774"
+  },
+  "c4o2": {
+   "text": "There aren't enough rocks to weigh down all the roofs, so full food baskets are used instead. Some are crushed and spoiled by morning, leaving less food in the stores. But not a single roof blew away.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L7776",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "(Name) organizes every pair of hands in the village to lash down roofs, canoes, drying racks and anything else that might fly away...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7772"
+  }
+ }
+}

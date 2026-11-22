@@ -1,0 +1,241 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Builders' Wager",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b132_builders_wager",
+  "source": "balance",
+  "lines": [
+   6045,
+   6089
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6045",
+  "ledger": [
+   {
+    "src": "L6046",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6047",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6055",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6064",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6052",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6053",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6056",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6065",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6058",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6061",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6067",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6070",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6073-6089",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The rainy season has been hard on the village.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The rainy season has been hard on the village. There are holes in the roofs, cracked posts, a doorway that has slumped so badly the family inside has to crawl in. (subject) and (friend) are the two best builders, and they have been arguing about how to fix it all for a week.\n(subject) says do it properly: new posts, new thatch, one hut at a time. (friend) says patch everything now and fix it properly later. Tonight, by the fire, (friend) slaps (friend.his/her) knee and says, \"Fine. A wager. You take one side of the village, I'll take the other, and we'll see whose huts are still standing at the end of the season.\"\nThe whole village is listening. Should (subject) take the wager, or work together with (friend)?",
+   "choices": [
+    {
+     "label": "Take the Wager",
+     "next": "c1",
+     "src": "L6052"
+    },
+    {
+     "label": "Work Together",
+     "next": "c2",
+     "src": "L6053"
+    }
+   ],
+   "src": "L6048-6050"
+  },
+  "c1o1": {
+   "text": "Neither of them wins. By the end of the season every hut on both sides is standing, and the builders have learned more from watching each other than in years of working alone. (friend) admits that the new posts are better. (subject) admits that patching is faster. They shake hands across the line of shells, and the village kicks the shells away.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L6059",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The first storm of the season tears every patch off (friend)'s side of the village in one night. (friend) is up on the roofs before dawn, soaked, re-doing every one, properly this time, with (subject) passing up the posts and saying nothing at all, very loudly. By the end of the week, all the huts are fixed, and (friend) has become a much better builder out of pure embarrassment.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L6062",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "By sunrise the village has been divided down the middle with a line of shells. Everyone on (subject)'s side gets new posts and careful thatch, slowly. Everyone on (friend)'s side gets patched up by lunchtime and sits about looking smug...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6056"
+  },
+  "c2o1": {
+   "text": "They are a terrible team for about a day. Then they are a good team. By the end of the week they are the best team the village has ever had: one on the roof, one on the posts, shouting cheerful insults at each other all day. The crawling family walks in through their own front door for the first time in a month, and holds a little feast to celebrate.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L6068",
+   "text_only": [
+    {
+     "src": "L6068",
+     "what": "\"celebrate\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They are almost finished when (subject) leans on a post that looks fine and is rotten all the way through. The roof comes down on one side, and so does (subject). (friend) digs (subject.him/her) out, shouting for the healers. (subject) ends up with a broken arm and a lot of sympathy, and spends the last day sitting under a tree, telling (friend) exactly where (friend.he/she) is going wrong.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L6071",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"No wager,\" says (subject). \"We'll do it your way on the roofs and my way on the posts.\" (friend) opens (friend.his/her) mouth to argue, closes it, and holds out a hand...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6065"
+  }
+ }
+}

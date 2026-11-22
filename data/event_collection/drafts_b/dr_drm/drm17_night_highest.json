@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Night on the Highest Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm17_night_highest",
+  "source": "draft_drm",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager finally sleeps out on the big rock with a friend, and it is hard and cold: stay all night, or go home at midnight.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For years (subject) has talked about sleeping out under the stars on top of the big rock above the beach. Tonight (subject.he/she) is finally doing it, and (friend) has come along. It is not quite as (subject.he/she) imagined. The rock is hard. The wind is cold. There are mosquitoes. A bird keeps landing nearby to stare at them.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Stay All Night",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Go Home at Midnight",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I've done it,\" says (subject) around midnight. \"I've slept on the rock. Technically.\" (friend) agrees this counts. They climb down by starlight and are in their own beds before the moon is high. (subject) is pleased (subject.he/she) tried, and very pleased (subject.he/she) won't have to do it again.",
+   "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They stay. Neither of them sleeps much. But late in the night the clouds clear and the stars come out, more of them than (subject) has ever seen, and a shooting star goes right across the sky, and they both shout at the same moment. They come down at dawn, stiff and bitten and delighted.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They stay. Neither of them sleeps much. But late in the night the clouds clear and the stars come out, more of them than (subject) has ever seen, and a shooting star goes right across the sky, and they both shout at the same moment. They come down at dawn, stiff and bitten and delighted.",
+   "src": "L206"
+  }
+ }
+}

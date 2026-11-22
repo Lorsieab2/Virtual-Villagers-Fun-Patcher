@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Prank That Went Too Far",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus12_prank_went_far",
+  "source": "draft_jus",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's spooky night prank frightened a neighbor and the children: no more pranks this season, or ask how to make it right.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) thought it would be funny to make strange, spooky noises outside (friend)'s hut late at night. (friend) did not find it funny. (friend.He/she) was frightened for most of the night, and so were the children in the next hut. This morning (friend) has gone to the elders.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "No More Pranks This Season",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Ask (subject) How to Make It Right",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders ask (subject) what (subject.he/she) thinks would make it right. (subject) thinks for a long time. That evening (subject.he/she) sits outside the children's hut and shows them exactly how (subject.he/she) made the noises, with a hollow gourd and a wet finger, until they're laughing instead of scared. (friend) watches from (friend.his/her) doorway. (friend.He/she) isn't laughing yet. Maybe later.",
+   "src": "L149"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders tell (subject) that a joke the other person didn't agree to isn't a joke, and ask (subject.him/her) to play no pranks at all for the rest of the season. (subject) thinks that's too strict, and says so. The elders listen, and don't change their minds. (subject) keeps to it, grudgingly. (friend) stays a little wary of (subject.him/her) for a while.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders tell (subject) that a joke the other person didn't agree to isn't a joke, and ask (subject.him/her) to play no pranks at all for the rest of the season. (subject) thinks that's too strict, and says so. The elders listen, and don't change their minds. (subject) keeps to it, grudgingly. (friend) stays a little wary of (subject.him/her) for a while.",
+   "src": "L146"
+  }
+ }
+}

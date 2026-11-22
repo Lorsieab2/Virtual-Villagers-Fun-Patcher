@@ -224,7 +224,7 @@ class InheritanceTests(unittest.TestCase):
         gui = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("vv_last_names.with_siblings(fixed(), parents), carried,\n"
                       "                vv_last_names.check_rules(recorded_own, own_state, living_keys), village_used,\n"
-                      "                lambda v, last: not too_long(v, last))", gui)
+                      "                lambda v, last: not too_long(v, last), sex_changed)", gui)
         self.assertIn("values=[none, custom] + first", gui)
         self.assertIn('if value.get() == custom:\n                value.set("")', gui)
         # The whole new name is held to the game's room, and a box past it is marked.

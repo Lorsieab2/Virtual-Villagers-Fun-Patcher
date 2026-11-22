@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Terrible Premonition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il036_terrible",
+  "source": "da_il02",
+  "lines": [
+   417,
+   431
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L417",
+  "ledger": [
+   {
+    "src": "L419",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L431",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager wakes with the peculiar feeling that something unusual is going to happen.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) wakes with the peculiar feeling that something unusual is going to happen. (He/She) cannot explain why. The sky is clear, the village is peaceful, and nothing seems out of place. Still, the feeling persists.",
+   "src": "L421",
+   "choices": [
+    {
+     "label": "Pay Closer Attention",
+     "next": "a",
+     "src": "L423"
+    },
+    {
+     "label": "Go About the Day Normally",
+     "next": "b",
+     "src": "L427"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) spends the day observing everything carefully. A bird steals a piece of fruit. Two villagers argue about a basket. A coconut falls from a tree. None seems particularly mysterious. By evening (name1) is tired of looking for signs.",
+   "src": "L425"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) works, eats, talks with friends, and enjoys the afternoon breeze. Nothing extraordinary happens. Before bed (he/she) remembers the strange feeling and shrugs. Perhaps tomorrow will be more interesting.",
+   "src": "L429",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L429"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) works, eats, talks with friends, and enjoys the afternoon breeze. Nothing extraordinary happens. Before bed (he/she) remembers the strange feeling and shrugs. Perhaps tomorrow will be more interesting.",
+   "src": "L429"
+  }
+ }
+}

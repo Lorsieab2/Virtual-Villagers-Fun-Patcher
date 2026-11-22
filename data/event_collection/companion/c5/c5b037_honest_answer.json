@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Honest Answer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b037_honest_answer",
+  "source": "companion",
+  "lines": [
+   1457,
+   1465
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1457",
+  "ledger": [
+   {
+    "src": "L1459",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1462",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1465",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "An adult admits to a child that they do not know the answer to a question.",
+  "cast_only": [
+   "adult",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An adult admits to a child that they do not know the answer to a question.",
+   "src": "L1458",
+   "choices": [
+    {
+     "label": "Let the moment unfold naturally.",
+     "next": "ending",
+     "src": "L1460"
+    },
+    {
+     "label": "Invite someone else into the moment.",
+     "next": "ending",
+     "src": "L1461"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They investigate together.",
+   "src": "L1463"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "The child enjoys knowing adults can be uncertain.",
+   "src": "L1464"
+  }
+ }
+}

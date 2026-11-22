@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Clean Dressing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss040_clean_dressing",
+  "source": "companion",
+  "lines": [
+   6471,
+   6483
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6475",
+  "ledger": [
+   {
+    "src": "L6472",
+    "kind": "structural",
+    "why": "the group heading '04  -  ETHICS, FAITH, SCIENCE, AND POWER'"
+   },
+   {
+    "src": "L6483",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A healer has one clean dressing left for a villager and a badly injured animal.",
+  "cast_only": [
+   "patient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A healer has one clean dressing left while a villager and a badly injured animal both need care.",
+   "src": "L6476",
+   "choices": [
+    {
+     "label": "Triage immediate needs",
+     "next": "a",
+     "src": "L6477"
+    },
+    {
+     "label": "Ask for more hands and supplies",
+     "next": "b",
+     "src": "L6479"
+    },
+    {
+     "label": "Seek another remedy",
+     "next": "c",
+     "src": "L6481"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a badly injured animal",
+     "reason": "an animal is no villager; the villager already needs care, nobody is hurt now",
+     "src": "L6476"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The healer treats the more urgent case first and improvises safe alternatives for the other.",
+   "src": "L6478",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6478"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A team cleans equipment and shares tasks, though resources remain strained.",
+   "src": "L6480"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A promising substitute works in one case but cannot replace all medical supplies.",
+   "src": "L6482"
+  }
+ }
+}

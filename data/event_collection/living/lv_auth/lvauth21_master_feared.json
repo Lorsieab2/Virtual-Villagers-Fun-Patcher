@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Master Who Feared Replacement",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth21_master_feared",
+  "source": "living",
+  "lines": [
+   23651,
+   23665
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23651",
+  "ledger": [
+   {
+    "src": "L23665",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A brilliant craftsperson refuses to train apprentices for fear of losing status."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A brilliant craftsperson refuses to train apprentices for fear of losing status.",
+   "src": "L23652",
+   "choices": [
+    {
+     "label": "Respect their choice.",
+     "next": "a",
+     "src": "L23653"
+    },
+    {
+     "label": "Offer shared credit for teaching.",
+     "next": "b",
+     "src": "L23656"
+    },
+    {
+     "label": "Invite another craftsperson to teach.",
+     "next": "c",
+     "src": "L23659"
+    },
+    {
+     "label": "Ask the master about their fear.",
+     "next": "d",
+     "src": "L23662"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The craftsperson creates extraordinary work.",
+   "src": "L23654"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Their knowledge risks disappearing when they fall ill.",
+   "src": "L23655",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "craftsperson",
+     "src": "L23655"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The master begins training a promising apprentice.",
+   "src": "L23657"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "New techniques spread through the village.",
+   "src": "L23660"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The rival teachers quarrel over methods.",
+   "src": "L23661"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "An honest conversation leads to gradual trust.",
+   "src": "L23663"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The master resents the apprentice's growing fame.",
+   "src": "L23658",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "bad",
+     "src": "L23658"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The master resents the apprentice's growing fame.",
+   "src": "L23658"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The master refuses to discuss it and withdraws.",
+   "src": "L23664",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "bad",
+     "src": "L23664"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "The master refuses to discuss it and withdraws.",
+   "src": "L23664"
+  }
+ }
+}

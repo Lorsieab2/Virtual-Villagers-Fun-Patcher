@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ending That Changed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his21_ending_changed",
+  "source": "draft_his",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 5-13)"
+   }
+  ],
+  "description": "An elder hears children tell an old sad story with a happy new ending: tell them the old ending, or let the new one be.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been listening to the children telling each other the old story of the Two Brothers and the Shark. In (subject)'s version, the one (subject.he/she) learned as a child, the story ends sadly: one brother doesn't come home. In the children's version, both brothers come home and have a feast. (friend) is telling it with great confidence and huge arm movements.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Tell Them the Old Ending",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Let the New Ending Be",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells them how it ended when (subject.he/she) was small. The children are horrified. \"That's so SAD.\" \"It is,\" says (subject). \"That's how I heard it.\" (friend) thinks hard. \"Can't it be both?\" They talk about it for a while. In the end, the children keep their ending, and add one line: \"...but in the old days, people told it differently.\" (subject) thinks that's fair.",
+   "src": "L254"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) listens to the feast ending and doesn't say anything. Stories change. Maybe the new ending is what the children need. Later, by the fire, (subject.he/she) tells the sad version to the adults, quietly, so it isn't lost. One of them asks for it again the next night. Both endings stay alive, at different fires, for different people.",
+   "src": "L257"
+  }
+ }
+}

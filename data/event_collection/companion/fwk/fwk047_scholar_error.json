@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scholar's Embarrassing Error",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk047_scholar_error",
+  "source": "companion",
+  "lines": [
+   5914,
+   5921
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5914",
+  "ledger": [
+   {
+    "src": "L5920",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5921",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A scholar publicly announces a discovery that turns out to be mistaken.",
+  "cast_only": [
+   "assistant"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scholar": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "assistant": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A scholar publicly announces a discovery that turns out to be mistaken.",
+   "src": "L5915",
+   "choices": [
+    {
+     "label": "Correct the record openly.",
+     "next": "outcome",
+     "src": "L5916"
+    },
+    {
+     "label": "Blame an assistant and damage trust.",
+     "next": "outcome",
+     "src": "L5917"
+    },
+    {
+     "label": "Repeat the experiment and learn why it failed.",
+     "next": "outcome_c",
+     "src": "L5918"
+    },
+    {
+     "label": "Withdraw from public work for a time.",
+     "next": "outcome",
+     "src": "L5919"
+    }
+   ]
+  },
+  "outcome_c": {
+   "name": "Ending (C)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5920",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scholar",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5920"
+    }
+   ],
+   "auto_text": true
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5920"
+  }
+ }
+}

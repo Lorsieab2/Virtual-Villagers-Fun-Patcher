@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell Orchestra",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl106_shell_orchestra",
+  "source": "companion",
+  "lines": [
+   5194,
+   5204
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5194",
+  "ledger": [
+   {
+    "src": "L5195",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5203",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5204",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Children make instruments from shells, reeds and hollow wood.",
+  "cast_only": [
+   "child1",
+   "child2",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Children make instruments from shells, reeds and hollow wood.",
+   "src": "L5196",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5197"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5198"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5199"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The resulting music is surprisingly beautiful.",
+   "src": "L5200"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "An elder teaches them an old melody.",
+   "src": "L5202",
+   "text_only": [
+    {
+     "what": "teaches",
+     "reason": "rule 8: music is no game skill",
+     "src": "L5202"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The concert is delightfully chaotic.",
+   "src": "L5201",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child1",
+     "mood": "good",
+     "src": "L5201"
+    },
+    {
+     "do": "mood",
+     "role": "child2",
+     "mood": "good",
+     "src": "L5201"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L5201"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The concert is delightfully chaotic.",
+   "src": "L5201"
+  }
+ }
+}

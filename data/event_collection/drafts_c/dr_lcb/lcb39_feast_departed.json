@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast for the Departed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb39_feast_departed",
+  "source": "draft_lcb",
+  "lines": [
+   540,
+   551
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L540",
+  "ledger": [
+   {
+    "src": "L541",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L547",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L547",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A grieving family is too poor to give the funeral feast: let the village bring the food, or hold a small feast anyway.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "By custom, after a burial, the family of the one who died feeds the whole village. (subject)'s family has very little this season: the garden failed, and the burial of (subject.his/her) aunt has taken all they had. (subject) is ashamed and does not know what to do. (friend) has noticed. What should happen?",
+   "src": "L543",
+   "choices": [
+    {
+     "label": "The Village Brings the Food",
+     "next": "o1",
+     "src": "L545"
+    },
+    {
+     "label": "Hold a Small Feast Anyway",
+     "next": "o2",
+     "src": "L549"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) quietly goes from hut to hut. On the evening of the feast, every family arrives with a dish, and sets it in front of (subject)'s family, as if it were theirs to serve. (subject) serves it. Nobody mentions where it came from.",
+   "src": "L547",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L547"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject)'s family serves what little they have, a thin soup and some fruit. Everyone eats it gratefully. A few people look embarrassed. (friend) decides, then and there, to ask the gathering to change the custom so no family ever has to do this alone again.",
+   "src": "L551"
+  }
+ }
+}

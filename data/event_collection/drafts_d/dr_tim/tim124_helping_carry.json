@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Helping Carry Supplies",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim124_helping_carry",
+  "source": "moments500",
+  "lines": [
+   2077,
+   2091
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L2078",
+  "ledger": [
+   {
+    "src": "L2077",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2081",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2082",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L2085",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2086",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L2089",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2090",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L2079",
+    "kind": "sensitivity",
+    "before": "an older neighbor",
+    "after": "(name1), an older neighbor",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L2083",
+    "kind": "sensitivity",
+    "before": "an older neighbor",
+    "after": "(name1), an older neighbor",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L2087",
+    "kind": "sensitivity",
+    "before": "an older neighbor",
+    "after": "(name1), an older neighbor",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L2091",
+    "kind": "sensitivity",
+    "before": "an older neighbor",
+    "after": "(name1), an older neighbor",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Two villagers offer to carry supplies for an older neighbor.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two villagers offer to carry supplies for (name1), an older neighbor. The work finishes faster with so many hands.",
+   "src": "L2079"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two villagers offer to carry supplies for (name1), an older neighbor. Afterward, the group lingers just to enjoy being together.",
+   "src": "L2083"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two villagers offer to carry supplies for (name1), an older neighbor. The help is appreciated, even though nobody makes a speech.",
+   "src": "L2087"
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two villagers offer to carry supplies for (name1), an older neighbor. (Name1) feels relieved not to do everything alone.",
+   "src": "L2091",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2091"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "Two villagers offer to carry supplies for (name1), an older neighbor. (Name1) feels relieved not to do everything alone.",
+   "src": "L2091"
+  }
+ }
+}

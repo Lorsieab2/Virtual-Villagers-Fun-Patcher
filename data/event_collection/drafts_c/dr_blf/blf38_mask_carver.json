@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask Carver",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf38_mask_carver",
+  "source": "draft_blf",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who carves and another adult)"
+   }
+  ],
+  "description": "The village's finest mask carver does not believe in the spirits the masks are for: explain, or turn the question around.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) carves the masks the village uses in its ceremonies, and (subject.his/her) masks are the most beautiful on Isola. (friend) is astonished to learn that (subject) doesn't believe in the spirits the masks are for. \"How can you make them so well,\" (friend.he/she) asks, \"if you don't believe in them?\"",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "(subject) Explains",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "(subject) Turns the Question Around",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I believe in the wood,\" says (subject). \"And the people who'll wear them. I want them to have the best mask I can make.\" (friend) thinks about this. \"Does that bother the believers?\" \"Not that I know of,\" says (subject). \"They like the masks.\" (subject.He/she) goes back to carving. It's a beautiful mask. That seems to be what matters.",
+   "src": "L458",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "\"I believe in the wood,\" says (subject). \"And the people who'll wear them. I want them to have the best mask I can make.\" (friend) thinks about this. \"Does that bother the faithful?\" \"Not that I know of,\" says (subject). \"They like the masks.\" (subject.He/she) goes back to carving. It's a beautiful mask. That seems to be what matters."
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Do you have to believe in fish to catch them?\" asks (subject). (friend) laughs. \"That's different.\" \"Is it?\" says (subject). \"I love carving. I love that the masks matter to people. That's enough for me.\" (friend) isn't sure that's an answer. (subject) isn't sure either. The mask comes out beautifully anyway.",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L461"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Do you have to believe in fish to catch them?\" asks (subject). (friend) laughs. \"That's different.\" \"Is it?\" says (subject). \"I love carving. I love that the masks matter to people. That's enough for me.\" (friend) isn't sure that's an answer. (subject) isn't sure either. The mask comes out beautifully anyway.",
+   "src": "L461"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

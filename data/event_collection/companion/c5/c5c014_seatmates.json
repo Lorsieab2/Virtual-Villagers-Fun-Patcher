@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unlikely Seatmates",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c014_seatmates",
+  "source": "companion",
+  "lines": [
+   2203,
+   2212
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2203",
+  "ledger": [
+   {
+    "src": "L2206",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2208",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2212",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "A shy scholar and a boisterous fisher end up sitting together at a festival.",
+  "cast_only": [
+   "scholar",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scholar": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A shy scholar and a boisterous fisher end up sitting together during a festival.",
+   "src": "L2204",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They enjoy the silence without becoming friends.",
+   "src": "L2210"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a shared love of terrible jokes.",
+   "src": "L2209",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "scholar",
+     "mood": "good",
+     "src": "L2209"
+    },
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L2209"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover a shared love of terrible jokes.",
+   "src": "L2209"
+  }
+ }
+}

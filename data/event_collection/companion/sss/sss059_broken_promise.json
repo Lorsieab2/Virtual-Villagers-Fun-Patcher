@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Promise to a Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss059_broken_promise",
+  "source": "companion",
+  "lines": [
+   6669,
+   6677
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6669",
+  "ledger": [
+   {
+    "src": "L6677",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A parent forgets a promised fishing trip with their child because of urgent village work.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "relation": {
+    "child_of": "parent"
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A parent forgets a promised fishing trip because of urgent village work.",
+   "src": "L6670",
+   "choices": [
+    {
+     "label": "Own the mistake",
+     "next": "a",
+     "src": "L6671"
+    },
+    {
+     "label": "Make an extravagant gift",
+     "next": "b",
+     "src": "L6673"
+    },
+    {
+     "label": "Ask what would help repair things",
+     "next": "c",
+     "src": "L6675"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The child is disappointed but appreciates a specific new plan.",
+   "src": "L6672",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6672"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The child likes it, yet still wishes for time together.",
+   "src": "L6674"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child requests a simple afternoon on the beach; the parent follows through.",
+   "src": "L6676",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6676"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

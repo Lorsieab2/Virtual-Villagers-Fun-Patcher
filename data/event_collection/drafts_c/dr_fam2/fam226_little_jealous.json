@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Little Jealous",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam226_little_jealous",
+  "source": "draft_fam2",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it) and another adult)"
+   }
+  ],
+  "description": "A villager feels a little jealous as their partner laughs all evening with a friend: say something later, or join in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the fire tonight, (friend) has spent the whole evening laughing with (third). They're telling stories, swapping jokes and having a wonderful time. (subject) is sitting next to (friend) and feeling something small and prickly that (subject.he/she) is not proud of. (subject.He/she) knows it's silly. It's still there.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Say Something Later",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Join In",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Walking home, (subject) says quietly, \"I felt a bit jealous tonight. I know it's silly.\" (friend) stops. \"It's not silly. You can feel it. (third) is just funny.\" \"I know,\" says (subject). \"I just wanted to say it out loud, so it doesn't grow.\" (friend) takes (subject.his/her) hand. The prickly thing fades, mostly. Saying it helped.",
+   "src": "L314"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) leans over and says, \"What's so funny?\" (third) tells (subject.him/her) the story. It's very funny. (subject) laughs, and tells one of (subject.his/her) own, and soon all three of them are crying with laughter. The prickly feeling is gone, or nearly. (subject) decides that sometimes the best answer to feeling left out is just to come in.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L317"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L317"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) leans over and says, \"What's so funny?\" (third) tells (subject.him/her) the story. It's very funny. (subject) laughs, and tells one of (subject.his/her) own, and soon all three of them are crying with laughter. The prickly feeling is gone, or nearly. (subject) decides that sometimes the best answer to feeling left out is just to come in.",
+   "src": "L317"
+  }
+ }
+}

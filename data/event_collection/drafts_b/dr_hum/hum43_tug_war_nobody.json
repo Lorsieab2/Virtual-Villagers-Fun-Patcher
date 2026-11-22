@@ -1,0 +1,133 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tug-Of-War Nobody Won",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum43_tug_war_nobody",
+  "source": "draft_hum",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults as team leaders)"
+   },
+   {
+    "src": "L518",
+    "kind": "sensitivity",
+    "before": "The judge declares a draw",
+    "after": "(judge), the judge, declares a draw",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L521",
+    "kind": "sensitivity",
+    "before": "The judge gives up",
+    "after": "(judge), the judge, gives up",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two team leaders heave in the festival tug-of-war until the rope snaps: call it a draw, or demand a rematch.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "judge"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "judge": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's the festival tug-of-war: (subject)'s team at one end of the rope, (friend)'s team at the other, and a patch of mud in the middle. Both teams heave with everything they've got. Nobody moves. Then, with a soft twang, the rope snaps exactly in the middle.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Call It a Draw",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Demand a Rematch",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The rope is knotted, and they go again. The knot slips, and both teams fall over again. The mud patch grows. By the third try, everyone is so muddy that it is impossible to tell which team is which. (judge), the judge, gives up, and both teams run into the sea together to wash.",
+   "src": "L521"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "Both teams fall over backward at the same moment, in two long heaps with their legs in the air. Nobody is hurt; everybody is laughing too hard to get up. (judge), the judge, declares a draw. Each team keeps its half of the rope, and the next year both halves are knotted together for a rematch.",
+   "src": "L518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L518"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L518"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "Both teams fall over backward at the same moment, in two long heaps with their legs in the air. Nobody is hurt; everybody is laughing too hard to get up. (judge), the judge, declares a draw. Each team keeps its half of the rope, and the next year both halves are knotted together for a rematch.",
+   "src": "L518"
+  }
+ }
+}

@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Relic of a World Unseen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns39_relic_world",
+  "source": "living",
+  "lines": [
+   22674,
+   22685
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22674",
+  "ledger": [
+   {
+    "src": "L22685",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A tiny metal object with perfectly regular teeth washes onto the shore.",
+  "cast_only": [
+   "smith",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "smith": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tiny metal object with perfectly regular teeth washes onto the shore.",
+   "src": "L22675",
+   "choices": [
+    {
+     "label": "Catalogue its form and material.",
+     "next": "a",
+     "src": "L22676"
+    },
+    {
+     "label": "Imagine the people who made it.",
+     "next": "b",
+     "src": "L22679"
+    },
+    {
+     "label": "Keep it as a warning about unknown worlds.",
+     "next": "c",
+     "src": "L22682"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A smith copies its shape but cannot explain its original purpose.",
+   "src": "L22677"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The object corrodes before a second study can be made.",
+   "src": "L22678"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child writes a tale about a distant workshop.",
+   "src": "L22680"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder cautions against mistaking invention for history.",
+   "src": "L22681"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council discusses how to protect Isola's independence.",
+   "src": "L22683"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another villager argues that the object alone proves no danger.",
+   "src": "L22684"
+  }
+ }
+}

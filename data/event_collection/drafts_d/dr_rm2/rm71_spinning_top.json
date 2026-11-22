@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spinning Top",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm71_spinning_top",
+  "source": "draft_rm2",
+  "lines": [
+   459,
+   472
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L459",
+  "ledger": [
+   {
+    "src": "L460",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child receives a beautifully carved spinning top, and several other children crowd around wanting a turn.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a child, receives a beautifully carved spinning top, and several other children crowd around wanting a turn.",
+   "src": "L460",
+   "choices": [
+    {
+     "label": "Let Everyone Take a Turn.",
+     "next": "a",
+     "src": "L461"
+    },
+    {
+     "label": "Teach Others How to Spin It.",
+     "next": "b",
+     "src": "L464"
+    },
+    {
+     "label": "Keep It Just for a Little While First.",
+     "next": "c",
+     "src": "L467"
+    },
+    {
+     "label": "Ask the Carver to Make More.",
+     "next": "d",
+     "src": "L470"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The top spins happily from hand to hand.",
+   "src": "L462"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One child keeps it too long, and the others gently remind them.",
+   "src": "L463"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Soon everyone is spinning it well.",
+   "src": "L465"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child enjoys it alone and then shares happily.",
+   "src": "L468"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The other children wander off, and the child calls them back to share.",
+   "src": "L469"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The carver makes several, and the whole group plays together.",
+   "src": "L471"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The carver is too busy, so the children try carving their own.",
+   "src": "L472"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The top keeps falling over, and the children laugh at every tumble.",
+   "src": "L466",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L466"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The top keeps falling over, and the children laugh at every tumble.",
+   "src": "L466"
+  }
+ }
+}

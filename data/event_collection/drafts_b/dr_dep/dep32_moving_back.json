@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Moving Back In",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep32_moving_back",
+  "source": "draft_dep",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager whose new roof leaks comes back to the old hut to stay a few nights: make a joke of it, or just say thank you.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) moved into (his/her) own hut last season. This morning, after a night of rain pouring through the roof onto (his/her) face, (he/she) has come back to (his/her) old hut with a wet sleeping mat and an embarrassed expression, to ask if (he/she) can stay until the roof is fixed. Just for a few nights. (He/she) is a grown villager. It shouldn't feel this awkward.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Make a Joke of It",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Just Say Thank You",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) says thank you, rolls out the mat in (his/her) old spot, and goes quietly back to sleep. Nobody makes a fuss. That's the best part. A few days later the roof is fixed and (he/she) moves back out, carrying a bundle of food nobody admits to having packed.",
+   "src": "L389",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L389"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Missed us already?\" someone says, and (name1) laughs, and the awkwardness goes. (He/she) stays four nights. It's cozy and loud and nobody lets (him/her) do the washing. When the roof is fixed, (he/she) goes home, and the old hut feels quiet without (him/her) again.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Missed us already?\" someone says, and (name1) laughs, and the awkwardness goes. (He/she) stays four nights. It's cozy and loud and nobody lets (him/her) do the washing. When the roof is fixed, (he/she) goes home, and the old hut feels quiet without (him/her) again.",
+   "src": "L386"
+  }
+ }
+}

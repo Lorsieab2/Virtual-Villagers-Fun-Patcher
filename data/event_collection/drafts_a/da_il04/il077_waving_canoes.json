@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Waving at the Canoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il077_waving_canoes",
+  "source": "da_il04",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L206",
+    "kind": "casting",
+    "before": "and one of them says,",
+    "after": "and (fisher), one of them, says,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L206",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager waves at every canoe out on the water, even far-off specks that might be logs.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Whenever (subject) sees a canoe out on the water, (subject.he/she) waves at it. Even when it's far too far away for anyone in it to see. Even when it might be a log. (friend) watches (subject.him/her) waving enthusiastically at a dark speck on the horizon and asks why.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "a",
+     "src": "L205"
+    },
+    {
+     "label": "Admit You Don't Really Know",
+     "next": "b",
+     "src": "L208"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I've always done it,\" (subject) admits. \"I don't know why.\" (friend) shrugs and waves at the speck too, just to see what it's like. The speck turns out to be a log. They both agree it seemed to appreciate it.",
+   "src": "L209"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"In case they're having a hard day,\" (subject) says. \"Somebody should wave.\" (friend) looks at the speck. Then (friend.he/she) waves too. That evening the village fishers come home, and (fisher), one of them, says, quite seriously, \"Was that you two waving? We saw you from all the way out there. Made the whole afternoon.\"",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"In case they're having a hard day,\" (subject) says. \"Somebody should wave.\" (friend) looks at the speck. Then (friend.he/she) waves too. That evening the village fishers come home, and (fisher), one of them, says, quite seriously, \"Was that you two waving? We saw you from all the way out there. Made the whole afternoon.\"",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

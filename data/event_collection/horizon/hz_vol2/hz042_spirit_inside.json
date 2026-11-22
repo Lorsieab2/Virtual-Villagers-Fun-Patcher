@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spirit Inside the Carving",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz042_spirit_inside",
+  "source": "horizon",
+  "lines": [
+   599,
+   609
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L599",
+  "ledger": [],
+  "description": "A storyteller proposes that a distant people might build a speaking figure and claim a spirit lives within it.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a night gathering, a storyteller proposes that a distant people might build a speaking figure and claim a spirit lives within it.",
+   "src": "L600",
+   "choices": [
+    {
+     "label": "Invite the Spiritual Interpretation.",
+     "next": "a",
+     "src": "L601"
+    },
+    {
+     "label": "Invite the Scientific Interpretation.",
+     "next": "b",
+     "src": "L604"
+    },
+    {
+     "label": "Allow Both to Remain Possibilities.",
+     "next": "c",
+     "src": "L607"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A devotee says spirits might inhabit fashioned things, but admits no one has witnessed such a figure.",
+   "src": "L602"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Another villager fears that calling every strange mechanism sacred could hide an ordinary explanation.",
+   "src": "L603"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A researcher proposes hidden cords, weights, and stored instructions, yet cannot explain imagined conversation.",
+   "src": "L605"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The carver points out that describing how a thing moves would not settle whether it feels.",
+   "src": "L606"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gathering agrees that a mechanism and a spiritual interpretation need not answer the same question.",
+   "src": "L608"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A skeptic objects that possibilities are not evidence; the debate ends without a verdict.",
+   "src": "L609"
+  }
+ }
+}

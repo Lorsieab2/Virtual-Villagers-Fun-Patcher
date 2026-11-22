@@ -1,0 +1,278 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A New Beginning at Seventeen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel16_beginning",
+  "source": "anthology",
+  "lines": [
+   27242,
+   27255
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27242",
+  "ledger": [
+   {
+    "src": "L27242",
+    "kind": "note",
+    "why": "presentation effect 23 pending (B1: trying a sprite presentation, reversible)"
+   },
+   {
+    "src": "L27243",
+    "kind": "sensitivity",
+    "before": "A seventeen-year-old wants to be known by a different name and",
+    "after": "(teen), a seventeen-year-old, wants to be known by a different name, (chosen), and",
+    "why": "the lead (2026-11-15): a chosen name is the engine's new-name role (cie-v6-binary.md 28), shown in the story; nobody is renamed"
+   },
+   {
+    "src": "L27245",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27246",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27248",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27249",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27251",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27252",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27252",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27254",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27255",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A seventeen-year-old wants to be known by a different name and gender presentation.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "relative",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 17,
+   "max_age": 17
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "chosen": {
+   "kind": "stranger",
+   "new_name_for": "teen",
+   "sex": "other",
+   "last_name": "same"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen), a seventeen-year-old, wants to be known by a different name, (chosen), and gender presentation.",
+   "src": "L27243",
+   "choices": [
+    {
+     "label": "Listen and Use the Requested Name",
+     "next": "a",
+     "src": "L27244"
+    },
+    {
+     "label": "Offer Reversible Appearance Choices",
+     "next": "b",
+     "src": "L27247"
+    },
+    {
+     "label": "Talk with a Trusted Adult",
+     "next": "c",
+     "src": "L27250"
+    },
+    {
+     "label": "Keep the Conversation Private",
+     "next": "d",
+     "src": "L27253"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(relative) needs practice but makes a sincere effort.",
+   "src": "L27246"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(teen) enjoys trying a different clothing color or sprite presentation.",
+   "src": "L27248"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) experiments and decides to wait before changing appearance again.",
+   "src": "L27249"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult) listens without demanding an explanation.",
+   "src": "L27251"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult) asks what support (teen) wants at home.",
+   "src": "L27252"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(teen) feels safe choosing when to tell others.",
+   "src": "L27254"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen) later decides to share the news with a close friend.",
+   "src": "L27255"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(teen) feels relieved and more at ease with friends.",
+   "src": "L27245",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L27245"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(teen) feels relieved and more at ease with friends.",
+   "src": "L27245"
+  }
+ }
+}

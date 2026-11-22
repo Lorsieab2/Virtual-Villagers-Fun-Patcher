@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancestor Who Loved Jokes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy24_ancestor_loved",
+  "source": "anthology",
+  "lines": [
+   29028,
+   29041
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29028",
+  "ledger": [
+   {
+    "src": "L29031",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29032",
+    "kind": "sensitivity",
+    "before": "A researcher",
+    "after": "(villager), a researcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29035",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A memorial carving includes a puzzling, comical inscription.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A memorial carving includes a puzzling, comical inscription.",
+   "src": "L29029",
+   "choices": [
+    {
+     "label": "Interpret It Solemnly",
+     "next": "a",
+     "src": "L29030"
+    },
+    {
+     "label": "Tell Jokes in Tribute",
+     "next": "b",
+     "src": "L29033"
+    },
+    {
+     "label": "Study the Inscription",
+     "next": "c",
+     "src": "L29036"
+    },
+    {
+     "label": "Leave Its Meaning Open",
+     "next": "d",
+     "src": "L29039"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(elder) suggests a forgotten ceremonial meaning.",
+   "src": "L29031"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager), a researcher, notices a playful rhyme in the marks.",
+   "src": "L29032"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) prefers a quieter remembrance.",
+   "src": "L29035"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Researchers uncover an old nickname.",
+   "src": "L29037"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The carving remains impossible to interpret confidently.",
+   "src": "L29038"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers enjoy imagining the ancestor's personality.",
+   "src": "L29040"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The mystery inspires a new annual storytelling game.",
+   "src": "L29041"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gathering becomes warmly humorous.",
+   "src": "L29034",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29034"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29034"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gathering becomes warmly humorous.",
+   "src": "L29034"
+  }
+ }
+}

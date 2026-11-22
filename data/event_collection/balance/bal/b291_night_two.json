@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of Two Sunrises",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b291_night_two",
+  "source": "balance",
+  "lines": [
+   13523,
+   13564
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L13523",
+  "ledger": [
+   {
+    "src": "L13524",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13525",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13532",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13541",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13529",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13530",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13533",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13542",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13535",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13544",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13550-13564",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders call it the False Dawn.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Some mornings, very rarely, a bright light glows on the horizon an hour before dawn, like a second sunrise that changes its mind and fades away. The elders call it the False Dawn. Babies conceived on that night, they say, arrive early, kick hard and laugh loud. The fishers say it's just the light of a far-off fire mountain.\nThis morning (subject) wakes in the dark to see the False Dawn glowing through the doorway. (friend) is still asleep. Should she wake (subject.him/her) to watch it together, or let (subject.him/her) sleep and watch it alone?",
+   "choices": [
+    {
+     "label": "Wake (friend)",
+     "next": "c1",
+     "src": "L13529"
+    },
+    {
+     "label": "Watch It Alone",
+     "next": "c2",
+     "src": "L13530"
+    }
+   ],
+   "src": "L13526-13527"
+  },
+  "c1o1": {
+   "text": "Some weeks later, (subject) is pregnant, and the baby starts kicking so early and so hard that the healers raise their eyebrows. \"False Dawn,\" the elders say, nodding wisely. (friend) goes around telling everyone the baby will be a fisher, \"because of the kicking.\" Nobody knows what kicking has to do with fishing.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13536",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) is soon pregnant, and the healers, feeling her belly, count {#babies:one very strong kicker|two sets of kicks|three sets of kicks}. \"The False Dawn always did like company,\" says the oldest healer. (friend) sits down on the floor of the healers' hut and stays there for some time.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "babies": "roll",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13539",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) shakes (friend) gently. (subject.He/She) grumbles, then sees the glow and sits up. They wrap themselves in one blanket and sit in the doorway, watching the strange light...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13533"
+  },
+  "c2o1": {
+   "text": "As the glow fades, a small canoe, no longer than a person, drifts in on the still water and bumps against the sand at (subject)'s feet. Inside, wrapped in a woven mat, is a baby, sleeping. No one is with it. (subject) carries it home, and wakes (friend) after all. \"Look what the False Dawn brought,\" she says.",
+   "effects": [
+    {
+     "do": "nursing",
+     "partner": "friend",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13545",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The light fades and the real dawn comes up, pink and ordinary. (subject) goes back inside and slips under the blanket. \"Where were you?\" (friend) mumbles. \"Watching the False Dawn.\" \"Mm,\" says (friend), and goes back to sleep. Later, at breakfast, (subject.he/she) is very annoyed that (subject.he/she) missed it.",
+   "src": "L13548"
+  },
+  "c2": {
+   "text": "(subject) slips out without waking (friend) and sits on the beach, watching the false sunrise glow and fade. The sea is very still...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13542"
+  }
+ }
+}

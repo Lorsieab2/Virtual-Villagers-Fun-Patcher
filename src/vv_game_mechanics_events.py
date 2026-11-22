@@ -99,6 +99,93 @@ def with_scaling(game: int, events: tuple, titles: frozenset) -> tuple:
                  for event in events)
 
 
+# More Frequent Island Events (all five games): the game's own wait between events, rand(K) + K whole real-life
+# hours (scripts/build_island_frequency_features.py), divided by the patcher window's N.
+FREQUENCY_HOURS = {1: 12, 2: 10, 3: 8, 4: 8, 5: 8}
+TIMING = "Timing:"
+
+
+def frequency_id(game: int) -> str:
+    """More Frequent Island Events, in all five games."""
+    return f"vv{game}_more_frequent_island_events"
+
+
+def frequency_multiplier(village) -> int | float | None:
+    """The N the game's "VVFP Island Frequency.txt" holds (beside its companion, in the patcher's folder next to the
+    game's exe), read as the companion reads it (native/shared/multiplier_choice.h): 0.1 to 10 in tenths (above 100
+    is 100, below 0.1 is 0.1), 2 with no number; an int when whole; None when the exe is not known or the file cannot
+    be read."""
+    import patcher_files
+    from pathlib import Path
+    exe = getattr(village, "exe", None)
+    if exe is None:
+        return None
+    try:
+        raw = (Path(exe).parent / patcher_files.PATCHER_FILES_FOLDER / "VVFP Island Frequency.txt").read_bytes()[:15]
+    except OSError:
+        return None
+    text = raw.decode("ascii", "replace").lstrip(" \t")        # only leading blanks and digits are read
+    digits = ""
+    for ch in text:
+        if not ("0" <= ch <= "9"):
+            break
+        digits += ch
+    rest = text[len(digits):]
+    tenth = rest[1] if rest[:1] == "." and rest[1:2].isdigit() and rest[1:2].isascii() else ""
+    if not digits and not tenth:
+        return 2
+    tenths = max(1, min(100, int(digits[:6] or "0") * 10 + int(tenth or "0")))
+    return tenths // 10 if tenths % 10 == 0 else tenths / 10
+
+
+def _span(seconds: int) -> str:
+    """A wait in plain words: whole hours and minutes (seconds only under a minute)."""
+    hours, rest = divmod(seconds, 3600)
+    minutes, secs = divmod(rest, 60)
+    parts = []
+    if hours:
+        parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+    if minutes:
+        parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+    if secs and not hours:
+        parts.append(f"{secs} second{'s' if secs != 1 else ''}")
+    return " ".join(parts) or "0 seconds"
+
+
+def frequency_words(village) -> str:
+    """The timing line's patched sub-line: the shortened wait, at the game's own N when it can be read."""
+    game = village.game
+    k = FREQUENCY_HOURS[game]
+    n = frequency_multiplier(village)
+    if n is None:
+        effect = (f"each wait after an event ({k} to {2 * k - 1} hours) is divided by the number set on its slider "
+                  "(0.1 to 10; below 1 the wait is longer), so the game's own events come that many times as often; "
+                  "the first events' minutes are unchanged")
+    else:
+        tenths = round(n * 10)
+        effect = (f"the game's own events come {n} times as often: the wait after an event is "
+                  f"{_span(k * 36000 // tenths)} to {_span((2 * k - 1) * 36000 // tenths)} of real-life time instead "
+                  f"of {k} to {2 * k - 1} hours (each of the {k} waits as likely); the first events' minutes are "
+                  "unchanged")
+    return patched_words(frequency_id(game), effect)
+
+
+def every_event_id(game: int) -> str:
+    """Every Island Event Can Happen: A New Home, The Lost Children, The Secret City, New Believers."""
+    return f"vv{game}_every_island_event_can_happen"
+
+
+def with_every_event(game: int, events: tuple, changes: dict) -> tuple:
+    """`events` with Every Island Event Can Happen's mark on each event titled in `changes` (title -> what the patch
+    changes; every title must be there)."""
+    import dataclasses
+    missing = set(changes) - {event.title for event in events}
+    if missing:
+        raise ValueError(f"every island event: no such event {sorted(missing)}")
+    return tuple(dataclasses.replace(event, patched=tuple(event.patched) + ((every_event_id(game), changes[event.title]),))
+                 if event.title in changes else event for event in events)
+
+
 def _line(item) -> Line:
     return item if isinstance(item, Line) else Line(item)
 
@@ -119,6 +206,9 @@ def event_facts(village: gm.Village, rules=(), events=(), extra=()) -> list[gm.F
         line = _line(item)
         if shown(line.only_with):
             out.append(gm.Fact(GROUP, line.text, line.verified, sub=line.sub))
+            if line.text.startswith(TIMING) and village.game in FREQUENCY_HOURS \
+                    and village.has(frequency_id(village.game)) is True:
+                out.append(gm.Fact(GROUP, frequency_words(village), gm.CODE, sub=True))
             if line.text.startswith(ROOM):
                 import vv_game_mechanics_life as life       # the limit this game's exe gives (its population mode)
                 words = life.room_words(village)
@@ -145,8 +235,17 @@ def facts(village: gm.Village) -> list[gm.Fact]:
         module = importlib.import_module(f"vv_game_mechanics_events_vv{village.game}")
     except ImportError:
         return []
-    return event_facts(village, getattr(module, "RULES", ()), getattr(module, "EVENTS", ()),
-                       getattr(module, "EXTRA", ()))
+    import vv_game_mechanics_no_safeguards as no_safeguards   # the game's own events without their safeguards
+    return (no_safeguards.facts(village)
+            + event_facts(village, getattr(module, "RULES", ()), getattr(module, "EVENTS", ()),
+                          getattr(module, "EXTRA", ()))
+            + collection_facts(village))
+
+
+def collection_facts(village: gm.Village) -> list[gm.Fact]:
+    """The Isola Grand Event Collection's lines (src/vv_game_mechanics_collection.py), with its patch only."""
+    import vv_game_mechanics_collection as collection
+    return collection.facts(village)
 
 
 def share(percent: float, count: int) -> str:

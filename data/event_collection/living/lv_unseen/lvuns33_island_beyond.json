@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island Beyond the Clouds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns33_island_beyond",
+  "source": "living",
+  "lines": [
+   22596,
+   22607
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22596",
+  "ledger": [
+   {
+    "src": "L22607",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager wonders whether other islands hold people like them or entirely different civilizations.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager wonders whether other islands hold people like them or entirely different civilizations.",
+   "src": "L22597",
+   "choices": [
+    {
+     "label": "Study currents and washed-up objects.",
+     "next": "a",
+     "src": "L22598"
+    },
+    {
+     "label": "Prepare a welcoming code for hypothetical visitors.",
+     "next": "b",
+     "src": "L22601"
+    },
+    {
+     "label": "Teach that differences need not mean danger.",
+     "next": "c",
+     "src": "L22604"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The catalogue gains clues but no proof of distant societies.",
+   "src": "L22599"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A strange carved bead raises more questions than answers.",
+   "src": "L22600"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council agrees on respect, consent, and resource boundaries.",
+   "src": "L22602"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some villagers demand stricter isolation.",
+   "src": "L22603"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children imagine both shared customs and unfamiliar ones.",
+   "src": "L22605"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder reminds them that curiosity should include caution.",
+   "src": "L22606"
+  }
+ }
+}

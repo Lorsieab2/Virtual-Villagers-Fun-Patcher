@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grass Study",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat059_grass",
+  "source": "companion",
+  "lines": [
+   7805,
+   7815
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_foliage",
+  "title_src": "L7805",
+  "ledger": [
+   {
+    "src": "L7815",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "A botanist finds a Venomous Grass whose leaves hold water well, but a neighboring one looks different."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "botanist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A botanist discovers a Venomous Grass growing among vines and damp stone. Its leaves seem to hold water unusually well, but a neighboring specimen looks different.",
+   "src": "L7806",
+   "choices": [
+    {
+     "label": "Draw the living plant in place",
+     "next": "a",
+     "src": "L7807"
+    },
+    {
+     "label": "Take a fallen leaf and flower",
+     "next": "b",
+     "src": "L7809"
+    },
+    {
+     "label": "Cultivate a cutting if feasible",
+     "next": "c",
+     "src": "L7811"
+    },
+    {
+     "label": "Uproot and dry the entire plant",
+     "next": "d",
+     "src": "L7813"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The sketch preserves leaf shape and setting, though the flower may close before its color is recorded accurately.",
+   "src": "L7808"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The sample is minimally disruptive but may be too damaged for confident identification.",
+   "src": "L7810"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The cutting may root, fail, or change appearance under garden conditions; the original habitat remains recorded.",
+   "src": "L7812",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "botanist",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7812"
+    }
+   ],
+   "auto_text": true
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A detailed herbarium specimen results, but the original plant is lost; rarity and ecological impact shape the villagers' reaction.",
+   "src": "L7814",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "botanist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7814"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7814"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the original plant is lost",
+     "reason": "a plant, not a villager or the village's food",
+     "src": "L7814"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

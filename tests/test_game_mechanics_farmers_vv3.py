@@ -6,7 +6,7 @@ table, the settings / fopen, atexit and operator new) over the game's own map fi
 research/game-data/vv3 (cmap.dat, wpts.dat; never committed); it skips when either is missing (CI).
 
 The full re-measurement of TRIP_SAMPLES (1,600 trips) and of one LIVE_CYCLE run (40 real-life hours of frames) runs
-only with VVFP_RELEASE=1.
+only with --release or VVFP_RELEASE=1.
 """
 from __future__ import annotations
 
@@ -163,7 +163,7 @@ class LiveTripTests(unittest.TestCase):
                     self.assertGreaterEqual(paid, done - 3)
                 self.assertEqual(v.region(*v.feet()), 0xE)
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_the_trip_samples_re_measure_exactly(self):
         for key in JOBS:
             trips = _bin_trips(key, 400, seed=11)
@@ -184,7 +184,7 @@ class LiveTripTests(unittest.TestCase):
         self.assertEqual((len(crabs), round(statistics.mean(crabs), 2), round(min(crabs), 2), round(max(crabs), 2)),
                          vv3.TRIP_SAMPLES["crabs"])
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_a_live_cycle_run_replays(self):
         # 40 real-life hours of frames of the scheduler: the fruit picker at Farming 100, seed 1.
         v = fe.Village(seed=1)

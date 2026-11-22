@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Leader of the Line",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm09_leader_line",
+  "source": "draft_drm",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-8 and an adult)"
+   }
+  ],
+  "description": "A small child who means to lead the village someday practices on chickens: let them lead the line, or ask what they would change.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has announced that one day (subject.he/she) is going to be the leader of the whole village. (subject.He/she) has been practicing by giving orders to a group of extremely uninterested chickens. Today (friend) is taking the small children down to the stream to wash, and has an idea.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Let (subject.him/her) Lead the Way",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Ask What (subject.he/she) Would Change",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"If you were leader,\" asks (friend), \"what would you change?\" (subject) thinks very hard. \"Bedtime later. More mangoes. Everybody gets a turn on the swing. And nobody's allowed to be sad.\" (friend) points out that the last one might be hard to enforce. (subject) considers this. \"Then nobody's allowed to be sad alone,\" (subject.he/she) says. (friend) thinks that's actually rather good.",
+   "src": "L113"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Would you lead us to the stream?\" asks (friend). (subject) is overwhelmed with the honor. (subject.He/she) leads the line with tremendous seriousness, checking behind (subject.him/her) every few steps and saying \"Careful, a stone\" at every stone. Everyone arrives safely. (subject) is insufferable about it for the rest of the day.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Would you lead us to the stream?\" asks (friend). (subject) is overwhelmed with the honor. (subject.He/she) leads the line with tremendous seriousness, checking behind (subject.him/her) every few steps and saying \"Careful, a stone\" at every stone. Everyone arrives safely. (subject) is insufferable about it for the rest of the day.",
+   "src": "L110"
+  }
+ }
+}

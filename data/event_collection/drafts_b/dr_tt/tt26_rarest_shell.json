@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rarest Shell on Isola",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt26_rarest_shell",
+  "source": "draft_tt",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children aged 7-13)"
+   }
+  ],
+  "description": "A child talks up a plain grey shell to win a friend's pink one: make the trade, or stop halfway.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants (friend)'s shiny pink shell. (subject) has a plain grey one. So (subject) has begun explaining, at length, how rare plain grey shells are. Extremely rare. Hardly anyone has one. Some people search for years. (friend) is starting to look interested.",
+   "src": "L311",
+   "choices": [
+    {
+     "label": "Make the Trade",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Stop Halfway",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) swaps. (subject) is thrilled with the pink shell for about an hour. Then (subject.he/she) sees (friend) showing the grey shell to the other children, telling them how rare it is, and the other children are all very impressed and all want one. (subject) looks down at the pink shell. Somehow it has become a little less exciting.",
+   "src": "L314"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "Halfway through the speech, (subject) stops. \"Actually, there are loads of grey ones.\" (friend) laughs. \"I know. I've got eleven.\" They go down to the beach together to look for another pink one. They don't find one, but they do find a very fine crab, and agree to share it, as long as it agrees.",
+   "src": "L317",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L317"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "Halfway through the speech, (subject) stops. \"Actually, there are loads of grey ones.\" (friend) laughs. \"I know. I've got eleven.\" They go down to the beach together to look for another pink one. They don't find one, but they do find a very fine crab, and agree to share it, as long as it agrees.",
+   "src": "L317"
+  }
+ }
+}

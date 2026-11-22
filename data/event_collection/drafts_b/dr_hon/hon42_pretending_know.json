@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Pretending to Know the Knot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon42_pretending_know",
+  "source": "draft_hon",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager pretended to know the special wet knot for a fish trap: admit it before finishing, or finish and hope.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has asked (subject) to help tie the new fish trap together with the special knot that holds when it's wet. (subject) said, \"Of course.\" (subject) does not know the special knot. (subject.He/she) has spent most of the morning tying something that looks a lot like it.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Admit It Before You Finish",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Finish and Hope",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't actually know this knot,\" says (subject). \"I've been copying how it looks.\" (friend) checks: half the knots come apart in (friend.his/her) hands. (friend.He/she) sighs and sits down beside (subject.him/her). \"All right. Watch.\" It takes three tries before (subject) gets it. By evening, (subject.he/she) can tie it in (subject.his/her) sleep.",
+   "src": "L506"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The trap is finished, and (friend) sets it in the stream. By the next morning it has come apart and is floating downstream in four pieces. (subject) admits everything. (friend) fishes the pieces out with a stick. \"Next time, just say.\" Then (friend.he/she) teaches (subject.him/her) the knot, very slowly, with a great deal of sighing.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The trap is finished, and (friend) sets it in the stream. By the next morning it has come apart and is floating downstream in four pieces. (subject) admits everything. (friend) fishes the pieces out with a stick. \"Next time, just say.\" Then (friend.he/she) teaches (subject.him/her) the knot, very slowly, with a great deal of sighing.",
+   "src": "L509"
+  }
+ }
+}

@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Does the Sea Taste Salty?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd25_why_does_sea",
+  "source": "anthology",
+  "lines": [
+   27932,
+   27945
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27932",
+  "ledger": [
+   {
+    "src": "L27933",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27935",
+    "kind": "sensitivity",
+    "before": "A teacher",
+    "after": "(adult), a teacher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27936",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27938",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27939",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27941",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27942",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27944",
+    "kind": "sensitivity",
+    "before": "The fisher",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27945",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child tastes a drop of seawater and asks why it differs from drinking water.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) tastes a drop of seawater and asks why it differs from drinking water.",
+   "src": "L27933",
+   "choices": [
+    {
+     "label": "Explain Dissolved Minerals.",
+     "next": "a",
+     "src": "L27934"
+    },
+    {
+     "label": "Compare Safe Samples.",
+     "next": "b",
+     "src": "L27937"
+    },
+    {
+     "label": "Tell a Playful Myth.",
+     "next": "c",
+     "src": "L27940"
+    },
+    {
+     "label": "Ask a Fisher.",
+     "next": "d",
+     "src": "L27943"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult), a teacher, describes salts carried into the sea over time.",
+   "src": "L27935"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) wonders why rainwater tastes different.",
+   "src": "L27936"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) learns not to drink seawater and observes differences safely.",
+   "src": "L27938"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) asks whether boiling seawater makes it drinkable.",
+   "src": "L27939"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) shares a story about a giant salt pot as folklore.",
+   "src": "L27941"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) giggles and then asks for the natural explanation.",
+   "src": "L27942"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult) explains why fresh drinking water matters at sea.",
+   "src": "L27944"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) learns that salty water cannot replace drinking water.",
+   "src": "L27945"
+  }
+ }
+}

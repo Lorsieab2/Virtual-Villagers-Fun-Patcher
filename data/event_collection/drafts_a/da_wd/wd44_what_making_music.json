@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Making That Music?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd44_what_making_music",
+  "source": "da_wd",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A low, humming music drifts across the village every windy evening, and nobody is playing anything.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every evening when the wind blows from the sea, a strange, low, humming music drifts across the village. It rises and falls. It's beautiful, and a bit eerie. Nobody is playing anything. (name1) has decided to follow the sound and find out where it's coming from.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Follow It to the End",
+     "next": "a",
+     "src": "L517"
+    },
+    {
+     "label": "Decide It's Better Not to Know",
+     "next": "b",
+     "src": "L520"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) follows the sound to the edge of the gardens, where a piece of old hollow bamboo has been left leaning against a fence. When the wind blows across the top of it, it sings. (name1) laughs out loud. The bamboo sings again. (name1) decides to leave it exactly where it is. The village goes on enjoying its music all season.",
+   "src": "L518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L518"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) follows the sound to the edge of the gardens, where a piece of old hollow bamboo has been left leaning against a fence. When the wind blows across the top of it, it sings. (name1) laughs out loud. The bamboo sings again. (name1) decides to leave it exactly where it is. The village goes on enjoying its music all season.",
+   "src": "L518"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) gets as far as the gardens and stops. If (he/she) finds out what's making the music, it will just be something ordinary. If (he/she) doesn't, it's a mystery. (He/She) turns round and walks back. That night, (he/she) lies in bed listening to the strange song in the wind, and enjoys it more than ever.",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L521"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) gets as far as the gardens and stops. If (he/she) finds out what's making the music, it will just be something ordinary. If (he/she) doesn't, it's a mystery. (He/She) turns round and walks back. That night, (he/she) lies in bed listening to the strange song in the wind, and enjoys it more than ever.",
+   "src": "L521"
+  }
+ }
+}

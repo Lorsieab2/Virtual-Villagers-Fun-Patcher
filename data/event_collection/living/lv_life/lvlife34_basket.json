@@ -1,0 +1,209 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Basket That Breathes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife34_basket",
+  "source": "living",
+  "lines": [
+   21071,
+   21082
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21071",
+  "ledger": [
+   {
+    "src": "L21082",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Food gatherers disagree whether tightly woven baskets or open baskets best protect tropical fruit.",
+  "cast_only": [
+   "gatherer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "gatherer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Food gatherers disagree whether tightly woven baskets or open baskets best protect tropical fruit.",
+   "src": "L21072",
+   "choices": [
+    {
+     "label": "Make tightly woven baskets.",
+     "next": "a",
+     "src": "L21073"
+    },
+    {
+     "label": "Use airy open baskets.",
+     "next": "b",
+     "src": "L21076"
+    },
+    {
+     "label": "Test baskets for different fruits.",
+     "next": "c",
+     "src": "L21079"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "food gatherers",
+     "reason": "who the gatherers are; nothing is gained or lost",
+     "src": "L21072"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fruit is protected from insects but bruises in the heat.",
+   "src": "L21074"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A new lining prevents some damage.",
+   "src": "L21075"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Birds steal part of the harvest.",
+   "src": "L21078",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21078"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The trial reveals that no single basket works for everything.",
+   "src": "L21081"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The fruit stays fresher on short journeys.",
+   "src": "L21077",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21077"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The fruit stays fresher on short journeys.",
+   "src": "L21077"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The village learns which design suits each crop.",
+   "src": "L21080",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21080"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The village learns which design suits each crop.",
+   "src": "L21080"
+  }
+ }
+}

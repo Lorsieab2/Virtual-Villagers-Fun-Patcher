@@ -39,6 +39,8 @@ CONFIG = {
         "active": 0x28,
         "health": 0x344,
         "age": 0x348,
+        "lived": 0x34C,
+        "nursing": 0x358,
         "skills": (0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC),
         "native_skill_writer": 0x437230,
         "skill_codes": (2, 4, 1, 5, 3),
@@ -76,6 +78,8 @@ CONFIG = {
         "active": 0xF10,
         "health": 0xE78,
         "age": 0xDC4,
+        "lived": 0xE74,
+        "nursing": 0xE8C,
         "skills": (0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC),
         "code_size": 0x500,
         "age_code_offset": 0x330,
@@ -112,6 +116,8 @@ CONFIG = {
         "dead": 0x1CC7,
         "health": 0x1C40,
         "age": 0x1B8C,
+        "lived": 0x1C3C,
+        "nursing": 0x1C4C,
         "skills": (0x1C5C, 0x1C60, 0x1C64, 0x1C68, 0x1C6C),
         # VV4 stores skills as Float32 values.  sub_46AD80 is the native
         # writer: push (100.0 - current), push skill ordinal, ECX = the
@@ -639,30 +645,27 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     age_increment = (
         f"inc dword ptr [0x{age_granted_va:X}]" if report_age else ""
     )
-    # Writing only the raw age field (config['age']) is not enough to make
-    # a villager -- especially an elder, whose age can be well past 360 --
-    # actually settle at 18: the stock engine's own age-mutation routine
-    # (decompiled at 0x419543-0x4195be in the exact VV1 build) always
-    # keeps age+4 (a "last-synced age" bookkeeping field the engine reads
-    # back on the next per-frame update) equal to the current age right
-    # after changing it, and shifts age+0x10 (the pregnancy timer) to
-    # match, or the engine's own logic can recompute/override the age
-    # right back to something derived from the stale bookkeeping. This
-    # mirrors detail_age_18's own single-villager version exactly (down
-    # to the same 318 = 360 - 42 gestation-offset constant), which
-    # already gets this right and is the reason it doesn't have the same
-    # bug this village-wide row does.
-    age_sync = (
-        f"""
-            mov dword ptr [esi + {_hex_word(config['age'] + 4)}], 360
-            cmp dword ptr [esi + {_hex_word(config['age'] + 0x10)}], 0
+    # Every game keeps two ages: the shown age (config['age']) and the age the
+    # villager tick has already lived (config['lived']).  The tick (VV1 life
+    # loop 0x42EC74, VV3 0x46001E, VV4 0x46846D) steps every villager whose
+    # lived age is behind the shown age one unit at a time until none is
+    # behind -- all in ONE update, job turns included -- and a pregnancy or
+    # nursing (config['nursing']) holds the lived age at the conception, the
+    # birth due 40 units later.  So the age is MOVED, not just written: the
+    # lived age and a running conception mark move by the same delta, as the
+    # stock engine's own age change does (VV1 0x419543-0x4195BE: the lived age
+    # follows the new age and the pregnancy keeps how far along it is).  Only
+    # the shown age written, a child made 18 lives every missing year at once
+    # (New Believers live, 2026-11-20: four to seven conceptions and births each
+    # at shown age 360); the older 318 (360 - 42) made every carrier give
+    # birth on the next update.
+    age_sync = f"""
+            add dword ptr [esi + {_hex_word(config['lived'])}], eax
+            cmp dword ptr [esi + {_hex_word(config['nursing'])}], 0
             je age_pregnancy_synced
-            mov dword ptr [esi + {_hex_word(config['age'] + 0x10)}], 318
+            add dword ptr [esi + {_hex_word(config['nursing'])}], eax
         age_pregnancy_synced:
         """
-        if report_age
-        else ""
-    )
     put(
         age_va,
         f"""
@@ -679,6 +682,8 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             jz age_done
             {_eligibility(config, 'age_next')}
             {age_skip_check}
+            mov eax, 360
+            sub eax, dword ptr [esi + {_hex_word(config['age'])}]
             mov dword ptr [esi + {_hex_word(config['age'])}], 360
             {age_sync}
             {age_increment}
@@ -794,6 +799,8 @@ def main() -> None:
             "active_offset": f"0x{config['active']:X}",
             "health_offset": f"0x{config['health']:X}",
             "age_offset": f"0x{config['age']:X}",
+            "lived_age_offset": f"0x{config['lived']:X}",
+            "nursing_offset": f"0x{config['nursing']:X}",
             "likes_offset": f"0x{config['likes']:X}",
             "dislikes_offset": f"0x{config['dislikes']:X}",
             "like_slot_count": config["slot_count"],
@@ -874,12 +881,12 @@ def main() -> None:
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
                 f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged.",
                 mastery_behavior,
-                "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
+                "All Villagers are 18 sets the displayed age to 360 age units and moves the lived age, and a running pregnancy or nursing mark, by the same amount, so the villager tick neither replays the years at once nor skips them and a pregnancy stays as far along.",
             ],
             "running_preference_id": config["running_preference_id"],
             "explicit_non_changes": [
                 "No unrelated Like is replaced or removed.",
-                "No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written.",
+                "No movement speed, movement initialization, or pregnancy state is written; a pregnancy or nursing mark is only moved with the age, never started or ended.",
                 "The upgrades are save-scoped and do not set a global ownership bit.",
             ],
             "evidence_status": "static exact-build payload and field-map verification performed; runtime/player confirmation pending",

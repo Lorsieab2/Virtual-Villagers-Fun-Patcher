@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask Carver's New Faces",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b268_mask_carver_faces",
+  "source": "balance",
+  "lines": [
+   12489,
+   12531
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12489",
+  "ledger": [
+   {
+    "src": "L12490",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12491",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12499",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12508",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12496",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12497",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12500",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12509",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12502",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12505",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12511",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12514",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12517-12531",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Just for a moment. The elders say a carver's hands sometimes know things the carver doesn't.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "carver": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(carver) has been carving masks out of driftwood all season, and lately (subject.he/she) has started saying that the masks are telling (subject.him/her) who they're for. Today (subject.he/she) comes to find (subject) with a new one, painted in red and white. \"This one's yours,\" (carver) says. \"It told me. Put it on. Just for a moment.\"\nThe elders say a carver's hands sometimes know things the carver doesn't. The mask's face looks a little like (subject), and a little like someone else entirely.\nShould (subject) put it on, or politely hand it back?",
+   "choices": [
+    {
+     "label": "Put It On",
+     "next": "c1",
+     "src": "L12496"
+    },
+    {
+     "label": "Hand It Back",
+     "next": "c2",
+     "src": "L12497"
+    }
+   ],
+   "src": "L12492-12494"
+  },
+  "c1o1": {
+   "text": "When the mask comes off, everyone gasps. (subject)'s face has changed. It's still (subject), still the same eyes and the same smile, but the shape of it is different: like the mask, or like a cousin of (subject)'s that nobody has ever met. (carver) nods, satisfied. \"Told you,\" (subject.he/she) says. \"It was yours.\"",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L12503",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The mask comes off, and (subject) looks exactly as before. But on the back of the mask, scratched in the wood where nobody saw it before, is a name, and (subject) can't stop saying it. \"Obi,\" says (subject), if (subject.he/she) is a man; \"Itchi,\" if a woman. \"That's me, isn't it?\" Within a week, everyone is calling (subject.him/her) by it, and (subject.he/she) answers to nothing else.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L12506",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) ties the mask on. It's warm inside, warmer than wood should be, and it smells of salt and smoke. (subject.He/She) counts to three and takes it off...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12500"
+  },
+  "c2o1": {
+   "text": "In the morning, (carver) comes out of (subject.his/her) hut with a new face: (subject.he/she) put the mask on (subject.himself/herself) in the night, just to see. \"It must have been for me after all,\" (subject.he/she) says, a little sheepishly. Nobody can quite get used to it. (carver) loves it.",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "carver",
+     "head": "random"
+    }
+   ],
+   "src": "L12512",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(carver) leaves the mask on the beach, facing the sea, and goes back to carving bowls. In the morning the mask is gone. A few days later a fisher says (subject.he/she) saw something red and white bobbing out by the reef, facing the island, but nobody goes to look.",
+   "src": "L12515"
+  },
+  "c2": {
+   "text": "\"It's beautiful,\" says (subject), \"but I like my own face.\" (carver) looks hurt, and then thoughtful, and takes the mask away. That night (subject.he/she) can't stop looking at it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12509"
+  }
+ }
+}

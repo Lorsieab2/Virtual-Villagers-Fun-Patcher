@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfair Rule",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl032_unfair_rule",
+  "source": "companion",
+  "lines": [
+   4208,
+   4218
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4208",
+  "ledger": [
+   {
+    "src": "L4209",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4217",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4218",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Children protest a rule they believe favors older villagers.",
+  "cast_only": [
+   "child1",
+   "child2",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Children protest a rule they believe favors older villagers.",
+   "src": "L4210",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4211"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4212"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4213"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The council changes the rule.",
+   "src": "L4214"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "An elder explains a safety reason the children had missed.",
+   "src": "L4215"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The children propose a sensible compromise.",
+   "src": "L4216"
+  }
+ }
+}

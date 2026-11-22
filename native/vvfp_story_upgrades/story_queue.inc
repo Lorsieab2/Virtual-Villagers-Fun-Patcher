@@ -68,7 +68,12 @@
    itself, never a random event in its place. */
 
 #define SQ_MAGIC   0x31515356u              /* 'V' 'S' 'Q' '1' */
-#define SQ_VERSION 1u
+/* Version 2 (the owner, 2026-11-17: the simple editor's text and labels practically unlimited with Scrolling Popups):
+   ce_event's text is CE_TEXT_STORE bytes and ce_choice's labels CE_LABEL_STORE, so the record is larger; every field
+   is otherwise where it was.  A version 1 file (written before) is still read -- its event, its question and its
+   labels put into this layout (sq_from_v1) -- so an event queued before the upgrade is never lost. */
+#define SQ_VERSION 2u
+#define SQ_VERSION_1 1u
 #define SQ_PICK   1u
 #define SQ_CUSTOM 2u
 #define SQ_GONG   4u
@@ -111,6 +116,148 @@ typedef struct {
     int skip_done;
     int skip_notice;                        /* years the closing popup is to tell, when no step is left */
 } sq_file;
+
+/* ---- Version 1 (read only) ----------------------------------------------------------------------------------
+   The layout before the simple editor's text grew: ce_event's text was CE_TEXT_BYTES (600) bytes and ce_choice's
+   labels CE_BUTTON_BYTES (40); everything after the text is ce_event's own fields, unchanged (`rest`).  A version 1
+   file names these sizes in its own header (layout[]), which sq_parse checks before it reads one. */
+typedef struct {
+    int game;
+    char title[CE_TITLE_BYTES];
+    char text[CE_TEXT_BYTES];
+    unsigned char rest[sizeof(ce_event) - offsetof(ce_event, food_op)];   /* food_op .. revives, as now */
+} ce_event_v1;
+
+typedef struct {
+    int chance;
+    ce_event_v1 effects;
+} ce_outcome_v1;
+
+typedef struct {
+    int enabled;
+    char labels[2][CE_BUTTON_BYTES];
+    int outcome_count[2];
+    ce_outcome_v1 outcomes[2][CE_MAX_OUTCOMES];
+    int featured_record;
+    unsigned int featured_identity;
+} ce_choice_v1;
+
+typedef struct {
+    unsigned int magic;
+    unsigned int version;
+    unsigned int game;
+    unsigned int slot;
+    unsigned int layout[4];
+    unsigned int roster[256];
+    unsigned int have;
+    unsigned __int64 when[SQ_ITEMS];
+    int pick_slot;
+    int pick_index;
+    int pick_outcome;
+    oc_settings pick_settings;
+    int ce_is_choice;
+    int ce_is_notice;
+    ce_event_v1 ce;
+    oc_settings gong;
+    int skip_remaining;
+    int skip_done;
+    int skip_notice;
+} sq_file_v1;
+
+/* A version 1 event in this layout: its title, its text (at most CE_TEXT_BYTES - 1 characters) and every other
+   field as it was. */
+static void sq_event_from_v1(ce_event *out, const ce_event_v1 *in) {
+    memset(out, 0, sizeof *out);
+    out->game = in->game;
+    memcpy(out->title, in->title, sizeof out->title);
+    out->title[sizeof out->title - 1] = '\0';
+    memcpy(out->text, in->text, sizeof in->text);
+    out->text[sizeof in->text - 1] = '\0';
+    memcpy(&out->food_op, in->rest, sizeof in->rest);
+}
+
+static void sq_choice_from_v1(ce_choice *out, const ce_choice_v1 *in) {
+    int b, k;
+    memset(out, 0, sizeof *out);
+    out->enabled = in->enabled;
+    for (b = 0; b < 2; ++b) {
+        memcpy(out->labels[b], in->labels[b], sizeof in->labels[b]);
+        out->labels[b][sizeof in->labels[b] - 1] = '\0';
+        out->outcome_count[b] = in->outcome_count[b];
+        for (k = 0; k < CE_MAX_OUTCOMES; ++k) {
+            out->outcomes[b][k].chance = in->outcomes[b][k].chance;
+            sq_event_from_v1(&out->outcomes[b][k].effects, &in->outcomes[b][k].effects);
+        }
+    }
+    out->featured_record = in->featured_record;
+    out->featured_identity = in->featured_identity;
+}
+
+static void sq_header(sq_file *f, int game, int slot);
+
+/* A version 1 file's record in this layout (its header made this build's, its game and slot kept). */
+static void sq_file_from_v1(sq_file *out, const sq_file_v1 *in) {
+    memset(out, 0, sizeof *out);
+    sq_header(out, (int)in->game, (int)in->slot);
+    memcpy(out->roster, in->roster, sizeof out->roster);
+    out->have = in->have;
+    memcpy(out->when, in->when, sizeof out->when);
+    out->pick_slot = in->pick_slot;
+    out->pick_index = in->pick_index;
+    out->pick_outcome = in->pick_outcome;
+    out->pick_settings = in->pick_settings;
+    out->ce_is_choice = in->ce_is_choice;
+    out->ce_is_notice = in->ce_is_notice;
+    sq_event_from_v1(&out->ce, &in->ce);
+    out->gong = in->gong;
+    out->skip_remaining = in->skip_remaining;
+    out->skip_done = in->skip_done;
+    out->skip_notice = in->skip_notice;
+}
+
+/* The file's bytes (`size` of them) into f (and its question into `choice`): 1 read (this layout, or version 1's put
+   into it -- the header check is the caller's), 2 malformed (not exactly a record of either version, with its
+   question when it has one). */
+static int sq_parse(const unsigned char *data, unsigned int size, sq_file *f, ce_choice *choice) {
+    unsigned int version;
+    if (size < 8u) {
+        return 2;
+    }
+    version = ((const unsigned int *)data)[1];
+    if (version == SQ_VERSION_1) {
+        const sq_file_v1 *old = (const sq_file_v1 *)data;
+        int asks;
+        if (size < sizeof *old || old->layout[0] != sizeof(oc_settings) || old->layout[1] != sizeof(ce_event_v1)
+            || old->layout[2] != sizeof(ce_choice_v1) || old->layout[3] != sizeof(sq_file_v1)) {
+            return 2;                       /* not version 1's layout either */
+        }
+        asks = (old->have & SQ_CUSTOM) && old->ce_is_choice;
+        if (size != sizeof *old + (asks ? sizeof(ce_choice_v1) : 0u)) {
+            return 2;
+        }
+        sq_file_from_v1(f, old);
+        if (old->magic != SQ_MAGIC) {
+            f->magic = 0u;                  /* (refused by the caller's header check) */
+        }
+        if (asks) {
+            sq_choice_from_v1(choice, (const ce_choice_v1 *)(data + sizeof *old));
+        }
+        return 1;
+    }
+    if (size < sizeof *f) {
+        return 2;
+    }
+    memcpy(f, data, sizeof *f);
+    if (size == sizeof *f + sizeof *choice) {
+        memcpy(choice, data + sizeof *f, sizeof *choice);
+    } else if (size != sizeof *f) {
+        return 2;
+    }
+    if ((f->have & SQ_CUSTOM) && f->ce_is_choice && size != sizeof *f + sizeof *choice) {
+        return 2;                           /* its question is missing */
+    }
+    return 1;
+}
 
 static int sq_slot;                         /* the village tracked: its slot ... */
 static unsigned int sq_generation;          /* ... its reset generation ... */
@@ -156,16 +303,10 @@ static int sq_read(int game, int slot, sq_file *f, ce_choice *choice) {
     if (sq_test_unreadable) {
         return -1;
     }
-    if (sq_test_size < sizeof *f) {
-        return sq_test_size == 0u ? 0 : 2;
+    if (sq_test_size == 0u) {
+        return 0;
     }
-    memcpy(f, sq_test_file, sizeof *f);
-    if (sq_test_size == sizeof *f + sizeof *choice) {
-        memcpy(choice, sq_test_file + sizeof *f, sizeof *choice);
-    } else if (sq_test_size != sizeof *f) {
-        return 2;
-    }
-    return 1;
+    return sq_parse(sq_test_file, sq_test_size, f, choice);
 }
 
 static int sq_store(int game, int slot, const sq_file *f, const ce_choice *choice) {
@@ -207,8 +348,10 @@ static int sq_save_time(int game, int slot, unsigned __int64 *out) {
 static int sq_read(int game, int slot, sq_file *f, ce_choice *choice) {
     char path[MAX_PATH];
     HANDLE h;
-    DWORD got = 0, more = 0;
+    DWORD size, got = 0;
     BOOL ok;
+    unsigned char *data;
+    int result;
     if (!vv_paid_named_path(game, slot, "Story Purchases", path, 0)) {
         return -1;
     }
@@ -217,15 +360,26 @@ static int sq_read(int game, int slot, sq_file *f, ce_choice *choice) {
         DWORD err = GetLastError();
         return (err == ERROR_FILE_NOT_FOUND || err == ERROR_PATH_NOT_FOUND) ? 0 : -1;
     }
-    ok = ReadFile(h, f, sizeof *f, &got, NULL);
-    if (ok && got == sizeof *f && (f->have & SQ_CUSTOM) && f->ce_is_choice) {
-        ok = ReadFile(h, choice, sizeof *choice, &more, NULL) && more == sizeof *choice;
+    /* Read whole (either version: sq_parse), never more than the larger version's record with its question. */
+    size = GetFileSize(h, NULL);
+    if (size == INVALID_FILE_SIZE || size == 0u || size > sizeof(sq_file) + sizeof(ce_choice)) {
+        CloseHandle(h);
+        return size == INVALID_FILE_SIZE ? -1 : 2;
     }
+    data = (unsigned char *)HeapAlloc(GetProcessHeap(), 0, size);
+    if (data == NULL) {
+        CloseHandle(h);
+        return -1;                          /* not now: never written over */
+    }
+    ok = ReadFile(h, data, size, &got, NULL);
     CloseHandle(h);
-    if (!ok && got == 0) {
-        return -1;
+    if (!ok || got != size) {
+        HeapFree(GetProcessHeap(), 0, data);
+        return got == 0u ? -1 : 2;
     }
-    return ok && got == sizeof *f ? 1 : 2;
+    result = sq_parse(data, size, f, choice);
+    HeapFree(GetProcessHeap(), 0, data);
+    return result;
 }
 
 static int sq_store(int game, int slot, const sq_file *f, const ce_choice *choice) {
@@ -314,14 +468,21 @@ static void sq_capture(int game, sq_file *f) {
             f->pick_outcome = 1;
             f->pick_settings = oc.set;
         }
+    } else if (sm_armed(game) >= 0 && story_village_is(game, &pick_village)) {
+        f->have |= SQ_PICK;                 /* a More Island Events event (story_more_events.inc) */
+        f->pick_slot = pick_slot;
+        f->pick_index = sm_queue_index(game);
     }
-    if (ce_armed && ce_armed_event.game == game && story_village_is(game, &ce_armed_village)) {
+    /* A branching event's page or question is never written here: its own file keeps the whole run
+       (story_graph.inc), so this file's layout is unchanged. */
+    if (ce_armed && ce_armed_event.game == game && story_village_is(game, &ce_armed_village)
+        && !cg_owns_armed(game)) {
         f->have |= SQ_CUSTOM;
         f->ce = ce_armed_event;
         f->ce_is_choice = ce_armed_is_choice;
         f->ce_is_notice = ce_armed_is_notice;
     } else if (ce_asked && ce_asked_game == game && ce_asked_event.game == game
-               && story_village_is(game, &ce_asked_village)) {
+               && story_village_is(game, &ce_asked_village) && !cg_owns_asked(game)) {
         f->have |= SQ_CUSTOM | SQ_ASKED;    /* the question waiting for a click */
         f->ce = ce_asked_event;
         f->ce_is_choice = 1;
@@ -432,6 +593,9 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
             oc_arm(game, pick_slot, &f->pick_settings);
         }
         restored |= SQ_PICK;
+    } else if ((f->have & SQ_PICK) && pick_slot < 0 && f->pick_index <= SM_QUEUE_BASE
+               && sm_queue_restore(game, f->pick_index, f->pick_slot)) {
+        restored |= SQ_PICK;                /* a More Island Events event (story_more_events.inc) */
     }
     if ((f->have & SQ_CUSTOM) && !ce_armed && f->ce.game == game
         && (!f->ce_is_choice || choice != NULL)) {
@@ -562,6 +726,10 @@ static void sq_sync(int game, int lazy) {
         } else if (read != 0) {
             sq_remove(game, slot);          /* malformed or another layout: nothing it says can be used */
         }
+        cg_village_seen(game, slot, roster);   /* a branching event's run, put back (story_graph.inc) */
+    }
+    if (!lazy) {
+        cg_flush_file(game, slot, roster);
     }
     if (lazy || sq_blocked) {
         return;
@@ -660,6 +828,7 @@ static void sq_village_reset(int game, int slot) {
     if (game >= 1 && game <= 5 && slot >= 1 && slot <= 5) {
         sq_remove(game, slot);
     }
+    cg_village_reset(game, slot);           /* and a branching event's run (story_graph.inc) */
     sq_have_village = 0;
     sq_written_known = 0;
 }

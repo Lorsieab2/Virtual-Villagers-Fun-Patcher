@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Chirping in the Basket?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd48_what_chirping",
+  "source": "da_wd",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Something in a villager's hut chirps all night and stops whenever anyone comes near: hunt it down, or sleep.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Something in (name1)'s hut is chirping. A loud, cheerful, relentless chirp, every few seconds, all night long. (name1) has checked the roof, the walls, the mat and the water jar. The chirping stops whenever (he/she) comes near. It starts again the moment (he/she) lies down.",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Hunt It Down",
+     "next": "a",
+     "src": "L565"
+    },
+    {
+     "label": "Give Up and Sleep",
+     "next": "b",
+     "src": "L568"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) gets up for the fifth time, holds very still, and creeps toward the sound, step by step. It's coming from the basket of dried beans. (He/She) tips it out. A cricket the size of (his/her) thumb sits among the beans, looking up, apparently astonished at the fuss. (name1) carries it outside. Silence. Blessed, beautiful silence.",
+   "src": "L566"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) gives up and puts a cushion over (his/her) head. The chirping goes on. After a while, it starts to sound like a rhythm. Then a song. Then (name1) is asleep. In the morning, (he/she) finds the cricket in the bean basket, asleep too. (He/She) carries it out to the garden, a little reluctantly. That night, the hut feels very quiet.",
+   "src": "L569",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L569"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) gives up and puts a cushion over (his/her) head. The chirping goes on. After a while, it starts to sound like a rhythm. Then a song. Then (name1) is asleep. In the morning, (he/she) finds the cricket in the bean basket, asleep too. (He/She) carries it out to the garden, a little reluctantly. That night, the hut feels very quiet.",
+   "src": "L569"
+  }
+ }
+}

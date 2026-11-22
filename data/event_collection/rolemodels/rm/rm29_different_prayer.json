@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Different Prayer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm29_different_prayer",
+  "source": "rolemodels",
+  "lines": [
+   61,
+   61
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L61",
+  "ledger": [
+   {
+    "src": "L61",
+    "kind": "structural",
+    "text": "EVENT RM-29  -  THE DIFFERENT PRAYER SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "Two friends prepare for a remembrance gathering but discover that their families observe the occasion in different ways.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two friends prepare for a remembrance gathering but discover that their families observe the occasion in different ways.",
+   "src": "L61",
+   "choices": [
+    {
+     "label": "Make Room for Both Customs.",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Ask What Each Custom Means to the Person Observing It.",
+     "next": "b",
+     "src": "L61"
+    },
+    {
+     "label": "Hold a Shared Period of Quiet Reflection.",
+     "next": "c",
+     "src": "L61"
+    },
+    {
+     "label": "Let Each Family Observe the Occasion Independently.",
+     "next": "d",
+     "src": "L61"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Each friend participates according to personal belief without disrupting the other.",
+   "src": "L61"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The arrangements require compromise, but both families feel respected.",
+   "src": "L61"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The friends understand one another better without needing to share the same beliefs.",
+   "src": "L61"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One friend prefers not to explain, and the other accepts the boundary.",
+   "src": "L61"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers with different beliefs find their own meaning in the silence.",
+   "src": "L61"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some prefer separate observances, and the organizers accommodate them.",
+   "src": "L61"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The friends spend less time together that evening but remain comfortable with their differences.",
+   "src": "L61"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The families gather afterward for a peaceful meal.",
+   "src": "L61",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The families gather afterward for a peaceful meal.",
+   "src": "L61"
+  }
+ }
+}

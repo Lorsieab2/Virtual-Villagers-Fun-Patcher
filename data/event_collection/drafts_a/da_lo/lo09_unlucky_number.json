@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unlucky Number",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo09_unlucky_number",
+  "source": "da_lo",
+  "lines": [
+   105,
+   114
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L105",
+  "ledger": [
+   {
+    "src": "L106",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager will not carry seven of anything, and a friend has stacked exactly seven baskets to carry.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) will not carry seven of anything. Six baskets, fine. Eight baskets, fine. Seven baskets, no. Today (friend) has stacked exactly seven baskets for (subject) to carry, and (subject) is standing there refusing to pick them up, while (friend) stares at (subject.him/her).",
+   "src": "L108",
+   "choices": [
+    {
+     "label": "Take One Away",
+     "next": "a",
+     "src": "L110"
+    },
+    {
+     "label": "Carry All Seven, Just This Once",
+     "next": "b",
+     "src": "L113"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) takes one off the top and carries six. (friend) carries the seventh. It's a perfectly good solution, and nobody is harmed. (friend) asks, on the way, why seven. (subject) honestly can't remember. \"My uncle never liked seven,\" (subject.he/she) says. \"So I don't either.\" (friend) decides that's a good enough reason.",
+   "src": "L111"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) takes a deep breath and picks up all seven. (subject.He/She) walks very carefully. Nothing happens. Nothing at all. (subject.He/She) gets them to the storehouse safely, puts them down, and then trips over the doorstep and lands on (subject.his/her) bottom. (friend) laughs. (subject) does not. \"Seven,\" (subject.he/she) says darkly. (friend) says it was the doorstep.",
+   "src": "L114",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L114"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L114"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) takes a deep breath and picks up all seven. (subject.He/She) walks very carefully. Nothing happens. Nothing at all. (subject.He/She) gets them to the storehouse safely, puts them down, and then trips over the doorstep and lands on (subject.his/her) bottom. (friend) laughs. (subject) does not. \"Seven,\" (subject.he/she) says darkly. (friend) says it was the doorstep.",
+   "src": "L114"
+  }
+ }
+}

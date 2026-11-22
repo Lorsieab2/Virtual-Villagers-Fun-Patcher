@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island of Many Futures",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci50_island_many",
+  "source": "draft_lci",
+  "lines": [
+   694,
+   705
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L694",
+  "ledger": [
+   {
+    "src": "L695",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder, an adult and a child)"
+   },
+   {
+    "src": "L701",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L701",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L705",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates; small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L705",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The village holds a great gathering about what kind of island it wants to become: choose one dream, or keep negotiating together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village has gathered to talk about the future. (subject) wants peace and the old ways kept. (friend) wants new inventions and trade with other islands. (third) and the children want safer paths, more forests and a school under every tree. Everyone has a different dream. What should the village do?",
+   "src": "L697",
+   "choices": [
+    {
+     "label": "Choose One Dream",
+     "next": "o1",
+     "src": "L699"
+    },
+    {
+     "label": "Keep Negotiating Together",
+     "next": "o2",
+     "src": "L703"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village argues for three days and chooses: more forests and safer paths first. Some people are disappointed. Work begins. At the end of the gathering, someone starts a song with an unfinished last verse, for the children to finish one day.",
+   "src": "L701",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L701"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides not to choose a single dream, but to meet every year and keep deciding, together. (subject) says it sounds exhausting. (third) says it sounds like a village. They sing the song whose last verse is left open, for whoever comes next.",
+   "src": "L705",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L705"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L705"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stubbed Toe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt16_stubbed_toe",
+  "source": "draft_tt",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's stubbed toe has healed, but the limp brings drinks and the shady seat: keep limping, or stop limping.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) stubbed (subject.his/her) toe on a root this morning. It hurt quite a lot, for a while. It doesn't hurt much now. But (subject) has noticed that, while (subject.he/she) is limping, people carry things for (subject.him/her), give (subject.him/her) the shady seat and bring (subject.him/her) drinks. (subject.He/she) is still limping. (subject.He/she) is also, slightly, enjoying it.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Keep Limping",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Stop Limping",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "That evening the dancing begins, and (subject)'s favorite song starts, and (subject.he/she) forgets all about the toe and dances all night. The next morning (friend) brings (subject.him/her) a drink, raises an eyebrow, and asks, \"How's the toe?\" \"...Much better,\" says (subject). \"Amazing,\" says (friend), and leaves the drink anyway.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "That evening the dancing begins, and (subject)'s favorite song starts, and (subject.he/she) forgets all about the toe and dances all night. The next morning (friend) brings (subject.him/her) a drink, raises an eyebrow, and asks, \"How's the toe?\" \"...Much better,\" says (subject). \"Amazing,\" says (friend), and leaves the drink anyway.",
+   "src": "L194"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "By midday (subject) stops limping and goes back to carrying (subject.his/her) own things. It's a little disappointing to be ordinary again. Then (friend) turns up with a drink anyway, \"for being brave about the toe.\" (subject) decides that this is the best of both worlds.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "By midday (subject) stops limping and goes back to carrying (subject.his/her) own things. It's a little disappointing to be ordinary again. Then (friend) turns up with a drink anyway, \"for being brave about the toe.\" (subject) decides that this is the best of both worlds.",
+   "src": "L197"
+  }
+ }
+}

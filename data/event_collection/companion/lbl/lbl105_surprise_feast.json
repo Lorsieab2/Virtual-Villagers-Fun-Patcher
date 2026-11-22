@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Surprise Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl105_surprise_feast",
+  "source": "companion",
+  "lines": [
+   5181,
+   5191
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5181",
+  "ledger": [
+   {
+    "src": "L5182",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5190",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5191",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A cook prepares an elaborate meal for the wrong date.",
+  "cast_only": [
+   "cook",
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A cook prepares an elaborate meal for the wrong date.",
+   "src": "L5183",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5184"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5185"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5186"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "Neighbors turn it into an impromptu celebration.",
+   "src": "L5187",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L5187"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The cook saves what can safely be stored.",
+   "src": "L5188",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L5188"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A family member admits giving the wrong date.",
+   "src": "L5189"
+  }
+ }
+}

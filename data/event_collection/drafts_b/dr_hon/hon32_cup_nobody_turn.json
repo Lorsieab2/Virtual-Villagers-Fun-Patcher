@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Last Cup, Nobody's Turn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon32_cup_nobody_turn",
+  "source": "draft_hon",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers both drank from the water jar and left it empty: say it was you, or make it somebody's turn.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The big water jar outside the shared hut is empty. Again. Everyone who drank from it this morning assumed someone else would refill it. (subject) knows (subject.he/she) had the last cup. (friend) thinks (friend.he/she) did. They both arrive at the empty jar at the same moment, very thirsty.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Say It Was You",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Make It Somebody's Turn",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Whose turn is it?\" \"Nobody's.\" \"Then let's make it somebody's.\" They scratch marks on the doorpost: one for each person, a day each. It works beautifully for nearly a week. Then the doorpost gets rained on, and everyone remembers the marks differently.",
+   "src": "L389"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I had the last one,\" says (subject). \"So did I,\" says (friend). They look at each other, pick up the jar between them, and carry it down to the stream. On the way back they invent a rule: whoever empties the jar fills it. They tell everyone. Everyone agrees. The jar is empty again two days later.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I had the last one,\" says (subject). \"So did I,\" says (friend). They look at each other, pick up the jar between them, and carry it down to the stream. On the way back they invent a rule: whoever empties the jar fills it. They tell everyone. Everyone agrees. The jar is empty again two days later.",
+   "src": "L386"
+  }
+ }
+}

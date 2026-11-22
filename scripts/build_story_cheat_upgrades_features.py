@@ -538,8 +538,15 @@ def _price_sites(patcher, game: str, image: Image, ids: list[str], writes: list[
 def _feature_ids(patcher, game: str) -> tuple[list[str], list[str]]:
     public = patcher.load_public_fun_patches()
     minimal = [f"{game}_origins_village_wide_upgrades"]
-    # Every other row (this one, and its "cost Tech Points" row that needs it, left out).
-    full = [p.id for p in public if p.game_id == game and not p.id.startswith(f"{game}_story_cheat_upgrades")
+    # Every other row (this one, and every row that needs it -- its "cost Tech Points" row, More Island Events, the
+    # Isola Grand Event Collection and whatever needs those -- left out).
+    story = f"{game}_story_cheat_upgrades"
+    deps = {p.id: list(p.raw.get("dependencies") or []) for p in public}
+
+    def needs_story(ident: str, seen: frozenset = frozenset()) -> bool:
+        return ident.startswith(story) or any(d not in seen and needs_story(d, seen | {ident})
+                                              for d in deps.get(ident, []))
+    full = [p.id for p in public if p.game_id == game and not needs_story(p.id)
             and p.id not in patcher.ALTERNATIVE_FUN_PATCH_IDS]
     return minimal, full
 

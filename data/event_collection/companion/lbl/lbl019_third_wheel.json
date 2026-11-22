@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Third Wheel",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl019_third_wheel",
+  "source": "companion",
+  "lines": [
+   4035,
+   4045
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4035",
+  "ledger": [
+   {
+    "src": "L4036",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4044",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4045",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A friend feels forgotten after two companions begin dating.",
+  "cast_only": [
+   "friend",
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "partner1",
+    "years": 10
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A friend feels forgotten after two companions begin dating.",
+   "src": "L4037",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4038"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4039"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4040"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The couple makes time for their old friend.",
+   "src": "L4041"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A candid conversation reveals nobody meant harm.",
+   "src": "L4043"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The friend finds new companions and interests.",
+   "src": "L4042",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L4042"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The friend finds new companions and interests.",
+   "src": "L4042"
+  }
+ }
+}

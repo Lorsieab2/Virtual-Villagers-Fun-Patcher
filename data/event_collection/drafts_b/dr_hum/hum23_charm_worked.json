@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Charm That Worked on Butterflies",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum23_charm_worked",
+  "source": "draft_hum",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L275",
+    "kind": "sensitivity",
+    "before": "An elder gave (name1)",
+    "after": "(elder), an elder, gave (name1)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L280",
+    "kind": "sensitivity",
+    "before": "Take It Back to the Elder",
+    "after": "Take It Back to (elder)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L281",
+    "kind": "sensitivity",
+    "before": "The elder looks at (name1)",
+    "after": "(elder) looks at (name1)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager's insect charm draws every butterfly in the garden instead: keep working, or take it back to the elder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), an elder, gave (subject) a little woven charm to keep biting insects away while (subject.he/she) works in the garden. It works. Not a single biting insect comes near (subject.him/her). Instead, every butterfly in the garden has landed on (subject): on (subject.his/her) shoulders, in (subject.his/her) hair, on (subject.his/her) nose. (subject.He/she) looks like a walking flower bed. Whether it is the charm, or the sweet sap on (subject.his/her) hands, nobody knows.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Keep Working",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Take It Back to (elder)",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) carries on weeding, very slowly and gently, in a cloud of color. The children follow (subject.him/her) round the garden all afternoon. At sunset the butterflies lift off together and drift away. (subject) feels a little lonely without them. (subject.He/she) keeps the charm.",
+   "src": "L278"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(elder) looks at (subject), butterflies and all, and says, \"Ah. It does that sometimes.\" \"Sometimes?\" \"It has never been quite sure what an insect is.\" (subject) decides that this is a fair thing to be confused about, and keeps it.",
+   "src": "L281"
+  }
+ }
+}

@@ -1,0 +1,272 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shy Couple at the Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel23_shy_couple",
+  "source": "anthology",
+  "lines": [
+   27347,
+   27360
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27347",
+  "ledger": [
+   {
+    "src": "L27348",
+    "kind": "sensitivity",
+    "before": "Two adult villagers who like each other feel",
+    "after": "(partner1) and (partner2), two adult villagers who like each other, feel",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two adult villagers who like each other feel uncomfortable with public attention.",
+  "label_case": "title",
+  "cast_only": [
+   "partner1",
+   "partner2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "partner1",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(partner1) and (partner2), two adult villagers who like each other, feel uncomfortable with public attention.",
+   "src": "L27348",
+   "choices": [
+    {
+     "label": "Let Them Sit Together Quietly",
+     "next": "a",
+     "src": "L27349"
+    },
+    {
+     "label": "Invite a Gentle Dance",
+     "next": "b",
+     "src": "L27352"
+    },
+    {
+     "label": "Ask Whether They Want an Announcement",
+     "next": "c",
+     "src": "L27355"
+    },
+    {
+     "label": "Leave Them to Choose",
+     "next": "d",
+     "src": "L27358"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They decide to spend the evening with separate friends.",
+   "src": "L27351"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They decline the dance and enjoy talking instead.",
+   "src": "L27354"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They welcome a small toast.",
+   "src": "L27356"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They ask to keep their relationship private.",
+   "src": "L27357"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They decide their bond is still a friendship.",
+   "src": "L27360"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They enjoy the feast without becoming its center.",
+   "src": "L27350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27350"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27350"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They enjoy the feast without becoming its center.",
+   "src": "L27350"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They share a happy dance.",
+   "src": "L27353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27353"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27353"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They share a happy dance.",
+   "src": "L27353"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "They grow closer at their own pace.",
+   "src": "L27359",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L27359"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L27359"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "They grow closer at their own pace.",
+   "src": "L27359"
+  }
+ }
+}

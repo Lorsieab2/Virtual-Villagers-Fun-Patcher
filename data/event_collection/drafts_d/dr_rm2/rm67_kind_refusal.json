@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Kind Refusal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm67_kind_refusal",
+  "source": "draft_rm2",
+  "lines": [
+   399,
+   412
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L399",
+  "ledger": [
+   {
+    "src": "L400",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A friend asks a villager to spend the whole day helping with a move, but the villager already promised to rest after a long week.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A friend asks (name1) to spend the whole day helping with a move, but the villager already promised to rest after a long week.",
+   "src": "L400",
+   "choices": [
+    {
+     "label": "Say No Kindly.",
+     "next": "a",
+     "src": "L401"
+    },
+    {
+     "label": "Offer a Smaller Amount of Help.",
+     "next": "b",
+     "src": "L404"
+    },
+    {
+     "label": "Suggest Someone Else Who Is Free.",
+     "next": "c",
+     "src": "L407"
+    },
+    {
+     "label": "Help Plan Instead of Carry.",
+     "next": "d",
+     "src": "L410"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friend understands and finds other help.",
+   "src": "L402"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The friend is disappointed, but the friendship holds.",
+   "src": "L403"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An hour of help is enough, and the friend is grateful.",
+   "src": "L405"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The hour turns into most of the day, and the villager learns to set a firmer limit next time.",
+   "src": "L406"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The other villager agrees, and the move goes smoothly.",
+   "src": "L408"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Nobody else is free, but the friend decides to move another day.",
+   "src": "L409"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The villager sorts the friend's things while sitting down, and the move goes faster.",
+   "src": "L411"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The friend prefers muscle to planning, and they laugh about it.",
+   "src": "L412",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L412"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "The friend prefers muscle to planning, and they laugh about it.",
+   "src": "L412"
+  }
+ }
+}

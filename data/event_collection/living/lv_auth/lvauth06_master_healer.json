@@ -1,0 +1,253 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Master Healer's Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth06_master_healer",
+  "source": "living",
+  "lines": [
+   23411,
+   23425
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23411",
+  "ledger": [
+   {
+    "src": "L23425",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An injured villager must choose between a respected healer and a novice trained in a gentler method.",
+  "cast_only": [
+   "healer",
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An injured villager must choose between a respected healer and a novice trained in a gentler method.",
+   "src": "L23412",
+   "choices": [
+    {
+     "label": "Trust the master healer.",
+     "next": "a",
+     "src": "L23413"
+    },
+    {
+     "label": "Let the novice lead with supervision.",
+     "next": "b",
+     "src": "L23416"
+    },
+    {
+     "label": "Seek the patient's preference.",
+     "next": "c",
+     "src": "L23419"
+    },
+    {
+     "label": "Have both healers collaborate.",
+     "next": "d",
+     "src": "L23422"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "an injured villager",
+     "reason": "the premise: it happened before the event; nobody is harmed now",
+     "src": "L23412"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The familiar treatment helps the patient recover.",
+   "src": "L23414",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L23414"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The healer overlooks a new complication.",
+   "src": "L23415",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L23415"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The novice hesitates at a critical moment and asks for help.",
+   "src": "L23418"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient chooses a method that feels manageable.",
+   "src": "L23420"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient struggles to choose and asks for more explanation.",
+   "src": "L23421"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their combined skills improve care.",
+   "src": "L23423",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L23423"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "combined skills",
+     "reason": "the healers' skills working together: no skill changes",
+     "src": "L23423"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They disagree in front of the patient and must rebuild trust.",
+   "src": "L23424"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gentler method relieves pain and surprises the master.",
+   "src": "L23417",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L23417"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gentler method relieves pain and surprises the master.",
+   "src": "L23417"
+  }
+ }
+}

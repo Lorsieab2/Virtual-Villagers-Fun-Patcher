@@ -1,0 +1,213 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Costume of a Hero",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp64_costume_hero",
+  "source": "anthology",
+  "lines": [
+   32256,
+   32270
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32256",
+  "ledger": [
+   {
+    "src": "L32257",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L32258",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32261",
+    "kind": "sensitivity",
+    "before": "The pretend hero",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32263",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32264",
+    "kind": "sensitivity",
+    "before": "A teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32266",
+    "kind": "sensitivity",
+    "before": "A shy child",
+    "after": "(child2), a shy child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child dresses as a legendary hero and insists the costume grants authority over the playground.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "teen",
+   "child2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) dresses as a legendary hero and insists the costume grants authority over the playground.",
+   "src": "L32258",
+   "choices": [
+    {
+     "label": "Join the Game",
+     "next": "a",
+     "src": "L32259"
+    },
+    {
+     "label": "Explain Real Authority",
+     "next": "b",
+     "src": "L32262"
+    },
+    {
+     "label": "Let Others Choose Roles",
+     "next": "c",
+     "src": "L32265"
+    },
+    {
+     "label": "Retell the Legend",
+     "next": "d",
+     "src": "L32268"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children invent a fair quest.",
+   "src": "L32260"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) learns to take turns.",
+   "src": "L32261"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) distinguishes play from village rules.",
+   "src": "L32263"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) helps establish game boundaries.",
+   "src": "L32264"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child2), a shy child, becomes the storyteller.",
+   "src": "L32266"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another refuses to play the villain.",
+   "src": "L32267"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The hero is revealed to have made mistakes.",
+   "src": "L32269"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The children invent a hero who asks for help.",
+   "src": "L32270"
+  }
+ }
+}

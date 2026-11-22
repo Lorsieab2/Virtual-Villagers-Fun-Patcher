@@ -1,0 +1,157 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Growing Lump",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed13_growing_lump",
+  "source": "living",
+  "lines": [
+   20375,
+   20386
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20375",
+  "ledger": [
+   {
+    "src": "L20386",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient has a steadily enlarging lump; the healer cannot tell whether removing it will help or hasten decline."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient has a steadily enlarging lump; the healer cannot tell whether removing it will help or hasten decline.",
+   "src": "L20376",
+   "choices": [
+    {
+     "label": "Offer surgery after explaining the uncertainty.",
+     "next": "a",
+     "src": "L20377"
+    },
+    {
+     "label": "Watch and relieve symptoms.",
+     "next": "b",
+     "src": "L20380"
+    },
+    {
+     "label": "Ask the patient which burdens they can accept.",
+     "next": "c",
+     "src": "L20383"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The lump is removed, and the patient enjoys a period of improved health.",
+   "src": "L20378",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20378"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient survives surgery, but the lump later returns.",
+   "src": "L20379"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The lump remains unchanged, and the patient resumes ordinary work.",
+   "src": "L20381"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The lump grows painful, and the patient asks to reconsider surgery.",
+   "src": "L20382",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20382"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient chooses comfort and time with family.",
+   "src": "L20384"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient requests surgery despite the risks and prepares their affairs.",
+   "src": "L20385"
+  }
+ }
+}

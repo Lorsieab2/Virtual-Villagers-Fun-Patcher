@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sinking Sand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s066_sinking_sand",
+  "source": "rewrites",
+  "lines": [
+   3122,
+   3164
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3122",
+  "ledger": [
+   {
+    "src": "L3123",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3124",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3132",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3141",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3129",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3130",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3133",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3142",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3135",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3138",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3144",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3147",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3150-3164",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There's a patch of grey sand down by the river mouth that everyone avoids.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There's a patch of grey sand down by the river mouth that everyone avoids. Children are warned about it from the time they can walk. It looks just like all the sand around it, which is the whole problem, and it smells, very faintly, of rotten eggs.\n(Name) has known about it all (his/her) life. But today (he/she) has been gathering reeds along the riverbank all morning with (his/her) mind on other things, and has forgotten exactly which patch it was.\n(He/She) remembers now. (He/She) is standing right in the middle of it, and sinking, fast. The grey sand is already up to (his/her) knees, cold and thick and sucking, and every time (he/she) moves, it pulls (him/her) a little further down. Every part of (him/her) wants to struggle. Should (name) lie flat the way the elders always said, or shout for help and hope somebody hears?",
+   "choices": [
+    {
+     "label": "Lie Flat and Wriggle",
+     "next": "c1",
+     "src": "L3129"
+    },
+    {
+     "label": "Shout for Help",
+     "next": "c2",
+     "src": "L3130"
+    }
+   ],
+   "src": "L3125-3127"
+  },
+  "c1o1": {
+   "text": "It works. Slowly. Very slowly. Lying flat on (his/her) back like a starfish, (name) wriggles, a finger's width at a time, working (his/her) legs up and out of the grey sand. It takes most of the afternoon. When (he/she) finally crawls out onto firm ground, (he/she) is covered from head to foot in stinking grey mud, and shaking all over. (He/She) lies on the solid sand for a long time, just breathing. Then (he/she) walks home very, very carefully, testing every step, and washes in the river for an hour.",
+   "src": "L3136"
+  },
+  "c1o2": {
+   "text": "It doesn't work. The sand is deeper and softer than (he/she) thought, and lying back only lets it take more of (him/her). (Name) shouts, then, as loud as (he/she) can, but the river is loud and the village is far. By the time the others hear and come running with ropes and branches, the grey sand is smooth and flat and still, with only a few reeds lying on top of it. They dig and probe with long poles until dark. (Name) is never found. The village puts a ring of white stones around the patch, so no one forgets again.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3139",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) remembers what the elders always said: don't fight it, spread out, lie down. Every part of (him/her) wants to struggle, but (he/she) forces (himself/herself) to lean back, slowly, and spread (his/her) arms wide across the surface of the sand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3133"
+  },
+  "c2o1": {
+   "text": "Help comes running with a long branch, and then more help, with a rope. They lie flat on the firm sand at the edge and push the branch out, and (name) grabs it with both hands, and they all pull together, slowly, steadily. With a great wet sucking sound, (name) comes out of the grey sand like a cork out of a gourd, minus one sandal. The sandal is never seen again. Everyone else laughs with relief. (Name) doesn't laugh until the next day.",
+   "src": "L3145"
+  },
+  "c2o2": {
+   "text": "Help comes, but in (his/her) panic (name) struggles and twists, trying to climb out too fast, and something in (his/her) leg wrenches, deep down in the cold sand, and gives. When they finally pull (him/her) out, (he/she) can't stand. The healers do what they can, but the leg never quite heals right. (Name) walks with a limp from then on, and running, which (he/she) used to love, hurts too much to bear.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -20,
+     "max": -20,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L3148",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) shouts. (He/She) shouts as loud as (he/she) has ever shouted in (his/her) life, again and again, while the sand creeps up to (his/her) thighs, then (his/her) waist. Up on the bank, a fisher turns round, drops (his/her) net, and starts to run...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3142"
+  }
+ }
+}

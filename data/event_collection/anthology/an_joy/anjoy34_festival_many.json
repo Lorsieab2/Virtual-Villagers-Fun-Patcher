@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival of Many Milestones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy34_festival_many",
+  "source": "anthology",
+  "lines": [
+   29178,
+   29191
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29178",
+  "ledger": [],
+  "description": "Several families have different reasons to celebrate in the same week.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several families have different reasons to celebrate in the same week.",
+   "src": "L29179",
+   "choices": [
+    {
+     "label": "Combine the Festivities",
+     "next": "a",
+     "src": "L29180"
+    },
+    {
+     "label": "Hold Smaller Gatherings",
+     "next": "b",
+     "src": "L29183"
+    },
+    {
+     "label": "Let Children Organize Games",
+     "next": "c",
+     "src": "L29186"
+    },
+    {
+     "label": "Celebrate Quietly",
+     "next": "d",
+     "src": "L29189"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29179"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some families miss having their own special moment.",
+   "src": "L29182"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each family enjoys personal attention.",
+   "src": "L29184"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Villagers become tired from so many celebrations.",
+   "src": "L29185",
+   "text_only": [
+    {
+     "what": "\"celebrations\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29185"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The games bring the families together.",
+   "src": "L29187"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children forget the schedule and improvise.",
+   "src": "L29188"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Families exchange kind wishes without a feast.",
+   "src": "L29190"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A few neighbors organize a spontaneous dance anyway.",
+   "src": "L29191"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The village shares one joyful gathering.",
+   "src": "L29181",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L29181"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The village shares one joyful gathering.",
+   "src": "L29181"
+  }
+ }
+}

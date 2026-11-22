@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Adult Who Needs Help",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage17_adult_needs",
+  "source": "anthology",
+  "lines": [
+   30381,
+   30395
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30381",
+  "ledger": [
+   {
+    "src": "L30382",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30383",
+    "kind": "sensitivity",
+    "before": "An experienced adult",
+    "after": "(adult), an experienced adult,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30389",
+    "kind": "sensitivity",
+    "before": "the worker",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30391",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An experienced adult struggles with a familiar task after a recent injury and resents being treated as helpless.",
+  "label_case": "title",
+  "cast_only": [
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(adult), an experienced adult, struggles with a familiar task after a recent injury and resents being treated as helpless.",
+   "src": "L30383",
+   "choices": [
+    {
+     "label": "Ask What Assistance They Actually Want",
+     "next": "a",
+     "src": "L30384"
+    },
+    {
+     "label": "Adapt the Work Area",
+     "next": "b",
+     "src": "L30387"
+    },
+    {
+     "label": "Offer a Different Role Temporarily",
+     "next": "c",
+     "src": "L30390"
+    },
+    {
+     "label": "Talk About Pride Without Judgment",
+     "next": "d",
+     "src": "L30393"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30383"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They request help carrying supplies but keep control of the task.",
+   "src": "L30385"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They decline assistance today and appreciate that their decision is respected.",
+   "src": "L30386"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A lower work surface makes the task manageable again.",
+   "src": "L30388"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The first arrangement is awkward, so (adult) suggests a better layout.",
+   "src": "L30389"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They miss hands-on work and negotiate a safe gradual return.",
+   "src": "L30392"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They admit that needing help has shaken their confidence.",
+   "src": "L30394"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They explain that unsolicited pity hurts more than the practical difficulty.",
+   "src": "L30395"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(adult) enjoys teaching an apprentice while recovering.",
+   "src": "L30391",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "adult",
+     "mood": "good",
+     "src": "L30391"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(adult) enjoys teaching an apprentice while recovering.",
+   "src": "L30391"
+  }
+ }
+}

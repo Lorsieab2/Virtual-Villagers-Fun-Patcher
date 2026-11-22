@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Would They Call Us?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz084_what_would_they",
+  "source": "draft_hz2",
+  "lines": [
+   53,
+   63
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L53",
+  "ledger": [
+   {
+    "src": "L54",
+    "kind": "sensitivity",
+    "before": "A storyteller",
+    "after": "(Name1), a storyteller,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A storyteller wonders whether distant people, if they exist, have a name for Isola or for the people who live here.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a storyteller, wonders whether distant people, if they exist, have a name for Isola or for the people who live here.",
+   "src": "L54",
+   "choices": [
+    {
+     "label": "Imagine a Kind Name.",
+     "next": "a",
+     "src": "L55"
+    },
+    {
+     "label": "Imagine No Name at All.",
+     "next": "b",
+     "src": "L58"
+    },
+    {
+     "label": "Decide What Isolans Would Want to Be Called.",
+     "next": "c",
+     "src": "L61"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder says a name given by strangers would only tell what the strangers thought, not who Isolans are.",
+   "src": "L57"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar suggests Isola may be entirely unknown to anyone else; some find this peaceful.",
+   "src": "L59"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A teenager finds the idea lonely, and a friend sits with them for a while.",
+   "src": "L60"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village argues happily for an evening and agrees on nothing.",
+   "src": "L62"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child says, \"Just call us by our names,\" and the discussion ends there.",
+   "src": "L63"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The children invent names like \"the island of laughing fishers,\" and the village is pleased.",
+   "src": "L56",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L56"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The children invent names like \"the island of laughing fishers,\" and the village is pleased.",
+   "src": "L56"
+  }
+ }
+}

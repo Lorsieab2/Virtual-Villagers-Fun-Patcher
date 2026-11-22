@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Three Fruits in the Air",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim157_three_fruits",
+  "source": "draft_tim2",
+  "lines": [
+   226,
+   231
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L226",
+  "ledger": [
+   {
+    "src": "L227",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L228",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L229",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L230",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L231",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager tries to juggle three small fruits at once.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) tries to juggle three small fruits at once. Two stay in the air for a whole count of five, a personal best.",
+   "src": "L227,L228"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) tries to juggle three small fruits at once. One fruit lands squarely on (name1)'s head, and the onlookers cheer anyway.",
+   "src": "L227,L229"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) tries to juggle three small fruits at once. A child asks to be taught, and soon fruit is falling everywhere.",
+   "src": "L227,L230"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) tries to juggle three small fruits at once. (name1) gives up and eats the fruit instead.",
+   "src": "L227,L231"
+  }
+ }
+}

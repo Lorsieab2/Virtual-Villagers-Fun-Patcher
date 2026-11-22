@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Hand, the Steady Eye",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss003_missing_hand",
+  "source": "companion",
+  "lines": [
+   6093,
+   6101
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6093",
+  "ledger": [
+   {
+    "src": "L6101",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A one-handed craftsperson wants commissions, not pity, and an intricate clasp needs making.",
+  "cast_only": [
+   "craftsperson",
+   "coworker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "coworker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A craftsperson with one hand is tired of being offered pity instead of commissions. An intricate clasp has defeated three other jewelers.",
+   "src": "L6094",
+   "choices": [
+    {
+     "label": "Commission the clasp",
+     "next": "a",
+     "src": "L6095"
+    },
+    {
+     "label": "Offer a co-worker partnership",
+     "next": "b",
+     "src": "L6097"
+    },
+    {
+     "label": "Ask whether the design needs changing",
+     "next": "c",
+     "src": "L6099"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They devise a fixture to hold the metal; the finished piece becomes sought after.",
+   "src": "L6096"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The two collaborate, then argue over who deserves credit and must negotiate honestly.",
+   "src": "L6098"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They produce a different clasp that works beautifully and decide which techniques suit them.",
+   "src": "L6100"
+  }
+ }
+}

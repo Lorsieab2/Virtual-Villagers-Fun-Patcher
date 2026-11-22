@@ -1,0 +1,147 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Faces and Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea05_faces_names",
+  "source": "draft_fea",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   },
+   {
+    "src": "L59",
+    "kind": "sensitivity",
+    "before": "Today a young villager waves",
+    "after": "Today (young_villager), a young villager, waves",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder has started forgetting names and feels afraid: tell a friend, or keep a list.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "young_villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "young_villager": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Lately (subject) has started forgetting names. Not all of them. Just sometimes, a face (subject.he/she) has known for years, and the name simply isn't there. Today (young_villager), a young villager, waves and says, \"Morning!\" and (subject) waves back with a smile, and inside (subject.him/her) there is a cold little drop of fear.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Keep a List",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about it, quietly. (friend) listens, and doesn't say \"Oh, everyone does that.\" (friend.He/she) says, \"That sounds frightening.\" (subject) is so relieved (subject.he/she) nearly cries. They talk about what might help: saying names out loud, asking without embarrassment. Nothing is fixed. It is less lonely.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about it, quietly. (friend) listens, and doesn't say \"Oh, everyone does that.\" (friend.He/she) says, \"That sounds frightening.\" (subject) is so relieved (subject.he/she) nearly cries. They talk about what might help: saying names out loud, asking without embarrassment. Nothing is fixed. It is less lonely.",
+   "src": "L62"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) starts a list on a strip of bark: names, and a little note beside each. \"Big laugh.\" \"Always has a basket.\" \"Afraid of crabs.\" (subject.He/she) reads it in the mornings. It doesn't take the fear away. But some days it helps, and the list itself turns out to be a rather lovely thing to have.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) starts a list on a strip of bark: names, and a little note beside each. \"Big laugh.\" \"Always has a basket.\" \"Afraid of crabs.\" (subject.He/she) reads it in the mornings. It doesn't take the fear away. But some days it helps, and the list itself turns out to be a rather lovely thing to have.",
+   "src": "L65"
+  }
+ }
+}

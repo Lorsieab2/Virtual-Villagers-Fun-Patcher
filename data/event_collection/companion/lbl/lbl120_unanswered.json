@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unanswered Origin",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl120_unanswered",
+  "source": "companion",
+  "lines": [
+   5380,
+   5390
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5380",
+  "ledger": [
+   {
+    "src": "L5381",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5389",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5390",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A historian compares contradictory accounts of the tribe's arrival.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "historian": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A historian compares contradictory accounts of the tribe's arrival.",
+   "src": "L5382",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5383"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5384"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5385"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "An elder shares a previously unheard version.",
+   "src": "L5386",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "historian",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5382"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "An artifact supports only part of a story.",
+   "src": "L5387",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "historian",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5382"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The historian records uncertainty rather than declaring a winner.",
+   "src": "L5388",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "historian",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5382"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

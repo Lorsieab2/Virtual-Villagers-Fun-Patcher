@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Roads Without Footprints",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz013_roads_without",
+  "source": "horizon",
+  "lines": [
+   172,
+   182
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L172",
+  "ledger": [],
+  "description": "A navigator wonders whether distant peoples travel over land in vessels pulled by animals - or moved by some unknown force.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A navigator wonders whether distant peoples travel over land in vessels pulled by animals - or moved by some unknown force.",
+   "src": "L173",
+   "choices": [
+    {
+     "label": "Imagine Swift Vehicles.",
+     "next": "a",
+     "src": "L174"
+    },
+    {
+     "label": "Imagine Public Transport.",
+     "next": "b",
+     "src": "L177"
+    },
+    {
+     "label": "Imagine Walking Instead.",
+     "next": "c",
+     "src": "L180"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Children design wheeled carts that race faster than a running villager, at least in their drawings.",
+   "src": "L175"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The builders discover that speed creates problems of steering, stopping, and safe crossings.",
+   "src": "L176"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The council imagines a shared vehicle carrying strangers to common destinations.",
+   "src": "L178"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A parent asks how a tired child or disabled traveler would board; the plan is revised.",
+   "src": "L179"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A farmer says even distant cities may contain people who prefer to walk.",
+   "src": "L181"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A traveler notes that long distances might make walking impossible for some; they debate equitable access.",
+   "src": "L182"
+  }
+ }
+}

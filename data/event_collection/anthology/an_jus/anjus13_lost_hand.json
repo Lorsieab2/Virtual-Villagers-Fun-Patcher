@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lost Hand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus13_lost_hand",
+  "source": "anthology",
+  "lines": [
+   30911,
+   30925
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30911",
+  "ledger": [
+   {
+    "src": "L30912",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30913",
+    "kind": "sensitivity",
+    "before": "A villager who lost a hand in an old accident wants",
+    "after": "(villager), a villager who lost a hand in an old accident, wants",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30918",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30919",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who lost a hand in an old accident wants to resume fine craftwork but fears being treated as helpless.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), a villager who lost a hand in an old accident, wants to resume fine craftwork but fears being treated as helpless.",
+   "src": "L30913",
+   "choices": [
+    {
+     "label": "Ask What Adaptations They Prefer",
+     "next": "a",
+     "src": "L30914"
+    },
+    {
+     "label": "Offer Help Without Taking Over",
+     "next": "b",
+     "src": "L30917"
+    },
+    {
+     "label": "Allow Frustration",
+     "next": "c",
+     "src": "L30920"
+    },
+    {
+     "label": "Recognize the Whole Person",
+     "next": "d",
+     "src": "L30923"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A simple clamp lets them steady the material.",
+   "src": "L30915"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They choose to develop a different technique.",
+   "src": "L30916"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(friend) assists only with requested steps.",
+   "src": "L30918"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) asks for privacy while practicing.",
+   "src": "L30919"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They take a difficult day off without being judged.",
+   "src": "L30921"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They express grief for what changed and return when ready.",
+   "src": "L30922"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their jokes and friendships remain central.",
+   "src": "L30924"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They decide to teach apprentices while refining their own skills.",
+   "src": "L30925"
+  }
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Soap That Smelled of Flowers",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup02_soap_smelled",
+  "source": "draft_sup",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-13, an adult and a grandmother)"
+   },
+   {
+    "src": "L20",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L26",
+    "kind": "instruction",
+    "text": "[effect: the village gains 3 bars of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L29",
+    "kind": "instruction",
+    "text": "[effect: the village gains 1 bar of soap]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A child drops flower petals into the soap pot: make a whole sweet batch, or keep the one bar as a gift.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been watching (friend) make soap all morning, and while nobody was looking, (subject.he/she) dropped a handful of white flower petals into the pot. Now the whole clearing smells sweet. (friend) is holding up the first bar, sniffing it, trying to decide whether to be cross.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Make a Whole Batch",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Keep the One Bar as a Gift",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) decides not to be cross. (friend.He/she) sends (subject) for more petals, and they make a whole batch together. For weeks, everyone in the village smells faintly of flowers, and the bees follow the washers home. (subject) tells everyone it was (subject.his/her) idea, which is true.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": 3,
+     "max": 3,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) wraps the single sweet bar in a leaf and tells (subject) to give it to someone who needs cheering up. (subject) thinks hard and gives it to (third), the oldest grandmother in the village, who sniffs it, laughs, and says it smells like the year she was married.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "soap",
+     "min": 1,
+     "max": 1,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

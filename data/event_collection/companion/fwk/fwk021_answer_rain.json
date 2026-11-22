@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Answer in the Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk021_answer_rain",
+  "source": "companion",
+  "lines": [
+   5637,
+   5646
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5637",
+  "ledger": [
+   {
+    "src": "L5643",
+    "kind": "note",
+    "text": "Possible resolution 1 (mundane):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5644",
+    "kind": "note",
+    "text": "Possible resolution 2 (ambiguous):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5645",
+    "kind": "note",
+    "text": "Possible resolution 3 (social):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5644",
+    "kind": "instruction",
+    "text": "; no school is confirmed or mocked",
+    "why": "the designer's instruction to the writer (L5408: no lens is confirmed or mocked)"
+   },
+   {
+    "src": "L5646",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A villager makes a difficult decision just as the first rain begins.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager makes a difficult decision just as the first rain begins.",
+   "src": "L5638",
+   "choices": [
+    {
+     "label": "MAGIC-ALIGNED",
+     "next": "a",
+     "src": "L5639"
+    },
+    {
+     "label": "NATURE-ALIGNED",
+     "next": "b",
+     "src": "L5640"
+    },
+    {
+     "label": "SPIRITUAL-ALIGNED",
+     "next": "c",
+     "src": "L5641"
+    },
+    {
+     "label": "SCIENTIFIC-ALIGNED",
+     "next": "d",
+     "src": "L5642"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They take the timing as permission to trust themselves.",
+   "src": "L5639",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Rain had been building in the clouds for hours.",
+   "src": "L5640",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "They distinguish coincidence from evidence about the decision itself.",
+   "src": "L5642",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "r1": {
+   "name": "Resolution 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager discovers a plausible ordinary cause but may still value the experience for personal reasons.",
+   "src": "L5643",
+   "text_only": [
+    {
+     "what": "the experience",
+     "reason": "a memory of what happened, not a skill's experience: nothing is gained",
+     "src": "L5643"
+    }
+   ]
+  },
+  "r2": {
+   "name": "Resolution 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A second witness or unexpected detail complicates the simplest explanation.",
+   "src": "L5644"
+  },
+  "r3": {
+   "name": "Resolution 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
+   "src": "L5645"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "They receive the weather as a comforting sign, not a command.",
+   "src": "L5641",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L5641"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "They receive the weather as a comforting sign, not a command.",
+   "src": "L5641",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  }
+ }
+}

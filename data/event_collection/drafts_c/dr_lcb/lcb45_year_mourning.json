@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Year of Mourning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb45_year_mourning",
+  "source": "draft_lcb",
+  "lines": [
+   624,
+   635
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L624",
+  "ledger": [
+   {
+    "src": "L625",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L631",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L635",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A widowed villager is ready to dance again before the custom's mourning year ends: support them, or ask them to wait.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) lost (subject.his/her) partner eight months ago. By custom, a widowed villager does not dance at festivals for a full year. Tonight is the moon dance, and (subject) has told (friend) (subject.he/she) wants to dance: (subject.his/her) partner loved dancing, and (subject.he/she) is ready. Some people will talk. What should (friend) do?",
+   "src": "L627",
+   "choices": [
+    {
+     "label": "Dance With (subject)",
+     "next": "o1",
+     "src": "L629"
+    },
+    {
+     "label": "Ask (subject) to Wait",
+     "next": "o2",
+     "src": "L633"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) takes (subject)'s hand and leads (subject.him/her) into the dance. A few people stare. A few people whisper. Most people just make room. (subject) dances until (subject.he/she) is out of breath, crying and laughing at once.",
+   "src": "L631"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) gently says the village might not understand yet. (subject) sits out the dance, watching. Halfway through, (subject.he/she) gets up and walks home. (friend) follows and sits with (subject.him/her) on the step, and they listen to the drums together from there.",
+   "src": "L635"
+  }
+ }
+}

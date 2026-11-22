@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One Parent, Too Many Hands Needed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam218_parent_many",
+  "source": "draft_fam2",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a single parent aged 18+ with a baby or toddler and an older child (where the game records it), and another adult)"
+   }
+  ],
+  "description": "A single parent juggles a fussing baby and a lost sandal when a neighbor walks past: accept the help, or manage alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is raising (subject.his/her) children on (subject.his/her) own. This morning the baby is fussing, the older one has lost a sandal, there is no clean water and (subject) has to get to the gardens. (subject.He/she) is standing in the middle of it all, holding the baby, looking for the sandal, when (friend) walks past.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "(friend) Offers to Help",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "(subject) Manages",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) waves (friend) on. \"I've got it!\" And (subject.he/she) does, more or less: water fetched, sandal found \\(in the cooking pot\\), baby on (subject.his/her) back, everyone fed. (subject.He/she) gets to the gardens late but gets there. That evening, everyone safe and asleep, (subject) sits on the step for a moment of quiet. (subject.He/she) is tired. (subject.He/she) is doing a good job. Both.",
+   "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Give me the baby,\" says (friend). \"Go and get the water.\" (subject) hesitates, then hands over the baby. By the time (subject.he/she) comes back, (friend) has found the sandal \\(in the cooking pot\\) and the baby is asleep. \"You didn't have to do that,\" says (subject). \"I know,\" says (friend). \"That's why I did.\" (subject) is grateful. (subject.He/she) was managing. Managing with help is better.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Give me the baby,\" says (friend). \"Go and get the water.\" (subject) hesitates, then hands over the baby. By the time (subject.he/she) comes back, (friend) has found the sandal \\(in the cooking pot\\) and the baby is asleep. \"You didn't have to do that,\" says (subject). \"I know,\" says (friend). \"That's why I did.\" (subject) is grateful. (subject.He/she) was managing. Managing with help is better.",
+   "src": "L218"
+  }
+ }
+}

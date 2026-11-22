@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Morning After the Tremor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b353_morning_after",
+  "source": "balance",
+  "lines": [
+   16288,
+   16328
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16288",
+  "ledger": [
+   {
+    "src": "L16289",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16290",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16297",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16306",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16294",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16295",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16298",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16307",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16303",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16312",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16315-16328",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the night the ground shook.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the night the ground shook. Not much, not for long, but enough to knock pots off shelves and wake every baby in the village. In the morning, (name) walks around and finds that half the huts have cracked posts, sagging roofs or walls leaning out of true. Nobody is hurt. Everyone is nervous.\nThe elders say the island shakes like this when the old fire under the mountain turns over in its sleep, and that it may shake again. Should (name) start mending at once, or wait a few days to see if another tremor comes?",
+   "choices": [
+    {
+     "label": "Mend at Once",
+     "next": "c1",
+     "src": "L16294"
+    },
+    {
+     "label": "Wait a Few Days",
+     "next": "c2",
+     "src": "L16295"
+    }
+   ],
+   "src": "L16291-16292"
+  },
+  "c1o1": {
+   "text": "(Name) has an idea while working: instead of setting the new posts straight into the ground, set them on flat stones, so they can rock without cracking. It takes longer, but by the end of the week every damaged hut is mended and sitting on stones. When the next little tremor comes, a month later, not one post cracks.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Building"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L16301",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "On the second day, the ground shakes again while (name) is up on a roof. (He/She) slides off and lands hard, bruised from shoulder to hip. The other builders finish the work while (name) lies on a mat, shouting directions. The huts are mended by the end of the week. (Name) is mended by the end of the month.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L16304",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) gathers the builders and starts with the worst huts, propping walls and replacing cracked posts while the families watch from outside...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16298"
+  },
+  "c2o1": {
+   "text": "Nothing else happens. The fire under the mountain, it seems, has gone back to sleep. After three nights on the beach, the builders get to work, and the huts are mended within the week. The children are sorry to go back inside. Three nights under the stars was the best thing that happened all year, as far as they're concerned.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L16310",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "On the second night, the ground shakes hard, and two of the cracked huts fall flat. Nobody is in them, because everyone is on the beach. The elders look at (name) with new respect. The builders rebuild everything, and the scroll-keepers write down how long the island shook and what fell, so that next time, people will know. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L16313",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) tells everyone to sleep in the open, away from the leaning walls, and waits. The village camps on the beach for three nights...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16307"
+  }
+ }
+}

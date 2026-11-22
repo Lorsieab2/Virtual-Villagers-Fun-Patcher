@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Helpful Fix",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv46_helpful_fix",
+  "source": "draft_adv",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend mends a villager's net without asking, in a different knot: say thank you, or ask them to ask first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) left (subject.his/her) fishing net drying on the rack with a big tear in it, meaning to fix it later. When (subject.he/she) comes back, (friend) has already mended it, without asking, and in a completely different style of knot from the one (subject) uses.",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Say Thank You",
+     "next": "o1",
+     "src": "L541"
+    },
+    {
+     "label": "Ask (friend) to Ask First Next Time",
+     "next": "o2",
+     "src": "L544"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"That's kind of you,\" says (subject). \"But next time, could you ask first? I like doing my own mending.\" (friend)'s face falls a bit. \"Oh. I just thought you'd be pleased.\" \"I am, a bit,\" says (subject). \"And I'd still like you to ask.\" (friend) nods slowly. Next time, (friend.he/she) asks. (subject) says yes about half the time.",
+   "src": "L545"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject), looking at the strange knots. \"I wasn't expecting that.\" (friend) beams. The net works fine. Better than fine, actually. (subject) studies the new knots and, a few weeks later, starts using them (subject.him/her)self. (subject.He/she) never tells (friend) that, mostly because (friend.he/she) would never hear the end of it.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L542"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L542"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Thank you,\" says (subject), looking at the strange knots. \"I wasn't expecting that.\" (friend) beams. The net works fine. Better than fine, actually. (subject) studies the new knots and, a few weeks later, starts using them (subject.him/her)self. (subject.He/she) never tells (friend) that, mostly because (friend.he/she) would never hear the end of it.",
+   "src": "L542"
+  }
+ }
+}

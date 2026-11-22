@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c043_wrong_name",
+  "source": "companion",
+  "lines": [
+   2557,
+   2566
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2557",
+  "ledger": [
+   {
+    "src": "L2560",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2562",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2566",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "An elder accidentally calls a young villager by the name of an old friend.",
+  "cast_only": [
+   "elder",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "An elder accidentally calls a young villager by the name of an old friend.",
+   "src": "L2558",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They apologize and share a fond memory.",
+   "src": "L2563"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The young villager asks about the friend.",
+   "src": "L2564"
+  }
+ }
+}

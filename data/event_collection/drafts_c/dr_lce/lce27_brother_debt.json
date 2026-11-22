@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Brother's Debt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce27_brother_debt",
+  "source": "draft_lce",
+  "lines": [
+   372,
+   383
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L372",
+  "ledger": [
+   {
+    "src": "L373",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L379",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L379",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L383",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L383",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager's sibling owes a neighbor a canoe and cannot pay: pay it for them, or let them handle it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "sibling_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) promised a neighbor a new canoe in exchange for a season of fish, ate the fish, and has not built the canoe. The neighbor is angry and has come to (subject), (friend)'s sibling. (subject) can build canoes. (friend) cannot, really. What should (subject) do?",
+   "src": "L375",
+   "choices": [
+    {
+     "label": "Build It for (friend)",
+     "next": "o1",
+     "src": "L377"
+    },
+    {
+     "label": "Let (friend) Handle It",
+     "next": "o2",
+     "src": "L381"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) builds the canoe, grumbling every day. The neighbor is satisfied. (friend) is grateful and embarrassed, and spends the next season catching fish for (subject)'s family to make up for it.",
+   "src": "L379",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L379"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says (friend) made the promise and must keep it. (friend) is furious, then frightened, then starts building. The canoe is lopsided and takes all season. The neighbor accepts it, barely. (friend) is quite proud of it.",
+   "src": "L383",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L383"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

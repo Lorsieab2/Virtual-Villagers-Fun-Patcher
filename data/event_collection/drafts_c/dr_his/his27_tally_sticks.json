@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tally Sticks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his27_tally_sticks",
+  "source": "draft_his",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L329",
+    "kind": "sensitivity",
+    "before": "The oldest villager squints",
+    "after": "(elder), the oldest villager, squints",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L329",
+    "kind": "sensitivity",
+    "before": "says the elder.",
+    "after": "says (elder).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "In the oldest storehouse two villagers find old notched tally sticks: work them out together, or ask the oldest villager.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In a dry corner of the oldest storehouse, (subject) has found a bundle of very old sticks, each carved with rows and rows of notches: long ones, short ones, little crosses. They were obviously counting something, very carefully, for a very long time. (friend) comes over and the two of them start trying to work out what.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Work It Out Together",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Ask the Oldest Villager",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Fish, says (subject). Days, says (friend). Coconuts. Moons. Babies. Arguments. They spend an entire afternoon on it. (friend) notices the crosses come every seventh notch. (subject) notices the long notches cluster in certain sections. They are getting close to something, they're sure. Then the light goes, and they still don't know. They come back the next day, and the next.",
+   "src": "L326"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(elder), the oldest villager, squints at the sticks for a long time and says, with total confidence, \"Those are for counting the times old Wobbly-Legs fell in the stream.\" (subject) and (friend) look at each other. There are hundreds of notches. \"...Really?\" \"No idea,\" says (elder). \"But it's a better answer than yours.\" They can't argue with that.",
+   "src": "L329"
+  }
+ }
+}

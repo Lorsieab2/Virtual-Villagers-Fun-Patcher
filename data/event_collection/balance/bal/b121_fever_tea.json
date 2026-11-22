@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever Tea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b121_fever_tea",
+  "source": "balance",
+  "lines": [
+   5519,
+   5564
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5519",
+  "ledger": [
+   {
+    "src": "L5520",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5521",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5529",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5538",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5526",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5527",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5530",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5539",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5532",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5535",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5541",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5544",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5547-5564",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A fever has been going round the village for a week.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A fever has been going round the village for a week. It starts with a scratchy throat and ends with three days on a mat, sweating through every blanket in the hut. (friend) has had it the longest, and the healers have run out of ideas and most of their patience.\nLate one night, (subject) finds a plant growing beside the healers' hut that was not there yesterday: a little purple herb with leaves shaped like spoons. (healer), the oldest healer, squints at it and says (subject.his/her) grandmother used to brew it for fevers, \"or possibly for warts. One or the other.\" Nobody else has ever seen it. It smells like pepper and wet stone.\n(subject) holds the leaves over the boiling pot. Should (subject.he/she) brew the tea and try it, or wait until (healer) remembers which one it was?",
+   "choices": [
+    {
+     "label": "Brew the Tea",
+     "next": "c1",
+     "src": "L5526"
+    },
+    {
+     "label": "Wait for (Healer) to Remember",
+     "next": "c2",
+     "src": "L5527"
+    }
+   ],
+   "src": "L5522-5524"
+  },
+  "c1o1": {
+   "text": "(friend) drinks the whole cup, pulls a face like a child eating a lemon, and falls asleep. By morning the fever is gone. By noon (friend) is up and complaining about being hungry. The healers crowd round the pot, writing down how many leaves, how long, how hot, and argue happily about it all day. \"Fevers,\" says (healer) at last, very pleased. \"It was definitely fevers.\"",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L5533",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The tea works on (friend) at once. It also works on (subject), who only had a sip, and spends the night in a burning, swimming dream about walking through a village where every hut has a door but no names on anything. In the morning (subject)'s fever is gone, and so is (subject.his/her) name. (subject.He/She) can remember the dream perfectly, and (subject.his/her) own name not at all. The village calls (subject.him/her) \"?\" until it comes back. It does not come back. \"Warts,\" says (healer) gloomily. \"It might have been for warts.\"",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    },
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L5536",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) drops the leaves into the pot. The water turns the colour of a bruise and starts to hum, very faintly, like a bee trapped in a gourd. (subject.He/She) pours out a cup for (friend), then, after a moment's thought, takes a sip first...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5530"
+  },
+  "c2o1": {
+   "text": "At last (healer) opens (subject.his/her) eyes and starts to hum a song (subject.his/her) grandmother sang while she brewed: two handfuls of leaves, boil it twice, let it cool under the moon. They do it exactly as the song says. Every sick villager in the village gets a cup, and by the end of the week the fever has gone from every hut. The purple herb is never seen beside the healers' hut again, though they look for it every spring.",
+   "effects": [
+    {
+     "do": "cure",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5542",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "By the time (healer) has remembered, the leaves have wilted on the stone and turned black and slimy. \"Fevers,\" (subject.he/she) says triumphantly, and then looks at the stone. \"Oh.\" The fever runs its course the slow way. (friend) gets better on (subject.his/her) own, one long week later, and tells everyone (subject.he/she) would have tried anything, even wart tea.",
+   "src": "L5545"
+  },
+  "c2": {
+   "text": "(subject) sets the leaves down carefully on a flat stone. \"Think,\" (subject.he/she) says. \"Fevers or warts?\" (healer) sits down, closes (subject.his/her) eyes, and thinks for so long that (subject) wonders if (subject.he/she) has fallen asleep...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5539"
+  }
+ }
+}

@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Waste of the Dye Pits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife42_waste_dye",
+  "source": "living",
+  "lines": [
+   21175,
+   21186
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21175",
+  "ledger": [
+   {
+    "src": "L21186",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Beautiful new dyes leave stained water running into the stream.",
+  "cast_only": [
+   "dyer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "dyer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Beautiful new dyes leave stained water running into the stream.",
+   "src": "L21176",
+   "choices": [
+    {
+     "label": "Build a settling pond.",
+     "next": "a",
+     "src": "L21177"
+    },
+    {
+     "label": "Move the dye pits away from the stream.",
+     "next": "b",
+     "src": "L21180"
+    },
+    {
+     "label": "Reduce dye production and test alternatives.",
+     "next": "c",
+     "src": "L21183"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The stream gradually clears, though dye-making slows.",
+   "src": "L21178"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A storm overflows the pond, revealing a flaw in the design.",
+   "src": "L21179"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Fish return to the shallows, but the weavers must carry water farther.",
+   "src": "L21181"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The new site threatens a patch of wildflowers.",
+   "src": "L21182"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A less vivid pigment proves gentler on the stream.",
+   "src": "L21184"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some customers complain that the colors have changed.",
+   "src": "L21185"
+  }
+ }
+}

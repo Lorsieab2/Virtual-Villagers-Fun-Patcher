@@ -230,9 +230,10 @@ class TheContract(unittest.TestCase):
         if names is None:
             self.skipTest("pefile is not installed")
         # VvfpOriginalLookConverted: New Believers' Heathens Keep Their Masks When Converted (ol_converted);
-        # VvfpVillagersRenamed: VVFP Last Names.dll's load-time renames (native/shared/villager_rekey.h).
+        # VvfpVillagersRenamed: VVFP Last Names.dll's load-time renames (native/shared/villager_rekey.h);
+        # VvfpVillagerSexChanged: a sex change (native/shared/sex_change.h).
         self.assertEqual(set(names), {"VvfpStartup", "VvfpOriginalLookGet", "VvfpOriginalLookConverted",
-                                      "VvfpVillagersRenamed"})
+                                      "VvfpVillagersRenamed", "VvfpVillagerSexChanged"})
         source = (ROOT / "native" / "vvfp_original_look" / "vvfp_original_look.c").read_text(encoding="utf-8")
         self.assertIn("int __stdcall VvfpOriginalLookGet(int game, const void *record, int *head, int *body, "
                       "int *mask)", source)
@@ -468,6 +469,25 @@ class Backfill(unittest.TestCase):
         got = v.logged()
         self.assertEqual(got[a.name].kind, ol.UNKNOWN, "an earlier change no Appearance changed record has")
         self.assertEqual(got[b.name].kind, ol.UNKNOWN, "a change seen, and no record of it at all")
+
+    def test_a_presentation_or_head_look_record_alone_never_hides_the_original_look(self):
+        """A change of gender presentation or head look writes an "Appearance changed" record whose head and body
+        rows do not change (Codex, #784): it is no change of look, so the original look stays known."""
+        for game in (1, 3, 5):
+            with self.subTest(game=game):
+                results = []
+                for with_record in (False, True):
+                    v = Village(self.root / f"g{game}_{int(with_record)}", game)
+                    a = v.people[0].seen
+                    text = birth(1, a.name, a.sex, (a.head, a.body))
+                    if with_record:
+                        text += change(a.name, (a.head, a.body), (a.head, a.body))
+                    v.births(text)
+                    ol.backfill(v.folder, game, 1)
+                    got = v.logged().get(a.name)
+                    results.append(None if got is None else (got.kind, got.head, got.body, got.mask))
+                self.assertEqual(results[1], results[0], "the look-only record changes nothing")
+                self.assertNotEqual((results[1] or (None,))[0], ol.UNKNOWN)
 
     def test_new_believers_masks_in_the_logs_are_never_taken(self):
         """New Believers' logs name a Heathen's own mask and the patcher's cosmetic one alike."""

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Body Left for Learning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss041_body_left",
+  "source": "companion",
+  "lines": [
+   6485,
+   6493
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6485",
+  "ledger": [
+   {
+    "src": "L6493",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A family disagrees about a deceased scholar's wish that their body be used for study.",
+  "cast_only": [
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A deceased scholar once said they wanted their body used for study. Their family remembers the conversation differently.",
+   "src": "L6486",
+   "choices": [
+    {
+     "label": "Seek clear evidence of wishes",
+     "next": "a",
+     "src": "L6487"
+    },
+    {
+     "label": "Prioritize family discussion",
+     "next": "b",
+     "src": "L6489"
+    },
+    {
+     "label": "Hold a community ethics meeting",
+     "next": "c",
+     "src": "L6491"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Records support limited study; the family helps decide respectful boundaries.",
+   "src": "L6488"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The village develops consent practices for future generations without rewriting the past.",
+   "src": "L6492"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The family chooses burial; researchers preserve the scholar's notes instead.",
+   "src": "L6490",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6490"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The family chooses burial; researchers preserve the scholar's notes instead.",
+   "src": "L6490"
+  }
+ }
+}

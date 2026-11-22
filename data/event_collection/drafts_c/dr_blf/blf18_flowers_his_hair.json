@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Flowers in His Hair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf18_flowers_his_hair",
+  "source": "draft_blf",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult man and a child aged 4-10)"
+   }
+  ],
+  "description": "A small child asks a man who wears flowers in his hair if flowers are for girls: answer simply, or ask what the child thinks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) always wears flowers in his hair: big red ones, tucked behind both ears and woven into his braid. He likes them. He always has. Today a small child, (friend), stares up at him and asks, \"Why do you wear flowers? Aren't flowers for girls?\"",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Answer Simply",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Ask (friend) What (friend.he/she) Thinks",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Who told you that?\" asks (subject). (friend) shrugs. \"Just somebody.\" \"Well,\" says (subject), \"what do you think? Do flowers care who wears them?\" (friend) looks at the flowers seriously. \"No,\" (friend.he/she) decides. \"Flowers don't care.\" \"Exactly,\" says (subject). (friend) goes off to pick some flowers. They end up behind the ears of several goats.",
+   "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Flowers are for anyone who likes flowers,\" says (subject). \"I like them a lot.\" (friend) thinks about this. \"Can I have one?\" (subject) tucks a little yellow one behind (friend)'s ear. (friend) walks around for the rest of the day very proudly. Nobody tells (friend.him/her) flowers are for anybody in particular, because they aren't.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Flowers are for anyone who likes flowers,\" says (subject). \"I like them a lot.\" (friend) thinks about this. \"Can I have one?\" (subject) tucks a little yellow one behind (friend)'s ear. (friend) walks around for the rest of the day very proudly. Nobody tells (friend.him/her) flowers are for anybody in particular, because they aren't.",
+   "src": "L218"
+  }
+ }
+}

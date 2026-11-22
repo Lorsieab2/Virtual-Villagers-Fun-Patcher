@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Terraces on the Hill",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his03_terraces_hill",
+  "source": "draft_his",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "High in the forest two villagers find old garden terraces nobody ever mentioned: clear one terrace, or leave it as it is.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Pushing through the thick forest high on the hill, (subject) and (friend) have come across something strange: a whole series of flat steps cut into the slope, held up by low walls of fitted stone, now buried under moss and ferns. Somebody, a very long time ago, gardened here. A lot. Nobody in the village has ever mentioned it.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Clear One Terrace",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Leave It as It Is",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They clear a single terrace, pulling out the ferns and the roots. Under the leaf litter, the soil is dark and good. They plant some beans there, just to see. The beans grow beautifully. The villagers who come up to look are full of questions. Who made this? Why did they stop? Where did they go? The beans are no help with any of those questions.",
+   "src": "L38"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They decide to leave it. Whoever made it had their reasons, and whoever left it had theirs. They sit on one of the old walls for a while and look out over the sea from the same spot the old gardeners must have looked from. It's a very good view. Somebody chose it carefully. On the way down, (friend) keeps looking back over (friend.his/her) shoulder at the hill.",
+   "src": "L41"
+  }
+ }
+}

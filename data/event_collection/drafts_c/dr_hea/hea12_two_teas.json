@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Teas",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea12_two_teas",
+  "source": "draft_hea",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and two healers or elders)"
+   }
+  ],
+  "description": "A villager with an upset stomach holds two teas from two healers: ask before drinking either, or drink only one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has an upset stomach and has been to see (friend), who gave (subject.him/her) a bitter tea. Then (subject.he/she) bumped into (third), who said, \"Oh, you poor thing,\" and gave (subject.him/her) a different tea. Now (subject) is holding two cups, from two healers who don't know about each other, and wondering if it's safe to drink both.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Ask Before Drinking Either",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Drink (friend)'s, Save (third)'s",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) carries both cups back to (friend). (friend) sniffs them both and goes a bit pale. \"Not together,\" (friend.he/she) says. \"Either one alone is fine. Together they'll keep you up all night.\" (friend.He/she) goes off to talk to (third), and the two healers agree to tell each other in future. (subject) drinks one tea. It helps a little. (subject.He/she) sleeps.",
+   "src": "L146"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides one tea is enough. (subject.He/she) drinks (friend)'s and puts (third)'s aside. Later, mentioning it, (subject.he/she) learns that drinking both would have kept (subject.him/her) awake all night with a racing heart. \"I didn't know,\" says (third), dismayed. \"Neither did I,\" says (subject). From then on, (third.he/she) always asks what's already in a person before (third.he/she) offers them anything.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "third",
+     "skills": [
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L149"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) decides one tea is enough. (subject.He/she) drinks (friend)'s and puts (third)'s aside. Later, mentioning it, (subject.he/she) learns that drinking both would have kept (subject.him/her) awake all night with a racing heart. \"I didn't know,\" says (third), dismayed. \"Neither did I,\" says (subject). From then on, (third.he/she) always asks what's already in a person before (third.he/she) offers them anything.",
+   "src": "L149"
+  }
+ }
+}

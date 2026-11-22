@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dream That Can Wait",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il040_dream_can_wait",
+  "source": "da_il02",
+  "lines": [
+   481,
+   493
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L481",
+  "ledger": [
+   {
+    "src": "L483",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "For years, a villager has wanted to build a small boat and explore the distant coastline.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For years, (name1) has wanted to build a small boat and explore the distant coastline. (He/She) has gathered sketches, studied the currents, and imagined the journey many times. But other things have occupied (his/her) attention, and the boat remains unfinished.",
+   "src": "L485",
+   "choices": [
+    {
+     "label": "Work on the Boat Today",
+     "next": "a",
+     "src": "L487"
+    },
+    {
+     "label": "Enjoy the Afternoon Instead",
+     "next": "b",
+     "src": "L491"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) spends the afternoon shaping a piece of wood. The work is slow but satisfying. By sunset the boat is still nowhere near ready. (name1) doesn't mind. It is a little closer than it was yesterday.",
+   "src": "L489",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L489"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) spends the afternoon shaping a piece of wood. The work is slow but satisfying. By sunset the boat is still nowhere near ready. (name1) doesn't mind. It is a little closer than it was yesterday.",
+   "src": "L489"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) goes swimming, eats a delicious meal, and spends the evening with friends. The boat remains unfinished. Tomorrow, next season, or perhaps several years from now, (he/she) may return to it. For today, (name1) is happy where (he/she) is.",
+   "src": "L493",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L493"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) goes swimming, eats a delicious meal, and spends the evening with friends. The boat remains unfinished. Tomorrow, next season, or perhaps several years from now, (he/she) may return to it. For today, (name1) is happy where (he/she) is.",
+   "src": "L493"
+  }
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bird by the Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day20_bird_door",
+  "source": "draft_day",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A little bird sings all day on the post outside a villager's hut: sit outside with it, or try to whistle the song back.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A little brown bird has sat on the post outside (subject)'s hut all day and sung. Not a big song. A small, cheerful, repeating one. It started at dawn and has gone on, with short breaks for eating, ever since. (subject) has been inside most of the day, mending things, listening to it.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Sit Outside with the Bird",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Try to Whistle the Song Back",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tries to whistle the bird's song. It's close, but not quite. The bird stops, tips its head, then sings it again, slower, as if correcting (subject.him/her). (subject) tries again. They go back and forth like this for some time. (friend), passing, decides not to ask.",
+   "src": "L245"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes (subject.his/her) work outside and sits near the post. The bird doesn't mind. It sings. (subject) mends. The afternoon passes like that, slow and pleasant. In the evening the bird flies off. The next morning (subject) looks for it. It doesn't come back. It was one day. It was a good one.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L242"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes (subject.his/her) work outside and sits near the post. The bird doesn't mind. It sings. (subject) mends. The afternoon passes like that, slow and pleasant. In the evening the bird flies off. The next morning (subject) looks for it. It doesn't come back. It was one day. It was a good one.",
+   "src": "L242"
+  }
+ }
+}

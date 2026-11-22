@@ -1,0 +1,183 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor with the Cure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed24_visitor_cure",
+  "source": "living",
+  "lines": [
+   20518,
+   20529
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20518",
+  "ledger": [
+   {
+    "src": "L20529",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A stranger claims a rare flower can cure a deadly illness, but demands nearly all the village's remaining stores in exchange."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A stranger claims a rare flower can cure a deadly illness, but demands nearly all the village's remaining stores in exchange.",
+   "src": "L20519",
+   "choices": [
+    {
+     "label": "Buy the remedy with the patient's consent.",
+     "next": "a",
+     "src": "L20520"
+    },
+    {
+     "label": "Decline the bargain and continue care.",
+     "next": "b",
+     "src": "L20523"
+    },
+    {
+     "label": "Ask the stranger to demonstrate the remedy",
+     "next": "c",
+     "src": "L20526"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient recovers, but the village cannot tell whether the flower helped.",
+   "src": "L20521",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true,
+     "src": "L20521"
+    },
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20521"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The remedy fails, and the depleted stores leave others vulnerable.",
+   "src": "L20522",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true,
+     "src": "L20522"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient recovers slowly with ordinary treatment.",
+   "src": "L20524",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20524"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient dies, and some villagers blame the decision despite the uncertain claim.",
+   "src": "L20525",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20525"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Ask the stranger to demonstrate the remedy without exploiting patients.\nThe stranger refuses and departs angrily.",
+   "src": "L20526,L20527"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Ask the stranger to demonstrate the remedy without exploiting patients.\nThe stranger admits that the flower only eases pain, and the village negotiates a fair exchange.",
+   "src": "L20526,L20528"
+  }
+ }
+}

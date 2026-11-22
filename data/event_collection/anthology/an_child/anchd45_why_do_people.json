@@ -1,0 +1,261 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do People Laugh at Mistakes?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd45_why_do_people",
+  "source": "anthology",
+  "lines": [
+   28232,
+   28245
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L28232",
+  "ledger": [
+   {
+    "src": "L28233",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28235",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28236",
+    "kind": "sensitivity",
+    "before": "A teacher",
+    "after": "(adult), a teacher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28238",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28239",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28241",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(adult), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28242",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28244",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28245",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child feels embarrassed after mispronouncing a word and hearing laughter.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) feels embarrassed after mispronouncing a word and hearing laughter.",
+   "src": "L28233",
+   "choices": [
+    {
+     "label": "Ask What the Laughter Meant.",
+     "next": "a",
+     "src": "L28234"
+    },
+    {
+     "label": "Practice the Word.",
+     "next": "b",
+     "src": "L28237"
+    },
+    {
+     "label": "Discuss Kind Humor.",
+     "next": "c",
+     "src": "L28240"
+    },
+    {
+     "label": "Take a Break.",
+     "next": "d",
+     "src": "L28243"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Friends explain they were surprised, not mocking (child).",
+   "src": "L28235"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(adult), a teacher, reminds the group to be considerate.",
+   "src": "L28236"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) says it confidently later.",
+   "src": "L28238"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) chooses a different word and keeps speaking.",
+   "src": "L28239"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult), a caregiver, explains the difference between laughing together and laughing at someone.",
+   "src": "L28241"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) feels calmer after a quiet moment.",
+   "src": "L28244"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) returns to the group when ready.",
+   "src": "L28245"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "(child) invents a harmless joke everyone enjoys.",
+   "src": "L28242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28242"
+    },
+    {
+     "do": "mood",
+     "role": "adult",
+     "mood": "good",
+     "src": "L28242"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "(child) invents a harmless joke everyone enjoys.",
+   "src": "L28242"
+  }
+ }
+}

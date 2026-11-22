@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Purple Hair Incident",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl098_purple_hair",
+  "source": "companion",
+  "lines": [
+   5090,
+   5100
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5090",
+  "ledger": [
+   {
+    "src": "L5091",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5099",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5100",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A dyer tests a new pigment on a willing volunteer.",
+  "cast_only": [
+   "dyer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "dyer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "volunteer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A dyer tests a new pigment on a willing volunteer.",
+   "src": "L5092",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5093"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5094"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5095"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "Their hair changes color and they love it.",
+   "src": "L5096",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "volunteer",
+     "head": "random",
+     "src": "L5096"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The color fades after a few days.",
+   "src": "L5097",
+   "text_only": [
+    {
+     "what": "fades",
+     "reason": "rule 9: a dye that fades is a passing look; the head is not changed",
+     "src": "L5097"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The villager regrets the experiment and seeks a new style.",
+   "src": "L5098",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "volunteer",
+     "head": "random",
+     "src": "L5098"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heavy Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev036_heavy_morning",
+  "source": "companion",
+  "lines": [
+   3581,
+   3585
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3581",
+  "ledger": [
+   {
+    "src": "L3585",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A villager wakes feeling low without knowing why.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A villager wakes feeling low without knowing why.",
+   "src": "L3582",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Complete one manageable task and leave the rest.",
+   "src": "L3584"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Rest and spend time with someone trusted.",
+   "src": "L3583",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L3583"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Rest and spend time with someone trusted.",
+   "src": "L3583"
+  }
+ }
+}

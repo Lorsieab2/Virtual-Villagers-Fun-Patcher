@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Solo",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp44_solo",
+  "source": "anthology",
+  "lines": [
+   31936,
+   31950
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31936",
+  "ledger": [
+   {
+    "src": "L31937",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31938",
+    "kind": "sensitivity",
+    "before": "A quiet villager",
+    "after": "(villager), a quiet villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31941",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31944",
+    "kind": "sensitivity",
+    "before": "The performer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31946",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31947",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31950",
+    "kind": "sensitivity",
+    "before": "The singer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A quiet villager surprises everyone by asking to sing alone at a gathering.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), a quiet villager, surprises everyone by asking to sing alone at a gathering.",
+   "src": "L31938",
+   "choices": [
+    {
+     "label": "Offer Encouragement",
+     "next": "a",
+     "src": "L31939"
+    },
+    {
+     "label": "Give Them Space",
+     "next": "b",
+     "src": "L31942"
+    },
+    {
+     "label": "Invite a Duet",
+     "next": "c",
+     "src": "L31945"
+    },
+    {
+     "label": "Accept the Outcome",
+     "next": "d",
+     "src": "L31948"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) loses their place and finishes anyway.",
+   "src": "L31941"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The audience listens without interruption.",
+   "src": "L31943"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) asks for a smaller audience.",
+   "src": "L31944"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) joins for the final verse.",
+   "src": "L31946"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) prefers to remain solo.",
+   "src": "L31947"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The performance becomes a treasured memory.",
+   "src": "L31949"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) decides once was enough.",
+   "src": "L31950"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The song earns warm applause.",
+   "src": "L31940",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L31940"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The song earns warm applause.",
+   "src": "L31940"
+  }
+ }
+}

@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thing Under the Bed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il023_thing_under_bed",
+  "source": "da_il02",
+  "lines": [
+   209,
+   223
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L209",
+  "ledger": [
+   {
+    "src": "L211",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L223",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A young child is certain that something called the Midnight Scratcher lives under their sleeping mat.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is certain that something lives beneath (subject.his/her) sleeping mat. It makes scratching noises at night. Sometimes it rustles. Once it made a noise like a tiny sneeze. (subject) has named it the Midnight Scratcher and is not especially pleased about sharing a hut with it.",
+   "src": "L213",
+   "choices": [
+    {
+     "label": "Investigate with (friend)",
+     "next": "a",
+     "src": "L215"
+    },
+    {
+     "label": "Make Peace with the Mystery",
+     "next": "b",
+     "src": "L219"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They lift the mat carefully. Beneath it sits a small gecko, looking extremely offended at the interruption. \"That's not very frightening,\" says (subject). The gecko sneezes. (subject) gasps. \"IT'S HIM!\"",
+   "src": "L217"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) leaves a small drawing beside the mat showing the Midnight Scratcher where it is allowed to sleep. The noises continue that night, but (subject) finds them less frightening. The following morning the drawing has been moved slightly. Probably by the breeze.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L221"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) leaves a small drawing beside the mat showing the Midnight Scratcher where it is allowed to sleep. The noises continue that night, but (subject) finds them less frightening. The following morning the drawing has been moved slightly. Probably by the breeze.",
+   "src": "L221"
+  }
+ }
+}

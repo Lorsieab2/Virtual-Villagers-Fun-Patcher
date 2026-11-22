@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Puddle Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day23_puddle_day",
+  "source": "draft_day",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   },
+   {
+    "src": "L281",
+    "kind": "sensitivity",
+    "before": "Then a child jumps",
+    "after": "Then (child), another child, jumps",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "After a night of rain a child gazes at the biggest puddle with desperate hope: say yes, or say yes after a change of clothes.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It rained all night and stopped at dawn, and the whole village is one enormous puddle. (subject) has discovered this. (subject.He/she) is standing at the edge of the biggest puddle, in (subject.his/her) cleanest clothes, looking up at (friend) with an expression of total, desperate hope.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Say Yes",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Say Yes, After You Change",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Go on,\" says (friend). (subject) jumps. And jumps. And jumps. Mud goes everywhere: on (subject), on (friend), on a passing dog. Other children appear from nowhere. By midday every child in the village is the same color as the path. It takes the whole afternoon to wash them all. It was, every child agrees, the best day ever.",
+   "src": "L278"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Change into your old clothes first,\" says (friend). (subject) runs off and comes back in clothes that are mostly holes, and jumps in the puddle with the joy of someone who waited. It takes about one jump to cover (subject.him/her) completely. The clean clothes stay clean. (friend) feels very wise. Then (child), another child, jumps next to (friend.him/her).",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Change into your old clothes first,\" says (friend). (subject) runs off and comes back in clothes that are mostly holes, and jumps in the puddle with the joy of someone who waited. It takes about one jump to cover (subject.him/her) completely. The clean clothes stay clean. (friend) feels very wise. Then (child), another child, jumps next to (friend.him/her).",
+   "src": "L281"
+  }
+ }
+}

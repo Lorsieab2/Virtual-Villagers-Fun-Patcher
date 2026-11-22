@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Emergency Snack",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il068_emergency_snack",
+  "source": "da_il04",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "On a bad day, a villager reaches for the emergency snack hidden in the thatch and finds a very full lizard.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) keeps an emergency snack hidden in the roof thatch: a little bundle of dried fruit, wrapped in a leaf, for a day when things are going badly. Today things are going badly. (subject) reaches up into the thatch, unwraps the leaf, and finds a very small lizard, extremely full, asleep in the middle of it.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Let the Lizard Keep It",
+     "next": "a",
+     "src": "L97"
+    },
+    {
+     "label": "Tell (friend) About the Thief",
+     "next": "b",
+     "src": "L100"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) looks at the lizard. The lizard, slowly, opens one eye and looks back. \"Well,\" says (subject), \"at least one of us is having a good day.\" (subject.He/She) puts the bundle back in the thatch, lizard and all. Somehow the bad day feels a little funnier now.",
+   "src": "L98"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) goes straight to (friend) to complain. \"A lizard ate my emergency snack!\" (friend) tries very hard not to laugh and fails completely. Then (friend.he/she) shares (friend.his/her) own lunch. \"Next time,\" (friend.he/she) says, \"hide two snacks. One for you and one for the lizard.\"",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) goes straight to (friend) to complain. \"A lizard ate my emergency snack!\" (friend) tries very hard not to laugh and fails completely. Then (friend.he/she) shares (friend.his/her) own lunch. \"Next time,\" (friend.he/she) says, \"hide two snacks. One for you and one for the lizard.\"",
+   "src": "L101"
+  }
+ }
+}

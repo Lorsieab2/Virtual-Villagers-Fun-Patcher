@@ -51,7 +51,7 @@ adding to it there until the player moves it.
 | Family Tree Edits | `...Data\Family Tree Edits` | per save | src/vv_family_tree.py |
 | Elder Totems (`ElderTotems.dat`, `Elder Totem Settings.dat`, `PendingElderTotems.dat`) | `...Data\Elder Totems` | per save; new in this layout only (never in the older layout) | native/vvfp_vv2_totems/vvfp_vv2_totems.c, src/vv_vv2_totem_store.py |
 | Like and Dislike Words | `...Data\Like and Dislike Words` (one per game) | shared file; a moved or new log's boundaries go in its save's own file | native/shared/log_words.h, src/vv_save_layout.py words_file_for |
-| Copies Made Before Repairs | `...Data\Copies Made Before Repairs` | a save's own file keeps its copies in its save's folder; older copies stay | native/shared/save_layout.h vv_layout_copy_path, src/vv_log_tools.py copy_before_repair |
+| Copies Made Before Repairs | `...Data\Copies Made Before Repairs` | a save's own file keeps its copies in its save's folder; older copies stay. The patcher's new copies: short names (`<name without "Virtual Villagers <G> ">.bak<n>`) straight in the folder, named in its `Copies Index.txt` (at most 116 characters inside the save folder); the companions' copies keep their MAX_PATH-bounded names | src/vv_repair_copies.py, src/vv_log_tools.py copy_before_repair, native/shared/save_layout.h vv_layout_copy_path |
 
 ## Not per save (never moved)
 

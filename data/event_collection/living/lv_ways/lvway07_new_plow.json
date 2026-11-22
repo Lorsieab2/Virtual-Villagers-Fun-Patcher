@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Plow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway07_new_plow",
+  "source": "living",
+  "lines": [
+   22800,
+   22814
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22800",
+  "ledger": [
+   {
+    "src": "L22814",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An inventor proposes a plow pulled by a trained animal.",
+  "cast_only": [
+   "inventor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "inventor": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An inventor proposes a plow pulled by a trained animal.",
+   "src": "L22801",
+   "choices": [
+    {
+     "label": "Try animal assistance with careful rest.",
+     "next": "a",
+     "src": "L22802"
+    },
+    {
+     "label": "Keep digging by hand.",
+     "next": "b",
+     "src": "L22805"
+    },
+    {
+     "label": "Use a magical tool.",
+     "next": "c",
+     "src": "L22808",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Ask farmers to test both methods.",
+     "next": "d",
+     "src": "L22811"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The animal refuses the unfamiliar harness.",
+   "src": "L22804"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villagers finish without relying on an animal.",
+   "src": "L22806"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Workers become exhausted before planting ends.",
+   "src": "L22807"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The tool moves easily through soft soil.",
+   "src": "L22809"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The magic fails in hard ground.",
+   "src": "L22810"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The comparison reveals different strengths.",
+   "src": "L22812"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Arguments over the trial delay the planting.",
+   "src": "L22813"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The fields are prepared sooner, and the animal remains healthy.",
+   "src": "L22803",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22803"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The fields are prepared sooner, and the animal remains healthy.",
+   "src": "L22803"
+  }
+ }
+}

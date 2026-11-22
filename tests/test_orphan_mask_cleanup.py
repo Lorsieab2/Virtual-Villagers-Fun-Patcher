@@ -107,7 +107,9 @@ class OrphanMaskHarnessTests(unittest.TestCase):
                    "/I", str(vs / "include"), "/I", str(sdk / "Include" / ver / "um"),
                    "/I", str(sdk / "Include" / ver / "shared"), "/I", str(sdk / "Include" / ver / "ucrt"),
                    str(SHARED / "orphan_masks_game_harness.c"), f"/Fe{exe}", f"/Fo{out}\\",
-                   "/link", "/FIXED", "/DYNAMICBASE:NO", "/BASE:0x400000",
+                   # A New Home's companion grew past where the block could lie over its scratch at
+                   # 0x480000..: its harness is linked lower (sex_change_dialog_harness's way).
+                   "/link", "/FIXED", "/DYNAMICBASE:NO", "/BASE:0x200000" if game == 1 else "/BASE:0x400000",
                    f"/LIBPATH:{vs / 'lib' / 'x86'}", f"/LIBPATH:{sdk / 'Lib' / ver / 'um' / 'x86'}",
                    f"/LIBPATH:{sdk / 'Lib' / ver / 'ucrt' / 'x86'}",
                    "user32.lib", "gdi32.lib", "shell32.lib", "advapi32.lib", "gdiplus.lib", "ole32.lib"]

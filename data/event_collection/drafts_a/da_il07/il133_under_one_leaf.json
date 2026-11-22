@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Under One Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il133_under_one_leaf",
+  "source": "da_il07",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A sudden shower sends two villagers who hardly know each other under the same big leaf.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A sudden rain shower catches (subject) out on the path, and (subject.he/she) ducks under the biggest leaf (subject.he/she) can find. A moment later (friend) ducks under it too. It's a big leaf, but not that big. They're standing very close, both getting slightly wet on one shoulder, and they don't really know each other.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Make Conversation",
+     "next": "a",
+     "src": "L157"
+    },
+    {
+     "label": "Stand in Comfortable Silence",
+     "next": "b",
+     "src": "L160"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Nice weather,\" says (subject). (friend) looks at the rain pouring off the leaf. Then they both laugh. They talk about the rain, then about their work, then, somehow, about whether lizards enjoy the rain or just put up with it. When the shower stops, they're both a bit sorry.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Nice weather,\" says (subject). (friend) looks at the rain pouring off the leaf. Then they both laugh. They talk about the rain, then about their work, then, somehow, about whether lizards enjoy the rain or just put up with it. When the shower stops, they're both a bit sorry.",
+   "src": "L158"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They stand quietly, listening to the rain drum on the leaf. It's surprisingly nice. When it stops, (friend) nods at (subject), and (subject) nods back. Neither of them says anything. The next time they pass each other on the path, though, they both look up at the sky and smile.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L161"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L161"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They stand quietly, listening to the rain drum on the leaf. It's surprisingly nice. When it stops, (friend) nods at (subject), and (subject) nods back. Neither of them says anything. The next time they pass each other on the path, though, they both look up at the sky and smile.",
+   "src": "L161"
+  }
+ }
+}

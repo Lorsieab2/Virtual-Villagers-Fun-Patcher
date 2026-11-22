@@ -1,0 +1,208 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Healing Debate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway19_healing_debate",
+  "source": "living",
+  "lines": [
+   22992,
+   23006
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22992",
+  "ledger": [
+   {
+    "src": "L23006",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A patient with persistent pain hears four different suggestions."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A patient with persistent pain hears four different suggestions.",
+   "src": "L22993",
+   "choices": [
+    {
+     "label": "Try a carefully prepared plant remedy.",
+     "next": "a",
+     "src": "L22994"
+    },
+    {
+     "label": "Attempt a gentle magical intervention.",
+     "next": "b",
+     "src": "L22997",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Use rest, support, and practical aids.",
+     "next": "c",
+     "src": "L23000"
+    },
+    {
+     "label": "Offer prayer and companionship.",
+     "next": "d",
+     "src": "L23003"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The remedy causes discomfort and is discontinued.",
+   "src": "L22996",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L22996"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The pain eases for a time, though the cause remains.",
+   "src": "L22998"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The magic has no apparent effect.",
+   "src": "L22999"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Daily tasks become easier without curing the condition.",
+   "src": "L23001"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The patient remains frustrated and requests another option.",
+   "src": "L23002"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The patient feels less alone but still hurts.",
+   "src": "L23004"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The patient declines prayer and asks for quiet company instead.",
+   "src": "L23005"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient experiences partial relief.",
+   "src": "L22995",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L22995"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient experiences partial relief.",
+   "src": "L22995"
+  }
+ }
+}

@@ -1,0 +1,51 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The End of the Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il160_end_day",
+  "source": "da_il08",
+  "lines": [
+   230,
+   233
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L230",
+  "ledger": [
+   {
+    "src": "L231",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The work is finished, and a villager sits outside their hut at sunset thinking about the day.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "The work is finished. (name1) sits down outside (his/her) hut with a cup of something warm, and every part of (him/her) aches in a pleasant, ordinary, worn-out way. The sun is going down behind the trees. Somewhere children are being called home for dinner. Someone is laughing at the fire. (name1) thinks about everything (he/she) did today: not great things, just the usual things, done properly. (He/She) thinks about all the days before this one, a long line of them stretching back, most of them a bit like this. It isn't a remarkable life, perhaps. (name1) finishes (his/her) drink, stretches, and decides that it's a good one anyway.",
+   "src": "L233"
+  }
+ }
+}

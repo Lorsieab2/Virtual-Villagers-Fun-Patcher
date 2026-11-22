@@ -81,10 +81,13 @@ def _keys() -> list[Entry]:
         Entry(KEY, "F1 (Collections, the help pictures, the intro pages, Puzzles and Milestones, the splash, Tech)", (
             # Game state 1 from the slots 0x418130, 0x427C00, 0x429430, 0x43B100, 0x43F360, 0x443770.
             "jumps straight into the village. There is no button for it"), C),
-        # The intro page whose slot is 0x429430; the setting is flipped by 0x408520.
+        # The intro page whose slot is 0x429430; the setting is flipped by 0x408520 (+0x1F of the pointer object,
+        # 1 at start, 0x40863D).  0x409260 hides the Windows pointer (SDL_ShowCursor 0, 0x467A20) inside the window
+        # and draws the game's own pointer picture (0x408820) only while +0x1F is set.
         Entry(KEY, "F3 (Collections, the help pictures, one of the intro pages, Puzzles and Milestones)", (
             "flips one setting of the game's drawing each press"), C, subs=(
-                ("What the setting changes on screen is not confirmed.", U),)),
+                ("The setting is the mouse pointer: F3 hides the pointer inside the game window and F3 again shows "
+                 "it (it starts shown).", C),)),
         Entry(KEY, "Esc (Collections, Map, Puzzles and Milestones, Tech, Villager Detail)", (
             # The slots 0x418130, 0x436200, 0x43B100, 0x443770, 0x465AF0.
             "the same as the screen's own way back"), C),
@@ -93,9 +96,13 @@ def _keys() -> list[Entry]:
             "shows the next splash picture, and after the last one moves on to the next screen (game state 25). Esc "
             "and the other keys that are not characters do not"), C),
         # The slots 0x427DC0, 0x428400, 0x426E50 set the page's timer to one step past the clock 0x403200.
+        # The done mark (+0x28, +0x1A0, +0x2C) is read by each page's update (0x428240 at 0x4282F0, 0x428910,
+        # 0x4272E0 at 0x4273A5): once the page has faded in, it counts its fade-out frames and sets the game state
+        # to 23, 24, or 1 (the village) at 0x42832E, 0x428A39, 0x4273E3.
         Entry(KEY, "Any typed character (the intro pages and the gamewin_bg.jpg screen)", (
             "sets the page's timer to end one step from now and marks the page done"), C,
-              subs=(("That this turns the page at once is not traced.", U),)),
+              subs=(("That ends the page: once it has finished fading in, it fades out and the next screen comes "
+                     "(from the gamewin_bg.jpg screen, back to the village).", C),)),
         # The two-button box 0x41AB80; the one-button box 0x4144A0.
         Entry(KEY, "Enter and Esc (pop-up boxes)", (
             "in a two-button box Enter is the first button and Esc the second; in a one-button box either key "
@@ -142,8 +149,9 @@ def _clicks() -> list[Entry]:
             # The mouse slot 0x4308D0, shown by 0x42C230: rand(50) + 742 (RANDOM_COUNT, RANDOM_BASE).
             f"line: each tip 1 in {RANDOM_COUNT} a click, any tip can come again, nothing is remembered"), C, subs=(
                 # rand(100) <= 10 in 0x4308D0: two effects of type 4 at 168, 514 and 193, 505.
-                ("Moving the mouse over the mask: each movement has an 11% chance of starting two of the game's "
-                 "short screen effects beside it; what they look like is not confirmed.", C),
+                # Particle type 4 (0x422ED0 case 0x422F5E: image +0x8050, loaded at 0x4235BC as sparklestrip2.png).
+                ("Moving the mouse over the mask: each movement has an 11% chance of starting two little sparkles "
+                 "beside it (the game's sparkle picture, sparklestrip2.png).", C),
                 ("The tutorial tip \"Click the mask to see helpful tips at the bottom of the screen.\" (438) is in "
                  "the game; where it is asked for is not traced.", U))),
         Entry(CLICK, "Places that show their state (village)", (
@@ -165,7 +173,19 @@ def _clicks() -> list[Entry]:
                 ("Area 21, once the Gong of Wonder is whole: opens the screen with the picture gamewin_bg.jpg (game "
                  "state 21).", C),
                 ("Areas 24 and 25: a sound (65) and a splash where it was clicked, no line.", C),
-                ("Which figure follows each line, and which place on the map each area is, are not traced.", U))),
+                # The click switch 0x431150 (table 0x4318B8 -> 0x431870) and the line maker 0x42C230 (table
+                # 0x42CD28 -> 0x42CCE4): coconuts +0x2EACC, tech +0x2EADC, food +0x2EAA4, progress x 100 / its total
+                # (+0x2E814, +0x2E81C, +0x2E824, +0x2E77C, +0x2E78C, +0x2E794, +0x2E75C, +0x2E7DC, +0x2E7AC,
+                # +0x2E7B4), the fire's end +0x2EAC4, crops +0x2EAD8.  The places: each area's own pointing text
+                # (the hover switch 0x42AD1D) and drop action (0x42FB20).
+                ("The figure after each line: the coconuts left on the trees, the tech points, the food in store, the "
+                 "work done as a percentage of the whole job (rounded down), the hours the fire has left and the "
+                 "crops left.", C),
+                ("The places: area 3 the coconut trees; 6 the research spot; 9 the food store; 10 and 55, 11 and 56, "
+                 "12 and 57 the three population huts; 13 and 58 the hospital; 59 the sewing hut; 31 the dam; 16 and "
+                 "60 the broken starting hut; 18 and 64 the thorny bushes; 19 and 61 the fire pit; 20 and 70 the vine "
+                 "wall; 49 the crop field; 65 the ancient ruins; 21 the Gong of Wonder; 24 the patches of algae; 25 "
+                 "the spot where a villager \"sees something under the water\".", C))),
     ]
 
 
@@ -178,18 +198,48 @@ def _tips() -> list[Entry]:
             f"of all {RANDOM_COUNT} (above); the tutorial and milestone pop-ups are asked for by number"), C, subs=(
                 ("So tips 31 to 50, among them \"You can zip around the island with your keypad.\" (786), come only "
                  "from the mask.", C),
-                ("A new village asks \"Would you like tutorial tips turned on?\"; how the answer arms the pop-ups, and "
-                 "whether each shows once a village, is not traced.", U))),
+                # The chooser 0x4257F0 (run after every tip pop-up, 0x426CB3; only with the tutorial byte +0x1D7 on)
+                # takes the first tip of 391-439 still marked (+0x31 + id) whose tip before it is not, skipping odd
+                # tips from 392 to 415 (0x425816..0x425826), and keeps the one before it (+0x30344); 0x42F423
+                # flashes the tutorial button (+0x284) while there is one, and its click (0x42ABC3) queues it again.
+                # The fixed places each clear their own one-time byte when they ask (e.g. 0x42EE85, 0x44E24A).
+                ("A new village asks \"Would you like tutorial tips turned on?\". With the tutorial on, the game "
+                 "keeps one current tutorial instruction (tips 391 to 438): after each tip pop-up it moves on to the "
+                 "next step not yet done, the tutorial's button flashes while there is one, and a click on it shows "
+                 "that instruction again. A pop-up asked for from a fixed place shows once a village: the place "
+                 "clears its own mark when it asks.", C))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (the loading screen draws from the first {LOADING_COUNT}, the "
                    "mask from all)", "every one, as the game words it:", C,
               subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C,
                                     lambda tip: "" if tip[0] < RANDOM_BASE + LOADING_COUNT else "the mask only")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (tutorial and milestones)", (
-            "every one, as the game words it, with the places that ask for it by number (a tip with none is asked for "
-            "by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
-              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if tip[2] else U,
-                                    lambda tip: hidden.sites_note(tip[2]))),
+            "every one, as the game words it, with the places that ask for it by number, or how else it comes; a tip "
+            "nothing asks for is never shown by the normal game"), C,
+              subs=hidden.tip_lines(POPUP_TIPS, lambda tip: C if _popup_note(tip) else U, _popup_note)),
     ]
+
+
+# The tips with no fixed-number asker, every path checked (2026-11-18): the tip queue 0x4257A0 and its callers
+# (including the ones that share a call after a jump), the tutorial's current instruction (0x4257F0 / 0x42ABC3),
+# the pop-up display 0x426C00, the string loads by literal or base-plus-offset number, and the mask and loading
+# screen (random tips only).
+TUTORIAL_CURRENT = frozenset(range(393, 418, 2)) | {421, 424, 438}      # the step before an armed one (0x4257F0)
+SHARED_CALL = {426: 0x44E3F7, 435: 0x42EEBE, 452: 0x43C1E7, 453: 0x43C1E7, 454: 0x43C1E7}
+SHARED_WHEN = {452: "when the village reaches 25 people", 453: "when it reaches 50",
+               454: "when it reaches 90 and has no room for more"}      # 0x43C140..0x43C1D9
+NEVER_ASKED = frozenset({442, 443})                                    # the skill-level tips: nothing asks for them
+
+
+def _popup_note(tip) -> str:
+    if tip[2]:
+        return hidden.sites_note(tip[2])
+    if tip[0] in SHARED_CALL:
+        return "asked for by number at one place" + (f", {SHARED_WHEN[tip[0]]}" if tip[0] in SHARED_WHEN else "")
+    if tip[0] in TUTORIAL_CURRENT:
+        return "the tutorial's current instruction: shown by a click on the flashing tutorial button"
+    if tip[0] in NEVER_ASKED:
+        return "nothing in the normal game asks for it, so the normal game never shows it"
+    return ""
 
 
 def _patcher() -> list[Entry]:
@@ -201,7 +251,9 @@ def _patcher() -> list[Entry]:
                  "mask.", C),)),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail)"),
-              C, feature=ORIGINS, subs=(("Esc closing these menus is tested only in A New Home.", U),)),
+              # native/vv2_origins_icons/vv2_origins_icons.c: the menus are DialogBoxParamA dialogs whose procedures
+              # end on IDCANCEL (lines 274, 1604, 3181), which Windows sends for Esc.
+              C, feature=ORIGINS, subs=(("Esc closes these menus without buying anything, as Cancel does.", C),)),
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event, Pick Gong of Wonder Outcome and Choose Time Skip Amount, and "
             "makes every Origins Upgrade cost 0 tech points"), C, feature=STORY),

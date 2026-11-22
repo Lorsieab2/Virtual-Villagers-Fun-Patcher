@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire That Went Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon34_fire_went_out",
+  "source": "draft_hon",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L410",
+    "kind": "sensitivity",
+    "before": "An elder says,",
+    "after": "(elder), an elder, says,",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager let the village fire go out on their night: say it was your night, or get it going before anyone speaks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last night it was (subject)'s turn to keep the village fire going. (subject.He/she) added wood before bed, a bit less than (subject.he/she) should have, and didn't get up to check. This morning the fire is cold ash, and everyone is gathering round it with cold hands and no breakfast.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Say It Was Your Night",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Get It Going Before Anyone Speaks",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It was my night,\" says (subject). \"I didn't put enough on.\" Some people grumble. (elder), an elder, says, \"Well, that's how we find out how much is enough.\" (subject) spends the morning coaxing a new flame out of a spark, which takes a long time and a lot of blowing. Breakfast is very late. It's the most appreciated breakfast in weeks.",
+   "src": "L410"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is already crouched over the ashes with dry grass and a fire stick when the others arrive. Nobody needs to ask whose night it was. They watch (subject.him/her) work, and (friend) kneels down to help. When it finally catches, a small cheer goes up. (subject) puts on a great deal of wood. Possibly too much.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) is already crouched over the ashes with dry grass and a fire stick when the others arrive. Nobody needs to ask whose night it was. They watch (subject.him/her) work, and (friend) kneels down to help. When it finally catches, a small cheer goes up. (subject) puts on a great deal of wood. Possibly too much.",
+   "src": "L413"
+  }
+ }
+}

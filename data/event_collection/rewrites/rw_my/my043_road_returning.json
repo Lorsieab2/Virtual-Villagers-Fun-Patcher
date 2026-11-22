@@ -1,0 +1,305 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Road of Returning Steps",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my043_road_returning",
+  "source": "rewrites",
+  "lines": [
+   12352,
+   12407
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L12352",
+  "ledger": [
+   {
+    "src": "L12353",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12354",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12363",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12370",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12377",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12384",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12358",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12359",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12360",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12361",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12364",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12371",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12378",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12385",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12365",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12372",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12374",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12379",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12381",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12386",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12388",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12391-12407",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Walking home after dark, a villager passes a tall paperbark tree with a peeling white trunk.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Walking home after dark, (subject) passes a tall paperbark tree with a peeling white trunk. A few minutes later, there it is again, its pale shape looming up ahead. (subject) frowns and walks on. A few minutes later: the same tree. Same peeling bark. Same crooked branch.\n(subject) turns left. Turns right. Walks straight, very straight, counting steps. Every single time, the pale tree looms up out of the dark in front of (subject.him/her), as if it's waiting. The village fires are visible through the trees, so close (subject) can smell the smoke. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Mark the Path",
+     "next": "c1",
+     "src": "L12358"
+    },
+    {
+     "label": "Walk with a Friend",
+     "next": "c2",
+     "src": "L12359"
+    },
+    {
+     "label": "Wait for Dawn",
+     "next": "c3",
+     "src": "L12360"
+    },
+    {
+     "label": "Follow a Different Landmark",
+     "next": "c4",
+     "src": "L12361"
+    }
+   ],
+   "src": "L12355-12356"
+  },
+  "c1o1": {
+   "text": "By the third time around, the strips of cloth tell the story: the path splits in the dark into three trails that curve around and meet again, and there are two paperbark trees, almost identical, at the two ends. (subject) has been going in circles all along. (subject.He/She) finds the way home at last and draws a careful map for the researchers, who learn a lot about how easy it is to get lost, and how to mark trails properly. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L12366",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) walks a big circle and comes back to the tree. (subject.His/Her) cloth strip is there, tied to the branch. On the wrong side. (subject.He/She) tied it on the left. It's on the right. (subject) tries again, very carefully, tying the strip on the left and checking it twice. When (subject.he/she) comes back, it's on the right again. (subject) sits down at the foot of the tree and stays there until (subject.his/her) knees stop shaking.",
+   "src": "L12368"
+  },
+  "c1": {
+   "text": "(subject) pulls a strip of cloth from (subject.his/her) wrap, ties it to a branch beside the tree, and sets off again, tying strips as (subject.he/she) goes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12364"
+  },
+  "c2o1": {
+   "text": "\"Honestly,\" (friend) says, linking arms with (subject). \"It's just a tree. Come on.\" And they walk home together, past the paperbark, straight to the village, in no time at all. (friend) laughs about it all the way home. And for once, the tree really is just a tree.",
+   "src": "L12373"
+  },
+  "c2o2": {
+   "text": "\"Honestly,\" (friend) says. \"It's just a tree.\" Ten minutes later, (friend) stops. \"That's... the same tree.\" The two of them walk in circles until their torch burns out, both swearing that they walked dead straight, until they finally give up and huddle together at the foot of the paperbark, waiting for morning. They never tell anyone how scared they were.",
+   "src": "L12375"
+  },
+  "c2": {
+   "text": "(subject) shouts for help toward the village, and after a while (friend) comes crashing through the undergrowth with a torch, grumbling...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12371"
+  },
+  "c3o1": {
+   "text": "When the sun comes up, (subject) feels very silly indeed. The path home is right there, plain as anything, and it's a three-minute walk. (subject.He/She) sneaks back into the village yawning, hoping nobody noticed (subject.he/she) was gone. Of course, everybody noticed.",
+   "src": "L12380"
+  },
+  "c3o2": {
+   "text": "At sunrise, (subject) stands up, stiff and cold, and looks down at the path. There are footprints in the soft earth: (subject.his/her) own, from walking in circles all night. But some of them point the other way, coming toward the tree from the opposite direction, from a direction (subject.he/she) never walked. They're exactly the size of (subject.his/her) feet. (subject) goes home very fast.",
+   "src": "L12382"
+  },
+  "c3": {
+   "text": "(subject) gives up. (subject.He/She) sits down with (subject.his/her) back against the paperbark, wraps (subject.his/her) arms around (subject.his/her) knees, and waits for the sun...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12378"
+  },
+  "c4o1": {
+   "text": "It works. The stream leads (subject) downhill, babbling cheerfully, and after a while (subject.he/she) comes out at the washing pools just below the village. (subject.He/She) is soaked to the knees, but (subject.he/she) is home, and the paperbark tree is nowhere to be seen.",
+   "src": "L12387"
+  },
+  "c4o2": {
+   "text": "The stream sound leads (subject) straight into a thicket of thorny brush in the dark. (subject.He/She) struggles through it, yelping, for what feels like hours, and finally stumbles into the village at midnight looking like (subject.he/she) wrestled a wildcat. The thorns leave long red scratches all over (subject.his/her) arms, and (subject.he/she) is picking them out of (subject.his/her) wrap for days.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L12389",
+   "auto_text": true
+  },
+  "c4": {
+   "text": "Forget the tree. (subject) listens for the sound of running water and heads for it, hoping the stream will lead (subject.him/her) home...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12385"
+  }
+ }
+}

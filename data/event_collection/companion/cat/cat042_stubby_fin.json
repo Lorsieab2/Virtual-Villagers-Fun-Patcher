@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stubby Fin Question",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat042_stubby_fin",
+  "source": "companion",
+  "lines": [
+   7601,
+   7611
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_fins",
+  "title_src": "L7601",
+  "ledger": [
+   {
+    "src": "L7611",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "A fisher says a Stubby Fire-Arrow swims differently, and a jeweler wants its fin as a model for metalwork.",
+  "cast_only": [
+   "jeweler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A fisher claims that a Stubby Fire-Arrow swims differently from its close relatives. A jeweler wants to use its unusual fin as a model for decorative metalwork.",
+   "src": "L7602",
+   "choices": [
+    {
+     "label": "Study its movement in the wild",
+     "next": "a",
+     "src": "L7603"
+    },
+    {
+     "label": "Sketch the fin for the jeweler",
+     "next": "b",
+     "src": "L7605"
+    },
+    {
+     "label": "Examine a naturally deceased fish",
+     "next": "c",
+     "src": "L7607"
+    },
+    {
+     "label": "Capture a live fish to preserve it",
+     "next": "d",
+     "src": "L7609"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Repeated observations yield a careful description, although currents make the measurements uncertain.",
+   "src": "L7604"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The jeweler makes a beautiful motif, but a visiting researcher points out a mistaken ray count.",
+   "src": "L7606"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d__fx"
+    },
+    {
+     "next": "d__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The fin structure is clearer; the villager records that this specimen was found dead rather than collected alive.",
+   "src": "L7608",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7608"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7608"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a naturally deceased fish",
+     "reason": "an animal found dead; no villager dies",
+     "src": "L7608"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The fin structure is clearer; the villager records that this specimen was found dead rather than collected alive.",
+   "src": "L7608",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7608"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a naturally deceased fish",
+     "reason": "an animal found dead; no villager dies",
+     "src": "L7608"
+    }
+   ],
+   "auto_text": true
+  },
+  "d__fx": {
+   "name": "Answer D",
+   "text": "A complete specimen improves comparison but kills the animal; if the population is rare, the choice prompts restrictions on future collecting.",
+   "src": "L7610",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7610"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7610"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "kills the animal",
+     "reason": "an animal, not a villager",
+     "src": "L7610"
+    }
+   ],
+   "auto_text": true
+  },
+  "d__text": {
+   "name": "Answer D",
+   "text": "A complete specimen improves comparison but kills the animal; if the population is rare, the choice prompts restrictions on future collecting.",
+   "src": "L7610",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "fisher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7610"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "kills the animal",
+     "reason": "an animal, not a villager",
+     "src": "L7610"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

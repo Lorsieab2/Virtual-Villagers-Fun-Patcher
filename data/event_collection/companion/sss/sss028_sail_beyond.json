@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sail Beyond Sight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss028_sail_beyond",
+  "source": "companion",
+  "lines": [
+   6347,
+   6359
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6351",
+  "ledger": [
+   {
+    "src": "L6348",
+    "kind": "structural",
+    "why": "the group heading '03  -  OCEAN, OUTSIDERS, AND BIGGLES'"
+   },
+   {
+    "src": "L6359",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A navigator proposes crossing beyond the familiar horizon, and the village is divided.",
+  "cast_only": [
+   "navigator"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "navigator": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A navigator proposes crossing beyond the familiar horizon. Some villagers call it courageous; others call it foolish.",
+   "src": "L6352",
+   "choices": [
+    {
+     "label": "Map currents and prepare",
+     "next": "a",
+     "src": "L6353"
+    },
+    {
+     "label": "Hold a village debate",
+     "next": "b",
+     "src": "L6355"
+    },
+    {
+     "label": "Launch a short trial voyage",
+     "next": "c",
+     "src": "L6357"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "type": "branch",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Families voice hopes and fears; no one is forced to join.",
+   "src": "L6356"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The expedition remains a future ambition while coastal surveys improve knowledge.",
+   "src": "L6354",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6354"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The expedition remains a future ambition while coastal surveys improve knowledge.",
+   "src": "L6354"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "A nearshore voyage teaches useful lessons, but proves nothing about distant lands.",
+   "src": "L6358",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6358"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "A nearshore voyage teaches useful lessons, but proves nothing about distant lands.",
+   "src": "L6358"
+  }
+ }
+}

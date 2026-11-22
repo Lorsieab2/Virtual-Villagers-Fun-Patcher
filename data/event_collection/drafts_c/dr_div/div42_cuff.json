@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cuff",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div42_cuff",
+  "source": "draft_div",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a teen aged 14-17; in the story (name1)'s arm ends just below the elbow)"
+   }
+  ],
+  "description": "A teen asks whether a villager's leather arm cuff could hold other things: experiment together, or ask how they came up with it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s left arm ends just below the elbow; (subject.he/she) was born that way. Years ago, (subject.he/she) designed a cuff of hardened leather that straps over it, with a slot that holds a fishing spear, a digging stick or a paddle. (subject.He/she) is very good with it. Today (friend) has been watching (subject.him/her) fish and wants to know if the cuff could hold other things.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Experiment Together",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Ask How (subject.He/she) Came Up with It",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend.him/her). (subject.He/she) was about (friend)'s age, (subject.he/she) was tired of everyone telling (subject.him/her) how to hold a spear, and (subject.he/she) went off and figured out (subject.his/her) own way. It took a whole year and a lot of ruined leather. (friend) is impressed. \"Can I see the first one?\" (subject) laughs and digs it out of a basket. It's terrible. They both admire it.",
+   "src": "L509"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They spend an afternoon testing. The cuff can hold a torch, a scoop, a drum beater, and, after some work, a very large spoon. It cannot hold a coconut. (friend) tries several times. (subject) starts designing a new slot for the spoon. (friend) asks to help make it. By the end of the season, they've invented four new attachments, two of which are useful.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They spend an afternoon testing. The cuff can hold a torch, a scoop, a drum beater, and, after some work, a very large spoon. It cannot hold a coconut. (friend) tries several times. (subject) starts designing a new slot for the spoon. (friend) asks to help make it. By the end of the season, they've invented four new attachments, two of which are useful.",
+   "src": "L506"
+  }
+ }
+}

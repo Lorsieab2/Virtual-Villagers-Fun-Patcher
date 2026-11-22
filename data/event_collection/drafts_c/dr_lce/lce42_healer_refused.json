@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Refused",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce42_healer_refused",
+  "source": "draft_lce",
+  "lines": [
+   582,
+   593
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L582",
+  "ledger": [
+   {
+    "src": "L583",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer and an adult)"
+   },
+   {
+    "src": "L589",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L589",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L593",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A healer refused to treat a villager who had insulted them: demand they treat everyone, or hear the healer out.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) insulted (subject), the healer, in front of everyone last month. Yesterday (friend) came to the healing hut with a bad cut, and (subject) told (friend.him/her) to find another healer. There is no other healer close by. The village has heard. What should happen?",
+   "src": "L585",
+   "choices": [
+    {
+     "label": "Healers Treat Everyone",
+     "next": "o1",
+     "src": "L587"
+    },
+    {
+     "label": "Hear the Healer Out",
+     "next": "o2",
+     "src": "L591"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders tell (subject) that a healer treats everyone, whatever they have said. (subject) knows it is right, and hates it. (subject.He/she) stitches the cut in silence. (friend), sitting very still, apologizes for the insult. (subject) says nothing, and does a very good job.",
+   "src": "L589",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L589"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders listen to (subject): the insult was cruel, and (subject.he/she) has been hurt for a month. Then they agree that care can never wait on an apology, and send (subject) to treat (friend), and ask (friend) to apologize too. Both things happen.",
+   "src": "L593"
+  }
+ }
+}

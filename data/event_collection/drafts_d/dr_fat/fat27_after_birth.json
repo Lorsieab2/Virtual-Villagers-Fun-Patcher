@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "After the Birth",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat27_after_birth",
+  "source": "fathers30",
+  "lines": [
+   560,
+   578
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L562",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L566",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L568",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L569",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L571",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L572",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L574",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L575",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L577",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L578",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L564",
+    "kind": "sensitivity",
+    "before": "Their partner wants",
+    "after": "Their partner, (name1), wants",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A new parent is recovering from childbirth and finds even familiar tasks exhausting.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A new parent is recovering from childbirth and finds even familiar tasks exhausting. Their partner, (name1), wants to help, but discovers that good intentions do not automatically reveal what the recovering parent needs.",
+   "src": "L564",
+   "choices": [
+    {
+     "label": "Ask What Would Help Most",
+     "next": "a",
+     "src": "L567"
+    },
+    {
+     "label": "Take Over Routine Baby Care for a While",
+     "next": "b",
+     "src": "L570"
+    },
+    {
+     "label": "Arrange Practical Help from the Village",
+     "next": "c",
+     "src": "L573"
+    },
+    {
+     "label": "Sit Beside the Recovering Parent and Listen",
+     "next": "d",
+     "src": "L576"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The recovering parent asks for food, clean bedding, and uninterrupted rest, and their partner provides it.",
+   "src": "L568",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L568"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The recovering parent cannot decide, so they agree to start with a simple meal and check again later.",
+   "src": "L569"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The recovering parent sleeps while their partner changes, carries, and soothes the newborn.",
+   "src": "L571"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The baby remains unsettled, and the partner asks an experienced caregiver for assistance.",
+   "src": "L572"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Friends bring meals and water, allowing the household to recover in peace.",
+   "src": "L574"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Too many visitors arrive at once, and the partner kindly asks them to return another day.",
+   "src": "L575"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They speak openly about the birth, their fears, and the strange joy of meeting their child.",
+   "src": "L577"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The recovering parent admits feeling overwhelmed; their partner listens and helps them seek further support.",
+   "src": "L578"
+  }
+ }
+}

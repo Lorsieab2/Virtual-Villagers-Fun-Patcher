@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Seal on the Canoe Landing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat05_seal_canoe",
+  "source": "draft_nat",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A huge seal has gone to sleep on the canoe landing between the canoes: wait it out, or launch from the other beach.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A large seal has hauled itself up onto the canoe landing and gone to sleep right between the canoes. It is enormous, it smells powerfully of fish, and when (subject) gets close, it opens one eye and makes a noise like a very old door. The fishers need to launch. The seal does not care.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Wait It Out",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Launch from the Other Beach",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) carry their canoe the long way round, to the rocky beach on the far side. It's heavy, the rocks are sharp, and they are grumbling the whole way. When they finally paddle out and look back, the seal is still asleep, now with its flipper flopped across another fisher's paddle. They decide, together, not to tell that fisher until later.",
+   "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) sit down on the sand to wait. The seal sleeps. They wait. The seal rolls over, sighs, and sleeps some more. Other fishers arrive and sit down too. Somebody brings breakfast. By the time the seal finally humps itself back into the water, the whole crew has had the most relaxed morning of the season. They catch less fish than usual. Nobody complains.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) sit down on the sand to wait. The seal sleeps. They wait. The seal rolls over, sighs, and sleeps some more. Other fishers arrive and sit down too. Somebody brings breakfast. By the time the seal finally humps itself back into the water, the whole crew has had the most relaxed morning of the season. They catch less fish than usual. Nobody complains.",
+   "src": "L62"
+  }
+ }
+}

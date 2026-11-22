@@ -1,0 +1,183 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silence After the Storm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns23_silence_after",
+  "source": "living",
+  "lines": [
+   22466,
+   22477
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22466",
+  "ledger": [
+   {
+    "src": "L22477",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A devastating storm passes despite many prayers, and a believer asks why no god prevented it.",
+  "cast_only": [
+   "believer",
+   "scientist"
+  ],
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A devastating storm passes despite many prayers, and a villager of faith asks why no god prevented it."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "believer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A devastating storm passes despite many prayers, and a believer asks why no god prevented it.",
+   "src": "L22467",
+   "choices": [
+    {
+     "label": "Offer a spiritual interpretation.",
+     "next": "a",
+     "src": "L22468"
+    },
+    {
+     "label": "Offer a natural explanation.",
+     "next": "b",
+     "src": "L22471"
+    },
+    {
+     "label": "Help rebuild before debating.",
+     "next": "c",
+     "src": "L22474"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A devastating storm passes despite many prayers, and a villager of faith asks why no god prevented it."
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The believer finds comfort in a story of endurance.",
+   "src": "L22469",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The villager of faith finds comfort in a story of endurance."
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Another survivor feels the explanation minimizes their loss.",
+   "src": "L22470"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The scientist describes winds and tides without claiming to explain meaning.",
+   "src": "L22472"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The believer asks why understanding weather does not ease grief.",
+   "src": "L22473",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The villager of faith asks why understanding weather does not ease grief."
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers work together despite different beliefs.",
+   "src": "L22475"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The unanswered question returns at the next gathering.",
+   "src": "L22476"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

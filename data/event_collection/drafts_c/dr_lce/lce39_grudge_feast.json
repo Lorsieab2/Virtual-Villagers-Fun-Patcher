@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grudge at the Feast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce39_grudge_feast",
+  "source": "draft_lce",
+  "lines": [
+   540,
+   551
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L540",
+  "ledger": [
+   {
+    "src": "L541",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L547",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L551",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two former friends are seated together at a feast: make peace, or ask to move.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) were best friends until a quarrel last year that neither will talk about. At the harvest feast, through bad luck or someone's mischief, they have been seated right next to each other. Neither has said a word. What should (subject) do?",
+   "src": "L543",
+   "choices": [
+    {
+     "label": "Make Peace",
+     "next": "o1",
+     "src": "L545"
+    },
+    {
+     "label": "Ask to Move",
+     "next": "o2",
+     "src": "L549"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Halfway through the feast, (subject) passes (friend) the salt, and says, quietly, \"I miss you.\" (friend) is silent for a long time. Then (friend.he/she) says, \"I miss you too.\" They do not fix everything. They talk until the fire goes out.",
+   "src": "L547"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) quietly asks to move to another seat, and does. (friend) looks relieved and sad at once. The feast goes on. Some quarrels take longer.",
+   "src": "L551"
+  }
+ }
+}

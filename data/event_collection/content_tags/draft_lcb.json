@@ -1,0 +1,764 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_lcb",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "lcb01_song_first_rain": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb02_promise_reef": {
+   "filters": [
+    "F20",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lcb03_tree_sheltered": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb04_river_memory": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F21"
+    ],
+    "o2": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb05_last_nest": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F20"
+    ]
+   }
+  },
+  "lcb06_quiet_harvest": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F26"
+    ],
+    "o2": [
+     "F26"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb07_song_stars": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend",
+    "third"
+   ]
+  },
+  "lcb08_returning_seeds": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb09_ocean_gives": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcb10_living_island": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb11_song_those_never": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcb12_names_we": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb13_empty_place": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcb14_song_without": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb15_story_imperfect": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb16_celebration": {
+   "filters": [
+    "F16",
+    "F22"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F16",
+     "F22"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb17_child_question": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "third",
+    "subject"
+   ]
+  },
+  "lcb18_memory_garden": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcb19_place_grieve": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F05"
+    ],
+    "setup": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb20_song_changed": {
+   "filters": [
+    "F03",
+    "F05",
+    "F08"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ],
+    "setup": [
+     "F05",
+     "F08"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb21_new_verse": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb22_forgotten_melody": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ]
+   }
+  },
+  "lcb23_festival_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcb24_two_villages": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "lcb25_story_another": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb26_song_many": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb27_child_would_sing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb28_tradition_hurt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "lcb29_ceremony": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb30_future_ancestors": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb31_names_those": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb32_broken_memorial": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcb33_last_witness": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F21"
+    ],
+    "setup": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "third",
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb34_villager_does": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb35_question_nobody": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb36_last_wish": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb37_funeral_fire": {
+   "filters": [
+    "F03",
+    "F07"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F07"
+    ],
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "lcb38_mourning_paint": {
+   "filters": [
+    "F03",
+    "F05",
+    "F08"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ],
+    "setup": [
+     "F03",
+     "F05",
+     "F08"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb39_feast_departed": {
+   "filters": [
+    "F03",
+    "F20"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F20"
+    ],
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "lcb40_grave_sea": {
+   "filters": [
+    "F03",
+    "F25"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb41_mourning_drum": {
+   "filters": [
+    "F03",
+    "F05",
+    "F25"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "setup": [
+     "F03",
+     "F05"
+    ]
+   }
+  },
+  "lcb42_song_departed": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb43_shared_grief": {
+   "filters": [
+    "F05",
+    "F25"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F05"
+    ],
+    "setup": [
+     "F05",
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcb44_children_funeral": {
+   "filters": [
+    "F03",
+    "F05",
+    "F24"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F05"
+    ],
+    "setup": [
+     "F03",
+     "F05",
+     "F24"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb45_year_mourning": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "lcb46_bones_old_canoe": {
+   "filters": [
+    "F03",
+    "F07",
+    "F25"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F07",
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F03",
+     "F07",
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "lcb47_song_unknown": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb48_mourning": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F05"
+    ],
+    "setup": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "lcb49_grandfather": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "lcb50_laughter_grave": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ],
+    "o2": [
+     "F03"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  }
+ }
+}

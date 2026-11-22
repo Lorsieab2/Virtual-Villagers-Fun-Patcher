@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where the Stream Begins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm26_where_stream",
+  "source": "draft_drm",
+  "lines": [
+   308,
+   317
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L308",
+  "ledger": [
+   {
+    "src": "L309",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager sets off to find where the stream begins, and a friend offers company: go together, or go alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always wondered where the stream starts. It comes down out of the hills, and nobody (subject.he/she) knows has ever followed it all the way up. Today (subject.he/she) has packed some food and is setting off upstream. (friend) asks if (subject.he/she) wants company.",
+   "src": "L311",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L311"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Go Together",
+     "next": "o1",
+     "src": "L313"
+    },
+    {
+     "label": "Go Alone",
+     "next": "o2",
+     "src": "L316"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) goes alone, and climbs until late afternoon, and doesn't find the start. The stream just keeps going, up into thicker forest. (subject.He/she) turns back at a waterfall, so as to be home before dark. (subject.He/she) still doesn't know where it begins. (subject.He/she) finds (subject.he/she) is quite glad about that.",
+   "src": "L317"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They follow the stream up through the trees, over rocks, past waterfalls, until it gets narrower and narrower and finally turns into a lot of small wet trickles coming out of a mossy hillside. \"Is that it?\" says (friend). \"I suppose so,\" says (subject). It's a bit of a let-down. It's also, somehow, wonderful.",
+   "src": "L314",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L314"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They follow the stream up through the trees, over rocks, past waterfalls, until it gets narrower and narrower and finally turns into a lot of small wet trickles coming out of a mossy hillside. \"Is that it?\" says (friend). \"I suppose so,\" says (subject). It's a bit of a let-down. It's also, somehow, wonderful.",
+   "src": "L314"
+  }
+ }
+}

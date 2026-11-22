@@ -1,0 +1,19 @@
+Outcome effects (50%) - The Harshest Critic (#803)
+Format: <event> | <outcome> | <effect> | "<words that justify it>"
+Each effect happens half the time when the outcome plays; the other half is the text only.
+
+WAITING FOR #803 TO MERGE
+(Name1)'s Harshest Critic (hc1_routes) | r4 | UNHAPPY (subject) (50%) | "(Subject) stumbles and makes some embarrassing mistakes."
+(Name1)'s Harshest Critic (hc1_routes) | r5 | HAPPIER (subject) (50%) | "The onlookers can't help smiling"
+(Name1)'s Harshest Critic (hc1_routes) | r7f | UNHAPPY (subject) (50%) | "They get through it together, failing side by side."
+(Name1)'s Harshest Critic (hc1_routes) | r15 | HAPPIER (subject) (50%) | "(mentor) asks (subject.him/her) to help teach the next apprentice"
+(Name1)'s Harshest Critic (hc1_routes) | r19 | HAPPIER (subject) (50%) | "(Subject) is pleased"
+(Name1)'s Harshest Critic (hc1_routes) | r21 | HEALTH UP (subject) (50%) | "asks to resume after sleeping"
+(Name1)'s Harshest Critic (hc2_pleas) | r27p | HAPPIER (subject) (50%) | "The improved work earns a pass on its own merits."
+(Name1)'s Harshest Critic (hc2_pleas) | r30d | HAPPIER (subject) (50%) | "It passes."
+(Name1)'s Harshest Critic (hc3_disasters) | r56p | HAPPIER (subject) (50%) | "The officials reward the recovery rather than the original disaster."
+(Name1)'s Harshest Critic (hc4_noises) | r71p | HAPPIER (subject) (50%) | "completes the performance with confidence. The officials reward the recovery."
+(Name1)'s Harshest Critic (hc5_victories) | r76 | TECH GAIN normal (50%) | "the new recipe goes into the village cookbook"
+(Name1)'s Harshest Critic (hc5_victories) | r78 | TECH GAIN normal (50%) | "(subject.he/she) repeats the observation and records what happened"
+(Name1)'s Harshest Critic (hc5_victories) | r79 | TECH GAIN normal (50%) | "The healers recognize a useful improvement to their routine and adopt it"
+(Name1)'s Harshest Critic (hc5_victories) | r91 | TECH GAIN normal (50%) | "They test it carefully and discover that it holds up."

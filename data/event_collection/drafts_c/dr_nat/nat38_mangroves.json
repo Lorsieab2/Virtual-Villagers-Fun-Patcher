@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mangroves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat38_mangroves",
+  "source": "draft_nat",
+  "lines": [
+   446,
+   455
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L446",
+  "ledger": [
+   {
+    "src": "L447",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The mangroves make the best firewood, but the shore washes away where they are gone: cut only dead wood, or plant as you cut.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The mangrove trees at the stream mouth make the best firewood on the island: dense, slow-burning and hot. People have been cutting them for years. (subject) needs firewood. (friend) has noticed that where the mangroves are gone, the shore is washing away, and the little fish that used to hide among the roots are gone too.",
+   "src": "L449",
+   "choices": [
+    {
+     "label": "Cut Only the Dead Wood",
+     "next": "o1",
+     "src": "L451"
+    },
+    {
+     "label": "Plant New Mangroves as Fast as You Cut",
+     "next": "o2",
+     "src": "L454"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests a trade: every tree cut, one seedling planted. (subject) agrees, and they try it. The seedlings are planted in the mud with great ceremony. Half of them wash away in the first storm. The other half grow very slowly. It isn't keeping up. It's better than nothing, though, and (friend) won't stop planting.",
+   "src": "L455"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They agree to take only fallen and dead wood from the mangroves and leave the living trees. There's a lot less firewood. Cooking takes longer with other wood, and some of it smokes horribly. (subject) grumbles at every meal. But a few seasons later, there are young mangroves pushing up in the mud where the old ones were cut. The little fish are coming back, a few at a time.",
+   "src": "L452",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L452"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They agree to take only fallen and dead wood from the mangroves and leave the living trees. There's a lot less firewood. Cooking takes longer with other wood, and some of it smokes horribly. (subject) grumbles at every meal. But a few seasons later, there are young mangroves pushing up in the mud where the old ones were cut. The little fish are coming back, a few at a time.",
+   "src": "L452"
+  }
+ }
+}

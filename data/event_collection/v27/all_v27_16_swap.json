@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprenticeship Swap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_16_swap",
+  "source": "v28",
+  "lines": [
+   10609,
+   10615
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10609",
+  "ledger": [
+   {
+    "src": "L10610",
+    "kind": "note",
+    "why": "the cast: TEENS 14-17; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10612",
+    "kind": "note",
+    "text": "; grant a small appropriate skill gain",
+    "why": "instruction: the small skill effect"
+   },
+   {
+    "src": "L10615",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A teenager unhappy with their chosen work secretly tries another trade."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A teenager unhappy with their chosen work secretly tries another trade.",
+   "src": "L10611",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A new specialty suits their strengths.",
+   "src": "L10612",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Building",
+      "Farming",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10612"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover that the old trade was better than expected.",
+   "src": "L10613"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mentor feels betrayed; an honest conversation repairs some trust.",
+   "src": "L10614"
+  }
+ }
+}

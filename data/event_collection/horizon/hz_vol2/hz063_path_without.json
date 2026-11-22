@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path Without Stairs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz063_path_without",
+  "source": "horizon",
+  "lines": [
+   851,
+   861
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L851",
+  "ledger": [],
+  "description": "A builder wonders whether distant settlements deliberately design routes for people who cannot climb, see, hear, or walk easily.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A builder wonders whether distant settlements deliberately design routes for people who cannot climb, see, hear, or walk easily.",
+   "src": "L852",
+   "choices": [
+    {
+     "label": "Imagine Accessible Buildings.",
+     "next": "a",
+     "src": "L853"
+    },
+    {
+     "label": "Imagine Communication Aids.",
+     "next": "b",
+     "src": "L856"
+    },
+    {
+     "label": "Question Who Decides.",
+     "next": "c",
+     "src": "L859"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Villagers sketch gentle ramps and clearer paths using available materials.",
+   "src": "L854"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A craftsperson asks whether a ramp also helps people carrying heavy loads.",
+   "src": "L855"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A teacher proposes visual signs and tactile markers.",
+   "src": "L857"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder reminds everyone to ask the intended users what works.",
+   "src": "L858"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A disabled villager in the imagined discussion rejects being treated as a problem to solve.",
+   "src": "L860"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The council considers how people with different needs could lead planning rather than merely receive help.",
+   "src": "L861"
+  }
+ }
+}

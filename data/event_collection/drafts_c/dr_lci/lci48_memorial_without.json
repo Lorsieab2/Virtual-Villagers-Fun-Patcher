@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memorial Without a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci48_memorial_without",
+  "source": "draft_lci",
+  "lines": [
+   666,
+   677
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L666",
+  "ledger": [
+   {
+    "src": "L667",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a researcher and an elder)"
+   },
+   {
+    "src": "L673",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L677",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L677",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An old burial site is found whose people nobody knows: honor them without names, or try to learn who they were.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Builders digging a new garden have found an old burial place: carefully laid stones, beads, a broken bowl. Nobody knows who these people were. (subject) wants to study what was found to learn about them. (friend) says the dead should be honored, not studied, without making up who they were. What should the village do?",
+   "src": "L669",
+   "choices": [
+    {
+     "label": "Honor Them Without Names",
+     "next": "o1",
+     "src": "L671"
+    },
+    {
+     "label": "Learn Who They Were",
+     "next": "o2",
+     "src": "L675"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The stones are put back exactly as they were, and a new marker is set over them that says only: people of Isola, remembered. The village holds a short ceremony. The garden is planted elsewhere.",
+   "src": "L673"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) studies the beads and the bowl without moving the stones, and learns that these people came from the north of the island, long before the village. The story is told at the gathering. The site is left in peace.",
+   "src": "L677",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L677"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

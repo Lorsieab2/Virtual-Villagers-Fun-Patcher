@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Arthurium Bloom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat097_arthurium",
+  "source": "companion",
+  "lines": [
+   8261,
+   8271
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_flowers",
+  "title_src": "L8261",
+  "ledger": [
+   {
+    "src": "L8271",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "Only one Arthurium Gladiatus is in flower: a dye maker wants its petals, a naturalist its insect visitors."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "dye_maker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Only one Arthurium Gladiatus is flowering this week. A dye maker wants its petals; a naturalist hopes to learn which insects visit it.",
+   "src": "L8262",
+   "choices": [
+    {
+     "label": "Observe through the flowering period",
+     "next": "a",
+     "src": "L8263"
+    },
+    {
+     "label": "Collect a single fallen petal",
+     "next": "b",
+     "src": "L8265"
+    },
+    {
+     "label": "Harvest the bloom now",
+     "next": "c",
+     "src": "L8267"
+    },
+    {
+     "label": "Try a substitute blossom",
+     "next": "d",
+     "src": "L8269"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The dye is too faint for a full garment, but inspires a delicate ink.",
+   "src": "L8266",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "dye_maker",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8266"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The dye maker gets a stronger color, but the plant may set no seed this season; future scarcity becomes a concern.",
+   "src": "L8268",
+   "text_only": [
+    {
+     "what": "the plant may set no seed",
+     "reason": "a wild plant; no food or crop is lost",
+     "src": "L8268"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The alternative works imperfectly, prompting a new palette rather than the original color.",
+   "src": "L8270",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "dye_maker",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8270"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "A record of pollinators and scent emerges; no petals are harvested.",
+   "src": "L8264",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8264"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L8264"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "A record of pollinators and scent emerges; no petals are harvested.",
+   "src": "L8264",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8264"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

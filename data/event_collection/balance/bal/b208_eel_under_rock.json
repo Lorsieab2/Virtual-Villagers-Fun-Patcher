@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Eel Under the Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b208_eel_under_rock",
+  "source": "balance",
+  "lines": [
+   9663,
+   9706
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9663",
+  "ledger": [
+   {
+    "src": "L9664",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9665",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9673",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9682",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9670",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9671",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9674",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9683",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9676",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9679",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9685",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9688",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9691-9706",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It lives under a flat rock by the pool, and it steals.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "gatherer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There is an eel in the stream below the village that is older than the {@chief} and as thick as a man's arm. It lives under a flat rock by the pool, and it steals. Fish from the traps, food from the bank, a sandal once. The children have named it Old Thief.\nThis morning Old Thief has taken (subject)'s whole catch, the basket and all, and dragged it under the rock. (subject) can see the basket, just, in the dark under the stone, and the eel's long body coiled round it. The rock is heavy, and the bank is slippery.\nShould (subject) heave the rock up and grab the basket, or give it up and walk away?",
+   "choices": [
+    {
+     "label": "Heave Up the Rock",
+     "next": "c1",
+     "src": "L9670"
+    },
+    {
+     "label": "Give It Up",
+     "next": "c2",
+     "src": "L9671"
+    }
+   ],
+   "src": "L9666-9668",
+   "text_only": [
+    {
+     "src": "L9666",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "The stick snaps. (subject) goes over backwards, hits (subject.his/her) head on a stone in the pool, and comes round on the bank with (gatherer) splashing water on (subject.his/her) face. \"What's your name?\" asks (gatherer). (subject) thinks about it, and thinks, and the answer just isn't there. It never comes back. The village calls (subject.him/her) \"?\", and Old Thief keeps the basket.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L9677",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) gets the rock up and grabs the basket, and Old Thief grabs it too, and they wrestle for it in the pool, splashing and slithering, while the children cheer from the bank. (subject) wins. (subject.He/She) comes up muddy from head to foot, holding the basket over (subject.his/her) head. The children give (subject.him/her) a new name on the spot, Unagi, because, they say, it sounds like an eel, and it sticks for good.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Unagi",
+     "role": "subject"
+    }
+   ],
+   "src": "L9680",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) wedges a stick under the edge of the rock, braces (subject.his/her) feet on the slippery bank, and heaves. The rock lifts a hand's width. Underneath, Old Thief's eye opens...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9674"
+  },
+  "c2o1": {
+   "text": "The next morning, the basket is sitting on the bank by (subject)'s fish trap, empty but undamaged. The morning after, there are three big fish in the trap. The children say Old Thief is saying thank you. The fishers say it's a coincidence. (subject) leaves Old Thief a fish head every week after that, just in case.",
+   "src": "L9686"
+  },
+  "c2o2": {
+   "text": "The children watched the whole thing, and decide (subject) is far too polite to have (subject.his/her) old name. They make up a new one, (made1), and say it so often and so loudly that within a week the whole village is using it, and (subject) is answering to it without thinking. (subject.He/She) doesn't mind. It's a nice name.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L9689",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) sighs and lets the eel have it. \"Enjoy it,\" (subject.he/she) tells the rock, and walks back up the bank. Behind (subject.him/her), something swirls in the pool...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9683"
+  }
+ }
+}

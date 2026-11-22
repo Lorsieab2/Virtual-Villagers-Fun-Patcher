@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfair Division",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a027_unfair_division",
+  "source": "companion",
+  "lines": [
+   652,
+   669
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L652",
+  "ledger": [
+   {
+    "src": "L654",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L658",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L663",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L665",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L667",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L669",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "Several families disagree about how to divide a communal harvest.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several families disagree about how to divide a communal harvest.",
+   "src": "L656",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L659"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L660"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L661"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "A clear allocation rule resolves the dispute.",
+   "src": "L663"
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "A seemingly fair rule produces an absurd result.",
+   "src": "L665"
+  },
+  "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The village invents a new method for settling shares.",
+   "src": "L667",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L667"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
+   "name": "Outcome 3",
+   "text": "The village invents a new method for settling shares.",
+   "src": "L667"
+  }
+ }
+}

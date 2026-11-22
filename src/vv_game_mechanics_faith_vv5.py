@@ -25,6 +25,12 @@ FAITH_LOSS = "vv5_faith_loss_doubled_gains_halved"
 NEW_HEATHENS = "vv5_new_heathens_get_heathen_faith"
 HEATHEN_NOTICE = "vv5_heathen_conversion_notice"
 KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
+FOG_LISTENING = "vv5_fog_of_doom_every_heathen_listens"
+FOG_NO_LIMIT = "vv5_fog_of_doom_no_restrictions"
+DEVOTION_FAITH = "vv5_devotion_builds_faith"
+# No game exe and no patch log was found for the save, so whether a patch is in the game cannot be read; the player
+# can name the game with the window's Browse... button.
+UNTOLD = gm.UNTOLD
 DRAWS = 32768
 
 
@@ -81,7 +87,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
         # Stock first, then the patch (scripts/build_apprentice_faith_puddles_features.py, FAITH_EDITS).  Shown
         # too when whether the game has it cannot be told (no exe or patch log found), as every other patch is.
         doubled = 1 - (1 - below(100, 60) / DRAWS) * (1 - below(100, 20) / DRAWS)
-        where = "in this game" if faith_loss else "whether the game has it could not be told"
+        where = "in this game" if faith_loss else UNTOLD
         add(f"With \"{gm.feature_name(FAITH_LOSS)}\" ({where}) every loss roll's chance is doubled and every "
             "gain roll's halved (each roll: the normal chance -> the patched one):")
         for text in (
@@ -97,21 +103,23 @@ def lines(village: gm.Village) -> list[gm.Fact]:
                 f"(believers / 5) in 100 -> (believers / 10) in 100, rounded down (50 believers {_p(10)} -> {_p(5)}).",
                 f"A fall with Faith below 5: skipped {_p(50)} of the time -> never skipped, so a falling believer can "
                 f"reach 0 and become a Heathen; a rise above 75 is still skipped {_p(70)} of the time.",
-                # The roll is rand(10) < 1; the patch's hook at 0x4681DB, its cave 0x494F14.
-                f"Starving and sick believers mostly die rather than leave, decided once per villager per crisis. The "
-                f"first time low food or sickness would take a believer's last Faith (the drift's other changes alone "
-                f"leaving it above 0), 1 time in 10 ({pct(below(10, 1))}) they become a Heathen. Otherwise they are "
-                "marked, and low food and sickness never take them below Faith 1, so they go on eating, starving and "
-                "falling ill like any believer (a Heathen does none of that). The mark clears at the first age unit "
-                "with food above 250 and the villager not sick; a later crisis is decided afresh. Too few believers "
-                "takes Faith as in the normal game. The marks are kept by villager in the patcher's file in the save's "
-                "folder (\"Faith Loss\\Believers Kept - Save <S>.dat\").",
+                # The roll is rand(10) < 1; the patch's hook at 0x4681DB, its cave 0x494F14; the four loss sites
+                # 0x46805E, 0x46807E, 0x4680BB, 0x468184 (scripts/build_apprentice_faith_puddles_features.py).
+                f"Believers in a crisis mostly stay and die rather than leave, decided once per villager for each "
+                f"crisis. There are four: starvation (food under 10), hunger (food 10 to 250), sickness, and too few "
+                f"believers (fewer than 12). The first time one of them would take a believer's last Faith, 1 time in "
+                f"10 ({pct(below(10, 1))}) they become a Heathen. Otherwise they are marked for that crisis, which "
+                "never takes them below Faith 1 again, so they go on eating, starving and falling ill like any "
+                "believer (a Heathen does none of that). Each crisis ends on its own: starvation and hunger when food "
+                "is above 250, sickness when the villager is cured, too few believers at 12 or more believers; a later "
+                "crisis of that kind is decided afresh. The marks are kept by villager in the patcher's file in the "
+                "save's folder (\"Faith Loss\\Believers Kept - Save <S>.dat\").",
                 "A thriving village (8,000 food or more, Spirituality, the Tribute Statue, 12 or more believers, "
                 "nobody sick) still rises towards 100: only the chances change, and no loss roll fires there."):
             add(text, sub=True)
     new_heathens = village.has(NEW_HEATHENS)
     if new_heathens is not False:
-        where = "in this game" if new_heathens else "whether the game has it could not be told"
+        where = "in this game" if new_heathens else UNTOLD
         # The patch's hook at 0x467FDF, its cave 0x494F80: the orange and red mask bytes cleared (the role is
         # already 0), Faith -38 - rand(30).
         add(f"With \"{gm.feature_name(NEW_HEATHENS)}\" ({where}): a believer the Faith drift turns Heathen becomes "
@@ -120,7 +128,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "any blue Heathen to win them back. The Spa, The Cracked Mask and the Custom Island Event keep their -10.")
     notice = village.has(HEATHEN_NOTICE)
     if notice is not False:
-        where = "in this game" if notice else "whether the game has it could not be told"
+        where = "in this game" if notice else UNTOLD
         add(f"With \"{gm.feature_name(HEATHEN_NOTICE)}\" ({where}): a popup, \"The Breaking Point\", in the "
             "island-event window tells you when believers lose faith and leave. There is one popup for a whole "
             "catch-up, Time Warp or time skip. It is not an island event (the next one keeps its time; not counted, "
@@ -152,6 +160,34 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Chief's Faith set to 100. Solving the Hydroponic Farm: the Heathen Master Farmer +80.",
             "Island events: their own amounts (see Island events)."):
         add(text, sub=True)
+    # Practising Devotion is the skill check 0x46B270 with skill 5: Honoring (behaviour 0xA0, 0x45CB70) goes to the
+    # statue's spot on rand(100) < 50 and there queues the check on rand(100) < 25 (0x45CC92); the sermon end checks the
+    # preacher (0x468E9A).  The check passes on rand(100) <= Devotion + 33 (0x46BB7D; 66 likes learning, 16 dislikes,
+    # +15 / +30 at Learning 2 / 3) and gains (70 - Devotion) / 18 + the Spirituality level (0x46BC82).
+    add(f"Practising Devotion is the game's Devotion skill check. It comes on 1 Honoring in 8 (half of all Honorings "
+        f"go to the statue, and {_p(25)} of those end in the check) and on every sermon to a Heathen, while catching up "
+        f"too. The check passes on a roll of 0 to 99 at or under Devotion + 33 (+66 for a villager who likes learning, "
+        f"+16 for one who dislikes it; Learning 2 or 3 adds 15 or 30); a pass raises Devotion by (70 - Devotion) / 18 "
+        f"plus the Spirituality level.")
+    devotion_faith = village.has(DEVOTION_FAITH)
+    if devotion_faith is not False:
+        where = "in this game" if devotion_faith else UNTOLD
+        # native/vvfp_devotion_faith: the check's entry spliced; two separate rand(10) < 1 rolls (0x403660), the Faith
+        # one rand(20) < 1 when Faith Loss is Doubled/Gains Halved's byte 0x46809B is in the game (the owner,
+        # 2026-11-21).
+        if faith_loss is True:
+            chance = (f"a 1 in 20 chance ({pct(below(20, 1))}) of Faith +1 (halved by "
+                      f"\"{gm.feature_name(FAITH_LOSS)}\", in this game)")
+            halved = ""
+        else:
+            chance = f"a 1 in 10 chance ({pct(below(10, 1))}) of Faith +1"
+            halved = (f" With \"{gm.feature_name(FAITH_LOSS)}\" also ticked, the Faith chance is 1 in 20 "
+                      f"({pct(below(20, 1))}); the Divine Energy chance stays 1 in 10.")
+        add(f"With \"{gm.feature_name(DEVOTION_FAITH)}\" ({where}): each Devotion check of a believer, passed or "
+            f"failed, gives {chance}, never above 100, and a separate 1 in "
+            f"10 chance of Divine Energy +1 through the game's own adder, never above the village's cap. Heathens and "
+            f"the six special roles (the Heathen Doctor, the Heathen Chief and the Retired Chief, the three Masters, the "
+            f"Heathen Mommy) never get these rolls.{halved}", sub=True)
     if village.has(HEATHEN_MOMMY) is True:
         # Her puzzle's Faith is set at 0x43979C.
         add(f"With \"{gm.feature_name(HEATHEN_MOMMY)}\" (in this game): a new village's Heathen Mommy starts "
@@ -182,7 +218,7 @@ def lines(village: gm.Village) -> list[gm.Fact]:
     # whether it has it cannot be told, as every other patch is.
     keep_masks = village.has(KEEP_MASKS)
     if keep_masks is not False:
-        where = "in this game" if keep_masks else "whether the game has it could not be told"
+        where = "in this game" if keep_masks else UNTOLD
         # The join 0x4668B0, or The Defector's direct call 0x41699F; the mask the game drew is 0x4728C6's.
         add(f"With \"{gm.feature_name(KEEP_MASKS)}\" ({where}) a Heathen who joins the tribe (The Defector's "
             "included) keeps the mask the game drew on them (purple for the Heathen Doctor and the three Masters, the "
@@ -190,6 +226,26 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Origins upgrades. Change Appearance can change it or take it off, and Reset to original gives it back "
             "(their original look is the one they had as a Heathen, mask and all). Heathens who joined before the "
             "patch are not given one.", sub=True)
+    # The drop handler 0x443BF0's mask test 0x443D4D (orange +0x1CED, red +0x1CEE turned away at 0x44402D; the rest
+    # get Heathen action 6 and believer action 0x27); the sermon's end, the work event 0x468DA0.
+    add("Dropping a believer of 14 or more on a Heathen in the blue mask starts preaching: the believer is "
+        "\"Explaining the truth\", then (after the Devotion check) the Heathen is \"Listening\" and gains the Faith "
+        "below. A drop on a Heathen in the orange or red mask does nothing.")
+    # Fog of Doom Lets Red and Orange Heathens Listen (native/vvfp_fog_listening): the mask test spliced; the game's thick-fog
+    # test 0x476260 on the weather 0x710948 (only the Fog of Doom sets thickness 4, 0x41FB60); Faith +0x1CF0 < -10.
+    fog_listen = village.has(FOG_LISTENING)
+    if fog_listen is not False:
+        where = "in this game" if fog_listen else UNTOLD
+        free = village.has(FOG_NO_LIMIT)
+        add(f"With \"{gm.feature_name(FOG_LISTENING)}\" ({where}): while the Fog of Doom God Power's thick fog "
+            "lasts, a drop on a Heathen in the orange or red mask whose Faith is below -10 starts the same preaching, "
+            "with the same Faith; from -10 up only the Earthquake God Power raises their Faith, and the first such "
+            "drop in a village says so in a popup (with Story / Cheat Upgrades), once per village (Start Over resets "
+            "it). Natural fog and "
+            "other weather never count. The Chief, purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never listen this way.", sub=True)
+        if free is not False:
+            add(f"With \"{gm.feature_name(FOG_NO_LIMIT)}\" ({'in this game' if free else UNTOLD}) as well: in the "
+                "Fog of Doom they listen whatever their Faith.", sub=True)
     add("The owner: Heathens never fall sick in play.", gm.OWNER, sub=True)
     add("Heathens never count in the tribe's population or in any statistics row (see Village counts).", gm.OWNER,
         sub=True)

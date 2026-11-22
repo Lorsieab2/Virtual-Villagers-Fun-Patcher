@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How Many Leaves?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il112_how_many_leaves",
+  "source": "da_il06",
+  "lines": [
+   134,
+   143
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager lying under a tree wonders exactly how many leaves are on it: start counting, or estimate.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is lying under a tree and wonders how many leaves are on it. Hundreds? Thousands? There must be an exact number. Right now, this very moment, there is one true number of leaves on this tree, and nobody knows it. This bothers (subject) more than it probably should.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Start Counting",
+     "next": "a",
+     "src": "L139"
+    },
+    {
+     "label": "Estimate",
+     "next": "b",
+     "src": "L142"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) starts with the lowest branch. One, two, three... At four hundred and twelve, a breeze makes the branch wave and (subject.he/she) loses (subject.his/her) place. (subject.He/She) starts again. At about two hundred, a leaf falls off. Does that count? (subject) gives up and decides the tree has \"lots.\"",
+   "src": "L140"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) counts the leaves on one small branch. Then counts the small branches on one big branch. Then counts the big branches. Then multiplies, carefully, with marks in the sand. The answer is enormous. (subject.He/She) proudly tells (friend). (friend) points out it's a different tree. (subject) decides that one has \"about the same.\"",
+   "src": "L143",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L143"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) counts the leaves on one small branch. Then counts the small branches on one big branch. Then counts the big branches. Then multiplies, carefully, with marks in the sand. The answer is enormous. (subject.He/She) proudly tells (friend). (friend) points out it's a different tree. (subject) decides that one has \"about the same.\"",
+   "src": "L143"
+  }
+ }
+}

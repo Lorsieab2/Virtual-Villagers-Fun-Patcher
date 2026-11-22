@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Warm Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife07_warm_stone",
+  "source": "living",
+  "lines": [
+   20720,
+   20731
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20720",
+  "ledger": [
+   {
+    "src": "L20731",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager with persistent aches asks whether warm stones, gentle movement, or rest will help."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager with persistent aches asks whether warm stones, gentle movement, or rest will help.",
+   "src": "L20721",
+   "choices": [
+    {
+     "label": "Apply warmth cautiously.",
+     "next": "a",
+     "src": "L20722"
+    },
+    {
+     "label": "Encourage gentle movement.",
+     "next": "b",
+     "src": "L20725"
+    },
+    {
+     "label": "Allow rest and observe.",
+     "next": "c",
+     "src": "L20728"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The heat irritates the skin, and the treatment is stopped.",
+   "src": "L20724"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Movement worsens the pain, and the healer adjusts the plan.",
+   "src": "L20727",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20727"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villager feels no improvement and asks to try a different approach.",
+   "src": "L20730"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The ache eases, but the healer warns against stones hot enough to burn.",
+   "src": "L20723",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20723"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The ache eases, but the healer warns against stones hot enough to burn.",
+   "src": "L20723"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager becomes more comfortable over several days.",
+   "src": "L20726",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20726"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager becomes more comfortable over several days.",
+   "src": "L20726"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Rest helps, though stiffness remains.",
+   "src": "L20729",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20729"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Rest helps, though stiffness remains.",
+   "src": "L20729"
+  }
+ }
+}

@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Biggest Fish in the Bay",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s012_biggest_fish_bay",
+  "source": "rewrites",
+  "lines": [
+   535,
+   579
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L535",
+  "ledger": [
+   {
+    "src": "L536",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L537",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L545",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L554",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L542",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L543",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L546",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L555",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L557",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L560",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L563-579",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Everyone has heard of the giant fish in the bay.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Everyone has heard of the giant fish in the bay. The old fishers talk about it around the fire: as long as two canoes, older than anyone alive, with a white scar across its back like a bolt of lightning. Some say it has broken a hundred spears. Some say it can't be caught at all.\n(Name) is certain (he/she) can catch it, alone, with a brand new spear and a very small canoe. Everyone tells (him/her) not to. The old fishers tell (him/her) about the time it swallowed a person. (His/her) family tells (him/her) its teeth could crack a boulder.\n(Name) has already left. Out in the middle of the bay, the water goes dark and still, and something very large and very slow rolls just under the surface, close enough to touch. The lightning scar gleams.",
+   "choices": [
+    {
+     "label": "Throw the Spear",
+     "next": "c1",
+     "src": "L542"
+    },
+    {
+     "label": "Let It Go",
+     "next": "c2",
+     "src": "L543"
+    }
+   ],
+   "src": "L538-540"
+  },
+  "c1o1": {
+   "text": "(Name) throws, and strikes true. The bay explodes. The great fish dives, and the line goes taut, and the little canoe is yanked forward so hard that (name) nearly goes over the front. The fish drags (him/her) halfway round the bay, past the reef and back, while the whole village gathers on the shore to watch and scream advice. At last, as the sun is going down, the fish tires. (Name) comes home soaked, sunburnt, triumphant, and dragging enough fish for a week. The old fishers say nothing for a long time. Then the oldest one says, \"Well done,\" and that's worth more to (name) than the fish. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "skill",
+     "min": 20,
+     "max": 30,
+     "skills": [
+      "Farming"
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L549",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) throws. The spear glances off the great fish's scar as if it were rock. The fish rolls, lazily, almost gently, and its tail lifts the little canoe clean out of the water. For a moment (name) is in the air. Then the canoe comes down hard on top of (him/her). (He/She) makes it to shore somehow, clinging to the wreck, and the fishers pull (him/her) up the sand. The healers do what they can, for weeks. (Name) walks again, but slowly, bent over a little, and (his/her) back is never quite right. (He/She) never goes out in the bay again, and won't even wade at the shore.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L552",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) stands up in the rocking canoe, braces (his/her) feet, and draws back the spear. (His/her) heart is pounding so hard (he/she) can hear it. The great fish turns one huge, round eye up towards (him/her), as if it knows exactly what (he/she) is about to do...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L546"
+  },
+  "c2o1": {
+   "text": "(Name) watches the great fish roll past, silver and enormous and slow, the lightning scar flashing once in the sun, until it sinks away into the deep blue at the mouth of the bay. (He/She) decides it has earned its old age. (He/She) paddles home with no fish at all, and nothing but a good story. The old fishers listen to the whole thing without interrupting. When (he/she) gets to the part where (he/she) lowered the spear, the oldest one nods, and gives (him/her) the best seat by the fire.",
+   "src": "L558"
+  },
+  "c2o2": {
+   "text": "(Name) sits there too long, watching the great fish go. (He/She) doesn't see the clouds piling up over the far headland until the first cold gust hits the canoe. The storm comes up fast, faster than anyone can remember, and the village can only watch from the shore as the little canoe disappears behind a grey curtain of rain. The canoe washes up the next morning, broken in two. (Name)'s half-eaten body washes up with it. The village lays (him/her) to rest on the headland, looking out over the bay (he/she) loved, and the old fishers say that on calm days the great fish comes in close to that headland and stays a while.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L561",
+   "text_only": [
+    {
+     "src": "L561",
+     "what": "\"disappears\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) holds the spear for a long, long time. The great fish just lies there in the dark water, breathing, watching (him/her) with its old round eye. Very slowly, (name) lowers the spear...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L555"
+  }
+ }
+}

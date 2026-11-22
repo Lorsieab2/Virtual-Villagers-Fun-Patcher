@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish That Puffed Up",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat43_fish_puffed_up",
+  "source": "draft_nat",
+  "lines": [
+   506,
+   515
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L506",
+  "ledger": [
+   {
+    "src": "L507",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a fisher or an adult and a child aged 5-13)"
+   }
+  ],
+  "description": "A villager's net brings up a pufferfish, and a child wants to poke it: put it back, or show the child and then let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s net has come up with a spiny little fish that, as soon as it's out of the water, swells up into a ball covered in prickles. (friend) is delighted and wants to poke it. (subject) knows this fish. It's beautiful, it's harmless to look at, and some parts of it are poisonous enough to make a person very sick.",
+   "src": "L509",
+   "choices": [
+    {
+     "label": "Put It Back",
+     "next": "o1",
+     "src": "L511"
+    },
+    {
+     "label": "Show (friend.him/her) Then Let It Go",
+     "next": "o2",
+     "src": "L514"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) explains, holding the net carefully, that this one isn't for eating, and isn't for poking either. They lower it back into the water together. It sits there, round and offended, for a moment. Then it slowly lets out its air, turns back into an ordinary fish, and swims off. (friend) waves at it. (friend.He/she) talks about the balloon fish for a week.",
+   "src": "L512",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L512"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) explains, holding the net carefully, that this one isn't for eating, and isn't for poking either. They lower it back into the water together. It sits there, round and offended, for a moment. Then it slowly lets out its air, turns back into an ordinary fish, and swims off. (friend) waves at it. (friend.He/she) talks about the balloon fish for a week.",
+   "src": "L512"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) look very closely, without touching. They count the spines. They look at its funny little mouth, its big surprised eyes. Then they put it back in the sea and watch it shrink. \"Can people do that?\" asks (friend). \"Only when they're very angry,\" says (subject), and puffs out (subject.his/her) cheeks. (friend) laughs so hard (friend.he/she) nearly falls off the rock.",
+   "src": "L515",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L515"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) lets (friend) look very closely, without touching. They count the spines. They look at its funny little mouth, its big surprised eyes. Then they put it back in the sea and watch it shrink. \"Can people do that?\" asks (friend). \"Only when they're very angry,\" says (subject), and puffs out (subject.his/her) cheeks. (friend) laughs so hard (friend.he/she) nearly falls off the rock.",
+   "src": "L515"
+  }
+ }
+}

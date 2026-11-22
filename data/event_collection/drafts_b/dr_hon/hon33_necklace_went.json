@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Necklace That Went in the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon33_necklace_went",
+  "source": "draft_hon",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager lost a friend's borrowed shell necklace in the sea: tell them now, or make a new one first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) borrowed (friend)'s shell necklace to wear to the festival. At the end of the night, dancing in the shallows, (subject.he/she) felt it slip. Now it's morning, and (subject) has been searching the sand at low tide for an hour. There's no sign of it.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Tell (friend) Now",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Make a New One First",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) spends three days gathering shells and makes a new necklace, as close to the old one as (subject.he/she) can manage. Then (subject.he/she) takes it to (friend) and explains everything. (friend) holds it up. \"It's not the same.\" \"No.\" \"...It's nice, though.\" (friend) wears it. Every so often, (friend.he/she) still mentions the old one.",
+   "src": "L401"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (friend) empty-handed. \"I lost it. In the sea, dancing. I've been looking since dawn.\" (friend) is quiet for a long time. \"It was my favorite.\" \"I know.\" (friend) doesn't say it's fine. But a few days later (friend.he/she) comes by with a basket of shells. \"If you're going to make me a new one,\" (friend.he/she) says, \"these are the colors.\"",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) goes to (friend) empty-handed. \"I lost it. In the sea, dancing. I've been looking since dawn.\" (friend) is quiet for a long time. \"It was my favorite.\" \"I know.\" (friend) doesn't say it's fine. But a few days later (friend.he/she) comes by with a basket of shells. \"If you're going to make me a new one,\" (friend.he/she) says, \"these are the colors.\"",
+   "src": "L398"
+  }
+ }
+}

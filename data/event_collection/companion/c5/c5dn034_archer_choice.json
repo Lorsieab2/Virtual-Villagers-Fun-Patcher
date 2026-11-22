@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Archer's Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn034_archer_choice",
+  "source": "companion",
+  "lines": [
+   2974,
+   2980
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2974",
+  "ledger": [
+   {
+    "src": "L2976",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2980",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "An archer must decide between showing off and helping a struggling trainee.",
+  "cast_only": [
+   "archer",
+   "trainee"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "archer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "trainee": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "An archer must decide between showing off and helping a struggling trainee.",
+   "src": "L2975",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Coach the trainee and build trust.",
+   "src": "L2977"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Attempt a difficult trick shot and miss.",
+   "src": "L2978"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Admit that precision matters more than applause.",
+   "src": "L2979"
+  }
+ }
+}

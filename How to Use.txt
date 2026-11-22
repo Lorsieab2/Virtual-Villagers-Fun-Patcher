@@ -83,11 +83,18 @@ slots instead (see the 256 VILLAGERS (EXPERIMENTAL) section below).
    When Complete" (off by default, also in New Believers: the science
    collection adds to research only once it is complete) and/or "Enable Origins Tech,
    Details, and Village-Wide Upgrades" and/or the experimental "256 Villagers
-   (Experimental)". VV4 remains the untouched vanilla Breeding and Embracing
-   reference unless you check "Manual Drop-Breeding overrides Birth Control"
-   (step 8), which changes only the manual drop's 50-and-over refusal; the
-   historical Birth Control candidate is rejected/superseded and is not
-   offered or applied.
+   (Experimental)". "Manual Drop-Breeding overrides Birth Control" (step 8)
+   changes only the manual drop's 50-and-over refusal.
+   Also optional for The Tree of Life and New Believers, and off by default
+   (on in Owner's Defaults): "Birth Control". While the game is closed (and
+   during a Time Warp), a villager with Parenting ticked tries for a baby as
+   often as other villagers do their jobs, instead of on 6 job turns in 100.
+   The game's own chances, the population limit and huts still decide; live
+   play is unchanged. In A New Home, The Lost Children and The Secret City
+   their "Birth Control" does this too. In A New Home and The Lost Children
+   every catch-up try is now with one partner, ticked or not, as in the later
+   games: a man picks one woman at random from every woman who can pair, a
+   woman one man from every man who can.
    Also optional for The Tree of Life and New Believers, and off by default:
    "Food Gains are Flat, like VV1-3 (Harder Games)". A blackberry pick (The
    Tree of Life) or a noni pick (New Believers) pays a flat 7, 3 or 2 food on
@@ -181,6 +188,13 @@ village's two opening island events too (the visitor in A New Home and The Lost
 Children); they still come after it, unchanged. One Custom Island Event is queued
 at a time: the next can be bought once the last has come (within seconds).
 
+In The Tree of Life, an island event whose story gives or takes cutting tools,
+bars of soap or cloth bolts (a sack is a cloth bolt) really changes them:
+cutting tools and cloth stay between 0 and 6 (0 and 99 with "Up to 99 Cutting
+Tools/Soap/Cloth"), soap between 0 and 99, never below 0. Until the village has
+invented the item (The Cutting Tool, Soap Invented, Cloth Invented), the words
+are only part of the story.
+
 BACK UP SAVES
 
 The patcher can copy your modded games' saves for you, in all five games.
@@ -195,7 +209,7 @@ The patcher can copy your modded games' saves for you, in all five games.
 3. Each chosen folder is copied -- your .ldw saves, the "Virtual Villagers
    Fun Patcher Logs" and "Virtual Villagers Fun Patcher Data" folders and
    everything else in it -- into a new folder inside it:
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS
+       (save folder)\Backups\YYYY-MM-DD HHMM
    Every copied file is checked against the original. An earlier backup is
    never replaced, and nothing in the patcher ever reads or deletes the
    Backups folder (Start Over leaves it alone).
@@ -282,7 +296,7 @@ The patcher can change a tribe's name inside its save, in all five games.
    # $ % & ( ) * + ; < = > @ [ \ ] ^ _ { } | ~ in a name. A name that is too
    long or uses those characters is refused, never cut short.
 5. Click "Rename". The save folder is backed up first, into
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before rename)
+       (save folder)\Backups\YYYY-MM-DD HHMM (listed as before rename)
    Restore Saves lists that backup like any other, so a rename can be undone.
    Then the name is changed in the slot's save, its older copies and the
    slot list. Every file is checked after writing; if anything fails, every
@@ -316,11 +330,11 @@ under a new name, in all five games. Both villages can then be played.
    Replace it?". "No" is the default; Return and Escape answer No, and No
    changes nothing at all.
 5. On "Yes" the whole save folder is backed up first, into
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before copy)
+       (save folder)\Backups\YYYY-MM-DD HHMM (listed as before copy)
    Then every file of the slot you copy to (the old village's save, its
    logs and data, its saved trees, or an earlier village's leftovers) is
    moved -- never deleted -- into
-       (save folder)\Backups\Replaced by copy YYYY-MM-DD HH-MM-SS - Save N - (name)
+       (save folder)\Backups\YYYY-MM-DD HHMM SN
    which Restore Saves never offers and nothing reads; to get the old
    village back, restore the "(before copy)" backup. Then the village is
    copied with the new name, with everything the patcher keeps for it: its
@@ -365,7 +379,7 @@ first and listed in the Repairs log), and the go-ahead is then used up.
 3. The logs are checked first and the result shown. If nothing is found
    wrong you are told so, and can still go ahead.
 4. Confirm. The save folder is backed up first, into
-       (save folder)\Backups\Backup YYYY-MM-DD HH-MM-SS (before repair re-arm)
+       (save folder)\Backups\YYYY-MM-DD HHMM (listed as before repair re-arm)
    which Restore Saves lists like any other backup. Then only the files that
    say "this village was already checked" are cleared for that save slot
    (the Cross-Check marker in A New Home, the Graves Logged and Arrivals
@@ -523,38 +537,42 @@ those clouds move away from the mouse as they do in The Tree of Life and New
 Believers. While Disable Clouds is ticked the clouds are hidden, so the push
 cannot be seen: untick Disable Clouds to see it.
 
-2-10X TECH COST (ALL FIVE GAMES)
+0.1-10X TECH COST (ALL FIVE GAMES)
 
-Off by default. With 2-10x Tech Cost, every technology level on the Tech
-screen costs 2 to 10 times its normal price in tech points: you choose how
-many times with the 2-10x Tech Cost slider beside the patch settings (a whole
-number, 3 unless you move it), and it is written into the game when you
+Off by default. With 0.1-10x Tech Cost, every technology level on the Tech
+screen costs 0.1 to 10 times its normal price in tech points: you choose how
+many times with the 0.1-10x Tech Cost slider (in steps of 0.1, 3 unless you
+move it; 1 is the normal price), and it is written into the game when you
 patch. At 3, in A New Home, Farming level 2 costs 18,000 instead of 6,000; at
-10, Medicine level 3 costs 2,500,000 instead of 250,000. The Tech screen
+10, Medicine level 3 costs 2,500,000 instead of 250,000; below 1 technologies
+are cheaper, each price a whole tech point and never below 1. The Tech screen
 shows the multiplied price, a level cannot be bought with fewer tech points
 (nothing is spent), and buying takes the multiplied price. In The Secret City
 choosing a faction (Nature or Magic) costs that many times too. Research,
 tech points from anywhere else, other tech-point costs (such as clothes) and
 the patcher's own upgrades are unchanged. The higher you set it, the harder
-the game. Default Patches and Select All never tick it; Owner's Defaults ticks
-it in all five games and sets the slider to 2. Patch again after moving the
-slider.
+the game; the lower, the easier. Default Patches and Select All never tick
+it; Owner's Defaults ticks it in all five games and sets the slider to 2.
+Patch again after moving the slider.
 
-2-10X SICKNESS (ALL FIVE GAMES)
+0.1-10X SICKNESS (ALL FIVE GAMES)
 
-Off by default. Villagers fall sick 2 to 10 times as often: you choose how
-many times with the 2-10x Sickness slider beside the patch settings (2 unless
-you move it). Every Medicine level and difficulty keeps its own chance,
-multiplied, and so does Sickness works like VV1-3. Healers, the fire, Easy's
-cures and events work as before. Patch again after moving the slider.
+Off by default. Villagers fall sick 0.1 to 10 times as often: you choose how
+many times with the 0.1-10x Sickness slider (in steps of 0.1, 2 unless you
+move it; 1 is the normal game, above 1 harder, below 1 easier). Every
+Medicine level and difficulty keeps its own chance, multiplied, and so does
+Sickness works like VV1-3. Healers, the fire, Easy's cures and events work as
+before. Patch again after moving the slider.
 
-HUNGRIER VILLAGERS (2-10X MEALS) (ALL FIVE GAMES)
+HUNGRIER VILLAGERS (0.1-10X MEALS) (ALL FIVE GAMES)
 
-Off by default. Every villager's meal takes 2 to 10 times the normal food: you
-choose how many times with the Hungrier Villagers slider beside the patch
-settings (a whole number, 2 unless you move it), and it is written into the
-game when you patch. Normally a meal takes 2 food, and on Normal or Hard
-difficulty often 2 more; both are multiplied. Food never goes below 0: when it
+Off by default. Every villager's meal takes 0.1 to 10 times the normal food:
+you choose how many times with the Hungrier Villagers slider (in steps of 0.1,
+2 unless you move it; 1 is the normal game, above 1 harder, below 1 easier),
+and it is written into the game when you patch. Normally a meal takes 2 food,
+and on Normal or Hard difficulty often 2 more; both are multiplied. A meal is
+whole food, so a number like 0.3 takes 2 x that on average. Food never goes
+below 0: when it
 runs out, the game's own starvation rules take over. Skipped meals when food is
 low, the snack at the food bin, events and everything that brings food in are
 unchanged. Patch again after moving the slider.
@@ -563,14 +581,16 @@ CLASSIC VV DIFFICULTY (THE TREE OF LIFE, NEW BELIEVERS)
 
 Off by default; its title is drawn in red. Ticking it ticks the harder-game
 patches together: Food Gains are Flat, like VV1-3 (Harder Games), Hungrier
-Villagers, 2-10x Tech Cost and Science Collectibles Only Count When Complete,
+Villagers, 0.1-10x Tech Cost and Science Collectibles Only Count When Complete,
 plus Harder Fishing Unlock in VV4 and Collectible Spawn Timing works like
 VV1-3 (collectibles appear as often as in The Secret City) in The Tree of
 Life (with Yellow Fruit Trees are No Longer Unlimited there), Faith
 Loss is Doubled/Gains Halved in New Believers, and Sickness works
 like VV1-3 in both (villagers fall sick as in The Secret City: more often
-while the fire is out and on Hard). Unticking any of them unticks Classic VV
-Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
+while the fire is out and on Hard), with Difficulty Settings, Island Events
+Scale With Population (like The Lost Children), More Island Events, the Isola
+Grand Event Collection and Scrolling Popups. Unticking any of them unticks
+Classic VV Difficulty too. Owner's Defaults ticks it and sets both sliders to 2.
 
 RESPECTING THE LEGACY OF ISOLA (NEW BELIEVERS)
 
@@ -618,6 +638,36 @@ Documents\LDW\(game)\Virtual Villagers Fun Patcher\Save N\Data\Fruit Trees\
 Virtual Villagers 4 Yellow Fruit Tree - Save N.dat, written when the game
 saves; the save itself is never changed, so without the patch the tree is
 unlimited again. Not yet tested in a running game.
+
+CLOTH SACKS FOR YELLOW FRUIT (THE TREE OF LIFE)
+
+On by default. Once the Clothing Hut is finished
+and the Cooking Pit is restored, drop an adult on the left side of the
+Clothing Hut, under its awning. The villager takes one cloth bolt, makes a
+sack ("Making a sack out of cloth"), carries the empty sack to the yellow
+fruit trees ("Gathering food in cloth sack"), shakes down and cooks the fruit
+as on any fruit trip, and carries the full sack to the food bin: 30 food
+before Food Mastery. It works like the cutting tool on the blackberries: the
+cloth is used when the villager starts (a failed Farming check loses it),
+with no cloth the villager refuses ("They need cloth for this!"), and Food
+Mastery multiplies the food. While the stew pot is making The Grand Feast
+and still needs its fruit, the sack goes into the stew instead, as any fruit
+trip does then, and counts as the feast's fruit (no food from that sack). With
+Fix Vanilla Bugs, a cutting-tool harvest does the same with the feast's
+berries. With Yellow
+Fruit Trees are No Longer Unlimited, a sack takes its fruit from the tree (30,
+or what is left, even none, as a cutting tool harvests a nearly bare bush);
+without it every sack holds 30. Only villagers you drop make sacks: farmers
+never do on their own. The sacks are new pictures (art by Lorsieab2). Not yet
+tested in a running game.
+
+UP TO 99 CUTTING TOOLS/SOAP/CLOTH (THE TREE OF LIFE)
+
+Off by default; Owner's Defaults ticks it. Cutting tools and cloth bolts can
+be stored up to 99 instead of 6. They are still made 3 at a time and each use
+takes one. Soap was never limited to 6. The stacked pictures still show at
+most 6 (soap at most 3 bars); point at them to see the real count. Not yet
+tested in a running game.
 
 PICTURE STUDIO
 
@@ -991,7 +1041,7 @@ the game's own study (without it, only a villager you dropped on the cactus
 does that). It works in normal play and during time catch-up and Time Warp,
 so doctors keep training Healing while you are away. Nothing is written to
 the villager's record. Normal healing, sickness, food and the study's own
-skill gains are unchanged. With Builders and Healers Work First also
+skill gains are unchanged. With Villagers Work Their Own Job First also
 selected, healers are given healing work more often, so they study more.
 
 VV1 REENABLE F6 CLOTHING CHANGE CHEAT
@@ -1042,10 +1092,14 @@ interrupted recovery gives no health.
 
 VV2 BIRTH CONTROL
 
-The two writer-reaching opcode-12 candidate scans used by ordinary
-autonomous/catch-up pairing and stew recipe 15 reject a candidate whose
-internal age is 1000 or greater. The two exact guarded blocks are one optional
-feature and are never applied separately. The stock manual carrier/female-only
+While catching up, a villager with Parenting ticked whose job choice is
+Children tries on every such job turn instead of 6 in 100. Each try is with one
+partner, picked at random from everyone of the other sex who can pair, with or
+without Birth Control (the patcher does this in every mode); Birth Control adds
+that the partner must be under 50, whatever the sex, and the one who tries may
+be any age. The game's own food, room, Parenting and conception checks decide
+for that one partner. Live pairing already takes one partner and is unchanged.
+The stock manual carrier/female-only
 gate remains unchanged, and no male upper-age gate is added. Direct/event
 births, pending delivery, saves, RNG, food, fertility, capacity, messages,
 statistics, Love Note, Gong grant, and Silver Mirror clone are unchanged by
@@ -1318,8 +1372,8 @@ MOVE THE "PLAYING IN THE DIRT" SPOT (NEW BELIEVERS)
 In the stock game a child who plays in the dirt walks to a strip of ground
 that runs from the rainbow totem's side down across the river, so the child
 wanders through the water and ends up on the bank behind the research
-shelves. This patch makes it the flower patch east of the dirt path (the
-worn ground with the flowers, west of the flower rock; about 305 by 205, and
+shelves. This patch makes it the grass above the lake's north-west edge
+(never in the lake water, never on the Hollow Totem; about 256 by 205, and
 the child takes six random steps inside it). The game's own routine is
 recoded in its own bytes (no space is added);
 the action, its text, its sound and its length are as before. Nothing is
@@ -1371,13 +1425,16 @@ food, sickness, fewer than 12 believers) and every roll that gives Faith is
 half as likely (plenty of food, the Tribute Statue, Spirituality, a big
 tribe). A falling believer near 0 is no longer protected, so Faith can reach
 0 and the believer becomes a Heathen, as in the normal game. But a Heathen
-never eats, starves or falls ill, so the first time hunger or sickness would
-make a believer a Heathen, it is decided once for that believer: 1 in 10
-becomes a Heathen; the other 9 in 10 stay believers at Faith 1 (hunger and
-sickness never take them lower) and can starve or die of illness as usual.
-That lasts until they are fed (more than 250 food) and well; a later crisis
-is decided again. The patch keeps this in its own file in the save's folder,
-so saving and loading keeps it. Too few believers takes Faith as before.
+never eats, starves or falls ill. There are four crises: starvation (under
+10 food), hunger (10 to 250 food), sickness, and too few believers (fewer
+than 12). The first time one of them would make a believer a Heathen, it is
+decided once for that believer and that crisis: 1 in 10 becomes a Heathen;
+the other 9 in 10 stay believers at Faith 1 (that crisis never takes them
+lower) and can starve or die of illness as usual. Each crisis ends on its
+own: starvation and hunger when there is more than 250 food, sickness when
+cured, too few believers at 12 or more; a later crisis is decided again. The
+patch keeps this in its own file in the save's folder, so saving and loading
+keeps it.
 Preaching and everything else that changes Faith are unchanged. Adds a real
 chance of your villagers becoming heathens. Makes the game that much harder.
 Good Luck!
@@ -1436,16 +1493,54 @@ convert's original look is the head and body they had with the mask they wore.
 Heathens who joined before this patch keep the look they have now. Runs on the
 Origins upgrades, which the patcher adds with it.
 
+FOG OF DOOM LETS RED AND ORANGE HEATHENS LISTEN (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults. Cast the Fog of Doom God Power, then,
+while its thick fog lasts, drag a believer of 14 or more onto a Heathen in an
+orange or red mask. If that Heathen's Faith is below -10 they listen just as a
+blue-masked Heathen does: the believer is "Explaining the truth", the Heathen
+is "Listening" when the believer's Devotion check passes, and their Faith
+rises by the normal game's 3 to 5. From Faith -10 up they will not listen:
+only the Earthquake God Power raises their Faith further; the first time that
+happens in a village a popup says so (once per village, until Start Over;
+it needs Story / Cheat Upgrades, on by default). A Heathen joins the tribe the normal way, when their Faith rises above
+0. Natural fog and every
+other weather do nothing; blue-masked Heathens are unchanged (they already
+listen). The Chief, purple-masked Heathens and the Heathen Mommy are puzzle
+Heathens and never listen this way.
+
+NO RESTRICTIONS ON FOG OF DOOM CONVERSIONS (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults. Needs Fog of Doom Lets Red and Orange
+Heathens Listen (ticked with it).
+In the Fog of Doom, Heathens in orange and red masks listen whatever their
+Faith, so no Earthquake is needed. Natural fog still does nothing. The Chief,
+purple-masked Heathens and the Heathen Mommy are puzzle Heathens and never
+listen this way.
+
+PRACTICING DEVOTION BUILDS FAITH AND DIVINE ENERGY (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults and Select All. Each time a believer
+practises Devotion (the game's Devotion check: it comes on 1 Honoring in 8,
+and on every sermon to a Heathen), there is a 1 in 10 chance their Faith
+rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy.
+With Faith Loss is Doubled/Gains Halved also ticked, the Faith chance is
+1 in 20; the Divine Energy chance stays 1 in 10. Small amounts that add up over time, while playing and while catching up.
+Faith never goes above 100 and Divine Energy never above the village's cap.
+Heathens, the Chief (and the Retired Chief), purple-masked Heathens and the
+Heathen Mommy never get it.
+
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
 When it rains, children play in the puddles of the dry lake bed. Once The
 Lake holds water the normal game stops this, because they cannot swim. With
-this patch they keep playing when it rains, on the lake's north-west sandy
-shore (between the lake's west tip and the rocks with the red flower), never
-in the water. Before The Lake is filled nothing changes. Children "Playing
-in the dirt" play on that same sandy shore too, always, before and after
-The Lake is filled: each of their six steps goes to a random point along
-it. No other action changes. On by default. Cannot be used with Move the
+this patch they keep playing when it rains, on the big grass field above
+the lake's north-west edge and the sandy strip along its shore (between the
+river, the Hollow Totem and the lake), never in the water and never on the
+Hollow Totem. Before The Lake is filled nothing changes: they play in the
+dry lake bed's puddles. Children "Playing in the dirt" play on that same
+ground too, always, before and after The Lake is filled: each of their six
+steps goes to a random point of it. No other action changes. On by default. Cannot be used with Move the
 "Playing in the dirt" Spot (ticking one unticks the other).
 
 GUARDIANS OF ISOLA REWRITE (NEW BELIEVERS)
@@ -1506,6 +1601,69 @@ companion loads once per game session. So the row runs on the
 Origins-exclusive base, which the patcher installs automatically with it:
 there is no separate box to tick, and selecting this row also adds the
 Origins Upgrades buttons to the Tech and Villager Details screens.
+
+CHILDREN PLAY TAG AND BUILD SANDCASTLES (ALL FIVE GAMES)
+
+Children play tag and build sandcastles on the beach, as in the later
+games. Each game's row is named by what it adds:
+- Children Play Tag and Build Sandcastles (A New Home): both are new.
+- Children Build Sandcastles (and Tag More Often) (The Lost Children):
+  sandcastles are new; the game's own tag comes up as often.
+- Children Play Tag (The Secret City, The Tree of Life): tag is new; their
+  own sandcastles on the beach are unchanged.
+- Children Play Tag More Often (New Believers): the game's own tag comes up
+  as often (it has no ocean, so no sandcastles).
+Each time a child picks something to play, tag is 1 pick in 15 and
+sandcastles 1 pick in 15, a normal play choice; the child's other choices
+keep their usual odds. A child who dislikes playing never starts either.
+Tag: every child who is not sick and has empty hands joins (in The Secret
+City and The Tree of Life only children who do not dislike playing, never
+the Tribal Chief; in New Believers the game's own rule decides), the child
+who started is "It", and it needs at least two children. Sandcastles: one
+child walks to the beach at the water and bends over in the sand. In A New
+Home the Golden Child keeps his own choices but joins a game of tag. On by
+default. Needs no other patch. Not yet seen in a running game.
+
+CHANGE SEX AND GENDER PRESENTATION (ALL FIVE GAMES)
+
+Adds two choices to Change Appearance (the Origins upgrades' per-villager
+window):
+- Change sex...: the sex the game keeps for the villager changes at once,
+  after a warning (the same head and body rows; a carrying parent goes on
+  carrying). Everything the patcher keeps for the villager follows them.
+- Gender presentation: use the other sex's look: the villager keeps the sex
+  the game records and is drawn with the other sex's heads and bodies (the
+  same rows) everywhere the game draws villagers. The preview shows it at
+  once; OK keeps it (free); Cancel and Undo changes do not.
+Neither is offered for the Golden Child, and story villagers keep the game's
+own look. Only villagers born female carry: one born female who changes to
+male goes on carrying; one born male never conceives on their own, but a
+Custom Island Event can still give them a baby with a partner you choose. The choice is kept in the save's own Gender Presentation file and
+follows the villager; Start Over clears it. On in Owner's Defaults only (off
+in the normal defaults and in Select All). Runs on the Origins-exclusive
+base, which the patcher installs automatically with it. Not yet seen in a
+running game.
+
+VILLAGE SOLIDARITY (ALL FIVE GAMES)
+
+Each village gets a Village Solidarity score from 0 to 100, starting at 50.
+The patcher's new island events can mark a page as raising it (songs and
+gatherings, fair resolutions, mutual aid, welcoming newcomers, happiness,
+trust, gratitude, hope), lowering it (unresolved conflicts, unfairness,
+broken promises, tension, distrust, fear) or leaving it (solemn remembrance,
+quiet reflection). Every raise and every lower moves it by 5. The score only
+changes odds: the higher it is, the more likely the new cooperative and
+celebration events and the cooperative endings; the lower it is, the more
+likely the new repair, peace and apology events and the tense endings. At
+the normal strength each point away from 50 adds 2% to the favoured event's
+or ending's own chance (double at 0 or 100); nothing is forced. The game's
+own island events, work, skills and health never change. The "Village
+Solidarity strength" slider sets the strength, 0.1x to 10x (1x is normal).
+The Tech screen shows "Village Solidarity: 62 / 100"; so does the Game
+Mechanics page. The score is kept in the save's own Village Scores file and
+every change in its Village Solidarity log; Start Over clears both. Needs
+Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
+defaults and in Select All). Not yet seen in a running game.
 
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 

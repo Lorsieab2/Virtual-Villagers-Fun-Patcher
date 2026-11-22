@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Year of the Pig",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his15_year_pig",
+  "source": "draft_his",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The council asks two villagers to name the year, which has no name yet: suggest something dignified, or go straight for the pig.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On Isola, the years aren't numbered. Each one gets a name from something that happened: the Year of the Big Wave, the Year of the Three Weddings, the Year the Roof Blew Off the Meeting Hut. This year is almost over and still has no name, and the council has asked (subject) and (friend) to suggest one.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Suggest Something Dignified",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Suggest the Pig Straight Away",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) go straight for it: the Year the Pig Got Into the Council Hut. The council tries to look disapproving and fails. It passes unanimously, with the pig itself in attendance. Somebody carves it onto the counting post that evening, with a little drawing. It's the most popular year name in living memory.",
+   "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) suggest the Year of the Good Harvest. The council nods. Then somebody at the back shouts, \"What about the pig?\" and the whole meeting dissolves. Everyone remembers the pig. Nobody can stop laughing about the pig. In the end, it's the Year the Pig Got Into the Council Hut. (subject) sighs. Generations from now, children will ask what happened with the pig.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) suggest the Year of the Good Harvest. The council nods. Then somebody at the back shouts, \"What about the pig?\" and the whole meeting dissolves. Everyone remembers the pig. Nobody can stop laughing about the pig. In the end, it's the Year the Pig Got Into the Council Hut. (subject) sighs. Generations from now, children will ask what happened with the pig.",
+   "src": "L182"
+  }
+ }
+}

@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The History Written by Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch03_history_written",
+  "source": "draft_lch",
+  "lines": [
+   36,
+   47
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L36",
+  "ledger": [
+   {
+    "src": "L37",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children)"
+   },
+   {
+    "src": "L43",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L43",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L47",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L47",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Children interview their relatives about ordinary life and draw the village they want: show the elders, or keep collecting.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have spent a season asking every grown-up what life was like when they were young: what they ate, what they played, what they were scared of. They have also drawn the village they want when they grow up. It has a slide down the hill. What should they do with it all?",
+   "src": "L39",
+   "choices": [
+    {
+     "label": "Show the Elders",
+     "next": "o1",
+     "src": "L41"
+    },
+    {
+     "label": "Keep Collecting",
+     "next": "o2",
+     "src": "L45"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The children present it all at the gathering. The elders learn things about each other they never knew. The slide down the hill is built, briefly, until someone ends up in the stream.",
+   "src": "L43",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L43"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The children keep going for another year, until they have a story from every hut. Then they give it to the oldest villager, who reads it all in one night and says it is the best history of Isola ever made.",
+   "src": "L47",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L47"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

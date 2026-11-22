@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Many Things",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il189_too_many_things",
+  "source": "da_il10",
+  "lines": [
+   98,
+   107
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L98",
+  "ledger": [
+   {
+    "src": "L99",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L104",
+    "kind": "casting",
+    "before": "sees a child walking",
+    "after": "sees (child), a child, walking",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder's hut is so full of things that it is time for a change: give some away, or tidy and keep everything.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject)'s hut is full. Baskets inside baskets. Shells on every shelf. Seven digging sticks, three of them broken. A wooden fish (subject.he/she) carved fifty years ago. Today (subject) trips over a pile of old nets for the third time and decides that something has to change.",
+   "src": "L101",
+   "choices": [
+    {
+     "label": "Give Some Things Away",
+     "next": "a",
+     "src": "L103"
+    },
+    {
+     "label": "Tidy and Keep Everything",
+     "next": "b",
+     "src": "L106"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) puts a few things outside the door: a good basket, a nice shell, a carved bowl. By evening they're all gone to people who seem pleased with them. (subject.He/She) sees (child), a child, walking past with the bowl, filled with berries. (subject) feels lighter, somehow. The wooden fish, of course, stays. Some things aren't going anywhere.",
+   "src": "L104",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L104"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) puts a few things outside the door: a good basket, a nice shell, a carved bowl. By evening they're all gone to people who seem pleased with them. (subject.He/She) sees (child), a child, walking past with the bowl, filled with berries. (subject) feels lighter, somehow. The wooden fish, of course, stays. Some things aren't going anywhere.",
+   "src": "L104"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) spends the whole day sorting. (subject.He/She) finds things (subject.he/she) forgot (subject.he/she) owned. (subject.He/She) finds a toy (subject.he/she) made for a child who is now a grandparent (subject.him/her)self. In the end (subject.he/she) throws away exactly one broken digging stick, stacks everything else more neatly, and decides (subject.he/she) likes (subject.his/her) full, crowded, crammed hut very much, thank you.",
+   "src": "L107",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L107"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) spends the whole day sorting. (subject.He/She) finds things (subject.he/she) forgot (subject.he/she) owned. (subject.He/She) finds a toy (subject.he/she) made for a child who is now a grandparent (subject.him/her)self. In the end (subject.he/she) throws away exactly one broken digging stick, stacks everything else more neatly, and decides (subject.he/she) likes (subject.his/her) full, crowded, crammed hut very much, thank you.",
+   "src": "L107"
+  }
+ }
+}

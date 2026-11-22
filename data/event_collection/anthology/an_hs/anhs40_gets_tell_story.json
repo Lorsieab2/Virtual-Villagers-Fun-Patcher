@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Gets to Tell the Story?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs40_gets_tell_story",
+  "source": "anthology",
+  "lines": [
+   30025,
+   30038
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L30025",
+  "ledger": [
+   {
+    "src": "L30035",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two tribes remember a shared historical encounter in sharply different ways.",
+  "label_case": "title",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two tribes remember a shared historical encounter in sharply different ways.",
+   "src": "L30026",
+   "choices": [
+    {
+     "label": "Listen to Both Accounts",
+     "next": "a",
+     "src": "L30027"
+    },
+    {
+     "label": "Compare Surviving Artifacts",
+     "next": "b",
+     "src": "L30030"
+    },
+    {
+     "label": "Preserve Both Versions",
+     "next": "c",
+     "src": "L30033"
+    },
+    {
+     "label": "Celebrate What They Share Today",
+     "next": "d",
+     "src": "L30036"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30026"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The villagers find common facts amid different interpretations.",
+   "src": "L30028"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Each group learns that the other remembers a detail they had forgotten.",
+   "src": "L30029"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An old object supports one small detail but not the entire story.",
+   "src": "L30031"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The artifacts raise new questions rather than settling the dispute.",
+   "src": "L30032"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children hear how memory and perspective shape history.",
+   "src": "L30034"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) worries the differences will confuse children, prompting a thoughtful exchange.",
+   "src": "L30035"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A friendly argument continues over dessert, now with more mutual respect.",
+   "src": "L30038"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The tribes enjoy a meal without agreeing about the past.",
+   "src": "L30037",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30037"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The tribes enjoy a meal without agreeing about the past.",
+   "src": "L30037"
+  }
+ }
+}

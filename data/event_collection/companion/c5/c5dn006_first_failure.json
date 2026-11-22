@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Failure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn006_first_failure",
+  "source": "companion",
+  "lines": [
+   2710,
+   2716
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2710",
+  "ledger": [
+   {
+    "src": "L2712",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2716",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A teen's first public demonstration goes terribly wrong.",
+  "cast_only": [
+   "teen",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A teen's first public demonstration goes terribly wrong.",
+   "src": "L2711",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They change specialties after reflection.",
+   "src": "L2714"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They become determined to try again.",
+   "src": "L2715"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mentor teaches them how to improve.",
+   "src": "L2713",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L2713"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mentor teaches them how to improve.",
+   "src": "L2713"
+  }
+ }
+}

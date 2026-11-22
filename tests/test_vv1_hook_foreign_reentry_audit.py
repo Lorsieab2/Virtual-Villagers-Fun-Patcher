@@ -211,9 +211,11 @@ EXPECTED_UNRENDERABLE: dict[str, str] = {}
 CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control", "0x39C83"): "AF6CF1CACEA061F182DEEC93716BB036BE9F9635E2F5777E76CADE467D3ED723",
     ("vv1_birth_control", "0x3DD03"): "F4AF5EE81A11110F6F37F8AD2411C0D7F4DA616E3B8EB820C519C5E2734E8614",
-    ("vv1_birth_control", "0x46E96"): "5C9F87C9FA92B6B7BCB38A902E9E81009F206F636B8A09A0BA7FA86040BF358F",
-    ("vv1_birth_control", "0x47084"): "669F80876E7C754473CDDD2EAACAB28978542C24DDAAF46090C1A29A00B0DC93",
     ("vv1_birth_control", "0x477FA"): "EAD1E07AA649935AF986B7F2BD5C3583AD72A10DF90DEACE461393D9002CB89B",
+    # One partner per catch-up embrace (2026-11-21): 0x4723D is a jmp inside .text to the stock end of the embrace
+    # step 0x44725C (the exit the second scan's loop already takes), so it has no cave; the pick at 0x46E70 is
+    # written in place and emulated in tests/test_birth_control_one_partner.py.
+    ("vv1_birth_control", "0x4723D"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
     # Doubler persistence. Both halves re-verified after the save and restore
     # hooks were found to be on each other's functions and swapped.
     #
@@ -437,8 +439,12 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     # at 0x43BCC7, one byte inside it, so stealing six bytes there would land
     # that jump in the middle of the inserted instruction.
     ("vv1_write_parentage_log", "0x3BCCB"): "1D49E2E120DFD76DA7D18AF3243E8147C9593F1AA452D9B4B43E6C07BA6BFD1E",
-    ("vv1_enable_origins_exclusive_features", "0x1D120"): "6BCFB1B986B25AC430D1B9E30D36DB58CC87B19CCB326384E0D74087842F7FDE",
-    ("vv1_enable_origins_exclusive_features", "0x1D140"): "2A7F6BCAFF096282681EA63DCA4CC89377EE5F32C236B5D1FEA2BB49FEC65562",
+    # Re-reviewed for the doublers' whitelist (#805): the tech (0x1D120) and food (0x1D140) add-points caves now
+    # compare the return address [esp + 4] (after the cave's own push ebx) with the eligible callers and jump
+    # past the doubling for every other one.  Only cmp / je / jmp were added: ebx is still pushed and popped,
+    # eax is the only other register written (as before), ecx is read once into ebx, and the stock ret 4 is kept.
+    ("vv1_enable_origins_exclusive_features", "0x1D120"): "C00B2393BDB5B647E0821411E7F03961365AA67BEFA6A2132E911B48D3784B7E",
+    ("vv1_enable_origins_exclusive_features", "0x1D140"): "7D1DB4E4E01AB36DB4177A53A7CC27560EC9CAD9D14CCAAB2AAADEB15FBE72A0",
     # Re-reviewed when the Barrel gained a delivery-time capacity recheck.
     # The cave now loads the village as [esi+0x10] and calls the room check
     # at 0x490B00 before consuming the paid event.  Register contract is
@@ -485,7 +491,11 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_enable_origins_exclusive_features", "0x35AB0"): "0E5A636819B1532EC078D7DD7DADAF77F85E78BDA80CD93EBC3E5709058ED99F",
     ("vv1_enable_origins_exclusive_features", "0x35ACA"): "3176E4468842A999A9A9E1AFCDFE6639F52ED68FCC40767F8E6D155BA5061113",
     ("vv1_enable_origins_exclusive_features", "0x4A5FA"): "1615B6A0F8C8D7B6D292E404DE7AEEAD8B1017D33ADAD8EC55D89EBB03884C85",
-    ("vv1_enable_origins_exclusive_features", "0x4A700"): "7DD57F614B206C957C60D7BA3ED02B0FF2DA9DC43B2F693A4BD0A6B810EEB673",
+    # Re-reviewed (v1.35.97): the cave reached from 0x4A700 includes detail_menu's Set Age to 18 / Grant Youth and the
+    # .shr preflight, which now move the lived age (+0x34C) and conception mark (+0x358) by the age's delta.  Those
+    # blocks clobber only EAX (the old ones clobbered EAX and ECX) and the preflight still returns its status in EAX;
+    # no stock re-entry was added.
+    ("vv1_enable_origins_exclusive_features", "0x4A700"): "83423CDA24CCD1C70905503FD1F9209FCF3890EA1BFFD528A3DF31E2B7F32005",
     ("vv1_enable_origins_exclusive_features", "0x377B8"): "D44A6B9C0DB1C684604A9818144F1209EFCC19BA484337579CD40B644FB56257",
     # Re-reviewed when the never-read DEST_SURFACE_CACHE store was removed:
     # `mov [0x491094], ecx` wrote memory only, so ECX/ESP/flags at the resume
@@ -530,6 +540,16 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_magic_fruit_alters_mortality", "0x4892D"): "FCB1B3DE15F5892465BFC27A589B488D0A213C8C9FF82CEB081D754C9A51221E",
     ("vv1_school_lessons_grant_skill", "0x3A230"): "846EAF1C3E8A0897824E1607D8568B3050F240A670A857D88D59F3479E24089A",
     ("vv1_school_lessons_grant_skill", "0x44B28"): "E695CAD15B97EF9EC985AC6A3EB1C2045C0BE465D922AD6F57F3FAC975EF43E9",
+    # Fix Vanilla Bugs' liking-work rule (0x39AF8 -> 0x455491/0x4554B2) and keeping-an-assigned-job rule (0x47CFF ->
+    # sixteen pieces from 0x454B32): their caves are int3 padding between functions INSIDE .text, which this walker
+    # treats as stock code and never enters, so each block hashes as empty (SHA-256 of nothing).  Their bytes are
+    # pinned exactly and their register contracts run by emulation from the routine's entry instead
+    # (tests/test_vv1_fix_vanilla_bugs.py LikingWorkTests / KeepAssignedJobTests: ECX, ESP and the saved
+    # registers at each exit, every roll, every spot case), and the pieces are checked to be padding no stock
+    # branch reaches.  Re-entries: 0x439B00 / 0x439B22 (the chooser's own choice and no-job exit), 0x447FFB (the
+    # work-spot routine's nothing-started exit) and the spot jump table 0x4480A8.
+    ("vv1_fix_vanilla_bugs", "0x39AF8"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+    ("vv1_fix_vanilla_bugs", "0x47CFF"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
 }
 
 # The co-selected Origins composition relocates the Birth Control page to the
@@ -540,9 +560,8 @@ CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
 COMPOSED_CAVE_FINGERPRINTS: dict[tuple[str, str], str] = {
     ("vv1_birth_control+origins", "0x39C83"): "967EE2D126D97EF25D26E59CADF4F88E1ACD6B13775532122FA97D6C8E9AC21C",
     ("vv1_birth_control+origins", "0x3DD03"): "B14149577146F1A2C72E7A79B65F5BAA32AEEF8B3EC10D429FD71223C3EF2B04",
-    ("vv1_birth_control+origins", "0x46E96"): "BC63138974420681617BB3D5652C236C19879C83218C73E8AEB79339AF389ACC",
-    ("vv1_birth_control+origins", "0x47084"): "926796ACA098A27162CE31B86F9A1DD23EC740CA7E0FDA70C70177BE34B10703",
     ("vv1_birth_control+origins", "0x477FA"): "95D1ABBD9B240B08828F67C39DEBCA8099F3C9CD96DD4861D3B2988904E8F58E",
+    ("vv1_birth_control+origins", "0x4723D"): "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
 }
 
 # (feature id, splice offset, stock re-entry target) -> why it is safe.
@@ -578,29 +597,6 @@ REVIEWED: dict[tuple[str, str, int], str] = {
     "0x43DE2E. EDI is stale at this splice point (it holds the RNG(3)+5 "
     "duration), which is exactly the v1.34.11 crash; the cave rebuilds it as "
     "esi+ebx*0x3D8 before jumping here.",
-    (
-        "vv1_birth_control",
-        "0x46E96",
-        0x446EA2,
-    ): "resume past the stock jl. Cave touches only EAX and flags, so EDX "
-    "and ESI reach here exactly as the stock code left them.",
-    (
-        "vv1_birth_control",
-        "0x46E96",
-        0x447036,
-    ): "reject. This is the stock's own jl target from 0x446E9C, and the "
-    "cave preserves ESI (touches only EAX and flags).",
-    (
-        "vv1_birth_control",
-        "0x47084",
-        0x447090,
-    ): "resume past the stock jl. Cave touches only ECX and flags, so ESI "
-    "reaches here unchanged.",
-    (
-        "vv1_birth_control",
-        "0x47084",
-        0x44723D,
-    ): "reject. Stock's own jl target from 0x44708A; no pointer reads.",
     (
         "vv1_birth_control",
         "0x477FA",

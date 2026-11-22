@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Creature That Needed a Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns30_creature",
+  "source": "living",
+  "lines": [
+   22557,
+   22568
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22557",
+  "ledger": [
+   {
+    "src": "L22568",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager glimpses a pale shape moving between mangrove roots and wants to name a new species.",
+  "cast_only": [
+   "villager",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager glimpses a pale shape moving between mangrove roots and wants to name a new species.",
+   "src": "L22558",
+   "choices": [
+    {
+     "label": "Record a provisional description.",
+     "next": "a",
+     "src": "L22559"
+    },
+    {
+     "label": "Announce a new creature immediately.",
+     "next": "b",
+     "src": "L22562"
+    },
+    {
+     "label": "Wait for stronger evidence.",
+     "next": "c",
+     "src": "L22565"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The catalogue notes uncertainty and invites future sightings.",
+   "src": "L22560"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An apprentice draws the wrong tail shape and later corrects it.",
+   "src": "L22561"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village celebrates the discovery.",
+   "src": "L22563",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L22563"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L22563"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A familiar animal is later found to resemble the description.",
+   "src": "L22564"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The observer learns patience and careful documentation.",
+   "src": "L22566"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The creature is never seen again, leaving a tantalizing mystery.",
+   "src": "L22567"
+  }
+ }
+}

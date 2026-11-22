@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Heard Too Much",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss086_heard_too_much",
+  "source": "companion",
+  "lines": [
+   6955,
+   6963
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6955",
+  "ledger": [
+   {
+    "src": "L6963",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "After witnessing a serious accident, a young apprentice struggles to concentrate during lessons.",
+  "cast_only": [
+   "apprentice",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "After witnessing a serious accident, a young apprentice struggles to concentrate during lessons.",
+   "src": "L6956",
+   "choices": [
+    {
+     "label": "Allow a break from the worksite",
+     "next": "a",
+     "src": "L6957"
+    },
+    {
+     "label": "Ask how they are coping",
+     "next": "b",
+     "src": "L6959"
+    },
+    {
+     "label": "Pair them with a trusted mentor",
+     "next": "c",
+     "src": "L6961"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They study a different craft for a while.",
+   "src": "L6958"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They describe upsetting memories; a healer listens and follows up.",
+   "src": "L6960"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They resume slowly and decide their own pace.",
+   "src": "L6962"
+  }
+ }
+}

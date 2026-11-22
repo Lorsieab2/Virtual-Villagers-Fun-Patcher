@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Watching the Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day36_watching_rain",
+  "source": "draft_day",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers sit in a doorway watching a long, gentle rain: talk about nothing, or stay quiet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's raining. Not a storm, just a long, steady, gentle rain. There's no work that can be done outside. (subject) and (friend) are sitting side by side in a doorway, watching it fall, with a bowl of nuts between them. Neither has said anything for quite a while.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Talk",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Stay Quiet",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They start talking about nothing. Which raindrop will reach the bottom of the roof first. Whether the frogs like rain or just put up with it. What they'd name the puddle if they had to. It's the most pointless conversation either of them has had in weeks. They enjoy every word.",
+   "src": "L434"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They don't talk. The rain goes on. They eat the nuts, one at a time. Somewhere a frog starts up. By the time the rain stops, the bowl is empty and the afternoon is gone, and neither of them could say what happened in it. It was lovely anyway.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L437"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L437"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "They don't talk. The rain goes on. They eat the nuts, one at a time. Somewhere a frog starts up. By the time the rain stops, the bowl is empty and the afternoon is gone, and neither of them could say what happened in it. It was lovely anyway.",
+   "src": "L437"
+  }
+ }
+}

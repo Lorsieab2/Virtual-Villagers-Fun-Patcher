@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Inventor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il011_great_inventor",
+  "source": "da_il02",
+  "lines": [
+   17,
+   31
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L17",
+  "ledger": [
+   {
+    "src": "L19",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L31",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A child has invented a machine of sticks, string, a coconut shell and a lot of mud that does everything.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has invented something extraordinary. It is made of three sticks, a coconut shell, two pieces of string, and an alarming amount of mud. \"It's a machine,\" (subject.he/she) explains. \"It does everything.\" (friend) examines it carefully. One of the sticks falls off.",
+   "src": "L21",
+   "choices": [
+    {
+     "label": "Ask for a Demonstration",
+     "next": "a",
+     "src": "L23"
+    },
+    {
+     "label": "Ask What It's Called",
+     "next": "b",
+     "src": "L27"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"The Everything Machine,\" says (subject). \"But it doesn't do everything yet.\" (friend) asks what it does now. \"Mostly falls apart,\" (subject) admits. \"I'm working on that.\"",
+   "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) pulls a string. The coconut shell flips over, the mud splashes everywhere, and a small frog leaps out of the contraption. \"It makes frogs!\" (subject) announces triumphantly. (friend) is fairly certain the frog was already inside, but decides not to argue.",
+   "src": "L25",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L25"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) pulls a string. The coconut shell flips over, the mud splashes everywhere, and a small frog leaps out of the contraption. \"It makes frogs!\" (subject) announces triumphantly. (friend) is fairly certain the frog was already inside, but decides not to argue.",
+   "src": "L25"
+  }
+ }
+}

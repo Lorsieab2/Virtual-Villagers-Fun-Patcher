@@ -1,0 +1,84 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Little Lie",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il037_little_lie",
+  "source": "da_il02",
+  "lines": [
+   433,
+   447
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L433",
+  "ledger": [
+   {
+    "src": "L435",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L447",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A child who broke a small clay cup says a bird did it, though the hut door was closed.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) accidentally breaks a small clay cup. When (friend) asks what happened, (subject) says, \"A bird did it.\" This explanation would be more convincing if the cup hadn't been sitting inside a hut with the door closed.",
+   "src": "L437",
+   "choices": [
+    {
+     "label": "Ask About the Bird",
+     "next": "a",
+     "src": "L439"
+    },
+    {
+     "label": "Give (subject) Time",
+     "next": "b",
+     "src": "L443"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"What kind of bird?\" asks (friend). (subject) thinks quickly. \"A very small one.\" \"Strong enough to break a cup?\" \"An unusually strong small bird.\" (friend) raises an eyebrow. After a long silence, (subject) admits what happened. They discuss how to replace the cup.",
+   "src": "L441"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) says that accidents happen and leaves the broken pieces nearby. Later (subject) returns and quietly admits that there was no bird. \"I suspected as much,\" says (friend). \"But it was an impressive story.\"",
+   "src": "L445"
+  }
+ }
+}

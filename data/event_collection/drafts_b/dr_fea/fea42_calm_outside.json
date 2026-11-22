@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Calm on the Outside",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea42_calm_outside",
+  "source": "draft_fea",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "In a fierce storm, a villager calms the children while secretly terrified: admit it to a friend quietly, or keep it in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A storm has come in hard, and the wind is tearing at the roofs. Everyone has crowded into the biggest hut. The little ones are frightened, and (subject) is the one telling them stories and saying, \"It's just wind, it'll pass.\" (subject) is very frightened too. Nobody can tell. (friend) sits down next to (subject.him/her).",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Admit It to (friend), Quietly",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm scared too,\" whispers (subject), still smiling at the children. (friend) squeezes (subject.his/her) hand. \"I know. Me too.\" They keep telling stories. The wind howls. Some time before dawn it drops. Afterwards, (subject) is shaking. (friend) sits with (subject.him/her) until (subject.he/she) stops.",
+   "src": "L506"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) keeps smiling. (subject.He/she) tells story after story until the children fall asleep. Only when the wind dies down, near dawn, does (subject.he/she) go outside and let (subject.his/her) hands shake. (friend) finds (subject.him/her) there and doesn't say anything, just stands beside (subject.him/her) in the grey light.",
+   "src": "L509",
+   "text_only": [
+    {
+     "what": "\"dies\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L509"
+    }
+   ]
+  }
+ }
+}

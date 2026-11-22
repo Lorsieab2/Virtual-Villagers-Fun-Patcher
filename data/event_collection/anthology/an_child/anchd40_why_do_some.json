@@ -1,0 +1,274 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do Some Questions Have No Answer?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd40_why_do_some",
+  "source": "anthology",
+  "lines": [
+   28157,
+   28170
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L28157",
+  "ledger": [
+   {
+    "src": "L28158",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28160",
+    "kind": "sensitivity",
+    "before": "A teacher",
+    "after": "(adult), a teacher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28161",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28163",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28164",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28166",
+    "kind": "sensitivity",
+    "before": "A researcher",
+    "after": "(adult), a researcher,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28167",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28169",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28170",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks whether anyone can know exactly what happens after death.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks whether anyone can know exactly what happens after death.",
+   "src": "L28158",
+   "choices": [
+    {
+     "label": "Explain Limits of Knowledge.",
+     "next": "a",
+     "src": "L28159"
+    },
+    {
+     "label": "Share Different Beliefs.",
+     "next": "b",
+     "src": "L28162"
+    },
+    {
+     "label": "Explore What Is Knowable.",
+     "next": "c",
+     "src": "L28165"
+    },
+    {
+     "label": "Allow the Question to Rest.",
+     "next": "d",
+     "src": "L28168"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"death\"",
+     "reason": "a death only talked about (the premise or the word's everyday sense); nobody dies -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28158"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult), a teacher, says some claims cannot currently be tested.",
+   "src": "L28160"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) learns that uncertainty is not the same as ignorance.",
+   "src": "L28161"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder) describes several hopes without choosing one as fact.",
+   "src": "L28163"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) asks why caring people believe different things.",
+   "src": "L28164"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult), a researcher, discusses how bodies change after death without claiming to know an afterlife.",
+   "src": "L28166",
+   "text_only": [
+    {
+     "what": "\"death\"",
+     "reason": "a death only talked about (the premise or the word's everyday sense); nobody dies -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28166"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) decides that memories of loved ones matter now.",
+   "src": "L28167"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) returns later with a new question.",
+   "src": "L28170"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved not to decide today.",
+   "src": "L28169",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28169"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) feels relieved not to decide today.",
+   "src": "L28169"
+  }
+ }
+}

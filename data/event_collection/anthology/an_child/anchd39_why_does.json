@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Does a Butterfly Change?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd39_why_does",
+  "source": "anthology",
+  "lines": [
+   28142,
+   28155
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L28142",
+  "ledger": [
+   {
+    "src": "L28143",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28145",
+    "kind": "sensitivity",
+    "before": "A naturalist",
+    "after": "(adult), a naturalist,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28146",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28148",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28149",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28151",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28152",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28154",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28155",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child sees a caterpillar and asks how it can become a butterfly.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) sees a caterpillar and asks how it can become a butterfly.",
+   "src": "L28143",
+   "choices": [
+    {
+     "label": "Explain Metamorphosis.",
+     "next": "a",
+     "src": "L28144"
+    },
+    {
+     "label": "Observe Without Disturbing.",
+     "next": "b",
+     "src": "L28147"
+    },
+    {
+     "label": "Draw the Life Cycle.",
+     "next": "c",
+     "src": "L28150"
+    },
+    {
+     "label": "Share a Transformation Tale.",
+     "next": "d",
+     "src": "L28153"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(adult), a naturalist, describes the stages of a butterfly's life.",
+   "src": "L28145"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) asks whether every insect changes the same way.",
+   "src": "L28146"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) watches leaves for signs of caterpillars.",
+   "src": "L28148"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) finds only empty leaves and tries again another day.",
+   "src": "L28149"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) makes a sequence of pictures.",
+   "src": "L28151"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) mixes up the order and corrects it with help.",
+   "src": "L28152"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) tells a symbolic story as folklore.",
+   "src": "L28154"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) compares the tale with the actual stages.",
+   "src": "L28155"
+  }
+ }
+}

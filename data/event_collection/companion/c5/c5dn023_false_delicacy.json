@@ -1,0 +1,153 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The False Delicacy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn023_false_delicacy",
+  "source": "companion",
+  "lines": [
+   2871,
+   2877
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2871",
+  "ledger": [
+   {
+    "src": "L2873",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2877",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2874",
+    "kind": "note",
+    "text": "SEVERE:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2875",
+    "kind": "note",
+    "text": "RARE FATAL:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2875",
+    "kind": "instruction",
+    "text": " if the fatal branch is enabled",
+    "why": "an instruction inside the outcome, never shown: the node's effect"
+   },
+   {
+    "src": "L2876",
+    "kind": "note",
+    "text": "SAFE:",
+    "why": "a designer tag on the outcome, never shown"
+   }
+  ],
+  "description": "A forager mistakes a poisonous species for a familiar edible mushroom.",
+  "cast_only": [
+   "naturalist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "forager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A forager mistakes a poisonous species for a familiar edible mushroom.",
+   "src": "L2872",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "e2",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "e3",
+     "weight": 20
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Poisoning requires urgent healer attention.",
+   "src": "L2874",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "forager",
+     "src": "L2874"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager dies.",
+   "src": "L2875",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "forager",
+     "cause": "unknown",
+     "src": "L2875"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A naturalist catches the mistake before ingestion.",
+   "src": "L2876"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2875",
+   "before": "villager dies",
+   "after": "the villager dies"
+  }
+ ]
+}

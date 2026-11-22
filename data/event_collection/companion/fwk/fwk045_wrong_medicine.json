@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Medicine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk045_wrong_medicine",
+  "source": "companion",
+  "lines": [
+   5896,
+   5903
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5896",
+  "ledger": [
+   {
+    "src": "L5902",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5903",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A distracted healer realizes a patient received the wrong preparation.",
+  "cast_only": [
+   "healer",
+   "patient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A distracted healer confuses two preparations and notices only after a patient receives one.",
+   "src": "L5897",
+   "choices": [
+    {
+     "label": "Admit the error immediately and seek help.",
+     "next": "outcome",
+     "src": "L5898"
+    },
+    {
+     "label": "Investigate what was given and monitor the patient.",
+     "next": "outcome",
+     "src": "L5899"
+    },
+    {
+     "label": "Conceal the mistake, worsening trust if discovered.",
+     "next": "outcome",
+     "src": "L5900"
+    },
+    {
+     "label": "Establish safer labeling procedures.",
+     "next": "outcome",
+     "src": "L5901"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5902"
+  }
+ }
+}

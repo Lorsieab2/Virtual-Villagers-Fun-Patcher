@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Brewer's Promise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a006_brewer_promise",
+  "source": "companion",
+  "lines": [
+   197,
+   214
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L197",
+  "ledger": [
+   {
+    "src": "L199",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L203",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L208",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L210",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L212",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L214",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "An apprentice promises to brew a legendary potion before the next festival."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An apprentice promises to prepare a legendary potion before the next festival.",
+   "src": "L201",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L204"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L205"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L206"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "A harmless, beautiful concoction wins applause.",
+   "src": "L208",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L208"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The brew develops a smell so terrible it is banished outdoors.",
+   "src": "L210"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "The potion has no obvious effect until an unrelated event occurs.",
+   "src": "L212"
+  }
+ }
+}

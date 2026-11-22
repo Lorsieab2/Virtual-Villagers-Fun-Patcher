@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memorial Mark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy31_memorial_mark",
+  "source": "anthology",
+  "lines": [
+   29133,
+   29146
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29133",
+  "ledger": [
+   {
+    "src": "L29134",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29136",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29137",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29142",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29143",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29145",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29146",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An adult considers body art to remember a loved one.",
+  "label_case": "title",
+  "cast_only": [
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(adult) considers body art to remember a loved one.",
+   "src": "L29134",
+   "choices": [
+    {
+     "label": "Choose a Private Design",
+     "next": "a",
+     "src": "L29135"
+    },
+    {
+     "label": "Ask Family for Ideas",
+     "next": "b",
+     "src": "L29138"
+    },
+    {
+     "label": "Try Temporary Paint First",
+     "next": "c",
+     "src": "L29141"
+    },
+    {
+     "label": "Honor the Person Another Way",
+     "next": "d",
+     "src": "L29144"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(adult) decides the memory needs no permanent mark.",
+   "src": "L29137"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Relatives share treasured memories.",
+   "src": "L29139"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Different suggestions make the decision harder.",
+   "src": "L29140"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult) appreciates the reversible tribute.",
+   "src": "L29142"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult) realizes they prefer a carved keepsake.",
+   "src": "L29143"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult) plants flowers in remembrance.",
+   "src": "L29145"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(adult) organizes a small story circle instead.",
+   "src": "L29146"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(adult) finds the symbol personally meaningful.",
+   "src": "L29136",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "adult",
+     "mood": "good",
+     "src": "L29136"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(adult) finds the symbol personally meaningful.",
+   "src": "L29136"
+  }
+ }
+}

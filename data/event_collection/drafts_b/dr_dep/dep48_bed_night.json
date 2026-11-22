@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bed for the Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep48_bed_night",
+  "source": "draft_dep",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L581",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager gives a tired traveler a corner for the night, and the traveler snores loudly: lie awake and laugh, or sleep outside.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tired traveler has arrived at dusk, walking along the coast, asking if anyone has a corner to sleep in. (name1) has a corner. Not a big one. The traveler is very grateful, very polite, and, (name1) discovers around midnight, the loudest snorer (he/she) has ever heard in (his/her) life.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Lie Awake and Laugh",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Sleep Outside",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) quietly takes a blanket outside and sleeps under the stars. It's a beautiful night. In the morning the traveler is horrified to find (him/her) on the ground. \"Was I snoring?\" (name1) says, very kindly, that (he/she) just likes stars. The traveler doesn't believe a word of it, and leaves a large bag of dried fruit as an apology.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) lies awake listening. It's an astonishing snore: a rumble, a whistle, and a little pop at the end. By the middle of the night (he/she) is shaking with silent laughter. The traveler leaves before dawn and leaves a beautifully carved spoon by the fire as thanks. (name1) is exhausted all day. It was worth it.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L578"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) lies awake listening. It's an astonishing snore: a rumble, a whistle, and a little pop at the end. By the middle of the night (he/she) is shaking with silent laughter. The traveler leaves before dawn and leaves a beautifully carved spoon by the fire as thanks. (name1) is exhausted all day. It was worth it.",
+   "src": "L578"
+  }
+ }
+}

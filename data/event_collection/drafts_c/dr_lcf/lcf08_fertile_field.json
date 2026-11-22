@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fertile Field",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf08_fertile_field",
+  "source": "draft_lcf",
+  "lines": [
+   106,
+   117
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L106",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two farmers)"
+   },
+   {
+    "src": "L113",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L113",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L117",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A farmer wants to bury a lavastone in a tired field to make it fertile: bury it, or rest the field.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The old garden behind the village has grown tired: the taro is small and the beans are thin. (subject) has a lavastone and an old story about burying one in the soil. (friend) says the field just needs a season of rest and a lot of fish bones, and that magic is no substitute for patience. What should they do?",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Bury the Stone",
+     "next": "o1",
+     "src": "L111"
+    },
+    {
+     "label": "Rest the Field",
+     "next": "o2",
+     "src": "L115"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) buries the stone in the middle of the field. The next crop is enormous: taro the size of a child's head, beans as long as an arm. Some people will not eat them. The stone is never found again, though (subject) digs for it twice.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The field rests for a season under fish bones and leaves. The next crop is good, not amazing. (friend) is satisfied. (subject) is not convinced, and keeps the stone in a pouch, for next time.",
+   "src": "L117",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L117"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

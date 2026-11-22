@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Untended Graves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm74_untended_graves",
+  "source": "draft_rm2",
+  "lines": [
+   504,
+   518
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L504",
+  "ledger": [
+   {
+    "src": "L518",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the per-event content-notes feature shows it), never part of a page"
+   },
+   {
+    "src": "L505",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(Name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager notices that several graves of villagers with no living family have become overgrown.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1) notices that several graves of villagers with no living family have become overgrown.",
+   "src": "L505",
+   "choices": [
+    {
+     "label": "Clear and Tend Them Quietly.",
+     "next": "a",
+     "src": "L506"
+    },
+    {
+     "label": "Ask Others to Help.",
+     "next": "b",
+     "src": "L509"
+    },
+    {
+     "label": "Plant Flowers Beside Them.",
+     "next": "c",
+     "src": "L512"
+    },
+    {
+     "label": "Learn the Stories of Those Buried.",
+     "next": "d",
+     "src": "L515"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The work is harder than expected, and the villager returns over several days.",
+   "src": "L508"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Several villagers join, and they share memories of those buried there.",
+   "src": "L510"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some villagers feel uneasy around graves, and the villager does not press them.",
+   "src": "L511"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The flowers bloom, and others begin leaving small tokens.",
+   "src": "L513"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The flowers wilt in the heat, and the villager tries hardier plants.",
+   "src": "L514"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "An elder remembers each one and shares their stories.",
+   "src": "L516"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Nobody remembers some of them, and the villager decides that they are still worth tending.",
+   "src": "L517"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The graves look cared for again, and the villager feels a sense of peace.",
+   "src": "L507",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L507"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The graves look cared for again, and the villager feels a sense of peace.",
+   "src": "L507"
+  }
+ }
+}

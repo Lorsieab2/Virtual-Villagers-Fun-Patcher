@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Nobody Will Touch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo45_stone_nobody_will",
+  "source": "da_lo",
+  "lines": [
+   546,
+   555
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L546",
+  "ledger": [
+   {
+    "src": "L547",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two villagers digging a garden find a lavastone that somebody buried long ago, ringed with stones.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "While digging a new garden, (subject) and (friend) find a large lavastone buried in the ground, wrapped in very old, rotted matting, with a ring of small stones laid carefully round it. Somebody, long ago, buried it here on purpose. It glows faintly, even in the dirt.",
+   "src": "L549",
+   "choices": [
+    {
+     "label": "Cover It Back Up",
+     "next": "a",
+     "src": "L551"
+    },
+    {
+     "label": "Dig It Up and Ask the Village",
+     "next": "b",
+     "src": "L554"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Whoever buried it had a reason,\" says (friend). \"Maybe a good one.\" (subject) agrees. They lay the matting back over it, push the earth back, and replace the ring of stones exactly as it was. They make the garden somewhere else. The spot becomes, quietly, a place villagers walk around rather than over.",
+   "src": "L552"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They carry it carefully to the fire, and the whole village comes to look. The elders disagree about everything: whether it's sacred, whether it's dangerous, whether it was buried to protect it or to protect the village from it. In the end the village decides to keep it in a safe, quiet place, and to keep wondering. Nobody ever learns who buried it, or why.",
+   "src": "L555"
+  }
+ }
+}

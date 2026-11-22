@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Night in the New Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep01_night_hut",
+  "source": "draft_dep",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult)"
+   }
+  ],
+  "description": "A villager spends the first night alone in a new hut and cannot sleep: go back to the old hut for one night, or stay.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has finally moved into a hut of (his/her) own. All day it was exciting: sweeping the floor, hanging the baskets, deciding where the sleeping mat should go. Now it is dark, and the hut is very quiet. Nobody is snoring. Nobody is rolling over. Nobody is muttering in their sleep about fish. (name1) lies staring at the roof, wide awake.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Go Back for Just One Night",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Stay and Listen to the Quiet",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) stays where (he/she) is. After a while the quiet stops being empty. There are frogs. There is the sea. There is a small creak that turns out to be the roof settling and not, as (he/she) briefly suspects, an enormous crab. (He/she) falls asleep some time before dawn, in (his/her) own hut, for the first time.",
+   "src": "L17"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) creeps back to (his/her) old hut and lies down in (his/her) old spot. Nobody says anything. Someone, half asleep, pulls a blanket over (him/her). (He/she) is asleep in moments. In the morning (he/she) walks back to the new hut, a little embarrassed and much better rested, and tells nobody.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) creeps back to (his/her) old hut and lies down in (his/her) old spot. Nobody says anything. Someone, half asleep, pulls a blanket over (him/her). (He/she) is asleep in moments. In the morning (he/she) walks back to the new hut, a little embarrassed and much better rested, and tells nobody.",
+   "src": "L14"
+  }
+ }
+}

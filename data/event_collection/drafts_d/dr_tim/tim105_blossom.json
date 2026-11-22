@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Blossom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim105_blossom",
+  "source": "moments500",
+  "lines": [
+   1757,
+   1771
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1758",
+  "ledger": [
+   {
+    "src": "L1757",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1761",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1762",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1765",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1766",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1769",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1770",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "A villager discovers a flower blooming where none was expected.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1) discovers a flower blooming where none was expected. The scent of damp earth makes (Name1) unexpectedly nostalgic.",
+   "src": "L1759"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1) discovers a flower blooming where none was expected. (Name1) worries about the weather and checks the sky again.",
+   "src": "L1767"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1) discovers a flower blooming where none was expected. A neighbor stops to admire the careful work.",
+   "src": "L1771"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) discovers a flower blooming where none was expected. The progress is tiny, but it brightens the morning.",
+   "src": "L1763",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1763"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) discovers a flower blooming where none was expected. The progress is tiny, but it brightens the morning.",
+   "src": "L1763"
+  }
+ }
+}

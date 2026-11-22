@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "../shared/patcher_files.h"
 #include "../shared/install_sites.h"   /* every site written, or none */
@@ -144,6 +145,9 @@ static size_t more_villager_changes(int i, const unsigned char *live, char *chan
 static void more_arrival(const unsigned char *record, char *out, size_t size);
 static void more_village(const char *before);
 static int g_more_wrote;                  /* island_event_more.inc: the records this comparison wrote */
+/* stock_solidarity.inc: Village Solidarity moved by a stock event's result (the owner, 2026-11-20). */
+static void stock_solidarity(const struct snapshot *s);
+static void stock_begin(void);           /* ...and when a watched event begins: whose popup it is */
 
 static int readable(const void *at, size_t size) {
     MEMORY_BASIC_INFORMATION info;
@@ -327,6 +331,46 @@ static int time_skip_notice(const struct snapshot *s) {
     return g_notice_shown != NULL && g_notice_shown(g_game);
 }
 
+/* A BRANCHING CUSTOM ISLAND EVENT (the owner, 2026-11-12: ONE entry per event -- its title, its "Choice:" line,
+   then every change in page order as it happens).  "VVFP Story Upgrades.dll" (story_graph.inc) brackets each of
+   its pages' effects itself (VvfpIslandEventsGraphBegin / End, below) and writes the one entry when the event is
+   over (VvfpIslandEventsGraphWrite); the game's own bracket around that page's popup is then not this event's
+   record: VvfpStoryGraphLogged(game, title) says so (once per page), and nothing is written for it here.  Absent,
+   or for any other popup, everything is as before. */
+typedef int (__stdcall *graph_logged_fn)(int game, const char *title);
+static graph_logged_fn g_graph_logged;     /* a harness sets its own */
+static int g_graph_looked;
+
+/* "VVFP More Island Events.dll" keeps the same kind of ONE entry for its events whose effects wait for their own
+   page (The Lost Children's: native/vvfp_more_island_events/adv_vv2.inc): VvfpMoreIslandEventsLogged(game, title)
+   says when the popup compared is its dialog. */
+static graph_logged_fn g_more_logged;      /* a harness sets its own */
+static int g_more_looked;
+
+static int graph_logged_by_story(const struct snapshot *s) {
+    if (g_graph_logged == NULL && !g_graph_looked) {
+        HMODULE story = GetModuleHandleA("VVFP Story Upgrades.dll");
+        g_graph_logged = story != NULL ? (graph_logged_fn)(void *)GetProcAddress(story, "VvfpStoryGraphLogged") : NULL;
+        g_graph_looked = story != NULL;
+    }
+    if (g_more_logged == NULL && !g_more_looked) {
+        HMODULE more = GetModuleHandleA("VVFP More Island Events.dll");
+        g_more_logged = more != NULL ? (graph_logged_fn)(void *)GetProcAddress(more, "VvfpMoreIslandEventsLogged")
+                                     : NULL;
+        g_more_looked = more != NULL;
+    }
+    if (g_graph_logged != NULL && g_graph_logged(g_game, s->title)) {
+        return 1;
+    }
+    return g_more_logged != NULL && g_more_logged(g_game, s->title);
+}
+
+/* Set while VvfpIslandEventsGraphEnd compares a page's (or an ending's) own effects: that comparison is the one
+   entry's, asked for by the companion that keeps it, so "is this popup the companion's?" (graph_logged_by_story)
+   is not asked of it -- More Island Events answers yes to anything in the later games while its event is up, and
+   the comparison came back empty ("Changes: none" for The Aspiring Adventurer's tech points, live v1.35.97). */
+static int g_graph_comparing;
+
 /* Compare and write: one record per villager the event changed. */
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
@@ -334,7 +378,11 @@ static void compare(struct snapshot *s) {
     char before[2 * TITLE_MAX + TEXT_MAX + 64];
     char changes[2048];
     size_t at;
-    if (writer() == NULL || s->count == 0 || time_skip_notice(s)) {
+    if (s->count == 0 || time_skip_notice(s) || (!g_graph_comparing && graph_logged_by_story(s))) {
+        return;
+    }
+    stock_solidarity(s);                  /* score only, with or without the log */
+    if (writer() == NULL) {
         return;
     }
     count = g_layout->enumerate(now, MAX_VILLAGERS);
@@ -604,6 +652,7 @@ static void event_text(const char *text, size_t cap, struct snapshot_text *out) 
 
 #include "island_event_games.inc"         /* the five games' layouts and sites */
 #include "island_event_more.inc"          /* a newcomer's sex and age, titles, masks, the village */
+#include "stock_solidarity.inc"           /* Village Solidarity moved by a stock event's result */
 
 #define MAX_SITES 16
 #define RETURNS 256                       /* far beyond any nesting the games make */
@@ -660,6 +709,7 @@ static void __cdecl before_call(const unsigned int *frame, int index) {
             if (site->before != NULL) {
                 site->before(frame, &text);
             }
+            stock_begin();
             take(&g_snaps[0]);
         }
     } else if (g_watching && g_snaps[0].title[0] == '\0' && site->before != NULL
@@ -747,9 +797,12 @@ static int install(int game) {
     unsigned char *code;
     SIZE_T size;
     int count, i;
+    /* Shipped by the Island Events log row (its records need the Parentage Export) or by Village Solidarity's
+       (stock_solidarity.inc: the game's own events move the score; "VVFP Startup.dll" starts that companion later,
+       so its file beside this one is what tells). */
     if (game < 1 || game > GAMES || GAME_SITES[game] == NULL || GAME_LAYOUTS[game] == NULL
-        || writer() == NULL) {
-        return 0;                         /* nothing to write to: nothing installed */
+        || (writer() == NULL && !vvfp_patcher_file_exists("VVFP Village Solidarity.dll"))) {
+        return 0;                         /* nothing to write to, no score to move: nothing installed */
     }
     sites = GAME_SITES[game];
     for (count = 0; sites[count].entry != 0; ++count) {
@@ -811,6 +864,172 @@ static int install(int game) {
    "The Ants and the Granary ... Age: 694 -> 814" on every villager). */
 int __stdcall VvfpIslandEventOpen(void) {
     return g_depth > 0 && g_watching;
+}
+
+/* ---- A branching Custom Island Event's one entry (see graph_logged_by_story) -------------------------------
+
+   The same comparison, field words and all, over a page's own effects: the records it would write become lines
+   of the one entry, each "  <name>: <Label> <old> -> <new>" (a villager taken away "  <name>: Gone", one who came
+   "  <name>: New villager" and their lines, the village's "  Village: <Label> <old> -> <new>"); the appearance
+   records are written as ever (the Family Tree Maker reads them); "Changes: none" is the entry's to say. */
+
+static struct snapshot g_graph_snap;
+static int g_graph_open;
+static char *g_graph_out;
+static size_t g_graph_cap, g_graph_used;
+static write_village_record_fn g_graph_real_write;
+
+static void graph_put(const char *text) {
+    size_t n = strlen(text);
+    if (g_graph_out != NULL && g_graph_used + n + 1 < g_graph_cap) {
+        memcpy(g_graph_out + g_graph_used, text, n + 1);
+        g_graph_used += n;
+    }
+}
+
+/* Each "  Label: value" line of `lines` as "  <who>: Label value". */
+static void graph_lines(const char *who, const char *lines) {
+    const char *p = lines;
+    char line[1200];
+    while (p != NULL && *p != '\0') {
+        const char *end = strchr(p, '\n');
+        size_t n = end != NULL ? (size_t)(end - p) : strlen(p);
+        const char *s = p;
+        char body[1024];
+        size_t k = 0, i;
+        int joined = 0;
+        while (s < p + n && *s == ' ') {
+            ++s;
+        }
+        for (i = 0; s + i < p + n && k + 1 < sizeof body; ++i) {
+            if (!joined && s[i] == ':' && s + i + 1 < p + n && s[i + 1] == ' ') {
+                joined = 1;            /* "Health: 80 -> 0" -> "Health 80 -> 0" */
+                continue;
+            }
+            body[k++] = s[i];
+        }
+        body[k] = '\0';
+        if (k > 0) {
+            if (strcmp(body, "Gone yes") == 0) {
+                lstrcpynA(body, "Gone", sizeof body);
+            }
+            _snprintf(line, sizeof line, "  %s: %s\n", who, body);
+            line[sizeof line - 1] = '\0';
+            graph_put(line);
+        }
+        p = end != NULL ? end + 1 : NULL;
+    }
+}
+
+static void graph_name(const unsigned char *record, char *out, size_t size) {
+    int k;
+    out[0] = '\0';
+    for (k = 0; k < g_layout->field_count; ++k) {
+        const struct field *f = &g_layout->fields[k];
+        if (f->type == F_TEXT && strcmp(f->label, "Name") == 0) {
+            field_text(f, record, out, size);
+            return;
+        }
+    }
+}
+
+static int __stdcall graph_write(int game, int kind, const void *record, int live, const char *before,
+                                 const char *changes, int arrival) {
+    char name[128];
+    if (kind != KIND_ISLAND_EVENT) {
+        return g_graph_real_write(game, kind, record, live, before, changes, arrival);   /* Appearance changed */
+    }
+    graph_name((const unsigned char *)record, name, sizeof name);
+    if (arrival == 2) {
+        char line[200];
+        _snprintf(line, sizeof line, "  %s: New villager\n", name);
+        line[sizeof line - 1] = '\0';
+        graph_put(line);
+    }
+    graph_lines(name, changes);
+    return 1;
+}
+
+static int __stdcall graph_write_village(int game, const char *text) {
+    const char *village = strstr(text, "  Village:\n");
+    (void)game;
+    if (village != NULL) {
+        graph_lines("Village", village + strlen("  Village:\n"));
+    }
+    return 1;                          /* ("Changes: none" is the entry's own) */
+}
+
+/* Before a branching event's page makes its effects: the village as it is.  1 when taken. */
+int __stdcall VvfpIslandEventsGraphBegin(int game) {
+    if (g_layout == NULL || game != g_game || writer() == NULL) {
+        g_graph_open = 0;
+        return 0;
+    }
+    take(&g_graph_snap);
+    g_graph_snap.title[0] = '\0';
+    g_graph_snap.text[0] = '\0';
+    g_graph_open = 1;
+    return 1;
+}
+
+/* After them: what the page changed, as the entry's lines, into `out` (`cap` bytes); their length. */
+int __stdcall VvfpIslandEventsGraphEnd(int game, char *out, int cap) {
+    write_village_record_fn real;
+    write_village_event_fn real_village;
+    char keep_choice[TITLE_MAX];
+    int keep_wrote = g_more_wrote;
+    unsigned int keep_logged = g_more_logged_answer;
+    unsigned int keep_entry = g_more_entry;
+    if (!g_graph_open || game != g_game || out == NULL || cap <= 1) {
+        return 0;
+    }
+    g_graph_open = 0;
+    out[0] = '\0';
+    g_graph_out = out;
+    g_graph_cap = (size_t)cap;
+    g_graph_used = 0;
+    real = g_write;
+    real_village = village_writer();
+    memcpy(keep_choice, g_choice, sizeof keep_choice);
+    g_graph_real_write = real;
+    g_write = graph_write;
+    g_write_village = graph_write_village;
+    g_choice[0] = '\0';
+    lstrcpynA(g_graph_snap.title, "branching event", sizeof g_graph_snap.title);   /* never the Time Skip's */
+    g_graph_comparing = 1;
+    compare(&g_graph_snap);
+    g_graph_comparing = 0;
+    g_write = real;
+    g_write_village = real_village;
+    memcpy(g_choice, keep_choice, sizeof g_choice);
+    g_more_wrote = keep_wrote;
+    g_more_logged_answer = keep_logged;
+    g_more_entry = keep_entry;
+    g_graph_out = NULL;
+    return (int)g_graph_used;
+}
+
+/* The event's one entry as it is now ("  Event: ...\n  Choice: ...\n" and every change so far), handed to
+   "VVFP Parentage Export.dll" (WriteVillageEventEntry): its held record is replaced each time, and each save writes
+   what it has gained onto the same entry, so the log matches the save at every save.  `key` names the event,
+   `disk` is what the last save's log holds of it (for a run put back after a reload), `final` 1 when it is over.
+   1 when handed over. */
+typedef int (__stdcall *write_event_entry_fn)(int, int, const char *, int, int);
+
+int __stdcall VvfpIslandEventsGraphWrite(int game, int key, const char *text, int disk, int final) {
+    static write_event_entry_fn entry_writer;
+    static int looked;
+    if (g_layout == NULL || game != g_game || text == NULL || text[0] == '\0') {
+        return 0;
+    }
+    if (!looked && entry_writer == NULL) {
+        HMODULE module = vvfp_load_patcher_dll("VVFP Parentage Export.dll");
+        looked = 1;
+        if (module != NULL) {
+            entry_writer = (write_event_entry_fn)(void *)GetProcAddress(module, "WriteVillageEventEntry");
+        }
+    }
+    return entry_writer != NULL && entry_writer(game, key, text, disk, final);
 }
 
 /* Called once by "VVFP Startup.dll" as the game opens. */

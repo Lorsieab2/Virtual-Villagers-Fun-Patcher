@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Somebody Else's News",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon11_somebody_else",
+  "source": "draft_hon",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager accidentally spread a friend's big news before the friend could share it: tell them before tonight, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Yesterday (friend) told (subject) that (friend.he/she) has finally been asked to start learning canoe building from the master builders. It's (friend)'s big news, and (friend.he/she) was planning to tell everyone at the fire tonight. This afternoon, without thinking, (subject) mentioned it to someone. By now, half the village knows.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Tell (friend) Before Tonight",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Say Nothing and Hope",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "At the fire, (friend) stands up to share (friend.his/her) news, and three people call out their congratulations before (friend.he/she) can open (friend.his/her) mouth. (friend) looks across at (subject), who looks at the ground. Later (friend) says only, \"You could have told me.\" (subject) knows (subject.he/she) could have. Things are a little cooler between them for a while.",
+   "src": "L137"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend.him/her). \"I told someone, and it's spread. I'm sorry. It was yours to tell.\" (friend) is quiet for a moment. \"I was looking forward to telling it.\" That evening (friend) tells it anyway, and everyone pretends to be surprised, very badly. It isn't what (friend.he/she) planned. It's still a good evening.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend.him/her). \"I told someone, and it's spread. I'm sorry. It was yours to tell.\" (friend) is quiet for a moment. \"I was looking forward to telling it.\" That evening (friend) tells it anyway, and everyone pretends to be surprised, very badly. It isn't what (friend.he/she) planned. It's still a good evening.",
+   "src": "L134"
+  }
+ }
+}

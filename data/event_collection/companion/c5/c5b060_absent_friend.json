@@ -1,0 +1,80 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Absent Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b060_absent_friend",
+  "source": "companion",
+  "lines": [
+   1660,
+   1665
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1660",
+  "ledger": [
+   {
+    "src": "L1662",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1665",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A villager misses someone who moved to another part of the island.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A villager misses someone who moved to another part of the island.",
+   "src": "L1661",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They plan a visit.",
+   "src": "L1663"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They tell a favorite story about them.",
+   "src": "L1664"
+  }
+ }
+}

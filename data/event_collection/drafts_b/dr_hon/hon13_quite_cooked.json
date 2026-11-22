@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Quite Cooked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon13_quite_cooked",
+  "source": "draft_hon",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L158",
+    "kind": "instruction",
+    "text": "[effect: small health loss for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L158",
+    "kind": "sensitivity",
+    "before": "The healer brings them both",
+    "after": "(healer), a healer, brings them both",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L161",
+    "kind": "instruction",
+    "text": "[effect: small health loss for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager rushed cooking the fish, and now they and a friend have upset stomachs: apologize, or suggest it was the fruit.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) cooked the fish tonight and hurried it, because the light was going. It was very slightly underdone in the middle. By morning, (subject) and (friend) both have upset stomachs. Nothing serious. Just a long, uncomfortable night, and an even longer morning.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Apologize",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Suggest It Was the Fruit",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That was my fish,\" says (subject) weakly, from (subject.his/her) mat. \"I rushed it.\" \"I know,\" says (friend), equally weakly, from (friend.his/her) own. \"I'm not blaming you. I'm just lying here.\" (healer), a healer, brings them both a bitter tea. By evening they're better, and agree that from now on, fish waits for nobody's hurry.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Could have been the fruit,\" says (subject). \"The fruit was fine,\" says (friend). \"Everyone ate the fruit. Only we ate the fish.\" A pause. \"...I rushed it,\" (subject) admits. \"I know,\" says (friend). The next time, (friend) does the cooking, and takes so long about it that everyone is asleep before it's ready.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L161"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L158",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

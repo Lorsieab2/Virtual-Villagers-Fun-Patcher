@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Waiting for an Answer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea46_waiting_answer",
+  "source": "draft_fea",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L551",
+    "kind": "sensitivity",
+    "before": "The healer has looked",
+    "after": "(healer), the healer, has looked",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L557",
+    "kind": "sensitivity",
+    "before": "The healer doesn't know why",
+    "after": "(healer) doesn't know why",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager with a pain in their side must wait and see how it goes: talk about something else, or talk about the worry.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has had a pain in (subject.his/her) side for a few days. (healer), the healer, has looked, and pressed, and asked questions, and said (subject.he/she) needs to wait a few days and see how it goes. It might be nothing. It might not. Waiting is the hardest part. (subject) can't stop thinking about it. (friend) comes to sit with (subject.him/her).",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Talk About Something Else",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Talk About the Worry",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Tell me something completely unimportant,\" says (subject). (friend) tells (subject.him/her) a long story about a lizard that has been stealing (friend.his/her) fruit. It goes on for ages. (subject) laughs, in spite of everything. The worry doesn't go anywhere. But for a while it sits a little further away.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L554"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Tell me something completely unimportant,\" says (subject). (friend) tells (subject.him/her) a long story about a lizard that has been stealing (friend.his/her) fruit. It goes on for ages. (subject) laughs, in spite of everything. The worry doesn't go anywhere. But for a while it sits a little further away.",
+   "src": "L554"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says what (subject.he/she) is afraid of. (friend) listens and doesn't say it'll be fine, because neither of them knows. \"Whatever it is,\" (friend.he/she) says, \"you won't be on your own with it.\" A few days later, the pain fades. (healer) doesn't know why. (subject) doesn't either. (subject.He/she) remembers what (friend) said.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 20,
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) says what (subject.he/she) is afraid of. (friend) listens and doesn't say it'll be fine, because neither of them knows. \"Whatever it is,\" (friend.he/she) says, \"you won't be on your own with it.\" A few days later, the pain fades. (healer) doesn't know why. (subject) doesn't either. (subject.He/she) remembers what (friend) said.",
+   "src": "L557"
+  }
+ }
+}

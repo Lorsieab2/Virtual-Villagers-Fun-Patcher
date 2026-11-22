@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Close Enough to Touch a Whale",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm13_close_enough",
+  "source": "draft_drm",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "Whales pass close to the reef, and a villager who longs to be near one wades in: paddle out gently, or watch from the rocks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every year, a few whales pass along the coast, and every year (subject) watches them from the beach and wishes (subject.he/she) could be close, just once. This morning the whales are passing very near the reef, and (friend) has a canoe on the sand. (subject) is already wading in.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Paddle Out Gently",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Watch from the Rocks",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They paddle out slowly and stop well back, then sit very still. One of the whales rises, close enough to hear it breathe, a long rushing sigh, and looks at them, or seems to. Then it sinks away without a ripple. (subject) doesn't say anything all the way back. (subject.He/she) doesn't need to.",
+   "src": "L158"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stops at the water's edge. \"No,\" (subject.he/she) says. \"Not too close. It's their sea.\" They climb onto the end of the rocks instead and watch the whales pass, closer than (subject) has ever seen them. A spout of mist drifts over them in the breeze. It smells of fish. (subject) has never been happier.",
+   "src": "L161",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L161"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) stops at the water's edge. \"No,\" (subject.he/she) says. \"Not too close. It's their sea.\" They climb onto the end of the rocks instead and watch the whales pass, closer than (subject) has ever seen them. A spout of mist drifts over them in the breeze. It smells of fish. (subject) has never been happier.",
+   "src": "L161"
+  }
+ }
+}

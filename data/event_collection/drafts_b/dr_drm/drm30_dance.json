@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm30_dance",
+  "source": "draft_drm",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager who dances beautifully alone is offered a hand into the festival circle: take the hand, or stay at the edge.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) loves dancing. Alone, in (subject.his/her) hut, (subject.he/she) is a wonderful dancer. At festivals (subject.he/she) stands at the edge and taps one foot and never once goes into the circle. Tonight the drums are going, the circle is full, and (friend) is holding out a hand.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Take the Hand",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Stay at the Edge",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes it. For the first few steps (subject.he/she) is stiff with shyness. Then the drums get into (subject.his/her) feet, and (subject.he/she) forgets to be stiff, and dances, properly, for the first time in front of anyone. Afterwards (subject.he/she) is not sure who that was. (subject.He/she) would like to be that person again.",
+   "src": "L362"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Not tonight,\" says (subject), smiling. \"But thank you.\" (friend) shrugs and dances off. (subject) stays at the edge, tapping (subject.his/her) foot, enjoying the music. Later, alone in (subject.his/her) hut, (subject.he/she) dances every dance (subject.he/she) saw tonight. Nobody sees. That's alright. The dancing is for (subject.him/her).",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L365"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Not tonight,\" says (subject), smiling. \"But thank you.\" (friend) shrugs and dances off. (subject) stays at the edge, tapping (subject.his/her) foot, enjoying the music. Later, alone in (subject.his/her) hut, (subject.he/she) dances every dance (subject.he/she) saw tonight. Nobody sees. That's alright. The dancing is for (subject.him/her).",
+   "src": "L365"
+  }
+ }
+}

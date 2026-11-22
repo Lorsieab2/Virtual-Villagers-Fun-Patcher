@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boy Who Could Not Stop Worrying",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss093_boy_could_stop",
+  "source": "companion",
+  "lines": [
+   7025,
+   7033
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7025",
+  "ledger": [
+   {
+    "src": "L7033",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child keeps asking whether their family will be safe when the rains come.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "sex": "male"
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child repeatedly asks whether their family will be safe when the rains come.",
+   "src": "L7026",
+   "choices": [
+    {
+     "label": "Explain the storm plan",
+     "next": "a",
+     "src": "L7027"
+    },
+    {
+     "label": "Practice a simple preparation task",
+     "next": "b",
+     "src": "L7029"
+    },
+    {
+     "label": "Make time to listen",
+     "next": "c",
+     "src": "L7031"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Knowing where to shelter helps a little.",
+   "src": "L7028",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "adult",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7028"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The child packs supplies and feels involved.",
+   "src": "L7030",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "adult",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7030"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child shares a fear the adults had not noticed.",
+   "src": "L7032",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "adult",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7032"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

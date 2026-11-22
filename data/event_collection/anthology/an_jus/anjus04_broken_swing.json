@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Broken Swing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus04_broken_swing",
+  "source": "anthology",
+  "lines": [
+   30767,
+   30781
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30767",
+  "ledger": [
+   {
+    "src": "L30768",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30771",
+    "kind": "sensitivity",
+    "before": "A bruised child",
+    "after": "(child), a bruised child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30774",
+    "kind": "sensitivity",
+    "before": "A younger witness",
+    "after": "(child), a younger witness,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30775",
+    "kind": "sensitivity",
+    "before": "An older child",
+    "after": "(child), an older child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30780",
+    "kind": "sensitivity",
+    "before": "The reckless player",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A village swing breaks after reckless play, and several children argue over who should answer for it.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A village swing breaks after reckless play, and several children argue over who should answer for it.",
+   "src": "L30769",
+   "choices": [
+    {
+     "label": "Check for Injury First",
+     "next": "a",
+     "src": "L30770"
+    },
+    {
+     "label": "Hear the Different Accounts",
+     "next": "b",
+     "src": "L30773"
+    },
+    {
+     "label": "Repair the Damage Together",
+     "next": "c",
+     "src": "L30776"
+    },
+    {
+     "label": "Decide a Fair Consequence",
+     "next": "d",
+     "src": "L30779"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injury\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30769"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Everyone is unharmed, but the near miss is taken seriously.",
+   "src": "L30772"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child), a younger witness, identifies a frayed rope.",
+   "src": "L30774"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child), an older child, admits ignoring a warning.",
+   "src": "L30775"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Adults handle the dangerous work while children help safely.",
+   "src": "L30777"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The swing remains closed until a proper inspection.",
+   "src": "L30778"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) loses swing privileges temporarily.",
+   "src": "L30780"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The group rejects punishing every child for one person's choice.",
+   "src": "L30781"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(child), a bruised child, is comforted and examined.",
+   "src": "L30771",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": -20,
+     "max": -10,
+     "src": "L30771"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(child), a bruised child, is comforted and examined.",
+   "src": "L30771"
+  }
+ }
+}

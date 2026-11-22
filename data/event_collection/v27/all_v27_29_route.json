@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Route",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_29_route",
+  "source": "v28",
+  "lines": [
+   10713,
+   10719
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10713",
+  "ledger": [
+   {
+    "src": "L10714",
+    "kind": "note",
+    "why": "the cast: ELDERS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10719",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "An elder remembers a path no one has used in decades.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "An elder recalls a path no one has used in decades.",
+   "src": "L10715",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The route is overgrown and unsuitable.",
+   "src": "L10717"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The elder's memory conflicts with records, starting a respectful investigation.",
+   "src": "L10718"
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A supervised party finds a useful shortcut.",
+   "src": "L10716",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L10716"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A supervised party finds a useful shortcut.",
+   "src": "L10716"
+  }
+ }
+}

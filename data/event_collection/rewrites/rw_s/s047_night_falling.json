@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of Falling Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s047_night_falling",
+  "source": "rewrites",
+  "lines": [
+   2224,
+   2269
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L2224",
+  "ledger": [
+   {
+    "src": "L2225",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2226",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2234",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2243",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2231",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2232",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2235",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2244",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2237",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2240",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2246",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2249",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2252-2269",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "For one whole night, the stars fall over the island like rain.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "name3": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For one whole night, the stars fall over the island like rain. Not one or two: hundreds of them, thousands, streaking down the sky in thin silver scratches, so many and so bright that the whole village is lit as if by a pale moon.\nHardly anyone sleeps. Everyone sits out on the beach and the hills with their heads tipped back and their mouths open. The babies stop crying to watch. The children make wishes until they run out of things to wish for, and then start wishing for silly things, and then fall asleep in a heap.\nIn the morning, when the sun comes up, there are little bright stones scattered all along the beach, glinting in the sand, still faintly warm. Should the village gather them up, or leave them where they fell?",
+   "choices": [
+    {
+     "label": "Collect the Star Stones",
+     "next": "c1",
+     "src": "L2231"
+    },
+    {
+     "label": "Leave Them Where They Fell",
+     "next": "c2",
+     "src": "L2232"
+    }
+   ],
+   "src": "L2227-2229"
+  },
+  "c1o1": {
+   "text": "The researchers take the whole basketful to their hut and don't come out for days. They break the stones open, heat them, scratch them, weigh them. Inside, every one of them is full of strange metal, heavy and bright, that bends instead of breaking and doesn't rust in water. Nobody has ever seen anything like it on the island. The researchers study the star stones for months, and come out of it with more questions than answers, which they say is the best kind of discovery. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2238",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When everyone tips their baskets out together, there turn out to be fewer stones than they thought, only enough for three necklaces. The village decides to give them to the three villagers who stayed up the longest, watching every last star fall: (subject), (friend) and (name3). The stones are polished, drilled and strung on plaited cord, and the three of them wear them proudly from then on. On clear nights, for anyone who looks closely, the stones still glimmer, very faintly, like they remember where they came from.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "target": {
+      "random": 3
+     }
+    }
+   ],
+   "src": "L2241",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The whole village goes along the beach with baskets, picking up the stones one by one. They're heavy for their size, dark and pitted, with flecks of something bright inside that catches the light...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2235"
+  },
+  "c2o1": {
+   "text": "Over the next few days, the stones sink slowly down into the sand, a little deeper with every tide, until one morning they're all gone. Nobody digs them up. But something about the beach feels different after that. In a good way. Warmer, somehow. Calmer. People like to sit there in the evenings. Couples walk there. Old people go to think. Nobody can quite say why, and nobody wants to.",
+   "src": "L2247"
+  },
+  "c2o2": {
+   "text": "A big blue crab walks out of the surf, picks up one of the star stones in its claw, and carries it off very purposefully up the beach. A couple of the researchers follow it, out of curiosity. It leads them to a hole under a fallen tree, and disappears inside. When they dig it out, they find the crab's hoard: the star stone, and dozens of old shiny shells, and a whole pile of lost tools that people have been missing for years, including a very good knife, a fishhook made of bone, and somebody's grandfather's carving chisel. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L2250",
+   "text_only": [
+    {
+     "src": "L2250",
+     "what": "\"disappears\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "The elders say the stars came down on their own, and should be left where they chose to land. So nobody touches them. The children are told to walk around them. For days, the beach sparkles...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2244"
+  }
+ }
+}

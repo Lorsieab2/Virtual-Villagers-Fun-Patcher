@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Calm Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea41_calm_place",
+  "source": "draft_hea",
+  "lines": [
+   491,
+   500
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L491",
+  "ledger": [
+   {
+    "src": "L492",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer, spiritual leader or elder)"
+   }
+  ],
+  "description": "A villager learning to picture a calm place finds a goat in it: ignore the goat, or change the place.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is teaching (subject) a way of calming down: close your eyes and picture a place where you feel completely safe and peaceful. Imagine every detail. (subject) closes (subject.his/her) eyes. (subject.He/she) pictures a quiet beach at sunset, warm sand, gentle waves. And a goat. For some reason, there is a goat.",
+   "src": "L494",
+   "choices": [
+    {
+     "label": "Ignore the Goat",
+     "next": "o1",
+     "src": "L496"
+    },
+    {
+     "label": "Change the Place",
+     "next": "o2",
+     "src": "L499"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) opens (subject.his/her) eyes and announces there's a goat. \"Then pick another place,\" says (friend). (subject) pictures the inside of (subject.his/her) family's hut, on a rainy evening, everyone asleep. No goat. It's very calm. Strangely, (subject.he/she) misses the goat a little. (subject.He/she) still uses the hut, though, and it still works, sometimes.",
+   "src": "L500"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tries to get rid of the goat. The goat will not leave. It wanders across the sand. It eats some of the sunset. (subject) starts to giggle. (friend) waits. \"Is it working?\" (friend) asks. \"There's a goat,\" says (subject). \"That's fine,\" says (friend). \"Keep the goat.\" The calm place works quite well from then on. The goat is always there.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L497"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tries to get rid of the goat. The goat will not leave. It wanders across the sand. It eats some of the sunset. (subject) starts to giggle. (friend) waits. \"Is it working?\" (friend) asks. \"There's a goat,\" says (subject). \"That's fine,\" says (friend). \"Keep the goat.\" The calm place works quite well from then on. The goat is always there.",
+   "src": "L497"
+  }
+ }
+}

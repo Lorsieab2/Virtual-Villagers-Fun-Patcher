@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Would (he/she) Tell a Friend?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv18_what_would_tell",
+  "source": "draft_adv",
+  "lines": [
+   206,
+   215
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L206",
+  "ledger": [
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend asks a villager what they would tell a friend with their own problem: answer, or refuse to play along.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is going round and round about whether to tell (subject.his/her) work crew that (subject.he/she) wants a different job. (friend) listens for a while, then says, \"Imagine I came to you with this exact problem. What would you tell me?\"",
+   "src": "L209",
+   "choices": [
+    {
+     "label": "Answer",
+     "next": "o1",
+     "src": "L211"
+    },
+    {
+     "label": "Refuse to Play Along",
+     "next": "o2",
+     "src": "L214"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) thinks about it. \"I'd tell you to say something. Kindly. That you'd rather do something else and it's not their fault.\" (friend) waits. (subject) sighs. \"Alright. Alright, I hear it.\" (subject.He/she) talks to the crew the next day. It goes fine. Not perfect, but fine. Later (subject.he/she) tries the same trick on (friend), who finds it extremely annoying.",
+   "src": "L212"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"That doesn't work on me,\" says (subject). \"I'm much nicer to other people than to myself.\" (friend) laughs. \"Then be nicer to yourself.\" \"I'll think about it,\" says (subject). (subject.He/she) doesn't decide anything that night. But walking home, (subject.he/she) hears (subject.him/her)self thinking, \"I'd tell a friend it's alright to want something different.\" It sticks.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L215"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"That doesn't work on me,\" says (subject). \"I'm much nicer to other people than to myself.\" (friend) laughs. \"Then be nicer to yourself.\" \"I'll think about it,\" says (subject). (subject.He/she) doesn't decide anything that night. But walking home, (subject.he/she) hears (subject.him/her)self thinking, \"I'd tell a friend it's alright to want something different.\" It sticks.",
+   "src": "L215"
+  }
+ }
+}

@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance of Reconciliation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev040_dance",
+  "source": "companion",
+  "lines": [
+   3609,
+   3613
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3609",
+  "ledger": [
+   {
+    "src": "L3613",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "Two families with a long-standing disagreement are paired during a festival dance.",
+  "cast_only": [
+   "villager1",
+   "villager2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "Two families with a long-standing disagreement are paired during a festival dance.",
+   "src": "L3610",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They remain distant but finish the dance respectfully.",
+   "src": "L3612"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They share a tentative laugh.",
+   "src": "L3611",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L3611"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L3611"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They share a tentative laugh.",
+   "src": "L3611"
+  }
+ }
+}

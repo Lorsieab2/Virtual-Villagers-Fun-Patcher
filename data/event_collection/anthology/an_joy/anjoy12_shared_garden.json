@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Garden Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy12_shared_garden",
+  "source": "anthology",
+  "lines": [
+   28848,
+   28861
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28848",
+  "ledger": [],
+  "description": "Neighbors from different settlements tend a garden together.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Neighbors from different settlements tend a garden together.",
+   "src": "L28849",
+   "choices": [
+    {
+     "label": "Exchange Planting Knowledge",
+     "next": "a",
+     "src": "L28850"
+    },
+    {
+     "label": "Work Side by Side",
+     "next": "b",
+     "src": "L28853"
+    },
+    {
+     "label": "Invite Children to Help",
+     "next": "c",
+     "src": "L28856"
+    },
+    {
+     "label": "Celebrate Afterward",
+     "next": "d",
+     "src": "L28859"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28849"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The methods work differently in the garden's soils.",
+   "src": "L28852"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The garden is tidied before sunset.",
+   "src": "L28854"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The workers spend more time chatting than weeding.",
+   "src": "L28855"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children carefully water young plants.",
+   "src": "L28857"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children water the same patch twice and laugh.",
+   "src": "L28858"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A simple meal closes a pleasant day.",
+   "src": "L28860"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The exhausted gardeners prefer to rest quietly.",
+   "src": "L28861"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Each group learns a useful growing method.",
+   "src": "L28851",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L28851"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Each group learns a useful growing method.",
+   "src": "L28851"
+  }
+ }
+}

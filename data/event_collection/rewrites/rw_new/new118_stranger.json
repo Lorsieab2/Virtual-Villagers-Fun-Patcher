@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger's Complaint",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new118_stranger",
+  "source": "rewrites",
+  "lines": [
+   5526,
+   5571
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5526",
+  "ledger": [
+   {
+    "src": "L5527",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5528",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5536",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5543",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5550",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5532",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5533",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5534",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5537",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5544",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5551",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5538",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5540",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5545",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5547",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5552",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5554",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5557-5571",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A visiting trader has paddled in with a canoe full of shells, dyes and carved combs.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "leader": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A visiting trader has paddled in with a canoe full of shells, dyes and carved combs. The children are thrilled. The trader is not.\n\"I mean no offence,\" the trader says, very politely, to (leader), \"but your rule, that outsiders may only trade on the beach and never among the huts, treats people like me unfairly.\" The trader has been polite about it all morning. But the trader has also started packing up, early, and the beautiful dyes are going back into their pots.\nThe village's dyers look stricken. How should (leader) respond?",
+   "choices": [
+    {
+     "label": "Hear the Trader Out",
+     "next": "c1",
+     "src": "L5532"
+    },
+    {
+     "label": "Study the Tide Marks",
+     "next": "c2",
+     "src": "L5533"
+    },
+    {
+     "label": "Open the Edge Huts to Trade",
+     "next": "c3",
+     "src": "L5534"
+    }
+   ],
+   "src": "L5529-5531"
+  },
+  "c1o1": {
+   "text": "The trader explains that the beach floods at high tide. Twice now, the trader has lost a whole pot of costly dye to a sudden wave, and that is a season's work gone. The gathering listens, and several people who thought the trader was just being difficult go quiet. The trader stays one more day, trading from a dry spot above the high-tide line that the villagers clear especially.",
+   "src": "L5539"
+  },
+  "c1o2": {
+   "text": "(subject), who travelled with traders when (subject.he/she) was young, speaks up about how other villages handle it: a special hut for visitors' goods, right at the edge of the village, with a roof and a door. The talk takes a whole new direction. The trader unpacks the dyes again and stays to hear the end of the discussion.",
+   "src": "L5541"
+  },
+  "c1": {
+   "text": "(leader) asks the trader to sit, offers a cup of coconut water, and listens...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5537"
+  },
+  "c2o1": {
+   "text": "The tide marks show that the beach floods badly mostly around the new moon, and hardly at all in between. That useful detail lets the village set proper trading days, when the beach will be safe, and the fishers start using the same knowledge to plan when to pull canoes higher. The trader promises to come back on the right days.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5546",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The trader confides a suspicion: someone in the village kicked over a pot of dye yesterday. But the tracks around the spilled dye are crab tracks, hundreds of tiny ones, and a very blue crab is hiding under the next rock. No one is blamed. The trader laughs until the tears come, and has to sit down.",
+   "src": "L5548"
+  },
+  "c2": {
+   "text": "(leader) walks the beach with the trader, looking at the old lines of seaweed and shell left behind by high tides...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5544"
+  },
+  "c3o1": {
+   "text": "It works well enough to keep, with room for changes. The dyes stay dry, the villagers can browse in the shade, and the trader sells out by evening. \"I'll be back,\" the trader promises, \"and I'll tell the others.\"",
+   "src": "L5553"
+  },
+  "c3o2": {
+   "text": "The stalls crowd the path, children run between them shrieking, and the families who live in the edge huts can't get out of their own doors without buying a comb. By midday they have had enough, and the trial ends. The trader goes back to the beach, a little less annoyed than before, since at least the village tried.",
+   "src": "L5555"
+  },
+  "c3": {
+   "text": "(leader) agrees to try letting traders set up beside the first row of huts, just for this visit...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5551"
+  }
+ }
+}

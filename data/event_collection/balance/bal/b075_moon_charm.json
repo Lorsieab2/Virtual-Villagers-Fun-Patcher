@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon Charm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b075_moon_charm",
+  "source": "balance",
+  "lines": [
+   3386,
+   3427
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3386",
+  "ledger": [
+   {
+    "src": "L3387",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3388",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3395",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3404",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3392",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3393",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3396",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3405",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3398",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3401",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3407",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3410",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3413-3427",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have been hoping for a child for two years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been hoping for a child for two years. The village's wise-woman tells them about an old charm: on the night of the full moon, a couple sits in the moonlight by the lagoon holding a carved wooden fish between them, and asks. It has worked before, she says, sometimes in surprising ways. \"The moon doesn't always listen to who's asking,\" she says. \"Sometimes it listens to who's holding the fish.\"\nThe full moon is tonight. The carved fish is in (subject)'s hands. Should (subject) hold it, or give it to (friend)?",
+   "choices": [
+    {
+     "label": "(subject) Holds the Fish",
+     "next": "c1",
+     "src": "L3392"
+    },
+    {
+     "label": "(friend) Holds the Fish",
+     "next": "c2",
+     "src": "L3393"
+    }
+   ],
+   "src": "L3389-3390"
+  },
+  "c1o1": {
+   "text": "A month later, a baby is expected. (subject) and (friend) take the carved fish back to the wise-woman, who refuses it. \"Keep it,\" she says. \"Hang it over the cradle.\" They do, and the baby grows up reaching for it.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3399",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Nothing changes that month, or the next. The wise-woman shrugs. \"The moon is slow sometimes.\" (subject) and (friend) hang the fish on their wall anyway. They go to the lagoon on every full moon after that, not to ask, just to sit there together. It becomes their favourite night of the month.",
+   "src": "L3402"
+  },
+  "c1": {
+   "text": "They sit by the lagoon with the moon on the water, and (subject) holds the carved fish in both hands, and they ask, quietly, together...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3396"
+  },
+  "c2o1": {
+   "text": "A month later, it's (friend) who is expecting, whatever (friend.his/her) birth sex. \"Who's holding the fish,\" the wise-woman says, unsurprised. And then the healer listens, and listens again: {#babies:one baby|twins|triplets}. \"The moon,\" says the wise-woman, \"was in a generous mood.\"",
+   "effects": [
+    {
+     "do": "pregnant",
+     "role": "friend",
+     "babies": "roll",
+     "any_birth_sex": true
+    }
+   ],
+   "src": "L3408",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing happens for a few months, and they stop thinking about it. Then, on the next full moon after the rains, (subject) realises a baby is expected. \"The moon is slow,\" says the wise-woman, \"but it listens.\" (friend) still has the fish, and won't give it back.",
+   "effects": [
+    {
+     "do": "pregnant",
+     "partner": "friend",
+     "partner_may_carry": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L3411",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) puts the carved fish into (friend)'s hands. \"You ask,\" (subject.he/she) says. They sit together in the moonlight, and (friend) asks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3405"
+  }
+ }
+}

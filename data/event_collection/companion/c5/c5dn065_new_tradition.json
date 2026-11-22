@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Tradition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn065_new_tradition",
+  "source": "companion",
+  "lines": [
+   3265,
+   3271
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3265",
+  "ledger": [
+   {
+    "src": "L3267",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3271",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A family invents a tiny ritual for ordinary Tuesdays.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A family invents a tiny ritual for ordinary Tuesdays.",
+   "src": "L3266",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Other households adopt it.",
+   "src": "L3268"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It remains a private family joke.",
+   "src": "L3269"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Nobody remembers why it began.",
+   "src": "L3270"
+  }
+ }
+}

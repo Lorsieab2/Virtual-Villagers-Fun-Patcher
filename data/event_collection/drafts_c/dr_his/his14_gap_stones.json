@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gap in the Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his14_gap_stones",
+  "source": "draft_his",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-13)"
+   }
+  ],
+  "description": "A child asks about the one gap in the row of remembering stones: share theories, or leave the gap alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Along the path above the beach, there's a row of standing stones, each one set up long ago to remember someone. They're all evenly spaced, except for one gap, exactly the width of one stone, about halfway along. (friend) has always wondered about it. Today (friend.he/she) asks (subject).",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Share Your Theories",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Leave the Gap Alone",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) admits (subject.he/she) doesn't know, but has theories. Someone took a stone away. Someone forgot to put one up. Someone was meant to be remembered, and then turned up alive after all. (friend) loves that one. (friend.He/she) decides that's the true answer and tells everyone. It isn't proven. It isn't disproven either.",
+   "src": "L170"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) wants to put a stone there. (subject) says perhaps someone left it empty on purpose, and they don't know what it was for. They leave it. Walking past, (friend) always steps over the gap carefully, as if it matters. It might. (friend.He/she) decides it does, whatever it means.",
+   "src": "L173"
+  }
+ }
+}

@@ -1,0 +1,280 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Couple Who Grew Apart",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam08_couple_grew",
+  "source": "anthology",
+  "lines": [
+   28405,
+   28418
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28405",
+  "ledger": [
+   {
+    "src": "L28406",
+    "kind": "sensitivity",
+    "before": "Two adult partners realize",
+    "after": "(partner1) and (partner2), two adult partners, realize",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28417",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two adult partners realize their hopes for the future no longer match.",
+  "label_case": "title",
+  "cast_only": [
+   "partner1",
+   "partner2",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(partner1) and (partner2), two adult partners, realize their hopes for the future no longer match.",
+   "src": "L28406",
+   "choices": [
+    {
+     "label": "Discuss What Each Person Wants",
+     "next": "a",
+     "src": "L28407"
+    },
+    {
+     "label": "Try a New Shared Routine",
+     "next": "b",
+     "src": "L28410"
+    },
+    {
+     "label": "Agree to Separate Respectfully",
+     "next": "c",
+     "src": "L28413"
+    },
+    {
+     "label": "Seek Advice from a Trusted Elder",
+     "next": "d",
+     "src": "L28416"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They recognize that affection alone cannot settle the disagreement.",
+   "src": "L28409"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The experiment confirms they want different lives.",
+   "src": "L28412"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One partner needs more time before accepting the separation.",
+   "src": "L28415"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) helps them listen without choosing sides.",
+   "src": "L28417"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The advice feels too traditional, and the couple decides for themselves.",
+   "src": "L28418"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They find one goal they still share and begin again.",
+   "src": "L28408",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L28408"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L28408"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They find one goal they still share and begin again.",
+   "src": "L28408"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A new routine restores some closeness.",
+   "src": "L28411",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L28411"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L28411"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A new routine restores some closeness.",
+   "src": "L28411"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They part sadly without blaming each other.",
+   "src": "L28414",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "bad",
+     "src": "L28414"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "bad",
+     "src": "L28414"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They part sadly without blaming each other.",
+   "src": "L28414"
+  }
+ }
+}

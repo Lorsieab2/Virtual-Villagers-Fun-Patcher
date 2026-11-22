@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt08_wave",
+  "source": "draft_tt",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-12)"
+   }
+  ],
+  "description": "A child hears an adult tell how a knee-high wave was taller than a hut: speak up, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This morning (subject) rode a wave into the beach on a flat piece of driftwood. By lunchtime, as (subject.he/she) tells it to a little crowd, the wave was taller than a hut. (friend), who was sitting on the beach when it happened, has just wandered over to listen. (friend) remembers a wave about as tall as a knee.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Speak Up",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Say Nothing",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It was this big,\" says (friend), holding a hand at knee height. Everyone looks at (subject). \"From where you were sitting,\" says (subject). \"From where I was, it was enormous.\" (friend) thinks about this and decides that's fair. Waves probably do look bigger when you're on them.",
+   "src": "L98"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing and listens. The wave gets bigger. Now there was a second wave, even bigger. (friend) giggles. Afterward (subject) catches (friend.his/her) eye and winks. That afternoon they go down to the beach together, and (subject) teaches (friend) to ride a knee-sized wave, which turns out to be quite exciting enough.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing and listens. The wave gets bigger. Now there was a second wave, even bigger. (friend) giggles. Afterward (subject) catches (friend.his/her) eye and winks. That afternoon they go down to the beach together, and (subject) teaches (friend) to ride a knee-sized wave, which turns out to be quite exciting enough.",
+   "src": "L101"
+  }
+ }
+}

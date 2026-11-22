@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood in the Scroll Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b314_flood_scroll_hut",
+  "source": "balance",
+  "lines": [
+   14550,
+   14591
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14550",
+  "ledger": [
+   {
+    "src": "L14571",
+    "kind": "instruction",
+    "why": "an EFFECT phrase the engine cannot do yet (docs/player-events-format.md 10): kept as story only, the ending shown without it, for the owner's review: 'every elder gains 5 Research'"
+   },
+   {
+    "src": "L14551",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14552",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14559",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14568",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14556",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14557",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14560",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14569",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14562",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14565",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14571",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14574",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14577-14591",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An island event: The Flood in the Scroll Hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "keeper": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The stream behind the scroll hut has burst its banks in the night, and when (subject) comes past at dawn, water is pouring in under the door. Inside are the village's records: every recipe, every building trick, every healing tea, written on bark and leaf by generations of scroll-keepers. (keeper) is still asleep in (subject.his/her) hut on the other side of the village.\nThe water is rising fast. Should (subject) start carrying scrolls out now, alone, or run and wake (keeper), who knows which ones matter most?",
+   "choices": [
+    {
+     "label": "Start Carrying Them Out",
+     "next": "c1",
+     "src": "L14556"
+    },
+    {
+     "label": "Wake (Keeper)",
+     "next": "c2",
+     "src": "L14557"
+    }
+   ],
+   "src": "L14553-14554"
+  },
+  "c1o1": {
+   "text": "(subject) saves a great pile of scrolls, but they turn out to be mostly old lists of who owed whom how many fish. The important ones, on the bottom shelf at the back, are soaked through by the time (keeper) arrives. (keeper) sits up night after night by lamplight, copying out every smeared word (subject.he/she) can still make out and filling the gaps from memory, until the whole record is whole again. It costs (subject.him/her) a month of sleep, and (subject.he/she) is ill for weeks after.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "keeper",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L14563",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) doesn't stop until every scroll is out, carrying the last armful with water up to (subject.his/her) knees. Then, while they dry in the sun, (subject.he/she) starts reading them, because there's nothing else to do while guarding them. By the time (keeper) arrives, (subject) has learned more in one morning than in the rest of (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "skills": [
+      "Research"
+     ],
+     "role": "subject"
+    }
+   ],
+   "src": "L14566",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) wades in up to (subject.his/her) ankles and starts grabbing armfuls of scrolls from the lowest shelves, running them up to the dry ground and back again...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14560"
+  },
+  "c2o1": {
+   "text": "(keeper) goes straight for the bottom shelf at the back and saves the most important scrolls first. Some of the others are lost. But that evening, the elders sit with (keeper) and recite everything they can remember from the lost scrolls, while (keeper) writes it down again. It takes a week. By the end, every elder has had to remember more than they have in years, and they're all a little sharper for it.",
+   "src": "L14572"
+  },
+  "c2o2": {
+   "text": "(keeper) knows exactly which scrolls to grab, in which order, and the two of them save every one that matters. Afterwards (keeper) builds new shelves high up on the walls, and copies out the most important scrolls twice, and hides the copies in a dry cave in the hills. (subject.He/She) has never been so thorough in (subject.his/her) life.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "keeper",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "src": "L14575",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) runs across the village and shakes (keeper) awake. (keeper) comes out at a stumbling run in (subject.his/her) sleeping wrap...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14569"
+  }
+ }
+}

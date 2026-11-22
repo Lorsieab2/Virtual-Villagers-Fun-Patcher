@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unsent Apology",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss056_unsent_apology",
+  "source": "companion",
+  "lines": [
+   6639,
+   6647
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6639",
+  "ledger": [
+   {
+    "src": "L6647",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager has carried an apology for years but cannot bring themselves to speak to an old friend.",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager has carried an apology for years but cannot bring themselves to speak to an old friend.",
+   "src": "L6640",
+   "choices": [
+    {
+     "label": "Write a letter",
+     "next": "a",
+     "src": "L6641"
+    },
+    {
+     "label": "Speak face to face",
+     "next": "b",
+     "src": "L6643"
+    },
+    {
+     "label": "Leave the matter alone",
+     "next": "c",
+     "src": "L6645"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The friend reads it quietly; forgiveness may take time.",
+   "src": "L6642"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The conversation is awkward, honest, and incomplete.",
+   "src": "L6644"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The villager keeps the regret and eventually chooses how to live with it.",
+   "src": "L6646"
+  }
+ }
+}

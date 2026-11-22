@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Oddly Popular Stew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn016_oddly_popular",
+  "source": "companion",
+  "lines": [
+   2804,
+   2810
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2804",
+  "ledger": [
+   {
+    "src": "L2806",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2810",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A cook creates a dish that looks awful but smells wonderful.",
+  "cast_only": [
+   "cook",
+   "researcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A cook creates a dish that looks awful but smells wonderful.",
+   "src": "L2805",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Nobody will admit to liking it.",
+   "src": "L2808"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A researcher demands to know why it tastes so good.",
+   "src": "L2809"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It becomes a surprise favorite.",
+   "src": "L2807",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L2807"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "It becomes a surprise favorite.",
+   "src": "L2807"
+  }
+ }
+}

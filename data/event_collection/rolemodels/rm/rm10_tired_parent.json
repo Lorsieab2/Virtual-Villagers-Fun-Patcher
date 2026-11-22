@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tired Parent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm10_tired_parent",
+  "source": "rolemodels",
+  "lines": [
+   23,
+   23
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "structural",
+    "text": "EVENT RM-10  -  THE TIRED PARENT SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A parent has spent the morning caring for a restless toddler and discovers that the family's cat has overturned its water bowl.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A parent has spent the morning caring for a restless toddler and discovers that the family's cat has overturned its water bowl.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Refill the Bowl Before Resting.",
+     "next": "a",
+     "src": "L23"
+    },
+    {
+     "label": "Ask a Trusted Family Member to Watch the Toddler Briefly.",
+     "next": "b",
+     "src": "L23"
+    },
+    {
+     "label": "Move the Bowl to a More Stable Place.",
+     "next": "c",
+     "src": "L23"
+    },
+    {
+     "label": "Admit Feeling Exhausted and Request a Short Break.",
+     "next": "d",
+     "src": "L23"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The toddler becomes restless again, and the parent asks another adult for help.",
+   "src": "L23"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The parent tends to the cat and returns feeling a little less overwhelmed.",
+   "src": "L23"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The family member is busy, so the parent settles the toddler nearby before helping the cat.",
+   "src": "L23"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The cat drinks without tipping it over again.",
+   "src": "L23"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new location proves inconvenient, and the parent tries a different arrangement.",
+   "src": "L23"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Help is delayed, but the parent makes a simpler plan for the afternoon.",
+   "src": "L23"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cat drinks contentedly while the parent finally sits down.",
+   "src": "L23",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L23"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cat drinks contentedly while the parent finally sits down.",
+   "src": "L23"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Another adult takes over for a while, allowing the parent to recover.",
+   "src": "L23",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L23"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Another adult takes over for a while, allowing the parent to recover.",
+   "src": "L23"
+  }
+ }
+}

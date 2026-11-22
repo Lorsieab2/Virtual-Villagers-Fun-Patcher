@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song for the Dead",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway16_song_dead",
+  "source": "living",
+  "lines": [
+   22944,
+   22958
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22944",
+  "ledger": [
+   {
+    "src": "L22958",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two families disagree whether a funeral should use an ancient chant or a new melody.",
+  "cast_only": [
+   "mourner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "mourner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two families disagree whether a funeral should use an ancient chant or a new melody.",
+   "src": "L22945",
+   "choices": [
+    {
+     "label": "Sing the ancestral chant.",
+     "next": "a",
+     "src": "L22946"
+    },
+    {
+     "label": "Perform the new melody.",
+     "next": "b",
+     "src": "L22949"
+    },
+    {
+     "label": "Combine the songs.",
+     "next": "c",
+     "src": "L22952"
+    },
+    {
+     "label": "Ask the closest mourners to decide.",
+     "next": "d",
+     "src": "L22955"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A younger relative feels the song did not reflect the deceased.",
+   "src": "L22948"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family recognizes the deceased's favorite rhythm.",
+   "src": "L22950"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder feels a valued custom was overlooked.",
+   "src": "L22951"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The ceremony honors both memories and change.",
+   "src": "L22953"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The combined performance feels awkward to some.",
+   "src": "L22954"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their choice is respected.",
+   "src": "L22956"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Other relatives disagree but keep the peace.",
+   "src": "L22957"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The familiar words comfort many mourners.",
+   "src": "L22947",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mourner",
+     "mood": "good",
+     "src": "L22947"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The familiar words comfort many mourners.",
+   "src": "L22947"
+  }
+ }
+}

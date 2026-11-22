@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Something in the Stream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea10_something_stream",
+  "source": "draft_fea",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager is sure there are eels in the bathing stream: ask a friend about eels, or bathe somewhere else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) loves bathing in the stream, except for one thing: (subject.he/she) is certain there are eels in it. (subject.He/she) has never actually seen one. But the water is brown in the deep part, and sometimes something brushes (subject.his/her) leg, and (subject.he/she) jumps clean out of the water. Today (friend) is bathing nearby and watching with interest.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Ask (friend) If There Are Eels",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Bathe Somewhere Else",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides that the stream is the eels' business and finds a rock pool by the beach instead. It's warmer, shallower and perfectly clear. (subject.He/she) can see every pebble on the bottom. A small crab watches (subject.him/her) from a crack. (subject) decides (subject.he/she) can live with a crab.",
+   "src": "L125"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Are there eels in here?\" asks (subject). (friend) thinks. \"Probably. Small ones. They don't bite people.\" (subject) doesn't find this as reassuring as (friend) meant it. (subject.He/she) bathes in the shallow part from then on, where the water is clear, and is much happier. The eels, presumably, are too.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Are there eels in here?\" asks (subject). (friend) thinks. \"Probably. Small ones. They don't bite people.\" (subject) doesn't find this as reassuring as (friend) meant it. (subject.He/she) bathes in the shallow part from then on, where the water is clear, and is much happier. The eels, presumably, are too.",
+   "src": "L122"
+  }
+ }
+}

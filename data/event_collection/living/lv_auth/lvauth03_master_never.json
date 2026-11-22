@@ -1,0 +1,266 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Master Who Never Failed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth03_master_never",
+  "source": "living",
+  "lines": [
+   23363,
+   23377
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23363",
+  "ledger": [
+   {
+    "src": "L23377",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A renowned fisher claims to know the best place to cast nets every season.",
+  "cast_only": [
+   "master",
+   "rookie"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "master": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "rookie": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A renowned fisher claims to know the best place to cast nets every season.",
+   "src": "L23364",
+   "choices": [
+    {
+     "label": "Follow the master's advice.",
+     "next": "a",
+     "src": "L23365"
+    },
+    {
+     "label": "Try the rookie's unfamiliar cove.",
+     "next": "b",
+     "src": "L23368"
+    },
+    {
+     "label": "Split the fleet between locations.",
+     "next": "c",
+     "src": "L23371"
+    },
+    {
+     "label": "Ask the master to explain the evidence.",
+     "next": "d",
+     "src": "L23374"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The catch is abundant and the village celebrates.",
+   "src": "L23366",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L23366"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L23366"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The fish have moved, and the boats return nearly empty.",
+   "src": "L23367"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The cove proves dangerous in shifting tides.",
+   "src": "L23370"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The smaller crews struggle to handle their boats.",
+   "src": "L23373"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The master bristles at questioning and refuses to share.",
+   "src": "L23376"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The rookie finds a healthy shoal.",
+   "src": "L23369",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23369"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The rookie finds a healthy shoal.",
+   "src": "L23369"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The fishers compare their catches and improve future plans.",
+   "src": "L23372",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23372"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The fishers compare their catches and improve future plans.",
+   "src": "L23372"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The master reveals careful observations and teaches the others.",
+   "src": "L23375",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "rookie",
+     "skills": [
+      "Farming"
+     ],
+     "min": 30,
+     "max": 60,
+     "src": "L23375"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The master reveals careful observations and teaches the others.",
+   "src": "L23375"
+  }
+ }
+}

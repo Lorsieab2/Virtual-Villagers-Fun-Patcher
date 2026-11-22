@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wound That Would Not Close",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife10_wound_would",
+  "source": "living",
+  "lines": [
+   20759,
+   20770
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20759",
+  "ledger": [
+   {
+    "src": "L20770",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A fisherman has a deep wound, and the healers disagree about cleaning, closing, and leaving it open."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisherman": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "male"
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisherman has a deep wound, and the healers disagree about cleaning, closing, and leaving it open.",
+   "src": "L20760",
+   "choices": [
+    {
+     "label": "Clean and cover it with fresh dressings.",
+     "next": "a",
+     "src": "L20761"
+    },
+    {
+     "label": "Attempt to close it.",
+     "next": "b",
+     "src": "L20764"
+    },
+    {
+     "label": "Ask a second healer to examine it.",
+     "next": "c",
+     "src": "L20767"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The wound slowly heals with repeated care.",
+   "src": "L20762",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "fisherman",
+     "min": 10,
+     "max": 30,
+     "src": "L20762"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The wound worsens, and the healer suspects infection.",
+   "src": "L20763",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "fisherman",
+     "min": -30,
+     "max": -10,
+     "src": "L20763"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The edges hold, and the patient recovers gradually.",
+   "src": "L20765",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "fisherman",
+     "min": 10,
+     "max": 30,
+     "src": "L20765"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The closed wound becomes swollen, requiring urgent reassessment.",
+   "src": "L20766",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "fisherman",
+     "min": -30,
+     "max": -10,
+     "src": "L20766"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healers agree on a cautious plan and share what they learn.",
+   "src": "L20768",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20768"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their disagreement unsettles the patient, who requests a clear explanation.",
+   "src": "L20769"
+  }
+ }
+}

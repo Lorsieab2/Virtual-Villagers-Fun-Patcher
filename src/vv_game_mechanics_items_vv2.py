@@ -91,10 +91,15 @@ TECHNOLOGIES = (
         ("Something appears on the ground 6% of each 2-second check instead of 5% (about 33 real-life seconds' "
          "wait instead of 40; real time, at every speed, paused too); 35% of them are mushrooms instead of 50%; a "
          "collectible is rare 6% of the time instead of 4% (uncommon 12%). Exact odds under Chances.", C),
-        # 0x42F6F2 (a drop at Exploration >= 2 places a picture 30% of the time while +0x2E8A8 and +0x2E8A4 are 0),
-        # 0x419C20, 0x41C7D4, 0x424AA9, callbacks 42/43 (+0x2E8A8 set, +0x2E8A4 + 1).
-        ("Level 2 also opens something the game keeps two values for (a flag and a count) that a drop at level 2 "
-         "can start 30% of the time; what it is was not traced.", U),
+        # The cauldron: 0x419C20 registers map place 71 at Exploration >= 2 while +0x2E8A8 (found) and +0x2E8A4 (on
+        # its way) are 0, and place 72 (The Cutting Tool's first spot) while +0x2E7A0 is 0; the hover 0x42AFED says
+        # string 155 " sees something.".  The drop 0x42FDE3 -> 0x458810 ("Retrieving a cauldron", string 254;
+        # callbacks 43 +0x2E8A4 + 1, then 42 +0x2E8A8 = 1).  The pot's drop 0x42FE78 does nothing until +0x2E8A8 is
+        # set.  0x42F6F2..0x42F793: rand(100) < 30 sparkles (particle type 4, sparklestrip2.png) at both spots.
+        ("Level 2 also lets your villagers find the cauldron for stews: while it is not found, a spot appears where "
+         "a villager \"sees something.\", sparkling now and then; any villager dropped there goes \"Retrieving a "
+         "cauldron\" and brings it back, and only then can stews be cooked (The Stew). The first spot for The "
+         "Cutting Tool also appears only from level 2.", C),
     )),
     Entry(TECH, "Exploration level 3", (
         (_buy("Exploration", 3), C),
@@ -196,14 +201,23 @@ TECHNOLOGIES = (
         # 3 x Culture (0x425850) sends the adult to 0x45F1B0.
         ("Culture activities: at 4,000 food or more, when an adult's leisure pick starts nothing, a roll of 0 to 99 "
          "at most 3 x Culture sends it to a culture activity: 7% at level 2 (4% at level 1, 10% at level 3).", C),
-        ("A culture activity starts one of: Honoring the Dead (Day of Honor), Reflecting, Admiring the ancient "
-         "mosaic (once The Ancient Mosaic is solved), Admiring the ancient gong encasement (once The Overgrown Gong "
-         "Piece is solved), Enjoying the pond, Rain dancing or a long circle dance; the picks' own odds and "
-         "conditions were not each traced.", U),
-        # 0x426180 kind 7 (Culture >= 2 and Science >= 2): read at 0x419B16 with the Sewing Hut's progress +0x2E78C,
-        # and by the drop at 0x42FF5D (-> 0x45F410, work spot 0x14).
-        ("With Science level 2 as well, it opens a place the game draws beside the Sewing Hut's progress and a drop "
-         "there starts work; that this is the Sewing Hut's site was not proven.", U),
+        # The culture pick 0x45F1B0: rand(100) <= 50 returns 0 (the caller 0x461AC7 then goes on as if the culture
+        # roll had failed); else rand(6), table 0x45F2F4: 0 Reflecting 0x4523A0, or with a grave (0x426160, the 50
+        # graves +0x2EB80) 0x454890 Honoring the Dead / Reflecting at rand(100) < 50; 1 0x457AA0 only with +0x2E7B8;
+        # 2 0x459710 only with +0x2E7E0; 3 0x45CB40(1) Enjoying the pond; 4 0x455A20 Rain dancing and 5 0x4530E0
+        # the circle dance, each skipped by a dislike of word 0x28 (dancing, 0x4454E0).  A skipped pick starts
+        # nothing that time.
+        ("A culture activity is then rolled again: 51 times in 100 nothing comes of it and the adult's leisure goes "
+         "on as if there had been no culture roll; otherwise one of six, each 1 in 6: Reflecting (while the village "
+         "has a grave, Honoring the Dead or Reflecting, 1 in 2 each); Admiring the ancient mosaic (only once The "
+         "Ancient Mosaic is solved); Admiring the ancient gong encasement (only once The Overgrown Gong Piece is "
+         "solved); Enjoying the pond; Rain dancing; a long dance in a circle (the two dances not for a villager who "
+         "dislikes dancing). A pick that cannot happen starts nothing that time.", C),
+        # 0x426180 kind 7 (Culture >= 2 and Science >= 2): 0x419B16 registers map place 59, the Sewing Hut's
+        # building site, while that holds or once its progress +0x2E78C is above 0; the drop on place 59 (0x430305)
+        # starts "Building a sewing hut" 0x457130 (7).
+        ("With Science level 2 as well, the sewing hut's building site appears: a villager dropped on it starts "
+         "\"Building a sewing hut\" (The Sewing Hut).", C),
     )),
     Entry(TECH, "Culture level 3", (
         (_buy("Culture", 3), C),
@@ -216,10 +230,14 @@ TECHNOLOGIES = (
 
 PUZZLE_ENTRIES = (
     Entry(PUZZLE, "Fire", (
-        # Gathering dry grass 0x457FB0 and firewood 0x4581D0 count toward it; callback 2 (0x462558) lights the fire,
-        # sets its end (Fast / Normal / Slow) and the Fire flag +0x2E768 the first time.
-        ("Solved the first time the fire is lit: villagers gather dry grass and firewood into the pit (each counts "
-         "toward it) and then light it.", U),
+        # Gathering dry grass 0x457FB0 (callback 64: +0x30458 = 1) and firewood 0x4581D0 (callback 65: +0x30459 =
+        # 1); the pit's drop 0x42FCBA: no wood -> string 40, no grass -> string 42, burning -> nothing, a dislike of
+        # fire (word 0x32) -> runs away, else "Starting a fire" 0x458390; callback 2 (0x462558) clears both, lights
+        # the fire, sets its end (Fast / Normal / Slow) and the Fire flag +0x2E768.
+        ("Solved the first time the fire is lit: drop a villager on the dry grass (\"Gathering dry grass\") and one "
+         "on the dry wood (\"Gathering firewood\") to put both in the pit, then one on the pit (\"Starting a "
+         "fire\"); lighting uses both up. Without wood the pit says \"There is no firewood here.\", without grass "
+         "\"Some dry grass would help the fire ignite.\"; a villager who dislikes fire runs away instead.", C),
         ("Reward: a fire that burns 10, 20 or 40 real-life hours when lit on Fast, Normal or Slow (a later speed "
          "change rescales what is left; a pause pushes it on; it burns down while the game is closed); fuel on a "
          "burning fire "
@@ -260,13 +278,28 @@ PUZZLE_ENTRIES = (
          "refuses). The first understanding of each plant gives that villager 5 Healing.", C),
         ("Reward: every cure also gives 10 to 29 health (each amount 1 in 20), up to 100.", E),
         ("With the patcher (Easier Healing Mastery, on by default): healers with no patient study plants on their "
-         "own, catch-up included (14% for a villager not checked on Healing). With Healers Study Plants Regardless "
+         "own, catch-up included (75% of those times for a villager checked on Healing, 14% for one not checked "
+         "on Healing). With Healers Study Plants Regardless "
          "of Food (on by default): a studying villager carries on at 300 food or more, 50% of the time.", C),
+        # The continuation 0x460590 picks rand(4) among herbs 1, 2, 5 and 6 (0x4606A1; VVFP Herb Study.dll: rand(6)).
+        ("In the original game a villager carrying on with plant study never studies the third or fourth herb "
+         "again. With the patcher (Fix Vanilla Bugs): all six can be studied again, each a Healing practice roll.",
+         C),
+        ("With the patcher (Villagers Work Their Own Job First): once Herb Mastery is solved, a healer with nothing "
+         "else to do studies one of the six plants on their own, about three times in four (never one who "
+         "dislikes herbs).", C),
     )),
     Entry(PUZZLE, "The Sewing Hut", (
         # Callback 7 (0x46305D): 400 (0x190) sets +0x2E790, +1 a trip.
         ("Solved by building the sewing hut: 400 progress (1 a successful trip, also while catching up).", C),
-        ("Reward: what the sewing hut changes in play was not traced.", U),
+        # The drop on the finished hut (place 14, 0x43034C): 5,000 tech points or more -> the question string 821
+        # (0x42EAD7), yes -> "Getting new clothes!" 0x45CEB0, whose callback 69 (0x461C1B) takes the 5,000 at the hut
+        # (below 5,000 then: string 146) and opens the clothes window 0x4229D0 (left and right arrows); below 5,000
+        # at the drop: string 146.  Nothing else reads +0x2E790 in play.
+        ("Reward: a villager dropped on the sewing hut can get new clothes for 5,000 tech points: the game asks "
+         "\"Do you want to spend 5000 tech points to change this villager's clothes?\", the villager walks to the "
+         "hut (\"Getting new clothes!\"), the points are taken when it gets there, and a window with arrows opens "
+         "to pick its new clothes. Below 5,000: \"Not enough tech points to make new clothes!\"", C),
     )),
     Entry(PUZZLE, "The Dam", (
         # Callback 8 (0x464168): 425 (0x1A9) sets +0x2E798, the crops to 0 and the next regrowth to now + speed x
@@ -280,7 +313,15 @@ PUZZLE_ENTRIES = (
     )),
     Entry(PUZZLE, "The Cutting Tool", (
         # Callback 9 (0x461F69) sets +0x2E7A0; "Creating cutting tools" 0x458440 / 0x4585B0.
-        ("Solved by \"Creating cutting tools\"; what starts it was not traced.", U),
+        # Place 72 (registered at Exploration >= 2 while unsolved, 0x419C6A): the drop 0x42FD90 -> Research +0x7F4
+        # >= 88 -> 0x458440 (callback 9 sets the progress +0x2E79C to 1, then string 168), below -> string 44; with
+        # the progress set -> string 168.  Place 32 (the flexible wood, hover string 167): the drop 0x43004C with
+        # the progress set and the held villager's Research >= 88 -> 0x4585B0, whose callback 9 sets +0x2E7A0.
+        ("Solved in two drops, from Exploration level 2: a spot appears where a villager \"sees something.\"; a "
+         "villager with Research 88 or more dropped there goes \"Creating cutting tools\" and the game says "
+         "\"Special wood is needed to finish the tool.\" (below 88: \"Maybe a skilled scientist would understand "
+         "these.\"). Then a villager with Research 88 or more dropped on the flexible pieces of wood goes "
+         "\"Creating cutting tools\" again and finishes it.", C),
         ("Reward: builders can cut away the briar thorns (The Overgrown Gong Piece) at Engineering 2.", C),
     )),
     Entry(PUZZLE, "The Stew", (
@@ -292,7 +333,11 @@ PUZZLE_ENTRIES = (
         # Callback 11 (0x463FFF): 1,000 sets +0x2E7B0.
         ("Solved by removing the vines: 1,000 progress (2 a successful trip, 3 at Building 88 or more; 1 or 2 while "
          "catching up). Needs Engineering 3 and Culture 3.", C),
-        ("Reward: what lies behind the vine wall was not traced.", U),
+        # The wall's drop 0x42FF31 once +0x2E7B0 is set: 0x459A50 ("Reading the writings on the wall", string 270)
+        # and the pop-up 0x1BF (447, "The Ancient Writings").  Play reads +0x2E7B0 nowhere else (0x42C03F is the
+        # hover, 0x426222 the all-puzzles check).
+        ("Reward: the writing behind the vines can be read: a villager dropped on the wall goes \"Reading the "
+         "writings on the wall\" and the game shows \"The Ancient Writings\", the story of the Gong of Wonder.", C),
     )),
     Entry(PUZZLE, "The Ancient Mosaic", (
         # Callback 12 (0x462960): 5,000 (0x1388) sets +0x2E7B8; +1 a trip, +1 more at Building 88, the same while
@@ -302,15 +347,35 @@ PUZZLE_ENTRIES = (
         ("Reward: villagers admire the mosaic (and it is one of the culture activities).", C),
     )),
     Entry(PUZZLE, "The Boxed Gong Piece", (
-        ("Solved by finding the boxed piece of the gong; how it is found was not traced.", U),
+        # Place 22 (the crate, until +0x2E7D0 is set, 0x419A8B): the drop 0x42FD3B -> Building +0x7E8 >= 88 ->
+        # 0x454730 "Trying to open the crate" (string 848; a fourth gets string 849), else string 851; its callback
+        # 15 (0x461C74) opens the crate (+0x2E7D0) when 3 or more living villagers over 280 age units are at it,
+        # else string 850.  Place 74 (the open crate): the drop 0x42FD64 -> 0x451040 (callbacks 70, then 13 sets
+        # +0x2E7C0).
+        ("Solved by opening the washed-up crate: three villagers over 14 with Building 88 or more, each dropped on "
+         "it (\"Trying to open the crate\"), must be at it at the same time -- fewer: \"It is too hard to do "
+         "alone\"; a fourth: \"There is no more room to help out\"; below Building 88: \"Maybe a trained builder "
+         "would be strong enough...\". Then a villager dropped on the open crate goes \"Retrieving a piece of the "
+         "gong\" and brings it back.", C),
         ("Reward: one of the four pieces of the Gong of Wonder (Gong of Wonder).", C),
     )),
     Entry(PUZZLE, "The Sunken Gong Piece", (
-        ("Solved by finding the sunken piece of the gong; how it is found was not traced.", U),
+        # The pond's drop 0x430012: +0x2E7C8 not set and the villager kept by stew 5 (+0x3045C) -> 0x450D50
+        # "Retrieving something from the pond" (a dislike of swimming, word 0x25, -> runs away; callbacks 67, then
+        # 14 sets +0x2E7C8).  It also needs +0x2E970 clear, a saved byte no code of the game writes.
+        ("Solved with the breathing stew (stew 5, Stews): the last villager to eat it, dropped on the pond while "
+         "the piece is still down there, goes \"Retrieving something from the pond\" and brings it up; one who "
+         "dislikes swimming runs away instead.", C),
         ("Reward: one of the four pieces of the Gong of Wonder.", C),
     )),
     Entry(PUZZLE, "The Inlaid Gong Piece", (
-        ("Solved by finding the inlaid piece of the gong; how it is found was not traced.", U),
+        # Place 66 (0x41A175: The Ancient Mosaic solved, the piece not, +0x2E7D4 not 2) takes only a totem (+0x558,
+        # 0x42FB45): 0x430382 sets +0x2E7D4 = 1 with sparkles; then a villager's drop there -> 0x451210 (callbacks
+        # 68 +0x2E7D4 = 2, then 16 sets +0x2E7D8).  The patcher's totems DLL (native/vvfp_vv2_totems) does the same
+        # for its own totems (drop(), terrain 0x42).
+        ("Solved once The Ancient Mosaic is restored: drag an Esteemed Elder's totem onto the mosaic, which "
+         "uncovers the piece; then a villager dropped there goes \"Retrieving a piece of the gong\" and brings it "
+         "back.", C),
         ("Reward: one of the four pieces of the Gong of Wonder.", C),
     )),
     Entry(PUZZLE, "The Overgrown Gong Piece", (
@@ -377,8 +442,9 @@ STEW_EFFECTS = (
     "2: the eater falls sick.",
     "3: the eater's sickness is cured.",
     "4: -1 health (never below 3), and the eater stops what it was doing.",
-    # 5: the eater is kept at +0x3045C, read by two drop routines.
-    "5: the game remembers who ate it (two drop actions read it); what that changes was not traced.",
+    # 5: the eater is kept at +0x3045C, read by the water drops 0x42FC92 and 0x430029 (-> 0x450D50).
+    "5: the breathing stew: the game remembers the last villager to eat it, who can then dive for The Sunken Gong "
+    "Piece (dropped on the pond while the piece is still down there).",
     "6: the eater goes \"Exercising\" (Building practice).",
     "7: the eater goes \"Relaxing\".",
     "8: \"Nature is calling!\"",
@@ -394,6 +460,12 @@ STEW_EFFECTS = (
     "17: +50 to +99 health, up to 100, and sickness cured.",
     "18: -15 to -39 health, never below 3.",
 )
+
+def _stew_mixes(number: int) -> str:
+    """The herb mixes that make stew `number` (src/vv_stew_recipes.py), "A + B + C; ..."."""
+    import vv_stew_recipes as stews
+    return "; ".join(" + ".join(stews.VV2_HERBS[herb][0] for herb in mix) for mix in stews.VV2_RECIPES[number])
+
 
 ITEMS = (
     Entry(ITEM, "Mushrooms", (
@@ -411,6 +483,10 @@ ITEMS = (
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a mushroom counts "
          "the moment the child picks it up -- its food and Mushrooms Found, once -- even if the child is moved or "
          "stops before the food bin (in the normal game it counts only at the end of the trip).", C),
+        # The adult dispatcher's case 0x42FCAB (call 0x42FCAE, data/builds.json vv2_adult_confused).
+        ("With the patcher (Adults Dropped on Mushrooms or Collectibles Are Confused, on by default): a villager of "
+         "14 or more dropped on a mushroom is Confused and the message bar says \"Only children can see and pick up "
+         "mushrooms.\" (in the normal game: \"Only children can see collectibles.\").", C),
     )),
     Entry(ITEM, "Collectibles", (
         ("Four collections of 12 pieces (4 common, 4 uncommon, 4 rare): butterflies and shells always, pebbles once "
@@ -422,6 +498,10 @@ ITEMS = (
         ("With the patcher (Picked Up Collectibles Stay Collected When Dropped, off by default): a piece counts the "
          "moment the child picks it up, with its messages, once, even if the child is moved or stops on the way.",
          C),
+        # The adult dispatcher's case 0x42FCAB (call 0x42FCAE, data/builds.json vv2_adult_confused).
+        ("With the patcher (Adults Dropped on Mushrooms or Collectibles Are Confused, on by default): a villager of "
+         "14 or more dropped on a collectible is Confused and the message bar says \"Only children can see and pick "
+         "up collectibles.\" (the normal game's own message is \"Only children can see collectibles.\").", C),
     )),
     # Each collection, its own entry as on The Tree of Life's and New Believers' tabs (the owner, 2026-10-27).  The pieces:
     # one found byte each at state 0x2E720 + piece, 12 a collection in the order 0, 12, 24, 36 (0x426120); the
@@ -449,13 +529,24 @@ ITEMS = (
     )),
     Entry(ITEM, "Stews", (
         ("Cooked in the pot from water, food and herbs; ready the moment it is made and kept 15 real-life minutes "
-         "(real time, the same at every speed, paused too; Other). Every villager who eats from it in that time "
+         "(real time, the same at every speed; in the base game paused time counts too, Fix Vanilla Bugs "
+         "pauses it; Other). Every villager who eats from it in that time "
          "gets its effect, once, at the moment it eats.", E),
         ("Adding food to the stew uses food; there are 18 stews, each told apart only by what it does.", C),
         # 0x461040, table 0x461510.
         ("What each stew does, by the game's stew number (one line each below):", C),
         *((f"Stew {effect}", C) for effect in STEW_EFFECTS),
-        ("Which ingredients make which stew number was not traced.", U),
+        # Every one of the 56 three-herb mixes run through the cook routine 0x425B90 in the emulator
+        # (src/vv_stew_recipes.py VV2_RECIPES, tests/test_game_mechanics_stews.py); stew 1 is its fall-through.
+        ("Which 3 herbs make each stew, in any order (the herbs named by their flowers' colour, as in the "
+         "patcher's Stew Recipes window; every mix not listed makes stew 1):", E),
+        *((f"Stew {number}: {_stew_mixes(number)}.", E) for number in range(2, 19)),
+        # data/builds.json vv2_empty_stew_pot ("VVFP VV2 Empty Stew.dll"): the drop 0x430AF9, the pot's own empty
+        # 0x425B20 at the end of the walk; the stew's 10 food left at callback 46 (0x46236C).
+        ("With the patcher (Empty the Stew Pot from the Science Hut Door, on by default): a villager of 14 or more "
+         "dropped on the science hut's doorway while a ready stew is in the pot walks to the pot and empties it "
+         "(\"Emptying the pot\"); a villager who dislikes cooking runs away instead, and a stew still being made "
+         "is left alone. No food is lost or given back: the stew's 10 food was used when the food went in.", C),
     )),
     Entry(ITEM, "A snack (the food store)", (
         ("A villager below 100 health with food in store snacks: 1 food, +1 health 50% of the time (Chances: A "
@@ -510,21 +601,27 @@ ORIGINS = (
                   "still takes a place)."), C),
     )),
     Entry(PATCHER, "Origins: Tech Point Doubler and Food Point Doubler", (
-        (_origins("Tech Point Doubler / Food Point Doubler", 500_000, "Tech screen's Upgrades", "doubles the tech "
-                  "points or food the village earns; island events, pieces of a collection found again and the "
-                  "Gong of Wonder are not doubled."), C),
+        (_origins("Tech Point Doubler / Food Point Doubler", 500_000, "Tech screen's Upgrades", "the Tech Point "
+                  "Doubler doubles the tech points research earns (with the fire's extra point) and pieces of a "
+                  "collection found again; the Food Point Doubler doubles the food gathered from food sources "
+                  "(coconuts, crops, fish, the big catch and mushrooms). Island events, the Gong of Wonder, the Sack "
+                  "and Vial, purchases and cheats are not doubled."), C),
     )),
     Entry(PATCHER, "Origins: Full Heal / Cure All", (
+        # data/vv2_origins_feature.json, the Cure apply at 0x9A5CC: every record in use, alive and not a totem:
+        # health below 100 -> 100; sick (+0x53C) -> cured and People Cured (+0x2E508) + 1.
         (_origins("Full Heal / Cure All", 30_000, "Tech screen's Upgrades", "cures every sick villager and sets every "
-                  "living villager to full health (100)."), U),
+                  "living villager to full health (100); each villager cured counts in People Cured."), C),
     )),
+    # native/vv2_origins_icons/vv2_origins_icons.c: ApplyVV2RunningToAll (likes capped at 3, VV2_LIKE_CAP),
+    # ApplyVV2MasteryToAll, ApplyVV2AgeToAll (+0x530 = 360), ApplyVV2Collections; each living, non-totem record.
     Entry(PATCHER, "Origins: village-wide rows", (
         (_origins("Grant Running to All Villagers / Grant Full Mastery to All Villagers / All Villagers are Exactly "
-                  "18", 1_000_000, "Tech screen's Upgrades", "each once: running added as a like to every villager "
-                  "with a free like slot (a running dislike removed); every villager's five skills set to 100; "
-                  "every villager's age set to 18 years."), U),
+                  "18", 1_000_000, "Tech screen's Upgrades", "each once: running added as a like to every living "
+                  "villager with fewer than 3 likes (a running dislike removed from every one); every villager's five "
+                  "skills set to 100; every villager's age set to 18 years."), C),
         (_origins("Complete All Collections / Reset All Collections", 1_000_000, "Tech screen's Upgrades", "marks "
-                  "all 48 pieces found, or none.", sub=True), U),
+                  "all 48 pieces found, or none.", sub=True), C),
         (_origins("Equal Division of Labor (Includes Parenting) / (No Parenting)", 1_000_000, "Tech screen's "
                   "Upgrades", "splits the village evenly across the jobs, men and women balanced in each, each "
                   "villager to the job of its most-progressed skill while that job has room.", sub=True), C),
@@ -536,15 +633,18 @@ ORIGINS = (
         (_origins("Change Appearance for All", 450_000, "Tech screen's Upgrades", "sets the head, body or Heathen "
                   "mask (Blue, Orange, Red, Purple or Chief) of every villager at once.", sub=True), C),
     )),
+    # data/vv2_origins_feature.json, the Details apply at 0x94A00: Youth +0x530 - 700, at least 100; Mastery
+    # +0x7E4..+0x7F4 = 100; Running word 38 into the first free like slot, then every running dislike cleared;
+    # Age 18 +0x530 = 360.
     Entry(PATCHER, "Origins: Villager Details rows", (
         (_origins("Grant Youth", 50_000, "Villager Details screen", "makes the villager shown 35 years younger (700 "
-                  "age units), never under 5 years."), U),
+                  "age units), never under 5 years."), C),
         (_origins("Grant Full Mastery", 100_000, "Villager Details screen", "sets the villager's five skills to "
-                  "100.", sub=True), U),
-        (_origins("Grant Running", 40_000, "Villager Details screen", "adds running to the villager's likes.",
-                  sub=True), U),
+                  "100.", sub=True), C),
+        (_origins("Grant Running", 40_000, "Villager Details screen", "adds running to the villager's likes and "
+                  "removes a running dislike.", sub=True), C),
         (_origins("Set Age to 18", 50_000, "Villager Details screen", "sets the villager's age to 18 years.",
-                  sub=True), U),
+                  sub=True), C),
         (_origins("Change Appearance", 5_000, "Villager Details screen", "picks the villager's head, body or Heathen "
                   "mask.", sub=True), C),
     )),

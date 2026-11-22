@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reef's Red Branch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss017_reef_red_branch",
+  "source": "companion",
+  "lines": [
+   6237,
+   6245
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6237",
+  "ledger": [
+   {
+    "src": "L6245",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A red coral colony would make magnificent beads, but taking it may destroy years of growth.",
+  "cast_only": [
+   "jeweler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A red coral colony would make magnificent beads, but removing it may destroy years of growth.",
+   "src": "L6238",
+   "choices": [
+    {
+     "label": "Gather only detached fragments",
+     "next": "a",
+     "src": "L6239"
+    },
+    {
+     "label": "Use carved red stone",
+     "next": "b",
+     "src": "L6241"
+    },
+    {
+     "label": "Leave the design unfinished",
+     "next": "c",
+     "src": "L6243"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The pieces are too small for the planned necklace; the jeweler makes delicate earrings instead.",
+   "src": "L6240"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The necklace succeeds, though mining the stone creates another resource dilemma.",
+   "src": "L6242"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The artisan learns to value restraint and later teaches reef ecology to apprentices.",
+   "src": "L6244"
+  }
+ }
+}

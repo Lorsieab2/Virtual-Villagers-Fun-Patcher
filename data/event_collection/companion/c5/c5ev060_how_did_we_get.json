@@ -1,0 +1,358 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How Did We Get Here?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev060_how_did_we_get",
+  "source": "companion",
+  "lines": [
+   3690,
+   3742
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3690",
+  "ledger": [
+   {
+    "src": "L3693",
+    "kind": "note",
+    "text": "These are remembered stories, hypotheses and legends,",
+    "why": "the designer's framing of the accounts, never shown"
+   },
+   {
+    "src": "L3694-3695",
+    "kind": "note",
+    "why": "the designer's rule: show only this game's accounts"
+   },
+   {
+    "src": "L3697",
+    "kind": "structural",
+    "why": "the game heading: the accounts shown in VV1"
+   },
+   {
+    "src": "L3703",
+    "kind": "structural",
+    "why": "the game heading: the accounts shown in VV2"
+   },
+   {
+    "src": "L3710",
+    "kind": "structural",
+    "why": "the game heading: the accounts shown in VV3"
+   },
+   {
+    "src": "L3716",
+    "kind": "structural",
+    "why": "the game heading: the accounts shown in VV4"
+   },
+   {
+    "src": "L3722",
+    "kind": "structural",
+    "why": "the game heading: the accounts shown in VV5"
+   },
+   {
+    "src": "L3714",
+    "kind": "note",
+    "why": "a designer note on The Secret City's tribes, never shown"
+   },
+   {
+    "src": "L3728",
+    "kind": "structural",
+    "why": "the player options' heading"
+   },
+   {
+    "src": "L3733",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3740-3742",
+    "kind": "note",
+    "why": "IMPLEMENTATION: a designer note, never shown"
+   }
+  ],
+  "description": "A child asks where the tribe came from: hear another version, search for evidence, or accept the unknown.",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "origin",
+ "nodes": {
+  "origin": {
+   "type": "branch",
+   "name": "This game's accounts",
+   "children": [
+    {
+     "next": "q1",
+     "if": {
+      "game": [
+       1
+      ]
+     }
+    },
+    {
+     "next": "q2",
+     "if": {
+      "game": [
+       2
+      ]
+     }
+    },
+    {
+     "next": "q3",
+     "if": {
+      "game": [
+       3
+      ]
+     }
+    },
+    {
+     "next": "q4",
+     "if": {
+      "game": [
+       4
+      ]
+     }
+    },
+    {
+     "next": "q5",
+     "if": {
+      "game": [
+       5
+      ]
+     }
+    }
+   ]
+  },
+  "q1": {
+   "type": "question",
+   "name": "Where did we come from?",
+   "text": "A child asks an elder, \"Where did our people come from?\" Several adults give different accounts.\nSome say a volcanic explosion forced our ancestors to flee their old home. Their vessels were swept away, and the survivors washed ashore here.\nAnother elder says the sea itself guided the boats toward safety.\nA skeptical historian says the story may combine several migrations.",
+   "src": "L3692-3693,L3698-3699,L3700,L3701",
+   "choices": [
+    {
+     "label": "Ask an elder to tell another version.",
+     "next": "outcome",
+     "src": "L3729"
+    },
+    {
+     "label": "Search for records or physical evidence.",
+     "next": "outcome",
+     "src": "L3730"
+    },
+    {
+     "label": "Accept that some questions may remain unanswered.",
+     "next": "outcome",
+     "src": "L3731"
+    }
+   ]
+  },
+  "q2": {
+   "type": "question",
+   "name": "Where did we come from?",
+   "text": "A child asks an elder, \"Where did our people come from?\" Several adults give different accounts.\nThe story says two villagers fell down a waterfall and met the other founders, who may or may not have been children.\nSome insist the founders were already living here before the fall.\nAnother version says the waterfall was remembered as an entrance, not the whole story of how the settlement began.",
+   "src": "L3692-3693,L3704-3705,L3706,L3707-3708",
+   "choices": [
+    {
+     "label": "Ask an elder to tell another version.",
+     "next": "outcome",
+     "src": "L3729"
+    },
+    {
+     "label": "Search for records or physical evidence.",
+     "next": "outcome",
+     "src": "L3730"
+    },
+    {
+     "label": "Accept that some questions may remain unanswered.",
+     "next": "outcome",
+     "src": "L3731"
+    }
+   ]
+  },
+  "q3": {
+   "type": "question",
+   "name": "Where did we come from?",
+   "text": "A child asks an elder, \"Where did our people come from?\" Several adults give different accounts.\nOur ancestors may have become lost while seeking the Southern Shore.\nOthers say they deliberately came north to expand the population.\nA third tradition claims they followed signs left by earlier inhabitants.",
+   "src": "L3692-3693,L3711,L3712,L3713",
+   "choices": [
+    {
+     "label": "Ask an elder to tell another version.",
+     "next": "outcome",
+     "src": "L3729"
+    },
+    {
+     "label": "Search for records or physical evidence.",
+     "next": "outcome",
+     "src": "L3730"
+    },
+    {
+     "label": "Accept that some questions may remain unanswered.",
+     "next": "outcome",
+     "src": "L3731"
+    }
+   ]
+  },
+  "q4": {
+   "type": "question",
+   "name": "Where did we come from?",
+   "text": "A child asks an elder, \"Where did our people come from?\" Several adults give different accounts.\nSupposedly {@chief} noticed troubling ecological, magical or spiritual signs of collapse and instructed our ancestors to travel here.\nAnother version says they became lost and found this place by chance.\nSome say a mysterious force guided them to the Tree.",
+   "src": "L3692-3693,L3717-3718,L3719,L3720",
+   "choices": [
+    {
+     "label": "Ask an elder to tell another version.",
+     "next": "outcome",
+     "src": "L3729"
+    },
+    {
+     "label": "Search for records or physical evidence.",
+     "next": "outcome",
+     "src": "L3730"
+    },
+    {
+     "label": "Accept that some questions may remain unanswered.",
+     "next": "outcome",
+     "src": "L3731"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "signs of collapse",
+     "reason": "a legend of the ancestors' old home; no building collapses",
+     "src": "L3717-3718"
+    }
+   ]
+  },
+  "q5": {
+   "type": "question",
+   "name": "Where did we come from?",
+   "text": "A child asks an elder, \"Where did our people come from?\" Several adults give different accounts.\nPerhaps our ancestors were captured and brought here.\nPerhaps they discovered the place by accident.\nPerhaps someone among the Heathens invited or warned them to come.\nSome say the settlement was already divided before anyone arrived.",
+   "src": "L3692-3693,L3723,L3724,L3725,L3726",
+   "choices": [
+    {
+     "label": "Ask an elder to tell another version.",
+     "next": "outcome",
+     "src": "L3729"
+    },
+    {
+     "label": "Search for records or physical evidence.",
+     "next": "outcome",
+     "src": "L3730"
+    },
+    {
+     "label": "Accept that some questions may remain unanswered.",
+     "next": "outcome",
+     "src": "L3731"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A child asks an elder, \"Where did our people come from?\" Several adults give different accounts.\nPerhaps our ancestors were captured and brought here.\nPerhaps they discovered the place by accident.\nPerhaps someone among the Isolans invited or warned them to come.\nSome say the settlement was already divided before anyone arrived."
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    },
+    {
+     "next": "o4"
+    },
+    {
+     "next": "o5"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "The child learns that history can contain uncertainty and disagreement.",
+   "src": "L3734"
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "A researcher gains a modest History/Research experience increment.",
+   "src": "L3735",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3735"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A storyteller records a new variant for later retelling.",
+   "src": "L3736"
+  },
+  "o4": {
+   "name": "Outcome 4",
+   "text": "The village develops a respectful disagreement with no forced resolution.",
+   "src": "L3737"
+  },
+  "o5": {
+   "name": "Outcome 5",
+   "text": "A previously recorded family account gains a new detail.",
+   "src": "L3738"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "words": {
+  "chief": {
+   "3": "the Chief",
+   "*": "the village leader"
+  }
+ }
+}

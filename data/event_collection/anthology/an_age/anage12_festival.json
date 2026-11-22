@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Without Adults",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage12_festival",
+  "source": "anthology",
+  "lines": [
+   30301,
+   30315
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30301",
+  "ledger": [
+   {
+    "src": "L30302",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30308",
+    "kind": "sensitivity",
+    "before": "A quiet teen",
+    "after": "(teen), a quiet teen,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30309",
+    "kind": "sensitivity",
+    "before": "The first coordinator",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30315",
+    "kind": "sensitivity",
+    "before": "A disappointed organizer",
+    "after": "(teen), a disappointed organizer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Teenagers want to organize one evening of music and games without adults directing every detail.",
+  "label_case": "title",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Teenagers want to organize one evening of music and games without adults directing every detail.",
+   "src": "L30303",
+   "choices": [
+    {
+     "label": "Give Them a Defined Budget and Safety Boundaries",
+     "next": "a",
+     "src": "L30304"
+    },
+    {
+     "label": "Choose Teen Coordinators",
+     "next": "b",
+     "src": "L30307"
+    },
+    {
+     "label": "Invite Neighboring Teens",
+     "next": "c",
+     "src": "L30310"
+    },
+    {
+     "label": "Hold a Review the Next Morning",
+     "next": "d",
+     "src": "L30313"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They underestimate the work and ask adults for help without losing ownership.",
+   "src": "L30306"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(teen), a quiet teen, proves an excellent organizer.",
+   "src": "L30308"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(teen) struggles to delegate and learns to share responsibilities.",
+   "src": "L30309"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gathering sparks new friendships across tribes.",
+   "src": "L30311"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Different customs cause awkwardness, and the teens negotiate a shared game.",
+   "src": "L30312"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The group celebrates what went well and plans improvements.",
+   "src": "L30314",
+   "text_only": [
+    {
+     "what": "\"celebrates\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30314"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen), a disappointed organizer, admits the night felt less magical than expected, and friends reassure them that effort still mattered.",
+   "src": "L30315"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The teens organize a lively gathering and proudly clean up afterward.",
+   "src": "L30305",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L30305"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The teens organize a lively gathering and proudly clean up afterward.",
+   "src": "L30305"
+  }
+ }
+}

@@ -1,0 +1,170 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dream of the Dead Grandmother",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns27_dream_dead",
+  "source": "living",
+  "lines": [
+   22518,
+   22529
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22518",
+  "ledger": [
+   {
+    "src": "L22529",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager dreams of a deceased grandmother offering advice.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager dreams of a deceased grandmother offering advice.",
+   "src": "L22519",
+   "choices": [
+    {
+     "label": "Treat the dream as meaningful to the villager.",
+     "next": "a",
+     "src": "L22520"
+    },
+    {
+     "label": "Seek an ordinary explanation.",
+     "next": "b",
+     "src": "L22523"
+    },
+    {
+     "label": "Record the dream without interpreting it.",
+     "next": "c",
+     "src": "L22526"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a deceased grandmother",
+     "reason": "a death long past: the premise",
+     "src": "L22519"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villager fears forgetting the grandmother's voice.",
+   "src": "L22522"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A friend suggests memories can return vividly in sleep.",
+   "src": "L22524"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villager feels the explanation misses what mattered emotionally.",
+   "src": "L22525"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family preserves a tender story.",
+   "src": "L22527"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Later relatives disagree about whether it was a visitation.",
+   "src": "L22528"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The dream brings comfort and renewed courage.",
+   "src": "L22521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L22521"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The dream brings comfort and renewed courage.",
+   "src": "L22521"
+  }
+ }
+}

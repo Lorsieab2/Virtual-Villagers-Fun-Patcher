@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dreaming Hammock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b163_dreaming_hammock",
+  "source": "balance",
+  "lines": [
+   7526,
+   7570
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7526",
+  "ledger": [
+   {
+    "src": "L7527",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7528",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7536",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7545",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7533",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7534",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7537",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7546",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7539",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7542",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7554-7570",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Between two palms on the beach hangs a hammock that nobody remembers putting up.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Between two palms on the beach hangs a hammock that nobody remembers putting up. It is woven from a grass that doesn't grow on the island, and whoever sleeps in it dreams of being somebody else. Usually, by morning, they are themselves again. Usually.\n(subject) is old enough to have aching knees and young enough to resent them. (friend) is young enough to think (friend.he/she) knows everything. They have been bickering all week, and this afternoon (friend) dares (subject) to sleep in the dreaming hammock. (subject) dares (friend) right back. Now they are standing at either end, glaring.\nShould they both climb in, or should one of them back down?",
+   "choices": [
+    {
+     "label": "Both Climb In",
+     "next": "c1",
+     "src": "L7533"
+    },
+    {
+     "label": "(subject) Backs Down",
+     "next": "c2",
+     "src": "L7534"
+    }
+   ],
+   "src": "L7529-7531"
+  },
+  "c1o1": {
+   "text": "They both dream of being each other, and in the morning they still are. (subject) wakes up in (friend)'s young body, and jumps out of the hammock without a single creak. (friend) wakes up in (subject)'s, and can't get out of the hammock at all. \"Your KNEES,\" (friend) wails, in (subject)'s voice. \"You never said it was this bad.\" The hammock is gone by noon.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L7540",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They both dream of being each other, and wake up, thankfully, as themselves. Mostly. (subject)'s face has kept a little of (friend)'s youth: smooth cheeks, bright eyes, not a line on it. \"You stole my face,\" says (friend), outraged. \"Only the outside,\" says (subject), delighted. \"You can keep the knees.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L7543",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The hammock is just big enough for two, if they lie head to foot. It sways. The grass smells of hay and something sweet. Within moments, to their own surprise, they are both asleep...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7537"
+  },
+  "c2o1": {
+   "text": "(friend) dreams all night of being (subject): the aching knees, the long memories, the people (subject) has lost. In the morning (friend) climbs out of the hammock very quietly and goes and sits beside (subject) at breakfast, and doesn't say anything clever at all. After that (friend) is a lot more patient, and stops complaining about one of the things (friend.he/she) used to dislike.",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "dislike": "random",
+     "remove": true
+    }
+   ],
+   "src": "L7549",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "In the morning the hammock is empty and swaying gently, though there is no wind. (friend) is gone. There are no footprints in the sand. (subject) sits by the hammock all day, waiting. At sunset, very faintly, (subject) hears (friend)'s voice laughing somewhere, as if from inside a dream, and the hammock untwists itself from the palms and blows away down the beach.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L7552",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) looks at the hammock, looks at (friend), and laughs. \"I'm too old for dares,\" (subject.he/she) says. (friend) climbs in alone, looking very pleased with (friend.himself/herself), and falls asleep almost at once...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7546"
+  }
+ }
+}

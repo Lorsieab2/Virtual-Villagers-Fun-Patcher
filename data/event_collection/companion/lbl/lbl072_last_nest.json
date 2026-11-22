@@ -1,0 +1,127 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Nest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl072_last_nest",
+  "source": "companion",
+  "lines": [
+   4740,
+   4750
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4740",
+  "ledger": [
+   {
+    "src": "L4741",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4749",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4750",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Builders find a nest in a tree marked for cutting.",
+  "cast_only": [
+   "builder1",
+   "builder2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "builder1": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "builder2": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Builders find a nest in a tree marked for cutting.",
+   "src": "L4742",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4743"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4744"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4745"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "They delay work until the animals leave.",
+   "src": "L4746"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "They choose a different tree.",
+   "src": "L4747"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A disagreement leads to a new habitat-protection policy.",
+   "src": "L4748"
+  }
+ }
+}

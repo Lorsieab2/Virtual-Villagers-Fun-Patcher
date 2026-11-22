@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Splashing in the Stream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim153_splashing",
+  "source": "draft_tim2",
+  "lines": [
+   198,
+   203
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L198",
+  "ledger": [
+   {
+    "src": "L199",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L200",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L201",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L202",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L203",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two friends splash each other while washing in the stream.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two friends splash each other while washing in the stream. The splashing turns into a contest that nobody wins.",
+   "src": "L199,L200"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two friends splash each other while washing in the stream. A passing elder gets splashed by accident and splashes back.",
+   "src": "L199,L201"
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Two friends splash each other while washing in the stream. A startled frog leaps between them, and both shriek.",
+   "src": "L199,L203"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "Two friends splash each other while washing in the stream. They come out soaked and laughing, cleaner than they have been in days.",
+   "src": "L199,L202",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L199,L202"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "Two friends splash each other while washing in the stream. They come out soaked and laughing, cleaner than they have been in days.",
+   "src": "L199,L202"
+  }
+ }
+}

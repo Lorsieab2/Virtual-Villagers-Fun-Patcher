@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Boat That Never Came",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns02_boat_never",
+  "source": "living",
+  "lines": [
+   22193,
+   22204
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22193",
+  "ledger": [
+   {
+    "src": "L22204",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An unfamiliar sail is reported far beyond the reef, but disappears before anyone else sees it.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An unfamiliar sail is reported far beyond the reef, but disappears before anyone else sees it.",
+   "src": "L22194",
+   "choices": [
+    {
+     "label": "Watch the horizon.",
+     "next": "a",
+     "src": "L22195"
+    },
+    {
+     "label": "Prepare defenses discreetly.",
+     "next": "b",
+     "src": "L22198"
+    },
+    {
+     "label": "Offer a symbolic welcome.",
+     "next": "c",
+     "src": "L22201"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "disappears",
+     "reason": "the sail, not a villager",
+     "src": "L22194"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The lookout sees only clouds for many days.",
+   "src": "L22196"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Another distant shape appears, equally impossible to identify.",
+   "src": "L22197"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villagers feel safer, though no threat arrives.",
+   "src": "L22199"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A fisher worries that suspicion is changing the village.",
+   "src": "L22200"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A lantern burns on the shore without receiving an answer.",
+   "src": "L22202"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A storm extinguishes the lantern, and the story grows in retelling.",
+   "src": "L22203"
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Bowl",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c001_second_bowl",
+  "source": "companion",
+  "lines": [
+   2041,
+   2050
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2041",
+  "ledger": [
+   {
+    "src": "L2044",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2046",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2050",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "A cook sets out two bowls before remembering that only one person is coming to supper.",
+  "cast_only": [
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A cook sets out two bowls before remembering that only one person is coming to supper.",
+   "src": "L2042",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The extra bowl stays on the table until dusk.",
+   "src": "L2047"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A neighbor quietly joins the cook.",
+   "src": "L2048",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L2048"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A neighbor quietly joins the cook.",
+   "src": "L2048"
+  }
+ }
+}

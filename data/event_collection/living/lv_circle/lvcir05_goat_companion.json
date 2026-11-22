@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Goat and the Companion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir05_goat_companion",
+  "source": "living",
+  "lines": [
+   21296,
+   21307
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21296",
+  "ledger": [
+   {
+    "src": "L21307",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A family has raised a gentle goat for years, but a shortage of food brings disagreement.",
+  "cast_only": [
+   "parent",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family has raised a gentle goat for years, but a shortage of food brings disagreement.",
+   "src": "L21297",
+   "choices": [
+    {
+     "label": "Keep the goat as a companion.",
+     "next": "a",
+     "src": "L21298"
+    },
+    {
+     "label": "Treat the goat as livestock.",
+     "next": "b",
+     "src": "L21301"
+    },
+    {
+     "label": "Ask another household to care for it.",
+     "next": "c",
+     "src": "L21304"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a shortage of food",
+     "reason": "the premise: the shortage already exists; nothing is lost now",
+     "src": "L21297"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The family shares their own rations and the goat remains with them.",
+   "src": "L21299"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Neighbors question whether affection should determine which animals are spared.",
+   "src": "L21300"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family offers thanks, but one child refuses to join the meal.",
+   "src": "L21302"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The decision feeds the village and leaves the family grieving.",
+   "src": "L21303",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21303"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The goat finds a new home, though the child misses it.",
+   "src": "L21305"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The receiving family struggles to provide enough fodder.",
+   "src": "L21306"
+  }
+ }
+}

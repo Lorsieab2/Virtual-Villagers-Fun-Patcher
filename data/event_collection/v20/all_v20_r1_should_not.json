@@ -1,0 +1,1023 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thing That Should Not Exist",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_r1_should_not",
+  "source": "v28",
+  "lines": [
+   9206,
+   9250
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L9206",
+  "ledger": [
+   {
+    "src": "L9341",
+    "kind": "note",
+    "why": "designer options ('may') for the VV5 variant"
+   },
+   {
+    "src": "L9215",
+    "kind": "instruction",
+    "text": "Add to buried-relic pool.",
+    "why": "a text_only reason on a2 (rule 9)"
+   },
+   {
+    "src": "L9244",
+    "kind": "instruction",
+    "text": "Add to buried-relic pool for later generations.",
+    "why": "a text_only reason on d1 (rule 9)"
+   },
+   {
+    "src": "L9234",
+    "kind": "instruction",
+    "text": "Large Tech reward;",
+    "why": "the large tech effect on c1"
+   },
+   {
+    "src": "L9333",
+    "kind": "structural",
+    "text": "VV1:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9334",
+    "kind": "structural",
+    "text": "VV2:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9335",
+    "kind": "structural",
+    "text": "VV3:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9337",
+    "kind": "structural",
+    "text": "VV4:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9339",
+    "kind": "structural",
+    "text": "VV5:",
+    "why": "per-game label"
+   },
+   {
+    "src": "L9339",
+    "kind": "note",
+    "text": "Heathens/",
+    "why": "the author's alternative name; VV5 narrative says Isolans (L4505-4507)"
+   },
+   {
+    "src": "L9340",
+    "kind": "note",
+    "text": "An Isolan elder may reveal old knowledge, be accused",
+    "why": "designer options ('may')"
+   },
+   {
+    "src": "L9351",
+    "kind": "instruction",
+    "text": "Exceptionally rarely,",
+    "why": "P8 is exceptionally rare: weight 1 against 20"
+   },
+   {
+    "src": "L9212",
+    "kind": "structural",
+    "text": "The Shattered Mystery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9214",
+    "kind": "structural",
+    "text": "The Thing That Would Not Break:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9216",
+    "kind": "structural",
+    "text": "The Destruction That Saved Them:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9219",
+    "kind": "structural",
+    "text": "The Accidental Discovery:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9223",
+    "kind": "structural",
+    "text": "The Impossible Tool:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9225",
+    "kind": "structural",
+    "text": "The Voice from Nowhere:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9227",
+    "kind": "structural",
+    "text": "The Hero of the Village:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9229",
+    "kind": "structural",
+    "text": "The Catastrophic Misunderstanding:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9233",
+    "kind": "structural",
+    "text": "The Scholar's Triumph:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9235",
+    "kind": "structural",
+    "text": "The Great Scholarly Embarrassment:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9237",
+    "kind": "structural",
+    "text": "The Forbidden Question:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9239",
+    "kind": "structural",
+    "text": "The Accused Discoverer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9243",
+    "kind": "structural",
+    "text": "Forgotten Beneath the Earth:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9245",
+    "kind": "structural",
+    "text": "The Second Discoverer:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9247",
+    "kind": "structural",
+    "text": "The Accusation:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9249",
+    "kind": "structural",
+    "text": "The Relic That Returned:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9344",
+    "kind": "structural",
+    "text": "Reluctant Hero:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9345",
+    "kind": "structural",
+    "text": "Disgraced Scholar:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9347",
+    "kind": "structural",
+    "text": "False Prophet:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9348",
+    "kind": "structural",
+    "text": "Inventor's Curse:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9349",
+    "kind": "structural",
+    "text": "Secret Society:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   },
+   {
+    "src": "L9350",
+    "kind": "structural",
+    "text": "The Great Panic:",
+    "why": "subroute heading removed (the owner, 2026-11-14: one event title, no subroute headings)"
+   }
+  ],
+  "shared_lines": [
+   "L9333-9341",
+   "L9344-9352"
+  ],
+  "description": "A villager digs up a strange object nobody understands, and the village decides what to do with it."
+ },
+ "roles": {
+  "finder": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "second": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The beginning",
+   "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}",
+   "src": "L9207-9209",
+   "choices": [
+    {
+     "label": "DESTROY IT",
+     "next": "set_a",
+     "src": "L9211"
+    },
+    {
+     "label": "TRY TO USE IT",
+     "next": "set_b",
+     "src": "L9222"
+    },
+    {
+     "label": "GIVE IT TO THE RESEARCHERS",
+     "next": "set_c",
+     "src": "L9232"
+    },
+    {
+     "label": "BURY IT",
+     "next": "set_d",
+     "src": "L9242"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "all": [
+       {
+        "game": [
+         1
+        ]
+       },
+       {
+        "special_present": "golden_child"
+       }
+      ]
+     },
+     "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nThe Golden Child inexplicably recognizes a function no adult knows.",
+     "src": "L9207-9209,L9333"
+    },
+    {
+     "if": {
+      "game": [
+       2
+      ]
+     },
+     "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nOne Lost Child recognizes a detail from a half-remembered past.",
+     "src": "L9207-9209,L9334"
+    },
+    {
+     "if": {
+      "game": [
+       3
+      ]
+     },
+     "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nThe Tribal Chief weighs suppression against inquiry; scholars, magicians, and naturalists disagree over what the object means.",
+     "src": "L9207-9209,L9335-9336"
+    },
+    {
+     "if": {
+      "game": [
+       4
+      ]
+     },
+     "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nAn artifact among the Tree of Life's roots sparks concern that outsiders have disturbed a sacred place.",
+     "src": "L9207-9209,L9337-9338"
+    },
+    {
+     "if": {
+      "game": [
+       5
+      ]
+     },
+     "text": "(Finder) finds a peculiar object under the soil. It has precise edges, unfamiliar materials, and no purpose anyone can identify. One elder calls it a gift; another fears strangers have reached Isola.\n{v20_relics}\nVillagers and Isolans accuse one another of concealing artifacts.",
+     "src": "L9207-9209,L9339-9340"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "text": "The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
+   "src": "L9212-9213",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9212-9213"
+    },
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "bad",
+     "src": "L9212-9213"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "text": "The object is smashed. Researchers lament the lost evidence; (Finder) is blamed for bringing it.",
+   "src": "L9212-9213",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L9212-9213"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "text": "It survives repeated blows and is buried amid fearful rumors.",
+   "src": "L9214-9215",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9215",
+     "what": "Add to buried-relic pool",
+     "reason": "rule 9: the buried-relic pool is a state kept across events; no game keeps it"
+    }
+   ]
+  },
+  "a3": {
+   "text": "An unpleasant odor or startling reaction sends the villagers away; nobody agrees whether the attempt prevented danger or created it.",
+   "src": "L9216-9218",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "a4": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "a4__fx"
+    },
+    {
+     "next": "a4__text"
+    }
+   ]
+  },
+  "a4__fx": {
+   "text": "A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
+   "src": "L9219-9220",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9219-9220"
+    },
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "good",
+     "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9219-9220"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4__text": {
+   "text": "A useful component inspires a new island-made tool. (Finder) is suddenly praised as an inventor.",
+   "src": "L9219-9220",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9219-9220"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9219-9220"
+    }
+   ],
+   "auto_text": true
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    },
+    {
+     "next": "a3"
+    },
+    {
+     "next": "a4"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "text": "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
+   "src": "L9223-9224",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9223-9224"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials.",
+   "src": "L9223-9224",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "skill",
+     "role": "finder",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L9223-9224"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L9223-9224"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "text": "The object speaks or makes a strange noise; some villagers flee, others pray, and panic spreads.",
+   "src": "L9225-9226",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b3": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b3__fx"
+    },
+    {
+     "next": "b3__text"
+    }
+   ]
+  },
+  "b3__fx": {
+   "text": "(Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
+   "src": "L9227-9228",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "good",
+     "src": "L9227-9228"
+    }
+   ],
+   "auto_text": true
+  },
+  "b3__text": {
+   "text": "(Finder) uses it to solve a problem without understanding how it works. Public acclaim follows.",
+   "src": "L9227-9228",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "b4": {
+   "text": "A ceremony accidentally activates the object, igniting a theological dispute.",
+   "src": "L9229-9230",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    },
+    {
+     "next": "b3"
+    },
+    {
+     "next": "b4"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c1__fx": {
+   "text": "Its construction inspires several practical discoveries. (Finder) is honored.",
+   "src": "L9233-9234",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9234"
+    },
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "good",
+     "src": "L9233-9234"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "text": "Its construction inspires several practical discoveries. (Finder) is honored.",
+   "src": "L9233-9234",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L9234"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "text": "Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
+   "src": "L9235-9236",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9235-9236"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "text": "Masters confidently identify it as a ceremonial relic until a child finds its actual use.",
+   "src": "L9235-9236",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "c3": {
+   "text": "Scholars propose that distant people possess far greater technology; elders demand silence.",
+   "src": "L9237-9238",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9238",
+     "what": "technology",
+     "reason": "narrative: 'technology' is part of the story, not a change the event makes"
+    }
+   ]
+  },
+  "c4": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c4__fx"
+    },
+    {
+     "next": "c4__text"
+    }
+   ]
+  },
+  "c4__fx": {
+   "text": "Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
+   "src": "L9239-9240",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "finder",
+     "mood": "bad",
+     "src": "L9239-9240"
+    }
+   ],
+   "auto_text": true
+  },
+  "c4__text": {
+   "text": "Unfamiliar markings lead villagers to accuse (Finder) of communicating with outsiders.",
+   "src": "L9239-9240",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    },
+    {
+     "next": "c3"
+    },
+    {
+     "next": "c4"
+    }
+   ]
+  },
+  "d1": {
+   "text": "The object passes into legend.",
+   "src": "L9243-9244",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9244",
+     "what": "Add to buried-relic pool",
+     "reason": "rule 9: the buried-relic pool is a state kept across events; no game keeps it"
+    }
+   ]
+  },
+  "d2": {
+   "text": "(Second) digs it up years later; an elderly witness cries, \"That thing again?!\"",
+   "src": "L9245-9246",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d3": {
+   "text": "A witness reports the burial as suspicious. (Finder) must explain (finder.his/her) actions to the elders.",
+   "src": "L9247-9248",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "d4": {
+   "text": "The object reappears near the huts; nobody admits moving it. Was it sabotage, chance, or a curse?",
+   "src": "L9249-9250",
+   "children": [
+    {
+     "next": "coda"
+    }
+   ]
+  },
+  "set_d": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    },
+    {
+     "next": "d3"
+    },
+    {
+     "next": "d4"
+    }
+   ]
+  },
+  "coda_p1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "coda_p1__fx"
+    },
+    {
+     "next": "coda_p1__text"
+    }
+   ]
+  },
+  "coda_p1__fx": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A destroyer accidentally discovers a useful tool.",
+   "src": "L9344",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L9344"
+    }
+   ],
+   "auto_text": true
+  },
+  "coda_p1__text": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A destroyer accidentally discovers a useful tool.",
+   "src": "L9344"
+  },
+  "coda_p2": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A confident expert misidentifies the relic.",
+   "src": "L9345"
+  },
+  "coda_p4": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A claimant of divine authority is exposed.",
+   "src": "L9347"
+  },
+  "coda_p5": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Reproducing a mechanism leads to sorcery accusations.",
+   "src": "L9348"
+  },
+  "coda_p6": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Researchers meet privately to study the objects.",
+   "src": "L9349"
+  },
+  "coda_p7": {
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Rumors disrupt work and empty the village stores.",
+   "src": "L9350",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "loss": true,
+     "src": "L9350"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L9350",
+     "what": "empty the village stores",
+     "reason": "a large food loss, never below zero"
+    }
+   ],
+   "auto_text": true
+  },
+  "coda": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "pick_own"
+    },
+    {
+     "next": "no_coda"
+    }
+   ]
+  },
+  "pick_own": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "coda_p1",
+     "if": {
+      "visited": "a4"
+     }
+    },
+    {
+     "next": "coda_p2",
+     "if": {
+      "visited": "c2"
+     }
+    },
+    {
+     "next": "coda_p4",
+     "if": {
+      "visited": "b4"
+     }
+    },
+    {
+     "next": "coda_p5",
+     "if": {
+      "visited": "b1"
+     }
+    },
+    {
+     "next": "coda_p6",
+     "if": {
+      "visited": "c3"
+     }
+    },
+    {
+     "next": "coda_p7",
+     "if": {
+      "visited": "b2"
+     }
+    }
+   ],
+   "else": "no_coda"
+  },
+  "no_coda": {
+   "type": "branch"
+  }
+ },
+ "include_pools": [
+  "v20_relics"
+ ],
+ "requirement": {
+  "min_eligible": 2
+ }
+}

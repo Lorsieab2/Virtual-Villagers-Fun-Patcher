@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Vine That Covers Everything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat11_vine_covers",
+  "source": "draft_nat",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A pretty purple-flowered vine is climbing over everything at the forest edge: pull it out, or find a use for it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Nobody is sure when the vine arrived. Some say its seeds came in on a piece of wood after a storm; others say it was always here and just got busy. It has heart-shaped leaves and pretty purple flowers, and it is climbing over everything at the forest edge: bushes, young trees, an old fence, and very nearly a sleeping pig. Under it, other plants are going yellow.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Pull It Out",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Find a Use for It",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) spend a long, hot, scratchy day ripping the vine out by the roots. It's satisfying work. They pile it high and burn it. Three weeks later, little heart-shaped leaves are poking up all over the cleared ground. \"Oh, come ON,\" says (friend). Pulling it out, it turns out, is a job for every season, not for one day.",
+   "src": "L134"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) notices the goats love it. (friend) discovers the stems make strong, if lumpy, rope. They start cutting it back for goat food and rope instead of trying to kill it. It doesn't go away. It doesn't spread quite as fast. Some days it feels like a useful plant. Some days it feels like an invasion. It may be both.",
+   "src": "L137",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L137"
+    }
+   ],
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) notices the goats love it. (friend) discovers the stems make strong, if lumpy, rope. They start cutting it back for goat food and rope instead of trying to kill it. It doesn't go away. It doesn't spread quite as fast. Some days it feels like a useful plant. Some days it feels like an invasion. It may be both.",
+   "src": "L137",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L137"
+    }
+   ]
+  }
+ }
+}

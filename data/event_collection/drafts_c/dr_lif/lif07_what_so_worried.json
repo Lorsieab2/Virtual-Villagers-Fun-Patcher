@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What (name1) Was So Worried About",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif07_what_so_worried",
+  "source": "draft_lif",
+  "lines": [
+   74,
+   83
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L74",
+  "ledger": [
+   {
+    "src": "L75",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 30 or older and another adult)"
+   }
+  ],
+  "description": "A villager laughs at how scared they were before their first day of work: tell a friend, or wonder what they will laugh at later.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just remembered, for no reason, how terrified (subject.he/she) was before (subject.his/her) first day of real work with the adults. (subject.He/she) didn't sleep for two nights. (subject.He/she) was sure (subject.he/she) would do everything wrong and everyone would laugh. (subject.He/she) can't even remember what happened on the actual day. Nothing, probably.",
+   "src": "L77",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L79"
+    },
+    {
+     "label": "Wonder What You'll Laugh at Later",
+     "next": "o2",
+     "src": "L82"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) wonders what (subject.he/she) is worrying about now that (subject.he/she) will laugh at in twenty years. (subject.He/she) can think of three things right away. (subject.He/she) tries laughing at them now, to save time. It doesn't quite work. But it makes them a little smaller. (subject.He/she) decides that's progress.",
+   "src": "L83"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend), laughing. (friend) laughs too, then admits (friend.he/she) was exactly the same: (friend.he/she) was so scared before (friend.his/her) first day that (friend.he/she) hid in a tree. \"Did they find you?\" \"Eventually. I'd fallen asleep.\" They spend the evening trading things they used to be terrified of. Most of them are very silly now. A few still aren't.",
+   "src": "L80",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L80"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L80"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend), laughing. (friend) laughs too, then admits (friend.he/she) was exactly the same: (friend.he/she) was so scared before (friend.his/her) first day that (friend.he/she) hid in a tree. \"Did they find you?\" \"Eventually. I'd fallen asleep.\" They spend the evening trading things they used to be terrified of. Most of them are very silly now. A few still aren't.",
+   "src": "L80"
+  }
+ }
+}

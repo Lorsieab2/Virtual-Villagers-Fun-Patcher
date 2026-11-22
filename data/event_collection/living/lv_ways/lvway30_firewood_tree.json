@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Firewood Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway30_firewood_tree",
+  "source": "living",
+  "lines": [
+   23168,
+   23182
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23168",
+  "ledger": [
+   {
+    "src": "L23182",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "One old tree remains near the village as fuel runs short.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "One old tree remains near the village as fuel runs short.",
+   "src": "L23169",
+   "choices": [
+    {
+     "label": "Cut it for firewood.",
+     "next": "a",
+     "src": "L23170"
+    },
+    {
+     "label": "Protect it and gather fallen branches.",
+     "next": "b",
+     "src": "L23173"
+    },
+    {
+     "label": "Try a heat charm instead.",
+     "next": "c",
+     "src": "L23176",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Build a more efficient hearth.",
+     "next": "d",
+     "src": "L23179"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village stays warm through the storm.",
+   "src": "L23171"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The loss of shade damages nearby seedlings.",
+   "src": "L23172"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The tree survives, but fuel remains scarce.",
+   "src": "L23174"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The charm warms the hall for one night.",
+   "src": "L23177"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The charm fails, and the families share blankets.",
+   "src": "L23178"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Less fuel is needed for cooking.",
+   "src": "L23180"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The new hearth takes time and materials to finish.",
+   "src": "L23181"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The villagers discover a reliable source of deadwood.",
+   "src": "L23175",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23175"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The villagers discover a reliable source of deadwood.",
+   "src": "L23175"
+  }
+ }
+}

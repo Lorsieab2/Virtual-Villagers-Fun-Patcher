@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mosquito Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day39_mosquito_night",
+  "source": "draft_day",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "One mosquito kept a villager awake all night and the day stretches ahead: go easy on yourself, or carry on as usual.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last night, one mosquito got into (subject)'s hut. Just one. It buzzed in (subject.his/her) ear every time (subject.he/she) was nearly asleep. (subject.He/she) hunted it in the dark, swatted at nothing, and got bitten eleven times. Now it's morning, (subject.he/she) is exhausted and itchy, and the whole day stretches ahead.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Go Easy on (subject.him/her)self",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Carry on as Usual",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) decides that today is a slow day. (subject.He/she) does what needs doing and nothing more. (subject.He/she) has a nap at midday. (subject.He/she) puts something soothing on the bites. By evening (subject.he/she) feels nearly normal. Before bed (subject.he/she) checks every corner of the hut, very thoroughly, by firelight.",
+   "src": "L470"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) goes to work as usual and is useless. (subject.He/she) yawns through everything. (subject.He/she) scratches through everything. (friend) finally sends (subject.him/her) home. \"Go to sleep,\" (friend.he/she) says. (subject) sleeps all afternoon. The mosquito, somewhere, is presumably also asleep, full and content.",
+   "src": "L473",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L473"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) goes to work as usual and is useless. (subject.He/she) yawns through everything. (subject.He/she) scratches through everything. (friend) finally sends (subject.him/her) home. \"Go to sleep,\" (friend.he/she) says. (subject) sleeps all afternoon. The mosquito, somewhere, is presumably also asleep, full and content.",
+   "src": "L473"
+  }
+ }
+}

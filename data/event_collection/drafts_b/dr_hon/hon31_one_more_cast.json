@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One More Cast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon31_one_more_cast",
+  "source": "draft_hon",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager keeps fishing as a storm builds, sure the fish are about to bite: head in now, or stay for the fish.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The clouds over the sea are darkening, and (friend) has already paddled in. (subject) has caught almost nothing all day and is sure the fish are about to start biting. \"One more cast,\" (subject.he/she) tells (subject.him/her)self. Then one more. The wind is picking up.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Head in Now",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Stay for the Fish",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) finally turns for home just as the first rain arrives. (subject.He/she) makes it in drenched, with an empty basket and a canoe half full of rainwater. (friend) is waiting on the beach with a blanket and a very particular look. \"I know,\" says (subject). \"I know.\"",
+   "src": "L374"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The fish do start biting, just as the rain starts. (subject) catches three, then has to paddle hard for home through choppy water, and a wave knocks the catch basket overboard. (subject.He/she) reaches the beach shaken and empty-handed. (friend) helps haul the canoe up. For a while neither of them says anything. Then (subject) says, \"I'll come in when you do, next time.\"",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L377"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The fish do start biting, just as the rain starts. (subject) catches three, then has to paddle hard for home through choppy water, and a wave knocks the catch basket overboard. (subject.He/she) reaches the beach shaken and empty-handed. (friend) helps haul the canoe up. For a while neither of them says anything. Then (subject) says, \"I'll come in when you do, next time.\"",
+   "src": "L377"
+  }
+ }
+}

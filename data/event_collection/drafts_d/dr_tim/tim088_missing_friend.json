@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim088_missing_friend",
+  "source": "moments500",
+  "lines": [
+   1473,
+   1487
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1474",
+  "ledger": [
+   {
+    "src": "L1473",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1477",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1478",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1481",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1482",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1485",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1486",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "A familiar friend is absent from the usual afternoon gathering.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A familiar friend is absent from the usual afternoon gathering. A small invitation changes the mood of the whole afternoon.",
+   "src": "L1475"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A familiar friend is absent from the usual afternoon gathering. (Name1) enjoys the company and also looks forward to time alone.",
+   "src": "L1479"
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "A familiar friend is absent from the usual afternoon gathering. (Name1) feels welcome but still a little shy.",
+   "src": "L1487"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "A familiar friend is absent from the usual afternoon gathering. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1483",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1483"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "A familiar friend is absent from the usual afternoon gathering. Someone remembers an old joke, and the group starts laughing again.",
+   "src": "L1483"
+  }
+ }
+}

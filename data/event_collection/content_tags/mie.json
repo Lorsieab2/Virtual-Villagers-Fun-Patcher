@@ -1,0 +1,327 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "mie",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "mie_adventurer": {
+   "filters": [
+    "F03",
+    "F04",
+    "F05",
+    "F12",
+    "F25",
+    "F27"
+   ],
+   "notes": [
+    "Bereavement",
+    "Disappearance",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a2": [
+     "F03",
+     "F05",
+     "F25"
+    ],
+    "a3": [
+     "F04",
+     "F05",
+     "F25"
+    ],
+    "a4": [
+     "F03",
+     "F05"
+    ],
+    "a6": [
+     "F04",
+     "F05"
+    ],
+    "b_lost": [
+     "F12"
+    ],
+    "heal1": [
+     "F03",
+     "F05"
+    ],
+    "heal3": [
+     "F27"
+    ],
+    "lost2": [
+     "F04"
+    ],
+    "lost4": [
+     "F03",
+     "F05"
+    ],
+    "lost5": [
+     "F03",
+     "F05"
+    ],
+    "lost6": [
+     "F04"
+    ]
+   }
+  },
+  "mie_cave_explorers": {
+   "filters": [
+    "F03",
+    "F04",
+    "F05",
+    "F07",
+    "F08",
+    "F11",
+    "F13"
+   ],
+   "notes": [
+    "Bereavement",
+    "Disappearance",
+    "Emotional distress"
+   ],
+   "nodes": {
+    "chasm1": [
+     "F04"
+    ],
+    "chasm2": [
+     "F04"
+    ],
+    "dig1": [
+     "F03"
+    ],
+    "dig2": [
+     "F03"
+    ],
+    "fall_out": [
+     "F03"
+    ],
+    "k1": [
+     "F03",
+     "F05",
+     "F08"
+    ],
+    "k2": [
+     "F03",
+     "F05",
+     "F08"
+    ],
+    "make_up": [
+     "F11"
+    ],
+    "map": [
+     "F04"
+    ],
+    "scream1": [
+     "F07",
+     "F13"
+    ],
+    "scream2": [
+     "F07",
+     "F13"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "mie_climb": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "fall": [
+     "F03",
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "mie_diving": {
+   "filters": [
+    "F03",
+    "F04",
+    "F05",
+    "F08",
+    "F16",
+    "F19",
+    "F22"
+   ],
+   "notes": [
+    "Bereavement",
+    "Disappearance"
+   ],
+   "nodes": {
+    "ashore": [
+     "F03"
+    ],
+    "better": [
+     "F03",
+     "F16"
+    ],
+    "dies": [
+     "F03",
+     "F05"
+    ],
+    "doubloons": [
+     "F19"
+    ],
+    "lost": [
+     "F04",
+     "F05"
+    ],
+    "rescued": [
+     "F03",
+     "F08"
+    ],
+    "tank": [
+     "F22"
+    ]
+   },
+   "speaks": [
+    "doctor"
+   ]
+  },
+  "mie_dolphins": {
+   "filters": [
+    "F06",
+    "F25"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "hunt": [
+     "F25"
+    ],
+    "slap": [
+     "F06"
+    ]
+   }
+  },
+  "mie_mysterious_mask": {
+   "filters": [
+    "F01",
+    "F04",
+    "F18"
+   ],
+   "notes": [
+    "Child death",
+    "Disappearance"
+   ],
+   "nodes": {
+    "cap3": [
+     "F01",
+     "F04",
+     "F18"
+    ],
+    "cap4": [
+     "F01",
+     "F04",
+     "F18"
+    ],
+    "captured": [
+     "F01",
+     "F04",
+     "F18"
+    ],
+    "f_end": [
+     "F04"
+    ],
+    "f_end_short": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "child2",
+    "child1"
+   ]
+  },
+  "mie_remembrance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "mie_rumblings": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "start": [
+     "F21"
+    ]
+   }
+  },
+  "mie_troubling_signs": {
+   "filters": [
+    "F03",
+    "F04",
+    "F20",
+    "F21",
+    "F24"
+   ],
+   "notes": [
+    "Bereavement",
+    "Disappearance"
+   ],
+   "nodes": {
+    "adv3": [
+     "F03"
+    ],
+    "adv4": [
+     "F21"
+    ],
+    "decree1": [
+     "F20"
+    ],
+    "intro": [
+     "F24"
+    ],
+    "leave": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "advisor1",
+    "advisor2",
+    "advisor3",
+    "advisor4"
+   ]
+  }
+ }
+}

@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Verse",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb21_new_verse",
+  "source": "draft_lcb",
+  "lines": [
+   288,
+   299
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L288",
+  "ledger": [
+   {
+    "src": "L289",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen and an elder)"
+   },
+   {
+    "src": "L295",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L299",
+    "kind": "instruction",
+    "text": "[effect: small Farming skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L299",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen wants to change the words of an old fishing song that make no sense anymore: change them, or learn what they mean.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been singing the old fishing song all (subject.his/her) life, and today (subject.he/she) realized (subject.he/she) has no idea what most of it means. What is a long-tooth? Why does the song tell you to bow to the left? (subject.He/she) wants to write new words that make sense. (friend) is horrified. What should happen?",
+   "src": "L291",
+   "choices": [
+    {
+     "label": "Change the Words",
+     "next": "o1",
+     "src": "L293"
+    },
+    {
+     "label": "Learn What They Mean",
+     "next": "o2",
+     "src": "L297"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) writes new words. They make perfect sense, and they are very boring. The village sings them twice and then quietly goes back to the old ones. (subject) is annoyed, then laughs. At least now (subject.he/she) knows the old song was never meant to make sense.",
+   "src": "L295"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) explains: a long-tooth is a kind of barracuda, and you bow to the left to let the wave break over your right shoulder. The song is full of instructions, if you know how to hear them. (subject) is amazed, and starts asking about every song in the village.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L299"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

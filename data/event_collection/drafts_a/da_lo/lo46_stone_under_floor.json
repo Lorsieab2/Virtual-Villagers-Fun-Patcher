@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Under the Floor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo46_stone_under_floor",
+  "source": "da_lo",
+  "lines": [
+   558,
+   567
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L558",
+  "ledger": [
+   {
+    "src": "L559",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager who always sleeps wonderfully finds a glowing lavastone under the floor, beneath the mat.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For as long as (name1) has lived in (his/her) hut, (he/she) has slept wonderfully. Deep, peaceful sleep every night, no matter what. (He/She) always thought (he/she) was just a good sleeper. Today, fixing a loose floorboard, (he/she) finds a small lavastone tucked underneath, right beneath where (his/her) sleeping mat lies, glowing softly in the dark.",
+   "src": "L561",
+   "choices": [
+    {
+     "label": "Leave It There",
+     "next": "a",
+     "src": "L563"
+    },
+    {
+     "label": "Take It Out and See",
+     "next": "b",
+     "src": "L566"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) puts the board back exactly as it was. That night, (he/she) lies awake for the first time in years, thinking about the stone. Then, eventually, (he/she) sleeps, as deeply as ever. (He/She) never tells anyone, and never looks under that board again. Some things are better left exactly where they are.",
+   "src": "L564"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) moves the stone to a shelf across the room. That night, (he/she) sleeps badly. The next night, worse. (He/She) puts it back under the floor. (He/She) sleeps like a baby. (name1) isn't sure what (he/she) feels about having been helped all these years without knowing it. Grateful, mostly. A tiny bit cheated.",
+   "src": "L567",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L567"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) moves the stone to a shelf across the room. That night, (he/she) sleeps badly. The next night, worse. (He/She) puts it back under the floor. (He/She) sleeps like a baby. (name1) isn't sure what (he/she) feels about having been helped all these years without knowing it. Grateful, mostly. A tiny bit cheated.",
+   "src": "L567"
+  }
+ }
+}

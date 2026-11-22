@@ -1,0 +1,211 @@
+"""The Living Event Engine's packs say only the owner's words (scripts/living_check.py), exhaustively.
+
+  * every variant of every game's shipped pack decompiled; every text, label, pool item and game word expanded for
+    that game; each must be an indexed owner line or the frame (living-events.md section 1);
+  * the MIX anchor: each of the 60 MIX examples, read from the frozen source, becomes its seed's variant 0 with
+    exactly the changes documented in living-events.md section 7 (the frame fix, the swaps, the equal alternatives);
+  * the documented changes are the mixer's; the credits keep the Living Engine's credit line verbatim.
+"""
+from __future__ import annotations
+
+import re
+import sys
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
+
+import living_check as lc  # noqa: E402
+import vv_cie_graph as cg  # noqa: E402
+import vv_living_mixer as mx  # noqa: E402
+
+BANK = mx.Bank()
+PACKS = {g: [q.read_bytes() for q in lc.pack_paths(g)] for g in mx.GAMES}   # living-<group>.pak, one per series
+SETUP_RE = re.compile(r"^SETUP: (?P<seed>.+?) (A|An) (?P<pa>[a-z]+) (?P<ra>an? .+?) and (a|an) (?P<pb>[a-z]+) "
+                      r"(?P<rb>an? .+?) disagree about what should happen next\. Their status alone does not settle "
+                      r"the matter\.$")
+
+
+def documented_changes() -> list[dict]:
+    text = mx.DOC.read_text(encoding="utf-8")
+    block = text[text.index(mx.DOC_BEGIN):text.index(mx.DOC_END)]
+    rows = []
+    for line in block.splitlines():
+        m = re.match(r"^\| (MIX-\d{3}) \| (.+?) \| (.+?) \| (.+?) \| (.+?) \|$", line)
+        if m:
+            rows.append({"mix": m[1], "what": m[2], "before": m[3], "after": m[4], "rule": m[5]})
+    return rows
+
+
+def article(word: str) -> str:
+    return "an" if word[0] in "aeiou" else "a"
+
+
+class Exhaustive(unittest.TestCase):
+    def test_every_variant_in_every_game(self) -> None:
+        problems, stats = lc.check_packs(PACKS, BANK)
+        self.assertEqual(problems, [])
+        self.assertEqual(sum(stats["variants"].values()),
+                         sum(len(mx.read_pack(d)["variants"]) for ds in PACKS.values() for d in ds))
+
+    def test_bank_texts_are_on_their_source_lines(self) -> None:
+        lines = lc.source_lines()
+        items = [(s.get("source_text", s["text"]), s["src"]) for s in BANK.seeds] + [(a["text"], a["src"]) for a in BANK.archetypes] \
+            + [(a["text"], a["src"]) for a in BANK.approaches] + [(c["text"], c["src"]) for c in BANK.choice.values()]
+        for sit in BANK.mc_sits:
+            items.append((sit.get("source_text", sit["text"]), sit["src"]))
+            for ap in sit["approaches"]:
+                items.append((ap["text"], ap["src"]))
+                items += [(o["text"], o["src"]) for o in ap["outcomes"]]
+        for text, src in items:
+            with self.subTest(src=src):
+                n = int(src[1:].split("-")[0].split(",")[0])
+                self.assertIn(text, lines[n - 1])
+
+    def test_sensitivity_edits_are_logged(self) -> None:
+        """Every owner line the bank changes (W1: a legendary creature named outright) is in living-events.md
+        section 7 with its before and after."""
+        doc = mx.DOC.read_text(encoding="utf-8")
+        edited = [s for s in BANK.seeds + BANK.mc_sits if "source_text" in s]
+        self.assertEqual(sorted(s["id"] for s in edited), [])          # the W1 edits were reverted (lead)
+        for s in edited:
+            self.assertIn(f"| {s['id']} | {mx.plain(s['source_text'])} | {mx.plain(s['text'])} | "
+                          f"{s['sensitivity_edit']} |", doc)
+
+    def test_no_legendary_being_named(self) -> None:
+        """W1: the shipped words never name a legendary creature, an afterlife place or ideas such as cannibals."""
+        # "cryptid" and "monsters" are kept as the owner wrote them (lead decision on the owner's precedent).
+        banned = re.compile(r"\b(mermaids?|aliens?|skinwalkers?|underworld|heaven|hell|"
+                            r"afterlife|cannibals?|headhunters?|angels?|demons?|ghosts?|vampires?|werewolf|werewolves|"
+                            r"dragons?|sea serpents?)\b", re.I)
+        texts = [s["text"] for s in BANK.seeds] + [a["text"] for a in BANK.archetypes] \
+            + [a["text"] for a in BANK.approaches] + [c["text"] for c in BANK.choice.values()]
+        for sit in BANK.mc_sits:
+            texts.append(sit["text"])
+            for ap in sit["approaches"]:
+                texts.append(ap["text"])
+                texts += [o["text"] for o in ap["outcomes"]]
+        self.assertEqual([x for x in texts if banned.search(x)], [])
+
+    def test_credit_kept(self) -> None:
+        credits = (ROOT / "assets" / "event_collection" / "Credits.txt").read_text(encoding="utf-8")
+        self.assertEqual(lc.source_lines()[23814].rstrip("\r"), "CREDITS: " + BANK.credit)
+        self.assertIn("CREDITS: " + BANK.credit + "\n", credits)
+        for game in mx.GAMES:
+            # the manifests are split per source section and living series (living-pack.md 1); the Living Engine's
+            # own seeds (living_le_*, living_mc_*) carry its credit, the static events' mixer versions their own
+            manifest = "\n".join(q.read_text(encoding="utf-8")
+                                 for q in sorted((ROOT / "assets" / "event_collection" / f"vv{game}").glob("manifest-*.txt")))
+            rows = [r.split("\t") for r in manifest.splitlines() if r.startswith(("living_le_", "living_mc_"))]
+            self.assertTrue(rows)
+            self.assertTrue(all(r[5] == BANK.credit for r in rows))
+
+
+class TheCheckBites(unittest.TestCase):
+    def test_a_changed_word_is_caught(self) -> None:
+        variants = [v for v in mx.generate(BANK) if v.seed == "le_odd_09" and v.k < 2]
+        node = next(n for n in variants[1].graph["nodes"] if n.startswith("o_"))
+        variants[1].graph["nodes"][node]["text"] = "Nobody minds at all."
+        variants[1].graph["nodes"]["setup"]["choices"][0]["label"] = "Shrug it off."
+        mx.compile_all(variants)
+        game = variants[1].games[0]
+        problems, _ = lc.check_packs({game: mx.pack(game, variants, BANK)}, BANK)
+        mine = [p for p in problems if "variants k" not in p and "k=1" in p]
+        self.assertTrue(any("'Shrug it off.' is not a bank choice" in p for p in mine), mine)
+        self.assertTrue(any("maps to the wrong archetype" in p for p in mine), mine)
+        self.assertFalse([p for p in problems if "k=0" in p])
+
+
+class MixAnchor(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.changes = documented_changes()
+        cls.variant0 = {}
+        for game, datas in PACKS.items():
+            for data in datas:
+                p = mx.read_pack(data)
+                for s in p["seeds"]:
+                    for vi in range(s["first"], s["first"] + s["count"]):
+                        v = p["variants"][vi]
+                        if v["flags"] & mx.FLAG_MIX and s["id"] not in cls.variant0:
+                            cls.variant0[s["id"]] = (game, cg.decompile_graph(v["blob"]))
+
+    def test_documented_changes_are_the_mixers(self) -> None:
+        mx.generate(BANK)
+        self.assertIn(mx.changes_markdown(), mx.DOC.read_text(encoding="utf-8"))
+        self.assertEqual(len(self.changes), len(mx.MIX_CHANGES))
+        conflicts = {BANK.raw["mix"][i]["code"] for i, m in enumerate(BANK.raw["mix"]) if m["id"] in BANK.conflicts}
+        self.assertTrue(conflicts <= {c["mix"] for c in self.changes})      # every conflicting MIX is changed
+
+    def test_each_mix_reproduced_with_exactly_the_documented_changes(self) -> None:
+        lines = lc.source_lines()
+        self.assertEqual(len(self.variant0), 60)
+        for mix in BANK.mix:
+            with self.subTest(mix=mix["code"]):
+                n = int(mix["setup_src"][1:])
+                m = SETUP_RE.match(mx.plain(lines[n - 1].strip()))
+                self.assertIsNotNone(m)
+                pers = {"first": [m["pa"]], "second": [m["pb"]]}
+                ra, rb = m["ra"], m["rb"]
+                # the owner (2026-11-15): every new event's choice labels in title case (collection_lib)
+                labels = [lc.lib.title_case_label(mx.plain(lines[n + 3 * i].strip())[3:]) for i in range(4)]
+                outs = [[[mx.plain(lines[n + 3 * i + j].strip())[4:]] for j in (1, 2)] for i in range(4)]
+                drop = {"first": False, "second": False}
+                for c in self.changes:
+                    if c["mix"] != mix["code"]:
+                        continue
+                    slot = "first" if c["what"].startswith("first") else "second"
+                    alternative = c["what"].endswith("(alternative)")
+                    self.assertEqual(alternative, c["rule"] == mx.ALT_RULE)
+                    if "role" in c["what"]:
+                        if slot == "first":
+                            self.assertEqual(ra, c["before"])
+                            ra = c["after"]
+                        else:
+                            self.assertEqual(rb, c["before"])
+                            rb = c["after"]
+                    elif "doubled word" in c["what"]:
+                        drop[slot] = True
+                    elif "personality" in c["what"]:
+                        self.assertTrue(alternative)          # the owner's word stays, the other is its equal
+                        self.assertEqual(pers[slot], [c["before"]])
+                        pers[slot].append(c["after"])
+                    else:
+                        self.assertTrue(alternative)
+                        cm = re.match(r"choice ([ABCD]) outcome ([12])", c["what"])
+                        i, j = "ABCD".index(cm[1]), int(cm[2]) - 1
+                        self.assertEqual(outs[i][j], [c["before"]])
+                        outs[i][j].append(c["after"])
+                game, d = self.variant0["living_" + mix["seed"]]
+                words = d.get("words") or {}
+                pools = d.get("pools") or {}
+
+                def part(slot, r, pool):
+                    word = r.split(" ", 1)[1]
+                    if drop[slot]:
+                        return r
+                    if len(pers[slot]) == 2:
+                        items = [i if isinstance(i, str) else i["text"] for i in pools[pool]["items"]]
+                        self.assertEqual(items, [f"{article(p)} {p}" for p in pers[slot]])
+                        return "{" + pool + "} " + word
+                    p = pers[slot][0]
+                    return f"{article(p)} {p} {word}"
+                want = (f"{lc.chief_form(m['seed'], game)} (first), {part('first', ra, 'PA')}, and (second), "
+                        f"{part('second', rb, 'PB')}, {mx.FRAME_TAIL}")
+                start = d["nodes"][d["start"]]
+                self.assertEqual(lc.expand_words(start["text"], words, game), want)
+                # a choice's Guardians of Isola twin (vv_living_mixer.guardians_bank) is not the MIX's own
+                self.assertEqual([lc.expand_words(c["label"], words, game) for c in start["choices"]
+                                  if c.get("if") != mx.GUARDIANS_IF], labels)
+                for c, (good, bad) in zip([c for c in start["choices"] if c.get("if") != mx.GUARDIANS_IF], outs):
+                    kids = d["nodes"][c["next"]]["children"]
+                    n_kids = len(good) + len(bad)
+                    self.assertEqual([d["nodes"][k["next"]]["text"] for k in kids[:n_kids]], good + bad)
+                    self.assertEqual([k["weight"] for k in kids[:n_kids]],
+                                     [mx.W_GOOD // len(good)] * len(good) + [mx.W_ADVERSE // len(bad)] * len(bad))
+
+
+if __name__ == "__main__":
+    unittest.main()

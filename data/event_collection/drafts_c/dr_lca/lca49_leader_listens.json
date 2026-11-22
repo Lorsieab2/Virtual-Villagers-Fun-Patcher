@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Leader Who Listens",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca49_leader_listens",
+  "source": "draft_lca",
+  "lines": [
+   684,
+   695
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L684",
+  "ledger": [
+   {
+    "src": "L685",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult and an elder)"
+   },
+   {
+    "src": "L691",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L691",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L695",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A young villager tells the leader an important worry has been ignored: the leader can listen now, or ask them to prove it.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has told the {@chief} three times that the cliff path above the beach is crumbling, and three times the {@chief} has said it will be looked at. Nothing has happened. Today (subject) went to the gathering and said it in front of everyone. (friend), the {@chief}'s oldest friend, thinks (subject) was disrespectful. What should the {@chief} do?",
+   "src": "L687",
+   "choices": [
+    {
+     "label": "Listen Now",
+     "next": "o1",
+     "src": "L689"
+    },
+    {
+     "label": "Ask (subject) to Prove It",
+     "next": "o2",
+     "src": "L693"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The {@chief} walks up the cliff path with (subject) the next morning, sees the cracks, and goes pale. The path is closed that afternoon and rebuilt within the month. The {@chief} thanks (subject) in front of the whole village. (friend) grudgingly does too.",
+   "src": "L691",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L691"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The {@chief} asks (subject) to show proof at the next gathering. (subject) brings a basket of fallen rocks, all from the cliff path, and dumps them in the middle of the floor. The {@chief} has the path rebuilt. (friend) still thinks (subject) was disrespectful. (subject) still thinks (subject.he/she) had no choice.",
+   "src": "L695"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

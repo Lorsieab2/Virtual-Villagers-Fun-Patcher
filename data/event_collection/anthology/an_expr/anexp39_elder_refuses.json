@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Refuses a Seat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp39_elder_refuses",
+  "source": "anthology",
+  "lines": [
+   31856,
+   31870
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31856",
+  "ledger": [
+   {
+    "src": "L31857",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS / ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31858",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31860",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31864",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31866",
+    "kind": "sensitivity",
+    "before": "A younger villager",
+    "after": "(young), a younger villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31867",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31870",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder grows irritated when younger villagers insist on treating them as helpless.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) grows irritated when younger villagers insist on treating them as helpless.",
+   "src": "L31858",
+   "choices": [
+    {
+     "label": "Ask What They Want",
+     "next": "a",
+     "src": "L31859"
+    },
+    {
+     "label": "Offer Options",
+     "next": "b",
+     "src": "L31862"
+    },
+    {
+     "label": "Address the Assumption",
+     "next": "c",
+     "src": "L31865"
+    },
+    {
+     "label": "Work Side by Side",
+     "next": "d",
+     "src": "L31868"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(elder) accepts a seat after a long walk.",
+   "src": "L31860"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They prefer to stand and direct the work.",
+   "src": "L31861"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A walking stick is made available without pressure.",
+   "src": "L31863"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) chooses a different task.",
+   "src": "L31864"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(young), a younger villager, apologizes for speaking over them.",
+   "src": "L31866"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) admits some help is welcome.",
+   "src": "L31867"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Both generations finish the task together.",
+   "src": "L31869"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(elder) teaches a technique nobody else knew.",
+   "src": "L31870",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L31870"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "(elder) teaches a technique nobody else knew.",
+   "src": "L31870"
+  }
+ }
+}

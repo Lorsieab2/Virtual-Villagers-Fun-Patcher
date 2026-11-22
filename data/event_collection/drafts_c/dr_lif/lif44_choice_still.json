@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Choice (name1) Still Isn't Sure About",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif44_choice_still",
+  "source": "draft_lif",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older)"
+   }
+  ],
+  "description": "A villager still wonders about ending a partnership long ago: let themselves wonder, or talk to a friend.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A long time ago, (subject) made a hard choice: to end a partnership with someone (subject.he/she) cared about, because it wasn't right for either of them. Nobody did anything wrong. It just wasn't working. They're both alright now. But some evenings, like this one, (subject) still wonders.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Let (subject.him/her)self Wonder",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Talk to a Friend",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sits with it. Maybe they could have worked it out. Maybe not. (subject.He/she) remembers good times and hard times. (subject.He/she) doesn't know if the choice was right. (subject.He/she) knows it was honest. That has to be enough, because it's all (subject.he/she) has. The stars come out. (subject) watches them for a while, and then goes in to sleep.",
+   "src": "L518"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) talks to (friend) about it. (friend) doesn't tell (subject.him/her) it was the right choice, or the wrong one. (friend.He/she) just listens. \"You still think about it,\" (friend) says. \"Sometimes.\" \"That's alright. It mattered.\" (subject) feels better for having said it out loud, though nothing has changed. Some choices you just carry, gently, the rest of your life.",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L521"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) talks to (friend) about it. (friend) doesn't tell (subject.him/her) it was the right choice, or the wrong one. (friend.He/she) just listens. \"You still think about it,\" (friend) says. \"Sometimes.\" \"That's alright. It mattered.\" (subject) feels better for having said it out loud, though nothing has changed. Some choices you just carry, gently, the rest of your life.",
+   "src": "L521"
+  }
+ }
+}

@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Curing Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed21_curing_fish",
+  "source": "living",
+  "lines": [
+   20479,
+   20490
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20479",
+  "ledger": [
+   {
+    "src": "L20490",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rare Crimson Comet is rumored to improve recovery, but taking it from its reef may threaten the remaining population.",
+  "cast_only": [
+   "patient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare Crimson Comet is rumored to improve recovery, but taking it from its reef may threaten the remaining population.",
+   "src": "L20480",
+   "choices": [
+    {
+     "label": "Capture the fish for a gravely ill patient.",
+     "next": "a",
+     "src": "L20481"
+    },
+    {
+     "label": "Observe the fish in its habitat instead.",
+     "next": "b",
+     "src": "L20484"
+    },
+    {
+     "label": "Ask whether a temporary, nonlethal study is possible.",
+     "next": "c",
+     "src": "L20487"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The fish dies in captivity, and the patient remains ill.",
+   "src": "L20483",
+   "text_only": [
+    {
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L20483"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The healer learns that the fish appears near healthy coral, suggesting another explanation.",
+   "src": "L20485",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20485"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient receives ordinary care while the fish remains undisturbed.",
+   "src": "L20486"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The study is abandoned when the fish shows signs of distress.",
+   "src": "L20489"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient improves after the fish is brought near, though the cause is uncertain.",
+   "src": "L20482",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20482"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient improves after the fish is brought near, though the cause is uncertain.",
+   "src": "L20482"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The fish is returned alive, and the healer records an inconclusive result.",
+   "src": "L20488",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20488"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The fish is returned alive, and the healer records an inconclusive result.",
+   "src": "L20488"
+  }
+ }
+}

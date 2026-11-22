@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pond of Two Moons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b086_pond_two_moons",
+  "source": "balance",
+  "lines": [
+   3884,
+   3926
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3884",
+  "ledger": [
+   {
+    "src": "L3885",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3886",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3894",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3903",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3891",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3892",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3895",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3904",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3897",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3900",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3906",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3909",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3912-3926",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have climbed up to see it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year the moon rises twice over the little pond in the hills: once in the sky and once in the water, and for a moment, the elders say, they're the same moon. The old story is that two people who look into the pond at that moment \"see each other as the moon does,\" and some of them never quite get back to their own side.\n(subject) and (friend) have climbed up to see it. The moon is rising. Its reflection is creeping across the black water towards the place where they're kneeling, side by side.\nShould they look, or close their eyes and wait for it to pass?",
+   "choices": [
+    {
+     "label": "Look",
+     "next": "c1",
+     "src": "L3891"
+    },
+    {
+     "label": "Close Their Eyes",
+     "next": "c2",
+     "src": "L3892"
+    }
+   ],
+   "src": "L3887-3889"
+  },
+  "c1o1": {
+   "text": "They sit back, and look at each other, and each is looking at (subject.himself/herself). The moon sees people the way they see each other, it seems, and it left them that way. They walk down the hill very slowly, getting used to new legs. They never get back to their own sides, and after a while, they stop trying.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L3898",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The moment passes. They are themselves. But they keep looking at each other strangely all the way down the hill, because for that moment each of them saw what the other really thinks of them, and it was kinder than either expected. They never say what they saw. They don't need to.",
+   "src": "L3901"
+  },
+  "c1": {
+   "text": "They lean over the water together. The two moons meet. For a moment (subject) sees (friend)'s face where (subject.his/her) own should be, and (friend) sees (subject)'s...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3895"
+  },
+  "c2o1": {
+   "text": "When they open their eyes, they're holding hands still, and (subject) is holding (subject.his/her) own hand, from the outside. Closing their eyes made no difference at all. \"Well,\" says (friend), in (subject)'s voice. \"That's the last time I listen to you.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L3907",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When they open their eyes, the moon has moved on, and the pond is just black water. They walk down the hill feeling safe and a little sorry, wondering what they missed. Next year they'll look. Next year, it's cloudy.",
+   "src": "L3910"
+  },
+  "c2": {
+   "text": "They squeeze their eyes shut and hold hands and wait, while the cold moonlight crawls over them. (friend) whispers that (friend.he/she) can feel it, like water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3904"
+  }
+ }
+}

@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Medicine That Helps One and Hurts Another",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed27_medicine_helps",
+  "source": "living",
+  "lines": [
+   20557,
+   20568
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20557",
+  "ledger": [
+   {
+    "src": "L20568",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two patients with similar symptoms respond differently to the same herbal preparation."
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "patient1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "patient2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two patients with similar symptoms respond differently to the same herbal preparation.",
+   "src": "L20558",
+   "choices": [
+    {
+     "label": "Continue giving the remedy to both.",
+     "next": "a",
+     "src": "L20559"
+    },
+    {
+     "label": "Stop the remedy and observe carefully.",
+     "next": "b",
+     "src": "L20562"
+    },
+    {
+     "label": "Compare their histories and preparations.",
+     "next": "c",
+     "src": "L20565"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "One patient improves while the other develops a troubling rash.",
+   "src": "L20560",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient2",
+     "min": -30,
+     "max": -10,
+     "src": "L20560"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Both recover, but the healer cannot prove the remedy was responsible.",
+   "src": "L20561",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient1",
+     "min": 10,
+     "max": 30,
+     "src": "L20561"
+    },
+    {
+     "do": "health_change",
+     "role": "patient2",
+     "min": 10,
+     "max": 30,
+     "src": "L20561"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The rash fades, and the healer records the suspected reaction.",
+   "src": "L20563",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20563"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The original illness worsens, requiring another approach.",
+   "src": "L20564",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient1",
+     "min": -30,
+     "max": -10,
+     "src": "L20564"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healer discovers that the plants were harvested at different stages.",
+   "src": "L20566",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20566"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The evidence remains inconclusive, teaching the apprentice to avoid easy assumptions.",
+   "src": "L20567"
+  }
+ }
+}

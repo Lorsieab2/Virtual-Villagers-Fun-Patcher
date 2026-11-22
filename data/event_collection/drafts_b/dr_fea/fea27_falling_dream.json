@@ -1,0 +1,177 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Falling Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea27_falling_dream",
+  "source": "draft_fea",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L326",
+    "kind": "sensitivity",
+    "before": "Another villager joins in",
+    "after": "(villager), another villager, joins in",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L329",
+    "kind": "sensitivity",
+    "before": "visits the healer, who gives",
+    "after": "visits (healer), the healer, who gives",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L329",
+    "kind": "sensitivity",
+    "before": "says the healer",
+    "after": "says (healer)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager has had the same falling dream three nights running: tell a friend about it, or ask the healer for help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "villager",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For three nights in a row, (subject) has dreamed the same dream: (subject.he/she) is falling, from somewhere very high, and wakes with a jolt just before (subject.he/she) lands. (subject.He/she) is exhausted. (subject.He/she) is starting to dread going to sleep. This morning (friend) notices the dark circles under (subject.his/her) eyes.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Tell (friend) About It",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Ask the Healer for Something to Help",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about the dream. (friend) says (friend.he/she) used to have one where (friend.his/her) teeth fell out. (villager), another villager, joins in with one about being chased by a pig. By the end of breakfast everyone is sharing their worst dreams, and laughing, and (subject) feels a bit less alone with it. The dream comes back that night. It's a bit less frightening.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L326"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L326"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L326"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about the dream. (friend) says (friend.he/she) used to have one where (friend.his/her) teeth fell out. (villager), another villager, joins in with one about being chased by a pig. By the end of breakfast everyone is sharing their worst dreams, and laughing, and (subject) feels a bit less alone with it. The dream comes back that night. It's a bit less frightening.",
+   "src": "L326"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) visits (healer), the healer, who gives (subject.him/her) a calming tea and says, honestly, that it might help and might not. \"Dreams do as they like,\" says (healer). (subject) drinks the tea. That night (subject.he/she) dreams about falling again, but this time (subject.he/she) lands softly in a giant pile of leaves. (subject.He/she) wakes up laughing.",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L329"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) visits (healer), the healer, who gives (subject.him/her) a calming tea and says, honestly, that it might help and might not. \"Dreams do as they like,\" says (healer). (subject) drinks the tea. That night (subject.he/she) dreams about falling again, but this time (subject.he/she) lands softly in a giant pile of leaves. (subject.He/she) wakes up laughing.",
+   "src": "L329"
+  }
+ }
+}

@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Someday, a Family",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm20_someday_family",
+  "source": "draft_drm",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L245",
+    "kind": "sensitivity",
+    "before": "One of them runs over",
+    "after": "(child), one of them, runs over",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager content on their own quietly dreams of raising a child someday, and a friend sits down: tell them, or keep it close.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) isn't with anyone, and is content that way. But lately (subject.he/she) has been watching the children play on the beach, and thinking that someday (subject.he/she) would like to raise a child. Maybe (subject.his/her) own, maybe one who needs a home. (subject.He/she) doesn't know how, or when, or with whom, or whether alone. (subject.He/she) hasn't told anyone. (friend) sits down beside (subject.him/her).",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L241"
+    },
+    {
+     "label": "Keep It Close for Now",
+     "next": "o2",
+     "src": "L244"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't say anything. They watch the children in comfortable silence. (child), one of them, runs over to show (subject) a shell, and (subject.he/she) admires it properly. It's (subject.his/her) dream. It doesn't have to be anyone else's business yet, or ever. There's plenty of time, and also, (subject) thinks, there is no hurry at all.",
+   "src": "L245"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) says it out loud for the first time. (friend) doesn't laugh or ask \"but who with?\" (friend.He/she) just says, \"You'd be good at it.\" (subject) isn't sure about that. But it's nice to have said it, and to have it be a real thing now, and not just a thought (subject.he/she) carries around by (subject.him/her)self.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L242"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) says it out loud for the first time. (friend) doesn't laugh or ask \"but who with?\" (friend.He/she) just says, \"You'd be good at it.\" (subject) isn't sure about that. But it's nice to have said it, and to have it be a real thing now, and not just a thought (subject.he/she) carries around by (subject.him/her)self.",
+   "src": "L242"
+  }
+ }
+}

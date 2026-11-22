@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Orcas at the Passage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat140_orcas_passage",
+  "source": "companion",
+  "lines": [
+   8777,
+   8787
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8777",
+  "ledger": [
+   {
+    "src": "L8787",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A pod of orcas follows the outer reef: fishers want them chased off, children want to watch.",
+  "cast_only": [
+   "child",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A pod of orcas follows the outer reef. Some fishers want to chase them away, while children beg to watch.",
+   "src": "L8778",
+   "choices": [
+    {
+     "label": "Watch from shore",
+     "next": "a",
+     "src": "L8779"
+    },
+    {
+     "label": "Move fishing boats temporarily",
+     "next": "b",
+     "src": "L8781"
+    },
+    {
+     "label": "Approach in a canoe",
+     "next": "c",
+     "src": "L8783"
+    },
+    {
+     "label": "Tell stories of sea guardians",
+     "next": "d",
+     "src": "L8785"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The children record surfacing patterns without disturbing the pod.",
+   "src": "L8780"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The animals change course; the villagers realize they know little about their intentions.",
+   "src": "L8784"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The gathering becomes a lesson in uncertainty rather than proof of a legend.",
+   "src": "L8786"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Fishers lose a day of catch but avoid a close encounter.",
+   "src": "L8782",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L8782"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Fishers lose a day of catch but avoid a close encounter.",
+   "src": "L8782"
+  }
+ }
+}

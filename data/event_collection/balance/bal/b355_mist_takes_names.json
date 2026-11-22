@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mist That Takes Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b355_mist_takes_names",
+  "source": "balance",
+  "lines": [
+   16376,
+   16417
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16376",
+  "ledger": [
+   {
+    "src": "L16377",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16378",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16385",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16394",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16382",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16383",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16386",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16395",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16388",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16391",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16397",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16400",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16403-16417",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has to cross the valley this morning to get to the far gardens.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Some mornings a white mist sits in the valley behind the village, so thick that people walking through it can't see their own hands. The elders call it the Forgetting Mist, and say it was made long ago by a spell-keeper who wanted to forget a grief, and that it still takes things from people who walk through it: names, faces, sometimes the person.\n(subject) has to cross the valley this morning to get to the far gardens. The mist is thick. Should (subject) walk through it, calling out (subject.his/her) own name to keep hold of it, or go the long way round over the ridge?",
+   "choices": [
+    {
+     "label": "Walk Through, Calling (subject.His/Her) Name",
+     "next": "c1",
+     "src": "L16382"
+    },
+    {
+     "label": "The Long Way Round",
+     "next": "c2",
+     "src": "L16383"
+    }
+   ],
+   "src": "L16379-16380"
+  },
+  "c1o1": {
+   "text": "The other voice gets louder as (subject)'s gets quieter, until (subject) opens (subject.his/her) mouth and nothing comes out. (subject.He/She) walks out the other side into the sunlight, safe, with no name at all. The mist kept it, as the old spell-keeper's mist always does. The village calls (subject.him/her) \"?\", and some days, from the valley, people hear the mist saying (subject.his/her) old name to itself.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L16389",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The other voice walks out of the mist right behind (subject): someone with (subject)'s face, (subject)'s voice, and none of (subject)'s memories, made of everything the mist took from people over the years. It takes the name (made1), and seems content to have a face at last. It never goes near the valley again.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L16392",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) walks into the mist, saying (subject.his/her) own name out loud with every step. The mist swallows the sound. Halfway across, (subject.he/she) hears someone else saying (subject.his/her) name too, in (subject.his/her) own voice...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16386"
+  },
+  "c2o1": {
+   "text": "From the ridge, (subject) watches (friend), who didn't know about the mist, walk into it from the far side. (subject) shouts, but the mist swallows the shout. (friend) never walks out the other side. By noon the mist has burned off, and the valley is empty: no footprints, no basket, no (friend). The elders put a row of white stones across both ends of the valley that same day.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L16398",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It's a long, hot walk over the ridge, and by the time (subject) gets to the far gardens, everyone else has already done half the work. But (subject) arrives with (subject.his/her) name, face and self all exactly where (subject.he/she) left them, and decides that's worth a morning. The mist burns off by noon, the way it always does.",
+   "src": "L16401"
+  },
+  "c2": {
+   "text": "(subject) climbs the ridge, which takes half the morning, and looks down at the mist sitting in the valley below like milk in a bowl...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16395"
+  }
+ }
+}

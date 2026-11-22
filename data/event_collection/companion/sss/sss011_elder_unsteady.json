@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Unsteady Steps",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss011_elder_unsteady",
+  "source": "companion",
+  "lines": [
+   6173,
+   6181
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6173",
+  "ledger": [
+   {
+    "src": "L6181",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An elder wants to attend a ceremony up a steep path, but their balance has worsened.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An elder wants to attend a ceremony up a steep path, but their balance has worsened.",
+   "src": "L6174",
+   "choices": [
+    {
+     "label": "Improve the path",
+     "next": "a",
+     "src": "L6175"
+    },
+    {
+     "label": "Arrange companions if requested",
+     "next": "b",
+     "src": "L6177"
+    },
+    {
+     "label": "Move part of the ceremony",
+     "next": "c",
+     "src": "L6179"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Villagers add handholds; the route becomes safer for children and injured workers too.",
+   "src": "L6176",
+   "text_only": [
+    {
+     "what": "injured workers",
+     "reason": "the path is safer for anyone hurt; nobody is hurt now",
+     "src": "L6176"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The elder accepts a walking companion and sets the pace.",
+   "src": "L6178"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The community brings the music downhill; the elder still chooses which portions to attend.",
+   "src": "L6180"
+  }
+ }
+}

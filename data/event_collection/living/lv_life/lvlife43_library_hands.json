@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Library of Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife43_library_hands",
+  "source": "living",
+  "lines": [
+   21188,
+   21199
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21188",
+  "ledger": [
+   {
+    "src": "L21199",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A skilled weaver cannot read, while a young scribe cannot weave; both want to preserve a complex pattern.",
+  "cast_only": [
+   "weaver",
+   "scribe"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "weaver": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "scribe": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A skilled weaver cannot read, while a young scribe cannot weave; both want to preserve a complex pattern.",
+   "src": "L21189",
+   "choices": [
+    {
+     "label": "Record the pattern in words and drawings.",
+     "next": "a",
+     "src": "L21190"
+    },
+    {
+     "label": "Teach the pattern by hand.",
+     "next": "b",
+     "src": "L21193"
+    },
+    {
+     "label": "Combine demonstration with records.",
+     "next": "c",
+     "src": "L21196"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A missing step confuses apprentices until the weaver demonstrates it.",
+   "src": "L21192"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentices learn through practice and repetition.",
+   "src": "L21194"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An apprentice forgets the technique after the teacher leaves.",
+   "src": "L21195",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21195"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The pair argue over terminology before finding shared language.",
+   "src": "L21198"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The scribe creates a useful guide after several corrections.",
+   "src": "L21191",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21191"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The scribe creates a useful guide after several corrections.",
+   "src": "L21191"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The guide becomes useful to future generations.",
+   "src": "L21197",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L21197"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The guide becomes useful to future generations.",
+   "src": "L21197"
+  }
+ }
+}

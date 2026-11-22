@@ -1,0 +1,266 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Seat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy25_empty_seat",
+  "source": "anthology",
+  "lines": [
+   29043,
+   29056
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29043",
+  "ledger": [
+   {
+    "src": "L29047",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29050",
+    "kind": "sensitivity",
+    "before": "The storyteller",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29053",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A celebration reminds a family of someone who died.",
+  "label_case": "title",
+  "cast_only": [
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A celebration reminds a family of someone who died.",
+   "src": "L29044",
+   "choices": [
+    {
+     "label": "Leave a Place in Remembrance",
+     "next": "a",
+     "src": "L29045"
+    },
+    {
+     "label": "Share a Favorite Story",
+     "next": "b",
+     "src": "L29048"
+    },
+    {
+     "label": "Celebrate Without a Ritual",
+     "next": "c",
+     "src": "L29051"
+    },
+    {
+     "label": "Ask Each Person What Helps",
+     "next": "d",
+     "src": "L29054"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\", \"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29044"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(relative) pauses when emotion overwhelms them.",
+   "src": "L29050"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family enjoys the occasion without pressure.",
+   "src": "L29052"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(relative) quietly makes a private remembrance.",
+   "src": "L29053"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Different forms of remembrance coexist.",
+   "src": "L29055"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The family decides to revisit the question next year.",
+   "src": "L29056"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the gesture.",
+   "src": "L29046",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L29046"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the gesture.",
+   "src": "L29046"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(relative) finds the empty place too painful this year.",
+   "src": "L29047",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "bad",
+     "src": "L29047"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(relative) finds the empty place too painful this year.",
+   "src": "L29047"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The memory brings gentle laughter.",
+   "src": "L29049",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L29049"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The memory brings gentle laughter.",
+   "src": "L29049"
+  }
+ }
+}

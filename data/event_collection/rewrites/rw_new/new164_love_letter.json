@@ -1,0 +1,240 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Love Letter Lost",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new164_love_letter",
+  "source": "rewrites",
+  "lines": [
+   7944,
+   7990
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7944",
+  "ledger": [
+   {
+    "src": "L7945",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7946",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7955",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7962",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7969",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7951",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7952",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7953",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7956",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7963",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7970",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7957",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7959",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7964",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7966",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7971",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7973",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7976-7990",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager spent three whole nights carving a love poem onto a smooth wooden board, by firelight, for another villager.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) spent three whole nights carving a love poem onto a smooth wooden board, by firelight, for (friend). It is a very good poem. It rhymes. It mentions (friend)'s eyes four times.\n(subject) gave it to a runner to deliver.\nThe runner delivered it to the wrong hut. Specifically, to (elder), the {@chief}'s grandmother.\n(elder) is delighted. (subject.He/She) has already read it aloud twice: once to (subject.his/her) friends at the well, and once, with dramatic gestures, to the entire cooking fire. The whole village now knows the poem by heart. (subject) is hiding in a hut and may never come out. How can (subject) ever face (friend) now?",
+   "choices": [
+    {
+     "label": "Explain the Mix-Up Quietly",
+     "next": "c1",
+     "src": "L7951"
+    },
+    {
+     "label": "Spend an Afternoon at the Lagoon",
+     "next": "c2",
+     "src": "L7952"
+    },
+    {
+     "label": "Ask the Grandmother's Advice",
+     "next": "c3",
+     "src": "L7953"
+    }
+   ],
+   "src": "L7947-7950"
+  },
+  "c1o1": {
+   "text": "(subject) explains that the poem was meant for (subject.him/her), and why, and admits every embarrassing bit of it, without demanding an answer. (friend) has heard the poem three times by now. \"It was very good,\" (subject.he/she) says, struggling not to laugh. \"The bit about the eyes. All four bits.\" Then (subject.he/she) asks if (subject) wants to walk with (subject.him/her) tomorrow.",
+   "src": "L7958"
+  },
+  "c1o2": {
+   "text": "(friend) doesn't feel the same way, and says so kindly. (subject) accepts it, and is somehow relieved that the worst is over. (elder), meanwhile, refuses to give the poem back. It hangs on (subject.his/her) wall for the rest of (subject.his/her) life, and (subject.he/she) reads it to every visitor.",
+   "src": "L7960"
+  },
+  "c1": {
+   "text": "Eventually, (subject) crawls out of hiding, finds (friend), and takes (subject.him/her) aside, face burning...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7956"
+  },
+  "c2o1": {
+   "text": "They spend the afternoon at the lagoon, laughing about the mix-up until they can't breathe, especially the part where (elder) did the dramatic gestures. By sunset, they've decided to meet again. (subject) promises never to write another poem. (friend) asks (subject.him/her) to please write another poem.",
+   "src": "L7965"
+  },
+  "c2o2": {
+   "text": "They have a lovely afternoon, but as they talk, they find they want very different things, even though they enjoy each other's company. They part as friends, which is not what (subject) hoped, but is better than hiding in a hut.",
+   "src": "L7967"
+  },
+  "c2": {
+   "text": "(friend) finds (subject) first, and suggests, with a perfectly straight face, that they go somewhere far away from (elder)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7963"
+  },
+  "c3o1": {
+   "text": "(elder) listens with great interest to the whole story, and then, surprisingly, gives no orders at all. \"Go and tell (subject.him/her) yourself,\" (subject.he/she) says. \"And do it before I read it at the next feast.\" (subject) goes immediately.",
+   "src": "L7972"
+  },
+  "c3o2": {
+   "text": "(elder)'s only advice is that (subject.he/she) would have said yes. \"Very romantic. Four times about the eyes! In my day, we were lucky to get one.\" (subject) thanks (subject.him/her), and follows (subject.his/her) own judgment. The poem is not returned.",
+   "src": "L7974"
+  },
+  "c3": {
+   "text": "In a moment of madness, (subject) goes to (elder) (subject.himself/herself), to explain, and maybe, just maybe, get the poem back...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7970"
+  }
+ }
+}

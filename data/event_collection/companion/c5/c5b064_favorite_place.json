@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Favorite Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b064_favorite_place",
+  "source": "companion",
+  "lines": [
+   1695,
+   1700
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1695",
+  "ledger": [
+   {
+    "src": "L1697",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1700",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A villager visits a quiet spot where they often go to think.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A villager visits a quiet spot where they often go to think.",
+   "src": "L1696",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They invite a trusted friend to see it.",
+   "src": "L1699"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They leave feeling restored.",
+   "src": "L1698",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L1698"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They leave feeling restored.",
+   "src": "L1698"
+  }
+ }
+}

@@ -1,0 +1,158 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cousin Who Always Visits",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam219_cousin_always",
+  "source": "draft_fam2",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adult cousins (where the game records it; otherwise any two adults)"
+   }
+  ],
+  "description": "A villager's cousin comes for dinner every single evening, and the food is running out: say something, or make more.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "cousin_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend), (subject)'s cousin, visits often. Very often. Every evening, in fact, at dinnertime, with a big smile and a very empty bowl. (subject) likes (friend). (subject) is also running out of food.",
+   "src": "L227",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L227"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Say Something",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Say Nothing and Make More",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"(friend),\" says (subject), \"I love having you. But I can't feed you every night.\" (friend)'s face goes red. \"Oh. I didn't realize. I'm sorry.\" (friend.He/she) doesn't come the next night. The night after, (friend.he/she) arrives with a big basket of fish. \"My turn to bring dinner,\" (friend.he/she) says. They eat together most nights after that, taking turns.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"(friend),\" says (subject), \"I love having you. But I can't feed you every night.\" (friend)'s face goes red. \"Oh. I didn't realize. I'm sorry.\" (friend.He/she) doesn't come the next night. The night after, (friend.he/she) arrives with a big basket of fish. \"My turn to bring dinner,\" (friend.he/she) says. They eat together most nights after that, taking turns.",
+   "src": "L230"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to just make more food. It's a squeeze, but it works. Then one evening (friend) arrives with a big basket of fruit. \"I noticed I'd been eating all your food,\" (friend.he/she) says sheepishly. \"I'm sorry.\" (subject) laughs. \"It's alright. I like the company.\" From then on, they cook together. It's much more fun than cooking alone.",
+   "src": "L233",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L233"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) decides to just make more food. It's a squeeze, but it works. Then one evening (friend) arrives with a big basket of fruit. \"I noticed I'd been eating all your food,\" (friend.he/she) says sheepishly. \"I'm sorry.\" (subject) laughs. \"It's alright. I like the company.\" From then on, they cook together. It's much more fun than cooking alone.",
+   "src": "L233",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L233"
+    }
+   ]
+  }
+ }
+}

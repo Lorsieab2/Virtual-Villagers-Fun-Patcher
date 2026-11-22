@@ -1,0 +1,169 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heavy Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim091_heavy_morning",
+  "source": "moments500",
+  "lines": [
+   1525,
+   1539
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1526",
+  "ledger": [
+   {
+    "src": "L1525",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1529",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1530",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1533",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1534",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1537",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1538",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "A villager wakes with a task already weighing on their mind.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1) wakes with a task already weighing on their mind. The worry remains, but it seems smaller after a quiet break.",
+   "src": "L1527"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1) wakes with a task already weighing on their mind. The afternoon feels unusually long, despite the simple work.",
+   "src": "L1539"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1) wakes with a task already weighing on their mind. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1531",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1531"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1) wakes with a task already weighing on their mind. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1531"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes with a task already weighing on their mind. A cheerful interruption is welcome for once.",
+   "src": "L1535",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1535"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes with a task already weighing on their mind. A cheerful interruption is welcome for once.",
+   "src": "L1535"
+  }
+ }
+}

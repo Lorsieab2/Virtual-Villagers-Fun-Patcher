@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day Nobody Needs Anything",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm28_nobody_needs",
+  "source": "draft_drm",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager wakes to a quiet morning that might be the one day nobody asks for anything: hide all day, or stay home and see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has one modest dream: a single day when nobody asks (subject.him/her) for anything. No \"can you help with,\" no \"have you seen my,\" no \"quick question.\" (subject.He/she) has never had one. This morning (subject.he/she) wakes up, and it is quiet, and nobody is at the door. (subject.He/she) lies very still, hardly daring to hope.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Hide All Day",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Stay Home and See",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) slips out early to a hidden spot by the rocks and stays there until sunset, eating fruit and watching the sea. Nobody finds (subject.him/her). It is glorious. When (subject.he/she) comes back, there's a small line of people waiting with questions. (subject) doesn't mind at all. (subject.He/she) has had (subject.his/her) day.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L338"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) slips out early to a hidden spot by the rocks and stays there until sunset, eating fruit and watching the sea. Nobody finds (subject.him/her). It is glorious. When (subject.he/she) comes back, there's a small line of people waiting with questions. (subject) doesn't mind at all. (subject.He/she) has had (subject.his/her) day.",
+   "src": "L338"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) stays home and waits. Midday comes. Nobody. Afternoon. Nobody. It's lovely. Then, at dusk, (friend) knocks. \"Sorry to bother you. I just wanted to say I've not bothered you all day, on purpose.\" (subject) laughs so much (subject.he/she) has to sit down. That, (subject.he/she) decides, doesn't count.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) stays home and waits. Midday comes. Nobody. Afternoon. Nobody. It's lovely. Then, at dusk, (friend) knocks. \"Sorry to bother you. I just wanted to say I've not bothered you all day, on purpose.\" (subject) laughs so much (subject.he/she) has to sit down. That, (subject.he/she) decides, doesn't count.",
+   "src": "L341"
+  }
+ }
+}

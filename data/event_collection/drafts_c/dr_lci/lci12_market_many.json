@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Market of Many Crafts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci12_market_many",
+  "source": "draft_lci",
+  "lines": [
+   162,
+   173
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L169",
+    "kind": "instruction",
+    "text": "[effect: small food gain; small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Artisans want a market day for crafts: hold the market with rules on family patterns, or keep trading as before.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants a market day every moon where everyone can trade: pots for fish, cloth for tools, carvings for fruit. (friend) worries that family patterns will be copied without permission once everyone sees them. What should the village do?",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Hold the Market",
+     "next": "o1",
+     "src": "L167"
+    },
+    {
+     "label": "Trade as Before",
+     "next": "o2",
+     "src": "L171"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The market is held with a rule: no copying a family pattern without permission. It is busy and loud and wonderful. One family's pattern is copied anyway, and the copier has to give the cloth back. After that, people ask.",
+   "src": "L169",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L169"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L169"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps trading the old way, between families. It works. It is slower. (subject) keeps suggesting a market. Eventually, (friend) agrees to try one, small.",
+   "src": "L173"
+  }
+ }
+}

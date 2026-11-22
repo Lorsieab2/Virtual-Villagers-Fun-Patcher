@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Small Circle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss097_small_circle",
+  "source": "companion",
+  "lines": [
+   7065,
+   7073
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7065",
+  "ledger": [
+   {
+    "src": "L7073",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A teen feels different from peers and believes everyone else has found close friends.",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A teen feels different from peers and believes everyone else has found close friends.",
+   "src": "L7066",
+   "choices": [
+    {
+     "label": "Invite them into a shared interest",
+     "next": "a",
+     "src": "L7067"
+    },
+    {
+     "label": "Ask about their preferred company",
+     "next": "b",
+     "src": "L7069"
+    },
+    {
+     "label": "Respect their pace",
+     "next": "c",
+     "src": "L7071"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They meet one person who enjoys the same activity.",
+   "src": "L7068"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They watch the festival without being pushed to socialize.",
+   "src": "L7072"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They discover that one close friendship matters more to them than a crowd.",
+   "src": "L7070",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L7070"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They discover that one close friendship matters more to them than a crowd.",
+   "src": "L7070"
+  }
+ }
+}

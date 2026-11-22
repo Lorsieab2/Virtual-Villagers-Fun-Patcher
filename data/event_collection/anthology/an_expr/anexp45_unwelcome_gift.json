@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwelcome Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp45_unwelcome_gift",
+  "source": "anthology",
+  "lines": [
+   31952,
+   31966
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31952",
+  "ledger": [
+   {
+    "src": "L31953",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31956",
+    "kind": "sensitivity",
+    "before": "The recipient",
+    "after": "(recipient)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31959",
+    "kind": "sensitivity",
+    "before": "The giver",
+    "after": "(giver)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31959",
+    "kind": "sensitivity",
+    "before": "the recipient",
+    "after": "(recipient)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31960",
+    "kind": "sensitivity",
+    "before": "The recipient",
+    "after": "(recipient)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31963",
+    "kind": "sensitivity",
+    "before": "The maker",
+    "after": "(giver)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31966",
+    "kind": "sensitivity",
+    "before": "The giver",
+    "after": "(giver)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A carefully made ornament is offered to someone who dislikes decorations.",
+  "label_case": "title",
+  "cast_only": [
+   "giver",
+   "recipient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "giver": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "recipient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carefully made ornament is offered to someone who dislikes decorations.",
+   "src": "L31954",
+   "choices": [
+    {
+     "label": "Accept Graciously",
+     "next": "a",
+     "src": "L31955"
+    },
+    {
+     "label": "Discuss Preferences",
+     "next": "b",
+     "src": "L31958"
+    },
+    {
+     "label": "Repurpose with Permission",
+     "next": "c",
+     "src": "L31961"
+    },
+    {
+     "label": "Respect the Answer",
+     "next": "d",
+     "src": "L31964"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31954"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(recipient) finds a place for it.",
+   "src": "L31956"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They explain it cannot be kept.",
+   "src": "L31957"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(giver) learns what (recipient) values.",
+   "src": "L31959"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(recipient) realizes the gesture mattered more than the object.",
+   "src": "L31960"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The ornament becomes a practical marker.",
+   "src": "L31962"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(giver) asks that it remain unchanged.",
+   "src": "L31963"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Both remain friends despite disappointment.",
+   "src": "L31965"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(giver) takes it back without resentment.",
+   "src": "L31966"
+  }
+ }
+}

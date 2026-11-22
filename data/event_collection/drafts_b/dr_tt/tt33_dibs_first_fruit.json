@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Dibs on the First Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt33_dibs_first_fruit",
+  "source": "draft_tt",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager calls dibs on the first fruit of a seedling that will take years to bear: agree on one condition, or claim the second.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has just planted a little breadfruit seedling beside the path. It is about knee high. (subject), passing, looks at it and says, \"Dibs on the first fruit.\" It will be years before that tree bears anything. (friend) looks at (subject). (subject) looks back, completely serious.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Agree, on One Condition",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Claim the Second",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (friend). \"Then you can help water it.\" (subject) agrees. (subject.He/she) waters it every few days, season after season, and by the time the first breadfruit appears, it is as much (subject)'s tree as (friend)'s. (subject) cuts the first fruit in two and gives (friend) the bigger half.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L398"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (friend). \"Then you can help water it.\" (subject) agrees. (subject.He/she) waters it every few days, season after season, and by the time the first breadfruit appears, it is as much (subject)'s tree as (friend)'s. (subject) cuts the first fruit in two and gives (friend) the bigger half.",
+   "src": "L398"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Then I'll have the second,\" says (friend), \"and every one after that.\" (subject) realizes (subject.he/she) has been outsmarted. \"...Dibs on the third, then.\" They spend the rest of the afternoon dividing up fruit that won't exist for years, and both enjoy it enormously.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Then I'll have the second,\" says (friend), \"and every one after that.\" (subject) realizes (subject.he/she) has been outsmarted. \"...Dibs on the third, then.\" They spend the rest of the afternoon dividing up fruit that won't exist for years, and both enjoy it enormously.",
+   "src": "L401"
+  }
+ }
+}

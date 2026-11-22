@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sweetness That Never Runs Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz093_sweetness_never",
+  "source": "draft_hz2",
+  "lines": [
+   161,
+   171
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L161",
+  "ledger": [
+   {
+    "src": "L162",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Sharing a rare bit of honey, a child wonders whether distant people might have so much sweetness that they eat it every day.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Sharing a rare bit of honey, (name1), a child, wonders whether distant people might have so much sweetness that they eat it every day.",
+   "src": "L162",
+   "choices": [
+    {
+     "label": "Imagine Endless Sweets.",
+     "next": "a",
+     "src": "L163"
+    },
+    {
+     "label": "Imagine Scarcity.",
+     "next": "b",
+     "src": "L166"
+    },
+    {
+     "label": "Savor What Is Here.",
+     "next": "c",
+     "src": "L169"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A healer wonders whether that much sweetness would still feel special.",
+   "src": "L165"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests that distant people might treasure sweet things just as Isolans do.",
+   "src": "L167"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A farmer wonders whether some distant people might have plenty while others have none.",
+   "src": "L168"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village shares the honey slowly, and it tastes better for the talk.",
+   "src": "L170"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child eats all of theirs at once and then wishes they had saved some.",
+   "src": "L171"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The children imagine mountains of honey and are delighted.",
+   "src": "L164",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L164"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The children imagine mountains of honey and are delighted.",
+   "src": "L164"
+  }
+ }
+}

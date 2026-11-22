@@ -113,7 +113,11 @@ def _keys() -> list[Entry]:
         # 0x448F50 -> 0x4083A0.
         Entry(KEY, "F3 (Puzzles and Milestones)", (
             "flips one setting of the game's drawing each press"), C, subs=(
-                ("What the setting changes on screen is not confirmed.", U),)),
+                # The drawing object's +0x1F (setter 0x4083A0); the frame 0x409628..0x409646 draws the game's pointer
+                # picture (+0x24) at the mouse (0x4086A0) only while it is set, and otherwise shows the system one
+                # (0x409600..0x409618), as in A New Home and The Tree of Life.
+                ("The setting is the game's own mouse pointer: each press stops or starts the game drawing its "
+                 "pointer picture at the mouse (Windows' own pointer shows instead).", C),)),
         # The slots 0x441390, 0x448F50, 0x447C90, 0x44B530, 0x43D3E0.
         Entry(KEY, "Esc (Collections, the Mausoleum, Tech, Puzzles, the Map, Villager Detail, Trophies, Adoption)", (
             "the same as the screen's own way back"), C),
@@ -172,14 +176,27 @@ def _clicks() -> list[Entry]:
         Entry(CLICK, "Clicking villagers in the tutorial (village)", (
             "while the tutorial's steps are armed, clicking a Heathen in a blue, orange or red mask shows that step's "
             "tip about them (tips 678, 680 and 682)"), C),
-        # The ground click runs 0x443AC0 with the spot.
+        # The ground click runs 0x443AC0 with the spot: map type 0x23 (0x477840) -> sprintf "%d%s12 %s" (0x49A350) of
+        # 0x413F50(0x50, 1, 1, 1) -- every lab gear piece 0x50..0x67 owned, 0 to 24 -- with strings 1183 " of " and
+        # 1184, to the message bar 0x44F0B0; no other branch writes text.  The Collections screen 0x43EB70 formats
+        # "%d%s24" (0x49A0E4) of 0x413F50(0x50 ...) and 0x413F50(0x68 ...): "<n> of 24" for both sets.  Map areas 4 and 5 (0x477820) instead play
+        # sound 0x59 and start the effect 0x41D460 at the spot while the timer 0x51D490 is not at 0 (0x41EDE0).
         Entry(CLICK, "Places that show their state (village)", (
-            "a click on the ground can write a collection count (\" of \", \"pieces of lab equipment collected\"); "
-            "which places and lines it covers was not traced"), U),
+            "a click on the ground writes a line at only one place of the island's map (the game's place number "
+            "35): \"<n> of 12 pieces of lab equipment collected\" in the message bar. The n counts every lab gear "
+            "piece found, up to all 24, while the \"12\" is fixed in the game's text, so with 13 or more found it "
+            "reads, for example, \"13 of 12\" (a slip in the game's text: the set has 24 pieces). The Collections "
+            "screen counts the same set right, \"<n> of 24\", for the lab gear and the relics alike. No other place "
+            "writes a line"), C, subs=(
+                # 0x443AF7..0x443B37: the area map 0x477820 gives 4 or 5 (the water, as in The Tree of Life's
+                # 0x440A70), and 0x41EDE0 says the game clock 0x51D490 is not stopped (its rate +0x20 / 6.0 is not
+                # 0, i.e. not paused): sound 0x59 and the effect 0x41D460 at the spot.
+                ("A click on the water while the game is not paused plays a splash sound and makes a ripple where "
+                 "it was clicked, instead of a line.", C),)),
     ]
 
 
-# The owner, 2026-11-07, of the pop-ups whose asking code is not traced: "pretty much all of these can appear as
+# The owner, 2026-11-07, of the pop-ups with no fixed-number asker (their worked-out askers: WORKED_OUT below): "pretty much all of these can appear as
 # part of the Tutorial (when you click yes on Do you need help?)" (669 to 719), the population milestones "appear
 # when you reach that amount of people", and the hut, Clothing Hut and collection tips "appear too".
 TUTORIAL = "shown in the Tutorial (after \"Yes\" to \"Do you need help?\")"
@@ -195,6 +212,60 @@ def _seen(tip) -> str:
     return f"{OWNER_SEEN[tip[0]]} (the owner)" if tip[0] in OWNER_SEEN else ""
 
 
+# The pop-ups the game asks for by a number it works out (every call of the queue 0x44E730 was read, 2026-11-18):
+#   * the tutorial's next instruction 0x44E7D0 (calls 0x44E7FC): the first even tip of 670..702 not yet shown, less 1,
+#     asked with the "show again" flag; run when a tip from the queue is put up (0x44EC28) and on loading (0x44ECDD);
+#   * the population milestones 0x426246: 738 at 15 believers or more, 739 at 25, 740 at 50, 741 at 90 with no room
+#     to grow (0x472BD0; the count is 0x4713F0's, the babies carried included);
+#   * a finished building 0x434E78: Huts 1 to 3 761, the Clothing Hut 762, the Love Shack 700 while it is not yet
+#     shown, else 763 (with "show again" but 700);
+#   * the collectible sets 0x4148A4: 767 when the relics (0x68..0x7F) are all found, 768 when the lab gear (0x50..0x67).
+# 704, 705, 707, 710, 715, 721, 724, 725, 727, 742 and 764 are asked for nowhere: no call passes them, no other
+# instruction or data word holds their numbers but the string table (0x4D7140...).
+TUTORIAL_STEP = "asked for as the tutorial's next instruction once the tip before it has been shown"
+WORKED_OUT = ({tip: (0x44E7FC, TUTORIAL_STEP) for tip in range(671, 702, 2)}
+              | {700: (0x434E78, "shown when the Love Shack is built, if it has not been shown yet (in place of the "
+                                 "Love Shack's own pop-up)"),
+                 739: (0x426246, "shown when the village reaches 25 people (the babies carried counted)"),
+                 740: (0x426246, "shown when the village reaches 50 people"),
+                 741: (0x426246, "shown at 90 people or more when there is no room to grow"),
+                 761: (0x434E78, "shown when Hut 1, 2 or 3 is restored"),
+                 762: (0x434E78, "shown when the Clothing Hut is built"),
+                 767: (0x4148A4, "shown when the last relic of the set is found"),
+                 768: (0x4148A4, "shown when the last lab gear piece of the set is found")})
+NEVER_ASKED = frozenset({704, 705, 707, 710, 715, 721, 724, 725, 727, 742, 764})
+
+
+# Re-checked 2026-11-18 against every path (the owner: a tip that looks unused most likely comes in the tutorial or
+# another pop-up): the tutorial's step machine (its next instruction 0x44E7D0, the fixed-number askers of its fail
+# and wait messages), the queue's 76 calls and the ones sharing a call after a jump, the tip table's set-up 0x44E5D0
+# (layout only), every string load by literal or base-plus-offset number, the tip spot and the loading screen (random
+# tips only), the help pictures.  The five tutorial tips below are reached by none of them.
+TUTORIAL_UNREACHED = frozenset({704, 705, 707, 710, 715})
+
+
+def _popup_label(tip):
+    if tip[2] or tip[0] in WORKED_OUT or tip[0] in NEVER_ASKED:
+        return C
+    if tip[0] in OWNER_SEEN:            # the owner's word stands where the code has a path the owner described
+        return gm.OWNER
+    return U
+
+
+def _popup_note(tip) -> str:
+    worked = WORKED_OUT.get(tip[0], (None, ""))[1]
+    if tip[0] in TUTORIAL_UNREACHED:
+        never = ("unused: the tutorial's code has no step that shows it, and no other pop-up, tip or text path "
+                 "reaches it, so the normal game never shows it (the owner remembers the tutorial's tips appearing; "
+                 "this one is not among the steps the code takes)")
+    elif tip[0] in NEVER_ASKED:
+        never = "no code of the normal game asks for it, so the normal game never shows it"
+    else:
+        never = ""
+    seen = "" if (tip[0] in WORKED_OUT and tip[0] >= 739) or tip[0] in NEVER_ASKED else _seen(tip)
+    return "; ".join(w for w in (tip[1], hidden.sites_note(tip[2]), worked, never, seen) if w)
+
+
 def _tips() -> list[Entry]:
     return [
         Entry(TIP, "Where the tips appear", (
@@ -207,24 +278,30 @@ def _tips() -> list[Entry]:
                 # 0x402F70 -> srand.
                 ("The game seeds its random numbers from the computer's clock when it starts, so the loading screen's "
                  "tip differs from run to run.", C),
-                ("Random tips 31 to 50: no stock code was found asking for them; the patcher's \"Clickable Tips\" "
-                 "shows all 50.", U),
-                ("Whether each pop-up shows once a village is not traced.", U),
+                # No instruction or call holds 1151..1170 or works them out (the only random pick is 0x441D30's).
+                ("Random tips 31 to 50: no code of the normal game asks for them, so the normal game never shows "
+                 "them; the patcher's \"Clickable Tips\" shows all 50.", C),
+                # The seen marks: 103 of 32 bytes (tips 668..770), set when a tip is put up (0x44EDA1), tested by the
+                # queue 0x44E730 unless its "show again" flag is set, copied into the save (0x44E590 from 0x4245D4),
+                # cleared for a new village (0x42477E); "No" (the box's second button, 0x4404CD) runs 0x44EC40(0):
+                # 668..727 marked shown but 703; the end of the village (0x4261EA) 0x44EC40(1): all 103.
+                ("Each pop-up shows once a village, with two exceptions: the game marks a pop-up shown when it is put "
+                 "up, keeps the marks in the save, and starts a new village with none marked, but the puzzle and "
+                 "building pop-ups are shown even if marked (so \"A New Hut!\" can come for each of the three huts), "
+                 "and a tutorial instruction is asked for again until the step after it has been shown. Answering \"No\" to \"Do you need help?\" marks the tutorial's pop-ups and the first hints (668 to "
+                 "727) shown, all but the Welcome; when the last believer is gone every pop-up is marked shown.", C),
                 ("The owner has seen the tutorial pop-ups (eTTip) appear in the Tutorial, after \"Yes\" to \"Do you "
                  "need help?\"; the population milestones when the village reaches 25 people, 50 people and its "
                  "population limit; and the hut, Clothing Hut and collection pop-ups when they are done.", gm.OWNER))),
         Entry(TIP, f"The {RANDOM_COUNT} random tips (eRandomTip1 to 50; the loading screen draws from the first "
                    f"{LOADING_COUNT})", "every one, as the game words it:", C,
-              subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C if tip[0] < RANDOM_BASE + LOADING_COUNT else U,
+              subs=hidden.tip_lines(RANDOM_TIPS, lambda tip: C,
                                     lambda tip: "" if tip[0] < RANDOM_BASE + LOADING_COUNT
-                                    else "not in the loading screen's draw")),
+                                    else "not in the loading screen's draw: never shown by the normal game")),
         Entry(TIP, f"The {len(POPUP_TIPS)} tip pop-ups (eTTip tutorial, eTip milestones)", (
-            "every one, as the game words it, with its name and the places that ask for it by number (a tip with none "
-            "is asked for by a number the game works out, which is not traced, and is labelled as not confirmed)"), C,
-              subs=hidden.tip_lines(POPUP_TIPS,
-                                    lambda tip: C if tip[2] else (gm.OWNER if tip[0] in OWNER_SEEN else U),
-                                    lambda tip: "; ".join(w for w in (tip[1], hidden.sites_note(tip[2]), _seen(tip))
-                                                          if w))),
+            "every one, as the game words it, with its name and the places that ask for it by number, or when the "
+            "game asks for it by a number it works out; a tip no code asks for is never shown by the normal game"), C,
+              subs=hidden.tip_lines(POPUP_TIPS, _popup_label, _popup_note)),
     ]
 
 
@@ -258,7 +335,9 @@ def _patcher() -> list[Entry]:
             "Speed"), C, feature=DIFFICULTY),
         Entry(PATCHER, "Upgrades buttons (Tech and Villager Detail screens)", (
             "a click opens the Origins Upgrades menu (Tech screen) or the Villager Upgrades menu (Villager Detail)"),
-              C, feature=ORIGINS, subs=(("Esc closing these menus is tested only in A New Home.", U),)),
+              # native/vv5_task9_origins: every dialog ends on IDCANCEL (what Esc sends) -- the menu with -1, its own
+              # Cancel.
+              C, feature=ORIGINS, subs=(("Esc closes these menus as Cancel does: nothing is bought.", C),)),
         Entry(PATCHER, "Story / Cheat menus (in the Origins Upgrades menu)", (
             "adds Pick Island Event, Custom Island Event and Choose Time Skip Amount, and makes every Origins Upgrade "
             "cost 0 tech points"), C, feature=STORY),

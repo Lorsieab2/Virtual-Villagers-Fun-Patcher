@@ -1,0 +1,176 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Beneath the Burial Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir01_child_beneath",
+  "source": "living",
+  "lines": [
+   21244,
+   21255
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21244",
+  "ledger": [
+   {
+    "src": "L21255",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child asks where their father has gone after his death.",
+  "cast_only": [
+   "child",
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks where their father has gone after his death.",
+   "src": "L21245",
+   "choices": [
+    {
+     "label": "Explain how living things return to the earth.",
+     "next": "a",
+     "src": "L21246"
+    },
+    {
+     "label": "Share a belief that spirits may remain near.",
+     "next": "b",
+     "src": "L21249"
+    },
+    {
+     "label": "Admit that no one knows what follows death.",
+     "next": "c",
+     "src": "L21252"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "death",
+     "reason": "the father's death is the premise; nobody dies now",
+     "src": "L21245"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child watches a sapling but says they still want their father back.",
+   "src": "L21247"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child asks to plant a tree and returns to tend it.",
+   "src": "L21248"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child becomes frightened at night and asks for a different explanation.",
+   "src": "L21251"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child appreciates the honesty and asks to hear stories about their father.",
+   "src": "L21253"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The uncertainty upsets the child, and a relative stays beside them.",
+   "src": "L21254"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The child finds comfort, while an elder admits no one knows for certain.",
+   "src": "L21250",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21250"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The child finds comfort, while an elder admits no one knows for certain.",
+   "src": "L21250"
+  }
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Beginning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_28_beginning",
+  "source": "v28",
+  "lines": [
+   10705,
+   10711
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10705",
+  "ledger": [
+   {
+    "src": "L10706",
+    "kind": "note",
+    "why": "the cast: ELDERS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10711",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "An elder announces a wish to learn something completely new.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "An elder announces they want to learn to swim, weave, or play an instrument.",
+   "src": "L10707",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A patient teacher helps them begin safely.",
+   "src": "L10708"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A mocking bystander is challenged by younger villagers.",
+   "src": "L10710"
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover they enjoy being a beginner.",
+   "src": "L10709",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L10709"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They discover they enjoy being a beginner.",
+   "src": "L10709"
+  }
+ }
+}

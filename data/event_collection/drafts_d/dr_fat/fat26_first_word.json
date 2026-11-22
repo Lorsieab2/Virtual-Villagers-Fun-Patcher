@@ -1,0 +1,282 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Word",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat26_first_word",
+  "source": "fathers30",
+  "lines": [
+   539,
+   557
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L539",
+  "ledger": [
+   {
+    "src": "L540",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L541",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L545",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L547",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L548",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L550",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L551",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L553",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L554",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L556",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L557",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "For weeks, a baby has been babbling at everyone who approaches.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For weeks, a baby has been babbling at everyone who approaches. During an ordinary afternoon, the child suddenly says something that sounds unmistakably like a word. The nearby adults freeze and look at one another.",
+   "src": "L543",
+   "choices": [
+    {
+     "label": "Encourage the Baby to Say It Again",
+     "next": "a",
+     "src": "L546"
+    },
+    {
+     "label": "Tell the Other Parent or Caregiver",
+     "next": "b",
+     "src": "L549"
+    },
+    {
+     "label": "Write the Moment in the Family Record",
+     "next": "c",
+     "src": "L552"
+    },
+    {
+     "label": "Simply Enjoy the Moment",
+     "next": "d",
+     "src": "L555"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baby produces an entirely different noise and reaches for a spoon.",
+   "src": "L548"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They celebrate together and spend the evening listening for another word.",
+   "src": "L550",
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L550"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The other caregiver misses the next attempt and jokingly accuses the baby of keeping secrets.",
+   "src": "L551"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The caregiver preserves a small memory they hope to share with the child someday.",
+   "src": "L553"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They cannot agree on exactly what the baby said, and record both possibilities.",
+   "src": "L554"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child babbles happily in their arms while the village carries on around them.",
+   "src": "L556"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The baby repeats the word, and the caregiver laughs with delight.",
+   "src": "L547",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L547"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The baby repeats the word, and the caregiver laughs with delight.",
+   "src": "L547"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The caregiver wonders whether it was truly a word, but decides the uncertainty changes nothing about their joy.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "The caregiver wonders whether it was truly a word, but decides the uncertainty changes nothing about their joy.",
+   "src": "L557"
+  }
+ }
+}

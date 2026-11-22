@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path Nobody Takes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his07_path_nobody",
+  "source": "draft_his",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   }
+  ],
+  "description": "An elder goes quiet on seeing a teen use the cliff path nobody takes: ask why, or let it be.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a path along the north cliffs that is shorter, flatter and easier than the inland path. But nobody uses it. Elders never do, parents never do, and nobody ever explains. (friend) has been using it for a month, because it's quicker. Today (subject), an elder, saw (friend.him/her) on it, and went quiet in a way that (friend) didn't expect.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Ask (subject) Why",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Let It Be",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks. (subject) takes a long time to answer. \"Something happened there, a very long time ago,\" (subject.he/she) says. \"Not to me. To the people who were here before my grandparents' grandparents. It was bad, and people were lost. That's all I was ever told. We just don't walk there.\" (friend) is quiet. \"Do I have to stop?\" (subject) thinks. \"No. But now you know.\" (friend) takes the inland path home, slowly.",
+   "src": "L86"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) doesn't ask. (friend.He/she) can tell from (subject)'s face that this is something old and heavy. The next morning, (friend.he/she) takes the inland path. It's longer. (friend.He/she) doesn't really mind. Months later (subject) stops (friend.him/her) by the fire and says, \"Thank you for not asking.\" (friend) nods. (friend.He/she) still doesn't know what happened. (friend.He/she) has decided that's alright.",
+   "src": "L89"
+  }
+ }
+}

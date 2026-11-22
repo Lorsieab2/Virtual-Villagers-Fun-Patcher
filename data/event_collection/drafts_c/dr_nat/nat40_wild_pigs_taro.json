@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Wild Pigs in the Taro",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat40_wild_pigs_taro",
+  "source": "draft_nat",
+  "lines": [
+   470,
+   479
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L470",
+  "ledger": [
+   {
+    "src": "L471",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L479",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Wild pigs keep rooting up the taro gardens at night: build a fence, or go hunting.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Wild pigs have been coming out of the forest at night and rooting up the taro gardens. Half the patch is torn up, and the farmers are furious. (subject) wants a strong fence. (friend) says a fence won't stop pigs that determined, and that the village should hunt them, as it used to.",
+   "src": "L473",
+   "choices": [
+    {
+     "label": "Build a Fence",
+     "next": "o1",
+     "src": "L475"
+    },
+    {
+     "label": "Go Hunting",
+     "next": "o2",
+     "src": "L478"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leads a hunt. It takes two days of tracking in the forest, and they come back with one pig. The hunt provides plenty of food, and it's shared out at a feast. The other wild pigs stay away from the gardens for a while. Then, one night, they come back. The hunters say there will always be pigs. The farmers say there will always be taro.",
+   "src": "L479",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L479"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "It takes a week of hard work to fence the taro with stakes and woven branches. The first night, a pig gets in anyway, under a weak spot. The second night, nothing. The third night, the pigs try the other garden instead. (subject) sighs and starts on another fence. Pigs, it turns out, are cleverer than fences.",
+   "src": "L476",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L476"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L476"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "It takes a week of hard work to fence the taro with stakes and woven branches. The first night, a pig gets in anyway, under a weak spot. The second night, nothing. The third night, the pigs try the other garden instead. (subject) sighs and starts on another fence. Pigs, it turns out, are cleverer than fences.",
+   "src": "L476"
+  }
+ }
+}

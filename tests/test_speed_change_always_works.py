@@ -273,7 +273,9 @@ class ABackupsSetSpeedIsKept(unittest.TestCase):
         checklist = self.body("    def _repair_checklist(", "    def _last_names_dialog(")
         self.assertIn("speed_set_backups: set[Path] = set()", checklist)
         self.assertIn("on_set=speed_set_backups.add", checklist)
-        self.assertIn("[p for p in unpaused if Path(p).parent not in speed_set_backups]", checklist)
+        # Each save's backup, a long save kept in the backup's Long Paths folder too (Codex review on #769).
+        self.assertIn("[p for p in unpaused if vv_save_backup._backup_holding(Path(p)) not in speed_set_backups]",
+                      checklist)
         self.assertNotIn("(list(unpaused) if pause_backups_var.get() else [])", checklist)
 
     def test_the_dialog_reports_the_backup_it_set(self) -> None:

@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day of No Decisions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il024_day_decisions",
+  "source": "da_il02",
+  "lines": [
+   225,
+   239
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L225",
+  "ledger": [
+   {
+    "src": "L227",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L239",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager is so tired of making decisions all morning that even choosing lunch feels exhausting.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has spent the morning making decisions. Which crops need water? Which tools need repair? Who should gather the herbs? Where should the baskets go? By lunchtime (subject.he/she) is thoroughly tired of deciding things. Even choosing what to eat feels exhausting.",
+   "src": "L229",
+   "choices": [
+    {
+     "label": "Ask (friend) to Choose Lunch",
+     "next": "a",
+     "src": "L231"
+    },
+    {
+     "label": "Take a Quiet Break",
+     "next": "b",
+     "src": "L235"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) brings (subject) a bowl of fruit and fish. \"I hope this is alright.\" (subject) looks delighted. \"It's wonderful. I didn't have to choose any of it.\"",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) brings (subject) a bowl of fruit and fish. \"I hope this is alright.\" (subject) looks delighted. \"It's wonderful. I didn't have to choose any of it.\"",
+   "src": "L233"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits beneath a tree and watches the clouds. Nobody asks (subject.him/her) anything for almost an hour. It is the most restful part of the day. Eventually (subject) gets up and returns to work, feeling somewhat refreshed.",
+   "src": "L237",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L237"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) sits beneath a tree and watches the clouds. Nobody asks (subject.him/her) anything for almost an hour. It is the most restful part of the day. Eventually (subject) gets up and returns to work, feeling somewhat refreshed.",
+   "src": "L237"
+  }
+ }
+}

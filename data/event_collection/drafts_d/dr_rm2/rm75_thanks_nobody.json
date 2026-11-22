@@ -1,0 +1,175 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thanks Nobody Gives",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm75_thanks_nobody",
+  "source": "draft_rm2",
+  "lines": [
+   520,
+   533
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L520",
+  "ledger": [
+   {
+    "src": "L521",
+    "kind": "sensitivity",
+    "before": "a young villager",
+    "after": "(name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Every dawn one quiet villager carries water to the communal jars, and a young villager notices nobody thanks them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every dawn, one quiet villager carries water from the stream to the communal jars, and (name1), a young villager, realizes nobody has ever thanked them.",
+   "src": "L521",
+   "choices": [
+    {
+     "label": "Thank Them Directly.",
+     "next": "a",
+     "src": "L522"
+    },
+    {
+     "label": "Help Carry Water One Morning.",
+     "next": "b",
+     "src": "L525"
+    },
+    {
+     "label": "Ask the Village to Notice.",
+     "next": "c",
+     "src": "L528"
+    },
+    {
+     "label": "Leave a Small Gift at the Jars.",
+     "next": "d",
+     "src": "L531"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The water carrier is surprised and visibly pleased.",
+   "src": "L523"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The water carrier shrugs it off, but seems to walk a little lighter.",
+   "src": "L524"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The young villager learns how heavy the work is and gains new respect.",
+   "src": "L526"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The young villager oversleeps the first morning but shows up the next.",
+   "src": "L527"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "At the next gathering, the leader thanks the water carrier publicly.",
+   "src": "L529"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The water carrier dislikes the attention and asks that it not happen again.",
+   "src": "L530",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- story only: the file marks no effect (no new mechanics)",
+     "src": "L530"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The water carrier finds it and smiles.",
+   "src": "L532"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Someone else takes the gift by mistake, and the young villager tries again.",
+   "src": "L533"
+  }
+ }
+}

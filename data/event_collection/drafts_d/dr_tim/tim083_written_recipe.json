@@ -1,0 +1,249 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Written Recipe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim083_written_recipe",
+  "source": "moments500",
+  "lines": [
+   1389,
+   1403
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1390",
+  "ledger": [
+   {
+    "src": "L1389",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1393",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1394",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1397",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1398",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1401",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1402",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1391",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1395",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1399",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1403",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder dictates a family recipe while a younger villager records it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The reader smiles at a tiny drawing in the margin.",
+   "src": "L1391",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1391"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The reader smiles at a tiny drawing in the margin.",
+   "src": "L1391"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. Someone pauses to remember the exact wording.",
+   "src": "L1395",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1395"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. Someone pauses to remember the exact wording.",
+   "src": "L1395"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The finished page feels more precious than its materials suggest.",
+   "src": "L1399",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1399"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. The finished page feels more precious than its materials suggest.",
+   "src": "L1399"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. A smudged line requires a patient correction.",
+   "src": "L1403",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L1403"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, dictates a family recipe while a younger villager records it. A smudged line requires a patient correction.",
+   "src": "L1403"
+  }
+ }
+}

@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Refused the Circle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir16_child_refused",
+  "source": "living",
+  "lines": [
+   21439,
+   21450
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21439",
+  "ledger": [
+   {
+    "src": "L21450",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child angrily rejects an elder's claim that death is simply part of life.",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child angrily rejects an elder's claim that death is simply part of life.",
+   "src": "L21440",
+   "choices": [
+    {
+     "label": "Listen without correcting the child.",
+     "next": "a",
+     "src": "L21441"
+    },
+    {
+     "label": "Explain the cycle of growth and decay.",
+     "next": "b",
+     "src": "L21444"
+    },
+    {
+     "label": "Offer a quiet memorial together.",
+     "next": "c",
+     "src": "L21447"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "death",
+     "reason": "the mother's death is the premise; nobody dies now",
+     "src": "L21440"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child cries and asks to hear stories about their mother.",
+   "src": "L21442"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder admits the words were meant kindly but felt too small.",
+   "src": "L21443"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child learns something about the forest but remains upset.",
+   "src": "L21445"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child asks why nature cannot give their mother back.",
+   "src": "L21446"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child chooses a shell to remember their mother.",
+   "src": "L21448"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child refuses a ceremony, and the family respects that choice.",
+   "src": "L21449"
+  }
+ }
+}

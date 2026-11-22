@@ -1,0 +1,161 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spell That Holds a Pulse",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed19_spell_holds",
+  "source": "living",
+  "lines": [
+   20453,
+   20464
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20453",
+  "ledger": [
+   {
+    "src": "L20464",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A Magic practitioner claims to have learned a spell that can briefly strengthen a failing heartbeat.",
+  "cast_only": [
+   "practitioner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "practitioner": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A Magic practitioner claims to have learned a spell that can briefly strengthen a failing heartbeat.",
+   "src": "L20454",
+   "choices": [
+    {
+     "label": "Offer the spell with the patient's permission.",
+     "next": "a",
+     "src": "L20455"
+    },
+    {
+     "label": "Use ordinary treatment and keep the practitioner nearby.",
+     "next": "b",
+     "src": "L20458"
+    },
+    {
+     "label": "Record the spell's effects before relying on it.",
+     "next": "c",
+     "src": "L20461"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The pulse steadies for an hour, leaving its cause uncertain.",
+   "src": "L20456"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The spell seems to fail, and the patient dies despite further care.",
+   "src": "L20457",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20457"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient recovers slowly while the practitioner offers companionship.",
+   "src": "L20459",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20459"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient asks for the spell later, after hearing the risks.",
+   "src": "L20460"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Repeated attempts produce conflicting results.",
+   "src": "L20462"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The practitioner discovers the spell requires exhausting concentration and may not be dependable.",
+   "src": "L20463"
+  }
+ }
+}

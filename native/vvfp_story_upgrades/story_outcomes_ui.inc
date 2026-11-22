@@ -102,7 +102,7 @@ static void label_of(const story_event *e, char *out, size_t size);
    is an encounter / a two-choice event); the other games: the villager its
    own condition picked, read from the event object after asking it. */
 static int oc_unlock_possible(int game, const story_event *e) {
-    unsigned int table;
+    unsigned int table, world;
     getter_fn getter;
     void *object;
     if (!oc_event_unlockable(game, e->slot)) {
@@ -111,13 +111,14 @@ static int oc_unlock_possible(int game, const story_event *e) {
     switch (game) {
     case 1: return vv1_base_possible(e);
     case 2: return vv2_base_possible(e);
-    case 3: table = VV3_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV3_EVENT_GETTER; break;
-    case 4: table = VV4_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV4_EVENT_GETTER; break;
-    case 5: table = VV5_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV5_EVENT_GETTER; break;
+    case 3: table = VV3_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV3_EVENT_GETTER; world = VV3_MANAGER_GLOBAL; break;
+    case 4: table = VV4_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV4_EVENT_GETTER; world = VV4_WORLD_GLOBAL; break;
+    case 5: table = VV5_EVENT_TABLE; getter = (getter_fn)(uintptr_t)VV5_EVENT_GETTER; world = VV5_WORLD_GLOBAL; break;
     default: return 0;
     }
     object = *(void **)(uintptr_t)(table + 4u * (unsigned int)e->slot);
-    if (object == NULL) {
+    /* the event manager is built only once the game object exists (table_event_object) */
+    if (object == NULL && *(void *volatile *)(uintptr_t)world != NULL) {
         getter();
         object = *(void **)(uintptr_t)(table + 4u * (unsigned int)e->slot);
     }
@@ -588,7 +589,7 @@ static void chooser_description(int index, char *out, int size) {
         }
     } else if (size >= 1100) {
         wsprintfA(out, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1", "%s\r\n\r\nNot possible right now: %s", 200),
-                  description, event_text(ev, EVENT_REQUIRES, ev->requires, 300));
+                  description, event_requires(ev));
     }
 }
 
@@ -874,6 +875,23 @@ static void chooser_show(HWND window) {
         return;
     }
     index = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
+    if (index >= SM_ROW) {
+        /* A More Island Events event: no settings; what it needs when it can not happen now. */
+        int m = index - SM_ROW;
+        if (sm_list.possible[m]) {
+            lstrcpynA(text, sm_list.description[m], sizeof text);
+        } else {
+            wsprintfA(text, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s1",
+                                    "%s\r\n\r\nNot possible right now: %s", 200),
+                      sm_list.description[m], sm_list.needs[m]);
+        }
+        chooser.current = -1;
+        chooser.row = -1;
+        chooser_set_text(window, IDC_PICK_DESC, text);
+        EnableWindow(GetDlgItem(window, IDOK), TRUE);   /* OK says plainly why it can not be picked */
+        chooser_fill_rows(window);
+        return;
+    }
     if (index != chooser.current) {
         chooser.current = index;
         chooser.row = 0;
@@ -1017,6 +1035,16 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
             SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)i);
         }
+        for (i = 0; i < sm_list.count; ++i) {     /* More Island Events' events (story_more_events.inc) */
+            int row;
+            lstrcpynA(label, sm_list.title[i], 300);
+            if (!sm_list.possible[i]) {
+                lstrcatA(label, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_dialog.s5", " - not possible right now", 100));
+            }
+            vvfp_to_wide(label, wide, CHOOSER_LABEL);
+            row = (int)SendDlgItemMessageW(window, IDC_PICK_LIST, LB_ADDSTRING, 0, (LPARAM)wide);
+            SendDlgItemMessageA(window, IDC_PICK_LIST, LB_SETITEMDATA, (WPARAM)row, (LPARAM)(SM_ROW + i));
+        }
         SendDlgItemMessageA(window, IDC_PICK_AMOUNT, EM_LIMITTEXT, 12, 0);
         chooser.current = -1;
         chooser.row = -1;
@@ -1083,6 +1111,17 @@ static INT_PTR CALLBACK chooser_dialog(HWND window, UINT message, WPARAM wparam,
             } else {
                 index = (int)SendDlgItemMessageA(window, IDC_PICK_LIST, LB_GETITEMDATA, (WPARAM)sel, 0);
             }
+            if (!chooser.gong && index >= SM_ROW) {
+                int m = index - SM_ROW;
+                if (!sm_list.possible[m]) {
+                    sm_refusal_of(m, why, sizeof why);
+                    MessageBoxA(window, why, "Pick Island Event", MB_OK | MB_ICONINFORMATION);
+                    return TRUE;
+                }
+                chooser.chosen = index;
+                EndDialog(window, IDOK);
+                return TRUE;
+            }
             if (chooser.possible[index] == OC_POSSIBLE_NO) {
                 return TRUE;
             }
@@ -1119,6 +1158,10 @@ static void chooser_prepare(int game, const story_game *g) {
     chooser.gid = game;
     chooser.chosen = -1;
     chooser.roster_count = a != NULL ? ce_roster(a, chooser.roster, OC_ROSTER_MAX) : 0;
+    sm_list.count = 0;
+    if (g == &GAMES[game]) {
+        sm_fill(game);                  /* More Island Events' events, when it is installed */
+    }
     for (i = 0; i < chooser.roster_count; ++i) {
         const unsigned char *record = a->record(chooser.roster[i].index);
         ce_copy_name(chooser.names[i], CE_NAME_BYTES, record + a->off_name, a->name_bytes);

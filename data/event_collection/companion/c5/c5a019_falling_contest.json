@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Falling Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a019_falling_contest",
+  "source": "companion",
+  "lines": [
+   477,
+   499
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L482",
+  "ledger": [
+   {
+    "src": "L478",
+    "kind": "structural",
+    "why": "the group heading 'PHYSICS'"
+   },
+   {
+    "src": "L484",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L488",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L493",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L495",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L497",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L499",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "Builders and researchers argue about why differently shaped objects fall as they do.",
+  "cast_only": [
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Builders and researchers argue about why differently shaped objects fall as they do.",
+   "src": "L486",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L489"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L490"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L491"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "Controlled trials challenge a popular misconception.",
+   "src": "L493",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L493"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "A gust of wind ruins the first demonstration.",
+   "src": "L495"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "The results inspire better designs for parachute-like leaf toys.",
+   "src": "L497"
+  }
+ }
+}

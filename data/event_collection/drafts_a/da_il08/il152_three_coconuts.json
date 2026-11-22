@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Three Coconuts in the Air",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il152_three_coconuts",
+  "source": "da_il08",
+  "lines": [
+   134,
+   143
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L140",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager has decided to learn to juggle with three coconuts: keep practicing, or switch to something softer.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) has decided to learn to juggle. Nobody needs a villager who can juggle. It won't help with the harvest or fix a roof. (name1) wants to do it anyway. (He/She) has been practicing with three coconuts for a week, and has so far managed to catch none of them twice in a row.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Keep Practicing",
+     "next": "a",
+     "src": "L139"
+    },
+    {
+     "label": "Switch to Something Softer",
+     "next": "b",
+     "src": "L142"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) practices every evening. (He/She) drops coconuts on (his/her) toes, on the grass, once on a passing chicken, who is fine but furious. Then, one evening, suddenly, (he/she) keeps all three in the air for a count of ten. (He/She) shrieks, drops all three, and doesn't care in the slightest.",
+   "src": "L140",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L140"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "After one too many coconuts on the toe, (name1) switches to three bundles of rolled-up leaves. They're much easier to catch. They also look much sillier. (name1) doesn't mind. By the end of the week (he/she) can juggle the leaf bundles while walking, and the children follow (him/her) about asking for shows.",
+   "src": "L143"
+  }
+ }
+}

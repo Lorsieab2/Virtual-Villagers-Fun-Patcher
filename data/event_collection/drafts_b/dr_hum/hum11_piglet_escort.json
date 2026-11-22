@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Piglet Escort",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum11_piglet_escort",
+  "source": "draft_hum",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A young pig decides a villager is its favorite person and follows everywhere: accept the escort, or try to lose it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young pig has decided that (subject) is its favorite person. Nobody knows why. It follows (subject.him/her) to the field, to the stream, to the latrine \\(where it waits outside, politely\\), and to the evening gathering, where it sits beside (subject.him/her) in the circle as though it has every right to be there.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Accept the Escort",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Try to Lose It",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gives in. All week the pig trots ahead of (subject.him/her) on the paths like a scout and stands guard while (subject.he/she) bathes. Then, one morning, it simply trots off after somebody else and never looks back. (subject) feels oddly abandoned. \"Fickle,\" says (friend). \"Very fickle,\" agrees (subject).",
+   "src": "L134"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) takes the long way round, doubles back and hides behind a tree. The pig is sitting on the other side of the tree, waiting. (subject) wades across the stream. The pig, offended, finds a dry way round and is waiting on the far bank. (subject) gives up and shares (subject.his/her) lunch, which the pig seems to consider the correct ending all along.",
+   "src": "L137"
+  }
+ }
+}

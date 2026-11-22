@@ -1,0 +1,214 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spirit of Old Age",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b200_spirit_old_age",
+  "source": "balance",
+  "lines": [
+   9285,
+   9328
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9285",
+  "ledger": [
+   {
+    "src": "L9286",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9287",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9295",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9304",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9292",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9293",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9296",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9305",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9298",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9301",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9307",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9310",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9313-9328",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Would you carry my basket, dear? she says.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every village has a story about the old woman who sits on the path at dusk, with a walking stick and a basket of grey feathers, and asks passers-by to carry her basket home. The story says she is the Spirit of Old Age, and whoever helps her is given some of her years, \"the good ones, and the others.\"\n(subject) is walking home late from the gardens, tired, when (subject.he/she) sees an old woman sitting on a stone on the path ahead, with a walking stick and a basket of grey feathers. She smiles at (subject.him/her) with no teeth at all. \"Would you carry my basket, dear?\" she says. \"It's ever so heavy.\"\nShould (subject) carry the basket, or walk on by?",
+   "choices": [
+    {
+     "label": "Carry the Basket",
+     "next": "c1",
+     "src": "L9292"
+    },
+    {
+     "label": "Walk On By",
+     "next": "c2",
+     "src": "L9293"
+    }
+   ],
+   "src": "L9288-9290"
+  },
+  "c1o1": {
+   "text": "At her door, which is a hut (subject) has never seen before, she takes the basket and thanks (subject.him/her). When (subject) gets home, (subject.his/her) hair has gone silver, and (subject.his/her) face has the calm, deep lines of an elder. But (subject.he/she) also knows things about (subject.his/her) own work that (subject.he/she) didn't know that morning, things it takes a lifetime to learn. \"The good ones,\" (subject) says. \"She gave me the good ones.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L9299",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The basket gets so heavy that by the time they reach her door, (subject)'s back is bent under it, and it stays bent. (subject.He/She) gets home with grey hair, aching joints and a stick (subject.he/she) doesn't remember picking up. \"The others,\" the elders say, very gently. They make (subject.him/her) a soft seat by the fire.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "running",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L9302",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) picks up the basket. It's light, it's only feathers, but with every step it gets heavier, and the old woman walks beside (subject.him/her), chatting about the weather, the price of fish, the old days...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9296"
+  },
+  "c2o1": {
+   "text": "A little later, (friend) comes home along the same path, grey-haired and stooped, with a strange look on (friend.his/her) face. \"There was an old woman,\" (friend.he/she) says, \"with a basket.\" (subject) doesn't say anything. (subject.He/She) helps carry (friend)'s things for a week after that, and feels very guilty about it.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L9308",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "All the way home, (subject) can hear the tap of a walking stick behind (subject.him/her), and when (subject.he/she) reaches (subject.his/her) door, there's a single grey feather on the step. Nothing else happens. But (subject) keeps the feather, and the next time (subject.he/she) sees an old person carrying anything heavy, (subject.he/she) offers to help, every time.",
+   "src": "L9311"
+  },
+  "c2": {
+   "text": "(subject) knows the story. (subject.He/She) says \"Sorry, I'm in a hurry,\" and walks past, very fast, not looking back. Behind (subject.him/her), the old woman laughs, a dry laugh like leaves...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9305"
+  }
+ }
+}

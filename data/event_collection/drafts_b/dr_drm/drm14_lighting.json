@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Lighting the Festival Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm14_lighting",
+  "source": "draft_drm",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L170",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager asked to light the festival fire for the first time has shaking hands: light it right away, or take a breath first.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For as long as (name1) can remember, (he/she) has wanted to be the one who lights the big fire at the start of the festival. It's a small thing. Anyone could do it. Someone different does it each time. This year, for the first time, they've asked (name1). Now the moment is here, everyone is watching, and (his/her) hands are shaking.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Light It Right Away",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Take a Breath First",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) strikes the flint. Nothing. Again. A spark. A tiny flame catches the dry grass, then the twigs, then the logs, and everyone cheers. (name1) steps back with (his/her) face glowing, and it's not just the fire. Later (he/she) can't remember a single thing about the rest of the festival.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L170"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) stops and takes a slow breath. Then another. Everyone waits. Someone in the back starts to giggle and is shushed. (name1) strikes the flint once, and the fire catches immediately, as if it had been waiting for (him/her) to be ready. (He/she) will tell people for years that it was the breath that did it.",
+   "src": "L173"
+  }
+ }
+}

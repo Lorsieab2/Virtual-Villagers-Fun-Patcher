@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden (he/she) Keeps",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam208_garden_keeps",
+  "source": "draft_fam2",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder whose partner has died (where the game records it)"
+   }
+  ],
+  "description": "A widowed elder keeps their late partner's flower garden, and a younger villager offers to take it over: accept help, or keep it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s partner has died. (subject.His/her) partner loved the little flower garden beside their hut, and (subject) has kept it going ever since, even though (subject.he/she) never cared much for flowers. It's a lot of work for old knees. Today (friend), a younger villager, offers to take it over.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Accept the Help",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Keep It (subject.him/her)self",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Thank you,\" says (subject). \"But I want to do it.\" (friend) nods and leaves (subject.him/her) to it. (subject) keeps the garden, slowly, a little each day. Some days (subject.his/her) knees ache. Some days (subject.he/she) talks to the flowers as though (subject.his/her) partner is there. (subject.He/she) has been grieving for a long time. (subject.He/she) might grieve for years more. The flowers don't mind either way.",
+   "src": "L101"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) thinks for a long time. \"You can help,\" (subject.he/she) says. \"But I'll still come and sit with it.\" (friend) weeds, waters and plants. (subject) sits on a stool and tells (friend.him/her) which flowers were (subject.his/her) partner's favorites. (subject.He/she) still misses (subject.his/her) partner every day. It's easier to miss them in company.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) thinks for a long time. \"You can help,\" (subject.he/she) says. \"But I'll still come and sit with it.\" (friend) weeds, waters and plants. (subject) sits on a stool and tells (friend.him/her) which flowers were (subject.his/her) partner's favorites. (subject.He/she) still misses (subject.his/her) partner every day. It's easier to miss them in company.",
+   "src": "L98"
+  }
+ }
+}

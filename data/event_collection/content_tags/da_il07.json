@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "da_il07",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "il121_coconut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il122_free_afternoon": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il123_visitor_knows": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il124_gift": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il125_one_more_thing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il126_step_aside_dance": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il127_new_face_fire": {
+   "filters": [
+    "F23"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F23"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il128_same_story_twice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il129_friend_loves": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il130_laugh_wasnt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il131_last_know": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "setup": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il132_surprise_isnt": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il133_under_one_leaf": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il134_help_wanted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il135_matching_flower": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il136_secret_trusted": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "il137_friend_across": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il138_carrying_contest": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il139_one_thing": {
+   "filters": [
+    "F12",
+    "F25"
+   ],
+   "notes": [
+    "Emotional distress"
+   ],
+   "nodes": {
+    "a__fx": [
+     "F12"
+    ],
+    "a__text": [
+     "F12"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "il140_giggles": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

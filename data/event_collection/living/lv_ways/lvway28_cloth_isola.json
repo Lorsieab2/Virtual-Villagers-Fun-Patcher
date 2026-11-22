@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Cloth of Isola",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway28_cloth_isola",
+  "source": "living",
+  "lines": [
+   23136,
+   23150
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23136",
+  "ledger": [
+   {
+    "src": "L23150",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A tailor wants to replace traditional ceremonial clothing with an entirely new design.",
+  "cast_only": [
+   "tailor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "tailor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A tailor wants to replace traditional ceremonial clothing with an entirely new design.",
+   "src": "L23137",
+   "choices": [
+    {
+     "label": "Adopt the new style for everyone.",
+     "next": "a",
+     "src": "L23138"
+    },
+    {
+     "label": "Keep the ancestral garments.",
+     "next": "b",
+     "src": "L23141"
+    },
+    {
+     "label": "Let each villager choose.",
+     "next": "c",
+     "src": "L23144"
+    },
+    {
+     "label": "Weave old motifs into new garments.",
+     "next": "d",
+     "src": "L23147"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The festival looks vibrant, though some elders feel displaced.",
+   "src": "L23139"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The unfamiliar cut proves impractical in the rain.",
+   "src": "L23140"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The ceremony preserves beloved patterns.",
+   "src": "L23142"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Young tailors feel their creativity is unwelcome.",
+   "src": "L23143"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some families argue about what their children should wear.",
+   "src": "L23146"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The designs gain admirers across generations.",
+   "src": "L23148"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A disagreement over the meaning of a motif remains unresolved.",
+   "src": "L23149"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The festival displays a joyful mix of styles.",
+   "src": "L23145",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "tailor",
+     "mood": "good",
+     "src": "L23145"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The festival displays a joyful mix of styles.",
+   "src": "L23145"
+  }
+ }
+}

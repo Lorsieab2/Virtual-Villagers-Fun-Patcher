@@ -1,0 +1,5 @@
+LIBRARY "VVFP Herb Study.test.dll"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpHerbStudyInstalled=_VvfpHerbStudyInstalled@0
+    VvfpHerbStudyProbeSite=_VvfpHerbStudyProbeSite@16

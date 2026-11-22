@@ -68,8 +68,12 @@ class HarnessScriptsBuildPerRun(unittest.TestCase):
         # by native/vvfp_unicode_text/glyphs.inc, compared with src/vv_font_glyphs.py), and
         # build_grapheme_harness.ps1 (the DLL's grapheme cutting against GraphemeBreakTest 18.0), and
         # build_layout_harness.ps1 (the DLL's UAX #14 line breaks on Windows' icu.dll, text_layout.h), and
-        # build_colour_harness.ps1 (the Direct2D colour letters, native/vvfp_unicode_text/colour_fonts.inc).
-        self.assertEqual(len(SCRIPTS), 40, [path.name for path in SCRIPTS])
+        # build_colour_harness.ps1 (the Direct2D colour letters, native/vvfp_unicode_text/colour_fonts.inc),
+        # and build_sex_change_origins_harness.ps1 / build_sex_change_ui_harness.ps1 (Change Appearance's
+        # "Change sex..." button in the real windows of all five games, native/shared/sex_change_ui.h),
+        # and build_story_traits_harness.ps1 (the story traits' per-save file, story_traits.inc), and
+        # build_village_solidarity_harness.ps1 (Village Solidarity's score file and counter, native/vvfp_village_solidarity).
+        self.assertEqual(len(SCRIPTS), 44, [path.name for path in SCRIPTS])
 
     def test_each_run_builds_in_its_own_folder_and_removes_it(self) -> None:
         for path in SCRIPTS:

@@ -1,0 +1,174 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gods Who Need Nothing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns21_gods_need",
+  "source": "living",
+  "lines": [
+   22440,
+   22451
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22440",
+  "ledger": [
+   {
+    "src": "L22451",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A philosopher proposes that powerful beings would have no reason to visit or answer prayers.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A philosopher proposes that powerful beings would have no reason to visit or answer prayers.",
+   "src": "L22441",
+   "choices": [
+    {
+     "label": "Discuss the idea openly.",
+     "next": "a",
+     "src": "L22442"
+    },
+    {
+     "label": "Search for signs of intervention.",
+     "next": "b",
+     "src": "L22445"
+    },
+    {
+     "label": "Focus on human responsibility.",
+     "next": "c",
+     "src": "L22448"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Villagers explore what worship means without reward.",
+   "src": "L22443"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A believer finds the idea lonely and unconvincing.",
+   "src": "L22444",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager of faith finds the idea lonely and unconvincing."
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "No unusual event occurs, and the question remains open.",
+   "src": "L22447"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village organizes help for struggling families.",
+   "src": "L22449"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A spiritual elder reminds them that practical care and prayer can coexist.",
+   "src": "L22450"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A fortunate harvest inspires conflicting interpretations.",
+   "src": "L22446",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22446"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A fortunate harvest inspires conflicting interpretations.",
+   "src": "L22446"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

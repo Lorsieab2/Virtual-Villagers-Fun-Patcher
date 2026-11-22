@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fragrance That Calls Moths",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat149_fragrance_calls",
+  "source": "companion",
+  "lines": [
+   8885,
+   8895
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8885",
+  "ledger": [
+   {
+    "src": "L8895",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A rare Fourpetal Maple's scent draws night pollinators, and perfumers want its flowers."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "perfumer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A rare Fourpetal Maple releases an extraordinary scent that attracts nocturnal pollinators. Perfumers want to strip its flowers.",
+   "src": "L8886",
+   "choices": [
+    {
+     "label": "Gather fallen blossoms",
+     "next": "a",
+     "src": "L8887"
+    },
+    {
+     "label": "Harvest a small fraction",
+     "next": "b",
+     "src": "L8889"
+    },
+    {
+     "label": "Take every bloom",
+     "next": "c",
+     "src": "L8891"
+    },
+    {
+     "label": "Create a synthetic or herbal blend",
+     "next": "d",
+     "src": "L8893"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The scent is faint but the pollinators continue visiting.",
+   "src": "L8888"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The perfume succeeds; the botanist monitors seed production.",
+   "src": "L8890"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The fragrance is abundant now but future fruiting may suffer.",
+   "src": "L8892"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The imitation is imperfect yet becomes popular.",
+   "src": "L8894",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "perfumer",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8894"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -303,6 +303,22 @@ class FaithNoticeCompanion(unittest.TestCase):
         self.assertFalse(v.heathen())
         self.assertIsNone(v.pending(100000))
 
+    def test_a_branching_events_heathen_counts_as_a_conversion(self):
+        """The owner (2026-11-12): a branching Custom Island Event's "becomes a Heathen" COUNTS as a faith
+        conversion -- "VVFP Story Upgrades.dll" (story_graph.inc) calls VvfpFaithNoticeCount, and the popup tells of
+        it with the drift's, under "other" (a reason out of range is "other" too); another game's is ignored."""
+        v = Village(rendered(()))
+        quiet = gen_quiet()
+        v.proc.tick = 2000
+        v.proc.export("VvfpFaithNoticeCount", 5, 4)
+        v.proc.export("VvfpFaithNoticeCount", 4, 4)
+        v.proc.export("VvfpFaithNoticeCount", 5, 99)
+        self.assertIsNone(v.pending(2000 + quiet - 1), "it waits the same quiet")
+        self.assertEqual(v.pending(2000 + quiet), (2, (0, 0, 0, 0, 2)))
+        v.proc.tick = 2100
+        v.drift(faith=1, food=100, rolls=[0])
+        self.assertEqual(v.pending(2100 + quiet), (3, (0, 1, 0, 0, 2)), "one popup with the drift's")
+
     def test_a_catch_up_is_one_popup_after_the_quiet(self):
         v = Village(rendered(()))
         quiet = gen_quiet()
@@ -323,11 +339,12 @@ class FaithNoticeCompanion(unittest.TestCase):
     def test_with_faith_loss_the_reasons_follow_the_doubled_thresholds(self):
         """A roll of 15 hits food 10..250 only with Faith Loss (< 20; stock < 10); a believers roll of 15 with 4
         believers hits only with Faith Loss (< 16; stock < 8).  The rolls in the drift's order: food, the believers'
-        roll, then (stock) the skip below Faith 5 or (Faith Loss, a food fall to 0) the 3-in-10 roll."""
+        roll, then (stock) the skip below Faith 5 or (Faith Loss, any fall to 0 -- too few believers' included, the
+        owner 2026-11-20) the 1-in-10 roll."""
         for ids, hits in (((), False), ((FAITH_LOSS,), True)):
             with self.subTest(ids=ids):
                 for case, reason in ((dict(food=100, rolls=[15, 99, 0]), HUNGER),
-                                     (dict(food=1000, believers=4, rolls=[15, 99]), BELIEVERS)):
+                                     (dict(food=1000, believers=4, rolls=[15, 0]), BELIEVERS)):
                     v = Village(rendered(ids))
                     after = v.drift(faith=1, **case)
                     if hits:

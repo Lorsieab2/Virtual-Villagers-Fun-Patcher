@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The New Neighbor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b026_new_neighbor",
+  "source": "companion",
+  "lines": [
+   1362,
+   1367
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1362",
+  "ledger": [
+   {
+    "src": "L1364",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1367",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A villager notices someone sitting alone at the edge of a gathering.",
+  "cast_only": [
+   "villager",
+   "newcomer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A villager notices someone sitting alone at the edge of a gathering.",
+   "src": "L1363",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They sit nearby without demanding conversation.",
+   "src": "L1366"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They invite the newcomer closer.",
+   "src": "L1365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L1365"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They invite the newcomer closer.",
+   "src": "L1365"
+  }
+ }
+}

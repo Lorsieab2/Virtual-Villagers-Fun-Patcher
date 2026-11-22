@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Halfway Along",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il096_halfway_along",
+  "source": "da_il05",
+  "lines": [
+   182,
+   191
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L182",
+  "ledger": [
+   {
+    "src": "L183",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "At the end of an ordinary day, a villager realizes they are probably about halfway through their life.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30,
+   "max_age": 50
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is sitting outside (subject.his/her) hut at the end of an ordinary day, and a thought arrives from nowhere: (subject.he/she) is probably about halfway through (subject.his/her) life. (subject.He/She) didn't expect to end up here, exactly. Some of it is what (subject.he/she) hoped for. Some of it isn't. Some of it (subject.he/she) never thought to hope for at all. (friend) stops by and asks if (subject.he/she) is alright.",
+   "src": "L185",
+   "choices": [
+    {
+     "label": "Talk It Over",
+     "next": "a",
+     "src": "L187"
+    },
+    {
+     "label": "Keep It to (subject.him/her)self",
+     "next": "b",
+     "src": "L190"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Just thinking,\" says (subject), and (friend) leaves (subject.him/her) to it. (subject) sits a while longer. (subject.He/She) can't decide whether (subject.his/her) life so far has been good, or ordinary, or strange, or all three. In the end (subject.he/she) decides it doesn't need a verdict tonight. (subject.He/She) goes inside and makes some tea.",
+   "src": "L191"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Do you ever think about how your life turned out?\" asks (subject). (friend) sits down. \"Turned out? I'm not finished yet.\" They talk until the stars come out: about things they wanted at fifteen, things they're glad they didn't get, and one or two things they still might try. Nothing is decided. (subject) goes to bed feeling oddly comfortable.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L188"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Do you ever think about how your life turned out?\" asks (subject). (friend) sits down. \"Turned out? I'm not finished yet.\" They talk until the stars come out: about things they wanted at fifteen, things they're glad they didn't get, and one or two things they still might try. Nothing is decided. (subject) goes to bed feeling oddly comfortable.",
+   "src": "L188"
+  }
+ }
+}

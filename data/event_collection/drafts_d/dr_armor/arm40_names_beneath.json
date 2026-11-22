@@ -1,0 +1,55 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Names Beneath the Paint",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm40_names_beneath",
+  "source": "armor45",
+  "lines": [
+   51,
+   51
+  ],
+  "section": "dr_armor",
+  "credit": "ISOLA — ARMOR, WEAPONS, AND INHERITED TRADITIONS\nStandalone event and flavor-text expansion",
+  "draw_weight": 1,
+  "series": "dr_armor",
+  "title_src": "L51",
+  "ledger": [
+   {
+    "src": "L51",
+    "kind": "structural",
+    "text": "40. The Names Beneath the Paint  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   }
+  ],
+  "description": "Restoring an old shield reveals earlier generations' symbols beneath its newest decoration.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "Restoring an old shield reveals earlier generations' symbols beneath its newest decoration. The villagers decide how much to preserve.",
+   "src": "L51"
+  }
+ }
+}

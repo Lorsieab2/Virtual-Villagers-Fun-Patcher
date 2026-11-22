@@ -1,4 +1,4 @@
-"""2-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree of Life, New Believers).  The traces are in
+"""0.1-10x Sickness (all five games) and Sickness works like VV1-3 (The Tree of Life, New Believers).  The traces are in
 scripts/build_sickness_features.py.
 
   * The rewritten roll, run in unicorn with the game's helpers stubbed (the game-state getter, rand, the Medicine
@@ -6,7 +6,7 @@ scripts/build_sickness_features.py.
     state with no Aromatherapy: the highest rand result that still makes a villager sick is k x m, m = 1 + (fire out)
     + (Hard); Easy's "not sick" half the time, an existing sickness and the old villagers' roll as stock.
   * The stock VV4 / VV5 roll gives m = 1 always (the reason for the patch).
-  * 2-10x Sickness writes round(n / N) at the right sites, stock or with the rewritten roll, and stacks.
+  * 0.1-10x Sickness writes round(n / N) at the right sites, stock or with the rewritten roll, and stacks.
 """
 from __future__ import annotations
 
@@ -162,6 +162,7 @@ class Slider(unittest.TestCase):
                             at, m = int(row["offset"], 16), row["modulus"]
                             self.assertEqual(data[at - 1], 0x68)
                             self.assertEqual(struct.unpack_from("<I", data, at)[0], (2 * m + n) // (2 * n))
+                            self.assertGreaterEqual((2 * m + n) // (2 * n), 10)     # never rand(0)
                         self.assertEqual(patcher.sickness_multiplier_applied(applied), n)
 
     def test_not_selected_writes_nothing(self) -> None:
@@ -169,7 +170,7 @@ class Slider(unittest.TestCase):
         patcher.apply_sickness_multiplier(data, "vv1", 5, [], set())
         self.assertEqual(data, bytearray(b"\0" * 16))
         with self.assertRaises(patcher.PatcherError):
-            patcher.validate_sickness_multiplier(11)
+            patcher.validate_sickness_multiplier(101)
 
 
 class Catalog(unittest.TestCase):
@@ -186,7 +187,9 @@ class Catalog(unittest.TestCase):
             classic = json.loads((ROOT / "data" / f"vv{game}_classic_vv_difficulty_feature.json").read_text("utf-8"))
             self.assertIn(patch_id, classic["dependencies"])
         self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 4}), 4)
-        self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 1}), 2)
+        self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 1}), 1)
+        self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": 0}), 0.1)
+        self.assertEqual(gui.saved_sickness_multiplier({"sickness_multiplier": "4"}), 2)
 
 
 if __name__ == "__main__":

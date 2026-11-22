@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepwalkers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s024_sleepwalkers",
+  "source": "rewrites",
+  "lines": [
+   1109,
+   1154
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1109",
+  "ledger": [
+   {
+    "src": "L1110",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1111",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1119",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1128",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1116",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1117",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1120",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1129",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1122",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1125",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1131",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1134",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1137-1154",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager both sleepwalk.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) both sleepwalk. Everyone knows it. Usually it's harmless and very funny: once (subject) was found fast asleep in a fishing net hanging from a tree, and once (friend) woke up at dawn in the middle of the goat pen, holding a goat, which did not seem to mind.\nLast night there was a full moon, huge and orange over the sea. Under it, without waking, (subject) and (friend) both got up off their mats, walked out of the village and up the hill to the old carved stones, where nobody goes. They met in the middle of the stone circle. They bowed to each other, very formally. Then they walked home, and each went into the other one's hut. The elders say the first people raised those stones so two souls could trade places for a night and learn each other's burdens, and that the swap is meant to wear off by morning.\nWhen they wake up in the morning, they are in the wrong beds. And the wrong bodies. It hasn't worn off. Should they try to sleepwalk back to the stones, or tie themselves down so the stones can't call them again?",
+   "choices": [
+    {
+     "label": "Sleepwalk Back",
+     "next": "c1",
+     "src": "L1116"
+    },
+    {
+     "label": "Tie Their Ankles to Their Beds",
+     "next": "c2",
+     "src": "L1117"
+    }
+   ],
+   "src": "L1112-1114"
+  },
+  "c1o1": {
+   "text": "In the morning, they both wake up at the stones, cold and stiff and wet with dew, lying side by side in the middle of the circle. They sit up. They look at each other. Without a word, without knowing why, they both stand up and bow. Something shifts, like stepping off a boat onto land. They walk home, the right way this time, into the right huts, and climb into the right beds, and when they wake up again at noon they are themselves. Neither of them has sleepwalked since.",
+   "src": "L1123"
+  },
+  "c1o2": {
+   "text": "They try. They really try. But on the night of the full moon, the clouds roll in thick and grey off the sea and the moon never shows its face at all. Neither of them sleepwalks a single step. They wake up in their own huts, in each other's bodies, exactly as before. After three more cloudy full moons, they give up. \"Well,\" says (subject), stretching (friend)'s arms. \"I suppose it's an adventure.\" They decide to treat it as one, and it is.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1126",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The elders say whatever happened at the stones can only be undone at the stones. So on the next full moon, (subject) and (friend) go to bed very early, in their own huts, lie down very still, and hope with all their hearts...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1120"
+  },
+  "c2o1": {
+   "text": "It works perfectly. Nobody sleepwalks. Nobody goes near the stones. Nobody swaps back either. Every morning (subject) and (friend) wake up tied to their beds, in each other's bodies, with stiff ankles, and the healers come round, untie them and shake their heads. After a month of this, everyone agrees to stop. The ropes come off. They stay swapped, and in time they get used to it.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1132",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The healers tie good knots, but not good enough. In the middle of the night the ropes slip loose, and (subject) and (friend) sleepwalk straight out of their huts and up the hill to the stones again. In the morning they wake up in the middle of the circle, back in their own bodies, both of them holding the same bit of rope, one at each end. Nobody can explain how. The healers keep the rope, and don't let anyone touch it.",
+   "src": "L1135"
+  },
+  "c2": {
+   "text": "\"No more wandering,\" says one of the healers firmly, and ties a length of soft rope around each of their ankles, with the other end tied to the posts of their sleeping mats. \"Nobody goes anywhere until we've worked this out.\" (subject) and (friend) look at the knots and then at each other...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1129"
+  }
+ }
+}

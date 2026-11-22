@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Marriage Advice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd40_marriage_advice",
+  "source": "draft_lcd",
+  "lines": [
+   554,
+   565
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L554",
+  "ledger": [
+   {
+    "src": "L555",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L561",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L565",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A nervous villager about to marry asks an old married elder for advice: take it, or laugh at it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 60
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is getting married in three days and is suddenly terrified. (subject.He/she) goes to (friend), who has been married for forty years, and asks for the secret. (friend) thinks for a long time. Then (friend.he/she) says: \"Never go to sleep angry. Also, never let your partner cook squid.\" What should (subject) make of it?",
+   "src": "L557",
+   "choices": [
+    {
+     "label": "Take It Seriously",
+     "next": "o1",
+     "src": "L559"
+    },
+    {
+     "label": "Laugh at It",
+     "next": "o2",
+     "src": "L563"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes the advice very seriously, including the squid. Years later, (subject.he/she) still has never gone to sleep angry, though there have been some very late nights. Nobody in (subject.his/her) family is allowed to cook squid. Nobody knows why.",
+   "src": "L561"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) laughs, and (friend) laughs, and the fear goes away. (friend) tells (subject.him/her) the story of the squid, which involves a wedding, a fire and a very surprised chicken. (subject) goes home feeling much better.",
+   "src": "L565"
+  }
+ }
+}

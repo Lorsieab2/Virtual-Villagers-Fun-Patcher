@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Partners at Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new167_partners_work",
+  "source": "rewrites",
+  "lines": [
+   8091,
+   8137
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8091",
+  "ledger": [
+   {
+    "src": "L8092",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8093",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8102",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8109",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8116",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8098",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8099",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8100",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8103",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8110",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8117",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8104",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8106",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8111",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8113",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8118",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8120",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8123-8137",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager both work in the same research hut.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "head": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) both work in the same research hut. It seemed like a lovely idea when they started. They could spend all day together!\nThey do spend all day together. And lately, every single disagreement about the work follows them home to dinner.\nLast night they argued about the proper way to sort seeds \\(by size? by colour? by which plant they came from?\\) until the fire went out. Then they kept arguing in the dark. Then they went to bed angry, and woke up, and the first thing (subject) said was \"By SIZE.\"\nThe other researchers have started eating lunch somewhere else. How can (subject) and (friend) stop bringing the work home?",
+   "choices": [
+    {
+     "label": "Talk Away from the Hut",
+     "next": "c1",
+     "src": "L8098"
+    },
+    {
+     "label": "Spend a Day with No Work at All",
+     "next": "c2",
+     "src": "L8099"
+    },
+    {
+     "label": "Ask the Head Researcher",
+     "next": "c3",
+     "src": "L8100"
+    }
+   ],
+   "src": "L8094-8097"
+  },
+  "c1o1": {
+   "text": "On the beach, they each explain how the work is wearing on them, without demanding the other change. (subject) feels like every disagreement at work is a disagreement about them. (friend) feels the same. Saying it out loud takes the sting out. They agree on a rule: no seeds after sunset.",
+   "src": "L8105"
+  },
+  "c1o2": {
+   "text": "(subject) admits (subject.he/she) would rather not talk about it yet; (subject.he/she) is too tired and too cross, and might say something unkind. (friend) accepts that. They sit on the sand in silence and watch the waves, which, it turns out, is exactly what they both needed.",
+   "src": "L8107"
+  },
+  "c1": {
+   "text": "(friend) takes (subject) by the hand and walks (subject.him/her) to the far end of the beach, as far from the research hut as they can get...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8103"
+  },
+  "c2o1": {
+   "text": "It's a wonderful day. They laugh more than they have in a month. By evening they agree to do it again, regularly, and the next day at work, when the seed argument comes up, they both just laugh. They sort the seeds by size AND colour. It takes twice as long. Nobody minds.",
+   "src": "L8112"
+  },
+  "c2o2": {
+   "text": "Away from the hut, they realize they actually want different things from the work: one wants to study plants, the other wants to study the stars. They still love each other. But maybe, they decide, they don't need to work in the same hut.",
+   "src": "L8114"
+  },
+  "c2": {
+   "text": "The next morning, instead of going to the research hut, (subject) and (friend) go swimming. And fishing. And napping. They do not mention seeds once...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8110"
+  },
+  "c3o1": {
+   "text": "(head) listens patiently to both, and leaves the decision with them. \"You both have good points,\" (subject.he/she) says. \"Work it out between you. And please, please do it somewhere other than my hut.\" They do.",
+   "src": "L8119"
+  },
+  "c3o2": {
+   "text": "(head)'s advice is to sort the seeds (subject.his/her) way, by the moon phase they were picked in, which neither of them had even considered. Neither of them likes it. United at last against a common enemy, the partners follow their own judgment, and go home arm in arm, complaining about (head).",
+   "src": "L8121"
+  },
+  "c3": {
+   "text": "Desperate, the two of them go together to (head), and lay out the seed question, from both sides, at great length...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8117"
+  }
+ }
+}

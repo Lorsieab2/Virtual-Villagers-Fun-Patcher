@@ -1,0 +1,231 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Granary Floor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b048_granary_floor",
+  "source": "balance",
+  "lines": [
+   2162,
+   2204
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2162",
+  "ledger": [
+   {
+    "src": "L2163",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2164",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2172",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2181",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2169",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2170",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2173",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2182",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2175",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2178",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2187",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2190-2204",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The big granary on stilts has been creaking for a month.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The big granary on stilts has been creaking for a month. Today (subject) is inside, counting baskets, when the floor drops a hand's width with a crack like a breaking bone. Dust pours down from the roof. One of the stilts outside has split.\n(builder) comes running. (builder.He/She) can prop the stilt now, with (subject) still inside handing out the baskets, which will save the food. Or (subject) can climb out at once and let the whole thing come down.\nWhat should they do?",
+   "choices": [
+    {
+     "label": "Prop It and Save the Food",
+     "next": "c1",
+     "src": "L2169"
+    },
+    {
+     "label": "Get Out Now",
+     "next": "c2",
+     "src": "L2170"
+    }
+   ],
+   "src": "L2165-2167",
+   "text_only": [
+    {
+     "src": "L2166",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Basket after basket comes out, into a chain of waiting hands, until the granary is empty and (subject) jumps down after the last one. Then the builders take the whole thing down carefully and build it again on new stilts of ironwood. Not a basket lost. (builder) can't lift (builder.his/her) arms for two days.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L2176",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They've nearly emptied it when a second stilt goes, without warning, and the granary comes down on its side with (subject) still inside. The village digs through the wreckage with bare hands. (subject) is gone by the time they reach (subject.him/her). They bury (subject.him/her) near the new granary, which is built on ironwood stilts, twice as many as before, and nobody ever goes in it again without checking every one.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L2179",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(builder) jams a log under the split stilt and leans on it with all (builder.his/her) weight. \"Go!\" (builder.he/she) shouts. \"Hand them down! Quickly!\" (subject) starts passing baskets out of the door as fast as (subject.he/she) can...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2173"
+  },
+  "c2o1": {
+   "text": "Some of the food is crushed, but most of it can be saved from the wreck. The builders take the chance to do it properly this time: ironwood stilts, crossed braces, a floor that doesn't creak. Every builder who works on it learns something new, and the new granary is the best-built thing in the village.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    },
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Building"
+     }
+    }
+   ],
+   "src": "L2185",
+   "text_only": [
+    {
+     "src": "L2185",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It turns out the scholars had been keeping their spare bark records under the granary floor, out of the rain. They aren't out of the rain anymore. They're under a granary. The scholars dig out what they can and spend a sad week drying soggy bark on every flat surface in the village.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L2188",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) drops everything and jumps from the door. Behind (subject.him/her), with a long, slow groan, the granary leans, and leans, and falls...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2182"
+  }
+ }
+}

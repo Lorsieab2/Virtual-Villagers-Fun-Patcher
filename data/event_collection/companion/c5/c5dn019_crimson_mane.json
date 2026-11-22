@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crimson Mane",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn019_crimson_mane",
+  "source": "companion",
+  "lines": [
+   2835,
+   2841
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2835",
+  "ledger": [
+   {
+    "src": "L2837",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2841",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2838",
+    "kind": "note",
+    "text": "PERSISTENT:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2838",
+    "kind": "instruction",
+    "why": "the outcome is a mechanical instruction, never shown: the node carries its effect"
+   },
+   {
+    "src": "L2839",
+    "kind": "note",
+    "text": "TEMPORARY:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2840",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   }
+  ],
+  "description": "A mushroom's spores leave a startling stain."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A mushroom's spores leave a startling stain.",
+   "src": "L2836",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L2838"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Hair looks purple until washed.",
+   "src": "L2839",
+   "text_only": [
+    {
+     "what": "purple hair until washed",
+     "reason": "rule 9: no head is purple, and the stain washes out",
+     "src": "L2839"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager proudly starts a new fashion.",
+   "src": "L2840",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L2840"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager proudly starts a new fashion.",
+   "src": "L2840"
+  }
+ }
+}

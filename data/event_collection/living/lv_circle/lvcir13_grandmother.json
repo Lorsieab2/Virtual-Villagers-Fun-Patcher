@@ -1,0 +1,176 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Grandmother's Last Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir13_grandmother",
+  "source": "living",
+  "lines": [
+   21400,
+   21411
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21400",
+  "ledger": [
+   {
+    "src": "L21411",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder senses death approaching and asks the family to gather.",
+  "cast_only": [
+   "elder",
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female"
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder senses death approaching and asks the family to gather.",
+   "src": "L21401",
+   "choices": [
+    {
+     "label": "Invite the elder to tell stories.",
+     "next": "a",
+     "src": "L21402"
+    },
+    {
+     "label": "Ask what comfort the elder wants.",
+     "next": "b",
+     "src": "L21405"
+    },
+    {
+     "label": "Seek one more treatment.",
+     "next": "c",
+     "src": "L21408"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "death approaching",
+     "reason": "the elder senses it; no outcome says she dies",
+     "src": "L21401"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder grows tired before finishing and asks another to continue.",
+   "src": "L21404"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder chooses quiet company rather than ceremony.",
+   "src": "L21406"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder requests a favorite song and rests peacefully.",
+   "src": "L21407"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elder agrees to try, but the effort brings little improvement.",
+   "src": "L21409"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder declines, and the family respects the decision.",
+   "src": "L21410"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family learns forgotten names and laughs through tears.",
+   "src": "L21403",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "relative",
+     "mood": "good",
+     "src": "L21403"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family learns forgotten names and laughs through tears.",
+   "src": "L21403"
+  }
+ }
+}

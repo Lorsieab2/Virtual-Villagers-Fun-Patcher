@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bones of the Old Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb46_bones_old_canoe",
+  "source": "draft_lcb",
+  "lines": [
+   638,
+   649
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L638",
+  "ledger": [
+   {
+    "src": "L639",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L645",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L649",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name2); small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The canoe of a beloved fisher who died is rotting on the beach: burn it with ceremony, or rebuild it for the young crews.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s old friend, the best fisher of (subject.his/her) generation, died last year, and his canoe is still on the beach, slowly rotting. By old custom it should be burned, so it can go with him. (friend) thinks it should be rebuilt and given to the young crews, so his skill goes on. What should they do?",
+   "src": "L641",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- the draft's notes: everything but the marked effects is story only",
+     "src": "L641"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Burn It With Ceremony",
+     "next": "o1",
+     "src": "L643"
+    },
+    {
+     "label": "Rebuild It for the Young",
+     "next": "o2",
+     "src": "L647"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village gathers at dusk and burns the old canoe on the sand, singing. (subject) throws in (subject.his/her) friend's old fishing hook. The sparks go up and up. In the morning, (friend) finds the hook in the ashes, black but whole, and gives it back to (subject).",
+   "src": "L645"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) and the young crews rebuild the canoe, plank by plank, keeping as much of the old wood as they can. They paint the old fisher's mark on the bow. The first time it goes out, it comes back loaded with fish. (subject) says that was always that canoe's way.",
+   "src": "L649",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L649"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L649"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

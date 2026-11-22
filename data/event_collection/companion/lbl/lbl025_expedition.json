@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Secret Expedition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl025_expedition",
+  "source": "companion",
+  "lines": [
+   4113,
+   4127
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4117",
+  "ledger": [
+   {
+    "src": "L4114",
+    "kind": "structural",
+    "why": "the group heading 'CHILDHOOD & TEENAGE TROUBLE'"
+   },
+   {
+    "src": "L4118",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4126",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4127",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Several children slip away to explore without telling their guardians.",
+  "cast_only": [
+   "child2",
+   "child3"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child3": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Several children slip away to explore without telling their guardians.",
+   "src": "L4119",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4120"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4121"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4122"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1",
+     "weight": 20
+    },
+    {
+     "next": "e2",
+     "weight": 20
+    },
+    {
+     "next": "e3",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "They discover a harmless hidden spring and return to a scolding.",
+   "src": "L4123"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "They become lost and require a village search.",
+   "src": "L4124"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "One child falls ill after exposure and needs care.",
+   "src": "L4125",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "child1",
+     "src": "L4125"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

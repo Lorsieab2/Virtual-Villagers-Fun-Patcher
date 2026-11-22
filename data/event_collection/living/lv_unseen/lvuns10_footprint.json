@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Footprint Larger Than a Bear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns10_footprint",
+  "source": "living",
+  "lines": [
+   22297,
+   22308
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22297",
+  "ledger": [
+   {
+    "src": "L22308",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Huge prints appear beside a mountain stream where no such animal is known to live.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Huge prints appear beside a mountain stream where no such animal is known to live.",
+   "src": "L22298",
+   "choices": [
+    {
+     "label": "Make careful casts and sketches.",
+     "next": "a",
+     "src": "L22299"
+    },
+    {
+     "label": "Search the surrounding forest.",
+     "next": "b",
+     "src": "L22302"
+    },
+    {
+     "label": "Ask the elders about the prints.",
+     "next": "c",
+     "src": "L22305"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The measurements suggest several overlapping tracks.",
+   "src": "L22300"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The cast breaks, leaving the original claim unverified.",
+   "src": "L22301"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The searchers find broken branches and no animal.",
+   "src": "L22303"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One explorer fails to return, and the village begins a rescue search.",
+   "src": "L22304",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "explorer",
+     "src": "L22304"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "An elder recounts a similar tale from childhood.",
+   "src": "L22306"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Other elders remember the story differently.",
+   "src": "L22307"
+  }
+ }
+}

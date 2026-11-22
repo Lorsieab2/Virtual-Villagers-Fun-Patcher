@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Splint of Bamboo",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife05_splint_bamboo",
+  "source": "living",
+  "lines": [
+   20694,
+   20705
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20694",
+  "ledger": [
+   {
+    "src": "L20705",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A carpenter and healer disagree whether bamboo, woven fiber, or padded bark best supports a broken leg.",
+  "cast_only": [
+   "healer",
+   "patient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "carpenter": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carpenter and healer disagree whether bamboo, woven fiber, or padded bark best supports a broken leg.",
+   "src": "L20695",
+   "choices": [
+    {
+     "label": "Use a firm bamboo frame.",
+     "next": "a",
+     "src": "L20696"
+    },
+    {
+     "label": "Try a flexible woven support.",
+     "next": "b",
+     "src": "L20699"
+    },
+    {
+     "label": "Test both on simple models first.",
+     "next": "c",
+     "src": "L20702"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The leg remains supported, but rough edges irritate the skin.",
+   "src": "L20697"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The frame slips during travel, requiring a new fitting.",
+   "src": "L20698"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The woven support holds well after several adjustments.",
+   "src": "L20701"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The carpenter discovers a weakness before it harms a patient.",
+   "src": "L20703",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "carpenter",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20703"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The delay frustrates the injured villager, who wants treatment now.",
+   "src": "L20704",
+   "text_only": [
+    {
+     "what": "the injured villager",
+     "reason": "the broken leg is the premise; nobody is hurt now",
+     "src": "L20704"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient moves more comfortably, but the support loosens.",
+   "src": "L20700",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20700"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient moves more comfortably, but the support loosens.",
+   "src": "L20700"
+  }
+ }
+}

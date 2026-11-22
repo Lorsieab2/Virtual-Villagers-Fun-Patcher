@@ -1,0 +1,259 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Parent Who Changed the Rules",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam19_parent_changed",
+  "source": "anthology",
+  "lines": [
+   28570,
+   28583
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28570",
+  "ledger": [
+   {
+    "src": "L28571",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28571",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28573",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28574",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28577",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28579",
+    "kind": "sensitivity",
+    "before": "The parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28580",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28582",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A parent suddenly changes a child's usual bedtime after a tiring day.",
+  "label_case": "title",
+  "cast_only": [
+   "parent",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(parent) suddenly changes (child)'s usual bedtime after a tiring day.",
+   "src": "L28571",
+   "choices": [
+    {
+     "label": "Explain the Reason Clearly",
+     "next": "a",
+     "src": "L28572"
+    },
+    {
+     "label": "Invite the Child to Suggest a Fair Routine",
+     "next": "b",
+     "src": "L28575"
+    },
+    {
+     "label": "Admit the Decision Was Too Abrupt",
+     "next": "c",
+     "src": "L28578"
+    },
+    {
+     "label": "Keep the Limit for Tonight and Revisit It",
+     "next": "d",
+     "src": "L28581"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) accepts the explanation with some grumbling.",
+   "src": "L28573"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) asks why the rule changes only on difficult days.",
+   "src": "L28574"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They agree on a routine that allows enough rest.",
+   "src": "L28576"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) proposes a plan that needs further adjustment.",
+   "src": "L28577"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(parent) apologizes for speaking abruptly.",
+   "src": "L28579"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) appreciates being heard but still dislikes the rule.",
+   "src": "L28580",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28580"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The family discusses the rule calmly the following day.",
+   "src": "L28583"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(child) rests and feels better the next morning.",
+   "src": "L28582",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": 15,
+     "max": 30,
+     "src": "L28582"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(child) rests and feels better the next morning.",
+   "src": "L28582"
+  }
+ }
+}

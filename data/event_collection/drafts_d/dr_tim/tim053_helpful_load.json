@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Helpful Load",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim053_helpful_load",
+  "source": "moments500",
+  "lines": [
+   885,
+   899
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L886",
+  "ledger": [
+   {
+    "src": "L885",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L889",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L890",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L893",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L894",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L897",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L898",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L887",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L891",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L895",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L899",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A young villager volunteers to carry light supplies home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. The child asks several questions nobody expected.",
+   "src": "L887"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. The parent is pleasantly surprised by the offer.",
+   "src": "L899"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. (Name1) feels useful and hopes someone noticed.",
+   "src": "L891",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L891"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. (Name1) feels useful and hopes someone noticed.",
+   "src": "L891"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. A little shared laughter makes the chore less tedious.",
+   "src": "L895",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L895"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), a young villager, volunteers to carry light supplies home. A little shared laughter makes the chore less tedious.",
+   "src": "L895"
+  }
+ }
+}

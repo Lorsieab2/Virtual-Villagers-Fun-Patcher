@@ -23,6 +23,8 @@
 #ifndef MessageBoxA
 #define MessageBoxA vvfp_message_box
 #endif
+#include "../shared/sex_change.h"    /* a villager's sex changed: the mask follows (VvfpVillagerSexChanged) */
+#include "../shared/sex_change_ui.h" /* Change Appearance's "Change sex..." button */
 
 /* Sidecar persistence lives next to the game's own saves. CSIDL_PERSONAL
    follows OneDrive redirection (Documents may be C:\Users\<u>\OneDrive\Documents),
@@ -318,6 +320,7 @@ static unsigned int vv_identity(const unsigned char *villager);
 static unsigned int vv_fingerprint(const unsigned char *villager);
 static unsigned int vv_stable_identity(const unsigned char *villager);
 static int vv_mask_follow_table(void);
+static int vv_mask_sex_log_apply(int slots);
 
 
 static int vv_mask_sweep(void) {
@@ -374,6 +377,7 @@ static int vv_mask_follow_table(void) {
     int anyone = 0;
     int any_mask = 0;
     int roster_delta = 0;
+    int sex_logged = 0;
     int changed;
     for (idx = 0; idx < slots; idx++) {
         const unsigned char *rec =
@@ -428,6 +432,12 @@ static int vv_mask_follow_table(void) {
         g_stash_active = 1;
         g_mask_foreign = 1;
     }
+    /* A SEX CHANGE the save may not hold (native/shared/sex_change.h): the first follow after a load reads
+       the slot's "Sex Changes" log, and each identity the table keeps for a villager it names, with the
+       other sex, reads as the one they have now. */
+    if (!g_mask_stable_known && vv_mask_sex_log_apply(slots) > 0) {
+        sex_logged = 1;              /* the file is written under the identities they have now */
+    }
     /* A RENAME (Codex, #516).  The identity hashes the name, so a villager
        the player renames read as a new occupant and lost the mask.  One
        record changed since the last look, its gender and parents unchanged:
@@ -449,6 +459,7 @@ static int vv_mask_follow_table(void) {
         ? vv_mask_follow_in_play(slots, g_mask_by_index, g_mask_fp, g_mask_roster, live, 0, moved_mask, moved_fp)
         : vv_mask_follow(slots, g_mask_by_index, g_mask_fp,
                          g_mask_roster_known ? g_mask_roster : NULL, live, 0, moved_mask, moved_fp);
+    changed |= sex_logged;
     if (g_fp_version == 2u) {
         for (idx = 0; idx < slots; idx++) {
             if (moved_mask[idx] != 0) {
@@ -571,6 +582,93 @@ static int vv_villager_index(const unsigned char *villager) {
     idx = off / VV_REC_STRIDE;
     return idx < (unsigned int)vv_slots() ? (int)idx : -1;
 }
+
+/* ---- A villager's sex changed (native/shared/sex_change.h) -----------------
+   The identity holds the sex, so the mask, the roster and the stable part
+   kept for them are carried to the identity they have now. */
+static const unsigned char *vv_sex_record(int index) {
+    return index >= 0 && index < vv_slots()
+        ? (const unsigned char *)(VV_REC_ARRAY_BASE + (unsigned int)index * VV_REC_STRIDE) : NULL;
+}
+
+static int vv_sex_present(const unsigned char *record) {
+    return record[VV_OCCUPIED_OFFSET] != 0;
+}
+
+/* Every stored identity `from` (the masks' and the roster's) reads as `to`; only record `only`'s when it is
+   not -1.  Returns how many changed. */
+static int vv_mask_rekey(unsigned int from, unsigned int to, int only) {
+    int i, n = 0, slots = vv_slots();
+    for (i = 0; i < slots; ++i) {
+        if (only >= 0 && i != only) {
+            continue;
+        }
+        if (g_mask_fp[i] == from) {
+            g_mask_fp[i] = to;
+            ++n;
+        }
+        if (g_mask_roster[i] == from) {
+            g_mask_roster[i] = to;
+            ++n;
+        }
+    }
+    return n;
+}
+
+/* The slot's "Sex Changes" log at a load: for each living villager it names (a name nobody else living
+   has), the identity with the other sex reads as the one they have now.  Returns how many changed. */
+static int vv_mask_sex_log_apply(int slots) {
+    static unsigned int from[VV_MAX_VILLAGERS], to[VV_MAX_VILLAGERS];
+    int n, k, changed = 0;
+    if (g_current_slot <= 0) {
+        return 0;
+    }
+    n = vv_sex_log_pairs(4, g_current_slot, slots, vv_sex_record, vv_sex_present, vv_identity, from, to,
+                         VV_MAX_VILLAGERS);
+    for (k = 0; k < n; ++k) {
+        changed += vv_mask_rekey(from[k], to[k], -1);
+    }
+    return changed;
+}
+
+/* `record` live with the new sex, `before` a copy as it was.  1 when anything was carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    const unsigned char *r = (const unsigned char *)record;
+    unsigned int from, to;
+    int idx, i, slots, carried;
+    if (game != 4 || r == NULL || before == NULL) {
+        return 0;
+    }
+    vv_prepare_mask_state();
+    if (g_current_slot <= 0 || (slot > 0 && slot != g_current_slot) || g_stash_active) {
+        return 0;                    /* not this table's village */
+    }
+    idx = vv_villager_index(r);
+    if (idx < 0) {
+        return 0;
+    }
+    from = vv_identity((const unsigned char *)before);
+    to = vv_identity(r);
+    if (from == to) {
+        return 0;
+    }
+    /* Somebody else who still carries the old identity may own what is kept under it: then only this
+       record's own entry moves. */
+    slots = vv_slots();
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *o = vv_sex_record(i);
+        if (i != idx && vv_sex_present(o) && vv_identity(o) == from) {
+            break;
+        }
+    }
+    carried = vv_mask_rekey(from, to, i < slots ? idx : -1);
+    g_mask_stable[idx] = vv_stable_identity(r);   /* a later rename is still told as one */
+    if (carried > 0 && vv_table_any(g_mask_by_index, slots)) {
+        (void)vv_write_mask_sidecar();
+    }
+    return carried > 0;
+}
+
 static int vv_get_mask(const unsigned char *villager) {
     int idx;
     unsigned char m;
@@ -2346,6 +2444,11 @@ static int appearance_keep_look(HWND window) {
 
 /* Undo changes, Reset to original and the randoms (native/shared/appearance_extras.h): the window's dice. */
 static unsigned int appearance_rng;
+/* "Change sex..." (native/shared/sex_change_ui.h) was made while the window is open: done at once, so an OK
+   with nothing else changed is no change to report or charge. */
+static int appearance_sex_changed;
+/* Gender presentation (native/shared/gender_presentation.h): the other sex's look, kept on OK, free. */
+static vvfp_gp_window appearance_gp;
 static int appearance_hair_head(int colour);
 
 /* Every control as the record and the chosen look say: the window's start, and after Undo changes, Reset
@@ -2353,6 +2456,8 @@ static int appearance_hair_head(int colour);
 static void appearance_show(HWND window) {
     appearance_state.is_old = vvfp_head_look_old(
         appearance_look, *(int *)(appearance_state.villager + VV_DISPLAY_AGE_OFFSET));
+    appearance_state.sex = vvfp_gp_window_sex(&appearance_gp, 4, appearance_state.villager);
+    vvfp_gp_window_show(window, &appearance_gp, 4, appearance_state.villager);
     SetDlgItemTextA(window, ID_MASK_LABEL, g_mask_names[vv_get_mask(appearance_state.villager)]);
     if (appearance_look_offered) {
         CheckRadioButton(window, ID_LOOK_AUTO, ID_LOOK_OLD, ID_LOOK_AUTO + appearance_look);
@@ -2369,6 +2474,11 @@ static int appearance_extra(HWND window, unsigned int command) {
     if (command == VVFP_AX_UNDO) {
         appearance_revert();
         appearance_look = appearance_look_was;
+        appearance_gp.on = appearance_gp.was;
+    } else if (command == VVFP_AX_PRESENTATION) {
+        if (!vvfp_gp_window_toggle(window, &appearance_gp, 4, appearance_state.villager)) {
+            return 1;
+        }
     } else if (command == VVFP_AX_RESET) {
         int h, b, m;
         if (!vvfp_original_look(4, appearance_state.villager, &h, &b, &m) || h < 0 || h >= VV_HEAD_COUNT
@@ -2394,6 +2504,13 @@ static int appearance_extra(HWND window, unsigned int command) {
                     vvfp_ax_pick_other(&appearance_rng, VV_MASK_COUNT, vv_get_mask(appearance_state.villager)));
     } else if (command == VVFP_AX_RANDOM_LOOK && appearance_look_offered) {
         appearance_look = vvfp_ax_random_look(&appearance_rng, appearance_look);
+    } else if (command == VVFP_AX_CHANGE_SEX) {
+        /* Made at once on Yes (the field, the save's log, every companion told); the preview then draws
+           the other sex's sheets with the same rows.  Undo changes and Cancel leave it. */
+        if (!vvfp_ax_change_sex(window, 4, appearance_state.villager, -1)) {   /* the index matters to A New Home only */
+            return 1;
+        }
+        appearance_sex_changed = 1;           /* appearance_show draws the new sex (or its other look) */
     } else {
         return 0;
     }
@@ -2489,10 +2606,18 @@ static INT_PTR CALLBACK appearance_dialog(
             int body_changed = (*body != appearance_state.original_body);
             int mask_changed = (vv_get_mask(appearance_state.villager)
                                 != appearance_state.original_mask);
+            int gp_changed = vvfp_gp_window_changed(&appearance_gp);
             if (!head_changed && !body_changed && !mask_changed
                 && appearance_look_offered && appearance_look != appearance_look_was) {
                 /* The look alone: kept, and charged like any change -- 1, so the exe charges 5,000. */
+                (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
                 EndDialog(window, appearance_keep_look(window) ? 1 : 0);
+                return TRUE;
+            }
+            if (!head_changed && !body_changed && !mask_changed && (appearance_sex_changed || gp_changed)) {
+                /* Only the sex (made at once) or the gender presentation: free, nothing more to keep or charge. */
+                (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
+                EndDialog(window, 0);
                 return TRUE;
             }
             if (!head_changed && !body_changed && !mask_changed) {
@@ -2525,6 +2650,7 @@ static INT_PTR CALLBACK appearance_dialog(
                 return TRUE;
             }
             vv_write_mask_sidecar();
+            (void)vvfp_gp_window_keep(window, &appearance_gp, 4, appearance_state.villager);
             EndDialog(window, 1);
             return TRUE;
         }
@@ -3093,6 +3219,9 @@ int __stdcall ShowOriginsAppearancePicker(
         appearance_look_offered ? appearance_look_api.get(4, villager) : VVFP_HEAD_LOOK_AUTO;
     appearance_state.is_old = vvfp_head_look_old(appearance_look, *(int *)(villager + VV_DISPLAY_AGE_OFFSET));
     appearance_rng = GetTickCount() | 1u;
+    appearance_sex_changed = 0;
+    vvfp_gp_window_open(&appearance_gp, 4, villager);
+    appearance_state.sex = vvfp_gp_window_sex(&appearance_gp, 4, villager);
     result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(appearance_look_offered ? IDD_ORIGINS_APPEARANCE_LOOK : IDD_ORIGINS_APPEARANCE),
@@ -3542,7 +3671,10 @@ static int vv4_equal_division(int include_parenting) {
  */
 #define VV4_TW_SPEED_OFFSET     0x17110  /* on the world object; 999 = paused */
 #define VV4_TW_SPEED_PAUSED     999
-#define VV4_TW_WORLD_GETTER     0x0041FE70u
+/* Where the world object's getter 0x41FE70 keeps it (0 until built).  The getter BUILDS the object when this is 0,
+   so this companion reads the word and never calls the getter: a call from a hook that runs inside the object's
+   own constructor would build it again without end (the New Believers start-up crash, 2026-11-18). */
+#define VV4_TW_WORLD_GLOBAL     0x004CB51Cu
 #define VV4_TW_TIME_EPOCH_VA    0x004B8230u   /* 64-bit, low dword           */
 #define VV4_TW_LAST_SEEN_OFFSET 0x1C38
 #define VV4_TW_AGE_OFFSET       0x1B8C
@@ -3560,7 +3692,10 @@ static int vv4_equal_division(int include_parenting) {
 #define VV4_TW_APPLIED   1
 #define VV4_TW_REFUSED   2
 
-typedef unsigned char *(__cdecl *vv4_world_getter_fn)(void);
+/* The world object, or 0 while it is not built yet: never builds it. */
+static unsigned char *vv4_world(void) {
+    return *(unsigned char *volatile *)(UINT_PTR)VV4_TW_WORLD_GLOBAL;
+}
 
 static int vv4_time_warp_years(int speed) {
     switch (speed) {
@@ -3645,8 +3780,7 @@ static int vv4_skip_watch = -1;
 static int vv4_skip_mark;
 
 static int __stdcall vv4_story_time_skip_step(int years) {
-    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv4_world();
     int speed, step, i, total;
     if (world == 0 || years <= 0) {
         return 0;
@@ -3688,8 +3822,7 @@ static int __stdcall vv4_story_time_skip_settled(void) {
 /* Whether the game's clock runs (a known speed, not paused): only that time
    counts toward the time skip's replay wait (native/shared/story_bridge.h). */
 static int __stdcall vv4_story_time_skip_running(void) {
-    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv4_world();
     return world != 0 && vv4_time_warp_years(*(int *)(world + VV4_TW_SPEED_OFFSET)) > 0;
 }
 
@@ -3735,8 +3868,7 @@ int __stdcall ShowVv4TimeWarp(int cost) {
     static const char *const TITLE = "Origins Upgrades";
     char message[1100];
     HWND owner = GetForegroundWindow();
-    vv4_world_getter_fn get_world = (vv4_world_getter_fn)(UINT_PTR)VV4_TW_WORLD_GETTER;
-    unsigned char *world = get_world();
+    unsigned char *world = vv4_world();
     char cost_text[16];
     int speed, years;
 

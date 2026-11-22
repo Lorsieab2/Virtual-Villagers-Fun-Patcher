@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Are We the Spirits?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns22_are_we_spirits",
+  "source": "living",
+  "lines": [
+   22453,
+   22464
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22453",
+  "ledger": [
+   {
+    "src": "L22464",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child wonders whether the spirits are simply the kindness people show one another.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child wonders whether the spirits are simply the kindness people show one another.",
+   "src": "L22454",
+   "choices": [
+    {
+     "label": "Explore the metaphor.",
+     "next": "a",
+     "src": "L22455"
+    },
+    {
+     "label": "Take the claim literally.",
+     "next": "b",
+     "src": "L22458"
+    },
+    {
+     "label": "Leave the question unanswered.",
+     "next": "c",
+     "src": "L22461"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Villagers begin speaking of generosity as a sacred act.",
+   "src": "L22456"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some insist that spirits, if real, must be more than a metaphor.",
+   "src": "L22457"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child invents a playful ceremony celebrating human creativity.",
+   "src": "L22459",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "child",
+     "src": "L22459"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder objects that the village cannot prove people are divine.",
+   "src": "L22460"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child keeps asking thoughtful questions.",
+   "src": "L22462"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A healer says uncertainty need not prevent kindness.",
+   "src": "L22463"
+  }
+ }
+}

@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family Recipe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl009_family_recipe",
+  "source": "companion",
+  "lines": [
+   3901,
+   3911
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3901",
+  "ledger": [
+   {
+    "src": "L3902",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L3910",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L3911",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A cook inherits a recipe with one ingredient missing.",
+  "cast_only": [
+   "cook",
+   "cousin"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cousin": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A cook inherits a recipe with one ingredient missing.",
+   "src": "L3903",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L3904"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L3905"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L3906"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "A cousin remembers the secret spice.",
+   "src": "L3907"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "A new variation becomes more popular than the original.",
+   "src": "L3909"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "The recipe fails, becoming a running family joke.",
+   "src": "L3908",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L3908"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "The recipe fails, becoming a running family joke.",
+   "src": "L3908"
+  }
+ }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "vv2_children_play",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv2",
+  "name": "Children Build Sandcastles (and Tag More Often)",
+  "description": "Children build sandcastles on the west beach, a new play choice taken from The Secret City, and play the game's own tag as often. Each time a child picks something to play, one roll of 1 to 15 decides: 1 is the game's own tag, 2 is sandcastles, anything else the child's usual choices with their usual odds; each is 1 pick in 15 (the game's own tag, about 1 pick in 400 for a child who does not like playing, stays as well). **Tag** is the game's own: every child who is not sick and has empty hands joins when at least two can. **Sandcastles**: one child goes to the beach by the sea and bends over in the sand, six times, \"Making sandcastles\" (The Secret City's words, can be translated). **A child who dislikes playing never starts either one**, as the later games do for sandcastles. **On by default.** **Needs no other patch.** **Works the same with every other patch and in every population mode.** **Children play only while the game runs, as in the stock game: nothing happens while it is closed.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Children Play.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Children Build Sandcastles (and Tag More Often)",
+  "dependencies": [],
+  "behavior_changes": [
+    "The pastime pick's call (0x4618C9 -> 0x45EE00) goes to the companion. Unless the child dislikes Playing (word 0x12 in +0x6E8, 62 slots), rand(15) (0x4031A0): 0 the stock tag 0x455CF0 (its own players and its own fallback when fewer than two), 1 sandcastles, else the stock pick.",
+    "Sandcastles (the port of The Secret City's 0x44DE40): \"Making sandcastles\" in +0x4FC; one of the three stock \"Relaxing at the beach\" places nearest the sea (217..256 x 878..917, 142..181 x 878..917, 145..184 x 752..791); six rounds of queue 0x449B70 step 3 there at speed 100, one time in five step 2 kind 0, and twice step 2 kind 1 (state 1, bent over) for 10..29."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the call(s) at run time, only after verifying every one is the stock call; all are written or none.",
+    "The stock pick, its choices and their odds among themselves are unchanged; a child who dislikes Playing gets it exactly as stock.",
+    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it)."
+  ],
+  "evidence_status": "the stock pastime picks, tag and sandcastle routines traced statically; the companion's install, its odds over many picks, who plays and where, emulated on the rendered executable in tests/test_children_play.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/children_play/VVFP Children Play.dll",
+      "destination": "VVFP Children Play.dll",
+      "sha256": "D959E99B4FB771201E2956959E0AA82BDD92B3162ACF3B76C8205760CDDA2B35"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x4618C9",
+      "stock_bytes": "E832D5FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "a call of the child pastime pick 0x45EE00 goes to the companion's pick, which adds tag and sandcastles as normal play choices and otherwise calls it",
+      "installed_by": "VVFP Children Play.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Record of the Shark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat001_shark",
+  "source": "companion",
+  "lines": [
+   7109,
+   7119
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_bodies",
+  "title_src": "L7109",
+  "ledger": [
+   {
+    "src": "L7119",
+    "kind": "note",
+    "why": "Context / follow-up: the catalogue entry and designer notes, never shown"
+   }
+  ],
+  "description": "A young naturalist observes a Fanned Shark in a sheltered lagoon, but another observer disputes its fin shape."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A young naturalist observes a Fanned Shark in a sheltered lagoon and believes its unusual feeding habits may distinguish it from other fish. Another observer disagrees about the fin shape.",
+   "src": "L7110",
+   "choices": [
+    {
+     "label": "Sketch it from a safe distance",
+     "next": "a",
+     "src": "L7111"
+    },
+    {
+     "label": "Keep a living specimen briefly for observation",
+     "next": "b",
+     "src": "L7113"
+    },
+    {
+     "label": "Preserve a collected specimen",
+     "next": "c",
+     "src": "L7115"
+    },
+    {
+     "label": "Wait for a second sighting",
+     "next": "d",
+     "src": "L7117"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The fish disappears for days. When it returns, a different observer notes a variation that complicates the original classification.",
+   "src": "L7118",
+   "text_only": [
+    {
+     "what": "The fish disappears for days",
+     "reason": "an animal, not a villager; no one vanishes",
+     "src": "L7118"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The drawing captures the Shark silhouette, but the fanned fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
+   "src": "L7112",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L7112"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The drawing captures the Shark silhouette, but the fanned fin detail is disputed; an apprentice marks the page \"unconfirmed.\"",
+   "src": "L7112"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
+   "src": "L7114",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7114"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7114"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "handling stresses it",
+     "reason": "the fish is stressed, not a villager",
+     "src": "L7114"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The fish reveals details missed underwater; careful husbandry and release become part of the record, though handling stresses it.",
+   "src": "L7114",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7114"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "handling stresses it",
+     "reason": "the fish is stressed, not a villager",
+     "src": "L7114"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
+   "src": "L7116",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7116"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L7116"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L7116"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The record gains anatomical detail but the fish dies; villagers debate whether the knowledge justified the loss, especially if numbers are low.",
+   "src": "L7116",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L7116"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L7116"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "the fish dies",
+     "reason": "an animal, not a villager",
+     "src": "L7116"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Things the Healer Doesn't Know",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea17_things_healer",
+  "source": "draft_hea",
+  "lines": [
+   203,
+   212
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L203",
+  "ledger": [
+   {
+    "src": "L204",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A healer cannot explain the dizzy spells troubling a villager: ask what it is, or ask what to do.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every now and then the world tips sideways for (subject). It lasts a few breaths, then stops. It's happened six times this month. (friend) has looked in (friend.his/her) ears, asked about (friend.his/her) food, (friend.his/her) sleep and (friend.his/her) water, and pressed (friend.his/her) neck gently in several places. Finally (friend) sits back.",
+   "src": "L206",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L206"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Ask What It Is",
+     "next": "o1",
+     "src": "L208"
+    },
+    {
+     "label": "Ask What to Do",
+     "next": "o2",
+     "src": "L211"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What should I do when it happens?\" asks (subject). \"Sit down wherever you are,\" says (friend). \"Don't climb anything for a while. Tell me every time it happens, so I can look for a pattern.\" (subject) keeps a tally on a stick. The spells come less often after a few weeks. Neither of them ever finds out why. (subject) keeps the stick, just in case.",
+   "src": "L212"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"What is it?\" asks (subject). (friend) is quiet a moment. \"I don't know,\" (friend.he/she) says. \"I've seen it before, and sometimes it goes away on its own and sometimes it doesn't, and I don't know why. I'm sorry. I won't pretend.\" (subject) is surprised to find (subject.he/she) feels better. \"At least you believe me,\" (subject.he/she) says. \"Of course I believe you,\" says (friend). \"It's happening to you.\"",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"What is it?\" asks (subject). (friend) is quiet a moment. \"I don't know,\" (friend.he/she) says. \"I've seen it before, and sometimes it goes away on its own and sometimes it doesn't, and I don't know why. I'm sorry. I won't pretend.\" (subject) is surprised to find (subject.he/she) feels better. \"At least you believe me,\" (subject.he/she) says. \"Of course I believe you,\" says (friend). \"It's happening to you.\"",
+   "src": "L209"
+  }
+ }
+}

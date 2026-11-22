@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sealed Jar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife12_sealed_jar",
+  "source": "living",
+  "lines": [
+   20785,
+   20796
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20785",
+  "ledger": [
+   {
+    "src": "L20796",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A potter insists tightly closed jars preserve food best, but a healer worries that spoiled food may look harmless.",
+  "cast_only": [
+   "potter",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "potter": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A potter insists tightly closed jars preserve food best, but a healer worries that spoiled food may look harmless.",
+   "src": "L20786",
+   "choices": [
+    {
+     "label": "Seal the food and store it.",
+     "next": "a",
+     "src": "L20787"
+    },
+    {
+     "label": "Inspect and discard doubtful stores.",
+     "next": "b",
+     "src": "L20790"
+    },
+    {
+     "label": "Teach careful recordkeeping and storage.",
+     "next": "c",
+     "src": "L20793"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "preserve food",
+     "reason": "the question of the event; nothing is gained or lost on this page",
+     "src": "L20786"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Several jars remain usable, but one batch spoils unnoticed.",
+   "src": "L20788",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20788"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The potter develops a better lid after a failed batch.",
+   "src": "L20789"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village avoids a meal that might have caused illness.",
+   "src": "L20791"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The strict rule wastes food during a hungry season.",
+   "src": "L20792",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20792"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers ignore the new rules until a spoiled meal makes them reconsider.",
+   "src": "L20795",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20795"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Families learn which foods keep reliably.",
+   "src": "L20794",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20794"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Families learn which foods keep reliably.",
+   "src": "L20794"
+  }
+ }
+}

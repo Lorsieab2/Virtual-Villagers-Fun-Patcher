@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Will the Teacher Think?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea30_what_will",
+  "source": "draft_fea",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult)"
+   }
+  ],
+  "description": "A young villager must do a job alone while their teacher watches: ask the teacher to look away, or do it while watched.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been learning from (friend) for a whole season. Today (friend) has asked (subject.him/her) to do the job alone while (friend.he/she) watches. (subject)'s hands are sweating. (subject.He/she) knows how to do it. (subject.He/she) has done it many times. But now (friend) is watching, and (subject) can't think about anything except disappointing (friend.him/her).",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Ask (friend) to Look Away",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Do It While (friend) Watches",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) does it with (friend) watching. (subject.His/her) hands shake. (subject.He/she) makes one small mistake and fixes it. When it's done, (friend) says, \"You made a mistake and fixed it without panicking. That's the most important part.\" (subject) had been bracing for something much worse. It takes (subject.him/her) a while to believe it.",
+   "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Could you not watch?\" says (subject). \"Just for a bit.\" (friend) laughs, and turns around, and sits facing the other way. (subject) does the job. It goes well. When (friend) turns back, (friend.he/she) looks it over carefully and nods. \"Good,\" (friend.he/she) says. That one word carries (subject) through the whole week.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Could you not watch?\" says (subject). \"Just for a bit.\" (friend) laughs, and turns around, and sits facing the other way. (subject) does the job. It goes well. When (friend) turns back, (friend.he/she) looks it over carefully and nods. \"Good,\" (friend.he/she) says. That one word carries (subject) through the whole week.",
+   "src": "L362"
+  }
+ }
+}

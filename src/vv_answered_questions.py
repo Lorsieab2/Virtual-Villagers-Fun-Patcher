@@ -63,7 +63,7 @@ YES, NO = "Yes", "No"
 # instead): left out of a record's fingerprint, so the fact stays the same after a repair.
 _UNSTABLE = {"Name", "Child", "Mother", "Father", "Likes", "Dislikes", "Sex", "Special villager", "Custom title",
              "Mask", "Faction", "Born as", "Note", "Nursing", "Epitaph", "Last name", "Grave", "Cause of death",
-             "Cause"}
+             "Cause", "Sex at birth", "Gender presentation", "Head look", "Story traits"}
 _LABEL = re.compile(r"^\s*([A-Za-z][A-Za-z /'-]*):")
 
 

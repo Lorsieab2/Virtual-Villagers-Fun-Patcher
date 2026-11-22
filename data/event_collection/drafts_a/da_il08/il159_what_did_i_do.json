@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Did I Do All Day?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il159_what_did_i_do",
+  "source": "da_il08",
+  "lines": [
+   218,
+   227
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L227",
+    "kind": "casting",
+    "before": "finds a child proudly tying",
+    "after": "finds (pupil), a child, proudly tying",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "At the end of the day, a villager feels they got nothing done at all, and a friend asks how the day was.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "pupil": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At the end of the day, (subject) sits down and has the uncomfortable feeling that (subject.he/she) got nothing done. Nothing at all. The day just disappeared. (friend) sits down beside (subject.him/her) and asks how (subject.his/her) day was. \"I don't know,\" says (subject). \"I didn't do anything.\"",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Go Through the Day Together",
+     "next": "a",
+     "src": "L223"
+    },
+    {
+     "label": "Let It Be a Quiet Day",
+     "next": "b",
+     "src": "L226"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"What did you do this morning?\" asks (friend). Well, (subject) fetched water. Then helped carry some baskets. Then showed a child how to tie a knot. Then fixed a bit of thatch. Then cooked. Then helped look for a missing sandal. Then... (subject) stops. \"Oh,\" (subject.he/she) says. It was a lot of little things. It just didn't feel like anything while (subject.he/she) was doing it.",
+   "src": "L224"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"That's alright,\" says (friend). \"Some days are like that.\" (subject) isn't completely convinced. But (subject.he/she) eats dinner, and watches the fire, and talks a bit, and goes to bed, and in the morning (subject.he/she) finds (pupil), a child, proudly tying the knot (subject.he/she) taught yesterday. (subject) had forgotten all about that.",
+   "src": "L227",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "pupil",
+     "mood": "good",
+     "src": "L227"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"That's alright,\" says (friend). \"Some days are like that.\" (subject) isn't completely convinced. But (subject.he/she) eats dinner, and watches the fire, and talks a bit, and goes to bed, and in the morning (subject.he/she) finds (pupil), a child, proudly tying the knot (subject.he/she) taught yesterday. (subject) had forgotten all about that.",
+   "src": "L227"
+  }
+ }
+}

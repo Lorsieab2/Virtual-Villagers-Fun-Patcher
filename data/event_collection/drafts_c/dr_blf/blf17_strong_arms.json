@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Strong Arms",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf17_strong_arms",
+  "source": "draft_blf",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult woman who builds and an adult)"
+   }
+  ],
+  "description": "A visitor says building is not proper work for the woman who is the strongest builder on the crew: a friend answers, or she does.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is the strongest builder on the crew. She can carry two poles at once and lift a roof beam on her own. Today a visitor to the village watches her and says, loudly, to (friend), \"That's not proper work for a woman.\" (subject) heard. So did everyone else.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "(friend) Answers",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "(subject) Answers",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It's proper work for whoever's best at it,\" says (friend), not unkindly but very firmly. \"And that's her.\" The visitor looks around for agreement and doesn't find any. (subject) lifts the next beam and puts it in place without a word. Later, (friend) asks if she's alright. \"I've heard it before,\" she says. \"I'll probably hear it again. It's still my roof.\"",
+   "src": "L206"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) puts down the beam and turns round. \"Would you like to try lifting it?\" she asks pleasantly. The visitor hesitates, then tries. It doesn't move. (subject) lifts it again and carries on. Nobody laughs at the visitor, but nobody agrees with (other.him/her) either. The roof goes up by evening. It's a very good roof.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) puts down the beam and turns round. \"Would you like to try lifting it?\" she asks pleasantly. The visitor hesitates, then tries. It doesn't move. (subject) lifts it again and carries on. Nobody laughs at the visitor, but nobody agrees with (other.him/her) either. The roof goes up by evening. It's a very good roof.",
+   "src": "L209"
+  }
+ }
+}

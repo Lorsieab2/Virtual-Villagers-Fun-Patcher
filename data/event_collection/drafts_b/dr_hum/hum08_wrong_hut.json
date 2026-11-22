@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum08_wrong_hut",
+  "source": "draft_hum",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A sleepy villager naps in a friend's hut by mistake: let the sleeper rest, or wake them gently.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It is the hottest part of the day. (subject) comes back from the fields half asleep, walks into a hut, lies down on the mat and is snoring within moments. It is not (subject.his/her) hut. It is (friend)'s hut, which looks almost exactly the same from outside. A little later (friend) comes home and finds that (friend.he/she) has a guest.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Let (subject.him/her) Sleep",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Wake (subject.him/her) Gently",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tiptoes around all afternoon. When (subject) finally wakes, (subject.he/she) looks around slowly: at the unfamiliar water jar, at the different pattern on the mat, at (friend) sitting by the door peeling fruit. \"This isn't my hut.\" \"No.\" \"...Was I snoring?\" \"Yes.\" (friend) hands (subject.him/her) a piece of fruit. The next day a bright shell appears on (subject)'s own doorpost, so that (subject.he/she) can tell which hut is which.",
+   "src": "L98"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) taps (subject.him/her) on the shoulder. (subject) opens (subject.his/her) eyes and says warmly, \"Oh, hello! What are you doing in my hut?\" Then (subject.he/she) looks around, and the realization arrives slowly. (subject) apologizes all the way out of the door, and (friend) laughs all the way. A few days later (friend) catches (friend.him/her)self walking into (subject)'s hut by mistake. Neither of them is entirely sure any more whose hut is whose.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) taps (subject.him/her) on the shoulder. (subject) opens (subject.his/her) eyes and says warmly, \"Oh, hello! What are you doing in my hut?\" Then (subject.he/she) looks around, and the realization arrives slowly. (subject) apologizes all the way out of the door, and (friend) laughs all the way. A few days later (friend) catches (friend.him/her)self walking into (subject)'s hut by mistake. Neither of them is entirely sure any more whose hut is whose.",
+   "src": "L101"
+  }
+ }
+}

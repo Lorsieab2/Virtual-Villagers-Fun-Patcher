@@ -1,0 +1,265 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child at the Second Wedding",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy21_child_second",
+  "source": "anthology",
+  "lines": [
+   28983,
+   28996
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28983",
+  "ledger": [
+   {
+    "src": "L28984",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28984",
+    "kind": "sensitivity",
+    "before": "a parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28986",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28987",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28989",
+    "kind": "sensitivity",
+    "before": "The parent",
+    "after": "(parent)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28989",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28990",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28992",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28995",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28996",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child has mixed feelings about a parent's remarriage.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) has mixed feelings about (parent)'s remarriage.",
+   "src": "L28984",
+   "choices": [
+    {
+     "label": "Ask the Child What They Want",
+     "next": "a",
+     "src": "L28985"
+    },
+    {
+     "label": "Offer a Private Conversation",
+     "next": "b",
+     "src": "L28988"
+    },
+    {
+     "label": "Keep Familiar Routines",
+     "next": "c",
+     "src": "L28991"
+    },
+    {
+     "label": "Let the Child Skip Festivities",
+     "next": "d",
+     "src": "L28994"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) chooses a small role in the ceremony.",
+   "src": "L28986"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) prefers to watch quietly and is welcomed.",
+   "src": "L28987"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(parent) listens to (child)'s worries.",
+   "src": "L28989"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) asks for more time before discussing them.",
+   "src": "L28990"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new household works to accommodate different routines.",
+   "src": "L28993"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) feels respected and safe.",
+   "src": "L28995"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) changes their mind and joins for dessert.",
+   "src": "L28996"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(child) finds comfort in ordinary family habits.",
+   "src": "L28992",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L28992"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(child) finds comfort in ordinary family habits.",
+   "src": "L28992"
+  }
+ }
+}

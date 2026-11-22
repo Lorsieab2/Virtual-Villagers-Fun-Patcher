@@ -43,6 +43,9 @@ BY_LOG_EXPORTERS = {"VvfpMaskOf"}
 # Resolved by "VVFP Save Reset.dll" at Start Over or a deleted tribe (native/save_reset_export), so a
 # purchase not yet delivered goes with the erased village.
 BY_SAVE_RESET = {"VvfpOriginsVillageReset"}
+# Resolved by every companion that changes a villager's sex (native/shared/sex_change.h vv_sex_change_apply), so
+# the masks follow the villager.
+BY_SEX_CHANGE = {"VvfpVillagerSexChanged"}
 # Names the companion no longer exports; the executable must not ask for them.
 REMOVED = {
     "ShowOriginsAgeResult", "ShowOriginsAppearanceForAll",
@@ -69,7 +72,7 @@ class Vv2CompanionExportTests(unittest.TestCase):
     def test_export_table_is_exactly_what_the_executable_resolves(self) -> None:
         exports = _exports()
         self.assertEqual(set(exports), BY_NAME | set(BY_ORDINAL.values()) | BY_STARTUP_LOADER | BY_LOG_EXPORTERS
-                         | BY_SAVE_RESET)
+                         | BY_SAVE_RESET | BY_SEX_CHANGE)
         for ordinal, name in BY_ORDINAL.items():
             self.assertEqual(exports[name], ordinal)
         self.assertFalse(

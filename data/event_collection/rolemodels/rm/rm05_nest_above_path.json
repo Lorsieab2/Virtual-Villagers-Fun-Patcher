@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nest Above the Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm05_nest_above_path",
+  "source": "rolemodels",
+  "lines": [
+   13,
+   13
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L13",
+  "ledger": [
+   {
+    "src": "L13",
+    "kind": "structural",
+    "text": "EVENT RM-05  -  THE NEST ABOVE THE PATH SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A gardener discovers that a pair of birds has built a nest in branches over a frequently used path.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A gardener discovers that a pair of birds has built a nest in branches over a frequently used path.",
+   "src": "L13",
+   "choices": [
+    {
+     "label": "Ask Villagers to Use Another Route Temporarily.",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Observe the Nest from a Respectful Distance.",
+     "next": "b",
+     "src": "L13"
+    },
+    {
+     "label": "Delay Pruning the Nearby Branches.",
+     "next": "c",
+     "src": "L13"
+    },
+    {
+     "label": "Consult an Experienced Bird Watcher.",
+     "next": "d",
+     "src": "L13"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The birds continue nesting undisturbed while villagers take a slightly longer walk.",
+   "src": "L13"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some villagers forget the change, so the gardener places a visible marker nearby.",
+   "src": "L13"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A curious child learns why watching quietly is better than approaching the nest.",
+   "src": "L13"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The gardener completes other work until the nesting season passes.",
+   "src": "L13"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A falling branch creates concern, and the gardener carefully redirects foot traffic.",
+   "src": "L13"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The watcher suggests a safer distance for observing the nest.",
+   "src": "L13"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Neither knows how long the birds will remain, so they agree to be patient.",
+   "src": "L13"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The gardener records the birds' habits without disturbing them.",
+   "src": "L13",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L13"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The gardener records the birds' habits without disturbing them.",
+   "src": "L13"
+  }
+ }
+}

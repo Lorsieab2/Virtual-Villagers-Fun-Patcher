@@ -24,6 +24,7 @@
 #include "../shared/identity_in_place.h"
 #include "../shared/foreign_sidecar.h"   /* vv_roster_shares: another array is not play */
 #include "../shared/villager_rekey.h"    /* a rename at a load keeps the title (VvfpVillagersRenamed) */
+#include "../shared/sex_change.h"        /* ...and a sex change keeps it (VvfpVillagerSexChanged, the log) */
 
 #define TITLES_CHECK_MS 2000u
 #define TITLES_ROSTER VV_MASK_FOLLOW_MAX    /* every game has 150 or 256 records */
@@ -524,6 +525,48 @@ static int titles_appearance_changed(int game, const unsigned char *record, int 
     return 1;
 }
 
+/* A villager's sex changed (native/shared/sex_change.h, VvfpVillagerSexChanged).  The fingerprint holds no sex, so
+   the title stays theirs; the last look's stable and keep parts (which hold it) take the new sex, so a later rename
+   or likes change is still told as one, and the looks kept with the title take it and are written now.  1 when the
+   title's looks changed. */
+static int titles_sex_changed(int game, int slot, const unsigned char *record) {
+    int index = record != NULL ? story_record_index(game, record) : -1;
+    vv_title_looks now;
+    int i, sex;
+    titles_sync(game);
+    if (index < 0 || !titles.loaded || titles.slot <= 0 || titles.slot != slot) {
+        return 0;
+    }
+    if (index < TITLES_ROSTER && titles.roster[index] != 0u) {
+        titles.roster_stable[index] = story_title_stable(game, record);
+        titles.roster_keep[index] = story_title_keep(game, record);
+    }
+    titles_looks_now(game, index, record, &now);
+    sex = now.sex;
+    i = titles_find((unsigned int)index);
+    if (i < 0 || !(titles.entries[i].flags & VV_TITLE_KNOWN)
+        || titles.entries[i].fingerprint != story_title_identity(game, record) || titles.entries[i].looks.sex == sex) {
+        return 0;
+    }
+    titles_before.count = titles.count;
+    memcpy(titles_before.entries, titles.entries, sizeof titles.entries);
+    memcpy(titles_before.seen, titles.seen, sizeof titles.seen);
+    titles.entries[i].looks.sex = sex;
+    return titles_commit();
+}
+
+/* A title's looks that differ from villager `now` only by the sex, for a villager the slot's "Sex Changes" log
+   names (sex_change.h: the save was not saved after the change, or the title was kept after it): they still fit. */
+static int titles_sex_logged(int game, const unsigned char *record) {
+    static char log[VV_SEX_LOG_MAX];
+    char name[64];
+    if (titles.slot <= 0 || !vv_sex_game_ok(game) || !vv_sex_log_read(titles.slot, log, sizeof log)) {
+        return 0;
+    }
+    vv_sex_name(game, record, name);
+    return name[0] != 0 && vv_sex_log_names(log, name);
+}
+
 /* Could the villager in record `r` be the one entry `e` belongs to?  Present,
    the fingerprint (name, likes, dislikes), and -- once the entry's looks are
    known -- the same head, body and sex, and no younger and no less skilled
@@ -539,7 +582,15 @@ static int titles_could_be(int game, const vv_custom_title *e, int r) {
         return 1;                             /* a version 2 entry: the fingerprint is all it has */
     }
     titles_looks_now(game, r, record, &now);
-    return vv_title_looks_could_be(&e->looks, &now, story_title_skills_float(game));
+    if (vv_title_looks_could_be(&e->looks, &now, story_title_skills_float(game))) {
+        return 1;
+    }
+    if (e->looks.sex != now.sex && titles_sex_logged(game, record)) {
+        vv_title_looks other = e->looks;
+        other.sex = now.sex;
+        return vv_title_looks_could_be(&other, &now, story_title_skills_float(game));
+    }
+    return 0;
 }
 
 /* How many present villagers could be entry `e`'s; *where gets the last.

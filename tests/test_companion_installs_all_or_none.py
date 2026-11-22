@@ -287,6 +287,9 @@ class Case:
     mode: str = "collection_progression"
     present: tuple[str, ...] = ()
     test_build: bool = False
+    # Sites the companion installs as a group of their own, after the others ((va, length) per game): all of that
+    # group or none of it, never stopping the rest (the Golden Mushroom's finds record; its own tests cover it).
+    own_group: Callable[[int], list[tuple[int, int]]] = lambda g: []
 
     def dll_path(self) -> Path:
         if DLL_DIR:
@@ -296,6 +299,48 @@ class Case:
 
 def _startup(m: Machine, game: int) -> int:
     return m.export("VvfpStartup", game, 0)
+
+
+def _golden_record_site(game: int) -> list[tuple[int, int]]:
+    """The Golden Mushroom's finds record site: the row's last runtime detour (tests/test_golden_mushroom_art.py)."""
+    row = next(p for p in patcher.load_fun_patches() if p.id == f"vv{game}_super_secret_golden_mushroom")
+    last = row.raw["runtime_detours"][-1]
+    return [(int(last["va"], 16), len(last["stock_bytes"]) // 2)]
+
+
+def _founders_names_site(game: int) -> list[tuple[int, int]]:
+    """Last Names' choose-your-founders name call (The Tree of Life, New Believers), written on its own after the
+    naming detour: the row's founders runtime detour (scripts/build_last_names_features.py)."""
+    row = next(p for p in patcher.load_fun_patches() if p.id == f"vv{game}_last_names")
+    return [(int(d["va"], 16), len(d["stock_bytes"]) // 2) for d in row.raw["runtime_detours"]
+            if "founders" in d["routine"]]
+
+
+def _serve_pier_holes(m: Machine) -> None:
+    """The pier holes companion's PNG header reads, answered from assets/vv4_pier_holes (Images\\vvfp_*.png)."""
+    folder = ROOT / "assets" / "vv4_pier_holes"
+    handles: dict[int, list] = {}
+
+    def create(p):
+        name = p.wstring(p.arg(0)).rpartition("\\")[2]
+        path = folder / name
+        if not name.startswith("vvfp_") or not path.is_file():
+            return 0xFFFFFFFF, 28
+        handle = 0x200 + 4 * len(handles)
+        handles[handle] = [path.read_bytes(), 0]
+        return handle, 28
+
+    def read(p):
+        data, at = handles[p.arg(0)]
+        piece = data[at:at + p.arg(2)]
+        p.write(p.arg(1), piece)
+        handles[p.arg(0)][1] = at + len(piece)
+        p.put32(p.arg(3), len(piece))
+        return 1, 20
+
+    m.api_handlers["CreateFileW"] = create
+    m.api_handlers["ReadFile"] = read
+    m.api_handlers["CloseHandle"] = lambda p: (1, 4)
 
 
 def _with_origins(*rows: str):
@@ -320,7 +365,7 @@ CASES = [
          lambda g: [f"vv{g}_game_log"], _startup, reports=False),
     Case("Golden Mushroom", "assets/golden_mushroom/VVFP Golden Mushroom.dll", (1, 3, 4, 5),
          lambda g: [f"vv{g}_super_secret_golden_mushroom"],
-         lambda m, g: m.export(f"VvfpGoldenMushroomVv{g}")),
+         lambda m, g: m.export(f"VvfpGoldenMushroomVv{g}"), own_group=lambda g: _golden_record_site(g)),
     Case("Healers Study", "assets/healers_study/VVFP Healers Study.dll", (1, 2),
          lambda g: [f"vv{g}_healers_study_regardless_of_food"],
          lambda m, g: m.export("VvfpHealersStudyInstall", g)),
@@ -328,7 +373,7 @@ CASES = [
          lambda g: [f"vv{g}_island_events"], _startup, reports=False,
          present=("VVFP Parentage Export.dll",)),
     Case("Last Names", "assets/last_names/VVFP Last Names.dll", (1, 2, 3, 4, 5),
-         lambda g: [f"vv{g}_last_names"], _startup, reports=False),
+         lambda g: [f"vv{g}_last_names"], _startup, reports=False, own_group=lambda g: _founders_names_site(g)),
     Case("Lesson Cap", "assets/lesson_cap/VVFP Lesson Cap.dll", (1, 2),
          lambda g: ["vv1_school_lessons_cap_50" if g == 1 else "vv2_teaching_children_cap_50"],
          lambda m, g: m.export("VvfpLessonCapInstall", g)),
@@ -382,11 +427,77 @@ CASES = [
     Case("Island Events Scale", "assets/island_events_scale/VVFP Island Events Scale.dll", (1, 4, 5),
          lambda g: [f"vv{g}_island_events_scale_with_population"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandEventsScaleInstalled"))[1]),
+    # Empty the Stew Pot from the Science Hut Door (The Lost Children): the drop's expecting test and the completion
+    # dispatcher's first bytes.
+    Case("VV2 Empty Stew", "assets/vv2_empty_stew/VVFP VV2 Empty Stew.dll", (2,),
+         lambda g: ["vv2_empty_stew_pot"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpVv2EmptyStewInstalled"))[1]),
     # Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the pick's epilogue and the
     # end-of-trip award call (VV1), the two jobs' award-step calls (VV2).
     Case("Collectibles Stay Collected", "assets/collectibles_stay_collected/VVFP Collectibles Stay Collected.dll",
          (1, 2), lambda g: [f"vv{g}_collectibles_stay_collected"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpCollectiblesStayCollectedInstalled"))[1]),
+    # Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the drop's adult area call (VV1), the
+    # adult dispatcher's Confused call (VV2), the drop's mushroom / collectible do-action calls (VV3-VV5).
+    Case("Adult Confused", "assets/adult_confused/VVFP Adult Confused.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_adult_confused"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpAdultConfusedInstalled"))[1]),
+    # Scrolling Popups (all five games): the mouse dispatcher's call, the popups' size calls, their text calls.
+    Case("Scrolling Popups", "assets/scrolling_popups/VVFP Scrolling Popups.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_scrolling_popups"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpScrollingPopupsInstalled"))[1]),
+    # Fix Vanilla Bugs (The Lost Children .. New Believers): the justified paragraph's and the line fit's long-word steps.
+    # Fix Vanilla Bugs (The Secret City .. New Believers): the string table loader's epilogue / cookie-check call.
+    # (A New Home, The Lost Children write table pointers only, all or none through the same writer.)
+    Case("Text Fixes", "assets/text_fixes/VVFP Text Fixes.dll", (3, 4, 5),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpTextFixesInstalled"))[1]),
+    Case("Long Words", "assets/long_words/VVFP Long Words.dll", (2, 3, 4, 5),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpLongWordsInstalled"))[1]),
+    # Fix Vanilla Bugs (The Tree of Life): the frog block's jump to the companion's leaps on the river's water.
+    Case("VV4 Frogs", "assets/vv4_frogs/VVFP VV4 Frogs.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpVv4FrogsInstalled"))[1]),
+    # Fix Vanilla Bugs (A New Home, The Lost Children): the four herb cases of the completion routine (A New Home),
+    # the study continuation's plant pick (The Lost Children).
+    Case("Herb Study", "assets/herb_study/VVFP Herb Study.dll", (1, 2),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHerbStudyInstalled"))[1]),
+    # Children Play Tag and Build Sandcastles (all five games): every call of the child pastime pick (three in The
+    # Secret City).
+    Case("Children Play", "assets/children_play/VVFP Children Play.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_children_play"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpChildrenPlayInstalled"))[1]),
+    # Change Sex and Gender Presentation (all five games): every read of the sex field in the villager draw routines.
+    Case("Gender Presentation", "assets/gender_presentation/VVFP Gender Presentation.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_gender_presentation"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpGenderPresentationInstalled", g))[1]),
+    # Practicing Devotion Builds Faith and Divine Energy (New Believers): the skill check's entry.
+    Case("Devotion Faith", "assets/devotion_faith/VVFP Devotion Faith.dll", (5,),
+         lambda g: [f"vv{g}_devotion_builds_faith"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpDevotionFaithInstalled"))[1]),
+    # More Frequent Island Events (all five games): the trigger's draws of the next wait (two in New Believers).
+    Case("Island Frequency", "assets/island_frequency/VVFP Island Frequency.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_more_frequent_island_events"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpIslandFrequencyInstalled"))[1]),
+    # The Aspiring Adventurer (all five games): its draw, popup and answer sites.
+    Case("More Island Events", "assets/more_island_events/VVFP More Island Events.dll", (1, 2, 3, 4, 5),
+         lambda g: [f"vv{g}_more_island_events"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), int(m.export("VvfpMoreIslandEventsInstalled") == g))[1]),
+    # Cloth Sacks for Yellow Fruit (The Tree of Life): the drop dispatcher's and the job events' entries, the
+    # Farming dispatcher's option test and the carried item's draw call.
+    Case("Cloth Sacks", "assets/cloth_sacks/VVFP VV4 Cloth Sacks.dll", (4,),
+         lambda g: [f"vv{g}_cloth_sacks_for_yellow_fruit"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpClothSacksInstalled"))[1]),
+    # Up to 99 Cutting Tools/Soap/Cloth (The Tree of Life): the two caps, the use-up clamp, the two stack draws.
+    Case("Supply Cap", "assets/supply_cap/VVFP VV4 Supply Cap.dll", (4,),
+         lambda g: [f"vv{g}_up_to_99_supplies"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpSupplyCapInstalled"))[1]),
+    # Fix Vanilla Bugs (The Tree of Life): no tool harvest from an empty bush (the harvest's tool use).
+    Case("Empty Sources", "assets/empty_sources/VVFP VV4 Empty Sources.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpEmptySourcesInstalled"))[1]),
     # Popup When Believers Become Heathens (New Believers): the life tick's drift call and the drift's four
     # loss rolls' calls of rand.
     Case("Faith Notice", "assets/faith_notice/VVFP Faith Notice.dll", (5,),
@@ -401,9 +512,19 @@ CASES = [
          lambda g: [f"vv{g}_yellow_fruit_trees_limited"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpYellowFruitInstalled"))[1]),
     # Heathens Keep Their Masks When Converted (New Believers): the conversion's role test and The Defector's setter call.
+    # Fix Vanilla Bugs (The Tree of Life): the ten broken-pier hole entries of the sprite table (its pictures served
+    # from the row's own files in Images).
+    Case("VV4 Pier Holes", "assets/vv4_pier_holes/VVFP VV4 Pier Holes.dll", (4,),
+         lambda g: [f"vv{g}_fix_vanilla_bugs"],
+         lambda m, g: (_serve_pier_holes(m), m.export("VvfpStartup", g, 0),
+                       int(m.export("VvfpPierHolesInstalled") == 10))[2]),
     Case("Heathens Keep Masks", "assets/heathens_keep_masks/VVFP Heathens Keep Masks.dll", (5,),
          lambda g: [f"vv{g}_heathens_keep_masks_when_converted"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathensKeepMasksInstalled"))[1]),
+    # Fog of Doom Lets Red and Orange Heathens Listen (New Believers): the drop handler's mask test.
+    Case("Fog Listening", "assets/fog_listening/VVFP Fog Listening.dll", (5,),
+         lambda g: [f"vv{g}_fog_of_doom_every_heathen_listens"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpFogListeningInstalled"))[1]),
     Case("Difficulty Settings", "assets/difficulty/VVFP Difficulty.dll", (4, 5),
          lambda g: [f"vv{g}_difficulty_settings"], _startup, reports=False),
     Case("VV1 Genetics", "assets/genetics/VVFP VV1 Genetics.dll", (1,),
@@ -461,6 +582,19 @@ class AllOrNoneTests(unittest.TestCase):
             # The row with what it requires (Work First needs Fix Huts, ...).
             ids = with_requirements(game, case.rows(game))
             exe = render(game, ids, case.mode)
+            own = case.own_group(game)
+
+            def in_own(va: int, n: int = 1, own=own) -> bool:
+                return any(va < a + size and a < va + n for a, size in own)
+
+            def outside_own(image: bytes, base: bytes, own=own, m_base=None) -> bytes:
+                # The image with the separate group's bytes as in `base` (that group is checked on its own).
+                out = bytearray(image)
+                for a, size in own:
+                    o = a - (m_base or 0)
+                    out[o:o + size] = base[o:o + size]
+                return bytes(out)
+
             with self.subTest(companion=case.name, game=game):
                 # 1. The install goes in: every site, protections back, cache flushed.
                 m = self.machine(case, game, exe)
@@ -481,7 +615,7 @@ class AllOrNoneTests(unittest.TestCase):
                 in_image = range(m.exe_base, m.exe_base + m.exe_size)
                 late_unlocks = [(i, hex(a)) for i, a, new, before, old in m.protect_log
                                 if a in in_image and new == PAGE_EXECUTE_READWRITE
-                                and old != PAGE_EXECUTE_READWRITE and before > 0]
+                                and old != PAGE_EXECUTE_READWRITE and before > 0 and not in_own(a)]
                 self.assertEqual(late_unlocks, [],
                                  "a site was made writable after another was already written")
                 # Every call that can still refuse the install: each one made
@@ -495,16 +629,18 @@ class AllOrNoneTests(unittest.TestCase):
                     m.fail_protect = k
                     result = case.call(m, game)
                     with self.subTest(failing_virtualprotect=k):
-                        self.assertEqual(m.image_writes, [],
+                        self.assertEqual([w for w in m.image_writes if not in_own(*w)], [],
                                          "a site was written (even if put back) although the install failed")
-                        self.assertEqual(m.image(), stock, "the game's code is untouched")
+                        self.assertEqual(outside_own(m.image(), stock, m_base=m.exe_base), stock,
+                                         "the game's code is untouched")
                         if case.reports:
                             self.assertEqual(result, 0, "the install reports itself not installed")
                         self.check_clean(m, f"VirtualProtect #{k} refused")
                         # 3. Asked again: all of it or none of it, never part.
                         case.call(m, game)
-                        again = m.image()
-                        self.assertIn(again, (stock, installed), "a later call left the feature in part")
+                        again = outside_own(m.image(), stock, m_base=m.exe_base)
+                        self.assertIn(again, (stock, outside_own(installed, stock, m_base=m.exe_base)),
+                                      "a later call left the feature in part")
                         self.check_clean(m, "asked again")
         if not ran:
             self.skipTest(_skip_reason(case, case.games[0]) or "nothing to run")

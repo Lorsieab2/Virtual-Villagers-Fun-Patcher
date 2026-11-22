@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancestor's Bad Recipe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy29_ancestor_bad",
+  "source": "anthology",
+  "lines": [
+   29103,
+   29116
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29103",
+  "ledger": [
+   {
+    "src": "L29109",
+    "kind": "sensitivity",
+    "before": "A gardener",
+    "after": "(gardener), a gardener,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29113",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29116",
+    "kind": "sensitivity",
+    "before": "A young cook",
+    "after": "(cook), a young cook,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An ancient recipe appears to combine very odd ingredients.",
+  "label_case": "title",
+  "cast_only": [
+   "gardener",
+   "elder",
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "gardener": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An ancient recipe appears to combine very odd ingredients.",
+   "src": "L29104",
+   "choices": [
+    {
+     "label": "Try a Safe Modern Version",
+     "next": "a",
+     "src": "L29105"
+    },
+    {
+     "label": "Research the Ingredients",
+     "next": "b",
+     "src": "L29108"
+    },
+    {
+     "label": "Turn It into a Joke Contest",
+     "next": "c",
+     "src": "L29111"
+    },
+    {
+     "label": "Preserve the Recipe Unchanged",
+     "next": "d",
+     "src": "L29114"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The result is edible but nobody requests seconds.",
+   "src": "L29107"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(gardener), a gardener, identifies an old food variety.",
+   "src": "L29109",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29109"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Several symbols remain ambiguous and the recipe stays untested.",
+   "src": "L29110"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers invent ridiculous imaginary meals.",
+   "src": "L29112"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) reminds them that past tastes may have differed.",
+   "src": "L29113"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The record survives for later study.",
+   "src": "L29115"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(cook), a young cook, asks why nobody is allowed to experiment.",
+   "src": "L29116"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cooks create an unexpectedly tasty dish.",
+   "src": "L29106",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L29106"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cooks create an unexpectedly tasty dish.",
+   "src": "L29106"
+  }
+ }
+}

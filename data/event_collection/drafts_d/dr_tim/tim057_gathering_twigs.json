@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Gathering Twigs Together",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim057_gathering_twigs",
+  "source": "moments500",
+  "lines": [
+   953,
+   967
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L954",
+  "ledger": [
+   {
+    "src": "L953",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L957",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L958",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L961",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L962",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L965",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L966",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "Two siblings divide the work of collecting fallen twigs.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "Two siblings divide the work of collecting fallen twigs. They disagree about the best method, then try both.",
+   "src": "L955"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Two siblings divide the work of collecting fallen twigs. (Name1) feels unexpectedly grown-up afterward.",
+   "src": "L959"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Two siblings divide the work of collecting fallen twigs. The gesture goes unnoticed by everyone except the sibling.",
+   "src": "L963"
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "Two siblings divide the work of collecting fallen twigs. They finish laughing about a mistake from earlier in the day.",
+   "src": "L967",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L967"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "Two siblings divide the work of collecting fallen twigs. They finish laughing about a mistake from earlier in the day.",
+   "src": "L967"
+  }
+ }
+}

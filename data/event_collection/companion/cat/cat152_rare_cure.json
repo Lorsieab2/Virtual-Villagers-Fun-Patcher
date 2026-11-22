@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rare Cure and the Common Remedy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat152_rare_cure",
+  "source": "companion",
+  "lines": [
+   8921,
+   8931
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8921",
+  "ledger": [
+   {
+    "src": "L8931",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A critically ill villager might be helped by an endangered reef animal's secretion, but evidence is thin."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A critically ill villager might benefit from a secretion produced by an endangered reef animal, but evidence is thin.",
+   "src": "L8922",
+   "choices": [
+    {
+     "label": "Use established care first",
+     "next": "a",
+     "src": "L8923"
+    },
+    {
+     "label": "Study naturally shed secretion",
+     "next": "b",
+     "src": "L8925"
+    },
+    {
+     "label": "Collect a limited sample with safeguards",
+     "next": "c",
+     "src": "L8927"
+    },
+    {
+     "label": "Consult multiple healers",
+     "next": "d",
+     "src": "L8929"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The healer provides treatment without threatening the animal.",
+   "src": "L8924",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8924"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Results arrive too slowly to guide the immediate case but may help future patients.",
+   "src": "L8926"
+  },
+  "c1": {
+   "name": "Answer C (1)",
+   "text": "The attempt may fail medically and still disturb the population; the healer documents both risks.",
+   "src": "L8928"
+  },
+  "c2": {
+   "name": "Answer C (2)",
+   "text": "The attempt may fail medically and still disturb the population; the healer documents both risks.",
+   "src": "L8928",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -60,
+     "max": -40,
+     "src": "L8928"
+    }
+   ],
+   "auto_text": true
+  },
+  "c3": {
+   "name": "Answer C (3)",
+   "text": "The attempt may fail medically and still disturb the population; the healer documents both risks.",
+   "src": "L8928",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L8928"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "c3",
+     "weight": 2,
+     "rarity": "very_rare"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "They debate evidence, patient wishes and the animal's future.",
+   "src": "L8930"
+  }
+ }
+}

@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Canoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc31_stolen_canoes",
+  "source": "draft_lcc",
+  "lines": [
+   428,
+   439
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L435",
+    "kind": "instruction",
+    "text": "[effect: small food loss; small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L435",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L439",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Raiders stole three canoes in the night: build new ones, or go and take them back.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In the night, raiders cut the ropes and took three of the village's canoes. (subject) knows which island they came from. (subject.He/she) wants to take the warriors and get the canoes back. (friend) says it would take a season to build three new canoes, but that is better than a war. What should the village do?",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Build New Canoes",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Take Them Back",
+     "next": "o2",
+     "src": "L437"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village builds three new canoes over the season. It is slow, hard work and the fishing suffers. But nobody is hurt, and the new canoes are better than the old ones. (subject) carves an angry face on the bow of each.",
+   "src": "L435",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L435"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L435"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and the warriors paddle to the raiders' island by night and slip the three canoes off the beach without waking anyone. They are home by dawn, exhausted and grinning. Nobody was hurt. The raiders will know who took them, though. The watch is doubled.",
+   "src": "L439"
+  }
+ }
+}

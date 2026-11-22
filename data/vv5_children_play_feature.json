@@ -1,0 +1,37 @@
+{
+  "id": "vv5_children_play",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Children Play Tag More Often",
+  "description": "Children play the game's own tag as often as any other play choice. Each time a child picks something to play, one roll of 1 to 15 decides: 1 is the game's own tag, anything else the child's usual choices with their usual odds: tag is 1 pick in 15 instead of at most about 1 in 330 (the game's own chance stays too). Who joins is the game's own rule (each child 4 times in 5, up to three in four of the children, at least two). **A child who dislikes playing never starts it.** New Believers has no ocean, so it gets no sandcastles. **On by default.** **Needs no other patch.** **Works the same with every other patch and in every population mode.** **Children play only while the game runs, as in the stock game: nothing happens while it is closed.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Children Play.dll\", started by VVFP Startup.dll; saves are never written by it.",
+  "output_tag": "Children Play Tag More Often",
+  "dependencies": [],
+  "behavior_changes": [
+    "The pastime pick's call (0x46F125 -> 0x46E3F0) goes to the companion. Unless the child dislikes Playing (0x12 in +0x1F68), rand(15) (0x403660): 0 the stock tag slot without its 5% roll (0x46E705..0x46E769: the recruiter 0x4710B0(0xEE, 80, 0, 0x117, -1, &joined, 2, children x 75 / 100) on the villager manager, then behaviour 0xEE through 0x465580 when more than one joined), else the stock pick."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion replaces the call(s) at run time, only after verifying every one is the stock call; all are written or none.",
+    "The stock pick, its choices and their odds among themselves are unchanged; a child who dislikes Playing gets it exactly as stock.",
+    "Nothing is written to a save, a file or a villager record except through the game's own stop, action, queue and string copy (and, in A New Home and The Lost Children, the Details text buffer the game's own string copy fills, bounded to it)."
+  ],
+  "evidence_status": "the stock pastime picks, tag and sandcastle routines traced statically; the companion's install, its odds over many picks, who plays and where, emulated on the rendered executable in tests/test_children_play.py; runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/children_play/VVFP Children Play.dll",
+      "destination": "VVFP Children Play.dll",
+      "sha256": "D959E99B4FB771201E2956959E0AA82BDD92B3162ACF3B76C8205760CDDA2B35"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x46F125",
+      "stock_bytes": "E8C6F2FFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "a call of the child pastime pick 0x46E3F0 goes to the companion's pick, which adds tag and sandcastles as normal play choices and otherwise calls it",
+      "installed_by": "VVFP Children Play.dll, VvfpStartup (started by VVFP Startup.dll, second word)"
+    }
+  ]
+}

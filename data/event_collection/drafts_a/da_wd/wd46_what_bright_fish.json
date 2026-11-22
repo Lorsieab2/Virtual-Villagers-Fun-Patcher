@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Bright Fish Doing in a Puddle?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd46_what_bright_fish",
+  "source": "da_wd",
+  "lines": [
+   536,
+   545
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L537",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "After a stormy night, a child finds a bright reef fish swimming in a puddle near the beach.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "After a night of heavy rain and high waves, (subject) finds a puddle near the beach with a fish in it. Not a dull little fish: a bright, glowing, striped one, every color at once, the sort that usually lives out on the reef. It's swimming round and round the puddle as if it's not at all sure how it got there. Neither is (subject).",
+   "src": "L539",
+   "choices": [
+    {
+     "label": "Carry It Back to the Sea",
+     "next": "a",
+     "src": "L541"
+    },
+    {
+     "label": "Fetch (friend) First",
+     "next": "b",
+     "src": "L544"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) runs for a bowl, scoops the fish up with puddle water, and carries it all the way to the sea, walking very fast and very carefully. (subject.He/She) lowers the bowl into the shallows and tips. The fish darts away, a flash of color, and is gone. (subject) stands knee-deep in the water, glowing almost as brightly.",
+   "src": "L542",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L542"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) runs for a bowl, scoops the fish up with puddle water, and carries it all the way to the sea, walking very fast and very carefully. (subject.He/She) lowers the bowl into the shallows and tips. The fish darts away, a flash of color, and is gone. (subject) stands knee-deep in the water, glowing almost as brightly.",
+   "src": "L542"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) runs to get (friend), because nobody will believe (subject.him/her) otherwise. (friend) comes, sees the fish, and gasps. They carry it back to the sea together, (friend) holding the bowl and (subject) shouting \"careful!\" every three steps. When it's gone, they shake hands, very solemnly, as fellow rescuers.",
+   "src": "L545",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L545"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) runs to get (friend), because nobody will believe (subject.him/her) otherwise. (friend) comes, sees the fish, and gasps. They carry it back to the sea together, (friend) holding the bowl and (subject) shouting \"careful!\" every three steps. When it's gone, they shake hands, very solemnly, as fellow rescuers.",
+   "src": "L545"
+  }
+ }
+}

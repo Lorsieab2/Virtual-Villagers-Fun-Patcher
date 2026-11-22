@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Chasing the Waves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim158_chasing_waves",
+  "source": "draft_tim2",
+  "lines": [
+   233,
+   238
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L233",
+  "ledger": [
+   {
+    "src": "L234",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L235",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L236",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L237",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L238",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Children run back and forth along the shore, chasing the waves and fleeing them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. A dog joins the game and is better at it than anyone.",
+   "src": "L234,L236"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. They keep score, though nobody is sure how.",
+   "src": "L234,L237"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. An elder watches from the dry sand, remembering playing the same game.",
+   "src": "L234,L238"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. One wave catches them all, and they shriek with delight.",
+   "src": "L234,L235",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L234,L235"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "Children run back and forth along the shore, chasing the waves and fleeing them. One wave catches them all, and they shriek with delight.",
+   "src": "L234,L235"
+  }
+ }
+}

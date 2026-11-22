@@ -1,0 +1,155 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Library Without Walls",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz018_library_without",
+  "source": "horizon",
+  "lines": [
+   236,
+   246
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part3",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L239",
+    "kind": "instruction",
+    "text": "; modest Research experience",
+    "why": "an instruction inside the outcome, never shown: the node's skill effect"
+   }
+  ],
+  "description": "A scholar imagines a way to consult the writings of countless distant people without traveling to their homes.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scholar": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A scholar imagines a way to consult the writings of countless distant people without traveling to their homes.",
+   "src": "L237",
+   "choices": [
+    {
+     "label": "Imagine Linked Archives.",
+     "next": "a",
+     "src": "L238"
+    },
+    {
+     "label": "Imagine a Magical-Looking Device.",
+     "next": "b",
+     "src": "L241"
+    },
+    {
+     "label": "Ask Who Gets Access.",
+     "next": "c",
+     "src": "L244"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Researchers sketch a network of copied records and messengers.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scholar",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L239"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The system becomes so complex that no one knows which copy is current.",
+   "src": "L240"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child imagines a smooth tablet displaying changing words; the scholars debate possible mechanisms without naming a real one.",
+   "src": "L242"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder asks whether a device that contains many claims could distinguish truth from falsehood.",
+   "src": "L243"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The teacher argues that knowledge should reach children and people with disabilities as well as scholars.",
+   "src": "L245"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A keeper worries about dangerous misinformation and damaged records; the debate remains unresolved.",
+   "src": "L246"
+  }
+ }
+}

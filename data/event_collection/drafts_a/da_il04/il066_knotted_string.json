@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Knotted String",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il066_knotted_string",
+  "source": "da_il04",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager ties a knot in a long string after every really good day, and a friend finds it while tidying.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) keeps a long piece of string in (subject.his/her) hut. Whenever (subject.he/she) has a good day, a really good one, (subject.he/she) ties a knot in it. It's been going for many years. The string is now so long it has to be wound up like a ball of fishing line. (friend) finds it while helping to tidy and asks what it is.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Count the Knots Together",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Cut a Length for (friend)",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They sit down and start counting. Some knots (subject) remembers perfectly: the day of the big catch, the day the roof didn't leak. Some (subject.he/she) can't remember at all, and that's somehow nice too. They lose count somewhere past two hundred and start laughing. (subject) ties one more knot before (friend) leaves.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They sit down and start counting. Some knots (subject) remembers perfectly: the day of the big catch, the day the roof didn't leak. Some (subject.he/she) can't remember at all, and that's somehow nice too. They lose count somewhere past two hundred and start laughing. (subject) ties one more knot before (friend) leaves.",
+   "src": "L74"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) cuts a short piece of string from the end and hands it over. \"For your good days,\" (subject.he/she) says. (friend) looks at the empty string, puzzled. That evening the fishing goes well, dinner is excellent, and (friend) quietly ties a knot in it before bed.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L77"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) cuts a short piece of string from the end and hands it over. \"For your good days,\" (subject.he/she) says. (friend) looks at the empty string, puzzled. That evening the fishing goes well, dinner is excellent, and (friend) quietly ties a knot in it before bed.",
+   "src": "L77"
+  }
+ }
+}

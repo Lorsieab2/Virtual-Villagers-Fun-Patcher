@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cartographer Who Cannot See",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss001_cartographer",
+  "source": "companion",
+  "lines": [
+   6069,
+   6081
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6073",
+  "ledger": [
+   {
+    "src": "L6070",
+    "kind": "structural",
+    "why": "the group heading '01  -  BODIES, MINDS, BELONGING, AND COMMUNITY'"
+   },
+   {
+    "src": "L6081",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A blind cartographer who knows the shoreline by sound and touch is doubted by a visiting apprentice.",
+  "cast_only": [
+   "cartographer",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cartographer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A blind adult knows the shoreline by wind, sound, slope, and the feel of stone. A visiting apprentice doubts their ability to help map a new path.",
+   "src": "L6074",
+   "choices": [
+    {
+     "label": "Invite the cartographer to lead",
+     "next": "a",
+     "src": "L6075"
+    },
+    {
+     "label": "Pair them with the apprentice",
+     "next": "b",
+     "src": "L6077"
+    },
+    {
+     "label": "Let the cartographer decline",
+     "next": "c",
+     "src": "L6079"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They choose to teach navigation instead of joining the expedition. Nobody treats the decision as failure.",
+   "src": "L6080"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Their detailed sensory route reveals a safer path; the apprentice gains respect and a new way of observing.",
+   "src": "L6076",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6076"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Their detailed sensory route reveals a safer path; the apprentice gains respect and a new way of observing.",
+   "src": "L6076"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They devise tactile markers and verbal descriptions, though their first map needs correction after a storm.",
+   "src": "L6078",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6078"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They devise tactile markers and verbal descriptions, though their first map needs correction after a storm.",
+   "src": "L6078"
+  }
+ }
+}

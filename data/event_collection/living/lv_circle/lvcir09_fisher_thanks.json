@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher's Thanks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir09_fisher_thanks",
+  "source": "living",
+  "lines": [
+   21348,
+   21359
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21348",
+  "ledger": [
+   {
+    "src": "L21359",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A fisher teaches an apprentice to thank an animal taken for food.",
+  "cast_only": [
+   "fisher",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher teaches an apprentice to thank an animal taken for food.",
+   "src": "L21349",
+   "choices": [
+    {
+     "label": "Keep the spoken custom.",
+     "next": "a",
+     "src": "L21350"
+    },
+    {
+     "label": "Replace the words with practical restraint.",
+     "next": "b",
+     "src": "L21353"
+    },
+    {
+     "label": "Practice both gratitude and careful harvesting.",
+     "next": "c",
+     "src": "L21356"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "taken for food",
+     "reason": "the custom's subject; nothing is gained or lost",
+     "src": "L21349"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The apprentice repeats the words without understanding, and the elder explains.",
+   "src": "L21352"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentice carefully uses the entire catch and questions empty rituals.",
+   "src": "L21354",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21354"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder feels dismissed until they discuss what gratitude means.",
+   "src": "L21355"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The two develop a shared custom without agreeing on its spiritual meaning.",
+   "src": "L21357"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A poor catch reminds them that respect cannot guarantee abundance.",
+   "src": "L21358"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The apprentice finds meaning in the words and learns not to waste the catch.",
+   "src": "L21351",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L21351"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The apprentice finds meaning in the words and learns not to waste the catch.",
+   "src": "L21351"
+  }
+ }
+}

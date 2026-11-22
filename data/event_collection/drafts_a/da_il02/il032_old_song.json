@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il032_old_song",
+  "source": "da_il02",
+  "lines": [
+   353,
+   367
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L353",
+  "ledger": [
+   {
+    "src": "L355",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L367",
+    "kind": "structural",
+    "why": "a separator between events"
+   },
+   {
+    "src": "L357",
+    "kind": "casting",
+    "before": "hears someone humming",
+    "after": "hears (name2) humming",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder hears someone humming a melody they have not heard in decades.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) hears (friend) humming a melody that (subject.he/she) hasn't heard in decades. Suddenly (subject.he/she) remembers a long-ago afternoon, a familiar voice, and a place that no longer looks quite the same. The memory is unexpectedly vivid.",
+   "src": "L357",
+   "choices": [
+    {
+     "label": "Ask (friend) About the Song",
+     "next": "a",
+     "src": "L359"
+    },
+    {
+     "label": "Listen Quietly",
+     "next": "b",
+     "src": "L363"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"My grandmother taught it to me,\" says (friend). (subject) smiles. \"Mine taught it to me too.\" They compare the words and discover that they remember slightly different versions. Neither knows which is older.",
+   "src": "L361",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L361"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"My grandmother taught it to me,\" says (friend). (subject) smiles. \"Mine taught it to me too.\" They compare the words and discover that they remember slightly different versions. Neither knows which is older.",
+   "src": "L361"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits nearby and listens until the song ends. For a moment (subject.he/she) feels young again, then old, then simply content to be sitting in the sunshine.",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L365"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) sits nearby and listens until the song ends. For a moment (subject.he/she) feels young again, then old, then simply content to be sitting in the sunshine.",
+   "src": "L365"
+  }
+ }
+}

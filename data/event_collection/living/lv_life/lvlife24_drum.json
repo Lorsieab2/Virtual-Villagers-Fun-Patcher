@@ -1,0 +1,169 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Drum of the New Generation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife24_drum",
+  "source": "living",
+  "lines": [
+   20941,
+   20952
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20941",
+  "ledger": [
+   {
+    "src": "L20952",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young drummer invents rhythms that elders say do not belong in traditional ceremonies.",
+  "cast_only": [
+   "drummer",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "drummer": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young drummer invents rhythms that elders say do not belong in traditional ceremonies.",
+   "src": "L20942",
+   "choices": [
+    {
+     "label": "Invite the new rhythms into a festival.",
+     "next": "a",
+     "src": "L20943"
+    },
+    {
+     "label": "Preserve the traditional performance.",
+     "next": "b",
+     "src": "L20946"
+    },
+    {
+     "label": "Hold separate performances and a shared finale.",
+     "next": "c",
+     "src": "L20949"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some villagers feel their familiar songs have been displaced.",
+   "src": "L20945"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The old rhythm unites generations.",
+   "src": "L20947"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Young musicians feel unheard and begin rehearsing elsewhere.",
+   "src": "L20948"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Both styles find an audience, and the finale becomes a new custom.",
+   "src": "L20950"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The musicians quarrel over rehearsal time before finding a compromise.",
+   "src": "L20951"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The audience cheers, and an elder quietly joins the performance.",
+   "src": "L20944",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "drummer",
+     "mood": "good",
+     "src": "L20944"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The audience cheers, and an elder quietly joins the performance.",
+   "src": "L20944"
+  }
+ }
+}

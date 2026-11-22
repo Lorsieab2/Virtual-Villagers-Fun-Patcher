@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor's Insult",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca24_visitor_insult",
+  "source": "draft_lca",
+  "lines": [
+   334,
+   345
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L334",
+  "ledger": [
+   {
+    "src": "L335",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L341",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L345",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A visiting trader mocks the village's customs: answer with a speech, or answer with silence and a fair trade.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader from another island has been at the village two days, and has not stopped making fun of everything: the songs are childish, the carvings are crude, the food is strange. (subject) is ready to throw (other.him/her) back into the sea. (friend) thinks there might be a better answer. How should the village respond?",
+   "src": "L337",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L337"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Answer With a Speech",
+     "next": "o1",
+     "src": "L339"
+    },
+    {
+     "label": "Silence and a Fair Trade",
+     "next": "o2",
+     "src": "L343"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stands up at the evening meal and tells the trader, calmly, what each song means, who carved each carving and why, and how every dish came to be cooked the way it is. It takes a long time. The trader is very quiet at the end. (other.He/she) buys two carvings before leaving and does not haggle.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village simply ignores the insults and trades fairly, exactly as they would with anyone. The trader seems almost disappointed. (subject) has to walk away twice to stop (subject.him/her)self saying something, but manages. The trader leaves with what (other.he/she) came for, and is not invited back.",
+   "src": "L345"
+  }
+ }
+}

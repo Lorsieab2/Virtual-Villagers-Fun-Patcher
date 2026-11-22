@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Last Lesson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth20_elder_lesson",
+  "source": "living",
+  "lines": [
+   23635,
+   23649
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23635",
+  "ledger": [
+   {
+    "src": "L23649",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder near death asks the leader to preserve an old rule that younger villagers question."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder near death asks the {@chief} to preserve an old rule that younger villagers question.",
+   "src": "L23636",
+   "choices": [
+    {
+     "label": "Promise to preserve it.",
+     "next": "a",
+     "src": "L23637"
+    },
+    {
+     "label": "Explain that future villagers must choose.",
+     "next": "b",
+     "src": "L23640"
+    },
+    {
+     "label": "Ask the elder to explain the rule's origin.",
+     "next": "c",
+     "src": "L23643"
+    },
+    {
+     "label": "Record the rule and its objections.",
+     "next": "d",
+     "src": "L23646"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "near death",
+     "reason": "the elder's state: only the promise's peaceful ending says they die",
+     "src": "L23636"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder dies comforted by the promise.",
+   "src": "L23638",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "elder",
+     "cause": "unknown",
+     "src": "L23638"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The rule later causes hardship for the next generation.",
+   "src": "L23639"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder accepts that customs can change.",
+   "src": "L23641"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder feels hurt by the uncertainty.",
+   "src": "L23642"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A forgotten danger gives the rule new meaning.",
+   "src": "L23644"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder cannot remember, leaving the question unresolved.",
+   "src": "L23645"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Future generations can weigh both sides.",
+   "src": "L23647"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The disagreement remains painful for the family.",
+   "src": "L23648"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

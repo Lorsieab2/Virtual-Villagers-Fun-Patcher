@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sixty Years of Being Wrong About a Bird",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il193_sixty_years",
+  "source": "da_il10",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "An elder learns that two kinds of bird they have talked about for sixty years are really one kind.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For sixty years, (subject) has believed that the plain brown birds and the bright blue birds that nest by the stream are two different kinds of bird. (subject.He/She) has told everyone so. Today (friend) mentions, in passing, that they're the same kind: the blue ones are the males, the brown ones are the females.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Laugh About It",
+     "next": "a",
+     "src": "L145"
+    },
+    {
+     "label": "Watch the Birds Again",
+     "next": "b",
+     "src": "L148"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) stares at (friend). Then at the birds. Then at (friend) again. Then (friend.he/she) starts laughing and can't stop. \"Sixty years,\" (friend.he/she) gasps. \"I've been telling children about the two kinds of bird for SIXTY YEARS.\" (friend) is laughing too. (subject) goes off at once to find every child (subject.he/she) ever told, to set the record straight. It takes all week.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) stares at (friend). Then at the birds. Then at (friend) again. Then (friend.he/she) starts laughing and can't stop. \"Sixty years,\" (friend.he/she) gasps. \"I've been telling children about the two kinds of bird for SIXTY YEARS.\" (friend) is laughing too. (subject) goes off at once to find every child (subject.he/she) ever told, to set the record straight. It takes all week.",
+   "src": "L146"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) goes down to the stream and watches the birds for the whole afternoon, as if seeing them for the first time. The blue one brings the brown one a seed. The brown one ignores it. (subject) can't believe (subject.he/she) never noticed. (subject.He/She) feels foolish for about an hour, and then delighted, because how often, at (subject.his/her) age, do you get to learn something completely new about something you've looked at every day?",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L149"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) goes down to the stream and watches the birds for the whole afternoon, as if seeing them for the first time. The blue one brings the brown one a seed. The brown one ignores it. (subject) can't believe (subject.he/she) never noticed. (subject.He/She) feels foolish for about an hour, and then delighted, because how often, at (subject.his/her) age, do you get to learn something completely new about something you've looked at every day?",
+   "src": "L149"
+  }
+ }
+}

@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Colors of the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife31_colors_reef",
+  "source": "living",
+  "lines": [
+   21032,
+   21043
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21032",
+  "ledger": [
+   {
+    "src": "L21043",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Dyers propose bright patterns inspired by parrotfish, coral, and nudibranchs.",
+  "cast_only": [
+   "dyer",
+   "child",
+   "scientist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "dyer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Dyers propose bright patterns inspired by parrotfish, coral, and nudibranchs.",
+   "src": "L21033",
+   "choices": [
+    {
+     "label": "Create a vivid reef tapestry.",
+     "next": "a",
+     "src": "L21034"
+    },
+    {
+     "label": "Use traditional village colors.",
+     "next": "b",
+     "src": "L21037"
+    },
+    {
+     "label": "Weave two contrasting panels.",
+     "next": "c",
+     "src": "L21040"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The work teaches children to recognize several marine creatures.",
+   "src": "L21035"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A mistaken color becomes famous, and a scientist requests a correction.",
+   "src": "L21036"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The tapestry complements the ceremonial hall.",
+   "src": "L21038"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A young artist feels the sea has been left out of the design.",
+   "src": "L21039"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Visitors enjoy comparing old and new visions of Isola.",
+   "src": "L21041"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The dyers run short of pigment and improvise.",
+   "src": "L21042"
+  }
+ }
+}

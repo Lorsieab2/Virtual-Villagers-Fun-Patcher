@@ -1,0 +1,7 @@
+LIBRARY "VVFP Scrolling Popups.test.dll"
+EXPORTS
+    VvfpStartup
+    VvfpScrollingPopupsInstalled
+    VvfpScrollingPopupsTestScrolled
+    VvfpScrollingPopupsTestView
+    VvfpScrollingPopupsTestRows

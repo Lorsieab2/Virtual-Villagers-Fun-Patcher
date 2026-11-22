@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall That Fell Down",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day16_wall_fell_down",
+  "source": "draft_day",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   }
+  ],
+  "description": "A villager's wall falls over at sunset after a whole day's work: say it was a terrible day, or start again right now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) spent the whole day building a wall, and it was good, and at sunset (subject.he/she) stepped back to admire it, and it fell over. Not all at once. Slowly. With a long, sad creaking noise. (subject.He/she) is now sitting in the dust beside the heap of sticks and mud. It has been, overall, a terrible day. (friend) comes over.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Say It Was a Terrible Day",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "Start Again Right Now",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That was a terrible day,\" says (subject). \"It was,\" agrees (friend). (friend.He/she) doesn't say \"never mind\" or \"you'll do better tomorrow.\" (friend.He/she) just sits down in the dust too. They sit there until it's dark. The wall is still a heap. The day was still terrible. It helps, a little, to have someone agree.",
+   "src": "L194"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets up, angry, and starts piling sticks. (friend) stops (subject.him/her). \"Not tonight. You're tired and cross. That's when walls fall down.\" (subject) wants to argue, and doesn't. (subject.He/she) goes home, eats, sleeps badly, and starts the wall again the next morning. It stays up. (subject.He/she) is still annoyed about the first one.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) gets up, angry, and starts piling sticks. (friend) stops (subject.him/her). \"Not tonight. You're tired and cross. That's when walls fall down.\" (subject) wants to argue, and doesn't. (subject.He/she) goes home, eats, sleeps badly, and starts the wall again the next morning. It stays up. (subject.He/she) is still annoyed about the first one.",
+   "src": "L197"
+  }
+ }
+}

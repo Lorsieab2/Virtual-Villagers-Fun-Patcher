@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Paddle and the Storm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus31_paddle_storm",
+  "source": "draft_jus",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A borrowed paddle snapped in a sudden squall, and its owner wants it replaced: ask the elders, or settle it between you.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) borrowed (friend)'s best paddle to go fishing. A squall came up out of nowhere, and the paddle snapped against a rock as (subject) fought (subject.his/her) way back to shore. (subject) is safe. The paddle is in two pieces. (friend) wants to know who is going to replace it.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Ask the Elders",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Settle It Between You",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'll make you a new one,\" says (subject). \"It wasn't your fault,\" says (friend), surprising (friend.him/her)self. \"I know. I'll make you one anyway.\" They carve it together over several evenings. It isn't as good as the old one. (friend) uses it anyway, and hangs the two pieces of the old one above (friend.his/her) door.",
+   "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders hear it. A squall nobody saw coming, a borrowed paddle used properly: they call it an accident, not carelessness, and say (subject) doesn't owe a new one. (friend) isn't happy; it was (friend.his/her) best paddle. (subject), who doesn't have to, offers to help carve a new one anyway. (friend) accepts, a little stiffly.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders hear it. A squall nobody saw coming, a borrowed paddle used properly: they call it an accident, not carelessness, and say (subject) doesn't owe a new one. (friend) isn't happy; it was (friend.his/her) best paddle. (subject), who doesn't have to, offers to help carve a new one anyway. (friend) accepts, a little stiffly.",
+   "src": "L374"
+  }
+ }
+}

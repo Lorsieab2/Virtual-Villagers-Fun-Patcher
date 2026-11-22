@@ -185,7 +185,9 @@ class SettledClocks(unittest.TestCase):
 
     def test_effects_on_the_computers_clock_are_real_time(self) -> None:
         # VV4 0x460A90 -> 0x403750 (the Purify glow), VV5 0x41441B (+90: an item lies), VV2 0x44E907 (the Gong glow).
-        self.assertIn("a glow for 4 real-life minutes (240 seconds; real time, the same at every speed", self.text["vv4-huttest-1"])
+        self.assertIn("glows for 4 real-life minutes (240 seconds; real time, the same at every speed", self.text["vv4-huttest-1"])
+        self.assertIn("is clean for 4 real-life minutes (240 seconds; real time, the same at every speed",
+                      self.text["vv4-huttest-1"])
         self.assertIn("1 minute 30 seconds (real time, the same at every speed: 90 seconds on the computer's clock",
                       self.text["general 5"])
         self.assertIn("for 30 real-life seconds (real time); no amount", self.text["general 2"])

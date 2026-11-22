@@ -5,7 +5,7 @@ unicorn through tests/farmers_emulation_vv1.py (what is stubbed there: rand, the
 text only) and skips when the executable is not present (CI).  The map is the one the stock map builder
 0x414590 makes for a new village's state, so no game data file is needed.
 
-The full re-measurement of TRIP_SAMPLES (1,200 trips, a few minutes) runs only with VVFP_RELEASE=1.
+The full re-measurement of TRIP_SAMPLES (1,200 trips, a few minutes) runs only with --release or VVFP_RELEASE=1.
 """
 from __future__ import annotations
 
@@ -126,7 +126,7 @@ class LiveTripTests(unittest.TestCase):
                     self.assertGreaterEqual(seconds, low - 1e-6)
                     self.assertLessEqual(seconds, high + 1e-6)
 
-    @unittest.skipUnless(RELEASE, "release-only (slow): run with VVFP_RELEASE=1")
+    @unittest.skipUnless(RELEASE, "release-only (slow): run with --release or VVFP_RELEASE=1")
     def test_the_trip_samples_re_measure_exactly(self):
         for key, (n, mean, low, high) in vv1.TRIP_SAMPLES.items():
             job = fe.FISH if key == "big catches" else JOBS[key]

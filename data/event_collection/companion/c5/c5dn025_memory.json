@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Memory Mushroom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn025_memory",
+  "source": "companion",
+  "lines": [
+   2889,
+   2895
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2889",
+  "ledger": [
+   {
+    "src": "L2891",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2895",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   },
+   {
+    "src": "L2892",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2893",
+    "kind": "note",
+    "text": "FLAVOR:",
+    "why": "a designer tag on the outcome, never shown"
+   },
+   {
+    "src": "L2894",
+    "kind": "note",
+    "text": "TEMPORARY:",
+    "why": "a designer tag on the outcome, never shown"
+   }
+  ],
+  "description": "A villager claims a strange mushroom brought back a vivid childhood memory.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A villager claims a strange mushroom brought back a vivid childhood memory.",
+   "src": "L2890",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They tell an old family story.",
+   "src": "L2892"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The memory turns out to be mistaken.",
+   "src": "L2893"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They become unusually sentimental.",
+   "src": "L2894"
+  }
+ }
+}

@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apology That Was Not Accepted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs23_apology",
+  "source": "anthology",
+  "lines": [
+   29770,
+   29783
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29770",
+  "ledger": [
+   {
+    "src": "L29771",
+    "kind": "sensitivity",
+    "before": "the person they hurt does not",
+    "after": "(other), the person they hurt, does not",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29771",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29774",
+    "kind": "sensitivity",
+    "before": "The apologizing villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29777",
+    "kind": "sensitivity",
+    "before": "the villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29779",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29782",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29783",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager sincerely apologizes for an unkind remark, but the person they hurt does not forgive them yet.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "other",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "other": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) sincerely apologizes for an unkind remark, but (other), the person they hurt, does not forgive them yet.",
+   "src": "L29771",
+   "choices": [
+    {
+     "label": "Respect the Need for Space",
+     "next": "a",
+     "src": "L29772"
+    },
+    {
+     "label": "Offer to Make Amends",
+     "next": "b",
+     "src": "L29775"
+    },
+    {
+     "label": "Reflect on What Prompted the Remark",
+     "next": "c",
+     "src": "L29778"
+    },
+    {
+     "label": "Ask a Neutral Friend for Perspective",
+     "next": "d",
+     "src": "L29781"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The injured relationship remains distant but peaceful.",
+   "src": "L29773",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29773"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) learns that remorse does not create an entitlement to forgiveness.",
+   "src": "L29774"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A practical gesture is welcomed without erasing the hurt.",
+   "src": "L29776"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The offer is declined, and (villager) accepts the boundary.",
+   "src": "L29777"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager) recognizes an old insecurity beneath their words.",
+   "src": "L29779"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They discover that understanding the cause does not excuse the harm.",
+   "src": "L29780"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(friend) encourages patience rather than taking sides.",
+   "src": "L29782"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(friend) refuses to become a messenger between people who need space.",
+   "src": "L29783"
+  }
+ }
+}

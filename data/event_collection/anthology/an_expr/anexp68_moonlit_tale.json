@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moonlit Tale",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp68_moonlit_tale",
+  "source": "anthology",
+  "lines": [
+   32320,
+   32334
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32320",
+  "ledger": [
+   {
+    "src": "L32321",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32322",
+    "kind": "sensitivity",
+    "before": "A storyteller",
+    "after": "(storyteller), a storyteller,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32328",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A storyteller claims a luminous creature appears only when nobody is looking directly at it.",
+  "label_case": "title",
+  "cast_only": [
+   "storyteller",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "storyteller": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(storyteller), a storyteller, claims a luminous creature appears only when nobody is looking directly at it.",
+   "src": "L32322",
+   "choices": [
+    {
+     "label": "Try to Verify",
+     "next": "a",
+     "src": "L32323"
+    },
+    {
+     "label": "Enjoy the Story",
+     "next": "b",
+     "src": "L32326"
+    },
+    {
+     "label": "Protect the Place",
+     "next": "c",
+     "src": "L32329"
+    },
+    {
+     "label": "Debate the Meaning",
+     "next": "d",
+     "src": "L32332"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "No creature is observed.",
+   "src": "L32324"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A strange glow remains unexplained.",
+   "src": "L32325"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Children invent increasingly silly details.",
+   "src": "L32327"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) offers a more solemn version.",
+   "src": "L32328"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Visitors avoid disturbing nocturnal animals.",
+   "src": "L32330"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village keeps the clearing quiet.",
+   "src": "L32331"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Some call it folklore.",
+   "src": "L32333"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Others cherish the possibility without claiming proof.",
+   "src": "L32334"
+  }
+ }
+}

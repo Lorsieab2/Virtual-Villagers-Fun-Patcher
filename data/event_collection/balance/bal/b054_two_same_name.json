@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two of the Same Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b054_two_same_name",
+  "source": "balance",
+  "lines": [
+   2434,
+   2476
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2434",
+  "ledger": [
+   {
+    "src": "L2435",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2436",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2444",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2453",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2441",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2442",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2445",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2454",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2447",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2450",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2456",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2459",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2462-2476",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders have called a meeting.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There are two people in the village with the same first name, and it has finally caused a disaster: (subject)'s fish order went to (friend), (friend)'s love note went to (subject), and the healers nearly gave (subject) a remedy meant for (friend)'s rash.\nThe elders have called a meeting. Someone will have to change their name, and (subject), being younger, is expected to offer. (subject) loves (subject.his/her) name. But (subject.he/she) also doesn't want anyone getting the wrong remedy.\nWhat should (subject) do?",
+   "choices": [
+    {
+     "label": "Offer to Change It",
+     "next": "c1",
+     "src": "L2441"
+    },
+    {
+     "label": "Ask for Another Way",
+     "next": "c2",
+     "src": "L2442"
+    }
+   ],
+   "src": "L2437-2439"
+  },
+  "c1o1": {
+   "text": "\"(renamed),\" says an elder, firmly, over the noise. \"The name of the earliest riser I ever knew. You've always liked to be up early too.\" (subject) tries it out, and finds it fits. The village throws a small naming feast, and (friend) gives (subject.him/her) back the love note, which was very embarrassing for everyone.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L2448",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "There are so many suggestions that in the end they write them all on leaves and put them in a bowl, and (subject) pulls one out without looking. It's an ordinary sort of name. \"That'll do,\" says (subject). By the end of the month (subject.he/she) can't imagine being called anything else.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L2451",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) stands up in the meeting and says (subject.he/she) will change. Everyone looks relieved, and then everyone starts suggesting names at once...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2445"
+  },
+  "c2o1": {
+   "text": "It works, more or less. The village gets used to adding a little bit to each name, and the deliveries mostly go to the right place. (subject), who was afraid of having to change, feels so relieved that it changes (subject.his/her) mood about other things too. (subject.He/She) used to keep away from village gatherings in case someone called the wrong name; now (subject.he/she) comes to every one.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "crowds",
+     "role": "subject"
+    }
+   ],
+   "src": "L2457",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "It doesn't work. The village can't remember which one is the tall one, and (friend) gets a goat (subject.he/she) didn't ask for. In the end, both of them just learn to check, every time. \"Which one?\" they ask, whenever anyone calls their name. It becomes a sort of village joke.",
+   "src": "L2460"
+  },
+  "c2": {
+   "text": "\"Why don't we just call us something different?\" (subject) says. \"Like 'the tall one' and 'the one with the goat'?\" The elders look at each other...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2454"
+  }
+ }
+}

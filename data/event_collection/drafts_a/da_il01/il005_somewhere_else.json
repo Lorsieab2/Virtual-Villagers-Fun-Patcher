@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Somewhere Else Entirely",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il005_somewhere_else",
+  "source": "da_il01",
+  "lines": [
+   59,
+   68
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L59",
+  "ledger": [
+   {
+    "src": "L60",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager sorting seeds drifts off into a daydream: snap back to work, or keep dreaming a little longer.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is supposed to be sorting seeds. (subject.He/She) is, technically. (subject.His/Her) hands are sorting seeds. The rest of (subject.him/her) is sailing a great canoe across a sea nobody has ever seen, past islands shaped like sleeping turtles, toward a shore where the sand is every color at once.",
+   "src": "L62",
+   "choices": [
+    {
+     "label": "Snap Back to Work",
+     "next": "a",
+     "src": "L64"
+    },
+    {
+     "label": "Keep Dreaming a Little Longer",
+     "next": "b",
+     "src": "L67"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The canoe reaches the colorful shore. (subject) steps off. Then the seeds are finished, somehow, and it's lunchtime, and nobody noticed anything at all. (subject) decides that some days, the best journeys are the ones you take sitting down.",
+   "src": "L68"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"(subject)! Those go in the OTHER basket!\" (subject) blinks. The great canoe sinks without a trace. (subject.He/She) has sorted the whole morning's seeds into the wrong basket. (friend) sighs, then laughs, and helps (subject.him/her) sort them back.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"(subject)! Those go in the OTHER basket!\" (subject) blinks. The great canoe sinks without a trace. (subject.He/She) has sorted the whole morning's seeds into the wrong basket. (friend) sighs, then laughs, and helps (subject.him/her) sort them back.",
+   "src": "L65"
+  }
+ }
+}

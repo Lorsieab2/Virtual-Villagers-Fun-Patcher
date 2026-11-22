@@ -1,0 +1,270 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever and the Bitter Root",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b243_fever_bitter_root",
+  "source": "balance",
+  "lines": [
+   11354,
+   11396
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L11354",
+  "ledger": [
+   {
+    "src": "L11355",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L11356",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11364",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11373",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11361",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11362",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L11365",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11374",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11367",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11370",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11376",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11379",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11382-11396",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has had a fever for four days.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) has had a fever for four days. (subject.He/She) lies on (subject.his/her) mat shivering under two blankets in the middle of the afternoon, and can't keep anything down. (healer) has tried every tea in the healers' hut.\nThere is one more thing to try. An old healer once told (healer) about a black root that grows in the swamp, so bitter that people have been known to faint from the taste of it. It works, (subject.he/she) said. Usually. \"It's either that,\" (healer) tells (subject), \"or we keep you warm and wait. Your choice.\"\n(subject) is too tired to think. Swallow the root, or wait it out?",
+   "choices": [
+    {
+     "label": "Swallow the Root",
+     "next": "c1",
+     "src": "L11361"
+    },
+    {
+     "label": "Wait It Out",
+     "next": "c2",
+     "src": "L11362"
+    }
+   ],
+   "src": "L11357-11359"
+  },
+  "c1o1": {
+   "text": "The taste is so bad that (subject) sits bolt upright for the first time in four days and shouts. Then (subject.he/she) sweats like a waterfall for an hour, and by evening the fever is gone. The trouble is that (subject.he/she) can still taste the root. In everything. Days later, plain coconut tastes like a wet boot, and (subject), who used to be first in line at every meal, now picks at (subject.his/her) food and sighs.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L11368",
+   "text_only": [
+    {
+     "src": "L11368",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The fever breaks within the hour. So does something else. The root was too strong for a body already worn down by four days of fever, and when (subject) finally gets up, (subject.his/her) legs shake under (subject.him/her) and (subject.his/her) hands won't stop trembling. They never quite stop. (subject) is grateful to be alive, and says so, but (subject.he/she) won't set foot in the healers' hut again.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "medicine",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L11371",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(healer) wades into the swamp up to (subject.his/her) waist and comes back with a muddy black root that smells like a wet boot. (subject.He/She) grinds it to a paste. (subject) holds (subject.his/her) nose and swallows...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11365"
+  },
+  "c2o1": {
+   "text": "Just before dawn the fever breaks on its own. (subject) wakes up soaked through, weak as a newborn goat, and hungry for the first time in days. (healer) is asleep sitting up, with the cloth still in (subject.his/her) hand. When (subject.he/she) wakes, (subject.he/she) writes down every step of that night, and the healers use it for years.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "healer",
+     "min": 10,
+     "max": 10,
+     "best": true
+    }
+   ],
+   "src": "L11377",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The fever lingers for another week and then fades slowly. (subject) gets better, but not quickly, and spends a long time sitting in the shade wrapped in a blanket while everyone else works. (healer) brings (subject.him/her) broth every morning and tells (subject.him/her) it was the right choice. (subject) isn't sure, but the broth is good.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L11380",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"No roots,\" whispers (subject). (healer) nods, piles on a third blanket and sits by the mat with a bowl of cool water and a cloth. (subject.He/She) stays all night...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11374"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "eating",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

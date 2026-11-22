@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Siblings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam207_quiet_siblings",
+  "source": "draft_fam2",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adult siblings (where the game records it); any sexes)"
+   },
+   {
+    "src": "L83",
+    "kind": "sensitivity",
+    "before": "A villager who doesn't know them very well asks",
+    "after": "(villager), a villager who doesn't know them very well, asks",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L86",
+    "kind": "sensitivity",
+    "before": "The villager looks confused.",
+    "after": "(villager) looks confused.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L86",
+    "kind": "sensitivity",
+    "before": "The villager goes away",
+    "after": "(villager) goes away",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L89",
+    "kind": "sensitivity",
+    "before": "The villager looks alarmed.",
+    "after": "(villager) looks alarmed.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two grown siblings sit together without talking, and someone asks if they have fallen out: explain, or just laugh.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "sibling_of": "subject"
+   }
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are siblings, grown now, living in different huts. They don't talk much when they see each other. They just sit together on the same rock where they used to sit as children, and watch the sea, and sometimes one of them hands the other a piece of fruit. (villager), a villager who doesn't know them very well, asks (subject) whether they've fallen out.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Just Laugh",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Oh, no,\" says (subject). \"We just don't need to talk. We already know what the other one's going to say.\" (villager) looks confused. (subject) smiles. \"It's hard to explain. When you've known someone your whole life, sometimes sitting together is the whole conversation.\" (villager) goes away still confused. (subject) and (friend) go back to watching the sea.",
+   "src": "L86"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) laughs. \"Fallen out? We've barely said a word to each other in years!\" (villager) looks alarmed. (subject) waves (subject.his/her) hand. \"No, no. That's how we are. We like it.\" The next day (subject) tells (friend) about it, and (friend) laughs so hard (friend.he/she) nearly falls off the rock. That's the most either of them has said in weeks.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) laughs. \"Fallen out? We've barely said a word to each other in years!\" (villager) looks alarmed. (subject) waves (subject.his/her) hand. \"No, no. That's how we are. We like it.\" The next day (subject) tells (friend) about it, and (friend) laughs so hard (friend.he/she) nearly falls off the rock. That's the most either of them has said in weeks.",
+   "src": "L89"
+  }
+ }
+}

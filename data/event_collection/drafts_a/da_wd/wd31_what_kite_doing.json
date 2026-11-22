@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Kite Doing in the Tree?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd31_what_kite_doing",
+  "source": "da_wd",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A beautifully made kite is stuck at the top of the tallest tree, and nobody in the village made it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There's a kite stuck at the top of the tallest tree in the village. It's beautifully made: a frame of thin sticks, a skin of bright leaves stitched together, a long tail of knotted grass. It must have flown a long way. Nobody in the village made it. Nobody in the village knows how to make one like it.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Get It Down and Try It",
+     "next": "a",
+     "src": "L373"
+    },
+    {
+     "label": "Leave It in the Tree",
+     "next": "b",
+     "src": "L376"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) climbs, carefully, and gets it down. It's light and clever and lovely. That afternoon, on the beach, (he/she) flies it, and the whole village comes to watch, and the children shriek every time it swoops. Nobody knows who made it. (name1) hopes they know, wherever they are, that their kite is having a wonderful time.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) climbs, carefully, and gets it down. It's light and clever and lovely. That afternoon, on the beach, (he/she) flies it, and the whole village comes to watch, and the children shriek every time it swoops. Nobody knows who made it. (name1) hopes they know, wherever they are, that their kite is having a wonderful time.",
+   "src": "L374"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The tree is very tall, and (name1) decides the kite is too beautiful to risk tearing. It stays in the tree all season, its tail flapping in the wind, a bright little flag over the village. People start to look up at it on their way past, without quite knowing why it cheers them up.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L377"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The tree is very tall, and (name1) decides the kite is too beautiful to risk tearing. It stays in the tree all season, its tail flapping in the wind, a bright little flag over the village. People start to look up at it on their way past, without quite knowing why it cheers them up.",
+   "src": "L377"
+  }
+ }
+}

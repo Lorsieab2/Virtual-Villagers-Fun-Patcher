@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Palm-Frond Kite",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim126_palm_frond_kite",
+  "source": "draft_tim2",
+  "lines": [
+   9,
+   14
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L9",
+  "ledger": [
+   {
+    "src": "L10",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L11",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L12",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L13",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L14",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager ties a long tail of knotted leaves to a kite made of palm fronds.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. The kite climbs higher than anyone expected, and a small crowd gathers to watch.",
+   "src": "L10,L11"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. A gull circles the kite curiously before deciding it is not worth the trouble.",
+   "src": "L10,L13"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. By sunset, three children are taking turns holding the string.",
+   "src": "L10,L14"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. The kite spins twice and lands in a bush, and (name1) laughs and tries again.",
+   "src": "L10,L12",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L10,L12"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(name1) ties a long tail of knotted leaves to a kite made of palm fronds. The kite spins twice and lands in a bush, and (name1) laughs and tries again.",
+   "src": "L10,L12"
+  }
+ }
+}

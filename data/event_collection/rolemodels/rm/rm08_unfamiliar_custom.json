@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unfamiliar Custom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm08_unfamiliar_custom",
+  "source": "rolemodels",
+  "lines": [
+   19,
+   19
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L19",
+  "ledger": [
+   {
+    "src": "L19",
+    "kind": "structural",
+    "text": "EVENT RM-08  -  THE UNFAMILIAR CUSTOM SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A villager notices that a new neighbor observes a quiet personal custom before beginning the day's work.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager notices that a new neighbor observes a quiet personal custom before beginning the day's work.",
+   "src": "L19",
+   "choices": [
+    {
+     "label": "Respect the Neighbor's Privacy.",
+     "next": "a",
+     "src": "L19"
+    },
+    {
+     "label": "Ask Politely Whether the Neighbor Wishes to Explain.",
+     "next": "b",
+     "src": "L19"
+    },
+    {
+     "label": "Offer a Quiet Place Nearby.",
+     "next": "c",
+     "src": "L19"
+    },
+    {
+     "label": "Discuss How Different Customs Can Fit into Shared Work.",
+     "next": "d",
+     "src": "L19"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The neighbor completes the custom peacefully, and the two begin working together.",
+   "src": "L19"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villager remains curious but decides that an explanation is not owed.",
+   "src": "L19"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The neighbor shares a family tradition, and the villager listens with interest.",
+   "src": "L19"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The neighbor prefers not to discuss it, and the villager accepts the answer.",
+   "src": "L19"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The neighbor appreciates the consideration but says the current place is suitable.",
+   "src": "L19"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The neighbor accepts, and the morning work begins a little later.",
+   "src": "L19"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The neighbors arrange their tasks without requiring either to change personal beliefs.",
+   "src": "L19"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They discover a scheduling difficulty and agree to revisit it after trying an adjustment.",
+   "src": "L19"
+  }
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chickens",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea06_chickens",
+  "source": "draft_fea",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager afraid of chickens is handed the egg basket: ask to swap jobs, or try with a friend nearby.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is afraid of chickens. (subject.He/she) knows it makes no sense. They're small. They're mostly feathers. But they move suddenly, and they stare, and one once flew at (subject.his/her) face when (subject.he/she) was little, and (subject.he/she) has never got over it. Today the job is collecting eggs, and (friend) has just handed (subject.him/her) the basket.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Swap Jobs",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Try with (friend) Nearby",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tries. (friend) walks beside (subject.him/her), shooing. One chicken flaps its wings and (subject) jumps backwards into a bush. (friend) helps (subject.him/her) out and doesn't laugh, though it takes some effort. They get the eggs. (subject) decides that once was enough, and that is entirely fair.",
+   "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Could we swap?\" asks (subject). \"Chickens and I don't get on.\" (friend) shrugs and swaps. (subject) carries water instead, which is heavier and further, and (subject.he/she) is perfectly happy about it. Nobody laughs. (friend) only says, \"You'd be surprised how many people hate chickens.\"",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Could we swap?\" asks (subject). \"Chickens and I don't get on.\" (friend) shrugs and swaps. (subject) carries water instead, which is heavier and further, and (subject.he/she) is perfectly happy about it. Nobody laughs. (friend) only says, \"You'd be surprised how many people hate chickens.\"",
+   "src": "L74"
+  }
+ }
+}

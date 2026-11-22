@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sibling Who Always Wins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam234_sibling_always",
+  "source": "draft_fam2",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two siblings aged 8-14 (where the game records it)"
+   },
+   {
+    "src": "L413",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A child's sibling wins their morning race to the beach every single time: the sibling lets them win, or they find a new game.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 14,
+   "relation": {
+    "sibling_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) race to the beach every morning. (friend) wins every single time. (subject) has been trying for a whole season, getting up earlier, running faster, taking shortcuts. Nothing works. Today (subject) loses again, and stamps (subject.his/her) foot and refuses to speak to (friend).",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "(friend) Lets (subject.him/her) Win",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "They Find a New Game",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Let's do something else,\" says (friend). \"Something neither of us is good at.\" They try juggling coconuts. They are both terrible. They laugh until they fall over. (subject) still wants to win a race one day. But for now, being equally bad at juggling feels much better than always losing.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L413"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The next morning (friend) runs a little slower, on purpose. (subject) wins! (subject.He/she) cheers. Then (subject.he/she) stops, suspicious. \"You let me win.\" \"Maybe,\" says (friend). (subject) is furious. \"Don't LET me win! I want to win properly!\" They race again. (friend) wins. (subject) is somehow much happier.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The next morning (friend) runs a little slower, on purpose. (subject) wins! (subject.He/she) cheers. Then (subject.he/she) stops, suspicious. \"You let me win.\" \"Maybe,\" says (friend). (subject) is furious. \"Don't LET me win! I want to win properly!\" They race again. (friend) wins. (subject) is somehow much happier.",
+   "src": "L410"
+  }
+ }
+}

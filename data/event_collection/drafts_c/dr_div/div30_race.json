@@ -1,0 +1,96 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div30_race",
+  "source": "draft_div",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 6-13; in the story (name1) uses a wheelchair)"
+   },
+   {
+    "src": "L362",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A child asks a villager who uses a wheelchair to join the race down the path: race, or judge instead.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The children are racing down the long smooth path to the beach, and (friend) has come over to (subject), who uses a wheelchair, to ask (friend.him/her) to race too. Some of the other children think it isn't fair. (friend) isn't sure who they think it isn't fair to.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Race",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Judge Instead",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) agrees, with one condition: (subject.he/she) gets the path, and everybody else runs on the grass. On the slope, the chair goes like the wind. (subject) wins by a mile and turns round at the bottom with (subject.his/her) arms in the air. The children demand a rematch, uphill. (subject) loses that one, badly, and laughs all the way back.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) would rather judge today; (subject.his/her) arms are tired from building. (subject.He/she) sits at the finish line and declares the results with great authority, plus several made-up prizes: Loudest Runner, Best Fall, Most Sand in Hair. Everyone wins something. Next time, (subject) says, (subject.he/she) is racing, and they'd better watch out.",
+   "src": "L365"
+  }
+ }
+}

@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Not Tired",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il165_tired",
+  "source": "da_il09",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "It is long past dark, and a small child is not tired, not tired at all.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 7
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It's long past dark, and (subject) is not tired. (subject.He/She) is not tired at all. (subject.He/She) has said so eleven times. (subject.He/She) is lying on (subject.his/her) mat with (subject.his/her) eyes wide open, explaining to (friend) just how not tired (subject.he/she) is, in a voice that's getting slower and slower.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Agree That (subject.he/she) Isn't Tired",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Tell a Very Boring Story",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) starts telling a story about a rock. The rock sits. Then it sits some more. Then a little bit of moss grows on it. (subject) objects that this is the worst story (subject.he/she) has ever heard. Then (subject.he/she) asks what happened to the moss. By the time the moss has grown a tiny bit more, (subject) is asleep.",
+   "src": "L65"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Of course you're not,\" says (friend). \"You can just lie there and not be tired.\" \"I'm going to stay awake all night,\" says (subject). \"All... night.\" \"That sounds very exciting.\" \"Mm.\" \"What will you do all night?\" There's no answer. (subject) is fast asleep with (subject.his/her) mouth open.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Of course you're not,\" says (friend). \"You can just lie there and not be tired.\" \"I'm going to stay awake all night,\" says (subject). \"All... night.\" \"That sounds very exciting.\" \"Mm.\" \"What will you do all night?\" There's no answer. (subject) is fast asleep with (subject.his/her) mouth open.",
+   "src": "L62"
+  }
+ }
+}

@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief Who Claimed the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth28_chief_claimed",
+  "source": "living",
+  "lines": [
+   23763,
+   23777
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23763",
+  "ledger": [
+   {
+    "src": "L23777",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The leader declares exclusive authority over a reef that several families have used for generations.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} declares exclusive authority over a reef that several families have used for generations.",
+   "src": "L23764",
+   "choices": [
+    {
+     "label": "Enforce the decree.",
+     "next": "a",
+     "src": "L23765"
+    },
+    {
+     "label": "Restore shared access.",
+     "next": "b",
+     "src": "L23768"
+    },
+    {
+     "label": "Ask fishers and naturalists to draft rules.",
+     "next": "c",
+     "src": "L23771"
+    },
+    {
+     "label": "Let each family manage a section.",
+     "next": "d",
+     "src": "L23774"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The reef recovers under strict limits.",
+   "src": "L23766"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Families lose access to an important food source.",
+   "src": "L23767",
+   "text_only": [
+    {
+     "what": "food source",
+     "reason": "the reef's food over time; nothing is lost now",
+     "src": "L23767"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The families cooperate to protect spawning fish.",
+   "src": "L23769"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Seasonal limits balance food and protection.",
+   "src": "L23772",
+   "text_only": [
+    {
+     "what": "food",
+     "reason": "the rules' balance over the seasons; nothing is gained or lost now",
+     "src": "L23772"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Arguments delay the new agreement.",
+   "src": "L23773"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Some areas thrive under careful stewardship.",
+   "src": "L23775"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Fish move between sections, undermining the boundaries.",
+   "src": "L23776"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "Harvesting intensifies and the reef suffers.",
+   "src": "L23770",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23770"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "Harvesting intensifies and the reef suffers.",
+   "src": "L23770"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader Who Claimed the Sea"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

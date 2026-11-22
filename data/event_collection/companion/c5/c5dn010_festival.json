@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Delicacy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn010_festival",
+  "source": "companion",
+  "lines": [
+   2750,
+   2756
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2750",
+  "ledger": [
+   {
+    "src": "L2752",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2756",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A chef combines unfamiliar island ingredients into a ceremonial dish.",
+  "cast_only": [
+   "chef"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "chef": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A chef combines unfamiliar island ingredients into a ceremonial dish.",
+   "src": "L2751",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discover that half the village hates the texture.",
+   "src": "L2754"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The dish becomes a family tradition.",
+   "src": "L2755"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Gain a new village favorite.",
+   "src": "L2753",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "chef",
+     "mood": "good",
+     "src": "L2753"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Gain a new village favorite.",
+   "src": "L2753"
+  }
+ }
+}

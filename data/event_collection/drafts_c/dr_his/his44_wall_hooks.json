@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall of Hooks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his44_wall_hooks",
+  "source": "draft_his",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder fisher or an elder and a young adult, 18-25)"
+   }
+  ],
+  "description": "An elder brings a young villager to hang their first fishhook on the old wall of hooks: hang it with a story, or quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In the canoe house, there's a wall of old fishhooks hung on pegs: bone, shell, stone, wood, and a few made of metal, some so old they're nearly crumbling. Every fisher who ever worked from this beach hung their first hook there. Today (friend) has made (friend.his/her) own first hook, and (subject) has brought (friend.him/her) to the wall.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Hang It with a Story",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Hang It Quietly",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) hangs (friend.his/her) hook without a word, next to all the others, and steps back. (subject) watches (friend.him/her) look at the wall, at all those hooks, generations of them. (friend) notices one hook that's almost exactly like (friend.his/her) own, very old, made by someone nobody remembers. (friend.He/she) moves (friend.his/her) own a little closer to it. (subject) doesn't say anything. (subject.He/she) doesn't need to.",
+   "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend.him/her) how it's done: you hang your hook and say one true thing about your first catch. (friend) hangs (friend.his/her) own and says, a bit embarrassed, that (friend.his/her) first fish was very small and fell back in the water. (subject) laughs and says (subject.his/her) own was a sandal. They're both on the wall now. (friend) feels taller all day.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L530"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend.him/her) how it's done: you hang your hook and say one true thing about your first catch. (friend) hangs (friend.his/her) own and says, a bit embarrassed, that (friend.his/her) first fish was very small and fell back in the water. (subject) laughs and says (subject.his/her) own was a sandal. They're both on the wall now. (friend) feels taller all day.",
+   "src": "L530"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L530",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  },
+  {
+   "src": "L530",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  },
+  {
+   "src": "L533",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  },
+  {
+   "src": "L533",
+   "before": "(his/hers)",
+   "after": "(his/her) own"
+  }
+ ]
+}

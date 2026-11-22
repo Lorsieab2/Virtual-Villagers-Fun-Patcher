@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spoon That Was a Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea07_spoon_canoe",
+  "source": "draft_hea",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 3-8, an adult relative of the child (where the game records it) and a healer or elder)"
+   }
+  ],
+  "description": "A coughing child is sure the healer's syrup is poison: let the child hold the spoon, or make the spoon a canoe.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 8
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a cough, and (friend) the healer has made a syrup for it. It's sweet, mostly. (subject) has decided it is poison and has clamped (subject.his/her) mouth shut so hard (subject.his/her) cheeks are puffed out. (third), (third.his/her) relative, is holding the bowl and losing patience.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Let (subject) Hold the Spoon",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Make It a Game",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Would you like to do it yourself?\" asks (friend). (subject) considers this. (subject.He/she) takes the spoon, inspects it, sniffs the syrup and then very slowly drinks it like a grown-up. \"It's not poison,\" (subject.he/she) announces, as if (subject.he/she) discovered this personally. The cough lasts a few more days, then goes. (subject) insists on holding the spoon every time.",
+   "src": "L86"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(third) makes the spoon into a canoe, paddling across the hut towards the harbor of (subject)'s mouth. (subject) tries very hard not to laugh, fails, and the canoe gets in. \"Again,\" says (subject). \"There's only one canoe a day,\" says (friend). The cough fades in a few days. The canoe game lasts much longer.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(third) makes the spoon into a canoe, paddling across the hut towards the harbor of (subject)'s mouth. (subject) tries very hard not to laugh, fails, and the canoe gets in. \"Again,\" says (subject). \"There's only one canoe a day,\" says (friend). The cough fades in a few days. The canoe game lasts much longer.",
+   "src": "L89"
+  }
+ }
+}

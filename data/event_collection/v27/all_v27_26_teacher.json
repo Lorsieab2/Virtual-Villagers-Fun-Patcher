@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stubborn Teacher",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_26_teacher",
+  "source": "v28",
+  "lines": [
+   10689,
+   10695
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10689",
+  "ledger": [
+   {
+    "src": "L10690",
+    "kind": "note",
+    "why": "the cast: ELDERS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10695",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "An elder refuses to admit that a young apprentice knows a better technique."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "An elder refuses to admit that a young apprentice knows a better technique.",
+   "src": "L10691",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The two compare methods and combine their strengths.",
+   "src": "L10692",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Building",
+      "Farming",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10692"
+    },
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building",
+      "Farming",
+      "Healing",
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10692"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The elder doubles down, and students stop attending.",
+   "src": "L10693"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The elder apologizes after a failed demonstration.",
+   "src": "L10694"
+  }
+ }
+}

@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Daughter Who Would Not Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway10_daughter_would",
+  "source": "living",
+  "lines": [
+   22848,
+   22862
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22848",
+  "ledger": [
+   {
+    "src": "L22862",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A fisher expects their daughter to inherit the family nets; she wants to become a weaver.",
+  "cast_only": [
+   "daughter"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "daughter": {
+   "kind": "villager",
+   "min_age": 14,
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher expects their daughter to inherit the family nets; she wants to become a weaver.",
+   "src": "L22849",
+   "choices": [
+    {
+     "label": "Respect her choice.",
+     "next": "a",
+     "src": "L22850"
+    },
+    {
+     "label": "Ask her to train in both crafts.",
+     "next": "b",
+     "src": "L22853"
+    },
+    {
+     "label": "Insist on the family trade.",
+     "next": "c",
+     "src": "L22856"
+    },
+    {
+     "label": "Invite an elder to mediate.",
+     "next": "d",
+     "src": "L22859"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "She thrives at weaving and still helps during emergencies.",
+   "src": "L22851"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Her parent feels abandoned and needs time to adjust.",
+   "src": "L22852"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "She learns valuable skills but grows distant.",
+   "src": "L22857"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "She eventually refuses, and the family must confront the conflict.",
+   "src": "L22858"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They agree on a trial season.",
+   "src": "L22860"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The elder sides with tradition, deepening the disagreement.",
+   "src": "L22861"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "She discovers an interest in making fishing nets.",
+   "src": "L22854",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "daughter",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L22854"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "She discovers an interest in making fishing nets.",
+   "src": "L22854"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The double workload leaves her unhappy.",
+   "src": "L22855",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "daughter",
+     "mood": "bad",
+     "src": "L22855"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The double workload leaves her unhappy.",
+   "src": "L22855"
+  }
+ }
+}

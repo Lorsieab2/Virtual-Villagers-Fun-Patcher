@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hill Where You Can See Both Ways",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep49_hill_where_you",
+  "source": "draft_dep",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a teen aged 14-17 and an elder)"
+   }
+  ],
+  "description": "A teen torn between staying and leaving sits on the big hill, and an elder joins them: say you felt the same, or just sit.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "From the top of the big hill you can see the village on one side and the open sea on the other. (subject) sits up here most evenings. Today (friend) climbs up, slowly, and sits beside (subject.him/her). After a while (subject) says, \"I don't know if I want to stay here my whole life or leave and never come back. Both. Neither.\"",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Say You Felt the Same",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Just Sit",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) doesn't say anything. (friend.He/she) just sits. The sun goes down on the sea side, and the fires come up on the village side, and (subject) watches both. Eventually (subject.he/she) says, \"Thanks for not telling me what to do.\" (friend) shrugs. \"I don't know either.\"",
+   "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I felt exactly the same at your age,\" says (friend). \"I still do, some days.\" (subject) looks surprised. \"But you stayed.\" \"I did. Some days I'm glad. Some days I wonder.\" They sit for a long time, looking both ways. Neither of them decides anything. It's a good evening anyway.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I felt exactly the same at your age,\" says (friend). \"I still do, some days.\" (subject) looks surprised. \"But you stayed.\" \"I did. Some days I'm glad. Some days I wonder.\" They sit for a long time, looking both ways. Neither of them decides anything. It's a good evening anyway.",
+   "src": "L590"
+  }
+ }
+}

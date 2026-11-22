@@ -1,0 +1,288 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Book That Wrote Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my097_book_wrote_back",
+  "source": "rewrites",
+  "lines": [
+   15498,
+   15553
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15498",
+  "ledger": [
+   {
+    "src": "L15499",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15500",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15508",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15515",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15522",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15529",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15503",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15504",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15505",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15506",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15509",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15516",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15523",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15530",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15510",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15512",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15517",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15519",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15524",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15526",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15531",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15533",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15536-15553",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager takes it home as a curiosity.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Among the things in a sealed crate washed up on the beach, stamped with a trader's mark nobody in the village knows, is a book: bound in sealskin, smelling of salt and dust, its pages completely blank. (Name) takes it home as a curiosity. The next morning, the first page has writing on it. Small, neat writing, in ink that is still slightly damp.\n(Name) did not write it. As far as (he/she) knows, nobody else has been in (his/her) hut. (He/she) leaves the book on the table and goes out to work, and when (he/she) comes back, there is a second page. The handwriting is the same. And the ink, once again, is still wet. Who, or what, is writing in it? Should (name) read it?",
+   "choices": [
+    {
+     "label": "Read the New Pages",
+     "next": "c1",
+     "src": "L15503"
+    },
+    {
+     "label": "Watch the Book",
+     "next": "c2",
+     "src": "L15504"
+    },
+    {
+     "label": "Write a Question",
+     "next": "c3",
+     "src": "L15505"
+    },
+    {
+     "label": "Store It Safely",
+     "next": "c4",
+     "src": "L15506"
+    }
+   ],
+   "src": "L15501-15502"
+  },
+  "c1o1": {
+   "text": "The pages describe, in careful detail, how to measure rainfall: how to make a marked clay pot to catch the rain, how to read it each morning, how to keep records season after season, and how to use the numbers to tell when to plant and when to harvest. It is so practical and so clear that (name) takes it straight to the researchers. Within a season, the village has rain pots all over the island, and its farmers are planting at exactly the right time.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L15511",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The pages tell a story about a villager who lives on an island, finds a book on the beach, and takes it home. The villager's name is (name). (Name) reads it twice, getting colder and colder. The story is accurate down to the colour of (his/her) sleeping mat. It ends in the middle of a sentence, with the villager sitting down to read. (Name) shuts the book and does not open it again for a very long time.",
+   "src": "L15513"
+  },
+  "c1": {
+   "text": "(Name) sits down with the book in (his/her) lap, takes a deep breath, and begins to read...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15509"
+  },
+  "c2o1": {
+   "text": "Very late, the door creaks open, and a small figure tiptoes in, sits down at the table, and starts scribbling by moonlight. It is one of the village children, who has been sneaking in every night to write stories, purely to see the grown-ups' faces. (He/she) has filled three pages with the adventures of a heroic pig who saves the village from a volcano. (Name) is not angry. The stories are actually quite good. The pig gets its own book.",
+   "src": "L15518"
+  },
+  "c2o2": {
+   "text": "(Name) watches all night. Nothing happens. The book lies open and blank, and nobody comes near it. As dawn breaks, (name)'s eyes close for just a moment, and when (he/she) jerks awake an instant later, the open page is covered in writing, the ink still glistening wet. (He/she) could not have been asleep for more than a breath. (Name) does not try watching it again.",
+   "src": "L15520"
+  },
+  "c2": {
+   "text": "(Name) is determined to catch whoever, or whatever, is writing in it. That night, (he/she) leaves the book open on the table, blows out the lamp, and hides behind a basket in the corner, wide awake...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15516"
+  },
+  "c3o1": {
+   "text": "In the morning, there is an answer. But it is not an answer. It is a riddle: \"I run uphill and never tire, I carry the sea but am never wet. What am I?\" (Name) cannot solve it. Neither can the researchers, the elders, or the storytellers. It becomes the village's favourite argument at the fire. Somebody says it is the moon. Somebody else says it is a turtle. Nobody has solved it yet, and the book has written nothing more.",
+   "src": "L15525"
+  },
+  "c3o2": {
+   "text": "In the morning, below the question, there is a reply. It says: \"You already know.\" And it is written in (name)'s own handwriting. Not like it. Exactly it: the way (he/she) loops (his/her) letters, the way (he/she) always crosses things too hard. (Name) sits looking at it for a long time. (He/she) checks (his/her) hands for ink stains. There are none. (He/she) is almost sure there are none.",
+   "src": "L15527"
+  },
+  "c3": {
+   "text": "(Name) borrows a little ink from the researchers, and on a fresh blank page writes, in (his/her) best hand: \"Who are you?\" Then (he/she) closes the book, and waits until morning...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15523"
+  },
+  "c4o1": {
+   "text": "The researchers tuck it away on a high shelf with the other curious things the village has found over the years. It stays there, tied shut, dry and safe. Nobody opens it. Every few seasons, a new researcher asks about it, and is told the story, and decides it can wait for someone braver. It waits still.",
+   "src": "L15532"
+  },
+  "c4o2": {
+   "text": "In the morning, the researchers find the cord untied and lying neatly beside the book, the oiled cloth folded, and the book itself lying open on the floor in the middle of the hut. It is open to a page that is covered in writing. None of them remember the book having that page. It describes, in small neat writing, the researchers' hut, the high shelf, and the cord being untied.",
+   "src": "L15534"
+  },
+  "c4": {
+   "text": "Whatever this book is, it should not be left lying around. (Name) wraps it in oiled cloth, ties it shut with a cord, and takes it to the researchers' hut for safekeeping...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15530"
+  }
+ }
+}

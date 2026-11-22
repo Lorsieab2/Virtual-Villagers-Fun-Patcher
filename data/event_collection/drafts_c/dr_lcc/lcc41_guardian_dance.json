@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Guardian Dance at Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc41_guardian_dance",
+  "source": "draft_lcc",
+  "lines": [
+   568,
+   579
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L568",
+  "ledger": [
+   {
+    "src": "L569",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L575",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L575",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L579",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The warriors want to dance the guardian dance every dawn on the beach: make it a daily custom, or keep it for danger.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Since the last raid, the warriors have started dancing the guardian dance on the beach at dawn: stamping, shouting, spears raised to the sunrise. (subject) loves it and wants it to become a custom. (friend), whose hut is right beside the beach, would like to sleep past dawn just once. What should the village do?",
+   "src": "L571",
+   "choices": [
+    {
+     "label": "Make It a Daily Custom",
+     "next": "o1",
+     "src": "L573"
+    },
+    {
+     "label": "Keep It for Times of Danger",
+     "next": "o2",
+     "src": "L577"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The guardian dance becomes part of every dawn. The children start joining in, then the elders, then (friend), who has given up on sleep and decided to join them. Visitors from other islands come to watch it.",
+   "src": "L575",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L575"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides the guardian dance should be kept for times of danger, so it never becomes ordinary. (subject) is disappointed. (friend) sleeps until midmorning for the first time in months. When danger comes again, the dance means more.",
+   "src": "L579"
+  }
+ }
+}

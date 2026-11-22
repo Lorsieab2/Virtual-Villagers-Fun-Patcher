@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Noticed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm38_apprentice",
+  "source": "rolemodels",
+  "lines": [
+   79,
+   79
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L79",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "structural",
+    "text": "EVENT RM-38  -  THE APPRENTICE WHO NOTICED SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "During a busy repair, a young apprentice notices that an experienced craftsperson has become unusually tired and unsteady.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During a busy repair, a young apprentice notices that an experienced craftsperson has become unusually tired and unsteady.",
+   "src": "L79",
+   "choices": [
+    {
+     "label": "Quietly Ask Whether the Craftsperson Needs a Rest.",
+     "next": "a",
+     "src": "L79"
+    },
+    {
+     "label": "Offer to Take Over a Suitable Part of the Task.",
+     "next": "b",
+     "src": "L79"
+    },
+    {
+     "label": "Bring Water and Suggest Moving into the Shade.",
+     "next": "c",
+     "src": "L79"
+    },
+    {
+     "label": "Inform the Work Leader Discreetly.",
+     "next": "d",
+     "src": "L79"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The craftsperson accepts and resumes lighter work after recovering.",
+   "src": "L79"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The craftsperson insists on finishing, but agrees to pause when the apprentice expresses concern.",
+   "src": "L79"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The task exceeds the apprentice's training, so they seek another experienced worker.",
+   "src": "L79"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The craftsperson feels somewhat better after resting and drinking.",
+   "src": "L79"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The unsteadiness persists, and the apprentice calls for a healer.",
+   "src": "L79"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The leader adjusts the assignments without embarrassing the craftsperson.",
+   "src": "L79"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The leader asks a healer to assess whether continuing work would be appropriate.",
+   "src": "L79"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The apprentice completes the simpler work while the craftsperson rests.",
+   "src": "L79",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L79"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The apprentice completes the simpler work while the craftsperson rests.",
+   "src": "L79"
+  }
+ }
+}

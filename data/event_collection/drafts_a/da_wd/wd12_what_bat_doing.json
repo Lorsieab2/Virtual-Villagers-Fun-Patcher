@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Bat Doing in the Hut?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd12_what_bat_doing",
+  "source": "da_wd",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A small brown bat is asleep on the roof beam of a villager's hut in the middle of the day.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There is a bat hanging from the roof beam inside (subject)'s hut, in the middle of the day, fast asleep, wrapped in its own wings like a tiny folded umbrella. It's small and brown and looks extremely comfortable. It has picked (subject)'s hut, of all the huts on Isola, to sleep in today.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Let It Sleep",
+     "next": "a",
+     "src": "L145"
+    },
+    {
+     "label": "Ask (friend) What to Do",
+     "next": "b",
+     "src": "L148"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"It's a fruit bat,\" says (friend). \"It'll go when it gets dark.\" They both stand looking up at it. It opens one tiny eye, looks down at them, and closes it again. \"I think it heard you,\" whispers (subject). They leave it alone and go to eat outside, and by the time they're back, it has gone.",
+   "src": "L149"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) creeps about the hut all day so as not to wake it, which turns out to be very difficult. At sunset the bat stirs, stretches its wings, and flits out of the door into the evening. (subject) feels oddly honored. (subject.He/She) also feels very tired, from a whole day of tiptoeing.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -50,
+     "max": -25,
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) creeps about the hut all day so as not to wake it, which turns out to be very difficult. At sunset the bat stirs, stretches its wings, and flits out of the door into the evening. (subject) feels oddly honored. (subject.He/She) also feels very tired, from a whole day of tiptoeing.",
+   "src": "L146"
+  }
+ }
+}

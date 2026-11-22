@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pot That Wouldn't Come Off",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum09_pot_wouldnt_come",
+  "source": "draft_hum",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager puts a cooking pot on as a hat and it gets stuck: try a little fish oil, or carry on with the day.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) put a small cooking pot on (subject.his/her) head as a hat, to make the children laugh. They laughed a great deal. Now (subject) would like to take it off, and the pot would rather not. It isn't tight and it doesn't hurt. It's just stuck, firmly and cheerfully, over both of (subject.his/her) ears.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Try a Little Fish Oil",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Carry on with the Day",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) rubs fish oil round the rim while (subject) wiggles. With a loud \"pop\" that can be heard across the village, the pot comes free. (subject) smells of fish for two days, and the pot has never been so clean. The children ask for the pot trick again. (subject) politely declines.",
+   "src": "L110"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides that a pot is not going to stop (subject.him/her). (subject.He/she) fetches water, sweeps the hut, and greets everyone (subject.he/she) meets with a nod, which makes a soft \"clonk.\" At dinner, while (subject.he/she) is laughing at something, the pot slides off all by itself and lands upright in front of (subject.him/her). Someone fills it with stew. It seems only right.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) decides that a pot is not going to stop (subject.him/her). (subject.He/she) fetches water, sweeps the hut, and greets everyone (subject.he/she) meets with a nod, which makes a soft \"clonk.\" At dinner, while (subject.he/she) is laughing at something, the pot slides off all by itself and lands upright in front of (subject.him/her). Someone fills it with stew. It seems only right.",
+   "src": "L113"
+  }
+ }
+}

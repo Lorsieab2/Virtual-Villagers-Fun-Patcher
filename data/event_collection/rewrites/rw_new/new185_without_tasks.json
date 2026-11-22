@@ -1,0 +1,254 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day Without Tasks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new185_without_tasks",
+  "source": "rewrites",
+  "lines": [
+   8967,
+   9013
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8967",
+  "ledger": [
+   {
+    "src": "L8968",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8969",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8978",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8985",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8992",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8974",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8975",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8976",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8979",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8986",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8993",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8980",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8982",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8987",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8989",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8994",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8996",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8999-9013",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "What should the village do with a villager?",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) finishes every job on (subject.his/her) list by noon. Every single one. The fish are cleaned. The water is fetched. The mats are mended.\nAnd (subject.he/she) is struck by a kind of horror.\nNothing to do. For the whole afternoon. Nothing.\nIn the last hour, (subject) has reorganized the tool shelf twice \\(once by size, once by colour\\), swept a hut that isn't (subject.his/hers), and offered to help three different people, all of whom said no, a little nervously. (subject.He/She) is now standing in the middle of the village, looking around with wild eyes for something, anything, to do. What should the village do with (subject)?",
+   "choices": [
+    {
+     "label": "Ask What They Were Looking For",
+     "next": "c1",
+     "src": "L8974"
+    },
+    {
+     "label": "Teach Them a Quiet Craft",
+     "next": "c2",
+     "src": "L8975"
+    },
+    {
+     "label": "Insist on a Real Day Off",
+     "next": "c3",
+     "src": "L8976"
+    }
+   ],
+   "src": "L8970-8973"
+  },
+  "c1o1": {
+   "text": "\"I don't know!\" (subject) says. \"Something to FIX!\" And, as it happens, while fussing over the tool shelter for the third time, (subject.he/she) finds one: a loose post, rotting at the base, that nobody had noticed. (subject.He/She) learns how to dig it out and reset it properly, packing stones around the base. It's a small building lesson, and it takes all afternoon, and (subject) is blissfully happy.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L8981",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) admits, after a while, that nobody ever told (subject.him/her) that resting was allowed. (subject.His/Her) family always worked from dawn till dark. Stopping feels wrong. Like being lazy. That's not laziness, (subject.he/she) is told firmly. It's the opposite. (subject) doesn't quite believe it, but (subject.he/she) sits down. For a minute.",
+   "src": "L8983"
+  },
+  "c1": {
+   "text": "Someone gently takes the broom out of (subject)'s hands, and asks what (subject.he/she) is looking for...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8979"
+  },
+  "c2o1": {
+   "text": "(mentor) teaches (subject) to carve and fit sturdy tool handles: the right wood, the right grip, how to fix the head so it never flies off. Something useful to do with idle hands. (subject) is a natural. By the end of the week, every tool in the village has a new handle, and (subject) has learned a great deal about building, and still has nothing to do in the afternoons.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L8988",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Halfway through the first handle, (mentor) puts down (subject.his/her) knife and admits (subject.he/she) never learned how to rest either. \"All these years, and I still don't know what to do with an afternoon.\" The two of them sit there in companionable silence, carving nothing in particular, which turns out to be quite restful after all.",
+   "src": "L8990"
+  },
+  "c2": {
+   "text": "(mentor), who has watched all this with some amusement, hands (subject) a block of wood and a carving knife...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8986"
+  },
+  "c3o1": {
+   "text": "(subject) spends a whole day lying in a hammock. (subject.He/She) hates the first hour, fidgeting and twitching and trying to escape. (subject.He/She) loves the rest of it. (subject.He/She) falls asleep, wakes up, watches the clouds, falls asleep again. (subject.He/She) returns to work the next day refreshed, and asks if (subject.he/she) can do it again next week.",
+   "src": "L8995"
+  },
+  "c3o2": {
+   "text": "(subject) lies in the hammock, rigid, worrying that (subject.he/she) is falling behind. On what, nobody can work out. (subject.He/She) has done everything. (subject.His/Her) friends reassure (subject.him/her), but without promising (subject.he/she) will ever learn to relax. They're fairly sure (subject.he/she) won't.",
+   "src": "L8997"
+  },
+  "c3": {
+   "text": "(subject)'s friends confiscate every tool, broom and basket in reach, lead (subject.him/her) to a hammock, and refuse to let (subject.him/her) out of it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8993"
+  }
+ }
+}

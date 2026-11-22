@@ -1,0 +1,163 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl28_shared_song",
+  "source": "living",
+  "lines": [
+   22029,
+   22040
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22029",
+  "ledger": [
+   {
+    "src": "L22040",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Musicians from two communities discover that their songs use a similar melody.",
+  "cast_only": [
+   "musician"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "musician": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Musicians from two communities discover that their songs use a similar melody.",
+   "src": "L22030",
+   "choices": [
+    {
+     "label": "Perform together.",
+     "next": "a",
+     "src": "L22031"
+    },
+    {
+     "label": "Keep the songs separate.",
+     "next": "b",
+     "src": "L22034"
+    },
+    {
+     "label": "Study their origins.",
+     "next": "c",
+     "src": "L22037"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An argument about credit briefly interrupts rehearsal.",
+   "src": "L22033"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Each group preserves its own lyrics and meaning.",
+   "src": "L22035"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A young musician wishes they could collaborate.",
+   "src": "L22036"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The similarities suggest an older shared history.",
+   "src": "L22038"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The musicians find that similar melodies can arise independently.",
+   "src": "L22039"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The performance delights both audiences.",
+   "src": "L22032",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "musician",
+     "mood": "good",
+     "src": "L22032"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The performance delights both audiences.",
+   "src": "L22032"
+  }
+ }
+}

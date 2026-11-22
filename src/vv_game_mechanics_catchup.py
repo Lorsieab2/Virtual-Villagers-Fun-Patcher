@@ -73,7 +73,7 @@ def _patch(village: gm.Village, feature: str, normal: str, patched: str) -> gm.F
     has = village.has(feature)
     if has is False:
         return None
-    state = "is in the game" if has else "may be in the game (it could not be told)"
+    state = "is in the game" if has else f"may be in the game (it could not be told; {gm.BROWSE_HINT})"
     return gm.Fact(G, f"{normal} The patcher's \"{gm.feature_name(feature)}\" {state}: {patched}", CODE)
 
 
@@ -193,6 +193,22 @@ VV5_LEARNING = "vv5_learning_never_fails"
 VV5_NURSERY = "vv5_vv4_nursery_divisor_parity"
 VV5_STORY = "vv5_story_cheat_upgrades"
 VV5_ORIGINS = "vv5_enable_origins_exclusive_features"
+VV5_BIRTH_CONTROL = "vv5_birth_control"
+# Birth Control, in every game: the Children pick's rand(100) <= 5 gate in the catch-up job turn becomes <= 99
+# (A New Home 0x42E7EF, The Lost Children 0x43B53C, The Secret City 0x45BF61, The Tree of Life 0x4657AE, New
+# Believers 0x46E93E), so the pick goes on to the embrace like any other pick goes on to its job.
+_BIRTH_CONTROL_NORMAL = "Normally a {who} whose job choice is Children tries on only 6 job turns in 100."
+_BIRTH_CONTROL_PATCHED = ("it tries on every job turn its job choice is Children, as often as any other job is done; "
+                          "the partner search, the conception roll, the population limit and huts stay as above, so a "
+                          "try can still fail, and children never get job turns.")
+# A New Home and The Lost Children: the catch-up embrace pairs one partner per try in every mode (automatic safety
+# rows, A New Home file 0x46E70 / 0x4723D, The Lost Children 0x64847 / 0x64C52, picking with rand(count) as The Tree
+# of Life's mate selector 0x466DA0 does); Birth Control adds the partner bound under 50 to that pick (A New Home
+# 0x46ECE, The Lost Children 0x6487E / 0x648C0).
+_BIRTH_CONTROL_PATCHED_UNDER_50 = ("it tries on every job turn its job choice is Children, as often as any other job "
+                                   "is done, and the one partner it picks must be under 50; the rest of the partner "
+                                   "search, the conception roll, the population limit and huts stay as above, so a try "
+                                   "can still fail, and children never get job turns.")
 
 
 def _entries(village: gm.Village, pending_at: int, health_at: int, faction_at: int | None = None,
@@ -338,15 +354,18 @@ def _vv5(village: gm.Village) -> list[gm.Fact]:
     # The patches that change a catch-up rule (stock rule first).
     for fact in (
         _patch_vv5(village, VV5_WORK_FIRST, "Normally every job turn uses the game's job choice.",
-               "on 75 job turns in 100 a builder (while it has hut work), a healer, or a believer whose job is "
-               "Devotion (when Honoring is allowed) does that job first; at 250 food or less a believer with "
-               "Farming 20 or more still farms first."),
+               "on 75 job turns in 100 a believer whose job is Farming, Research, Healing, Building or Devotion "
+               "does that job first, once that skill is above 5 (a researcher never instead of farming; "
+               "Parenting never); the \"untrained\" mark is turned off, so a believer never dropped on a job works "
+               "too; farmers also harvest noni before the Hungry Totem; at 250 food or less a "
+               "believer with Farming 20 or more still farms first."),
         _patch_vv5(village, VV5_FIX_HUTS, "Normally a builder in a job turn joins only a site already more than 1% "
                                           "built, and examines huts only once Houses 1 to 3 and the Clothing Hut "
                                           "stand.",
                    "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
         _patch_vv5(village, VV5_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                    "every skill check succeeds, in job turns too."),
+        _patch_vv5(village, VV5_BIRTH_CONTROL, _BIRTH_CONTROL_NORMAL.format(who="believer"), _BIRTH_CONTROL_PATCHED),
     ):
         if fact:
             out.append(fact)
@@ -469,8 +488,13 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
 
     for fact in (
         _patch(village, VV4_WORK_FIRST, "Normally every job turn uses the game's job choice.",
-               "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first; at 250 "
-               "food or less a villager with Farming 20 or more still farms first."),
+               "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building does that "
+               "job first, once that skill is above 5 (a researcher never instead of farming; Parenting "
+               "never; an unsolved puzzle nobody has started -- the stream, the piers, the rubble -- is left to "
+               "your drop, every other building job goes on); the \"untrained\" mark is turned off, so a "
+               "villager never dropped on a job works too; farmers also make "
+               "the fruit trip (Attempting to retrieve fruit) once the Cooking Pit is restored; at 250 food or "
+               "less a villager with Farming 20 or more still farms first."),
         _patch(village, VV4_FIX_HUTS, "Normally a builder in a job turn joins only a building already more than 1% "
                                       "built, and examines huts only once Huts 1 to 3 and the Clothing Hut stand.",
                "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
@@ -481,6 +505,7 @@ def _vv4(village: gm.Village) -> list[gm.Fact]:
                "job turns too."),
         _patch(village, VV4_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                "every skill check succeeds, in job turns too."),
+        _patch(village, "vv4_birth_control", _BIRTH_CONTROL_NORMAL.format(who="villager"), _BIRTH_CONTROL_PATCHED),
     ):
         if fact:
             out.append(fact)
@@ -587,8 +612,9 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
 
     for fact in (
         _patch(village, VV3_WORK_FIRST, "Normally every job turn uses the game's job choice.",
-               "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first; at 250 "
-               "food or less a villager with Farming 20 or more still farms first."),
+               "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building does that "
+               "job first, once that skill is above 5 (a researcher never instead of farming; Parenting "
+               "never); at 250 food or less a villager with Farming 20 or more still farms first."),
         _patch(village, VV3_FIX_HUTS, "Normally a builder in a job turn joins only a site already 2% or more "
                                       "built, and examines huts only once all four huts stand.",
                "when the job turn's job is building, the patch's build-first and hut-fixing rules apply to it."),
@@ -596,6 +622,7 @@ def _vv3(village: gm.Village) -> list[gm.Fact]:
                "every skill check succeeds, in job turns too."),
         _patch(village, VV3_MORTALITY, "Normally the old-age rolls start at 47, 55, 63 or 71 years (Medicine 0 to "
                                        "3).", "at Nature level 3 they start 7 years later, while catching up too."),
+        _patch(village, "vv3_birth_control", _BIRTH_CONTROL_NORMAL.format(who="villager"), _BIRTH_CONTROL_PATCHED),
     ):
         if fact:
             out.append(fact)
@@ -670,17 +697,19 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
     add("Building while catching up: each successful try on the three huts, the Hospital, the Dam, the Vine Wall or "
         "the thorns of the Overgrown Gong Piece adds 1 point less (1 instead of 2; 2 instead of 3 at Building 88 on "
         "the last three); the Ancient Mosaic, the broken starting hut and the Sewing Hut add the same as in live play.")
-    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100, and one "
-        "man's job turn can make several women mothers: the try goes through the whole village twice and does not "
-        "stop at a conception. Each baby gets 10 to 19 points in one parent's best skill (live: 5 to 7, or 4 to 11 by "
-        "Culture level when both parents' best skill is the same).")
-    # The embrace scan 0x464847-0x464A4E (and again from 0x464A54): the refusal 0x46490C, the Parenting check
-    # 0x46493A, rand(300) + 50 - 50 x Medicine <= Parenting 0x464947-0x464974.
-    sub("How it is worked out: with each villager of the other sex (both 18 or more, the woman under 50, neither "
-        "sick or nursing) the try is refused 34 times in 100 when food is under 300, then needs the initiator's "
-        "Parenting check, then a baby is conceived when a roll of 0 to 299, plus 50, minus 50 x the Medicine level, "
-        "is at most the Parenting skill, as long as the population limit and huts allow. Live, the partner found "
-        "must be under 50 whatever the sex.")
+    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100, each time "
+        "with one partner, as in The Secret City, The Tree of Life and New Believers: a man picks one woman at random "
+        "from every woman who can pair, and a woman picks one man from every man who can. (The original game tried "
+        "with all of them at once; the patcher makes it one partner in every mode.) Each baby gets 10 to 19 points "
+        "in one parent's best skill (live: 5 to 7, or 4 to 11 by Culture level when both parents' best skill is the "
+        "same).")
+    # The pick 0x464847 (automatic safety row) enters the second embrace scan at its refusal 0x464B0E: the Parenting
+    # check, rand(300) + 50 - 50 x Medicine <= Parenting, the writer 0x464C4D; 0x464C52 ends the embrace.
+    sub("How it is worked out: the partner is one villager of the other sex (both 18 or more, the woman under 50, "
+        "neither sick or nursing); the try is refused 34 times in 100 when food is under 300, then needs the "
+        "initiator's Parenting check, then a baby is conceived when a roll of 0 to 299, plus 50, minus 50 x the "
+        "Medicine level, is at most the Parenting skill, as long as the population limit and huts allow. Live, the "
+        "partner found must be under 50 whatever the sex.")
     add("Healing while catching up: one job turn can cure the whole village. A cure step checks the healer's Healing "
         "once for every villager and cures every sick villager (not the healer) whose check passes, and each passed "
         "check trains Healing (live: one patient, after one Healing check).")
@@ -698,7 +727,7 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
                "turn chooses what it does (14 times in 100 for one whose job is not Healing)."),
         _patch(village, VV2_EASIER, "Normally healers study plants only when the game's own choice sends them.",
                "healers and villagers who prefer Healing study plants when no sick villager needs treatment, in "
-               "job turns too."),
+               "job turns too (75% of those times for one checked on Healing, 14% for anyone else)."),
     ):
         if fact:
             out.append(fact)
@@ -718,12 +747,17 @@ def _vv2(village: gm.Village) -> list[gm.Fact]:
 
     for fact in (
         _patch(village, VV2_WORK_FIRST, "Normally every job turn uses the game's job choice.",
-               "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first."),
+               "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building (while "
+               "it has hut work) does that job first, once that skill is above 5 (a researcher never instead "
+               "of farming; Parenting never; no hut is started by nobody's drop); once Herb Mastery is solved "
+               "a healer with nothing to heal studies a plant."),
         _patch(village, VV2_FIX_HUTS, "Normally a builder in a job turn follows the game's own building "
                                       "choice.",
                "when the job turn's job is building, the patch's build-first, hut-fixing and new-hut rules apply."),
         _patch(village, VV2_LEARNING, "Normally a skill check in a job turn succeeds (skill + 34) times in 100.",
                "every skill check succeeds, in job turns too."),
+        _patch(village, "vv2_birth_control", _BIRTH_CONTROL_NORMAL.format(who="villager"),
+               _BIRTH_CONTROL_PATCHED_UNDER_50),
     ):
         if fact:
             out.append(fact)
@@ -800,15 +834,18 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
     sub("In a job turn the villager does what the game's job choice picks; the walks and waits are skipped, and the "
         "skill checks and the work's payoffs run at once. A New Home has no catch-up rates of its own: berries, "
         "crops, fish and research pay what they pay live.")
-    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100, and one "
-        "man's job turn can make several women pregnant: the try goes through the whole village twice and does not "
-        "stop at a conception (live: the lowest-numbered partner only, after walking to them).")
-    # The embrace, opcode 9 of 0x446C70: two scans 0x446E70-0x44704F and 0x447055-0x447256; the refusal
-    # 0x446F26/0x447118; the Parenting check and rand(300) <= Parenting - 50 + 50 x Fertility 0x446F5B/0x44715C.
-    sub("How it is worked out: with each villager of the other sex (both 18 or more, not sick or pregnant; no upper "
-        "age for either) the try is refused 74 times in 100 below 400 food, then needs the initiator's Parenting "
-        "check, then a baby is conceived when a roll of 0 to 299 is at most Parenting - 50 + 50 x the Fertility "
-        "level, as long as the population limit and huts allow.")
+    add("Babies while catching up: a villager whose job choice is Children tries on 6 job turns in 100, each time "
+        "with one partner, as in The Secret City, The Tree of Life and New Believers: a man picks one woman at random "
+        "from every woman who can pair, and a woman picks one man from every man who can. (The original game tried "
+        "with all of them at once; the patcher makes it one partner in every mode.) Live: the lowest-numbered "
+        "partner only, after walking to them.")
+    # The embrace, opcode 9 of 0x446C70: the pick 0x446E70 (automatic safety row) enters the second scan at its
+    # refusal 0x447112; the Parenting check and rand(300) <= Parenting - 50 + 50 x Fertility 0x44715C; the writer
+    # 0x447238; 0x44723D ends the embrace.
+    sub("How it is worked out: the partner is one villager of the other sex (both 18 or more, not sick or pregnant; "
+        "no upper age for either); the try is refused 74 times in 100 below 400 food, then needs the initiator's "
+        "Parenting check, then a baby is conceived when a roll of 0 to 299 is at most Parenting - 50 + 50 x the "
+        "Fertility level, as long as the population limit and huts allow.")
     add("Healing while catching up: one job turn can cure all the sick adults (live: one patient of any age). A cure "
         "step checks the healer's Healing ((Healing + 31) in 100) once for every villager and cures every sick "
         "villager of 14 or more whose check passes.")
@@ -825,8 +862,9 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
                "a villager who was studying the cactus carries on, at any food level, half the time each time a job "
                "turn chooses what it does (14 times in 100 for one whose job is not Healing)."),
         _patch(village, VV1_EASIER, "Normally healers study the cactus only when the game's own choice sends them.",
-               "healers and villagers who prefer Healing study the cactus whenever they get healing work and no one "
-               "is sick, in job turns too."),
+               "healers and villagers who prefer Healing study the cactus when they get healing work and no one "
+               "is sick, in job turns too (75% of those times for one checked on Healing, 14% for anyone "
+               "else)."),
         _patch(village, VV1_WATERING, "Normally \"Watering the field\" gives no Building skill.",
                "each watering that advances the garden puzzle ends with a Building practice roll, in job turns "
                "too."),
@@ -842,13 +880,18 @@ def _vv1(village: gm.Village) -> list[gm.Fact]:
         "graves).")
     for fact in (
         _patch(village, VV1_WORK_FIRST, "Normally every job turn uses the game's job choice.",
-               "on 75 job turns in 100 a builder (while it has hut work) or a healer does that job first."),
+               "on 75 job turns in 100 a villager whose job is Farming, Research, Healing or Building (while "
+               "it has hut work) does that job first, once that skill is above 5 (a researcher never instead "
+               "of farming; Parenting never; no hut is started by nobody's drop); once Herb Mastery is solved "
+               "a healer with nothing to heal studies a herb (never the Magic Plant of Life)."),
         _patch(village, VV1_FIX_HUTS, "Normally a builder in a job turn follows the game's own building choice.",
                "when the job turn's job is building, the patch's build-first, hut-fixing and new-hut rules apply."),
         _patch(village, VV1_LEARNING, "Normally a skill check in a job turn succeeds (skill + 31) times in 100.",
                "every skill check succeeds, in job turns too."),
         _patch(village, VV1_MAGIC_FRUIT, "Normally the old-age rolls start at 55, 63 or 71 years (Medicine 1 to 3).",
                "with the Magic Fruit of Life puzzle done they start 7 years later, while catching up too."),
+        _patch(village, "vv1_birth_control", _BIRTH_CONTROL_NORMAL.format(who="villager"),
+               _BIRTH_CONTROL_PATCHED_UNDER_50),
     ):
         if fact:
             out.append(fact)

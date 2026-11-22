@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rights of the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir25_rights_reef",
+  "source": "living",
+  "lines": [
+   21556,
+   21567
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21556",
+  "ledger": [
+   {
+    "src": "L21567",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A council member proposes rules to protect the reef as though it were a member of the village.",
+  "cast_only": [
+   "councilor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "councilor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A council member proposes rules to protect the reef as though it were a member of the village.",
+   "src": "L21557",
+   "choices": [
+    {
+     "label": "Recognize the reef as deserving protection.",
+     "next": "a",
+     "src": "L21558"
+    },
+    {
+     "label": "Protect only resources people need.",
+     "next": "b",
+     "src": "L21561"
+    },
+    {
+     "label": "Debate duties rather than rights.",
+     "next": "c",
+     "src": "L21564"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Harvesting limits help the reef recover, but fishers lose income.",
+   "src": "L21559"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The council struggles to decide who may speak on the reef's behalf.",
+   "src": "L21560"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village preserves important fishing grounds but overlooks a rare species.",
+   "src": "L21562"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The practical rules gain broad support but invite further questions.",
+   "src": "L21563"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers agree on restraint without settling the philosophical question.",
+   "src": "L21565"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A child asks whether a duty matters if the reef cannot thank anyone.",
+   "src": "L21566"
+  }
+ }
+}

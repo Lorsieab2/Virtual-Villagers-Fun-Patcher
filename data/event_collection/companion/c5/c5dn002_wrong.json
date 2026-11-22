@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Apprenticeship",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn002_wrong",
+  "source": "companion",
+  "lines": [
+   2674,
+   2680
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2674",
+  "ledger": [
+   {
+    "src": "L2676",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L2680",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "A teenager's family expects them to follow a respected trade.",
+  "cast_only": [
+   "teen",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A teenager's family expects them to follow a respected trade.",
+   "src": "L2675",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Try the family trade and unexpectedly enjoy the work.",
+   "src": "L2678",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "teen",
+     "list": "likes",
+     "preference": "work",
+     "src": "L2678"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Disappoint an elder, then begin an honest conversation.",
+   "src": "L2679"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Choose their own discipline; strengthen confidence.",
+   "src": "L2677",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L2677"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Choose their own discipline; strengthen confidence.",
+   "src": "L2677"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L2678",
+   "before": "enjoy it.",
+   "after": "enjoy the work."
+  }
+ ]
+}

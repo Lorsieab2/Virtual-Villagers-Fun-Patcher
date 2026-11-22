@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Promise to Return",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b091_promise_return",
+  "source": "companion",
+  "lines": [
+   1929,
+   1938
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1929",
+  "ledger": [
+   {
+    "src": "L1931",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1935",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1938",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "An explorer promises to tell the children what lies beyond the next ridge.",
+  "cast_only": [
+   "explorer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An explorer promises to tell the children what lies beyond the next ridge.",
+   "src": "L1930",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1932"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1933"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1934"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They admit they found only more questions.",
+   "src": "L1937"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They return with a delightful story.",
+   "src": "L1936",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "explorer",
+     "mood": "good",
+     "src": "L1936"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They return with a delightful story.",
+   "src": "L1936"
+  }
+ }
+}

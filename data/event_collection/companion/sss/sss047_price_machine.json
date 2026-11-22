@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Price of the New Machine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss047_price_machine",
+  "source": "companion",
+  "lines": [
+   6545,
+   6553
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6545",
+  "ledger": [
+   {
+    "src": "L6553",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A water-lifting device would save hours of labor but needs materials and frequent repair.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A water-lifting device saves hours of labor but needs wood, metal, and frequent repair.",
+   "src": "L6546",
+   "choices": [
+    {
+     "label": "Build a small prototype",
+     "next": "a",
+     "src": "L6547"
+    },
+    {
+     "label": "Improve existing irrigation",
+     "next": "b",
+     "src": "L6549"
+    },
+    {
+     "label": "Debate who benefits",
+     "next": "c",
+     "src": "L6551"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "It helps some farms and reveals maintenance costs.",
+   "src": "L6548",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6548"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The village advances more slowly with fewer new materials.",
+   "src": "L6550"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Workers and farmers redesign the plan so the savings are shared more fairly.",
+   "src": "L6552"
+  }
+ }
+}

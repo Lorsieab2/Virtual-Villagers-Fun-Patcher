@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Second Opinion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea05_second_opinion",
+  "source": "draft_hea",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and two healers or elders)"
+   },
+   {
+    "src": "L59",
+    "kind": "sensitivity",
+    "before": "The first healer says: rest",
+    "after": "(healer), the first healer, says: rest",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L62",
+    "kind": "sensitivity",
+    "before": "why the first healer said rest",
+    "after": "why (healer) said rest",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L64",
+    "kind": "sensitivity",
+    "before": "Do What the First Healer Said:",
+    "after": "Do What (healer) Said:",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two healers disagree about a villager's twisted ankle: ask the second healer as well, or do what the first one said.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) twisted (subject.his/her) ankle on the rocks. (healer), the first healer, says: rest it for seven days, no walking, keep it high. Seven days! (subject) has nets to mend and a roof to finish. (subject.He/she) has heard that (friend), the other healer, sometimes binds an ankle tight and lets people walk on it carefully.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Ask (friend) as Well",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Do What (healer) Said",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) limps over to (friend). (friend) looks at the ankle, presses it gently and makes a face. \"I'd bind it and let you walk a little. But I can see why (healer) said rest. It's a bad one.\" (subject) now has two opinions and still has to choose. (subject.He/she) chooses binding and short walks. The ankle heals in about the time both healers guessed. Neither of them says \"I told you so.\"",
+   "src": "L62"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) sighs and puts the ankle up. Seven days of lying in a hammock while other people mend the nets. On the fourth day (subject.he/she) is so bored (subject.he/she) teaches (subject.him/her)self to whittle. On the seventh day the ankle is much better, and (subject.he/she) has carved eleven small, lopsided fish. Nobody asked for them. Everyone gets one anyway.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) sighs and puts the ankle up. Seven days of lying in a hammock while other people mend the nets. On the fourth day (subject.he/she) is so bored (subject.he/she) teaches (subject.him/her)self to whittle. On the seventh day the ankle is much better, and (subject.he/she) has carved eleven small, lopsided fish. Nobody asked for them. Everyone gets one anyway.",
+   "src": "L65"
+  }
+ }
+}

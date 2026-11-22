@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Careful Measure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim024_careful_measure",
+  "source": "moments500",
+  "lines": [
+   397,
+   411
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L398",
+  "ledger": [
+   {
+    "src": "L397",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L401",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L402",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L405",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L406",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L409",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L410",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L399",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L403",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L407",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L411",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder demonstrates how to measure ingredients consistently.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. Nobody is sure what happened, so they agree to repeat the test.",
+   "src": "L403"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. The unexpected result raises more questions than it answers.",
+   "src": "L407"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. (Name1) feels impatient but waits for the experiment to finish.",
+   "src": "L411"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. The notes are messy, but the discovery feels exciting.",
+   "src": "L399",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L399"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), an elder, demonstrates how to measure ingredients consistently. The notes are messy, but the discovery feels exciting.",
+   "src": "L399"
+  }
+ }
+}

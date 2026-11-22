@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Offering and the Pig",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf05_offering_pig",
+  "source": "draft_blf",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The village pig eats a villager's new-moon offering of mangoes: laugh about it, or be upset.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) places a little offering of fruit by the old carved stone every new moon, a quiet thanks to whatever may be listening. This evening (subject.he/she) has just set out three ripe mangoes when the village pig trots up, eats all three in about four bites, and trots off again. (subject) stares at the empty leaf. (friend) has seen everything.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "(subject) Laughs",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "(subject) Is Upset",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) starts to laugh. \"Well,\" (subject.he/she) says, \"maybe the spirits were hungry. Or maybe the pig was.\" (friend) laughs too. \"Do you want to put out more?\" \"No,\" says (subject). \"I think that counts.\" (subject.He/she) walks home in a very good mood. Whether the offering reached anyone besides the pig, nobody can say.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) starts to laugh. \"Well,\" (subject.he/she) says, \"maybe the spirits were hungry. Or maybe the pig was.\" (friend) laughs too. \"Do you want to put out more?\" \"No,\" says (subject). \"I think that counts.\" (subject.He/she) walks home in a very good mood. Whether the offering reached anyone besides the pig, nobody can say.",
+   "src": "L62"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) isn't laughing. (subject.He/she) liked that little ritual, and it's been spoiled. (friend) sees (subject.his/her) face and doesn't make a joke. \"Would you like me to stand guard while you put out another?\" (friend.he/she) asks. (subject) nods. They find two more mangoes. (friend) keeps a firm eye on the pig. The offering stays put this time. (subject) feels a little better.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) isn't laughing. (subject.He/she) liked that little ritual, and it's been spoiled. (friend) sees (subject.his/her) face and doesn't make a joke. \"Would you like me to stand guard while you put out another?\" (friend.he/she) asks. (subject) nods. They find two more mangoes. (friend) keeps a firm eye on the pig. The offering stays put this time. (subject) feels a little better.",
+   "src": "L65"
+  }
+ }
+}

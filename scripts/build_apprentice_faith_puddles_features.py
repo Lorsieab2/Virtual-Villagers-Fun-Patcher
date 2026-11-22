@@ -57,22 +57,22 @@ STARVING AND SICK BELIEVERS MOSTLY DIE RATHER THAN LEAVE (part of the same row; 
 "villagers should preferentially die if their faith decrease-turn heathen is due to starvation or disease ... so
 most starving villagers die / most sick people die instead of them all turning heathen"; then: decided once per
 villager per crisis, 1 in 10).  A Heathen is skipped by the life tick (0x472CB7): it never eats, starves, falls
-ill or loses health, so a believer the drift turns Heathen is out of reach of hunger and sickness.  The rule, per
-villager: the first time a believer's Faith would reach 0 or less because of the food roll (under 10, or 10 to
-250) or the sickness roll -- the drift's other changes alone would leave Faith above 0 -- it is decided once:
-1 in 10 the believer becomes a Heathen as before; 9 in 10 the believer is marked to stay.  While marked, food and
-sickness losses never take that believer below Faith 1 (other changes, "too few believers" included, apply as
-stock); the mark clears at the first age unit with food above 250 and the believer not sick, so a later crisis
-is decided afresh.  The marks are kept by the row's companion, "VVFP Faith Loss.dll" (native/vvfp_faith_loss), in
-the save's own folder, by villager identity.
+ill or loses health, so a believer the drift turns Heathen is out of reach of hunger and sickness.  The owner
+(2026-11-20, after believers left a small village far more than they died): once per villager PER CAUSE per
+crisis, and "too few believers" is a crisis too.  The rule, per villager: four causes -- starvation (food under
+10), hunger (food 10 to 250), sickness, too few believers (fewer than 12, carried babies counted).  The first time
+one of them would take a believer's last Faith, it is decided once for that cause: 1 in 10 the believer becomes a
+Heathen as before; 9 in 10 the believer is marked for that cause, which then never takes them below Faith 1.  Each
+cause's crisis ends on its own (starvation and hunger: food above 250; sickness: cured; too few believers: 12 or
+more), so a later crisis of that kind is decided afresh.  The marks are kept by the row's companion, "VVFP Faith
+Loss.dll" (native/vvfp_faith_loss), in the save's own folder, by villager identity.
 
-How: the routine keeps a count of the food and sickness losses in ebp, which it does not otherwise use (saved
-and zeroed by an entry cave at 0x494F00; the three loss sites `or esi,-1` / `sub esi,1` become `dec esi; inc
-ebp` -- esi is 0 at both food sites; the epilogue pops it), and its final FAITH_ADD (0x4681DB) goes through a
-cave at 0x494F14 whose first instruction calls the rule (esi the sum, ebp the food and sickness losses, ebx the
-record; it returns the sum to apply in esi).  The companion redirects that call to its own rule (the marks); the
-call's own target, the cave's fallback at 0x494F28, is used only when the companion is not there: the same
-decision made each time instead of once per crisis (1 in 10 converts, else Faith 1).
+How: the routine says in ebp, which it does not otherwise use (saved and zeroed by an entry cave at 0x494F00; the
+epilogue pops it), which losses it made: FAITH_LOSS_MARKS.  Its final FAITH_ADD (0x4681DB) goes through a cave at
+0x494F14 whose first instruction calls the rule (esi the sum, ebp the losses, ebx the record; it returns the sum to
+apply in esi).  The companion redirects that call to its own rule (the marks); the call's own target, the cave's
+fallback at 0x494F28, is used only when the companion is not there: every fall to 0 or less decided each time
+(1 in 10 converts, else Faith 1).
 
 NEW HEATHENS GET A HEATHEN'S FAITH (the owner, 2026-11-08: "Once they turn heathen, have their faith randomly set
 to the typical blue heathen threshold" and "Blue heathen ranges only. NOT CHIEF/ORANGE/RED ETC (READ THE MASK
@@ -279,14 +279,21 @@ FAITH_ENTRY_CAVE, FAITH_TAIL_CAVE, FAITH_RULE_CAVE = 0x494F00, 0x494F14, 0x494F2
 FAITH_STAY_ROLL, FAITH_STAY_CONVERTS = 10, 1        # decided once a crisis: a Heathen on rand(10) < 1
 FAITH_COMPANION = "VVFP Faith Loss.dll"
 FAITH_COMPANION_SOURCE = "assets/faith_loss/VVFP Faith Loss.dll"
-# The three food and sickness loss sites: (va, stock, patched, purpose).  esi is 0 at both food sites (nothing has
-# been added yet), so `dec esi` is the stock `or esi,-1`.
+# The four loss sites: (va, stock, patched, purpose).  ebp says which losses the drift made, in the drift's own order:
+# bit 0 a food loss (at most one: both food sites jump past the other), bit 1 the sickness loss, and -- the last loss
+# -- too few believers turns ebp into its complement (`not ebp`, so ebp < 0, and ~ebp gives the two bits back).  esi
+# is 0 at both food sites (nothing has been added yet), so `dec esi` is the stock `or esi,-1`.  The believers' 9
+# bytes at 0x468179 (FAITH_EDITS) stay as VVFP Faith Notice.dll knows them.
 FAITH_LOSS_MARKS = (
     (0x46805E, "83CEFFEB40", "4E4590EB40",
-     "food under 10, the roll hit: or esi,-1 -> dec esi; inc ebp (one food loss counted); the jmp is kept"),
+     "food under 10, the roll hit: or esi,-1 -> dec esi; inc ebp (ebp bit 0: a food loss); the jmp is kept"),
     (0x46807E, "83CEFFEB20", "4E4590EB20",
      "food 10..250 (or under 10 when its first roll missed), the roll hit: or esi,-1 -> dec esi; inc ebp"),
-    (0x4680BB, "83EE01", "4E4590", "a sick believer, the roll hit: sub esi,1 -> dec esi; inc ebp"),
+    (0x4680BB, "83EE01", "4E4545", "a sick believer, the roll hit: sub esi,1 -> dec esi; inc ebp; inc ebp (ebp bit 1: "
+     "the sickness loss)"),
+    (0x468184, "83EE01EB19", "4EF7D5EB19",
+     "fewer than 12 believers, the roll hit: sub esi,1 -> dec esi; not ebp (ebp < 0: too few believers' loss, ~ebp "
+     "the food and sickness bits); the jmp is kept"),
 )
 
 
@@ -315,20 +322,15 @@ def faith_tail_cave() -> bytes:
 
 
 def faith_rule_cave() -> bytes:
-    """The rule without the companion: a fall to 0 or less that the food or sickness losses (ebp) cause -- the
-    other changes alone (esi + ebp) leave Faith above 0 -- is made on rand(10) < 1, else Faith is left at 1."""
+    """The rule without the companion: a fall that takes Faith to 0 or less (every fall is the drift's losses:
+    starvation, hunger, sickness or too few believers) is made on rand(10) < 1, else Faith is left at 1."""
     return asm(f"""
         test esi,esi
         jge done
-        test ebp,ebp
-        je done
         mov eax,dword ptr [ebx+0x1cf0]
         add eax,esi
         test eax,eax
         jg done
-        add eax,ebp
-        test eax,eax
-        jle done
         push {FAITH_STAY_ROLL}
         call 0x403660
         add esp,4
@@ -348,7 +350,7 @@ def faith_stay_patches() -> list[dict]:
     out = [
         patch(5, DRIFT_ENTRY, asm(f"jmp {FAITH_ENTRY_CAVE:#x}", DRIFT_ENTRY) + b"\x90" * 6,
               "the drift's entry (push ebx; push esi; xor esi,esi; cmp [food],10) -> jmp the entry cave 0x494F00, "
-              "which also saves and zeroes ebp, the count of food and sickness losses"),
+              "which also saves and zeroes ebp, which losses the drift made (FAITH_LOSS_MARKS)"),
     ]
     out += [patch(5, va, bytes.fromhex(after), purpose, bytes.fromhex(before))
             for va, before, after, purpose in FAITH_LOSS_MARKS]
@@ -365,9 +367,8 @@ def faith_stay_patches() -> list[dict]:
               "the tail cave: call the rule (0x494F28; VVFP Faith Loss.dll redirects this call to its per-villager "
               "rule), then FAITH_ADD(esi) and the epilogue", bytes(len(tail))),
         patch(5, FAITH_RULE_CAVE, rule,
-              "the rule without the companion: a fall (esi < 0) that the food or sickness losses (ebp) take to 0 or "
-              "less, the rest alone leaving Faith above 0, is made on rand(10) < 1; otherwise esi = 1 - Faith "
-              "(the believer stays at Faith 1)", bytes(len(rule))),
+              "the rule without the companion: a fall (esi < 0) that takes Faith to 0 or less is made on "
+              "rand(10) < 1; otherwise esi = 1 - Faith (the believer stays at Faith 1)", bytes(len(rule))),
     ]
     return out
 
@@ -383,14 +384,16 @@ def faith_feature() -> dict:
         "stages 5% and 10%, were 10% and 20%); Spirituality 1, 2 or 3 gains 5%, 10% or 15% (was 10%, 20% or 30%); "
         "12 or more believers gains 1 with a chance of believers / 10 in 100 (was believers / 5). A fall is no longer "
         "skipped half the time when Faith is below 5, so a believer can fall all the way to 0 and become a Heathen, "
-        "as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Starving and sick believers "
-        "mostly die rather than leave: a Heathen never eats, starves or falls ill, so the first time low food or "
-        "sickness would take a believer's Faith to 0, it is decided once for that believer: 1 in 10 becomes a "
-        "Heathen; the other 9 in 10 stay believers, never pushed below Faith 1 by low food or sickness, and go on "
-        "facing hunger and sickness as usual, so they can starve or die of illness. That lasts until the crisis is "
-        "over for them (food above 250 and not sick); a later crisis is decided afresh. It is remembered through "
-        "saving and loading, by the patch's own file in the save's folder. Too few believers takes Faith as before. "
-        "Preaching, Spreading the Word, "
+        "as in the stock game at 0; a rise above 75 is still skipped 70% of the time. Believers in a crisis mostly "
+        "stay and die rather than leave: a Heathen never eats, starves or falls ill. There are four crises, each "
+        "with its own roll: starvation (food under 10), hunger (food 10 to 250), sickness, and too few believers "
+        "(fewer than 12, the babies they carry counted). The first time one of them would take a believer's last "
+        "Faith, it is decided once for that believer and that crisis: 1 in 10 becomes a Heathen; the other 9 in 10 "
+        "stay believers, and that crisis never takes them below Faith 1 again, so they go on facing hunger and "
+        "sickness as usual and can starve or die of illness. Each crisis ends on its own: starvation and hunger when "
+        "food is above 250 again, sickness when the villager is cured, too few believers when there are 12 or more "
+        "believers again; a later crisis of that kind is decided afresh. It is remembered through saving and "
+        "loading, by the patch's own file in the save's folder. Preaching, Spreading the Word, "
         "island events and every other Faith change are unchanged. Adds a real chance of your "
         "villagers becoming heathens. Makes the game that much harder. Good Luck!")
     return {
@@ -408,22 +411,27 @@ def faith_feature() -> dict:
             "a fall below Faith 5 (0x4681A7) removed. The rise skip above 75 (70%) is unchanged.",
             "A believer whose Faith reaches 0 or less becomes a Heathen in the setter 0x467F90, exactly as in the stock "
             "game.",
-            "Starving and sick believers mostly die rather than leave, decided once per villager per crisis: the first "
-            "time the drift's food losses (0x46805E, 0x46807E) or sickness loss (0x4680BB) would take a believer to "
-            "Faith 0 or less -- its other changes alone leaving Faith above 0 -- VVFP Faith Loss.dll (at the tail "
-            "cave's call 0x494F14, before the FAITH_ADD 0x4681DB) makes the fall on rand(10) < 1, else marks the "
-            "villager; while marked, food and sickness losses never take them below Faith 1 (FAITH_ADD(1 - Faith) at "
-            "most), and the life tick goes on with its hunger and sickness (0x472D66 on) as for any believer. The "
-            "mark clears at the first age unit with food above 250 and the villager not sick.",
-            "The marks are kept by villager identity (name, likes and dislikes) in <save folder>\\Virtual Villagers "
-            "Fun Patcher\\Save <S>\\Data\\Faith Loss\\Believers Kept - Save <S>.dat, written when a mark is made "
-            "or cleared and read for the slot the game loads (before its catch-up); only living believers are kept. "
-            "Start Over deletes it with the save's folder.",
-            "Without the companion the cave's own rule (0x494F28) decides each such fall alone: 1 in 10 converts, "
-            "else Faith 1.",
+            "Believers in a crisis mostly stay rather than leave, decided once per villager per cause per crisis. The "
+            "four loss sites (food 0x46805E, 0x46807E; sickness 0x4680BB; too few believers 0x468184) say in ebp "
+            "which losses the drift made. VVFP Faith Loss.dll (at the tail cave's call 0x494F14, before the "
+            "FAITH_ADD 0x4681DB) takes the gains first and then the losses in the drift's order (food -- starvation "
+            "under 10, hunger 10 to 250 -- then sickness, then too few believers); the loss that would take the last "
+            "Faith is that cause's: decided once on rand(10) < 1 (the fall is made, a Heathen), else the villager is "
+            "marked for that cause; a cause the villager is marked for never takes them below Faith 1. The life tick "
+            "goes on with its hunger and sickness (0x472D66 on) as for any believer.",
+            "Each cause's mark clears on its own at the villager's next drift: starvation and hunger when food is "
+            "above 250, sickness when not sick (+0x1C48), too few believers when the game's own count (0x4713F0, the "
+            "manager the drift names at 0x46815F) is 12 or more.",
+            "The marks are kept by villager identity (name, likes and dislikes), with the causes, in <save "
+            "folder>\\Virtual Villagers Fun Patcher\\Save <S>\\Data\\Faith Loss\\Believers Kept - Save <S>.dat, "
+            "written when a mark is made or cleared and read for the slot the game loads (before its catch-up); only "
+            "living believers are kept. A version 1 file (one mark for food and sickness) is read as marked for "
+            "starvation, hunger and sickness. Start Over deletes it with the save's folder.",
+            "Without the companion the cave's own rule (0x494F28) decides each fall to 0 or less alone: 1 in 10 "
+            "converts, else Faith 1.",
         ],
         "explicit_non_changes": [
-            "Thirteen immediates and branches inside the routine, its entry, three loss sites, its last call and its "
+            "Thirteen immediates and branches inside the routine, its entry, four loss sites, its last call and its "
             "epilogue; three caves in the .text tail (0x494F00, 0x494F14, 0x494F28). The routine's rolls, their "
             "order and the Faith they move are the stock ones but for the 1-in-10 decision added after them. No "
             "save or villager-record byte is written.",
@@ -556,40 +564,47 @@ def new_heathen_feature() -> dict:
 CAVE = 0x494E00
 WALK_SITE = 0x46003B                     # 0x5E "Playing in puddles": call 0x4744C0 (area 0x6A)
 GATE = (0x46E527, "84C0751E")            # its chooser 0x46E4F7: test al,al / jne (the lake holds water)
-# The north-west sandy shore the owner marked: a random point on the line from world (1348, 2116) to (1599, 2050),
-# the feet's point -- x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252).  Every one of the 252 points is an
-# lcmap.dat cell that is walkable, not lake (areas 0x69 / 0x6A), with every neighbour walkable, connected to the
-# village (tests/test_apprentice_faith_puddles.py); the owner's screenshot matched the map art at 1.5x, top-left
-# world (1345, 1870).  Pure code, no data: the cave lies in the .text tail whose every byte must be reached
+# The grass above the lake's north-west edge and the sandy dirt strip below it (the owner, 2026-11-20: "i don't want
+# the children to go in the lake water"; the grass field between the river, the broken Hollow Totem (the log pile)
+# and the lake's sandy edge; "they can go in the dirt where the line is too"; "the playing in the dirt spot should
+# not overlap the Hollow Totem").  A slanted box whose bottom edge is the old shore line (below), never lower:
+# x = 1304 + rx, y = 2127 - (17rx >> 6) - ry, rx = rand(296), ry = rand(273) -- x 1304..1599, y 1781..2127, the
+# feet's point -- less the Hollow Totem's corner, x >= 1560 with y < 1995, drawn again: the totem's ground (area
+# 0x56, 1600..1679 by 1776..1903) and its entrance (area 0x43, 1624..1647 by 1912..1919) stay 41 pixels or more from
+# every point and from the spot 35 pixels above it where the villager stands.  Every point is an lcmap.dat cell that
+# is walkable, not lake (areas 0x69 / 0x6A) nor totem, with every neighbour the same, and connected to the village
+# (tests/test_apprentice_faith_puddles.py); matched to the owner's screenshot on the map tiles LargeMap*.jpg (1:1
+# with world pixels).  Until 2026-11-20 the points were the shore line alone, x = 1348 + r, y = 2116 - (17r >> 6),
+# r = rand(252).  Pure code, no data: the caves lie in the .text tail whose every byte must be reached
 # (tests/test_vv5_origins_dead_code_removed.py).
-SHORE_X, SHORE_Y, SHORE_SPAN, SHORE_SLOPE = 1348, 2116, 252, (17, 6)
+GRASS_X, GRASS_Y, GRASS_W, GRASS_H, GRASS_SLOPE = 1304, 2127, 296, 273, (17, 6)
+TOTEM_CUT = (1560, 1995)
+OLD_SHORE_X, OLD_SHORE_Y, OLD_SHORE_SPAN = 1348, 2116, 252
 
 
-def shore_point(r: int) -> tuple[int, int]:
-    return SHORE_X + r, SHORE_Y - ((r * SHORE_SLOPE[0]) >> SHORE_SLOPE[1])
+def in_totem_cut(x: int, y: int) -> bool:
+    return x >= TOTEM_CUT[0] and y < TOTEM_CUT[1]
 
 
-def puddle_cave() -> bytes:
+def grass_point(rx: int, ry: int) -> tuple[int, int]:
+    return GRASS_X + rx, GRASS_Y - ((rx * GRASS_SLOPE[0]) >> GRASS_SLOPE[1]) - ry
+
+
+def old_shore_point(r: int) -> tuple[int, int]:
+    return OLD_SHORE_X + r, OLD_SHORE_Y - ((r * 17) >> 6)
+
+
+def puddle_cave(point: int | None = None) -> bytes:
     return asm(f"""
         push ecx
         call 0x43c5d0
         pop ecx
         test al,al
         je stock
-        push ecx
-        push {SHORE_SPAN}
-        call 0x403660
-        pop edx
-        pop ecx
+        call {point or point_at():#x}
         push dword ptr [esp+0xc]
         push dword ptr [esp+0xc]
-        mov edx,eax
-        imul edx,edx,{SHORE_SLOPE[0]}
-        sar edx,{SHORE_SLOPE[1]}
-        neg edx
-        add edx,{SHORE_Y}
         push edx
-        add eax,{SHORE_X}
         push eax
         call 0x4745a0
         ret 0xc
@@ -598,30 +613,58 @@ def puddle_cave() -> bytes:
         """, CAVE)
 
 
+def point_at() -> int:
+    """The shared point routine: right after the dirt cave (the .text tail's every byte must be reached).  Every
+    call in the two caves is a rel32 one, so their lengths do not depend on where the routine lies."""
+    return dirt_cave_at() + len(dirt_cave(dirt_cave_at(), CAVE))
+
+
+def point_routine() -> bytes:
+    """A random point of the grass: eax = x, edx = y; ecx kept (the villager).  A point in the Hollow Totem's corner
+    is drawn again."""
+    return asm(f"""
+        push ecx
+    again:
+        push {GRASS_W}
+        call 0x403660
+        pop edx
+        push eax
+        push {GRASS_H}
+        call 0x403660
+        pop edx
+        pop edx
+        imul ecx,edx,{GRASS_SLOPE[0]}
+        sar ecx,{GRASS_SLOPE[1]}
+        add eax,ecx
+        neg eax
+        add eax,{GRASS_Y}
+        add edx,{GRASS_X}
+        xchg eax,edx
+        cmp eax,{TOTEM_CUT[0]}
+        jl done
+        cmp edx,{TOTEM_CUT[1]}
+        jl again
+    done:
+        pop ecx
+        ret
+        """, point_at())
+
+
 # "Playing in the dirt" (the routine 0x45ED40, say-event 504) moves to the same shore, always (the owner,
 # 2026-11-08: before and after The Lake has water; "Those specific actions only and NOT ANY OTHERS!!!").  The
 # routine queues six go-tos (0x4745A0 at 0x45ED99, ecx the villager, arguments x, y, speed 0x64, flag 0) to points
 # it picks in its own strip; the call is re-aimed at a cave that puts a random point of the puddles' shore line in
 # place of the x and y and jumps on to 0x4745A0, so the routine's steps, speed, gestures and say-event stay its own.
-# Move the "Playing in the dirt" Spot (vv5_playing_in_the_dirt_spot) moves the same walk to the flower patch: the
+# Move the "Playing in the dirt" Spot (vv5_playing_in_the_dirt_spot) moves the same walk to a box of the same grass
+# (1304..1559 by 1855..2059, recoded in the routine's own bytes; until 2026-11-20 the flower patch): the
 # two name each other in "conflicts", and ticking one unticks the other (UNTICKING_CONFLICT_IDS).
 DIRT_SITE = 0x45ED99                     # "Playing in the dirt": call 0x4745A0, six times in its loop
 DIRT_SPOT_ID = "vv5_playing_in_the_dirt_spot"
 
 
-def dirt_cave(at: int) -> bytes:
+def dirt_cave(at: int, point: int | None = None) -> bytes:
     return asm(f"""
-        push ecx
-        push {SHORE_SPAN}
-        call 0x403660
-        pop edx
-        pop ecx
-        mov edx,eax
-        imul edx,edx,{SHORE_SLOPE[0]}
-        sar edx,{SHORE_SLOPE[1]}
-        neg edx
-        add edx,{SHORE_Y}
-        add eax,{SHORE_X}
+        call {point or point_at():#x}
         mov dword ptr [esp+4],eax
         mov dword ptr [esp+8],edx
         jmp 0x4745a0
@@ -630,25 +673,28 @@ def dirt_cave(at: int) -> bytes:
 
 def dirt_cave_at() -> int:
     """Right after the puddles' cave (the .text tail's every byte must be reached)."""
-    return CAVE + len(puddle_cave())
+    return CAVE + len(puddle_cave(CAVE))
 
 
 def puddles_feature() -> dict:
     cave = puddle_cave()
     dirt_at = dirt_cave_at()
     dirt = dirt_cave(dirt_at)
-    assert dirt_at + len(dirt) <= 0x494E80, "the Fix Vanilla Bugs picker cave starts at 0x494E80"
+    point = point_routine()
+    assert point_at() + len(point) <= 0x494E80, "the Fix Vanilla Bugs picker cave starts at 0x494E80"
     description = (
         "When it rains, children in New Believers go \"Playing in puddles\" in the dry lake bed. Once The Lake holds "
         "water the game never starts that action again, because they cannot swim. With this patch, after The Lake "
-        "has water, children still go \"Playing in puddles\" when it rains, on the north-west sandy shore of the "
-        "lake (between the lake's west tip and the rocks with the red flower), never in the water: each of the "
-        "action's five walks goes to a random point along that shore. Before The Lake has water nothing changes. "
-        "Children \"Playing in the dirt\" play on that same sandy shore, always, before and after The Lake has "
-        "water: each of the action's six steps goes to a random point along it. The actions, their text and their "
-        "length are the game's own; \"Excited about the puddles\", \"Chasing fish\" and every other action are "
-        "not changed. **Cannot be used with Move the \"Playing in the dirt\" Spot, which moves \"Playing in the "
-        "dirt\" to the flower patch instead (ticking one unticks the other).**")
+        "has water, children still go \"Playing in puddles\" when it rains, on the big grass field above the "
+        "lake's north-west edge and the sandy strip along its shore (between the river, the Hollow Totem and the "
+        "lake), never in the water and never on the Hollow Totem: each of the action's five walks goes to a random "
+        "point of that ground. Before The Lake has water nothing changes: they play in the dry lake bed's puddles "
+        "as in the normal game. Children \"Playing in the dirt\" play on that same ground, always, before and "
+        "after The Lake has water: each of the action's six steps goes to a random point of it. The actions, "
+        "their text and their length "
+        "are the game's own; \"Excited about the puddles\", \"Chasing fish\" and every other action are not "
+        "changed. **Cannot be used with Move the \"Playing in the dirt\" Spot, which moves only \"Playing in the "
+        "dirt\" (ticking one unticks the other).**")
     return {
         "id": PUDDLES_ID,
         "enabled": True,
@@ -664,13 +710,17 @@ def puddles_feature() -> dict:
             "rain level [0x718EB8] is 50 or more, rand(100) < 75 and it is raining (0x477040), as stock; stock also "
             "needed the lake to hold no water (0x43C5D0).",
             "0x5E's walk (0x46003B, five times): with water in the lake (0x43C5D0), a walk (0x4745A0) to a random point "
-            "of the north-west sandy shore, x = 1348 + r, y = 2116 - (17r >> 6), r = rand(252) (world pixels, the "
-            "feet's point: 1348..1599 by 2116..2050); without, the stock walk to a random point of the lake bed "
-            "(area 0x6A, 0x4744C0).",
+            f"of the grass and sandy strip above the lake's north-west edge (the point routine 0x{point_at():X}): "
+            "x = 1304 + rx, y = 2127 - (17rx >> 6) - ry, rx = rand(296), ry = rand(273), drawn again when x >= 1560 "
+            "and y < 1995 (world pixels, the feet's point: a slanted box x 1304..1599 by y 1781..2127 whose bottom "
+            "edge is the old shore line, less the Hollow Totem's corner; the totem's areas 0x56 and 0x43 stay 41 "
+            "pixels or more away); without, the stock walk to a random point of the lake bed (area 0x6A, 0x4744C0).",
             "\"Playing in the dirt\" (routine 0x45ED40, say-event 504), with the lake dry or full: each of its six "
-            f"go-tos (0x4745A0 at 0x45ED99) goes to a random point of the same shore line, x = 1348 + r, y = 2116 - "
-            f"(17r >> 6), r = rand(252) (the cave 0x{dirt_at:X} replaces the routine's own x and y and jumps on to "
-            "0x4745A0); stock: 236..453 by 442..475, a strip from the rainbow totem's side across the river.",
+            f"go-tos (0x4745A0 at 0x45ED99) goes to a random point of the same grass (the cave 0x{dirt_at:X} calls "
+            f"0x{point_at():X}, replaces the routine's own x and y and jumps on to 0x4745A0); stock: 236..453 by "
+            "442..475, a strip from the rainbow totem's side across the river.",
+            "Until v1.35.97 both went to a line along the lake's sandy shore alone (1348..1599 by 2116..2050); that "
+            "line is now the area's lowest edge.",
         ],
         "explicit_non_changes": [
             "Before the lake holds water \"Playing in puddles\" is as stock. Its text (string 0x229), its gestures, "
@@ -688,14 +738,18 @@ def puddles_feature() -> dict:
             patch(5, WALK_SITE, asm(f"call {CAVE:#x}", WALK_SITE),
                   "0x5E's walk: call 0x4744C0 (area 0x6A) -> call the shore cave 0x494E00"),
             patch(5, CAVE, cave,
-                  "the shore cave: lake holds water (0x43C5D0)? r = rand(252); a walk 0x4745A0 to (1348 + r, 2116 - "
-                  "(17r >> 6)) with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)",
+                  f"the shore cave: lake holds water (0x43C5D0)? a grass point (call 0x{point_at():X}); a walk "
+                  "0x4745A0 to it with the caller's speed and flag, ret 0xC; else jmp 0x4744C0 (stock)",
                   bytes(len(cave))),
             patch(5, DIRT_SITE, asm(f"call {dirt_at:#x}", DIRT_SITE),
                   f"\"Playing in the dirt\" (0x45ED40)'s go-to: call 0x4745A0 -> call the dirt shore cave 0x{dirt_at:X}"),
             patch(5, dirt_at, dirt,
-                  "the dirt shore cave: r = rand(252); the go-to's x and y become (1348 + r, 2116 - (17r >> 6)); "
+                  f"the dirt shore cave: a grass point (call 0x{point_at():X}) becomes the go-to's x and y; "
                   "jmp 0x4745A0 with the routine's own speed and flag", bytes(len(dirt))),
+            patch(5, point_at(), point,
+                  "the grass point routine: rx = rand(296), ry = rand(273); eax = 1304 + rx, edx = 2127 - "
+                  "(17rx >> 6) - ry, drawn again when eax >= 1560 and edx < 1995 (the Hollow Totem's corner); "
+                  "ecx kept; ret", bytes(len(point))),
         ],
     }
 

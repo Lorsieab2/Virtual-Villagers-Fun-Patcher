@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Made a New Pot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus04_child_made_pot",
+  "source": "draft_jus",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-12 and an adult)"
+   }
+  ],
+  "description": "A child's ball smashed a potter's newly made pot: help make a new one, or talk it through first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was kicking a ball of rolled-up fiber near the potter's drying shelf, and the ball knocked a newly made pot off the shelf and smashed it. The potter, (friend), is upset; that pot took two days. (subject) is standing very still, red in the face, waiting to see what happens.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Help Make a New One",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Talk It Through First",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) sits down beside (subject). \"Were you being careful?\" \"...No.\" \"What would careful have looked like?\" (subject) thinks. \"Playing somewhere else.\" \"Then that's what we'll do.\" (subject) helps sweep up the pieces. The next day (friend) finds a ball-playing patch marked out with stones, well away from the shelf, made by (subject) and three friends.",
+   "src": "L53"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) takes a breath. \"You can help me make another.\" (subject) spends two afternoons at the clay, learning to roll and smooth and shape. The new pot is lopsided where (subject) worked on it. (friend) fires it anyway and uses it every day. (subject) never plays ball near the shelf again, and every so often asks whether (subject.he/she) can come and make another.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) takes a breath. \"You can help me make another.\" (subject) spends two afternoons at the clay, learning to roll and smooth and shape. The new pot is lopsided where (subject) worked on it. (friend) fires it anyway and uses it every day. (subject) never plays ball near the shelf again, and every so often asks whether (subject.he/she) can come and make another.",
+   "src": "L50"
+  }
+ }
+}

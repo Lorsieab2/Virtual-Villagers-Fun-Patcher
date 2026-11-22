@@ -391,6 +391,8 @@ def run_later(game, seed, built=(19,), open_=(), dislikes=False, work_first=Fals
         mu.mem_write(VILLAGE + 0x1B88, struct.pack("<I", STATE))
         mu.mem_write(STATE + 0x1C54, struct.pack("<i", 0))
         mu.mem_write(STATE + (0x1C70 if game == "vv4" else 0x1C74), struct.pack("<i", 4))
+        for job in range(5):           # every skill above 5 (Villagers Work Their Own Job First's rule)
+            mu.mem_write(STATE + 0x1C5C + 4 * job, struct.pack("<f", 30.0))
 
     leaves = {
         g["state"]: Leaf(1, state),
@@ -405,10 +407,11 @@ def run_later(game, seed, built=(19,), open_=(), dislikes=False, work_first=Fals
         # Option 7: 0x4396D0(0x4D8720) == 0 would offer it; 1 keeps it off.
         leaves[0x4396D0] = Leaf(0, lambda mu, a, c: 5 if c == 0x4D86A8 else 1)
     if work_first:
-        # Called from the adult scheduler's farming attempt (job 1) for a
-        # villager whose selected job is Building.
+        # Called from the adult scheduler's farming attempt (job 0, Farming) for a
+        # villager whose selected job is Building.  (Job 1 is Parenting, which is
+        # never displaced.)
         call_site_return = 0x4659D2
-        return Dispatcher(game, leaves, g["entry"], (call_site_return, 1), VILLAGE, setup, work_first=True,
+        return Dispatcher(game, leaves, g["entry"], (call_site_return, 0), VILLAGE, setup, work_first=True,
                           roll=roll)
     return Dispatcher(game, leaves, g["entry"], (RETURN, 4), VILLAGE, setup, roll=roll)
 
@@ -468,7 +471,7 @@ class TreeOfLifeNewBelieversTests(unittest.TestCase):
 
     @unittest.skipUnless(WORK_FIRST_TEST_DLL.is_file(), TEST_BUILD_ABSENT)
     def test_work_first_asks_for_building_and_gets_the_new_hut(self):
-        # Builders and Healers Work First: the scheduler's farming request
+        # Villagers Work Their Own Job First: the scheduler's farming request
         # for a builder first asks the dispatcher for Building.
         for seed in SWEEP[:12]:
             d = run_later("vv4", seed, built=(19,), open_=(20,), work_first=True)

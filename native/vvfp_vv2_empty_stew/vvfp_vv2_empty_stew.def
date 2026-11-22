@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV2 Empty Stew"
+EXPORTS
+    VvfpStartup
+    VvfpVv2EmptyStewInstalled

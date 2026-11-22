@@ -275,6 +275,7 @@ class Evidence:
     # (name, mask; None when the line names no mask this side knows).
     own_masks: list[tuple[str, int | None]] = field(default_factory=list)
     names: set[str] = field(default_factory=set)                   # every villager name the logs know
+    sex_changed: set[str] = field(default_factory=set)             # names whose sex changed (vv_sex_changes)
 
 
 def _mask(value: str | None) -> int | None:
@@ -322,6 +323,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
     villages = additions.current_villages(folder, game, slot)
     checker = rc._checker()
     out = Evidence()
+    import vv_sex_changes
+    out.sex_changed = vv_sex_changes.changed_names(folder, slot)
     files = checker.log_files(folder)
     births = _in_order([p for p in files if "Births and Conceptions" in p.name])
     events = _in_order([p for p in files if "Island Events" in p.name])
@@ -335,7 +338,13 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                 old = (_int(b.value("Old head")), _int(b.value("Old body")))
                 new = (_int(b.value("New head")), _int(b.value("New body")))
                 name = b.value("Name") or ""
-                if None not in old + new and name:
+                sexed = vv_sex_changes.history_names([b])
+                out.sex_changed |= sexed
+                if old == new and b.value("Old mask") == b.value("New mask"):
+                    # A change of sex, gender presentation or head look alone keeps the head/body rows and mask:
+                    # no change of look, so never evidence of an appearance change (Codex, #784).
+                    out.names.add(name)
+                elif None not in old + new and name:
                     masked = b.value("Old mask") is not None and b.value("New mask") is not None
                     out.changes.append(Change(name, old, new, _mask(b.value("Old mask")) if masked else None,
                                               _mask(b.value("New mask")) if masked else None))
@@ -343,6 +352,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
             elif head == "Name changed":
                 if b.value("Old name") and b.value("Name"):
                     out.renames.append((b.value("Old name"), b.value("Name")))
+            elif rc.BIRTH.match(head) and b.not_kept:
+                continue                  # never in the saved village (src/vv_not_kept.py): no villager's look
             elif rc.BIRTH.match(head):
                 child = _sub_lines(b.lines, "Child")
                 if child and child["Name"] and not child["Name"].startswith("("):
@@ -444,7 +455,8 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
         c.name == step[0] and (c.old[0], c.new[0]) == (step[2], step[3]) if step[1] == "Head"
         else c.name == step[0] and (c.old[1], c.new[1]) == (step[2], step[3]) for c in ev.changes)]
     own = [o for o in ev.own if o[0] in names
-           and (o[1] is None or s.sex is None or o[1].strip().lower() == str(s.sex).strip().lower())]
+           and (o[1] is None or s.sex is None or o[1].strip().lower() == str(s.sex).strip().lower()
+                or o[0] in ev.sex_changed)]
     record_looks = own[0][2] if len(own) == 1 and None not in own[0][2] else None
     if record_looks is not None and not same(record_looks, state):
         return Found(UNKNOWN, why="their own record's looks are not where their changes start: changed with no "

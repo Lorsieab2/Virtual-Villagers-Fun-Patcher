@@ -52,6 +52,8 @@
    Installed at run time by VvfpStoryInstall(game) from the Origins
    companion (once it runs in the game process, outside DllMain).  The stock
    or Origins bytes at every site are verified first. */
+/* The Golden Child may change sex: his draws stay a boy's (native/shared/sex_change.h, option 1). */
+#define VV_SEX_GC_OPTION1 1
 #include <windows.h>
 #include <string.h>
 #include <intrin.h>
@@ -70,6 +72,8 @@
 #include "../shared/patcher_files.h"
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
+#include "../shared/head_look.h"           /* the old head look effect (cie-v6-binary.md 27) */
+#include "../shared/gender_presentation.h" /* the presentation effect (cie-v6-binary.md 31) */
 
 /* Every box this companion shows may hold a translation (UTF-8 with a Unicode companion in): shown as
    UTF-16, never read in the ANSI code page (native/shared/vvfp_translate.h).  A test harness that stands its own
@@ -79,6 +83,9 @@
 #endif
 #include "story_targets.h"
 #include "story_custom.h"
+#include "story_label_widths.h"   /* each game's button-label widths (scripts/build_cie_label_widths.py) */
+#include "../shared/vvfp_multi_answer.h"   /* a question's third and fourth answers (The Secret City .. New Believers) */
+#include "../shared/vvfp_multi_answer_12.h"   /* ... and in A New Home and The Lost Children */
 
 enum {
     IDD_PICK = 301,
@@ -105,6 +112,7 @@ typedef struct {
 } story_village;
 static unsigned int story_village_generation;
 static int story_current_slot(int game);
+static void lv_village_reset(int game, int slot);   /* story_living.inc: Start Over deletes its history */
 
 static story_village story_village_now(int game) {
     story_village v;
@@ -124,6 +132,9 @@ static int pick_game;
 static DWORD pick_tick;
 static const story_event *pick_event;
 static story_village pick_village;
+/* 1 while the armed pick is the Isola Grand Event Collection's rare roll's (story_collection.inc): it was never the
+   player's, so its lapse or refusal is never told to the player. */
+static int pick_natural;
 /* The outcome of the last pick, shown the next time the chooser opens when
    the game could not run it. */
 static const story_event *last_failed_event;
@@ -173,14 +184,101 @@ static void *c5_choice_object(void);
 static void time_skip_tick(int game);
 static void faith_notice_tick(int game);
 static void faith_notice_village_reset(int game);
+static void fog_notice_tick(int game);
+static void fog_notice_village_reset(int game);
 static int time_skip_event_open(void);
 static unsigned int choice_resolve_target(int game, unsigned int va, unsigned int ecx);
 /* Defined with the host (story_common.inc), used by the arms below: the
    game's own next island event keeps its time (island_timer_keep.h). */
 static void story_island_arming(int game, void *field, unsigned int value);
+/* The big tables (the collection's entries, the Pick Island Event list, the library) are allocated to what they
+   hold, from the process heap, and never shrink (the owner, 2026-11-15: "it is 2026. 8 MB is nothing"); every one
+   has a sanity limit far above need (STORY_TABLE_LIMIT).  *p grows to hold `need` elements of `size` bytes (new
+   ones zeroed); 1 when it holds them, 0 when they could not be had (the table keeps what it had). */
+#define STORY_TABLE_LIMIT 65536
+static int story_grow(void **p, int *cap, int need, size_t size) {
+    void *grown;
+    int want;
+    if (need <= *cap) {
+        return 1;
+    }
+    if (need > STORY_TABLE_LIMIT) {
+        return 0;
+    }
+    want = *cap > 0 ? *cap : 256;
+    while (want < need) {
+        want *= 2;
+    }
+    if (want > STORY_TABLE_LIMIT) {
+        want = STORY_TABLE_LIMIT;
+    }
+    grown = *p == NULL ? HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, (SIZE_T)want * size)
+                       : HeapReAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, *p, (SIZE_T)want * size);
+    if (grown == NULL) {
+        return 0;
+    }
+    *p = grown;
+    *cap = want;
+    return 1;
+}
+
+/* story_collection.inc: the game whose armed new event is taking a natural one's place, until the island timer's
+   keeper has its arm (0 none). */
+static int sc_replace_pending;
 /* ... and by the locks below: a bought island event is on its way until the
    game's trigger delivers it (island_timer_keep.h itk_on_its_way). */
 static int story_bought_on_its_way(int game);
+/* Defined with the branching Custom Island Events (story_graph.inc), used earlier. */
+static int cg_holds(int game);
+static int cg_owns_armed(int game);
+static int cg_owns_asked(int game);
+static int cg_answering(int game);
+static int cg_prepare(int game);
+static int cg_counted_next(void);
+static int cg_deliver(int game, char *text, int size, int *counted);
+static void cg_begin_question(int game, char *text, int size);
+static int cg_resolve(int game, int button, char *text, int size);
+static int cg_tallest(int game, int button, char *out, int size);
+static int cg_asked_answers(void);
+static int cg_answer_closes(int game);   /* G1: the question popup closes at the click */
+/* One popup per island event (story_graph.inc; native/shared/one_popup.h). */
+static int cg_op_begun_take(int game);
+static int cg_op_rows(int game);
+static int cg_op_ok(int game, char *text, int size);
+static const char *cg_op_title(void);
+static int cg_scrolls(void);                /* "VVFP Scrolling Popups.dll" is installed */
+static void cg_op_begin_simple(int game);   /* ... and its host takes the popup (cg_op_begun_take) */
+/* The simple editor's own question run in ONE popup (story_custom.inc, with Scrolling Popups): the game it was asked
+   in, 0 none; its labels and title then come through cg_label / cg_op_title / cg_op_rows as a library event's do. */
+static int ce_op_simple;
+/* Defined with the question object (story_objects.inc), used by the presenter stubs below. */
+static int cs_multi;
+static void *cs_dialog;
+static void __cdecl cs_after_ctor(void *dialog);
+static const char *cg_label(int button);   /* the asked question's button labels (story_graph.inc; format 6: up to 7) */
+static int cg_featured(int game);
+static int cg_busy(int game);
+static void cg_tick(int game);
+/* Defined with the Isola Grand Event Collection's rare roll (story_collection.inc), used earlier. */
+static void sc_tick(int game);
+static void st_tick(int game);   /* story_structures.inc: the structures a village has finished (the repair effect) */
+static int sc_pick_fill(int game);
+static int sc_pick_buy(int game, HWND owner, int i);
+static void sc_library_add(int game);
+/* The procedural events (story_procedural.inc), called by the collection's draw, Pick Island Event and the library. */
+static int pc_index(int game);
+static int pc_weight(int g);
+static int pc_draw_group(int game, int g);
+static int pc_pick_fill(int game);
+static int pc_pick_buy(int game, HWND owner, int ref);
+static void pc_library_add(int game);
+static int pc_library_path(const char *path);
+static int pc_library_load(int game, const char *path);
+static void cg_village_seen(int game, int slot, const unsigned int *roster);
+static void cg_flush_file(int game, int slot, const unsigned int *roster);
+static void cg_village_reset(int game, int slot);
+static INT_PTR CALLBACK cg_library_dialog(HWND window, UINT message, WPARAM wparam, LPARAM lparam);
+static int cg_library_purchase(int game, HWND owner);
 /* ---- Memory ---------------------------------------------------------------- */
 
 static int mem_readable(unsigned int va, int length) {
@@ -280,7 +378,7 @@ static int drop_lapsed_pick(void) {
     if (pick_slot >= 0 && STORY_TICK() - pick_tick > PICK_TIMEOUT_MS) {
         pick_slot = -1;
         oc_lapsed();
-        last_failed_event = pick_event;
+        last_failed_event = pick_natural ? NULL : pick_event;
         last_failed_lapsed = 1;
         STORY_COUNT(lapsed);
         return 1;
@@ -325,7 +423,7 @@ static int choose_from_table(int game, unsigned int table, int current) {
     }
     STORY_COUNT(refused);
     oc_refused(game);
-    last_failed_event = event;
+    last_failed_event = pick_natural ? NULL : event;
     last_failed_lapsed = 0;
     return current;
 }
@@ -378,7 +476,27 @@ __declspec(naked) static void vv3_stub(void) {
         ret
     custom:
         mov edx, eax
+        cmp dword ptr [cs_multi], 0
+        jne multi
         push 0x419BE2
+        ret
+    multi:
+        /* A question of 3 or 4 answers (story_objects.inc): 0x419BE2..0x419BEA as the presenter runs them -- push
+           the object, the dialog at [esp + 0xF4], the call 0x419BEA makes (whatever it calls now) -- then the extra
+           answers, and on at 0x419BEF. */
+        push edx
+        lea ecx, [esp + 0xF4]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x419BEB
+        mov eax, dword ptr [eax]
+        add eax, 0x419BEF
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x419BEF
         ret
     }
 }
@@ -413,8 +531,28 @@ __declspec(naked) static void vv4_stub(void) {
         test eax, eax
         jnz custom
         mov eax, dword ptr [esi * 4 + 0x4CCA28]
-    custom:
         push 0x4180FE
+        ret
+    custom:
+        cmp dword ptr [cs_multi], 0
+        jne multi
+        push 0x4180FE
+        ret
+    multi:
+        /* A question of 3 or 4 answers: 0x4180FE..0x418106 as the presenter runs them, then the extra answers. */
+        push eax
+        lea ecx, [esp + 0xDC]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x418107
+        mov eax, dword ptr [eax]
+        add eax, 0x41810B
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x41810B
         ret
     }
 }
@@ -450,8 +588,28 @@ __declspec(naked) static void vv5_stub(void) {
         test eax, eax
         jnz custom
         mov eax, dword ptr [esi * 4 + 0x4DC850]
-    custom:
         push 0x418962
+        ret
+    custom:
+        cmp dword ptr [cs_multi], 0
+        jne multi
+        push 0x418962
+        ret
+    multi:
+        /* A question of 3 or 4 answers: 0x418962..0x41896A as the presenter runs them, then the extra answers. */
+        push eax
+        lea ecx, [esp + 0xF4]
+        mov dword ptr [cs_dialog], ecx
+        mov eax, 0x41896B
+        mov eax, dword ptr [eax]
+        add eax, 0x41896F
+        call eax
+        pushad
+        push dword ptr [cs_dialog]
+        call cs_after_ctor
+        add esp, 4
+        popad
+        push 0x41896F
         ret
     }
 }
@@ -566,22 +724,31 @@ static int vv5_arm(void) {
 
 /* Whether the game's own condition for an event holds right now.  VV3-VV5:
    the event object's own condition, through the game's own event table
-   (built by the game's own getter if no event has run yet this session). */
-static int table_event_possible(unsigned int table, getter_fn getter, int slot) {
+   (built by the game's own getter if no event has run yet this session).
+
+   The event manager's getter builds it when it is missing, so it is called only once the game object exists
+   (`world`, the word its getter keeps): never during start-up, where a getter called from a hook can run inside
+   the game object's own constructor (the New Believers start-up crash, 2026-11-18).  No game object: no event. */
+static void *table_event_object(unsigned int table, getter_fn getter, unsigned int world, int slot) {
     void *object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
-    if (object == NULL) {
+    if (object == NULL && *(void *volatile *)(uintptr_t)world != NULL) {
         getter();
         object = *(void **)(uintptr_t)(table + 4u * (unsigned int)slot);
     }
+    return object;
+}
+
+static int table_event_possible(unsigned int table, getter_fn getter, unsigned int world, int slot) {
+    void *object = table_event_object(table, getter, world, slot);
     return object != NULL && can_fire_with_retries(object);
 }
 
 static int vv3_possible(const story_event *e) {
-    return table_event_possible(VV3_EVENT_TABLE, (getter_fn)(uintptr_t)VV3_EVENT_GETTER, e->slot);
+    return table_event_possible(VV3_EVENT_TABLE, (getter_fn)(uintptr_t)VV3_EVENT_GETTER, VV3_MANAGER_GLOBAL, e->slot);
 }
 
 static int vv4_possible(const story_event *e) {
-    return table_event_possible(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, e->slot);
+    return table_event_possible(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, VV4_WORLD_GLOBAL, e->slot);
 }
 
 /* Whether the chooser lists `e`: an event whose slot of The Tree of Life's
@@ -594,16 +761,12 @@ static int event_listed(int game, const story_event *e) {
     if (game != 4 || e->slot < 1 || e->slot > 49) {
         return 1;
     }
-    object = *(void **)(uintptr_t)(VV4_EVENT_TABLE + 4u * (unsigned int)e->slot);
-    if (object == NULL) {
-        ((getter_fn)(uintptr_t)VV4_EVENT_GETTER)();
-        object = *(void **)(uintptr_t)(VV4_EVENT_TABLE + 4u * (unsigned int)e->slot);
-    }
+    object = table_event_object(VV4_EVENT_TABLE, (getter_fn)(uintptr_t)VV4_EVENT_GETTER, VV4_WORLD_GLOBAL, e->slot);
     return object != NULL;
 }
 
 static int vv5_possible(const story_event *e) {
-    return table_event_possible(VV5_EVENT_TABLE, (getter_fn)(uintptr_t)VV5_EVENT_GETTER, e->slot);
+    return table_event_possible(VV5_EVENT_TABLE, (getter_fn)(uintptr_t)VV5_EVENT_GETTER, VV5_WORLD_GLOBAL, e->slot);
 }
 
 /* ---- Custom Island Event -------------------------------------------------- */
@@ -749,6 +912,23 @@ static int story_title_skills_float(int game) {
     return a != NULL && a->skills_float;
 }
 
+#ifdef VVFP_TEST
+/* The test build: the companions told and the history record counted, never looked for (cie-v6-binary.md 29). */
+static int test_graph_sex_told, test_graph_sex_history;
+static int test_sex_tell(int game, int slot, const unsigned char *record, const unsigned char *before) {
+    (void)game; (void)slot; (void)record; (void)before;
+    ++test_graph_sex_told;
+    return 0;
+}
+static void test_sex_history(int game, const unsigned char *record) {
+    (void)game; (void)record;
+    ++test_graph_sex_history;
+}
+#define VV_SEX_TELL_OWNERS test_sex_tell
+#define VV_SEX_HISTORY test_sex_history
+#endif
+#include "../shared/villager_rekey.h"
+#include "../shared/sex_change.h"         /* a villager's sex changed (cie-v6-binary.md 29) */
 #include "story_titles.inc"
 
 /* Villagers renamed as the village loaded (story_titles.inc titles_renamed): the game's name field. */
@@ -760,6 +940,21 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     }
     return titles_renamed(game, slot, count, records, old_names, (unsigned int)a->off_name,
                           (unsigned int)a->name_bytes);
+}
+
+/* A villager's sex changed (native/shared/sex_change.h): the custom title's fingerprint holds no sex, so it stays
+   theirs; the looks kept with it take the new sex now (titles_sex_changed). */
+static int rs_sex_changed(int game, const unsigned char *record, const unsigned char *before);  /* story_traits.inc */
+
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    int carried;
+    if (ce_adapter_for(game) == NULL || record == NULL) {
+        return 0;
+    }
+    carried = titles_sex_changed(game, slot, (const unsigned char *)record);
+    /* ...and the story traits (story_traits.inc), kept by an identity that holds the sex */
+    carried |= rs_sex_changed(game, (const unsigned char *)record, (const unsigned char *)before);
+    return carried;
 }
 
 #include "story_outcomes.inc"
@@ -951,12 +1146,20 @@ __declspec(dllexport) int __stdcall VvfpStoryInstall(int game) {
     time_skip_tick(game);
     /* Popup When Believers Become Heathens (New Believers): the believers the Faith drift turned Heathen. */
     faith_notice_tick(game);
+    /* Fog of Doom Lets Red and Orange Heathens Listen (New Believers): its once-per-village notice. */
+    fog_notice_tick(game);
     /* A Custom Island Event held by a new village's two opening island
        events: made due once they are over (story_custom_ui.inc). */
     ce_opening_tick(game);
     /* A Custom Island Event goes first: the event it went ahead of comes next,
        and one a barrel went ahead of is made due again (story_custom_ui.inc). */
     ce_requeue_tick(game);
+    /* A branching Custom Island Event: its next popup, once the slot is free (story_graph.inc). */
+    cg_tick(game);
+    /* The new island events in a natural one's place (story_collection.inc): half of them, from 61 villagers. */
+    sc_tick(game);
+    /* The structures this village has finished, for the "repair" effect (story_structures.inc). */
+    st_tick(game);
     /* The custom titles' tick: bind to the save slot, notice a Start Over,
        forget the titles of villagers who are gone. */
     now = GetTickCount();
@@ -1055,6 +1258,67 @@ static const char *event_text(const story_event *e, int field, const char *engli
     return english;
 }
 
+/* What `e` needs, as the picker says it ("Not possible right now: ...", and
+   the message after a pick that could not happen): its own row, except where
+   Every Island Event Can Happen (vv<N>_every_island_event_can_happen) decides
+   whether a technology level is asked.  The row's bytes decide, as they do for
+   the pick itself (vv1_possible, vv2_possible; VV3 calls the game's own
+   conditions):
+   - VV1 The Trapped Whale / The Visitor, VV2 The Ancient Gold Coin / The
+     Spyglass: with the row the level is not asked, and nothing else is.
+   - VV3 The Bitter Brown Beans, The Ancient Tablet, The Medical Emergency:
+     the level is named only while the game's own level test is there (its
+     stock bytes); with the row only the villager is asked. */
+static const unsigned char VV3_LEVEL_LOW_STOCK[5] = { 0x75, 0x03, 0x32, 0xC0, 0xC3 };  /* 0x4157FB, Science < 2 */
+static const unsigned char VV3_LEVEL_GT1_STOCK[3] = { 0x83, 0xF8, 0x01 };              /* 0x4159DC, Science > 1 */
+static const unsigned char VV3_LEVEL_LT3_STOCK[3] = { 0x83, 0xF8, 0x03 };              /* 0x415C69, Alchemy < 3 */
+static const unsigned char VV3_LEVEL_GE2_STOCK[3] = { 0x83, 0xF8, 0x02 };              /* 0x415C7F, 0x417215: >= 2 */
+
+static const char *event_requires(const story_event *e) {
+    if (e >= GAMES[1].events && e < GAMES[1].events + GAMES[1].event_count) {
+        if ((e->slot == 64 && vv1_every_event(0x41895Bu)) || (e->slot == 68 && vv1_every_event(0x41896Fu))) {
+            return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.every_event",
+                           "nothing beyond an island event being possible", 300);
+        }
+    } else if (e >= GAMES[2].events && e < GAMES[2].events + GAMES[2].event_count) {
+        if ((e->slot == 64 && vv2_every_event(0x41F5C5u)) || (e->slot == 82 && vv2_every_event(0x41F659u))) {
+            return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.every_event",
+                           "nothing beyond an island event being possible", 300);
+        }
+    } else if (e >= GAMES[3].events && e < GAMES[3].events + GAMES[3].event_count) {
+        switch (e->slot) {
+        case 19: case 21:
+            if (mem_matches(0x4157FBu, VV3_LEVEL_LOW_STOCK, 5)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_low",
+                               "a villager the event can be about, and Science technology below level 2", 300);
+            }
+            break;
+        case 20:
+            if (mem_matches(0x4159DCu, VV3_LEVEL_GT1_STOCK, 3)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_science_high",
+                               "a villager the event can be about, and Science technology level 2 or more", 300);
+            }
+            break;
+        case 22:
+            if (mem_matches(0x415C69u, VV3_LEVEL_LT3_STOCK, 3) && mem_matches(0x415C7Fu, VV3_LEVEL_GE2_STOCK, 3)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_tablet_research",
+                    "a villager the event can be about, Science technology level 2 or more, and Alchemy technology below level 3",
+                    300);
+            }
+            break;
+        case 36:
+            if (mem_matches(0x417215u, VV3_LEVEL_GE2_STOCK, 3)) {
+                return vvfp_tr("vvfp.story/vvfp_story_upgrades.event_requires.vv3_medicine",
+                               "a villager the event can be about, and Medicine technology level 2 or more", 300);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+    return event_text(e, EVENT_REQUIRES, e->requires, 300);
+}
+
 /* "Title (variant)"; a title the game itself ends with a space (The Tree
    of Life's "The Abandoned Infants ") keeps one space before the bracket.
    Each part is its own row's translation. */
@@ -1073,6 +1337,7 @@ static void label_of(const story_event *e, char *out, size_t size) {
     }
 }
 
+#include "story_more_events.inc"   /* Pick Island Event: More Island Events' events (v1.35.97) */
 #include "story_outcomes_ui.inc"
 
 /* Arms `event` for `game`: makes the island event due and remembers the
@@ -1086,6 +1351,7 @@ static int arm_pick(int game, const story_event *event) {
     pick_tick = STORY_TICK();
     pick_event = event;
     pick_village = story_village_now(game);
+    pick_natural = 0;
     return 1;
 }
 
@@ -1097,6 +1363,8 @@ __declspec(dllexport) void __stdcall VvfpStoryVillageReset(int game, int slot) {
     sq_village_reset(game, slot);   /* its queue's file goes with it */
     titles_village_reset(game, slot);   /* and its custom titles (story_titles.inc) */
     faith_notice_village_reset(game);   /* and the believers waiting for their popup (story_faith_notice.inc) */
+    fog_notice_village_reset(game);     /* and a Fog of Doom notice still waiting (story_fog_notice.inc) */
+    lv_village_reset(game, slot);       /* and its Living Events history (story_living.inc) */
 }
 
 /* The Pick Island Event upgrade, called by the Origins companion when its
@@ -1151,7 +1419,7 @@ static int story_pick_island_event(int game, HWND owner) {
                       vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s4",
                               "The last island event you picked, %s, could not happen when it was due (it needs %s), so the island event the game chose happened instead.",
                               600),
-                      label, event_text(last_failed_event, EVENT_REQUIRES, last_failed_event->requires, 300));
+                      label, event_requires(last_failed_event));
         }
         vvfp_message_box(owner, message, "Pick Island Event",
                          MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -1160,6 +1428,9 @@ static int story_pick_island_event(int game, HWND owner) {
     chosen = chooser_run(game, g, owner);
     if (chosen < 0) {
         return 0;
+    }
+    if (chosen >= SM_ROW) {
+        return sm_buy(game, owner, sm_list.k[chosen - SM_ROW]);   /* a More Island Events event */
     }
     event = &g->events[chosen];
     settings = &chooser.settings[chosen];
@@ -1212,7 +1483,31 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
+#include "story_fog_notice.inc"     /* Fog of Doom Lets Red and Orange Heathens Listen's notice (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */
+/* The Living Event Engine (story_living.inc), called by the branching engine and the collection's roll. */
+static int lv_is_living(const char *id);
+static int lv_entry_living(int i);
+static int lv_arm_entry(int game, int i, int origin, int cast);
+static const char *lv_check_entry(int game, int i);
+static int lv_map_entries(int game);
+static int lv_draw_prepare(int game, unsigned char *left);
+static int lv_series_weight(int i);
+static int lv_library_path(const char *path);
+static int lv_library_load(int game, const char *path);
+static void lv_library_armed(int game);
+static int lv_library_entry(int game, int i, char *path);
+static void lv_on_finish(int game);
+#ifdef VVFP_TEST
+static int lv_test_has_pack(void);
+#endif
+
+#include "story_graph.inc"      /* branching Custom Island Events from the library (v1.35.97) */
+#include "story_collection.inc" /* when the new island events come: in a natural one's place (v1.35.97) */
+#include "story_living.inc"     /* the Living Event Engine: living.pak, its history (v1.35.97) */
+#include "story_traits.inc"     /* the new island events' story traits (v1.35.97) */
+#include "story_procedural.inc" /* procedural island events composed from pieces-<group>.pcb (v1.35.97) */
+#include "story_structures.inc" /* the structures a village has finished, for the repair effect (v1.35.97) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -1354,6 +1649,35 @@ __declspec(dllexport) int __stdcall VvfpStoryProbePossible(int game, int positio
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeArmedSlot(void) {
     return pick_slot;
+}
+
+/* Arms More Island Events' registry entry `k` WITHOUT any dialog or making the island event due (the tests drive the
+   draw), at test tick `tick`: the slot armed, or -1 when the entry is not in this game. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreArm(int game, int k, DWORD tick) {
+    if (game < 1 || game > 5 || sm_describe(game, k) < 0) {
+        return -1;
+    }
+    test_tick = tick;
+    install_state[game] = 1;
+    pick_slot = sm_slot_of(game, k);
+    pick_game = game;
+    pick_tick = tick;
+    pick_event = &sm_event;
+    pick_village = story_village_now(game);
+    pick_more = k;
+    return pick_slot;
+}
+
+/* The Pick Island Event list's More Island Events entries for `game` as the chooser fills them: their registry
+   indices in k[], 1 / 0 possible now in possible[] (at most `cap`); the count. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeMoreList(int game, int *k, int *possible, int cap) {
+    int i;
+    sm_fill(game);
+    for (i = 0; i < sm_list.count && i < cap; ++i) {
+        k[i] = sm_list.k[i];
+        possible[i] = sm_list.possible[i];
+    }
+    return sm_list.count;
 }
 
 /* Arms `event` for `game` exactly as the dialog's purchase does, without
@@ -1516,6 +1840,20 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeTitleOf(int game, cons
     return titles_lookup(game, record);
 }
 
+/* What Pick Island Event says event `slot` of `game` needs (event_requires). */
+__declspec(dllexport) const char *__stdcall VvfpStoryProbeRequires(int game, int slot) {
+    int i;
+    if (game < 1 || game > 5) {
+        return NULL;
+    }
+    for (i = 0; i < GAMES[game].event_count; ++i) {
+        if (GAMES[game].events[i].slot == slot) {
+            return event_requires(&GAMES[game].events[i]);
+        }
+    }
+    return NULL;
+}
+
 __declspec(dllexport) int __stdcall VvfpStoryProbeTitleCount(void) {
     return titles.count;
 }
@@ -1541,7 +1879,7 @@ __declspec(dllexport) const void *__stdcall VvfpStoryProbeObject(void) {
 
 /* The layout the tests pack choices in: sizeof ce_choice, sizeof
    ce_outcome, the offsets of .labels, .outcome_count and .outcomes,
-   CE_BUTTON_BYTES, CE_MAX_OUTCOMES, CE_MAX_CHANCE, CE_LABEL_DEFAULT_WIDTH,
+   a label field's bytes (CE_LABEL_STORE), CE_MAX_OUTCOMES, CE_MAX_CHANCE, CE_LABEL_DEFAULT_WIDTH,
    offsetof(ce_outcome, effects). */
 __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[0] = (int)sizeof(ce_choice);
@@ -1549,7 +1887,7 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[2] = (int)offsetof(ce_choice, labels);
     out[3] = (int)offsetof(ce_choice, outcome_count);
     out[4] = (int)offsetof(ce_choice, outcomes);
-    out[5] = CE_BUTTON_BYTES;
+    out[5] = CE_LABEL_STORE;
     out[6] = CE_MAX_OUTCOMES;
     out[7] = CE_MAX_CHANCE;
     out[8] = CE_LABEL_DEFAULT_WIDTH;
@@ -1582,6 +1920,16 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceCap(int on) {
 /* The next roll is `roll` (modulo the chances' total), -1 = the real source. */
 __declspec(dllexport) void __stdcall VvfpStoryProbeSetRoll(int roll) {
     test_roll = roll;
+}
+
+/* The next `count` rolls are `rolls`, in order (each modulo its draw's range), before the one above. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeSetRolls(const int *rolls, int count) {
+    int i;
+    test_roll_count = count < 0 ? 0 : (count > 64 ? 64 : count);
+    test_roll_next = 0;
+    for (i = 0; i < test_roll_count; ++i) {
+        test_rolls[i] = rolls[i];
+    }
 }
 
 /* The pure weighted pick: which of `count` outcomes with `chances` the
@@ -1654,6 +2002,14 @@ __declspec(dllexport) const char *__stdcall VvfpStoryProbeChoiceTitle(int game) 
 
 __declspec(dllexport) int __stdcall VvfpStoryProbeChoiceResolve(int game, int button, char *text, int size) {
     return ce_choice_resolve(game, button, text, size);
+}
+
+/* One popup (native/shared/one_popup.h): text as the whole text shown, put into field (bytes, NUL included) as
+   su_put_long puts it; returns the bytes the field holds (VvfpPopupWholeText then answers for them). */
+__declspec(dllexport) int __stdcall VvfpStoryProbeLongPut(const char *text, char *field, int bytes) {
+    lstrcpynA(su_long_text, text, (int)sizeof su_long_text);
+    su_put_long(field, bytes);
+    return lstrlenA(field);
 }
 
 /* ce_choice_pending, ce_choice_asked, and the last resolved button and

@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b049_long_walk",
+  "source": "companion",
+  "lines": [
+   1562,
+   1570
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1562",
+  "ledger": [
+   {
+    "src": "L1564",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1567",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1570",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Two villagers take the winding path along the shore for no particular reason.",
+  "cast_only": [
+   "villager1",
+   "villager2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two villagers take the winding path along the shore for no particular reason.",
+   "src": "L1563",
+   "choices": [
+    {
+     "label": "Let the moment unfold naturally.",
+     "next": "ending",
+     "src": "L1565"
+    },
+    {
+     "label": "Invite someone else into the moment.",
+     "next": "ending",
+     "src": "L1566"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "They return feeling closer.",
+   "src": "L1568",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L1568"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L1568"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "They return feeling closer.",
+   "src": "L1568"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "They discover a peaceful place to sit.",
+   "src": "L1569",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L1569"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L1569"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "They discover a peaceful place to sit.",
+   "src": "L1569"
+  }
+ }
+}

@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Very Serious Play",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new129_serious_play",
+  "source": "rewrites",
+  "lines": [
+   6049,
+   6095
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6049",
+  "ledger": [
+   {
+    "src": "L6050",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6051",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6060",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6067",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6074",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6056",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6057",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6058",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6061",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6068",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6075",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6062",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6064",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6069",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6071",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6076",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6078",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6081-6095",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children have invented a game.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 13
+  },
+  "referee": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 7
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The children have invented a game. It involves sticks, a coconut, three circles drawn in the sand, a lot of running, a lot of shouting, and rules so complicated that two adults tried to learn it this morning and gave up.\nThere is a referee. The referee is (referee). The referee is very small.\n(subject), who invented the game, is currently arguing with the referee about whether the coconut was \"in the moon circle\" or \"in the sun circle\", and the whole game has come to a halt while the players wait for a ruling. (adult) wanders past, curious, and makes the mistake of asking, \"So how does this work?\"\nEvery child turns to look at (adult). How should (adult) help?",
+   "choices": [
+    {
+     "label": "Ask for the Rules",
+     "next": "c1",
+     "src": "L6056"
+    },
+    {
+     "label": "Keep Score for Them",
+     "next": "c2",
+     "src": "L6057"
+    },
+    {
+     "label": "Let Them Fix Their Own Rules",
+     "next": "c3",
+     "src": "L6058"
+    }
+   ],
+   "src": "L6052-6055"
+  },
+  "c1o1": {
+   "text": "(subject) explains the rules with enormous dignity and at great length. There are seventeen of them. Rule nine is \"no biting.\" Rule fourteen is \"the coconut is always right.\" (adult) understands almost none of it, but listens carefully all the way through, and (subject) is thrilled to be taken seriously. (adult) is then forced to play. (subject.He/She) loses, badly.",
+   "src": "L6063"
+  },
+  "c1o2": {
+   "text": "Halfway through explaining, (subject) realizes that the rules (subject.he/she) just described would mean (subject.he/she) loses, so (subject.he/she) changes them. Then changes them again. Nobody minds, least of all the players, who are already running around again. (referee) blows a whistle made of a leaf, for no clear reason.",
+   "src": "L6065"
+  },
+  "c1": {
+   "text": "(subject) draws (subject.himself/herself) up to (subject.his/her) full height and begins to explain the rules...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6061"
+  },
+  "c2o1": {
+   "text": "(adult) shows (subject) how to keep score with knots tied on a cord: one knot for a point, a big knot for every five. (subject) takes over the cord almost at once and keeps score for the rest of the afternoon, learning a little about tallying and becoming very bossy about it. There are no more arguments about the score. There are a lot of arguments about everything else.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Research"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L6070",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) decides that (subject.he/she) will keep score alone, thank you, since it's (subject.his/her) game. So (adult) just watches from the sidelines, cheering for whichever side seems to be losing. At the end, (subject) declares that both teams won, which everyone agrees is fair.",
+   "src": "L6072"
+  },
+  "c2": {
+   "text": "(adult) offers to keep score, since there seems to be a lot of arguing about it. (subject) considers this offer very seriously...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6068"
+  },
+  "c3o1": {
+   "text": "The children sit in a circle and argue for a long time, and eventually work out that the game only feels fair when the teams are even and everyone gets the same number of turns. They proudly explain this to the adults, who are a little sheepish to realize the same idea would settle some of their own arguments about sharing work. Soon the adults are using \"even teams, same turns\" for the fishing rota.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6077",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The rules meeting collapses into happy chaos within a minute. Someone starts chasing someone else, the coconut rolls into the sea, and the referee falls asleep. The children all vow to fix the rules properly tomorrow. They will not.",
+   "src": "L6079",
+   "text_only": [
+    {
+     "src": "L6079",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(adult) suggests that if the game keeps stopping for arguments, maybe the players should sit down together and fix the rules themselves...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6075"
+  }
+ }
+}

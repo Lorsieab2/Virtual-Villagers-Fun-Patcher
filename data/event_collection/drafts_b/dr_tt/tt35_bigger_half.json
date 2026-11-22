@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bigger Half",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt35_bigger_half",
+  "source": "draft_tt",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager cuts a cake in half and keeps the bigger piece as a friend raises an eyebrow: swap, or explain yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been asked to cut a coconut cake in half, one piece for (subject.him/her)self and one for (friend). (subject.He/she) cuts it. One half is noticeably bigger. (subject) is holding the bigger half and is just about to take a bite when (friend) looks at the two halves, then at (subject), and raises one eyebrow.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Swap",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Explain Yourself",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sighs and swaps without a word. (friend) eats the bigger half with great enjoyment. From then on, whenever they share something, one of them cuts and the other chooses, and everything is divided so precisely that they need a stick to measure it.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sighs and swaps without a word. (friend) eats the bigger half with great enjoyment. From then on, whenever they share something, one of them cuts and the other chooses, and everything is divided so precisely that they need a stick to measure it.",
+   "src": "L422"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I cut it,\" explains (subject), \"so I did the work.\" \"I baked it,\" says (friend). Silence. (subject) breaks a piece off the bigger half and adds it to (friend)'s. Now (friend)'s is bigger. They look at each other, start laughing, and end up eating the whole cake together from the middle out.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L425"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"I cut it,\" explains (subject), \"so I did the work.\" \"I baked it,\" says (friend). Silence. (subject) breaks a piece off the bigger half and adds it to (friend)'s. Now (friend)'s is bigger. They look at each other, start laughing, and end up eating the whole cake together from the middle out.",
+   "src": "L425"
+  }
+ }
+}

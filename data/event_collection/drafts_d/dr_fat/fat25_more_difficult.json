@@ -1,0 +1,256 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One More Difficult Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat25_more_difficult",
+  "source": "fathers30",
+  "lines": [
+   518,
+   536
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L518",
+  "ledger": [
+   {
+    "src": "L519",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L520",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L524",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L526",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L527",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L529",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L530",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L532",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L533",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L535",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L536",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L522",
+    "kind": "sensitivity",
+    "before": "the parent is tired",
+    "after": "(name1), the parent, is tired",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "The morning begins with spilled porridge, a missing sandal, and a child who refuses to leave the house.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The morning begins with spilled porridge, a missing sandal, and a child who refuses to leave the house. By midday, (name1), the parent, is tired and irritable. They love their child, but love has not made the day easy.",
+   "src": "L522",
+   "choices": [
+    {
+     "label": "Take a Brief Pause While the Child Is Safely Supervised",
+     "next": "a",
+     "src": "L525"
+    },
+    {
+     "label": "Turn the Chores into a Game",
+     "next": "b",
+     "src": "L528"
+    },
+    {
+     "label": "Ask a Friend to Share the Work",
+     "next": "c",
+     "src": "L531"
+    },
+    {
+     "label": "Admit That Today Has Been Difficult",
+     "next": "d",
+     "src": "L534"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A few quiet breaths help the parent return with patience.",
+   "src": "L526"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The interruption is too short to restore their energy, so they ask another caregiver for help.",
+   "src": "L527"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child eagerly joins in, and the work finally gets done.",
+   "src": "L529"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The friend watches the child while the parent finishes urgent tasks.",
+   "src": "L532"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friend is busy, but helps arrange support later in the week.",
+   "src": "L533"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child says they had a hard day too, and they sit together for a while.",
+   "src": "L535"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The parent apologizes for snapping earlier, then calmly explains what still needs to happen.",
+   "src": "L536"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The game creates an even bigger mess, and they both burst into laughter.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The game creates an even bigger mess, and they both burst into laughter.",
+   "src": "L530"
+  }
+ }
+}

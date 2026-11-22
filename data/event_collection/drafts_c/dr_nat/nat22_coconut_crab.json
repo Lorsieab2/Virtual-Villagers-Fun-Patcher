@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut Crab",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat22_coconut_crab",
+  "source": "draft_nat",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-13)"
+   },
+   {
+    "src": "L266",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A coconut crab the size of a small dog sits atop a palm behind the huts: catch it for supper, or let it go about its business.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A coconut crab the size of a small dog has climbed one of the palms behind the huts and is sitting at the top, cracking a coconut with its claws. (friend) is terrified and thrilled at once. (subject) knows two things about coconut crabs: they're delicious, and the old fishers say they take a very, very long time to grow that big.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Catch It for Supper",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Let It Go About Its Business",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) waits until it climbs down, then catches it carefully with a net and a lot of shouting. The catch is prepared for supper and shared around. (friend) eats some and is very brave about it. Later, (subject) sees (friend.him/her) looking up at the empty palm. \"It was really old, wasn't it?\" (friend) says. \"It was,\" says (subject). Both things are true: it was very good, and it was very old.",
+   "src": "L266",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L266"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) decides a crab that has lived that long can keep living. They watch it climb down, slowly, carefully, and wander off into the bushes with half a coconut. (friend) names it Grandfather. For the rest of the year, sightings of Grandfather are reported around the village with great excitement. Grandfather does not care about any of this.",
+   "src": "L269"
+  }
+ }
+}

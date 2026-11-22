@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe That Didn't Come Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b072_canoe_didnt_come",
+  "source": "balance",
+  "lines": [
+   3250,
+   3293
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3250",
+  "ledger": [
+   {
+    "src": "L3251",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3252",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3260",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3269",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3257",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3258",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3261",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3270",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3263",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3272",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3275",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3278-3293",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager went out fishing two days ago and haven't come back.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) went out fishing two days ago and haven't come back. A storm blew through yesterday. This morning, (subject), watching from the headland, sees a faint smudge of smoke far out on a sandbar that only shows at low tide.\nThe fishers can paddle out now, but the sea is still rough and the sandbar will be under water again by evening. Or they can wait for the sea to calm, which might be tomorrow.\nWhat should (subject) tell them?",
+   "choices": [
+    {
+     "label": "Go Now",
+     "next": "c1",
+     "src": "L3257"
+    },
+    {
+     "label": "Wait for the Sea to Calm",
+     "next": "c2",
+     "src": "L3258"
+    }
+   ],
+   "src": "L3253-3255"
+  },
+  "c1o1": {
+   "text": "Only (friend) is on the sandbar, burned by the sun, with a little fire of driftwood. (subject) was swept away when the canoe went over in the storm, (friend) says, and (friend.he/she) searched the water until dark. The fishers search too, all the way back. They don't find (subject). (friend) sits on the beach every evening for a long time, looking out at the sandbar.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L3264",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Both of them are there, and so are three strangers: a parent, a teenager and a small child, whose own canoe was wrecked in the same storm. (subject) and (friend) pulled them out of the water and have kept them alive for two days on rainwater and raw shellfish. Everyone comes home. {#made:Only one of the strangers can stay; the village has no room for more|Only two of the strangers can stay; the village has no room for more|The strangers decide to stay}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L3267",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Three canoes go out into the rough water, paddlers soaked to the skin, fighting every wave. The smoke gets closer, and then they can see figures on the sand, waving...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3261"
+  },
+  "c2o1": {
+   "text": "(subject) is there, half-conscious, holding (friend) above the water on the shrinking sandbar. (friend) was hurt when the canoe went over, and the night was cold, and (friend.he/she) didn't last until morning. The fishers bring them both home. (subject) never quite forgives the sea, and never once blames the village for waiting; it was the right call, (subject.he/she) says, and it still wasn't enough.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L3273",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Both of them are on the sandbar, hungry and burnt and arguing about whose fault it was that the canoe went over. They're still arguing when the fishers pull them aboard, and all the way home, and at the welcome feast, and for most of the next year.",
+   "src": "L3276"
+  },
+  "c2": {
+   "text": "The fishers wait, pacing the beach all day and all night. At dawn the sea is flat, and they go out fast, and the sandbar is just breaking the surface...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3270"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L3267",
+   "before": "The strangers decide to stay.",
+   "after": "{#made:Only one of the strangers can stay; the village has no room for more|Only two of the strangers can stay; the village has no room for more|The strangers decide to stay}."
+  }
+ ]
+}

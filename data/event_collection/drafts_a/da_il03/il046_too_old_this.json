@@ -1,0 +1,153 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Old for This",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il046_too_old_this",
+  "source": "da_il03",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L74",
+    "kind": "casting",
+    "before": "loses spectacularly to a six-year-old,",
+    "after": "loses spectacularly to (little), a six-year-old,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L77",
+    "kind": "casting",
+    "before": "When one of the little ones trips,",
+    "after": "When (little), one of the little ones, trips,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L77",
+    "kind": "casting",
+    "before": "the child says",
+    "after": "(little) says",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A young adult is invited to race the children along the beach: race anyway, or watch and cheer.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "little": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 6
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) used to love racing the other children along the beach. Today some of the little ones are racing, and they shout for (subject.him/her) to join in. (subject) hesitates. (subject.He/She) is grown now, with work to do and things to be serious about.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Race Anyway",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Watch Instead",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) kicks off (subject.his/her) sandals and runs. (subject.He/She) loses spectacularly to (little), a six-year-old, falls into the shallows, and comes up laughing harder than (subject.he/she) has in months. Being grown up can wait until after lunch.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) kicks off (subject.his/her) sandals and runs. (subject.He/She) loses spectacularly to (little), a six-year-old, falls into the shallows, and comes up laughing harder than (subject.he/she) has in months. Being grown up can wait until after lunch.",
+   "src": "L74"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits on a rock and cheers for everybody. When (little), one of the little ones, trips, (subject) is the first to help (little.him/her) up. \"You're good at cheering,\" (little) says. (subject) decides that's a fine thing to be good at too.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) sits on a rock and cheers for everybody. When (little), one of the little ones, trips, (subject) is the first to help (little.him/her) up. \"You're good at cheering,\" (little) says. (subject) decides that's a fine thing to be good at too.",
+   "src": "L77"
+  }
+ }
+}

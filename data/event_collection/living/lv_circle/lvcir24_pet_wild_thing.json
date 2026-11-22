@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pet and the Wild Thing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir24_pet_wild_thing",
+  "source": "living",
+  "lines": [
+   21543,
+   21554
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21543",
+  "ledger": [
+   {
+    "src": "L21554",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child wants to keep a wild otter as a pet after watching it play.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child wants to keep a wild otter as a pet after watching it play.",
+   "src": "L21544",
+   "choices": [
+    {
+     "label": "Bring the otter home.",
+     "next": "a",
+     "src": "L21545"
+    },
+    {
+     "label": "Watch the otter in its habitat.",
+     "next": "b",
+     "src": "L21548"
+    },
+    {
+     "label": "Care for an animal suited to village life instead.",
+     "next": "c",
+     "src": "L21551"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The animal grows distressed and repeatedly tries to escape.",
+   "src": "L21546"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The otter damages fishing baskets, and the family reconsiders.",
+   "src": "L21547"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child learns its habits and grows fond of the river.",
+   "src": "L21549"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The otter disappears downstream, and the child misses it.",
+   "src": "L21550",
+   "text_only": [
+    {
+     "what": "disappears",
+     "reason": "the otter, not a villager",
+     "src": "L21550"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child still visits the river to watch the otters.",
+   "src": "L21553"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child forms a bond with a familiar domestic animal.",
+   "src": "L21552",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21552"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child forms a bond with a familiar domestic animal.",
+   "src": "L21552"
+  }
+ }
+}

@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il174_canoe_race",
+  "source": "da_il09",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two teens finally settle who is the faster paddler with a canoe race to the big rock and back.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) have been arguing for weeks about who is the faster paddler. Today they're finally settling it: from the beach to the big rock and back, in two small canoes, with half the village watching from the shore. It's close all the way out. At the rock, (friend) is just ahead.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Paddle as Hard as Possible",
+     "next": "a",
+     "src": "L169"
+    },
+    {
+     "label": "Slow Down and Let It Be Close",
+     "next": "b",
+     "src": "L172"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) paddles so hard (subject.his/her) arms burn. Halfway back, (subject.he/she) draws level. Then, just before the beach, (subject.he/she) pulls ahead by a canoe's length and wins. (subject.He/She) falls out of the canoe in triumph. (friend) falls out of (friend.his/her) canoe too, on purpose, and they both lie in the shallows panting and laughing. The rematch is set for next week.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L170"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L170"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) paddles so hard (subject.his/her) arms burn. Halfway back, (subject.he/she) draws level. Then, just before the beach, (subject.he/she) pulls ahead by a canoe's length and wins. (subject.He/She) falls out of the canoe in triumph. (friend) falls out of (friend.his/her) canoe too, on purpose, and they both lie in the shallows panting and laughing. The rematch is set for next week.",
+   "src": "L170"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) doesn't quite push. (friend) wins by a nose and lets out a shout of joy. Later, by the fire, (friend) says, \"You slowed down at the end. I saw.\" (subject) shrugs. \"Maybe I did. Maybe you're faster.\" (friend) narrows (friend.his/her) eyes. \"Next week,\" (friend.he/she) says, \"you're not allowed to slow down.\" \"Deal.\"",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L173"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) doesn't quite push. (friend) wins by a nose and lets out a shout of joy. Later, by the fire, (friend) says, \"You slowed down at the end. I saw.\" (subject) shrugs. \"Maybe I did. Maybe you're faster.\" (friend) narrows (friend.his/her) eyes. \"Next week,\" (friend.he/she) says, \"you're not allowed to slow down.\" \"Deal.\"",
+   "src": "L173"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L170",
+   "before": "falls out of (his/hers) too",
+   "after": "falls out of (his/her) canoe too"
+  }
+ ]
+}

@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Two Children and the Shell",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl10_two_children",
+  "source": "living",
+  "lines": [
+   21786,
+   21798
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21786",
+  "ledger": [
+   {
+    "src": "L21787",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21797",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21798",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Children from different communities both claim a beautiful shell.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children from different communities both claim a beautiful shell.",
+   "src": "L21787",
+   "choices": [
+    {
+     "label": "Encourage them to share.",
+     "next": "a",
+     "src": "L21788"
+    },
+    {
+     "label": "Ask them to trade fairly.",
+     "next": "b",
+     "src": "L21791"
+    },
+    {
+     "label": "Return the shell to the shore.",
+     "next": "c",
+     "src": "L21794"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children invent a game in which they take turns keeping it.",
+   "src": "L21789"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The agreement fails when one child forgets to return it.",
+   "src": "L21790"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An adult worries the trade was unfair and helps them renegotiate.",
+   "src": "L21793"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children leave the shell and explore tide pools together.",
+   "src": "L21795"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One child feels disappointed but learns to say so.",
+   "src": "L21796"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They trade small treasures and become friends.",
+   "src": "L21792",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L21792"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They trade small treasures and become friends.",
+   "src": "L21792"
+  }
+ }
+}

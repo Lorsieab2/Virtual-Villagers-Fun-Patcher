@@ -80,6 +80,9 @@ enum {
     GAME_VV4 = 4,
     GAME_VV5 = 5,
 
+    /* Every MAX_LONG_PATH buffer is STATIC, never a local: each is 64 KB, and the roster runs inside the
+       game's save (The Lost Children's save routine alone holds a 193 KB frame), so thirteen of them on the
+       stack (about 700 KB) could overflow the game's 1 MB stack.  The game calls this from one thread. */
     MAX_LONG_PATH = 32768,
 
     /* A fixed local bound for a name, checked against each game's own
@@ -710,7 +713,7 @@ static int build_log_paths(
     wchar_t *temporary,
     wchar_t *destination
 ) {
-    wchar_t module_path[MAX_LONG_PATH];
+    static wchar_t module_path[MAX_LONG_PATH];
     wchar_t sub[MAX_PATH];
     /* The export belongs with the SAVE, not with the executable.
        See native/shared/save_folder.h: this used to strip to the exe's own
@@ -1095,6 +1098,57 @@ static const char *custom_title_of(int index) {
     return NULL;
 }
 
+/* What the patcher keeps for a villager OUTSIDE the save, in both rosters (the owner, 2026-11-17: "the logs need
+   to keep track of sex and gender presentation changes, males carrying babies, and everything"), each line only
+   when it says something -- as the Mask and Custom title lines are:
+
+     "  Sex at birth: Female"                 a villager whose sex was changed ("VVFP Gender Presentation.dll"
+                                              VvfpBornFemale: the birth sex it keeps, else the Sex Changes log's)
+     "  Gender presentation: Other sex's look" drawn with the other sex's look (VvfpGenderPresentationGet)
+     "  Head look: Young" / "Old"             the head look Change Appearance or an event chose ("VVFP Head
+                                              Look.dll" VvfpHeadLookGet; Auto prints nothing)
+     "  Story traits: mute"                   an island event's story trait ("VVFP Story Upgrades.dll"
+                                              VvfpStoryTraitsOf, bit 0 mute)
+
+   Each companion is asked only when it is already in the game (GetModuleHandleA never loads one).  0 when a line
+   could not be written. */
+typedef int (__stdcall *kept_value_fn)(int game, const void *record);
+
+static kept_value_fn kept_value_export(const char *dll, const char *name) {
+    HMODULE module = GetModuleHandleA(dll);
+    return module != NULL ? (kept_value_fn)(void *)GetProcAddress(module, name) : NULL;
+}
+
+static int write_kept_values(FILE *file, const struct game_layout *g, const unsigned char *record, int game_id) {
+    kept_value_fn born = kept_value_export("VVFP Gender Presentation.dll", "VvfpBornFemale");
+    kept_value_fn presentation = kept_value_export("VVFP Gender Presentation.dll", "VvfpGenderPresentationGet");
+    kept_value_fn head_look = kept_value_export("VVFP Head Look.dll", "VvfpHeadLookGet");
+    kept_value_fn traits = kept_value_export("VVFP Story Upgrades.dll", "VvfpStoryTraitsOf");
+    int sex = *(const int *)(record + g->sex);
+    if (born != NULL && (sex == g->sex_male || sex == g->sex_female)) {
+        int female = born(game_id, record) == 1;
+        if (female != (sex == g->sex_female)
+            && fprintf(file, "  Sex at birth: %s\n", female ? "Female" : "Male") < 0) {
+            return 0;
+        }
+    }
+    if (presentation != NULL && presentation(game_id, record) == 1
+        && fprintf(file, "  Gender presentation: Other sex's look\n") < 0) {
+        return 0;
+    }
+    if (head_look != NULL) {
+        int look = head_look(game_id, record);
+        if ((look == 1 || look == 2) && fprintf(file, "  Head look: %s\n", look == 1 ? "Young" : "Old") < 0) {
+            return 0;
+        }
+    }
+    if (traits != NULL && (traits(game_id, record) & 1) != 0
+        && fprintf(file, "  Story traits: mute\n") < 0) {
+        return 0;
+    }
+    return 1;
+}
+
 /* `with_pregnancy` is 0 for the Village History log and 1 for the
    Village Population roster.
 
@@ -1152,6 +1206,9 @@ static int write_villager(
        believer (and Repair's Village Elders backfill can leave them out). */
     if (game_id == GAME_VV5
         && fprintf(file, "  Faction: %s\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer") < 0) {
+        return 0;
+    }
+    if (!write_kept_values(file, g, record, game_id)) {
         return 0;
     }
     if (fprintf(file, "  Head: %d\n", *(const int *)(record + g->head)) < 0) {
@@ -1369,8 +1426,8 @@ static long long history_file_size(const wchar_t *path) {
    Numbering starts at 1 and walks upward, so a player reads them in order and
    older files stay exactly as they were written. */
 static int build_history_path(int slot, wchar_t *destination) {
-    wchar_t module_path[MAX_LONG_PATH];
-    wchar_t folder[MAX_LONG_PATH];
+    static wchar_t module_path[MAX_LONG_PATH];
+    static wchar_t folder[MAX_LONG_PATH];
     wchar_t sub[MAX_PATH];
     int number;
     /* ONE FOLDER PER SAVE SLOT (native/shared/log_slot.h): this save's snapshot goes into
@@ -1382,7 +1439,7 @@ static int build_history_path(int slot, wchar_t *destination) {
     /* `module_path` is the shared folder, for the migration below only -- made only when an older
        build's file is there to move into it. */
     {
-        wchar_t root[MAX_LONG_PATH];
+        static wchar_t root[MAX_LONG_PATH];
         if (!vv_save_folder_w(root, 96)
             || _snwprintf_s(module_path, MAX_LONG_PATH, _TRUNCATE,
                             L"%ls\\" VV_LOGS_DIR L"\\Tribe History", root) < 0) {
@@ -1408,9 +1465,9 @@ static int build_history_path(int slot, wchar_t *destination) {
     {
         static int history_migrated;
         if (!history_migrated) {
-            wchar_t root[MAX_LONG_PATH];
-            wchar_t legacy[MAX_LONG_PATH];
-            wchar_t first[MAX_LONG_PATH];
+            static wchar_t root[MAX_LONG_PATH];
+            static wchar_t legacy[MAX_LONG_PATH];
+            static wchar_t first[MAX_LONG_PATH];
             int stranded = 0;       /* a legacy file exists and would not move */
             history_migrated = 1;
             if (_snwprintf_s(first, MAX_LONG_PATH, _TRUNCATE,
@@ -1449,7 +1506,7 @@ static int build_history_path(int slot, wchar_t *destination) {
                                     L"%ls\\VVFP Logs\\Tribe History\\Village History.txt",
                                     root) >= 0
                     && GetFileAttributesW(legacy) != INVALID_FILE_ATTRIBUTES) {
-                    wchar_t made[MAX_LONG_PATH];
+                    static wchar_t made[MAX_LONG_PATH];
                     if (!vv_save_subfolder_w(made, VV_LOGS_DIR L"\\Tribe History", 64)
                         || !MoveFileW(legacy, first)) {
                         stranded = 1;
@@ -1475,6 +1532,26 @@ static int build_history_path(int slot, wchar_t *destination) {
     return 0;
 }
 
+/* The Tree of Life and New Believers: whether their "Select 5 villagers" screen is still open --
+   the save manager's scene ([0x4CB51C]+0x171A8 / [0x4DACE0]+0x17E1C) is 3 from the new village's
+   founder screen until the fifth Select starts the game (VV4 0x43BD2F / VV5 0x43E72F set 0).  The
+   game's 600 s autosave runs on every screen, and the records then hold the founders chosen so far
+   AND the candidate on show, whom a Reject replaces (vvfp_cause_of_death cod_creation_save.inc;
+   the live round 7, 2026-11-21: a History snapshot listing a rejected candidate as a villager).
+   Such a save is not the village yet, so it adds no History snapshot (append-only: it could never
+   be taken back); the Population, rewritten at every save, is written as always.  Read from the
+   module the export walks (`module`: the game's own image live, a harness's stand-in image). */
+static int founder_screen_open(int game_id, const unsigned char *module) {
+    static const unsigned int MANAGER_RVA[6] = { 0, 0, 0, 0, 0xCB51Cu, 0xDACE0u };
+    static const unsigned int SCENE[6] = { 0, 0, 0, 0, 0x171A8u, 0x17E1Cu };
+    const unsigned char *manager;
+    if (game_id != GAME_VV4 && game_id != GAME_VV5) {
+        return 0;
+    }
+    manager = *(const unsigned char *const volatile *)(module + MANAGER_RVA[game_id]);
+    return manager != NULL && *(const volatile unsigned int *)(manager + SCENE[game_id]) == 3u;
+}
+
 /* Append this save's roster to the history.
 
    Failure is deliberately not fatal to the export: the roster is the feature
@@ -1487,7 +1564,7 @@ static int append_history(
     int game_id,
     const char *village
 ) {
-    wchar_t path[MAX_LONG_PATH];
+    static wchar_t path[MAX_LONG_PATH];
     FILE *file;
     unsigned int index;
     int written = 0;
@@ -1554,8 +1631,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     int file_index = 1;
     int in_file = 0;
     FILE *file = NULL;
-    wchar_t temporary[MAX_LONG_PATH];
-    wchar_t destination[MAX_LONG_PATH];
+    static wchar_t temporary[MAX_LONG_PATH];
+    static wchar_t destination[MAX_LONG_PATH];
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5) {
         return 0;
@@ -1663,7 +1740,9 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
     /* The permanent history, appended AFTER the roster is safely
        published so a history failure can never cost the player their
        roster. Its return is ignored for the same reason. */
-    (void)append_history(g, villagers, game_id, village);
+    if (!founder_screen_open(game_id, module)) {
+        (void)append_history(g, villagers, game_id, village);
+    }
 
     /* And the parentage log, created empty-but-headed if this village has
        none yet. Also after the roster, and also ignoring its result: the
@@ -1685,8 +1764,8 @@ __declspec(dllexport) int __stdcall WriteVillagePopulation(
         int stale = file_index + 1;
         int limit = (int)(g->slots / VILLAGERS_PER_FILE) + 2;
         while (stale <= limit) {
-            wchar_t old_temporary[MAX_LONG_PATH];
-            wchar_t old_destination[MAX_LONG_PATH];
+            static wchar_t old_temporary[MAX_LONG_PATH];
+            static wchar_t old_destination[MAX_LONG_PATH];
             if (!build_log_paths(vv_log_header_slot(village), stale, old_temporary, old_destination)) {
                 break;
             }

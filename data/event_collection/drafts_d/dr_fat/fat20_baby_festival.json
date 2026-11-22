@@ -1,0 +1,264 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Baby at the Festival",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat20_baby_festival",
+  "source": "fathers30",
+  "lines": [
+   411,
+   429
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L411",
+  "ledger": [
+   {
+    "src": "L412",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L413",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L417",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L419",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L420",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L422",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L423",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L425",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L426",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L428",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L429",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L415",
+    "kind": "sensitivity",
+    "before": "a father",
+    "after": "(name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "At a village festival, a father carries his baby through the crowd.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a village festival, (name1), a father, carries his baby through the crowd. The child seems fascinated by the music, the woven banners, and a particularly shiny spoon.",
+   "src": "L415",
+   "choices": [
+    {
+     "label": "Dance with the Baby",
+     "next": "a",
+     "src": "L418"
+    },
+    {
+     "label": "Introduce the Child to Friends",
+     "next": "b",
+     "src": "L421"
+    },
+    {
+     "label": "Find a Quieter Place",
+     "next": "c",
+     "src": "L424"
+    },
+    {
+     "label": "Let the Baby Examine a Safe Toy",
+     "next": "d",
+     "src": "L427"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baby falls asleep before the music grows lively.",
+   "src": "L420"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Several villagers offer delighted greetings.",
+   "src": "L422"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The baby hides against his shoulder and refuses to perform.",
+   "src": "L423"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They watch the lanterns together from the edge of the crowd.",
+   "src": "L425"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "He misses part of the celebration but enjoys the calm.",
+   "src": "L426",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration or a happy feeling in the story; no celebration happens in the game -- story only: the file marks no effect (no new mechanics)",
+     "src": "L426"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child becomes absorbed in its bright ribbons.",
+   "src": "L428"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The toy is immediately discarded in favor of the spoon.",
+   "src": "L429"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The child squeals and the father laughs aloud.",
+   "src": "L419",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L419"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The child squeals and the father laughs aloud.",
+   "src": "L419"
+  }
+ }
+}

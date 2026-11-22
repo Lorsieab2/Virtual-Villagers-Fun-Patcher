@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood Marker",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev029_flood_marker",
+  "source": "companion",
+  "lines": [
+   3528,
+   3532
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3528",
+  "ledger": [
+   {
+    "src": "L3532",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "After seasonal flooding, builders mark the highest waterline on a stone.",
+  "cast_only": [
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "After seasonal flooding, builders mark the highest waterline on a stone.",
+   "src": "L3529",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Future huts are placed more carefully.",
+   "src": "L3530"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A researcher compares the marks across years.",
+   "src": "L3531",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "researcher",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3531"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

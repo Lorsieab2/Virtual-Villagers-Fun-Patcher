@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friendly Rejection",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel08_friendly",
+  "source": "anthology",
+  "lines": [
+   27122,
+   27135
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27122",
+  "ledger": [
+   {
+    "src": "L27123",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27123",
+    "kind": "sensitivity",
+    "before": "a close friend",
+    "after": "(friend), a close friend,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27126",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27131",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27132",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27134",
+    "kind": "sensitivity",
+    "before": "the villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager learns that a close friend does not return their romantic feelings.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "villager",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) learns that (friend), a close friend, does not return their romantic feelings.",
+   "src": "L27123",
+   "choices": [
+    {
+     "label": "Respect the Answer",
+     "next": "a",
+     "src": "L27124"
+    },
+    {
+     "label": "Talk About Boundaries",
+     "next": "b",
+     "src": "L27127"
+    },
+    {
+     "label": "Focus on Other Friendships",
+     "next": "c",
+     "src": "L27130"
+    },
+    {
+     "label": "Try a New Pastime",
+     "next": "d",
+     "src": "L27133"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The two preserve their friendship with a little time.",
+   "src": "L27125"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) takes some space and feels steadier afterward.",
+   "src": "L27126"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Both understand how to remain comfortable together.",
+   "src": "L27128"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They agree to spend less time alone for a while.",
+   "src": "L27129"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) enjoys some quiet time before socializing again.",
+   "src": "L27132"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A new hobby helps (villager) feel hopeful.",
+   "src": "L27134"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The hobby becomes rewarding even without a new romance.",
+   "src": "L27135"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager) rediscovers joyful companionship.",
+   "src": "L27131",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L27131"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager) rediscovers joyful companionship.",
+   "src": "L27131"
+  }
+ }
+}

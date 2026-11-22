@@ -1,0 +1,208 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grey Shark in the Shallows",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b269_grey_shark",
+  "source": "balance",
+  "lines": [
+   12535,
+   12576
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12535",
+  "ledger": [
+   {
+    "src": "L12536",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12537",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12545",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12554",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12542",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12543",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12546",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12555",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12548",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12551",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12557",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12560",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12563-12576",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager loves swimming more than anything.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) loves swimming more than anything. Every morning (he/she) swims out to the reef and back before anyone else is awake. This morning, halfway out, (he/she) sees a long grey shape gliding along the sand beneath (him/her). A shark. A big one, with a torn fin and a slow, lazy way of swimming.\nIt hasn't noticed (name). Yet. The fishers say a shark with a torn fin has been hanging around the reef all month, and that it once bit a canoe clean in half.\nShould (name) keep very still and let it pass, or swim for the shore as fast as (he/she) can?",
+   "choices": [
+    {
+     "label": "Keep Very Still",
+     "next": "c1",
+     "src": "L12542"
+    },
+    {
+     "label": "Swim for the Shore",
+     "next": "c2",
+     "src": "L12543"
+    }
+   ],
+   "src": "L12538-12540"
+  },
+  "c1o1": {
+   "text": "The shark looks at (name) for a long moment and then glides away towards the reef, bored. (Name) paddles to shore very, very slowly and sits on the sand shaking for an hour. (He/She) never swims out to the reef again. In fact, (he/she) finds that swimming doesn't hold any joy for (him/her) at all any more. The water just looks like a place where sharks live.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "swimming",
+     "role": "subject"
+    }
+   ],
+   "src": "L12549",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The shark comes up and bumps (name) with its nose, gently, the way a dog would, and then swims off. (Name) is so astonished that (he/she) laughs out loud, underwater, and has to come up coughing. (Name) has never liked fishing: the hooks, the guts, the staring eyes. But if a shark can be friendly, fish can't be so bad. The next morning (he/she) goes out with the fishers, and enjoys it.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "fish",
+     "role": "subject"
+    }
+   ],
+   "src": "L12552",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) floats, barely moving, as the shark circles beneath (him/her) once, twice. Its eye rolls up to look at (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12546"
+  },
+  "c2o1": {
+   "text": "The shark catches (name)'s leg just as (he/she) reaches the shallows. It lets go almost at once, as if it didn't like the taste, but the damage is done. The fishers drag (name) up the beach and the healers work on (him/her) all day. (He/She) lives, but the leg never works properly again, and (he/she) never goes into the sea above (his/her) knees.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L12558",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) scrambles up onto the sand just as the shark's fin cuts through the shallows behind (him/her). It turns and slides back out to the reef. (Name) lies on the beach, panting. A crab walks across (his/her) chest. \"Not now,\" (he/she) tells it. The next morning (he/she) swims in the lagoon instead, where the water only comes up to (his/her) waist.",
+   "src": "L12561"
+  },
+  "c2": {
+   "text": "(Name) turns and swims for the beach as hard as (he/she) can, kicking and splashing. Behind (him/her), the grey shape turns too...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12555"
+  }
+ }
+}

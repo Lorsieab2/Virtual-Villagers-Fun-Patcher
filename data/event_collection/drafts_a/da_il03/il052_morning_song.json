@@ -1,0 +1,179 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Morning Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il052_morning_song",
+  "source": "da_il03",
+  "lines": [
+   134,
+   143
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L134",
+  "ledger": [
+   {
+    "src": "L135",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L137",
+    "kind": "casting",
+    "before": "It's (name2)'s child, who",
+    "after": "It's (child), (name2)'s child, who",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L140",
+    "kind": "casting",
+    "before": "The child hums",
+    "after": "(child) hums",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L140",
+    "kind": "casting",
+    "before": "the child knows",
+    "after": "(child) knows",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L140",
+    "kind": "casting",
+    "before": "Then the child says",
+    "after": "Then (child) says",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L143",
+    "kind": "casting",
+    "before": "The child giggles",
+    "after": "(child) giggles",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager's private sunrise song is overheard by a child who could not sleep: sing it again, or keep it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "relation": {
+    "child_of": "friend"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every morning, before anyone else is awake, (subject) sings one song very quietly to the sunrise. (subject.He/She) made it up as a child and has never sung it for anyone else. This morning (subject.he/she) finishes the last line and hears a small voice behind (subject.him/her): \"Can you sing it again?\" It's (child), (friend)'s child, who couldn't sleep.",
+   "src": "L137",
+   "choices": [
+    {
+     "label": "Sing It Again",
+     "next": "a",
+     "src": "L139"
+    },
+    {
+     "label": "Keep It Yours",
+     "next": "b",
+     "src": "L142"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) sings it again, a little louder this time. (child) hums along. By the third time, (child) knows all the words. (subject) isn't sure how (subject.he/she) feels about sharing it. Then (child) says, \"That's my favorite song now,\" and (subject) decides (subject.he/she) feels good about it.",
+   "src": "L140",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L140"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L140"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) sings it again, a little louder this time. (child) hums along. By the third time, (child) knows all the words. (subject) isn't sure how (subject.he/she) feels about sharing it. Then (child) says, \"That's my favorite song now,\" and (subject) decides (subject.he/she) feels good about it.",
+   "src": "L140"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"That one's just for me,\" (subject) says gently. \"But I know lots of others.\" (subject.He/She) sings a silly song about a fish who wanted to be a bird. (child) giggles all the way home. The morning song stays quiet and private, the way it's always been.",
+   "src": "L143",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L143"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"That one's just for me,\" (subject) says gently. \"But I know lots of others.\" (subject.He/She) sings a silly song about a fish who wanted to be a bird. (child) giggles all the way home. The morning song stays quiet and private, the way it's always been.",
+   "src": "L143"
+  }
+ }
+}

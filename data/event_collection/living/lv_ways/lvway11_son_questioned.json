@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Son Who Questioned the Shrine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway11_son_questioned",
+  "source": "living",
+  "lines": [
+   22864,
+   22878
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22864",
+  "ledger": [
+   {
+    "src": "L22878",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young villager doubts the gods hear the village's prayers.",
+  "cast_only": [
+   "son"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "son": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young villager doubts the gods hear the village's prayers.",
+   "src": "L22865",
+   "choices": [
+    {
+     "label": "Invite him to explain his doubts.",
+     "next": "a",
+     "src": "L22866"
+    },
+    {
+     "label": "Ask him to join the ritual anyway.",
+     "next": "b",
+     "src": "L22869"
+    },
+    {
+     "label": "Encourage a careful study of ritual claims.",
+     "next": "c",
+     "src": "L22872"
+    },
+    {
+     "label": "Let him serve the village without worship.",
+     "next": "d",
+     "src": "L22875"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The discussion remains respectful despite disagreement.",
+   "src": "L22867"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A few listeners feel challenged and withdraw.",
+   "src": "L22868"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He participates for the sake of family without changing his beliefs.",
+   "src": "L22870"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He declines, and his family learns to respect the boundary.",
+   "src": "L22871"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The study reveals patterns but no definitive answer.",
+   "src": "L22873"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Conflicting observations leave everyone uncertain.",
+   "src": "L22874"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "An elder struggles to separate duty from belief.",
+   "src": "L22877"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "His practical help earns appreciation.",
+   "src": "L22876",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "son",
+     "mood": "good",
+     "src": "L22876"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "His practical help earns appreciation.",
+   "src": "L22876"
+  }
+ }
+}

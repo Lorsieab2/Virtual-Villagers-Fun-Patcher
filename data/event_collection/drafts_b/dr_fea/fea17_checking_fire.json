@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Checking the Fire",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea17_checking_fire",
+  "source": "draft_fea",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager keeps getting up to check the fire is out, and a guest notices: offer to check together, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every night (subject) puts out the cooking fire and checks it. Then checks it again. Then lies down, and gets up, and checks it once more, just in case. (subject.He/she) knows it's out. (subject.He/she) saw it go out. The worry doesn't care. Tonight (friend) is staying over and sees (subject.him/her) get up for the fourth time.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Ask If (subject.he/she) Wants Company",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Say Nothing",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Want me to check with you?\" asks (friend). They kneel by the cold ashes together. \"Out,\" says (friend). \"Out,\" agrees (subject). It doesn't stop the worry entirely, but having someone else say it seems to help, a little. (subject) only gets up once more that night.",
+   "src": "L206"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing, and doesn't make (subject) explain. (friend.He/she) just lies there and lets (subject) check. In the morning (subject) apologizes for the disturbance. \"Nothing to apologize for,\" says (friend). (subject) isn't sure that's true, but it's kind, and (subject.he/she) is grateful.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing, and doesn't make (subject) explain. (friend.He/she) just lies there and lets (subject) check. In the morning (subject) apologizes for the disturbance. \"Nothing to apologize for,\" says (friend). (subject) isn't sure that's true, but it's kind, and (subject.he/she) is grateful.",
+   "src": "L209"
+  }
+ }
+}

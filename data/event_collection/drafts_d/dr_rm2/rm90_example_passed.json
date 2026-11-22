@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Example Passed On",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm90_example_passed",
+  "source": "draft_rm2",
+  "lines": [
+   745,
+   758
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L745",
+  "ledger": [
+   {
+    "src": "L746",
+    "kind": "sensitivity",
+    "before": "A villager who always covers the communal water jar to keep insects out notices",
+    "after": "(Name1), who always covers the communal water jar to keep insects out, notices",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who always covers the communal water jar notices a small child doing the same without being asked.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), who always covers the communal water jar to keep insects out, notices a small child doing the same thing without being asked.",
+   "src": "L746",
+   "choices": [
+    {
+     "label": "Thank the Child.",
+     "next": "a",
+     "src": "L747"
+    },
+    {
+     "label": "Say Nothing and Smile.",
+     "next": "b",
+     "src": "L750"
+    },
+    {
+     "label": "Teach the Child Why It Matters.",
+     "next": "c",
+     "src": "L753"
+    },
+    {
+     "label": "Ask the Child to Help Remind Others.",
+     "next": "d",
+     "src": "L756"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child beams and covers every jar in sight.",
+   "src": "L748"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child shrugs and says, \"You always do it,\" and runs off to play.",
+   "src": "L749"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villager wonders how many other habits the child has picked up, and resolves to be careful.",
+   "src": "L752"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child asks a dozen questions about insects and water.",
+   "src": "L754"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child already knew why, and explains it back proudly.",
+   "src": "L755"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child becomes the village's cheerful jar guardian.",
+   "src": "L757"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child takes the job a little too seriously, and everyone smiles at the stern reminders.",
+   "src": "L758"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The villager feels a quiet pride that the habit has spread.",
+   "src": "L751",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L751"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The villager feels a quiet pride that the habit has spread.",
+   "src": "L751"
+  }
+ }
+}

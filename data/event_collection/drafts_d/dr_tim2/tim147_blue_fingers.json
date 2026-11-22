@@ -1,0 +1,168 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Blue Fingers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim147_blue_fingers",
+  "source": "draft_tim2",
+  "lines": [
+   156,
+   161
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L156",
+  "ledger": [
+   {
+    "src": "L157",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L158",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L159",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L160",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L161",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A dye pot turns a villager's fingers a deep shade of blue.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "A dye pot turns (name1)'s fingers a deep shade of blue. The blue lasts for days, and (name1) gets used to it.",
+   "src": "L157,L159"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "A dye pot turns (name1)'s fingers a deep shade of blue. A child asks if they can have blue fingers too.",
+   "src": "L157,L160"
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "A dye pot turns (name1)'s fingers a deep shade of blue. (name1) proudly shows them off to everyone at supper.",
+   "src": "L157,L158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L157,L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "A dye pot turns (name1)'s fingers a deep shade of blue. (name1) proudly shows them off to everyone at supper.",
+   "src": "L157,L158"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "A dye pot turns (name1)'s fingers a deep shade of blue. The cloth turns out beautifully, and the blue fingers seem a fair trade.",
+   "src": "L157,L161",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L157,L161"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "A dye pot turns (name1)'s fingers a deep shade of blue. The cloth turns out beautifully, and the blue fingers seem a fair trade.",
+   "src": "L157,L161"
+  }
+ }
+}

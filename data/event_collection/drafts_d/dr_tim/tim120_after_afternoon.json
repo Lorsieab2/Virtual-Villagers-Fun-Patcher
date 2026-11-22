@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "After the Afternoon Nap",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim120_after_afternoon",
+  "source": "moments500",
+  "lines": [
+   2009,
+   2023
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L2010",
+  "ledger": [
+   {
+    "src": "L2009",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2013",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2014",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L2017",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2018",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L2021",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L2022",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   }
+  ],
+  "description": "A villager wakes from a brief afternoon nap.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1) wakes from a brief afternoon nap. There is something to dread tomorrow, but not right now.",
+   "src": "L2015"
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L2011",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L2011"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2011"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) wishes the peaceful moment could last a little longer.",
+   "src": "L2011"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) feels happy without knowing why.",
+   "src": "L2019",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L2019"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L2019"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1) wakes from a brief afternoon nap. (Name1) feels happy without knowing why.",
+   "src": "L2019"
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1) wakes from a brief afternoon nap. A forgotten worry returns and then drifts away again.",
+   "src": "L2023",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L2023"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "(Name1) wakes from a brief afternoon nap. A forgotten worry returns and then drifts away again.",
+   "src": "L2023"
+  }
+ }
+}

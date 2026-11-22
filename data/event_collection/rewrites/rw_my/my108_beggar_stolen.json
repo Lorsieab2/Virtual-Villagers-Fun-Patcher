@@ -1,0 +1,305 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beggar and the Stolen Sunlight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my108_beggar_stolen",
+  "source": "rewrites",
+  "lines": [
+   16136,
+   16191
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L16136",
+  "ledger": [
+   {
+    "src": "L16137",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16138",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16146",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16153",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16160",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16167",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16141",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16142",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16143",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16144",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16147",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16154",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16161",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16168",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16148",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16150",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16155",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16157",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16162",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16164",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16169",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16171",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16174-16191",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is the middle of the afternoon, and the light is all wrong.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It is the middle of the afternoon, and the light is all wrong. The sky has gone the dull yellow of old brass. The birds have gone to roost in the trees as though it were evening, and the cooking fires look strangely bright in the gloom. Everyone keeps glancing up and muttering.\nThat is when an old beggar shuffles up to (name)'s door, with startlingly bright eyes in a dusty face. \"Shelter, please,\" (he/she) says. \"Just until the light comes back. The sun has forgotten this village, you see.\" (He/she) says it as calmly as if (he/she) were remarking on the weather. Which, (name) supposes, (he/she) is. Should (name) let the beggar in?",
+   "choices": [
+    {
+     "label": "Welcome the Beggar",
+     "next": "c1",
+     "src": "L16141"
+    },
+    {
+     "label": "Offer a Place by the Fire",
+     "next": "c2",
+     "src": "L16142"
+    },
+    {
+     "label": "Ask Why the Sun Is Dim",
+     "next": "c3",
+     "src": "L16143"
+    },
+    {
+     "label": "Chase the Beggar Away",
+     "next": "c4",
+     "src": "L16144"
+    }
+   ],
+   "src": "L16139-16140"
+  },
+  "c1o1": {
+   "text": "They sit and talk through the long, dim afternoon. Then, just at sunset, the brassy clouds split apart, and a blaze of golden light pours across the village, so bright that people come out of their huts to stand in it and laugh. When (name) turns back to the doorway, the beggar is gone. In (his/her) place sits a big basket of ripe fruit: mangoes, bananas and golden figs, more than the household could eat in a week. (Name) shares it with the whole street.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L16149",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The beggar, it turns out, is tremendous company. Over the long dim afternoon, (he/she) tells the family a story about the time (he/she) got lost in a storm with a goat, a canoe and a very surprised fisherman, and it is so funny that (name)'s family are crying with laughter by the end. The light comes back the next morning, and the beggar goes on (his/her) way. The story does not. It is retold at every gathering for years, and it gets funnier every time.",
+   "src": "L16151"
+  },
+  "c1": {
+   "text": "\"Come in, come in,\" (name) says, and sits the beggar down with a cup of tea and a bowl of whatever is in the pot. The beggar beams, and settles in as though (he/she) owns the place...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16147"
+  },
+  "c2o1": {
+   "text": "As (he/she) warms up, the beggar points to the smoke rising from the fire. \"See how it curls down instead of up? And how the birds are all facing the same way? That means a long wet spell is coming. Get your drying racks under cover.\" (Name) mentions it to the farmers, a little doubtfully, and they cover the racks. Three days of solid rain follow. The farmers want to know everything the beggar knows, but (he/she) has already gone.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L16156",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The beggar warms up, eats a little, and falls into a deep, peaceful sleep by the fire, snoring gently. (He/she) does not stir all night. At dawn, the sun comes up perfectly bright and ordinary, and the beggar wakes, stretches, thanks (name) very kindly, and departs down the road. Nothing strange happens. It is, (name) reflects, a very pleasant way to spend a gloomy afternoon.",
+   "src": "L16158"
+  },
+  "c2": {
+   "text": "(Name) waves the beggar inside to warm up by the hearth, since the dim afternoon has turned the air chilly. The beggar holds (his/her) hands to the flames with a grateful sigh...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16154"
+  },
+  "c3o1": {
+   "text": "\"Smoke,\" (he/she) says, matter-of-factly. \"There's a big wildfire burning on the island across the strait. I sailed past it yesterday. The wind's blowing all the smoke this way. It'll clear in a day or two.\" (Name) is a little disappointed by how sensible that is. But the beggar is right: the smell of smoke drifts in that evening, and two days later the sky is blue again. (Name) feels a bit foolish for having been so frightened.",
+   "src": "L16163"
+  },
+  "c3o2": {
+   "text": "The beggar smiles. \"Some lights,\" (he/she) says, \"return when they are remembered.\" (He/she) will say nothing more. (Name) stands in the gloomy doorway, and finds (himself/herself) thinking, for no reason (he/she) can explain, of bright days from (his/her) childhood: running on the beach, the warmth on (his/her) face. When (he/she) looks up, the clouds are thinning, and a single beam of sunlight has broken through, right onto (his/her) doorstep. The beggar is gone.",
+   "src": "L16165"
+  },
+  "c3": {
+   "text": "\"What do you mean, forgotten?\" (name) asks. \"Why is the sun so dim?\" The beggar tilts (his/her) head and looks up at the brassy sky...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16161"
+  },
+  "c4o1": {
+   "text": "The brassy clouds do not lift. They hang over the village for days, low and damp and grey, and the air grows so heavy and wet that nothing will dry. Green mould creeps across the baskets in the storehouse, and the smell of rot drifts through the village. By the time the sun finally returns, a good deal of food has to be thrown away. Nobody says it was the beggar's doing. Nobody has to.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L16170",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The next morning, the sky is clear and blue, the sun is bright, and the birds are singing. No curse follows. Nothing at all happens, except that (name) hears later that the beggar spent the night in the next village, telling everyone a very funny story about a goat. (Name) feels rather small, and rather sorry to have missed the story.",
+   "src": "L16172"
+  },
+  "c4": {
+   "text": "\"We've no room,\" (name) snaps. \"Go on, get away from my door.\" The beggar looks up at the dim sky, then back at (name), and shuffles off without a word...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16168"
+  }
+ }
+}

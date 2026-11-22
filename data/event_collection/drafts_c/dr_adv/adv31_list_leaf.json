@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The List on the Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv31_list_leaf",
+  "source": "draft_adv",
+  "lines": [
+   362,
+   371
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L362",
+  "ledger": [
+   {
+    "src": "L363",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "The wind blows away a villager's careful list of reasons to build a second room: make the list again, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has spent all morning scratching a list onto a big leaf: every reason to build a second room on (his/her) hut, and every reason not to. It's a very good list. It's thorough. (He/she) is just reading it over one last time on the beach when a gust of wind snatches it out of (his/her) hands and carries it out to sea.",
+   "src": "L365",
+   "choices": [
+    {
+     "label": "Make the List Again",
+     "next": "o1",
+     "src": "L367"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L370"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) sits down and starts again from memory. (He/she) remembers most of it. Strangely, the second list is shorter. Some of the reasons just don't seem worth writing twice. When (he/she) reads it over, (he/she) realizes the \"build\" side is the only one (he/she) remembered clearly. (He/she) builds the second room.",
+   "src": "L368"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) watches the leaf disappear over the waves. Then (he/she) laughs. \"Fine,\" (he/she) tells the sea. \"You decide.\" The sea doesn't. (name1) goes home and doesn't build anything for a while. Some decisions, it turns out, are happy to wait.",
+   "src": "L371",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L371"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L371"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(name1) watches the leaf disappear over the waves. Then (he/she) laughs. \"Fine,\" (he/she) tells the sea. \"You decide.\" The sea doesn't. (name1) goes home and doesn't build anything for a while. Some decisions, it turns out, are happy to wait.",
+   "src": "L371",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L371"
+    }
+   ]
+  }
+ }
+}

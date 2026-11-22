@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Day Before",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep40_last_day_before",
+  "source": "draft_dep",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager planned a perfect last day with a departing visitor, and it is pouring: do everything anyway, or stay inside and talk.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A visitor (name1) has grown very fond of is leaving tomorrow. (name1) has planned a perfect last day: the swim at the waterfall, lunch on the big rock, the sunset from the hill. It is pouring with rain. It has been pouring since dawn. It shows no sign of stopping.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Do Everything Anyway",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Stay Inside and Talk",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They stay in the hut and listen to the rain. They talk all day about everything and nothing. It isn't the day (name1) planned. In some ways it's better. The visitor leaves at dawn under a clear sky, and (name1) watches them go and doesn't regret a single drop of the rain.",
+   "src": "L485"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They go to the waterfall in the rain. They eat soggy lunch on the wet rock. They climb the hill and watch a sunset made entirely of grey clouds. They get home soaked to the skin and laughing too hard to talk. The visitor says, leaving the next morning, that it was the best day of the whole trip.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L482"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They go to the waterfall in the rain. They eat soggy lunch on the wet rock. They climb the hill and watch a sunset made entirely of grey clouds. They get home soaked to the skin and laughing too hard to talk. The visitor says, leaving the next morning, that it was the best day of the whole trip.",
+   "src": "L482"
+  }
+ }
+}

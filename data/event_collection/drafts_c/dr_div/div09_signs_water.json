@@ -1,0 +1,169 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Signs on the Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div09_signs_water",
+  "source": "draft_div",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two fishers or two adults; in the story (name1) is deaf and uses sign)"
+   },
+   {
+    "src": "L110",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A deaf fisher signs across the water while another bellows into the wind: look over at the signer, or keep shouting.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Out on the water, the fishers usually shout to each other between canoes, and the wind usually carries the words off. (subject) is deaf and has never bothered shouting. (subject.He/she) signs. Today the wind is howling, and (friend) in the next canoe has been bellowing the same question for ages without being heard by anybody.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Look Over at (subject)",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Keep Shouting",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) gives up shouting and looks at (subject), who has been watching the whole time and signs: \"Fish. Over there. Lots.\" Clear as anything, across twenty arm-lengths of wind. (friend) paddles over and the net comes up full. That evening (friend) asks (subject) to teach the fishing crew some signs. By the end of the season, the whole crew is signing across the water. It's much quieter out there.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L110"
+    },
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) gives up shouting and looks at (subject), who has been watching the whole time and signs: \"Fish. Over there. Lots.\" Clear as anything, across twenty arm-lengths of wind. (friend) paddles over and the net comes up full. That evening (friend) asks (subject) to teach the fishing crew some signs. By the end of the season, the whole crew is signing across the water. It's much quieter out there.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) keeps bellowing. Nobody hears. (subject) watches with great interest, then paddles over and signs, very slowly, \"Are you all right?\" (friend) collapses laughing into the bottom of the canoe. Later, at the fire, (friend.he/she) asks (subject) for the sign for \"fish\" and the sign for \"over there.\" It seems like a good start.",
+   "src": "L113",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L113"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) keeps bellowing. Nobody hears. (subject) watches with great interest, then paddles over and signs, very slowly, \"Are you all right?\" (friend) collapses laughing into the bottom of the canoe. Later, at the fire, (friend.he/she) asks (subject) for the sign for \"fish\" and the sign for \"over there.\" It seems like a good start.",
+   "src": "L113",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L113"
+    }
+   ]
+  }
+ }
+}

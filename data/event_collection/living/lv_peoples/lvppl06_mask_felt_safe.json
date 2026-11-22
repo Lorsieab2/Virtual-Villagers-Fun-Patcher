@@ -1,0 +1,164 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask That Felt Safe",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl06_mask_felt_safe",
+  "source": "living",
+  "lines": [
+   21730,
+   21742
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21730",
+  "ledger": [
+   {
+    "src": "L21731",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21741",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21742",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager considers wearing a mask to move among the Heathens without drawing attention.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager considers wearing a mask to move among the Isolans without drawing attention."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager considers wearing a mask to move among the Heathens without drawing attention.",
+   "src": "L21731",
+   "choices": [
+    {
+     "label": "Wear the mask.",
+     "next": "a",
+     "src": "L21732"
+    },
+    {
+     "label": "Go without it.",
+     "next": "b",
+     "src": "L21735"
+    },
+    {
+     "label": "Ask a trusted local for guidance.",
+     "next": "c",
+     "src": "L21738"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager considers wearing a mask to move among the Isolans without drawing attention.",
+     "src": "L21731"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The disguise allows a quiet visit, but the villager feels uneasy about hiding.",
+   "src": "L21733"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Someone recognizes the villager's voice, creating an awkward encounter.",
+   "src": "L21734"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager is questioned but answers openly.",
+   "src": "L21736"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A friendly stranger offers directions despite the visible difference.",
+   "src": "L21737"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The local explains when masks are expected and when they are not.",
+   "src": "L21739"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The villager learns that masks mean different things to different people.",
+   "src": "L21740"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smallest Helper",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b031_smallest_helper",
+  "source": "companion",
+  "lines": [
+   1404,
+   1413
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1404",
+  "ledger": [
+   {
+    "src": "L1406",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1410",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1413",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A toddler insists on carrying a basket far too large for them.",
+  "cast_only": [
+   "toddler",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "toddler": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 7
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A toddler insists on carrying a basket far too large for them.",
+   "src": "L1405",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1407"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1408"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1409"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "An adult offers a smaller basket.",
+   "src": "L1411"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "The toddler proudly carries a single leaf.",
+   "src": "L1412",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "toddler",
+     "mood": "good",
+     "src": "L1412"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "The toddler proudly carries a single leaf.",
+   "src": "L1412"
+  }
+ }
+}

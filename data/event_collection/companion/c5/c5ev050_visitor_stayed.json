@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor Who Stayed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev050_visitor_stayed",
+  "source": "companion",
+  "lines": [
+   3683,
+   3687
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3683",
+  "ledger": [
+   {
+    "src": "L3687",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "An outsider asks to join the village permanently.",
+  "cast_only": [
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "mentor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "An outsider asks to join the village permanently.",
+   "src": "L3684",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Arrange a welcoming mentorship.",
+   "src": "L3685",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L3685"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Discuss rights, duties and belonging together.",
+   "src": "L3686",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult",
+     "src": "L3686"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

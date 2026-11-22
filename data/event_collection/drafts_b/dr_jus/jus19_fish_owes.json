@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fish (name1) Owes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus19_fish_owes",
+  "source": "draft_jus",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager never repaid a basket of dried fish from the lean season: ask them why, or set a fair amount.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "In the lean season, (friend) gave (subject) a basket of dried fish when (subject)'s household was short, and (subject) promised to pay it back once the good fishing came. The good fishing came months ago. (subject) hasn't paid it back. (friend) has brought it to the elders.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Ask (subject) Why",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Set a Fair Amount",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders agree that the debt is owed. But (subject)'s catches have been poor this year, and the elders won't take what (subject)'s household needs to eat. They set a smaller amount, paid slowly. (friend) thinks that's too generous. (subject) thinks it's fair. The elders say that probably means it's about right.",
+   "src": "L233"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) admits that (subject.he/she) meant to, then kept putting it off, then felt awkward about how long it had been, which made it harder. The elders ask (subject) to repay it over the next three catches. (subject) agrees, relieved to have a plan. (friend) is relieved too. It was never really the fish (friend.he/she) minded.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) admits that (subject.he/she) meant to, then kept putting it off, then felt awkward about how long it had been, which made it harder. The elders ask (subject) to repay it over the next three catches. (subject) agrees, relieved to have a plan. (friend) is relieved too. It was never really the fish (friend.he/she) minded.",
+   "src": "L230"
+  }
+ }
+}

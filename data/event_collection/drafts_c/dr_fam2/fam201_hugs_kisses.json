@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Hugs, Not Kisses",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam201_hugs_kisses",
+  "source": "draft_fam2",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it); any sexes)"
+   }
+  ],
+  "description": "A villager turns from their partner's kiss and admits they like hugs much more: ask what they like, or take a moment.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for a few months. Today (friend) leans in to kiss (subject) goodbye at the door, and (subject) turns (subject.his/her) head so it lands on (subject.his/her) ear. (friend) pulls back, puzzled. (subject) looks at the floor. \"I like hugs,\" (subject.he/she) says. \"Much more than kisses. I should have said.\"",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Ask What (subject) Likes",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "(friend) Needs a Moment",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) is quiet for a moment. \"I'm glad you told me,\" (friend.he/she) says. \"I think I need a little while to get used to it, that's all.\" \"That's fair,\" says (subject). (friend) goes off fishing and thinks. That evening (friend.he/she) comes back and just opens (friend.his/her) arms. (subject) walks into the hug. Neither of them says anything else about it. Neither of them needs to.",
+   "src": "L17"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Then tell me what you like,\" says (friend). (subject), relieved, explains: hugs, yes. Holding hands, yes. Sitting close by the fire, very yes. Kisses, now and then, not much. (friend) nods and gives (subject.him/her) an enormous hug right there in the doorway. \"Better?\" \"Much,\" says (subject), muffled. They work it out from there. It's easy, once it's said.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Then tell me what you like,\" says (friend). (subject), relieved, explains: hugs, yes. Holding hands, yes. Sitting close by the fire, very yes. Kisses, now and then, not much. (friend) nods and gives (subject.him/her) an enormous hug right there in the doorway. \"Better?\" \"Much,\" says (subject), muffled. They work it out from there. It's easy, once it's said.",
+   "src": "L14"
+  }
+ }
+}

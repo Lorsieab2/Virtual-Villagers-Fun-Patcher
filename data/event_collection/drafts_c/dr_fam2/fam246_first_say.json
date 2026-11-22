@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First to Say It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam246_first_say",
+  "source": "draft_fam2",
+  "lines": [
+   542,
+   551
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L542",
+  "ledger": [
+   {
+    "src": "L543",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it)"
+   }
+  ],
+  "description": "A villager tells their partner I love you for the first time and freezes: the partner says it back, or is not ready yet.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for a few months. Tonight, sitting on the beach watching the moon rise, (subject) suddenly says, \"I love you.\" Then (subject.he/she) freezes, because (subject.he/she) didn't mean to say it yet. (friend) turns to look at (subject.him/her).",
+   "src": "L545",
+   "choices": [
+    {
+     "label": "(friend) Says It Back",
+     "next": "o1",
+     "src": "L547"
+    },
+    {
+     "label": "(friend) Isn't Ready Yet",
+     "next": "o2",
+     "src": "L550"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) is quiet for a moment. \"I'm not there yet,\" (friend.he/she) says carefully. \"I like you very much. I just need more time before I can say that.\" (subject) is a little disappointed, and a little embarrassed. \"That's alright,\" (subject.he/she) says, and means it. (friend) takes (subject.his/her) hand. \"Ask me again sometime.\" They watch the moon together. It's still a good evening.",
+   "src": "L551"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I love you too,\" says (friend). \"I was waiting for you to say it first.\" (subject) breathes out so hard (subject.he/she) nearly falls over. They laugh. They watch the moon until it's high overhead. Neither of them remembers much else about the evening. They'll remember that part for a very long time.",
+   "src": "L548",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L548"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L548"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I love you too,\" says (friend). \"I was waiting for you to say it first.\" (subject) breathes out so hard (subject.he/she) nearly falls over. They laugh. They watch the moon until it's high overhead. Neither of them remembers much else about the evening. They'll remember that part for a very long time.",
+   "src": "L548"
+  }
+ }
+}

@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Seaweed Doing on the Carving?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd22_what_seaweed",
+  "source": "da_wd",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L269",
+    "kind": "casting",
+    "before": "A child giggles",
+    "after": "(child), a child, giggles",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "Overnight someone has put seaweed on the big carved post like a wig: take it off, or wait for someone to own up.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Overnight, someone has put a long strand of seaweed on top of the big carved post in the middle of the village, like a wig. It hangs down on both sides. The carving, which normally looks stern and important, now looks like it has just come out of the sea after a very long swim.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Take It Off",
+     "next": "a",
+     "src": "L265"
+    },
+    {
+     "label": "Leave It on and See Who Owns Up",
+     "next": "b",
+     "src": "L268"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) climbs up and removes the seaweed. Underneath, the carving looks stern and important again. (subject) feels a tiny bit disappointed. That evening, (subject.he/she) notices several villagers glancing at the post and then looking away, as if they miss it too.",
+   "src": "L266"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) leaves it. All day villagers stop to look, and laugh, and wonder who did it. Nobody owns up. (child), a child, giggles a little too much whenever anyone mentions it, but (subject) can't prove anything. By evening, the seaweed has dried in the sun and looks even sillier. It stays until the rain comes.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) leaves it. All day villagers stop to look, and laugh, and wonder who did it. Nobody owns up. (child), a child, giggles a little too much whenever anyone mentions it, but (subject) can't prove anything. By evening, the seaweed has dried in the sun and looks even sillier. It stays until the rain comes.",
+   "src": "L269"
+  }
+ }
+}

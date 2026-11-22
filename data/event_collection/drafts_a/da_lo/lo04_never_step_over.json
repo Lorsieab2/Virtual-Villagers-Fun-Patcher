@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Never Step Over a Digging Stick",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo04_never_step_over",
+  "source": "da_lo",
+  "lines": [
+   45,
+   54
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L45",
+  "ledger": [
+   {
+    "src": "L46",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager watches in horror as a friend steps over a digging stick, which is said to be bad luck.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) was taught as a child never to step over a digging stick lying on the ground: it's bad luck, and the garden won't grow. (friend) has never heard of this, and has just stepped over (subject)'s digging stick, twice, without a thought. (subject) is staring at (friend.him/her) in horror.",
+   "src": "L48",
+   "choices": [
+    {
+     "label": "Explain the Superstition",
+     "next": "a",
+     "src": "L50"
+    },
+    {
+     "label": "Quietly Fix It",
+     "next": "b",
+     "src": "L53"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) explains. (friend) listens politely, then steps back over the stick a third time, to \"undo it.\" \"That's not how it works,\" says (subject). \"How does it work, then?\" (subject) realizes (subject.he/she) has no idea. They spend the afternoon inventing rules for undoing it. The garden, as it happens, grows perfectly well.",
+   "src": "L51"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) says nothing. When (friend) has gone, (subject.he/she) picks up the stick, turns it round three times, and puts it down again, the way (subject.his/her) grandmother did. Is that a real fix? (subject) doesn't know. It makes (subject.him/her) feel better, though, and that's worth something.",
+   "src": "L54"
+  }
+ }
+}

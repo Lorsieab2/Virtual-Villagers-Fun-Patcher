@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Bad Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b199_chief_bad_day",
+  "source": "balance",
+  "lines": [
+   9237,
+   9281
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9237",
+  "ledger": [
+   {
+    "src": "L9238",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9239",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9247",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9256",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9244",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9245",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9248",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9257",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9250",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9253",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9259",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9262",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9265-9281",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Should a villager take it back, or laugh it off?",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager"
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The {@chief} is having a bad day. (subject.He/She) has had three arguments before breakfast, a roof has fallen in, and the pigs have got into the garden. When (subject) brings (subject.him/her) a bowl of soup, the {@chief} sighs and says, \"I'd give anything to be you today. Just carry soup about. No decisions.\"\n(subject) laughs, and says, \"And I'd give anything to be {@chief} for a day,\" without thinking. Over by the fire, the old storyteller, (elder), looks up sharply. (subject.He/She) knows a story about a {@chief} and a villager who said exactly those words to each other, under a full moon, and it is a full moon tonight.\n(elder) is staring at them. Should (subject) take it back, or laugh it off?",
+   "choices": [
+    {
+     "label": "Laugh It Off",
+     "next": "c1",
+     "src": "L9244"
+    },
+    {
+     "label": "Take It Back",
+     "next": "c2",
+     "src": "L9245"
+    }
+   ],
+   "src": "L9240-9242"
+  },
+  "c1o1": {
+   "text": "In the morning, (subject) wakes up in the {@chief}'s hut, in the {@chief}'s body. The {@chief} wakes up in (subject)'s. The story, it turns out, was true. They try everything to swap back. Nothing works. So the {@chief} goes on being {@chief} from inside (subject)'s body, and (subject) carries soup about in the {@chief}'s. \"Be careful what you say under a full moon,\" says (elder), who is not surprised.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L9251",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "In the morning, nothing has happened, except that (subject) wakes up wearing a perfect copy of the {@chief}'s clothes, feathers and all. (subject.He/She) didn't own any clothes like that last night. The {@chief} laughs so hard (subject.he/she) has to sit down, and says (subject) can keep them. Nobody can tell where they came from. (elder) says the moon has a sense of humour.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L9254",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"It's only a saying,\" says (subject), and the {@chief} laughs too, tiredly. (elder) shakes (subject.his/her) head and goes back to the fire, muttering. That night the full moon comes up huge and white over the sea...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9248"
+  },
+  "c2o1": {
+   "text": "(subject) took it back. The {@chief} didn't. In the morning they are each in the other's body, and the {@chief}, in (subject)'s body, is cheerfully carrying soup round the village, whistling, while (subject), in the {@chief}'s, deals with the pigs. \"One day,\" says the {@chief}. \"Just one day.\" It is longer than one day.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L9260",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The moon comes up and nothing happens. But the {@chief} sits with (subject) by the fire long into the night, and talks about how tired (subject.he/she) is. In the morning, (subject) takes half the {@chief}'s small jobs off (subject.his/her) hands without being asked: the pigs, the roof, the arguments about the roof. The {@chief} has a much better day.",
+   "src": "L9263"
+  },
+  "c2": {
+   "text": "\"I didn't mean it!\" says (subject), loudly, to the sky. The {@chief} looks at (subject.him/her) oddly. (elder) nods, satisfied. Then the {@chief} says, very quietly, \"I did, though...\"",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9257"
+  }
+ }
+}

@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cook Who Burns Things",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm37_cook_burns",
+  "source": "draft_drm",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager who dreams of cooking well burns everything, and a friend waits with a bowl: eat it anyway, or ask for help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) dreams of being a wonderful cook. (subject.He/she) loves food, loves feeding people, and loves the idea of everyone gathering around something (subject.he/she) made. Unfortunately, (subject.he/she) burns things. Not sometimes. Always. Tonight it's a fish. It's black on one side and raw on the other. (friend) is sitting there with a bowl.",
+   "src": "L443",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L443"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Eat It Anyway",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Ask for Help with the Fire",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) eats the good bits and says they're nice, and they are, sort of. (subject) laughs and admits it's a disaster. They end up cooking a second fish together, with (friend) watching the fire, and it comes out fine. (subject) still burns things. (subject.He/she) still loves cooking. Both are true.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) eats the good bits and says they're nice, and they are, sort of. (subject) laughs and admits it's a disaster. They end up cooking a second fish together, with (friend) watching the fire, and it comes out fine. (subject) still burns things. (subject.He/she) still loves cooking. Both are true.",
+   "src": "L446"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) what (subject.he/she) is doing wrong. \"Your fire's too hot,\" says (friend). \"You keep feeding it.\" (subject) had no idea. (subject.He/she) tries a smaller fire the next night, and the fish comes out only slightly burnt. (subject.He/she) is overjoyed. It's not wonderful cooking yet. It's a long way from always.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L449"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) what (subject.he/she) is doing wrong. \"Your fire's too hot,\" says (friend). \"You keep feeding it.\" (subject) had no idea. (subject.He/she) tries a smaller fire the next night, and the fish comes out only slightly burnt. (subject.He/she) is overjoyed. It's not wonderful cooking yet. It's a long way from always.",
+   "src": "L449"
+  }
+ }
+}

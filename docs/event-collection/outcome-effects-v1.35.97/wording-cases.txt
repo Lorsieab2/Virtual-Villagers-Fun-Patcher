@@ -1,0 +1,10 @@
+Death and leaving wording chosen from each page's own words (the "line" key)
+
+"<R> suffers fatal injuries." (an accident or injury):
+  companion/sss/sss018_silver_seam.json | c3 | A collapse damages equipment and may injure or kill an involved worker; safety procedures are reviewed.
+  living/lv_med/lvmed03_blood_another.json | b2 | The wound proves too severe, and the patient dies despite careful treatment.
+  v27/all_v27_14_proof.json | c_death | A fall causes death.
+  v27/all_v27_55_deep_pool.json | c_fatal | A risky dive ends in a fatal accident.
+
+"<R> leaves the village." (goes of their own accord):
+  (none on feat/v1.35.97; the one match, all_v27_25_crossing c, says they go missing, so it keeps "disappears from the village")

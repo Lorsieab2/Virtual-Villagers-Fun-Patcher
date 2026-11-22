@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grown-Up Job of Waiting",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il180_grown_up_job",
+  "source": "da_il09",
+  "lines": [
+   230,
+   239
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L230",
+  "ledger": [
+   {
+    "src": "L231",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A child has planted a seed and wants it to grow right now: explain that seeds take time, or plant something faster.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has planted a seed and wants it to grow. Right now. (subject.He/She) has checked on it eleven times this morning. (subject.He/She) has watered it four times. (subject.He/She) is now lying on (subject.his/her) stomach with (subject.his/her) nose an inch from the dirt, glaring at it. (friend) comes over to see what's wrong.",
+   "src": "L233",
+   "choices": [
+    {
+     "label": "Explain That Seeds Take Time",
+     "next": "a",
+     "src": "L235"
+    },
+    {
+     "label": "Plant Something Faster Beside It",
+     "next": "b",
+     "src": "L238"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Seeds take days,\" says (friend). \"Sometimes weeks.\" (subject) is horrified. \"WEEKS?\" \"You have to wait.\" (subject) thinks this is a terrible design. But (subject.he/she) agrees to check on it only once a day. It is the hardest thing (subject.he/she) has ever done. Nine days later, there's a tiny green shoot, and (subject) shrieks loud enough to scare the birds.",
+   "src": "L236"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(friend) helps (subject) plant a few cress seeds beside the slow one. \"These are quick,\" (friend.he/she) says. Two days later the cress is up, and (subject) is delighted. The slow seed still hasn't done anything. \"It's thinking,\" (subject) explains to everyone. Weeks later, it finally comes up, and (subject) has almost forgotten about it. (subject.He/She) is just as delighted the second time.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L239"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(friend) helps (subject) plant a few cress seeds beside the slow one. \"These are quick,\" (friend.he/she) says. Two days later the cress is up, and (subject) is delighted. The slow seed still hasn't done anything. \"It's thinking,\" (subject) explains to everyone. Weeks later, it finally comes up, and (subject) has almost forgotten about it. (subject.He/She) is just as delighted the second time.",
+   "src": "L239"
+  }
+ }
+}

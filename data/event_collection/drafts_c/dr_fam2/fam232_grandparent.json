@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Grandparent Fishing Lessons",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam232_grandparent",
+  "source": "draft_fam2",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a grandchild aged 6-12 (where the game records it)"
+   }
+  ],
+  "description": "An elder teaches an impatient grandchild to fish at the same old spot: teach patience, or let them do it their way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12,
+   "relation": {
+    "grandchild_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is teaching (subject.his/her) grandchild (friend) to fish, the same way (subject.his/her) own grandparent taught (subject.him/her), at the same spot, with the same patience. (friend) has no patience at all. (friend.He/she) has cast (friend.his/her) line eleven times in five minutes and caught a lot of seaweed.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Teach Patience",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Let (friend.him/her) Do It (friend.his/her) Way",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Watch the water,\" says (subject). \"Don't watch the line.\" (friend) watches the water. A long time passes. (friend) wriggles. Then something tugs, and (friend) pulls in a small, flapping, silver fish. (friend.He/she) screams so loudly every bird on the beach flies off. (subject) laughs until (subject.he/she) cries. That's the best fish (friend) will ever catch.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L386"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Watch the water,\" says (subject). \"Don't watch the line.\" (friend) watches the water. A long time passes. (friend) wriggles. Then something tugs, and (friend) pulls in a small, flapping, silver fish. (friend.He/she) screams so loudly every bird on the beach flies off. (subject) laughs until (subject.he/she) cries. That's the best fish (friend) will ever catch.",
+   "src": "L386"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides patience can wait. (subject.He/she) lets (friend) cast as much as (friend.he/she) likes. They catch no fish at all. They do catch: seaweed, a sandal, a crab \\(released\\), a very old piece of rope and one confused starfish \\(also released\\). (friend) declares it the best fishing trip ever. (subject) agrees. It really is.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L389"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) decides patience can wait. (subject.He/she) lets (friend) cast as much as (friend.he/she) likes. They catch no fish at all. They do catch: seaweed, a sandal, a crab \\(released\\), a very old piece of rope and one confused starfish \\(also released\\). (friend) declares it the best fishing trip ever. (subject) agrees. It really is.",
+   "src": "L389"
+  }
+ }
+}

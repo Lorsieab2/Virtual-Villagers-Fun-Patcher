@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Morning Stretch",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea14_morning_stretch",
+  "source": "draft_hea",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult and an elder)"
+   }
+  ],
+  "description": "A young villager with a stiff back joins the elders' morning stretch on the beach: join in, or watch first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every morning at sunrise a group of elders gather on the beach to stretch. Arms up, arms down, a slow twist, a long bend. (friend) says it's good for stiff backs and stiff tempers. (subject), who is young and fit and has a stiff back for the first time in (subject.his/her) life from carrying thatch all week, has come to join them.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Join In",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Watch First",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) sits on the sand and watches the first morning. It looks easy. The second morning (subject.he/she) tries. It is not easy. The elders are kind about it, mostly by pretending not to notice the noises (subject) makes. By the end of the week (subject.his/her) back feels better. (subject.He/she) can't say whether it's the stretching or the week without thatch. (subject.He/she) keeps going anyway, for the company.",
+   "src": "L173"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) reaches down to touch (subject.his/her) toes. (subject.He/she) gets about to (subject.his/her) knees. Beside (subject.him/her), (friend), who is very old indeed, folds in half like a palm frond. (subject) stares. \"Forty years of practice,\" says (friend), from somewhere near (friend.his/her) own ankles. (subject) comes back every morning that week. (subject.His/her) back loosens. (subject.His/her) toes remain a long way off.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L170"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) reaches down to touch (subject.his/her) toes. (subject.He/she) gets about to (subject.his/her) knees. Beside (subject.him/her), (friend), who is very old indeed, folds in half like a palm frond. (subject) stares. \"Forty years of practice,\" says (friend), from somewhere near (friend.his/her) own ankles. (subject) comes back every morning that week. (subject.His/her) back loosens. (subject.His/her) toes remain a long way off.",
+   "src": "L170"
+  }
+ }
+}

@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mine's Hidden Spring",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss022_mine_hidden",
+  "source": "companion",
+  "lines": [
+   6287,
+   6295
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6287",
+  "ledger": [
+   {
+    "src": "L6295",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "Miners find clean groundwater in a shaft, but digging farther may muddy the drinking supply.",
+  "cast_only": [
+   "miner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "miner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Miners uncover clean groundwater in a shaft, but digging farther may muddy the village's drinking supply.",
+   "src": "L6288",
+   "choices": [
+    {
+     "label": "Protect the spring",
+     "next": "a",
+     "src": "L6289"
+    },
+    {
+     "label": "Investigate with engineers and healers",
+     "next": "b",
+     "src": "L6291"
+    },
+    {
+     "label": "Continue mining",
+     "next": "c",
+     "src": "L6293"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The mine closes and a new water source becomes available.",
+   "src": "L6290"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Tests reveal seasonal variation; careful access may be possible.",
+   "src": "L6292"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Sediment fouls nearby water and forces an expensive cleanup.",
+   "src": "L6294"
+  }
+ }
+}

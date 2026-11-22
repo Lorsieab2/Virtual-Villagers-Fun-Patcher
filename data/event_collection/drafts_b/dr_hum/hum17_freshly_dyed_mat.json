@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Freshly Dyed Mat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum17_freshly_dyed_mat",
+  "source": "draft_hum",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A tired villager sits on a friend's freshly dyed mat: show the friend straight away, or walk carefully and hope.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has spent all morning dyeing a sitting mat a deep, beautiful blue, and has left it to dry in a shady spot. (subject), tired from work, sits down on it for a good long rest. When (subject.he/she) stands up, the mat has a pale patch exactly the shape of (subject)'s backside, and (subject)'s clothes have a blue patch exactly the shape of the mat.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Show (friend) Straight Away",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Walk Carefully and Hope",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) spends the rest of the day walking about with (subject.his/her) back to the walls. It doesn't help. The blue fades from (subject.his/her) clothes after many washes. The pale patch on the mat never does. (friend) knows exactly who did it and never says a word; (friend.he/she) just smiles whenever (subject) sits down anywhere at all.",
+   "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) goes straight to (friend), turns round and shows (friend.him/her) the evidence. (friend) stares, then laughs until tears run down (friend.his/her) face. The pale patch never quite fades, and (friend) decides it is the best thing about the mat. From then on it is known as \"the seat of honor.\"",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) goes straight to (friend), turns round and shows (friend.him/her) the evidence. (friend) stares, then laughs until tears run down (friend.his/her) face. The pale patch never quite fades, and (friend) decides it is the best thing about the mat. From then on it is known as \"the seat of honor.\"",
+   "src": "L206"
+  }
+ }
+}

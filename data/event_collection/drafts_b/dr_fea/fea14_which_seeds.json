@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Which Seeds?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea14_which_seeds",
+  "source": "draft_fea",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager cannot decide which seeds to plant in a small corner: let a friend choose, or plant half of each.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is standing in front of two baskets of seeds, trying to decide which to plant in the empty corner of the garden. It is not a big decision. It does not matter much. (subject) has been standing here for most of the morning. What if (subject.he/she) picks the wrong one? (friend) comes by and asks what's going on.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Let (friend) Choose",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Plant Half of Each",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"That one,\" says (friend), pointing, without even looking. (subject) feels a great weight lift off (subject.him/her). (subject.He/she) plants them. They grow fine. (subject.He/she) will never know if the other ones would have grown better, and, oddly, (subject.he/she) doesn't mind not knowing, as long as (subject.he/she) didn't have to choose.",
+   "src": "L170"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) plants half the corner with one, and half with the other. (friend) points out that this is cheating. (subject) agrees, cheerfully. Both halves grow fine. It answers nothing. It does mean (subject) can stop thinking about it, which was the whole point.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L173"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) plants half the corner with one, and half with the other. (friend) points out that this is cheating. (subject) agrees, cheerfully. Both halves grow fine. It answers nothing. It does mean (subject) can stop thinking about it, which was the whole point.",
+   "src": "L173"
+  }
+ }
+}

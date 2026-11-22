@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Making It Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm49_making_rain",
+  "source": "draft_drm",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   }
+  ],
+  "description": "A child dances in the dust to make it rain and asks a grown-up to join in: dance with them, or say rain comes when it comes.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It hasn't rained for days, the garden is dry, and (subject) has decided to make it rain. (subject.He/she) is dancing in a circle in the dust, stamping (subject.his/her) feet and waving a leaf at the sky. (subject.He/she) asks (friend) to join in, because (subject.he/she) thinks two dancers will work better.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Dance with (subject.him/her)",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Tell (subject.him/her) Rain Comes When It Comes",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Some people believe dancing helps,\" says (friend). \"Some don't. I'm not sure. Rain comes when it's ready, I think.\" (subject) considers this and decides to keep dancing, just in case. It doesn't rain today. (subject) is undeterred. \"Tomorrow,\" (subject.he/she) says. \"It's getting ready.\"",
+   "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) joins in, stamping and waving. They dance until they're out of breath. The sky stays blue. That evening, quite late, a few fat drops fall on the roofs. Just a few. (subject) runs out and stands in them with (subject.his/her) arms spread wide. (friend) doesn't know what to think, and decides not to try.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) joins in, stamping and waving. They dance until they're out of breath. The sky stays blue. That evening, quite late, a few fat drops fall on the roofs. Just a few. (subject) runs out and stands in them with (subject.his/her) arms spread wide. (friend) doesn't know what to think, and decides not to try.",
+   "src": "L590"
+  }
+ }
+}

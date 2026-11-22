@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "In the Middle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif24_middle",
+  "source": "draft_lif",
+  "lines": [
+   278,
+   287
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L278",
+  "ledger": [
+   {
+    "src": "L279",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40-54)"
+   }
+  ],
+  "description": "At the festival, a villager is too old to dance all night and too young for the elders' log: dance, or sit with the elders.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40,
+   "max_age": 54
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the festival, the young people are dancing wildly by the fire, and the elders are sitting in a row on the log, watching and commenting. (name1) is standing between them, not quite sure which way to go. (He/she) is too old to dance all night and too young to sit on the elders' log. (He/she) is, (he/she) realizes, in the middle.",
+   "src": "L281",
+   "choices": [
+    {
+     "label": "Dance for a While",
+     "next": "o1",
+     "src": "L283"
+    },
+    {
+     "label": "Sit with the Elders",
+     "next": "o2",
+     "src": "L286"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) dances. For a while, at least. (He/she) is out of breath much sooner than (he/she) used to be, but (he/she) has better moves than (he/she) remembered. Then (he/she) sits on the end of the elders' log for a rest. The elders shift to make room. Nobody says anything. (name1) decides the middle is the best place to be: you get to do both.",
+   "src": "L284",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L284"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) dances. For a while, at least. (He/she) is out of breath much sooner than (he/she) used to be, but (he/she) has better moves than (he/she) remembered. Then (he/she) sits on the end of the elders' log for a rest. The elders shift to make room. Nobody says anything. (name1) decides the middle is the best place to be: you get to do both.",
+   "src": "L284"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) sits on the end of the log. The elders welcome (him/her) with a nod. The commentary is excellent: who's dancing with whom, who's going to fall over next, who used to dance exactly like that in their day. (name1) laughs harder than (he/she) has all year. Halfway through, (he/she) gets up and dances one dance, just to prove (he/she) can.",
+   "src": "L287",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L287"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(name1) sits on the end of the log. The elders welcome (him/her) with a nod. The commentary is excellent: who's dancing with whom, who's going to fall over next, who used to dance exactly like that in their day. (name1) laughs harder than (he/she) has all year. Halfway through, (he/she) gets up and dances one dance, just to prove (he/she) can.",
+   "src": "L287"
+  }
+ }
+}

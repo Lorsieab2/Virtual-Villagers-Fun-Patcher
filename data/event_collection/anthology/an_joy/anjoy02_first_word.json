@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Word",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy02_first_word",
+  "source": "anthology",
+  "lines": [
+   28698,
+   28711
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28698",
+  "ledger": [
+   {
+    "src": "L28699",
+    "kind": "sensitivity",
+    "before": "A toddler",
+    "after": "(toddler)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28701",
+    "kind": "sensitivity",
+    "before": "the toddler",
+    "after": "(toddler)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28702",
+    "kind": "sensitivity",
+    "before": "the toddler",
+    "after": "(toddler)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28707",
+    "kind": "sensitivity",
+    "before": "The toddler",
+    "after": "(toddler)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28708",
+    "kind": "sensitivity",
+    "before": "The toddler",
+    "after": "(toddler)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A toddler speaks a surprising first word.",
+  "label_case": "title",
+  "cast_only": [
+   "toddler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "toddler": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 5
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(toddler) speaks a surprising first word.",
+   "src": "L28699",
+   "choices": [
+    {
+     "label": "Celebrate Immediately",
+     "next": "a",
+     "src": "L28700"
+    },
+    {
+     "label": "Tell the Relatives",
+     "next": "b",
+     "src": "L28703"
+    },
+    {
+     "label": "Wait for Another Word",
+     "next": "c",
+     "src": "L28706"
+    },
+    {
+     "label": "Make a Playful Guessing Game",
+     "next": "d",
+     "src": "L28709"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28699"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The excitement startles (toddler) into silence.",
+   "src": "L28702"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The story becomes a favorite at dinner.",
+   "src": "L28704"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Different relatives insist they heard a different word.",
+   "src": "L28705"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(toddler) repeats it while playing.",
+   "src": "L28707"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(toddler) prefers pointing for another week.",
+   "src": "L28708"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The siblings invent hilarious guesses.",
+   "src": "L28710"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The adults realize the word refers to a favorite fruit.",
+   "src": "L28711"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family cheers and (toddler) giggles.",
+   "src": "L28701",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "toddler",
+     "mood": "good",
+     "src": "L28701"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family cheers and (toddler) giggles.",
+   "src": "L28701"
+  }
+ }
+}

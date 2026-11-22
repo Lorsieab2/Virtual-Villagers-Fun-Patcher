@@ -1,0 +1,310 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cask of Forgotten Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my014_cask_forgotten",
+  "source": "rewrites",
+  "lines": [
+   10641,
+   10696
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10641",
+  "ledger": [
+   {
+    "src": "L10642",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10643",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10652",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10659",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10666",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10673",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10647",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10648",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10649",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10650",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10653",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10660",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10667",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10674",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10654",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10656",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10661",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10663",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10668",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10670",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10675",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10677",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10680-10696",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The fishers drag a sealed cask up from an old wreck on the reef and pry it open on the beach.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The fishers drag a sealed cask up from an old wreck on the reef and pry it open on the beach. It's full of small discs of fired clay, hundreds of them, each stamped with marks. They clink softly when the cask is tilted, like rain on a roof.\nThe researchers soon realize the marks are names. Old names, from long ago. And then (subject), sifting idly through a handful of them, goes white. (subject.He/She) holds up one token. Stamped on it, clear as day, is (subject)'s own name. What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Search for the Owner",
+     "next": "c1",
+     "src": "L10647"
+    },
+    {
+     "label": "Read the Names Aloud",
+     "next": "c2",
+     "src": "L10648"
+    },
+    {
+     "label": "Burn the Tokens",
+     "next": "c3",
+     "src": "L10649"
+    },
+    {
+     "label": "Preserve the Records",
+     "next": "c4",
+     "src": "L10650"
+    }
+   ],
+   "src": "L10644-10645"
+  },
+  "c1o1": {
+   "text": "A grey-haired traveler stops at the sight of the tokens and takes one in a shaking hand. \"These are from my grandmother's village,\" the traveler says. \"They kept one for every person born there. The village was lost to the sea when I was a baby.\" The traveler stays a night, telling them everything (subject.he/she) remembers. As for (subject)'s token? \"Names come round again,\" the traveler shrugs. \"Names always do.\"",
+   "src": "L10655"
+  },
+  "c1o2": {
+   "text": "Nobody claims it. Nobody even recognizes it. The cask sits under the eaves of (subject)'s hut through a long week of rain, and when the rain finally stops and (subject) peers inside, (subject.he/she) counts the tokens again. There's one more than before. It's damp. The stamp on it is fresh. And no one can read it.",
+   "src": "L10657"
+  },
+  "c1": {
+   "text": "(subject) carries the cask from hut to hut and asks every traveler who passes through if they know where it came from...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10653"
+  },
+  "c2o1": {
+   "text": "By the time (subject) reaches the bottom of the cask, (subject.he/she) has gone very quiet. When someone calls (subject.him/her) for supper, (subject.he/she) doesn't answer. \"I've forgotten,\" (subject.he/she) says at last, puzzled but oddly calm. \"My name. I left it in there somewhere.\" Where (subject.his/her) name used to be there is only a blank, as if the old tokens took it, and from then on (subject.his/her) name is \"?\". The healers can find nothing wrong. Nobody knows quite what to make of it.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L10662",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Halfway through the cask, (friend), an elder sitting nearby, cries out and grabs (subject)'s arm. \"Say that one again.\" (subject) does. (friend) bursts into tears. It's the name of an uncle who sailed off before the elder was born and never came back, a name the elder's mother used to whisper at night. (friend) keeps the token on a cord around (friend.his/her) neck from then on.",
+   "src": "L10664"
+  },
+  "c2": {
+   "text": "(subject) sits on the beach as the sun goes down and reads the names aloud, one by one, slowly, so that someone hears them again...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10660"
+  },
+  "c3o1": {
+   "text": "The cask crackles, smokes and collapses into ash. The smoke smells of flowers, sweet unfamiliar flowers, like a garden nobody on the island has ever planted. The ash stays warm for a whole day and keeps that scent. People keep wandering down to the beach just to breathe it in.",
+   "src": "L10669",
+   "text_only": [
+    {
+     "src": "L10669",
+     "what": "\"collapses\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3o2": {
+   "text": "Just as the cask catches, a gust howls in off the sea and blows the tokens out of the fire and all over the sand. Not one of them is even scorched. Every name is still perfectly clear. (subject) gathers them up again in silence and puts them back in the cask. (subject.He/She) doesn't try that again.",
+   "src": "L10671"
+  },
+  "c3": {
+   "text": "\"Names of the dead shouldn't be dragged up from the sea,\" (subject) says. \"Let them rest.\" (subject.He/She) builds a fire on the beach and tips the cask into it...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10667"
+  },
+  "c4o1": {
+   "text": "The researchers are thrilled. Over many weeks, they sort the tokens by their marks and slowly piece together a picture of the people who lived on Isola long ago: the size of their families, the names they liked, even the years when many children were born. It's the most anyone has ever learned about the island's former inhabitants. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10676",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The tokens are stored carefully in a dry corner of the research hut, but the script on them won't give up its secrets. The researchers can read (subject)'s token and a handful of others, but the rest stay a mystery. \"One day,\" they say, every time someone asks. \"One day.\"",
+   "src": "L10678"
+  },
+  "c4": {
+   "text": "(subject) hands the whole cask over to the researchers and asks them to take good care of it...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10674"
+  }
+ }
+}

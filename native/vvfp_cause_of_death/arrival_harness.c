@@ -962,6 +962,115 @@ static void creation_save_cases(void) {
     creation(NULL, 0, 0);
 }
 
+/* 7b: THE FOUNDER SCREEN (The Tree of Life, New Believers; the live round 7, 2026-11-21, VV4 "R7
+   Test").  "Select 5 villagers" shows each candidate in a real record -- record [screen+0x18], the
+   number chosen so far -- and a Reject clears that record's present byte and makes the next
+   candidate there (VV4 0x43B830, VV5 0x43E220); a pregnant candidate's stand-in father is made in
+   the next free record and freed again.  The game's 600 s autosave runs on that screen too: there it
+   saved after three Selects with the fourth candidate on show, and the logs took him for a founder
+   (Arrived, then Unaccounted) while the two real last founders were never written.  Now a save while
+   the screen is open (scene 3) is no village yet: nothing is written, and the save after the start
+   writes exactly the five chosen, as Arrived 1..5 in a game with no Arrived record before. */
+static void founder_screen_cases(void) {
+    typedef int (__stdcall *creation_t)(void *, unsigned int, unsigned int);
+    typedef void (__stdcall *fields_t)(int, unsigned int *);
+    static const unsigned int STANDIN[5] = { 0, 0, 0, 0x43B965u, 0x43E353u };
+    creation_t creation = (creation_t)GetProcAddress(cause, "VvfpCauseTestCreationSave");
+    fields_t fields_of = (fields_t)GetProcAddress(cause, "VvfpCauseTestCreationFields");
+    unsigned int f[5];
+    unsigned char *manager;
+    unsigned char *buffer;
+    char path[MAX_PATH], unacc[MAX_PATH];
+    long size;
+    int i;
+    if (game != 4 && game != 5) return;
+    CHECK(creation != NULL && fields_of != NULL, "founder screen: the test DLL exports the probes");
+    if (creation == NULL || fields_of == NULL) return;
+    fields_of(game, f);
+    manager = (unsigned char *)calloc(1, 0x20000);
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    clean();                                   /* no Arrived record anywhere in this game */
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    write_save_file();
+    vv_village_publish("");
+    buffer = save_buffer("Arrival Tribe");
+    host_slot_value = 1;
+    *(int *)(manager + f[0]) = 1;
+    *(unsigned int *)(manager + f[1]) = 2u;    /* the name dialog: the creation save, nobody in it */
+    *(unsigned int *)(manager + f[3]) = 12345u;
+    creation(manager, 0, 0);
+    save_done(1, buffer);
+    *(unsigned int *)(manager + f[1]) = 3u;    /* "Select 5 villagers" */
+    /* Three chosen (records 0-2; the third renamed in the screen's name box before Select). */
+    villager(0, "Pickle", 720, 13, 19, 0);
+    created(0, MARK[game - 1].founder);
+    arrival_tick();
+    villager(1, "Maori", 840, 1, 28, 0);
+    created(1, MARK[game - 1].founder);
+    arrival_tick();
+    villager(2, "Tamaru", 500, 15, 14, 0);
+    created(2, MARK[game - 1].founder);
+    arrival_tick();
+    strcpy((char *)rec(2) + g->name, "Tamanu");
+    arrival_tick();
+    /* The fourth candidate on show; a pregnant one first, whose stand-in father is made and freed. */
+    villager(3, "Kaia", 600, 5, 5, 0);
+    created(3, MARK[game - 1].founder);
+    villager(4, "Standin", 900, 6, 6, 0);
+    created(4, STANDIN[game - 1]);
+    rec(4)[g->active] = 0;
+    arrival_tick();
+    /* Rejected: the same record holds the next candidate. */
+    villager(3, "Natui", 580, 16, 26, 0);
+    created(3, MARK[game - 1].founder);
+    arrival_tick();
+    /* The game's autosave, on this screen (and once more: nothing waits on it). */
+    if (f[4] == 0) creation(manager, 0, 0);
+    save_done(1, buffer);
+    arrival_tick();
+    save_done(1, buffer);
+    slot_births_path(1, path);
+    size = read_into(path);
+    CHECK(strstr(text, "Arrived ") == NULL && strstr(text, "  Name: Natui\r\n") == NULL,
+          "founder screen: a save while it is open writes no Arrived record (%ld bytes)", size);
+    /* Rejected again, twice; then two Selects. */
+    villager(3, "Rejecta", 610, 7, 7, 0);
+    created(3, MARK[game - 1].founder);
+    arrival_tick();
+    villager(3, "Maoa", 620, 8, 9, 0);
+    created(3, MARK[game - 1].founder);
+    arrival_tick();
+    villager(4, "Gavi", 640, 10, 11, 0);
+    created(4, MARK[game - 1].founder);
+    arrival_tick();
+    /* The fifth Select: the start-game step sets the start time and the village's own scene. */
+    *(unsigned int *)(manager + f[1]) = f[2];
+    CHECK(creation(manager, 3000, 3010) == 1 && *(unsigned int *)(manager + f[3]) == 0u,
+          "founder screen: the village started, its founders waiting -> the one creation save is asked");
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(arrived(1, "Pickle") != NULL && arrived(2, "Maori") != NULL && arrived(3, "Tamanu") != NULL
+          && arrived(4, "Maoa") != NULL && arrived(5, "Gavi") != NULL && count_of(text, "Arrived ") == 5
+          && count_of(text, "  How: Founder\r\n") == 5,
+          "founder screen: the save after the start writes exactly the five chosen, Arrived 1-5");
+    CHECK(strstr(text, "Natui") == NULL && strstr(text, "Kaia") == NULL && strstr(text, "Rejecta") == NULL
+          && strstr(text, "Standin") == NULL && strstr(text, "Tamaru") == NULL,
+          "founder screen: no rejected candidate, stand-in or pre-rename name is written");
+    unaccounted_path(unacc);
+    CHECK(!file_exists(unacc) || (read_into(unacc) >= 0 && strstr(text, "  Name: ") == NULL),
+          "founder screen: and nobody is Unaccounted");
+    save_done(1, buffer);
+    read_into(path);
+    CHECK(count_of(text, "Arrived ") == 5, "founder screen: a later save writes nothing more");
+    for (i = 0; i < 32; ++i) rec(i)[g->active] = 0;
+    reset(game, 1);
+    vv_reset_slot_state(game, 1, VILLAGE);
+    free(buffer);
+    creation(NULL, 0, 0);
+    free(manager);
+}
+
 /* The slot's save names "Birth Tribe" (the scan at load reads it). */
 static void write_birth_tribe_save(void) {
     static const DWORD HEADER[5] = { 12u, 12u, 12u, 24u, 24u };
@@ -2203,6 +2312,7 @@ int main(int argc, char **argv) {
         quit_cases();
         stale_slot_cases();
         creation_save_cases();
+        founder_screen_cases();
         renamed_cases();
         vv1_parented_cases();
         parents_cases();

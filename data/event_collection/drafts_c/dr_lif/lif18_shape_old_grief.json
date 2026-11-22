@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shape of an Old Grief",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif18_shape_old_grief",
+  "source": "draft_lif",
+  "lines": [
+   206,
+   215
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L206",
+  "ledger": [
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   }
+  ],
+  "description": "A villager hears a laugh like that of someone they lost and finds themselves smiling: talk about them, or keep the smile.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Long ago, someone (subject) loved very much died. For years afterward, any reminder of them hurt so badly (subject.he/she) had to leave the room. Today (subject) hears someone laughing on the path, and the laugh sounds just like theirs, and (subject.he/she) notices that, for the first time, (subject.he/she) is smiling. It still hurts. It's just a different shape now.",
+   "src": "L209",
+   "choices": [
+    {
+     "label": "Tell Someone About Them",
+     "next": "o1",
+     "src": "L211"
+    },
+    {
+     "label": "Keep the Smile to Yourself",
+     "next": "o2",
+     "src": "L214"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) about the person: how they laughed, the terrible jokes they told, the way they always burned the fish. (friend) listens and asks questions. (subject) finds (subject.he/she) can talk about them for a long time without stopping. It's good to say their name out loud. Afterward (subject.he/she) is tired, and a little sad, and glad (subject.he/she) did it.",
+   "src": "L212"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't tell anyone. (subject.He/she) just keeps walking, smiling a little, with the sound of that laugh in (subject.his/her) ears. It's still sore underneath. Maybe it always will be. But somewhere along the way, without (subject.him/her) noticing, missing them has turned into something (subject.he/she) can carry around without dropping everything else. (subject.He/she) doesn't know when that happened.",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L215"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't tell anyone. (subject.He/she) just keeps walking, smiling a little, with the sound of that laugh in (subject.his/her) ears. It's still sore underneath. Maybe it always will be. But somewhere along the way, without (subject.him/her) noticing, missing them has turned into something (subject.he/she) can carry around without dropping everything else. (subject.He/she) doesn't know when that happened.",
+   "src": "L215"
+  }
+ }
+}

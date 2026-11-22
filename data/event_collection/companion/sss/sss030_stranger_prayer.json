@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger's Prayer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss030_stranger_prayer",
+  "source": "companion",
+  "lines": [
+   6371,
+   6379
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6371",
+  "ledger": [
+   {
+    "src": "L6379",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A visitor speaks unfamiliar words over a meal, and a villager wonders what they mean.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A visitor speaks unfamiliar words over a meal. A local villager wonders whether the gesture is sacred, ordinary, or a warning.",
+   "src": "L6372",
+   "choices": [
+    {
+     "label": "Ask respectfully",
+     "next": "a",
+     "src": "L6373"
+    },
+    {
+     "label": "Offer a local blessing in return",
+     "next": "b",
+     "src": "L6375"
+    },
+    {
+     "label": "Let the moment pass",
+     "next": "c",
+     "src": "L6377"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The visitor explains a family custom, and both exchange stories.",
+   "src": "L6374"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The visitor smiles but does not adopt the custom; mutual respect remains.",
+   "src": "L6376"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "No explanation comes, yet the meal is peaceful.",
+   "src": "L6378",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L6378"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "No explanation comes, yet the meal is peaceful.",
+   "src": "L6378"
+  }
+ }
+}

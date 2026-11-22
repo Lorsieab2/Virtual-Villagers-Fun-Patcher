@@ -1,0 +1,286 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Friend Is Left Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage09_friend_left",
+  "source": "anthology",
+  "lines": [
+   30253,
+   30267
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30253",
+  "ledger": [
+   {
+    "src": "L30254",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30255",
+    "kind": "sensitivity",
+    "before": "A teenager",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30255",
+    "kind": "sensitivity",
+    "before": "a close friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30257",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30258",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30258",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30264",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30266",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30267",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager realizes that a close friend has quietly stopped receiving invitations to group games.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen) realizes that (friend) has quietly stopped receiving invitations to group games.",
+   "src": "L30255",
+   "choices": [
+    {
+     "label": "Ask Privately What Happened",
+     "next": "a",
+     "src": "L30256"
+    },
+    {
+     "label": "Speak to the Group Without Naming Names",
+     "next": "b",
+     "src": "L30259"
+    },
+    {
+     "label": "Invite the Friend to a Small Activity",
+     "next": "c",
+     "src": "L30262"
+    },
+    {
+     "label": "Examine Their Own Behavior",
+     "next": "d",
+     "src": "L30265"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(friend) admits feeling excluded, and (teen) listens without making promises for everyone.",
+   "src": "L30258"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The group adopts a habit of extending invitations more widely.",
+   "src": "L30260"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some friends become defensive, prompting a slower conversation about unintentional exclusion.",
+   "src": "L30261"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(friend) declines but appreciates an invitation without pressure.",
+   "src": "L30264"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(teen) remembers overlooking an earlier message and offers a sincere apology.",
+   "src": "L30266"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen) realizes that friendship cannot be managed for someone else and respects their choice.",
+   "src": "L30267"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(friend) explains they have been exhausted and appreciate being asked.",
+   "src": "L30257",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L30257"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(friend) explains they have been exhausted and appreciate being asked.",
+   "src": "L30257"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The two enjoy an easy afternoon repairing a woven game board.",
+   "src": "L30263",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L30263"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L30263"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The two enjoy an easy afternoon repairing a woven game board.",
+   "src": "L30263"
+  }
+ }
+}

@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Friends, Two Dreams",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm32_two_friends_two",
+  "source": "draft_drm",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two young adults)"
+   }
+  ],
+  "description": "Two best friends realize they dream of different lives, one roaming and one staying: talk it through, or change the subject.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been best friends since they were small. Tonight, lying on the beach, they are talking about the future. (subject) wants to see every corner of the island, and maybe beyond. (friend) wants to stay right here, in this village, near this beach, forever. They have just realized, both at once, that these are not the same dream.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Talk It Through",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Change the Subject",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They talk for a long time. Neither changes the other's mind. \"You'll come back and tell me everything,\" says (friend). \"And you'll be here,\" says (subject). It isn't a perfect solution. But it is a promise, and they both mean it, and that will have to do.",
+   "src": "L386"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Let's not decide tonight,\" says (friend). (subject) agrees, relieved. They talk about fish instead, and the weather, and a funny thing that happened at lunch. The other conversation is still there, waiting. Some nights it's alright to leave it waiting.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Let's not decide tonight,\" says (friend). (subject) agrees, relieved. They talk about fish instead, and the weather, and a funny thing that happened at lunch. The other conversation is still there, waiting. Some nights it's alright to leave it waiting.",
+   "src": "L389"
+  }
+ }
+}

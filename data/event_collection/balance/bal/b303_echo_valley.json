@@ -1,0 +1,200 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Echo Valley",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b303_echo_valley",
+  "source": "balance",
+  "lines": [
+   14058,
+   14098
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14058",
+  "ledger": [
+   {
+    "src": "L14059",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14060",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14067",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14076",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14064",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14065",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14068",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14077",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14070",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14073",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14079",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14082",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14085-14098",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Over the ridge there is a narrow valley where any shout comes back three times.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Over the ridge there is a narrow valley where any shout comes back three times. The children love it. The elders don't, and won't say why, except that a long time ago someone shouted their own name into the valley, and the third echo came walking back up the path.\n(Name) is crossing the valley on the way to the far gardens. It's very quiet. (He/She) has always wondered. Should (he/she) shout (his/her) own name, or just whistle and see what comes back?",
+   "choices": [
+    {
+     "label": "Shout (His/Her) Name",
+     "next": "c1",
+     "src": "L14064"
+    },
+    {
+     "label": "Just Whistle",
+     "next": "c2",
+     "src": "L14065"
+    }
+   ],
+   "src": "L14061-14062"
+  },
+  "c1o1": {
+   "text": "Up the path comes (name), exactly: same face, same walk, same habit of humming when nervous. It is humming now. \"You called?\" it says, in (name)'s voice. The two of them walk to the far gardens together, and then back to the village, where the elders take one look and say, \"Told you.\" The newcomer is named (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L14071",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Up the path comes someone with (name)'s face, but the echo has bounced off too many rocks on its way back. It has (name)'s looks and nothing else: different likes, different dislikes, different talents. \"That's not how you say it,\" it tells (name), and says (name)'s name properly, which sounds exactly the same. It takes the name (made1), and the two of them never agree about anything.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L14074",
+   "text_only": [
+    {
+     "src": "L14074",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) cups (his/her) hands and shouts (his/her) own name as loud as (he/she) can. It comes back once. Twice. The third echo doesn't come back. Instead, there are footsteps on the path...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14068"
+  },
+  "c2o1": {
+   "text": "On the third echo, a bird answers from a tree halfway up the valley, whistling the same tune perfectly. It follows (name) to the far gardens and back, whistling the whole way. It moves into the palm by (name)'s hut and whistles the tune every morning. The children think it's wonderful. The neighbours do not.",
+   "src": "L14080"
+  },
+  "c2o2": {
+   "text": "The third echo whistles back in tune. Then someone walks up the path whistling it: someone with (name)'s face, in a good mood, who claims to have been \"waiting for someone to pick a decent tune.\" It takes the name (made1), has none of (name)'s habits, and is, everyone agrees, far better company in the mornings.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L14083",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) whistles a little tune. It comes back once, twice, three times, each one slightly out of tune...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14077"
+  }
+ }
+}

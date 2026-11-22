@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mould That Made a Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s031_mould_made_friend",
+  "source": "rewrites",
+  "lines": [
+   1450,
+   1494
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L1450",
+  "ledger": [
+   {
+    "src": "L1451",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1452",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1460",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1469",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1457",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1458",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1461",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1470",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1463",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1466",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1472",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1475",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1478-1494",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been meaning to deal with it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has left (his/her) spare sleeping mat rolled up in a damp corner of the hut for a very, very long time. Everyone has told (him/her) about it. The corner now smells like a forest floor after rain, and a neat little row of tiny brown mushrooms has sprouted along the edge of the mat. (Name) has been meaning to deal with it. What (name) doesn't know is that these are mirror-caps, the little brown mushrooms the elders warn children about, which feed on whoever sleeps nearest to them and grow into a copy of that person.\nLast night, something on the mat grew.\nThis morning (name) wakes to a rustling in the corner. (He/She) sits up. The mat has unrolled itself, and sitting up on it, stretching and yawning, is (name). A perfect copy, right down to the little scar on (his/her) thumb, blinking sleepily and picking a mushroom out of (his/her) hair. Should (name) say hello, or drag the mat out into the sun and hope it dries up?",
+   "choices": [
+    {
+     "label": "Introduce Yourself",
+     "next": "c1",
+     "src": "L1457"
+    },
+    {
+     "label": "Hang the Mat in the Sun",
+     "next": "c2",
+     "src": "L1458"
+    }
+   ],
+   "src": "L1453-1455"
+  },
+  "c1o1": {
+   "text": "\"Hello,\" says the copy, in exactly the same voice, with exactly the same little catch in it. It shakes (his/her) hand. It's warm, and only a little bit damp. It has the same likes, the same dislikes, the same talents, the same terrible jokes, and exactly the same need for breakfast. It follows (name) out to the cooking fire and eats exactly what (name) eats, in exactly the same order. The village is completely baffled. After some discussion the copy settles on the name (made1), and the very first thing (made1) does is help (name) throw out the mat.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L1464",
+   "text_only": [
+    {
+     "src": "L1464",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The copy reaches out and shakes (his/her) hand, firmly, warmly, and smiles (name)'s exact smile. Then, still smiling, it crumbles. Not horribly: softly, gently, like a sandcastle in the sun, into a small pile of very clean, very fine, pale dust on the mat. The mushrooms are gone too. (Name) sits and looks at the pile for a long time. Then (he/she) gets up and, at long last, takes the mat down to the river and washes it.",
+   "src": "L1467"
+  },
+  "c1": {
+   "text": "(Name)'s mouth is very dry. (He/She) clears (his/her) throat and holds out a slightly trembling hand towards the corner. \"Hello,\" (he/she) says. \"I'm... well. I'm (name).\" The copy looks at the hand for a long moment...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1461"
+  },
+  "c2o1": {
+   "text": "The sun dries the mat, and the copy too. It sits on the fence in the sunshine, steaming gently, and as it dries it seems to become more solid, more real, more definite. Then the far end of the mat flops open, and a second copy tumbles out onto the grass, grown from a row of mushrooms on the underside that nobody had noticed. By noon both of them blink, stretch, and look around. \"Harvest today, isn't it?\" they say together, in (name)'s voice. They know exactly where the baskets are kept. They go off to help with the harvest without being asked, and {#made:only one comes back, calling itself (made1)|come back calling themselves (made1) and (made2)}, and nobody can find any reason to argue.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L1473",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The sun dries the mat, and the copy dries with it, paler and paler, thinner and thinner, like mist burning off a morning field, until there's nothing on the fence but the mat. (Name) is oddly sad about it, which (he/she) did not expect. (He/She) spends the next week rebuilding the whole back wall of (his/her) hut so the damp can never get in again: new posts, new thatch, a raised floor. (He/She) finds, to (his/her) surprise, that (he/she) really likes working with wood, and the hut has never been so dry.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L1476"
+  },
+  "c2": {
+   "text": "(Name) doesn't trust anything that grows in a damp corner. Without a word, (he/she) grabs the edge of the mat and drags it, copy and all, out of the hut and into the blazing sunshine, and throws it over a fence...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1470"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "wood",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Red Hair Experiment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvppl01_red_hair",
+  "source": "living",
+  "lines": [
+   21665,
+   21676
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21665",
+  "ledger": [
+   {
+    "src": "L21676",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager wants to dye their hair with a bright berry pigment."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager wants to dye their hair with a bright berry pigment.",
+   "src": "L21666",
+   "choices": [
+    {
+     "label": "Try the berry dye.",
+     "next": "a",
+     "src": "L21667"
+    },
+    {
+     "label": "Keep their natural hair.",
+     "next": "b",
+     "src": "L21670"
+    },
+    {
+     "label": "Test a small lock first.",
+     "next": "c",
+     "src": "L21673"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The dye fades unevenly, leaving the villager amused and slightly embarrassed.",
+   "src": "L21669"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager decides their familiar appearance suits them best.",
+   "src": "L21671"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A friend praises the choice, though the villager wonders about trying color someday.",
+   "src": "L21672"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The test reveals a vivid shade that the villager chooses to wear.",
+   "src": "L21674",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L21674"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The pigment irritates the skin, and the villager washes it away.",
+   "src": "L21675",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": -30,
+     "max": -10,
+     "src": "L21675"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The color takes beautifully, and the villager proudly keeps the new look.",
+   "src": "L21668",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L21668"
+    },
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21668"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The color takes beautifully, and the villager proudly keeps the new look.",
+   "src": "L21668",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "villager",
+     "head": "random",
+     "src": "L21668"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

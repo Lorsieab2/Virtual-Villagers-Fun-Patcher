@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moment Nobody Noticed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif26_moment_nobody",
+  "source": "draft_lif",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older)"
+   }
+  ],
+  "description": "A villager traces their life to one afternoon helping the builders: find the spot, or tell someone the story.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is trying to work out where (subject.his/her) life changed direction, and can't find a big moment. No storm, no great decision, no dramatic day. Instead, (subject.he/she) keeps coming back to a small one: years ago, (subject.he/she) was invited to help the builders for a single afternoon, said yes on a whim, and never really went back to (subject.his/her) old work.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Find the Spot Where It Happened",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Tell Someone the Story",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) walks to where the builders were working that day. It's a hut now, one of the oldest. (subject.He/she) puts a hand on the post (subject.he/she) remembers holding steady. Everything after started here, on an afternoon (subject.he/she) almost said no. (subject.He/she) wonders what (subject.his/her) life would have been if (subject.he/she) had said no. (subject.He/she) finds (subject.he/she) doesn't really want to know.",
+   "src": "L302"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) tells (friend) about it: the whim, the afternoon, everything after. (friend) is fascinated. \"So your whole life was an accident?\" (subject) thinks about it. \"Most of the good bits, anyway.\" (friend) starts thinking about (friend.his/her) own life, and the small accidents in it. They're still talking about it after dark.",
+   "src": "L305"
+  }
+ }
+}

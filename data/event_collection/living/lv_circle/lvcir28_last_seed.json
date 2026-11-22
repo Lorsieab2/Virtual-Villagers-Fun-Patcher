@@ -1,0 +1,176 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Seed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir28_last_seed",
+  "source": "living",
+  "lines": [
+   21595,
+   21606
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21595",
+  "ledger": [
+   {
+    "src": "L21606",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A botanist must choose whether to eat, plant, or preserve the final seed of a rare edible tree.",
+  "cast_only": [
+   "botanist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "botanist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A botanist must choose whether to eat, plant, or preserve the final seed of a rare edible tree.",
+   "src": "L21596",
+   "choices": [
+    {
+     "label": "Eat it during a famine.",
+     "next": "a",
+     "src": "L21597"
+    },
+    {
+     "label": "Plant it in carefully tended soil.",
+     "next": "b",
+     "src": "L21600"
+    },
+    {
+     "label": "Store it for future study.",
+     "next": "c",
+     "src": "L21603"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The seed feeds one hungry villager, but the tree may vanish from Isola.",
+   "src": "L21598",
+   "text_only": [
+    {
+     "what": "vanish",
+     "reason": "the tree may vanish from Isola, not a villager",
+     "src": "L21598"
+    }
+   ]
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The seed sprouts, giving the village hope for future fruit.",
+   "src": "L21601"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The seed fails to germinate, leaving the botanist grieving.",
+   "src": "L21602"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The catalogue preserves its identity while the village waits.",
+   "src": "L21604"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The seed loses viability, teaching the limits of preservation.",
+   "src": "L21605"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The meal provides little relief, and the botanist mourns the lost chance.",
+   "src": "L21599",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "botanist",
+     "mood": "bad",
+     "src": "L21599"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The meal provides little relief, and the botanist mourns the lost chance.",
+   "src": "L21599"
+  }
+ }
+}

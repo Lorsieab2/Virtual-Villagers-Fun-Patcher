@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Do Their Children Climb Trees?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz102_do_their",
+  "source": "draft_hz2",
+  "lines": [
+   270,
+   280
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L270",
+  "ledger": [
+   {
+    "src": "L271",
+    "kind": "sensitivity",
+    "before": "an elder",
+    "after": "(name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Watching children scramble up a palm, an elder wonders whether children everywhere climb trees.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Watching children scramble up a palm, (name1), an elder, wonders whether children everywhere climb trees.",
+   "src": "L271",
+   "choices": [
+    {
+     "label": "Imagine Climbing Children.",
+     "next": "a",
+     "src": "L272"
+    },
+    {
+     "label": "Imagine Places with No Trees.",
+     "next": "b",
+     "src": "L275"
+    },
+    {
+     "label": "Join the Climbing.",
+     "next": "c",
+     "src": "L278"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder imagines distant children reaching for fruit and scraped knees, just like here.",
+   "src": "L273"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent hopes distant parents worry just as much as they do.",
+   "src": "L274"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A child wonders what children would climb instead; the answers become wilder and wilder.",
+   "src": "L276"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar suggests children might climb walls, rocks or anything else, because climbing seems to be what children do.",
+   "src": "L277"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder decides the ground is perfectly comfortable and cheers from there.",
+   "src": "L280"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The elder climbs a short way up and is cheered by the children.",
+   "src": "L279",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L279"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The elder climbs a short way up and is cheered by the children.",
+   "src": "L279"
+  }
+ }
+}

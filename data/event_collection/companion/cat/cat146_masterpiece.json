@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Incorrect Masterpiece",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat146_masterpiece",
+  "source": "companion",
+  "lines": [
+   8849,
+   8859
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8849",
+  "ledger": [
+   {
+    "src": "L8859",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A renowned artist paints a Greenfin Spotanus with the wrong fin and the wrong name.",
+  "cast_only": [
+   "artist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "artist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A renowned artist paints a Greenfin Spotanus with the wrong fin and labels it a Twin-Fin Spotanus.",
+   "src": "L8850",
+   "choices": [
+    {
+     "label": "Correct the label openly",
+     "next": "a",
+     "src": "L8851"
+    },
+    {
+     "label": "Keep the original with an annotation",
+     "next": "b",
+     "src": "L8853"
+    },
+    {
+     "label": "Ask another observer",
+     "next": "c",
+     "src": "L8855"
+    },
+    {
+     "label": "Hide the error",
+     "next": "d",
+     "src": "L8857"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Future students see how knowledge changes.",
+   "src": "L8854"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A second sketch raises new questions about variation.",
+   "src": "L8856"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A young researcher finds the discrepancy years later; trust suffers.",
+   "src": "L8858"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The artist is embarrassed, but the catalogue improves.",
+   "src": "L8852",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "bad",
+     "src": "L8852"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8852"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The artist is embarrassed, but the catalogue improves.",
+   "src": "L8852"
+  }
+ }
+}

@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Shimmering Scale",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat135_shimmering",
+  "source": "companion",
+  "lines": [
+   8717,
+   8727
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8717",
+  "ledger": [
+   {
+    "src": "L8727",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A rare reef fish sheds scales that make seawater-proof dyes, and only three such fish are known."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "dye_maker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A rare reef fish sheds a scale whose pigment makes dyes unusually resistant to seawater. Only three fish have been observed.",
+   "src": "L8718",
+   "choices": [
+    {
+     "label": "Collect shed scales only",
+     "next": "a",
+     "src": "L8719"
+    },
+    {
+     "label": "Capture one for study",
+     "next": "b",
+     "src": "L8721"
+    },
+    {
+     "label": "Invent a substitute",
+     "next": "c",
+     "src": "L8723"
+    },
+    {
+     "label": "Protect the site",
+     "next": "d",
+     "src": "L8725"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The dye maker gets very little pigment but the fish remain alive.",
+   "src": "L8720"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A valuable sample is obtained, but the population may be harmed and the decision becomes controversial.",
+   "src": "L8722"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A mineral glaze works nearly as well but costs more labor.",
+   "src": "L8724",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "dye_maker",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8724"
+    }
+   ],
+   "auto_text": true
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d__fx"
+    },
+    {
+     "next": "d__text"
+    }
+   ]
+  },
+  "d__fx": {
+   "name": "Answer D",
+   "text": "The village restricts disturbance and learns more about breeding.",
+   "src": "L8726",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L8726"
+    }
+   ],
+   "auto_text": true
+  },
+  "d__text": {
+   "name": "Answer D",
+   "text": "The village restricts disturbance and learns more about breeding.",
+   "src": "L8726"
+  }
+ }
+}

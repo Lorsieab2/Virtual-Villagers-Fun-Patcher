@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Birthday",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy06_elder_birthday",
+  "source": "anthology",
+  "lines": [
+   28758,
+   28771
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28758",
+  "ledger": [
+   {
+    "src": "L28759",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28761",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28762",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28764",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28765",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28771",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder quietly reaches another birthday.",
+  "label_case": "title",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) quietly reaches another birthday.",
+   "src": "L28759",
+   "choices": [
+    {
+     "label": "Plan a Surprise",
+     "next": "a",
+     "src": "L28760"
+    },
+    {
+     "label": "Ask What They Want",
+     "next": "b",
+     "src": "L28763"
+    },
+    {
+     "label": "Invite Old Friends",
+     "next": "c",
+     "src": "L28766"
+    },
+    {
+     "label": "Celebrate with Children",
+     "next": "d",
+     "src": "L28769"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28759"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(elder) admits that surprises make them nervous.",
+   "src": "L28762"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder) requests an afternoon of storytelling.",
+   "src": "L28764"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) asks everyone to leave them time for a nap.",
+   "src": "L28765"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Long-separated companions share affectionate memories.",
+   "src": "L28767"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The reunion feels bittersweet as they recall absent friends.",
+   "src": "L28768"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children make a charmingly lopsided cake substitute.",
+   "src": "L28770"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder) spends the day teaching an old game.",
+   "src": "L28771"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(elder) is delighted by the gathering.",
+   "src": "L28761",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L28761"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(elder) is delighted by the gathering.",
+   "src": "L28761"
+  }
+ }
+}

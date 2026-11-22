@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Villager Who Talks to the Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il002_villager_talks",
+  "source": "da_il01",
+  "lines": [
+   23,
+   32
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L23",
+  "ledger": [
+   {
+    "src": "L24",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L32",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager chats away to the fish while fishing alone: join the conversation, or leave them to it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been fishing alone all morning, and anyone walking by can hear (subject.him/her) chatting away. \"Come on, little one. I know you're down there. I have a lovely worm for you. No? Fine. Be like that.\" (friend) stops on the path and listens for a while.",
+   "src": "L26",
+   "choices": [
+    {
+     "label": "Join the Conversation",
+     "next": "a",
+     "src": "L28"
+    },
+    {
+     "label": "Leave (subject.him/her) to It",
+     "next": "b",
+     "src": "L31"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) smiles and walks on. Behind (friend.him/her), (subject) is now explaining the whole history of the village to a very patient crab. Later that day (subject) comes home with a basket full of fish and refuses to say which of them was listening.",
+   "src": "L32",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L32"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Have they answered yet?\" (friend) asks. (subject) doesn't even turn around. \"They're shy today.\" (friend) sits down and starts talking to the fish too. Neither of them catches anything, but it's the best morning either has had all week.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L29"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Have they answered yet?\" (friend) asks. (subject) doesn't even turn around. \"They're shy today.\" (friend) sits down and starts talking to the fish too. Neither of them catches anything, but it's the best morning either has had all week.",
+   "src": "L29"
+  }
+ }
+}

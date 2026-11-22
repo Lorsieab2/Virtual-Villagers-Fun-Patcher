@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Temple",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns28_empty_temple",
+  "source": "living",
+  "lines": [
+   22531,
+   22542
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22531",
+  "ledger": [
+   {
+    "src": "L22542",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child asks whether a temple without visible gods is still sacred.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks whether a temple without visible gods is still sacred.",
+   "src": "L22532",
+   "choices": [
+    {
+     "label": "Honor the place as a home for memory.",
+     "next": "a",
+     "src": "L22533"
+    },
+    {
+     "label": "Use the temple for practical care.",
+     "next": "b",
+     "src": "L22536"
+    },
+    {
+     "label": "Allow several uses.",
+     "next": "c",
+     "src": "L22539"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Families gather to remember those who came before.",
+   "src": "L22534"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Some villagers wish for more explicit rituals.",
+   "src": "L22535"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The building shelters travelers during heavy rain.",
+   "src": "L22537"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder fears its original purpose is being forgotten.",
+   "src": "L22538"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The temple becomes a place for reflection and service.",
+   "src": "L22540"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Disagreements over scheduling require patient compromise.",
+   "src": "L22541"
+  }
+ }
+}

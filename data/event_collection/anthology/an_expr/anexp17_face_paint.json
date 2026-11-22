@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Face of Paint",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp17_face_paint",
+  "source": "anthology",
+  "lines": [
+   31504,
+   31518
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31504",
+  "ledger": [
+   {
+    "src": "L31505",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31506",
+    "kind": "sensitivity",
+    "before": "a visitor",
+    "after": "(visitor), a visitor,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31508",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(artist)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31509",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31515",
+    "kind": "sensitivity",
+    "before": "A performer",
+    "after": "(artist), a performer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31517",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A village performance features temporary face paint, but a visitor mistakes it for a sacred mark.",
+  "label_case": "title",
+  "cast_only": [
+   "artist",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  },
+  "artist": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A village performance features temporary face paint, but (visitor), a visitor, mistakes it for a sacred mark.",
+   "src": "L31506",
+   "choices": [
+    {
+     "label": "Explain the Performance",
+     "next": "a",
+     "src": "L31507"
+    },
+    {
+     "label": "Invite Participation",
+     "next": "b",
+     "src": "L31510"
+    },
+    {
+     "label": "Discuss Respectful Borrowing",
+     "next": "c",
+     "src": "L31513"
+    },
+    {
+     "label": "Keep the Paint Playful",
+     "next": "d",
+     "src": "L31516"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(artist) clarifies that the marks are fictional stage designs.",
+   "src": "L31508"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(visitor) asks thoughtful questions about local customs.",
+   "src": "L31509"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Guests paint their hands with permission.",
+   "src": "L31511"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One visitor prefers to watch.",
+   "src": "L31512"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group avoids copying restricted motifs from another people.",
+   "src": "L31514"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(artist), a performer, revises a design after hearing its unintended resemblance.",
+   "src": "L31515"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) draws a spectacular crooked star.",
+   "src": "L31517"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "Rain washes the designs away amid laughter.",
+   "src": "L31518",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L31518"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L31518"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "Rain washes the designs away amid laughter.",
+   "src": "L31518"
+  }
+ }
+}

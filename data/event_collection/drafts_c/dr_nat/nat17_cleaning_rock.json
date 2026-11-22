@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cleaning Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat17_cleaning_rock",
+  "source": "draft_nat",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-13 and an adult)"
+   }
+  ],
+  "description": "A child has found a rock where big fish wait in line to be cleaned by little ones: go and see, or ask the child to explain it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been floating face-down in the shallows, looking through the clear water, for most of the morning. (subject.He/she) comes up spluttering with news. \"There's a rock where all the big fish wait in a LINE, and little stripy fish swim right into their MOUTHS and they don't get EATEN.\" (friend) has heard of this. (subject) is not sure (friend) believes (subject.him/her).",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Go and See",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Ask (subject) to Explain It",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks how (subject) thinks it works. (subject) has many theories. The little fish are the big fish's servants. The big fish are the little fish's friends. They made a deal a long time ago. (friend) suggests maybe both get something they need. (subject) thinks about it. \"So it's like when you do my hair and I tell you stories.\" \"Exactly like that,\" says (friend).",
+   "src": "L209"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They float out together. It's true. Big fish hang in the water beside the rock, mouths wide, gills open, perfectly still, while tiny striped fish dart in and out, picking them clean. Nobody pushes in. Nobody eats anybody. (subject) watches for so long (subject.his/her) back gets sunburnt. That night (subject.he/she) asks if people could take turns like that. (friend) says people could probably learn a lot from fish.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -20,
+     "max": -10,
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They float out together. It's true. Big fish hang in the water beside the rock, mouths wide, gills open, perfectly still, while tiny striped fish dart in and out, picking them clean. Nobody pushes in. Nobody eats anybody. (subject) watches for so long (subject.his/her) back gets sunburnt. That night (subject.he/she) asks if people could take turns like that. (friend) says people could probably learn a lot from fish.",
+   "src": "L206"
+  }
+ }
+}

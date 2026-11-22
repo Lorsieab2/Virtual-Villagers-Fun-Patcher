@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cold Water Cure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea27_cold_water_cure",
+  "source": "draft_hea",
+  "lines": [
+   323,
+   332
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L323",
+  "ledger": [
+   {
+    "src": "L324",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A healer suggests a villager with a sore back swim in the cold lagoon: get in the water, or ask for a warmer way.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s back has been sore for months. (friend) has a suggestion: swim in the lagoon every day. \"The water holds you up,\" (friend) says. \"Your back can move without carrying you.\" (subject) hates cold water more than (subject.he/she) hates (subject.his/her) back. The lagoon is cold. Quite cold. Some mornings, VERY cold.",
+   "src": "L326",
+   "choices": [
+    {
+     "label": "Get in the Water",
+     "next": "o1",
+     "src": "L328"
+    },
+    {
+     "label": "Ask for a Warmer Way",
+     "next": "o2",
+     "src": "L331"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) wades in every morning, shrieking a little each time, and paddles about for as long as (subject.he/she) can bear. A few weeks later (subject.his/her) back is moving more easily, though it still aches after a long day. (subject.He/she) has also, quite against (subject.his/her) will, started to look forward to the shriek. Nobody is more surprised than (subject).",
+   "src": "L329",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L329"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) wades in every morning, shrieking a little each time, and paddles about for as long as (subject.he/she) can bear. A few weeks later (subject.his/her) back is moving more easily, though it still aches after a long day. (subject.He/she) has also, quite against (subject.his/her) will, started to look forward to the shriek. Nobody is more surprised than (subject).",
+   "src": "L329"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Is there something that doesn't involve freezing?\" asks (subject). (friend) thinks. \"A warm stone and slow stretches. It'll probably take longer. It might not help as much. Or it might help just as much. Backs are like that.\" (subject) chooses the warm stone. (subject.His/her) back improves, slowly, a bit. (subject.He/she) is never cold once. (subject.He/she) considers this a total victory.",
+   "src": "L332",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 20,
+     "src": "L332"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L332"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Is there something that doesn't involve freezing?\" asks (subject). (friend) thinks. \"A warm stone and slow stretches. It'll probably take longer. It might not help as much. Or it might help just as much. Backs are like that.\" (subject) chooses the warm stone. (subject.His/her) back improves, slowly, a bit. (subject.He/she) is never cold once. (subject.He/she) considers this a total victory.",
+   "src": "L332"
+  }
+ }
+}

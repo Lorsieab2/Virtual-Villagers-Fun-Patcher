@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Asked for Proof",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway22_child_asked",
+  "source": "living",
+  "lines": [
+   23040,
+   23054
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23040",
+  "ledger": [
+   {
+    "src": "L23054",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child asks why the village believes a sacred tree is protected by spirits.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child asks why the village believes a sacred tree is protected by spirits.",
+   "src": "L23041",
+   "choices": [
+    {
+     "label": "Tell the traditional story.",
+     "next": "a",
+     "src": "L23042"
+    },
+    {
+     "label": "Investigate the tree's unusual growth.",
+     "next": "b",
+     "src": "L23045"
+    },
+    {
+     "label": "Invite the child to pray if they wish.",
+     "next": "c",
+     "src": "L23048"
+    },
+    {
+     "label": "Say that some questions remain open.",
+     "next": "d",
+     "src": "L23051"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child enjoys the story and asks more questions.",
+   "src": "L23043"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child says a story is not the same as proof.",
+   "src": "L23044"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child learns about roots, water, and soil.",
+   "src": "L23046",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23046"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The investigation cannot address whether spirits exist.",
+   "src": "L23047"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child declines, and the elder accepts the answer.",
+   "src": "L23050"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child begins a notebook of competing ideas.",
+   "src": "L23052"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The uncertainty frustrates the child, who keeps searching.",
+   "src": "L23053"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child joins voluntarily and finds the ritual meaningful.",
+   "src": "L23049",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L23049"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child joins voluntarily and finds the ritual meaningful.",
+   "src": "L23049"
+  }
+ }
+}

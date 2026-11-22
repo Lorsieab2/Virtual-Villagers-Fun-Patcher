@@ -1,0 +1,177 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree's Fallen Fruit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir21_tree_fallen",
+  "source": "living",
+  "lines": [
+   21504,
+   21515
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21504",
+  "ledger": [
+   {
+    "src": "L21515",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A village debates whether fruit that falls on its own belongs to people, birds, or the forest.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A village debates whether fruit that falls on its own belongs to people, birds, or the forest.",
+   "src": "L21505",
+   "choices": [
+    {
+     "label": "Gather all usable fruit.",
+     "next": "a",
+     "src": "L21506"
+    },
+    {
+     "label": "Leave some for wildlife.",
+     "next": "b",
+     "src": "L21509"
+    },
+    {
+     "label": "Set a seasonal gathering rule.",
+     "next": "c",
+     "src": "L21512"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The stores fill, but fewer animals visit the grove.",
+   "src": "L21507",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21507"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The harvest spoils faster than the villagers can preserve it.",
+   "src": "L21508",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21508"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Birds and insects feast, while the village keeps a smaller share.",
+   "src": "L21510",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21510"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A hungry family questions whether the division is fair.",
+   "src": "L21511"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village adapts its harvest to the year's abundance.",
+   "src": "L21513",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21513"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A drought forces the council to reconsider the rule.",
+   "src": "L21514"
+  }
+ }
+}

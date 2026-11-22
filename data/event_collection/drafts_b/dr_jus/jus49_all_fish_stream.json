@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "All the Fish in the Stream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus49_all_fish_stream",
+  "source": "draft_jus",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's fish traps block the whole stream, and a fisher downstream catches nothing: ask the elders, or talk at the stream.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has set fish traps all the way across the stream, bank to bank, and (subject.his/her) catches have never been better. (friend), who fishes further downstream, hasn't caught a single fish in a week. Today (friend) has walked upstream and found out why.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Ask the Elders",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Talk at the Stream",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"You've closed off the whole stream,\" says (friend). (subject) looks at the traps as if seeing them for the first time. \"...I never thought about downstream.\" (subject.He/she) opens a wide gap in the middle. A few days later, (friend) brings (subject.him/her) the first fish (friend.he/she) catches, out of a sort of fairness.",
+   "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The elders rule that a stream belongs to everyone who fishes it: traps may reach halfway across, never the whole way. (subject) moves half of them, a bit grudgingly. Within days (friend) is catching fish again, and (subject) is catching nearly as many as before, which surprises them both.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L590"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The elders rule that a stream belongs to everyone who fishes it: traps may reach halfway across, never the whole way. (subject) moves half of them, a bit grudgingly. Within days (friend) is catching fish again, and (subject) is catching nearly as many as before, which surprises them both.",
+   "src": "L590"
+  }
+ }
+}

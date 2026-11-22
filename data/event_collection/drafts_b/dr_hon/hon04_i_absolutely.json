@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "I Absolutely Love It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon04_i_absolutely",
+  "source": "draft_hon",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend weaves a villager a very strange hat, and the villager says they love it: wear it, or gently tell the truth.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has woven a hat for (subject). It is bright orange and green, with a tall knot on top that wobbles. (subject) thinks it is the strangest hat (subject.he/she) has ever seen. (friend) is watching (subject.his/her) face hopefully. \"Do you like it?\" (subject) hears (subject.him/her)self say, \"I absolutely love it.\"",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Wear It",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Go Back and Tell (friend.him/her) Gently",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) wears it the next day, out of loyalty. (friend) is overjoyed. A week later, (friend) arrives with a second hat, even taller, with two knots, \"because you loved the first one so much.\" (subject) now owns two hats (subject.he/she) has no idea what to do with, and is privately starting to feel quite fond of the first one.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) wears it the next day, out of loyalty. (friend) is overjoyed. A week later, (friend) arrives with a second hat, even taller, with two knots, \"because you loved the first one so much.\" (subject) now owns two hats (subject.he/she) has no idea what to do with, and is privately starting to feel quite fond of the first one.",
+   "src": "L50"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "That evening (subject) goes back. \"I said I loved it. It's very... bold. I'm not sure it's me.\" (friend)'s face falls a little. \"Oh.\" Then: \"Can I have it back, then? Because I love it.\" (subject) hands it over. (friend) wears it everywhere, and somehow it suits (friend.him/her) perfectly. (subject) is relieved and, oddly, a little jealous.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "That evening (subject) goes back. \"I said I loved it. It's very... bold. I'm not sure it's me.\" (friend)'s face falls a little. \"Oh.\" Then: \"Can I have it back, then? Because I love it.\" (subject) hands it over. (friend) wears it everywhere, and somehow it suits (friend.him/her) perfectly. (subject) is relieved and, oddly, a little jealous.",
+   "src": "L53"
+  }
+ }
+}

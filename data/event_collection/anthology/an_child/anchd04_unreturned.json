@@ -1,0 +1,279 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unreturned Flower",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd04_unreturned",
+  "source": "anthology",
+  "lines": [
+   27617,
+   27630
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27617",
+  "ledger": [
+   {
+    "src": "L27618",
+    "kind": "sensitivity",
+    "before": "gives another child a flower",
+    "after": "gives (other), another child, a flower",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27618",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27620",
+    "kind": "sensitivity",
+    "before": "The other child",
+    "after": "(other)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27621",
+    "kind": "sensitivity",
+    "before": "The other child",
+    "after": "(other)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27623",
+    "kind": "sensitivity",
+    "before": "The giver",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27624",
+    "kind": "sensitivity",
+    "before": "The giver",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27626",
+    "kind": "sensitivity",
+    "before": "The caregiver",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27627",
+    "kind": "sensitivity",
+    "before": "The caregiver",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27627",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27629",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27630",
+    "kind": "sensitivity",
+    "before": "The other child",
+    "after": "(other)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child gives another child a flower and receives no response.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "other",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "other": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "max_age_gap": {
+    "role": "child",
+    "years": 2
+   }
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) gives (other), another child, a flower and receives no response.",
+   "src": "L27618",
+   "choices": [
+    {
+     "label": "Ask Politely How They Feel.",
+     "next": "a",
+     "src": "L27619"
+    },
+    {
+     "label": "Leave the Other Child Alone.",
+     "next": "b",
+     "src": "L27622"
+    },
+    {
+     "label": "Talk with a Caregiver.",
+     "next": "c",
+     "src": "L27625"
+    },
+    {
+     "label": "Turn the Flower into a Game.",
+     "next": "d",
+     "src": "L27628"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(other) explains they prefer friendship.",
+   "src": "L27620"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(other) was distracted and thanks them later.",
+   "src": "L27621"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) feels disappointed but respects their space.",
+   "src": "L27623"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(adult) explains that nobody owes affection.",
+   "src": "L27626"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult) helps (child) name their disappointment.",
+   "src": "L27627"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) starts a flower-collecting contest with friends.",
+   "src": "L27629"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(other) joins the game without romantic expectations.",
+   "src": "L27630"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(child) discovers other enjoyable friendships.",
+   "src": "L27624",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L27624"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(child) discovers other enjoyable friendships.",
+   "src": "L27624"
+  }
+ }
+}

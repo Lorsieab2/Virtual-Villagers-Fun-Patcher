@@ -1,0 +1,295 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Voice Behind the Curtain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my076_voice_behind",
+  "source": "rewrites",
+  "lines": [
+   14281,
+   14336
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14281",
+  "ledger": [
+   {
+    "src": "L14282",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14283",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14291",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14298",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14305",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14312",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14286",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14287",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14288",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14289",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14292",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14299",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14306",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14313",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14293",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14295",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14300",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14302",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14307",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14309",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14314",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14316",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14319-14336",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "So it is strange that a villager hears it so clearly.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The whole village is crammed into the meeting hut for the evening gathering, and it is loud: arguing, laughing, children shrieking, someone attempting to sing. So it is strange that (name) hears it so clearly. A quiet voice, soft and polite and rather sad, speaking (his/her) name from behind the woven grass curtain that hangs across the corner of the hut.\n(Name) lifts the curtain. There is no one there. Only the bare corner, a stack of old mats, and a single moth. (He/she) lets it drop. And from behind it, very softly, the voice says: \"Please. Just listen for a moment.\" The meeting hut is the oldest building in the village, raised where the first villagers held their councils, and some say it remembers them. Should (name) answer?",
+   "choices": [
+    {
+     "label": "Answer the Voice",
+     "next": "c1",
+     "src": "L14286"
+    },
+    {
+     "label": "Search the Room",
+     "next": "c2",
+     "src": "L14287"
+    },
+    {
+     "label": "Ask Others to Listen",
+     "next": "c3",
+     "src": "L14288"
+    },
+    {
+     "label": "Leave the Curtain Closed",
+     "next": "c4",
+     "src": "L14289"
+    }
+   ],
+   "src": "L14284-14285"
+  },
+  "c1o1": {
+   "text": "\"The storehouse,\" the voice says. \"The far corner. Something is spoiling.\" That is all. (Name) slips out of the gathering and hurries to the storehouse with a torch. In the far corner, at the bottom of a pile of baskets, one basket of yams has gone soft and black and stinking, and the rot is just starting to creep into the baskets around it. (Name) hauls it out and saves the rest. If (he/she) had not found it, half the store would have been ruined within a week. (He/she) goes back to the meeting hut and whispers thank you to the curtain.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14294",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "\"There was someone,\" the voice says, \"who lived in this village a long time ago. Nobody says their name anymore. Will you remember them?\" And it tells (name) a name. (Name) has never heard it. The next day, (he/she) asks the oldest elders, and one of them gasps. It was a healer who saved dozens of lives during a terrible sickness, generations ago, and whose name had somehow slipped out of all the stories. That season, the name is spoken at the memorial for the first time in a hundred years.",
+   "src": "L14296"
+  },
+  "c1": {
+   "text": "(Name) leans close to the curtain, keeping (his/her) voice low so that no one will think (he/she) has lost (his/her) mind. \"I'm listening,\" (he/she) whispers. \"What is it?\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14292"
+  },
+  "c2o1": {
+   "text": "Behind the outer wall, where a gap in the woven reeds lines up perfectly with the curtain, (name) finds one of the village children curled up and giggling into (his/her) hands. The child has been hiding there for a whole hour, waiting for someone to notice, and is extremely proud of (his/her) sad voice. \"Did I scare you? Did I? I've been practising!\" (Name) has to admit that it was very, very good, and the child is grounded by (his/her) parents for a week, and is still proud.",
+   "src": "L14301"
+  },
+  "c2o2": {
+   "text": "(Name) searches every single part of that corner. There is no gap in the wall, no hole in the floor, no hidden passage, nowhere anyone could have hidden. The old mats are just old mats. The moth is just a moth. (Name) puts everything back, rehangs the curtain, and stands there in silence for a long time. The voice does not speak again. But (name) sits on the far side of the hut at every gathering from then on.",
+   "src": "L14303"
+  },
+  "c2": {
+   "text": "(Name) is not having any of this. (He/she) rips the curtain aside, throws the old mats around, taps the walls, and peers into every corner of the hut while the gathering carries on noisily behind (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14299"
+  },
+  "c3o1": {
+   "text": "\"...thank you for listening,\" says the voice, quite clearly. All three of them jump. They all heard it, the same words. But the argument starts the moment they step away. One friend swears it was an old woman. The other swears it was a young boy. (Name) thought it sounded like no one (he/she) had ever met. They argue about it for weeks, and never agree, and in the end they decide it does not matter, since it was very polite.",
+   "src": "L14308"
+  },
+  "c3o2": {
+   "text": "They listen and listen, and nobody hears a thing. One friend rolls (his/her) eyes and goes off to find the food. The other is about to follow, when (he/she) freezes and grabs (name)'s arm. The curtain is moving. Slowly, gently, it is swaying, as though someone has just brushed past it. But the door is closed, the air in the hut is hot and still, and no one is anywhere near it. The two of them leave the gathering early.",
+   "src": "L14310",
+   "text_only": [
+    {
+     "src": "L14310",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c3": {
+   "text": "(Name) waves over two of (his/her) friends and pulls them close to the curtain. \"Shh. Listen,\" (he/she) whispers. The three of them stand there, ears straining, while the gathering roars on around them...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14306"
+  },
+  "c4o1": {
+   "text": "If the voice says anything more, (name) does not hear it over the singing. The gathering goes on late into the night, full of laughter and stories and arguments about whose turn it is to clean the cooking pots. By the time (name) walks home, (he/she) has half convinced (himself/herself) that it was just the noise playing tricks on (his/her) ears. Only half, though.",
+   "src": "L14315"
+  },
+  "c4o2": {
+   "text": "The next morning, the first villager into the meeting hut finds the grass curtain taken down from its pegs and folded neatly into a perfect square, lying in the middle of the floor. The knots that held it up are still tied. Nobody in the village admits to doing it, and nobody can work out how it was done without untying them. The curtain is hung back up, and the corner is left very much alone.",
+   "src": "L14317"
+  },
+  "c4": {
+   "text": "(Name) decides that whatever is behind the curtain, it can stay there. (He/she) moves to the other side of the hut, sits down with (his/her) friends, and joins loudly in the singing...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14313"
+  }
+ }
+}

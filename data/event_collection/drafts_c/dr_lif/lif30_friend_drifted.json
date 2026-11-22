@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Who Drifted",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif30_friend_drifted",
+  "source": "draft_lif",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 30 or older)"
+   }
+  ],
+  "description": "A villager waves to a childhood best friend like an acquaintance: go over and talk, or let it be.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (name1) was young, (he/she) had a best friend. They did everything together. Then, slowly, without any argument or falling out, they just stopped. Different work, different huts, different friends. Today (name1) saw that old friend across the clearing, and they waved, and smiled, and went on with their day. Like acquaintances.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Go and Talk",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Let It Be",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) doesn't go over. (He/she) thinks about all the things they did together, and feels a little sad, and a little grateful. Not every friendship has to last forever to have mattered. That one mattered a lot. (He/she) waves again, next time (he/she) sees them, and means it. That's what's left, and it's not nothing.",
+   "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) goes over. It's awkward at first. They don't know what to say. Then (name1) mentions the time they got stuck up the big tree, and the old friend laughs, and for a while it's almost like it used to be. Almost. They're different people now. They part warmly. They might talk again, or they might not. Either is alright.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) goes over. It's awkward at first. They don't know what to say. Then (name1) mentions the time they got stuck up the big tree, and the old friend laughs, and for a while it's almost like it used to be. Almost. They're different people now. They part warmly. They might talk again, or they might not. Either is alright.",
+   "src": "L350"
+  }
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Leave Me Be, Please",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day41_leave_me_please",
+  "source": "draft_day",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager wants to be alone all day as a cheerful friend approaches: say so, or go somewhere nobody will find you.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) doesn't want to see anyone today. Nothing is wrong. (subject.He/she) isn't sad or cross. (subject.He/she) just wants to be alone, all day, and talk to nobody. (subject.He/she) is sitting outside (subject.his/her) hut with (subject.his/her) back to the path. (friend) is walking towards (subject.him/her) with a cheerful face and a basket.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Say So",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Go Somewhere Nobody Will Find You",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Not today,\" says (subject). \"I'm fine. I just need a day by myself.\" (friend) stops, nods, and changes direction without a word. Later, (subject) finds the basket on (subject.his/her) doorstep: food, and a bit of cloth with a drawing of a hand waving. (subject) smiles. Then (subject.he/she) goes back to being alone.",
+   "src": "L494",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L494"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Not today,\" says (subject). \"I'm fine. I just need a day by myself.\" (friend) stops, nods, and changes direction without a word. Later, (subject) finds the basket on (subject.his/her) doorstep: food, and a bit of cloth with a drawing of a hand waving. (subject) smiles. Then (subject.he/she) goes back to being alone.",
+   "src": "L494",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L494"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets up and walks off before (friend) reaches (subject.him/her). (subject.He/she) goes to a quiet spot up the stream and stays there all day. Nobody finds (subject.him/her). It's exactly what (subject.he/she) needed. At dusk (subject.he/she) comes back, and is pleased to see people again, and (friend) waves, and (subject) waves back.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L497"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) gets up and walks off before (friend) reaches (subject.him/her). (subject.He/she) goes to a quiet spot up the stream and stays there all day. Nobody finds (subject.him/her). It's exactly what (subject.he/she) needed. At dusk (subject.he/she) comes back, and is pleased to see people again, and (friend) waves, and (subject) waves back.",
+   "src": "L497"
+  }
+ }
+}

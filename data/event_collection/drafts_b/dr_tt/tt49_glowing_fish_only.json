@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Glowing Fish Only (name1) Saw",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt49_glowing_fish_only",
+  "source": "draft_tt",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager tells of a glowing fish nobody else saw, and a friend doubts it: go out and look together, or agree to disagree.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was out in the canoe at dusk when a fish swam right under (subject.him/her), glowing a bright blue from inside, like a little lamp under the water. (subject.He/she) saw it clearly. Nobody else did. (subject) has told the story twenty times, and the fish has got brighter each time. (friend) doesn't believe a word of it.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Go Out and Look Together",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Agree to Disagree",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They paddle out at dusk and wait. Nothing. More nothing. Then, just as they're about to give up, something faint and blue flickers far below and is gone. They look at each other. \"...Was that it?\" whispers (friend). \"It was brighter last time,\" says (subject). They don't tell anyone. Neither of them is quite sure what they saw.",
+   "src": "L590"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says it was the moon on the water. (subject) says it was a fish. Neither changes their mind. It becomes their favorite argument: for years afterward, whenever there's nothing else to talk about, one of them says, \"The fish,\" and off they go.",
+   "src": "L593"
+  }
+ }
+}

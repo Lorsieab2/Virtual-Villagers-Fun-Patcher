@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Meal",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b020_quiet_meal",
+  "source": "companion",
+  "lines": [
+   1310,
+   1315
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1310",
+  "ledger": [
+   {
+    "src": "L1312",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1315",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Two villagers share roasted breadfruit without speaking much.",
+  "cast_only": [
+   "villager1",
+   "villager2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "Two villagers share roasted breadfruit without speaking much.",
+   "src": "L1311",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The silence feels companionable.",
+   "src": "L1313"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "One finally shares something that has been troubling them.",
+   "src": "L1314"
+  }
+ }
+}

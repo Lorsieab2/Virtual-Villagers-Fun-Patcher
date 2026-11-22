@@ -1,0 +1,267 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's First Failure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new181_apprentice",
+  "source": "rewrites",
+  "lines": [
+   8771,
+   8818
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L8771",
+  "ledger": [
+   {
+    "src": "L8772",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L8773",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8783",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8790",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8797",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L8779",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8780",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8781",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L8784",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8791",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8798",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L8785",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8787",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8792",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8794",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8799",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8801",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L8804-8818",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It was a villager's first solo project: a fish drying rack.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "It was (subject)'s first solo project: a fish drying rack. Four posts, some crossbars, a lot of lashing. (subject.He/She) worked on it all day, alone, proudly refusing help.\nThe first fish was hung on it at sunset.\nThe rack collapsed instantly. Not slowly. Instantly, all at once, into a heap of sticks, with a sound like someone dropping an armful of firewood.\nThe fish is fine. It's lying on top of the pile, looking unbothered.\n(subject) is not fine. (subject.He/She) has been standing there staring at the pile of sticks for an hour, not moving, while people walk past pretending not to look. How can anyone help (subject) get over this?",
+   "choices": [
+    {
+     "label": "Look at the Fallen Rack Together",
+     "next": "c1",
+     "src": "L8779"
+    },
+    {
+     "label": "Give Them a Smaller Job",
+     "next": "c2",
+     "src": "L8780"
+    },
+    {
+     "label": "Call in an Old Builder",
+     "next": "c3",
+     "src": "L8781"
+    }
+   ],
+   "src": "L8774-8778",
+   "text_only": [
+    {
+     "src": "L8776",
+     "what": "\"collapsed\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "Going through the pieces one by one, (subject) finds it: every lashing had slipped. (subject.He/She) had tied them neatly, but not tightly, not nearly tight enough to hold the weight. (subject) learns, the hard way, just how tight a proper building knot has to be: so tight it creaks, and fingers hurt. The second rack, the next day, holds three dozen fish.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 5,
+     "max": 10
+    }
+   ],
+   "src": "L8786",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "As they look, (subject) admits, very quietly, that nobody ever actually showed (subject.him/her) how tight to pull the lashings. (subject.He/She) just watched from a distance and guessed. It was a gap in the teaching, not laziness or carelessness, and the builders, hearing this, look at each other with some embarrassment. From then on, every apprentice gets shown properly.",
+   "src": "L8788"
+  },
+  "c1": {
+   "text": "Someone crouches down beside the pile of sticks, picks up a crossbar, and turns it over in (subject.his/her) hands. \"Let's see what happened.\"...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8784"
+  },
+  "c2o1": {
+   "text": "Building small stools for a while lets (subject) keep working at a pace (subject.he/she) can manage, and practise without anyone's fish at risk. The stools get better and better. By the end of the season, half the village is sitting on (subject)'s stools, and (subject.he/she) is ready to try a rack again.",
+   "src": "L8793"
+  },
+  "c2o2": {
+   "text": "The first stool wobbles badly. Very badly. The first person to sit on it ends up on the ground, laughing. (subject) does not laugh. The builders agree to adjust the plan tomorrow, and someone gently takes the stool away before anyone else sits on it.",
+   "src": "L8795"
+  },
+  "c2": {
+   "text": "The builders suggest (subject) build something smaller for a while, something with less riding on it. Like stools...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8791"
+  },
+  "c3o1": {
+   "text": "(mentor) doesn't say anything about the rack. Instead (subject.he/she) picks up two sticks and starts showing (subject) the cross-lashing: over, under, around, pull, the knot that keeps a rack standing for years. They practise until it's dark. The next morning, they build a new rack together, and (mentor) doesn't touch a single lashing.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Building"
+     ],
+     "role": "subject",
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L8800",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "(mentor) looks at the pile for a long time, then says, \"My first rack fell on the {@chief}.\" (subject) stares. \"With the {@chief} under it. In front of everyone. He had a fish on his head for a week.\" And (subject), for the first time all evening, finally laughs.",
+   "src": "L8802"
+  },
+  "c3": {
+   "text": "(mentor) wanders over, looks at the pile, looks at (subject), and sits down on the ground beside (subject.him/her)...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L8798"
+  }
+ }
+}

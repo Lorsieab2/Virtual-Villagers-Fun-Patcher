@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rain of Copies",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b223_rain_copies",
+  "source": "balance",
+  "lines": [
+   10369,
+   10412
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10369",
+  "ledger": [
+   {
+    "src": "L10370",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10371",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10379",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10388",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10376",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10377",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10380",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10389",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10382",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10385",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10391",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10394",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10397-10412",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A strange rain is falling: warm, silver-grey, and heavy, each drop as big as a grape.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "researcher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A strange rain is falling: warm, silver-grey, and heavy, each drop as big as a grape. Where a drop hits a puddle, the puddle shows a reflection of whoever is standing nearest, and holds it for a long moment after they've moved. (researcher) says it's a rain that \"remembers faces,\" and that it fell once before, in (subject.his/her) great-grandmother's time, and that afterwards the village was \"a little more crowded.\"\n(subject) was caught out in it, and is standing in the middle of the biggest puddle in the village, soaked, looking down at a perfect reflection of (subject.himself/herself) that has just winked.\nShould (subject) stay in the puddle, or step out quickly?",
+   "choices": [
+    {
+     "label": "Stay in the Puddle",
+     "next": "c1",
+     "src": "L10376"
+    },
+    {
+     "label": "Step Out Quickly",
+     "next": "c2",
+     "src": "L10377"
+    }
+   ],
+   "src": "L10372-10374"
+  },
+  "c1o1": {
+   "text": "The reflection steps up out of the puddle, dripping silver, and stands beside (subject), exactly the same in every way, down to the scar and the way (subject.he/she) stands with one hip out. \"A little more crowded,\" (researcher) says, coming out with a basket over (subject.his/her) head. The second (subject) takes the name (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L10383",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The reflection steps out. It has (subject)'s face. It looks round at the village with great curiosity, and immediately wants to do everything (subject) never does, and nothing (subject) loves. \"The rain only remembers faces,\" says (researcher). \"Not the rest.\" It takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L10386",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) stays very still. The rain keeps falling round (subject.him/her). In the puddle, the reflection is getting clearer and clearer, and more and more solid, and starts to lift its foot...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10380"
+  },
+  "c2o1": {
+   "text": "When the rain stops, the puddle still shows (subject)'s face, though (subject) is under a roof thirty steps away. Then the face rises up out of the puddle, and becomes someone, and walks over to (subject) and says, \"You left,\" quite reproachfully. It has (subject)'s looks and its own ideas. It takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L10392",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "By the time the rain stops, the reflection has faded and the puddle is just a puddle. (subject) is soaked to the skin and very relieved. Over the next few days, two other villagers who stood too long in puddles turn out to have company, and (subject) stays well away from them.",
+   "src": "L10395"
+  },
+  "c2": {
+   "text": "(subject) jumps out of the puddle and runs for the nearest roof. Behind (subject.him/her), the reflection stays where it was, in the water, looking up...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10389"
+  }
+ }
+}

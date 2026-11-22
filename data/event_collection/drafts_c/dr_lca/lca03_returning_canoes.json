@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Returning Canoes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca03_returning_canoes",
+  "source": "draft_lca",
+  "lines": [
+   40,
+   51
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L40",
+  "ledger": [
+   {
+    "src": "L41",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L47",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L47",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L51",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The fishing canoes are coming home late: sing them in from the shore, or light fires along the beach.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The fishing canoes should have been back by sunset. Now it is dark, the wind is up, and the families are gathering on the beach in twos and threes, not saying much. (friend) says that in the old days the village sang the canoes home, so the crews could follow the sound. (subject) says a fire would be easier to see. What should they do?",
+   "src": "L43",
+   "choices": [
+    {
+     "label": "Sing Them Home",
+     "next": "o1",
+     "src": "L45"
+    },
+    {
+     "label": "Light Fires Along the Beach",
+     "next": "o2",
+     "src": "L49"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village sings into the dark, one song after another, until their voices crack. Just before midnight, someone hears a shout from the water. The first canoe scrapes onto the sand, then the second, then the third. The crews say they heard the singing from beyond the reef and simply rowed toward it. (friend) does not say I told you so. (friend.He/she) does not need to.",
+   "src": "L47",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L47"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and the others build fires all along the shore. The canoes come in one by one, steering by the light. The last one comes in very late, its crew soaked and shaking, but whole. (friend) wraps a blanket around the youngest of them and hums the old song anyway, just quietly, just for (other.him/her).",
+   "src": "L51"
+  }
+ }
+}

@@ -160,6 +160,49 @@ class OrdinaryHeathens(Base):
         self.assertNotIn("Leaver", shown)
         self.assertTrue({x.name, y.name, z.name} <= shown)
 
+    def test_a_converted_heathen_is_never_a_founder_and_goes_in_the_generation_of_their_conversion(self) -> None:
+        """The owner (2026-11-21): "heathens that are converted should not be founders in Family Tree Maker.  When
+        converted they should go under the generation they were converted at."  From the logs as the owner's
+        village writes them: the founders' Arrived records ("How: Founder"), the convert's ("How: Converted from
+        the Heathens", no date), and the History snapshots' Faction lines, which date the conversion."""
+        T3 = "2026-10-21 11:40:00"
+        v = self.village("huttest", 5)
+        data = bytearray(v.save_path(1).read_bytes())
+        entries = v.entries(bytes(data))
+        for at in entries:
+            data[at + gen.VV5_FACTION_FROM_NAME] = 0
+        data[entries[3] + gen.VV5_FACTION_FROM_NAME] = 1          # w: a Heathen still
+        v.write_save(1, bytes(data))
+        people = v.people(bytes(data))
+        x, y, z, w = people[:4]
+        from test_identity_through_looks import arrived
+        v.births(arrived(1, x, x.head, x.body) + arrived(2, z, z.head, z.body)
+                 + "Arrived 3\n  Name: {0}\n  Special villager: Former Heathen (blue mask)\n  Mask: Blue Mask\n"
+                   "  Age at arrival: 400\n  Sex: {1}\n  Head: {2}\n  Body: {3}\n  How: Converted from the Heathens\n\n"
+                   .format(y.name, y.sex, y.head, y.body)
+                 + arrived(4, z, z.head, z.body, "Converted from the Heathens"))
+        believer, heathen = ["Faction: Believer"], ["Faction: Heathen"]
+        history_text(v, [(T1, people), (T2, people), (T3, people)],
+                     {(T1, x.name): believer, (T2, x.name): believer, (T3, x.name): believer,
+                      (T1, y.name): heathen, (T2, y.name): believer, (T3, y.name): believer,
+                      (T1, z.name): believer, (T2, z.name): heathen, (T3, z.name): believer,
+                      (T1, w.name): heathen, (T2, w.name): heathen, (T3, w.name): heathen})
+        village = gen.load_village(v.folder, 5, 1)
+        convert = holder(village, y.name, alive=True)
+        self.assertEqual(gen.conversion_snapshot(convert), T2)
+        self.assertTrue(gen.is_converted_newcomer(convert))
+        self.assertEqual(convert.generation, 2, "the newest believer generation in the snapshot they converted in")
+        self.assertFalse(ft.is_founder(village, convert))
+        founder = holder(village, x.name, alive=True)
+        self.assertEqual(founder.generation, 1)
+        self.assertTrue(ft.is_founder(village, founder))
+        back = holder(village, z.name, alive=True)          # a founder who left for the Heathens and came back
+        self.assertTrue(back.founder_record)
+        self.assertEqual(back.generation, 1)
+        self.assertTrue(ft.is_founder(village, back))
+        self.assertEqual(holder(village, w.name, alive=True).generation, 1, "a Heathen who never converted")
+        self.assertFalse(ft.is_founder(village, holder(village, w.name, alive=True)), "a Heathen is never a founder")
+
     def test_a_dead_heathen_by_their_latest_snapshot(self) -> None:
         v = self.village("huttest", 5)
         people = v.people(v.save_path(1).read_bytes())

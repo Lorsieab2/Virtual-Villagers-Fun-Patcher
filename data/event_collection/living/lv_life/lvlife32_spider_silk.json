@@ -1,0 +1,163 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spider's Silk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife32_spider_silk",
+  "source": "living",
+  "lines": [
+   21045,
+   21056
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21045",
+  "ledger": [
+   {
+    "src": "L21056",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An apprentice wonders whether spider silk can strengthen thread, but gathering it disturbs many webs.",
+  "cast_only": [
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An apprentice wonders whether spider silk can strengthen thread, but gathering it disturbs many webs.",
+   "src": "L21046",
+   "choices": [
+    {
+     "label": "Collect small amounts from abandoned webs.",
+     "next": "a",
+     "src": "L21047"
+    },
+    {
+     "label": "Gather from occupied webs.",
+     "next": "b",
+     "src": "L21050"
+    },
+    {
+     "label": "Study the pattern rather than the material.",
+     "next": "c",
+     "src": "L21053"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The supply is too limited for large blankets.",
+   "src": "L21049"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The cloth improves, but insect-catching webs are damaged.",
+   "src": "L21051"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The weaver regrets the disturbance and stops collecting.",
+   "src": "L21052"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A new weave becomes surprisingly resilient.",
+   "src": "L21054"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The first design tangles, and the apprentice starts again.",
+   "src": "L21055"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The thread becomes stronger in a small test.",
+   "src": "L21048",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L21048"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The thread becomes stronger in a small test.",
+   "src": "L21048"
+  }
+ }
+}

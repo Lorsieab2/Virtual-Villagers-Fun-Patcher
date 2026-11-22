@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stranger Who Looks Familiar",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz030_stranger_looks",
+  "source": "horizon",
+  "lines": [
+   389,
+   399
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part4",
+  "title_src": "L389",
+  "ledger": [],
+  "description": "An elder asks whether people beyond the sea might look every imaginable way, or resemble Isolans closely.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder asks whether people beyond the sea might have every imaginable combination of hair, skin, facial features, and body shapes - or resemble Isolans closely.",
+   "src": "L390",
+   "choices": [
+    {
+     "label": "Imagine Familiar Faces.",
+     "next": "a",
+     "src": "L391"
+    },
+    {
+     "label": "Imagine Unfamiliar Faces.",
+     "next": "b",
+     "src": "L394"
+    },
+    {
+     "label": "Ask What Matters in Meeting Someone.",
+     "next": "c",
+     "src": "L397"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A child imagines meeting someone who looks like a long-lost cousin and laughs at the coincidence.",
+   "src": "L392"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar notes that similar appearance would not prove shared customs or ancestry.",
+   "src": "L393"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An artist sketches many respectful variations of ordinary human appearance.",
+   "src": "L395"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The artist realizes that drawings cannot capture an entire person's character.",
+   "src": "L396"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group decides to begin with names, intentions, and courtesy rather than assumptions.",
+   "src": "L398"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder says appearance can be part of identity and culture too; respect means neither erasing nor stereotyping it.",
+   "src": "L399"
+  }
+ }
+}

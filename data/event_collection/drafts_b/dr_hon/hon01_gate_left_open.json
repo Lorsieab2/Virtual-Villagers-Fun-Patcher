@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gate Left Open",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon01_gate_left_open",
+  "source": "draft_hon",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L14",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L17",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager forgot to tie the garden gate, and pigs ate half the beans: own up, or quietly help put it right.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was the last one out of the bean garden yesterday evening and forgot to tie the gate shut. This morning (friend) finds the gate swinging open, two pigs asleep among the bean rows, and about half the beans gone. (friend) is standing at the gate asking, to nobody in particular, who was in here last.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Say It Was You",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Help Put It Right Without a Word",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It was me,\" says (subject). \"I forgot the gate.\" (friend) lets out a long breath. \"Well. At least we know.\" They chase the pigs out together and spend the morning replanting. (friend) is still a bit cross at lunch. That evening (subject) ties the gate so firmly that it takes three people to open it the next day.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says nothing, but spends the whole morning chasing pigs and replanting, harder than anyone. (friend) watches (subject.him/her) work for a while, then says, \"It was you, wasn't it.\" \"...Yes.\" \"Thought so. Thanks for the help.\" That's all either of them ever says about it.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L17"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

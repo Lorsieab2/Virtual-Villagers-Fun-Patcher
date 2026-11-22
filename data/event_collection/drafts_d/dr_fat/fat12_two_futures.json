@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Different Futures",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat12_two_futures",
+  "source": "fathers30",
+  "lines": [
+   243,
+   261
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L243",
+  "ledger": [
+   {
+    "src": "L244",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L245",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L249",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L251",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L252",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L254",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L255",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L257",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L258",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L260",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L261",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "Two partners love each other but disagree about having a baby.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two partners love each other but disagree about having a baby. Neither wants to lose the relationship, and neither wants a decision made out of guilt.",
+   "src": "L247",
+   "choices": [
+    {
+     "label": "Speak Plainly About Their Wishes",
+     "next": "a",
+     "src": "L250"
+    },
+    {
+     "label": "Give the Question Time",
+     "next": "b",
+     "src": "L253"
+    },
+    {
+     "label": "Ask a Trusted Elder to Listen",
+     "next": "c",
+     "src": "L256"
+    },
+    {
+     "label": "Discuss Other Ways to Care for Children",
+     "next": "d",
+     "src": "L259"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They understand each other better, even without agreement.",
+   "src": "L251"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They recognize their futures may not fit together.",
+   "src": "L252"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They agree on a date to revisit it without pressure.",
+   "src": "L254"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The delay becomes frustrating, and they acknowledge it.",
+   "src": "L255"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elder helps them talk without deciding for them.",
+   "src": "L257"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder takes a side, and they end the conversation.",
+   "src": "L258"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They find meaningful roles with younger villagers.",
+   "src": "L260"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They discover those roles do not resolve their disagreement.",
+   "src": "L261"
+  }
+ }
+}

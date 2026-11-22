@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Doll with Three Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev003_doll_three",
+  "source": "companion",
+  "lines": [
+   3338,
+   3342
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3338",
+  "ledger": [
+   {
+    "src": "L3342",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A dollmaker carves a driftwood face and stitches a body from scrap cloth.",
+  "cast_only": [
+   "dollmaker",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "dollmaker": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A dollmaker carves a face from driftwood and stitches a body from scrap cloth.",
+   "src": "L3339",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Three children argue affectionately over its name.",
+   "src": "L3340"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The doll becomes a comfort object for a homesick child.",
+   "src": "L3341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L3341"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The doll becomes a comfort object for a homesick child.",
+   "src": "L3341"
+  }
+ }
+}

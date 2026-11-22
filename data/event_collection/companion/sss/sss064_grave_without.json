@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grave Without a Body",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss064_grave_without",
+  "source": "companion",
+  "lines": [
+   6719,
+   6727
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6719",
+  "ledger": [
+   {
+    "src": "L6727",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A family disagrees about a memorial for someone who disappeared at sea.",
+  "cast_only": [
+   "villager",
+   "relative"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A family wants to commemorate someone who disappeared at sea, but another relative insists a memorial means giving up hope.",
+   "src": "L6720",
+   "choices": [
+    {
+     "label": "Create a memorial without declaring death",
+     "next": "a",
+     "src": "L6721"
+    },
+    {
+     "label": "Wait and keep searching",
+     "next": "b",
+     "src": "L6723"
+    },
+    {
+     "label": "Hold a family discussion",
+     "next": "c",
+     "src": "L6725"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The family honors the missing person while leaving the story open.",
+   "src": "L6722"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The search continues within reasonable limits; grief and hope coexist.",
+   "src": "L6724"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They choose a private ritual with no grave, respecting different needs.",
+   "src": "L6726"
+  }
+ }
+}

@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cliff Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b009_cliff_path",
+  "source": "balance",
+  "lines": [
+   390,
+   431
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L390",
+  "ledger": [
+   {
+    "src": "L391",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L392",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L400",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L409",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L397",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L398",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L401",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L410",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L403",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L406",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L412",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L415",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L418-431",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The quickest way to the bird cliffs is a narrow ledge path, barely a foot wide, with the sea booming on the rocks far below.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The quickest way to the bird cliffs is a narrow ledge path, barely a foot wide, with the sea booming on the rocks far below. The egg gatherers use it every spring. They also tell every young gatherer about the time the ledge crumbled under someone's heel and took three people with it.\n(Name) is halfway along with a basket full of eggs when a gust of wind slaps (him/her) against the cliff. A chunk of rock breaks off under (his/her) foot and drops into the sea, and it takes a very long time to hit.\n(Name)'s heart is hammering. The basket is heavy. Should (he/she) keep going to the wide part ahead, or drop the eggs and edge back the way (he/she) came?",
+   "choices": [
+    {
+     "label": "Keep Going",
+     "next": "c1",
+     "src": "L397"
+    },
+    {
+     "label": "Drop the Eggs and Go Back",
+     "next": "c2",
+     "src": "L398"
+    }
+   ],
+   "src": "L393-395"
+  },
+  "c1o1": {
+   "text": "Three steps from safety, the ledge gives way. (Name) falls onto a shelf of rock a short way below and lies there, unable to stand, until the gatherers lower a rope. (His/Her) leg mends crooked, and it never takes (his/her) weight quite right again. The builders make (him/her) a strong cane of ironwood, and later a handrail all along the path to (his/her) hut. (Name) gets about fine. (He/She) just doesn't go near the cliffs again, and nobody asks (him/her) to.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o1_c1"
+    }
+   ],
+   "src": "L404",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) makes it to the wide part, and then, in (his/her) relief, stands up too fast and cracks (his/her) head on an overhang so hard (he/she) sees stars. The gatherers find (him/her) sitting there with the basket in (his/her) lap, every egg unbroken, and a lump the size of a mango on (his/her) forehead. \"Who are you?\" asks a gatherer, worried. \"Good question,\" says (name). Everything else comes back within a day. The name never does, and in the end the village calls (him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L407",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) presses (his/her) back to the rock and shuffles forward, one heel at a time, the basket held tight against (his/her) chest. The wide part is ten steps away. Then eight. Then five...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L401"
+  },
+  "c2o1": {
+   "text": "(Name) makes it back to the start of the path, and sits down hard on the grass, and doesn't stand up for a long time. When (he/she) gets home empty-handed, the head gatherer looks at (his/her) scraped hands and white face and doesn't say a word about the eggs. \"The cliff will still be there next spring,\" is all (he/she) says. \"So will you. That's the point.\"",
+   "src": "L413"
+  },
+  "c2o2": {
+   "text": "(Name) is nearly back when the wind comes again, harder. (He/She) is gone before anyone on the cliff top can reach (him/her). The gatherers climb down to the rocks at low tide to bring (him/her) home, and they carry (him/her) up the long way, round by the beach. The village buries (him/her) on the cliff top, where the birds are. The next spring, the gatherers build a rope rail along the ledge, and name it after (him/her).",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject"
+    }
+   ],
+   "src": "L416",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) lets the basket go. It tumbles down the cliff, and the eggs burst on the rocks like little yellow suns. (He/She) edges backwards, inch by inch, (his/her) cheek pressed to the stone...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L410"
+  },
+  "c1o1_gx": {
+   "type": "branch"
+  },
+  "c1o1_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o1_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o1_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o1_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unproven Promise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns37_unproven",
+  "source": "living",
+  "lines": [
+   22648,
+   22659
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22648",
+  "ledger": [
+   {
+    "src": "L22659",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A storyteller claims that good deeds guarantee a pleasant afterlife.",
+  "cast_only": [
+   "storyteller"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "storyteller": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A storyteller claims that good deeds guarantee a pleasant afterlife.",
+   "src": "L22649",
+   "choices": [
+    {
+     "label": "Teach the story as a belief.",
+     "next": "a",
+     "src": "L22650"
+    },
+    {
+     "label": "Challenge the certainty of the claim.",
+     "next": "b",
+     "src": "L22653"
+    },
+    {
+     "label": "Focus on kindness in this life.",
+     "next": "c",
+     "src": "L22656"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Children discuss kindness without treating reward as certain.",
+   "src": "L22651"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A grieving child asks why good people still suffer.",
+   "src": "L22652"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The storyteller admits that no one can verify the promise.",
+   "src": "L22654"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some listeners feel their faith is being mocked.",
+   "src": "L22655"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers help a struggling neighbor regardless of belief.",
+   "src": "L22657"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A believer explains that present kindness and future hope can coexist.",
+   "src": "L22658",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager of faith explains that present kindness and future hope can coexist."
+    }
+   ]
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

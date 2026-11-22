@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Story Everyone Hears",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz036_story_everyone",
+  "source": "horizon",
+  "lines": [
+   465,
+   475
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part5",
+  "title_src": "L465",
+  "ledger": [],
+  "description": "A storyteller wonders whether distant societies can spread one song, rumor, or picture to thousands of people at once.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A storyteller wonders whether distant societies can spread one song, rumor, or picture to thousands of people at once.",
+   "src": "L466",
+   "choices": [
+    {
+     "label": "Imagine a Shared Performance.",
+     "next": "a",
+     "src": "L467"
+    },
+    {
+     "label": "Imagine Instant News.",
+     "next": "b",
+     "src": "L470"
+    },
+    {
+     "label": "Ask Who Controls the Story.",
+     "next": "c",
+     "src": "L473"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village stages a lively imitation of a broadcast, with runners carrying the same announcement.",
+   "src": "L468"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Each runner changes a detail; the storyteller marvels at how easily messages drift.",
+   "src": "L469"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Researchers speculate about rapid signaling across enormous distances.",
+   "src": "L471"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A mediator worries that false accusations could travel faster than corrections.",
+   "src": "L472"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The group discusses the importance of many independent voices and verifiable evidence.",
+   "src": "L474"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A shy villager notes that being heard by everyone could feel terrifying rather than empowering.",
+   "src": "L475"
+  }
+ }
+}

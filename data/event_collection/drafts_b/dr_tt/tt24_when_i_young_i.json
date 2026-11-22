@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "When I Was Young I Could Lift That",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt24_when_i_young_i",
+  "source": "draft_tt",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult aged 18-25)"
+   }
+  ],
+  "description": "An elder claims to have lifted the big stone overhead in youth, and a young adult asks to see it: give it a try, or teach instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a big round stone near the beach that young people try to lift to show off. Watching (friend) struggle with it, (subject) remarks that when (subject.he/she) was young, (subject.he/she) used to lift it above (subject.his/her) head. Every day. For fun. (friend) puts the stone down and steps back politely. \"Show me?\"",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Give It a Try",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Teach Instead",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) bends down, takes a good grip, and heaves. The stone rises about the width of a finger, then settles back. (subject) straightens up slowly and dusts off (subject.his/her) hands. \"The sea's made it heavier,\" (subject.he/she) explains. \"All that salt.\" (friend) agrees solemnly that the sea does that.",
+   "src": "L290"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Not today,\" says (subject). \"But you're doing it all wrong.\" (subject.He/she) shows (friend) how to bend the knees, keep the back straight and hug the stone close. On the next try, (friend) lifts it to (friend.his/her) chest. (subject) beams as if (subject.he/she) had lifted it (subject.him/her)self. In a way, (subject.he/she) feels (subject.he/she) did.",
+   "src": "L293"
+  }
+ }
+}

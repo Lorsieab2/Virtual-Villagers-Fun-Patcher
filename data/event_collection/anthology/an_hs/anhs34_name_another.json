@@ -1,0 +1,260 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Name From Another Shore",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs34_name_another",
+  "source": "anthology",
+  "lines": [
+   29935,
+   29948
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29935",
+  "ledger": [
+   {
+    "src": "L29936",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29938",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29939",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29941",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29942",
+    "kind": "sensitivity",
+    "before": "The visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29942",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29945",
+    "kind": "sensitivity",
+    "before": "the visitor",
+    "after": "(visitor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29947",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29948",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child struggles to pronounce a visitor's name and fears being laughed at.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) struggles to pronounce a visitor's name and fears being laughed at.",
+   "src": "L29936",
+   "choices": [
+    {
+     "label": "Ask the Visitor to Say It Slowly",
+     "next": "a",
+     "src": "L29937"
+    },
+    {
+     "label": "Learn What the Visitor Prefers to Be Called",
+     "next": "b",
+     "src": "L29940"
+    },
+    {
+     "label": "Turn Pronunciation into a Playful Exchange",
+     "next": "c",
+     "src": "L29943"
+    },
+    {
+     "label": "Model a Respectful Apology for Mistakes",
+     "next": "d",
+     "src": "L29946"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) practices and improves.",
+   "src": "L29938"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(visitor) offers a friendly correction without requiring perfection.",
+   "src": "L29939"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(visitor) shares a familiar nickname.",
+   "src": "L29941"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(visitor) prefers their full name, and (child) keeps trying.",
+   "src": "L29942"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The game stops when (visitor) grows tired of repeating their name.",
+   "src": "L29945"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) learns that correction is ordinary, not humiliating.",
+   "src": "L29947"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(adult) admits they have been mispronouncing the name too.",
+   "src": "L29948"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "Both teach each other difficult words and laugh together.",
+   "src": "L29944",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29944"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "Both teach each other difficult words and laugh together.",
+   "src": "L29944"
+  }
+ }
+}

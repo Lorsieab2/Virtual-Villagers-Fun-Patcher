@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shared Umbrella Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5dn061_shared",
+  "source": "companion",
+  "lines": [
+   3229,
+   3235
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3229",
+  "ledger": [
+   {
+    "src": "L3231",
+    "kind": "structural",
+    "why": "the outcomes' heading: one is drawn"
+   },
+   {
+    "src": "L3235",
+    "kind": "note",
+    "why": "CHOICES: No choice by default; a designer note: the event is one popup, one outcome drawn"
+   }
+  ],
+  "description": "Two rivals take shelter beneath the same giant leaf.",
+  "cast_only": [
+   "rival1",
+   "rival2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "rival1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "rival2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "Two rivals take shelter beneath the same giant leaf.",
+   "src": "L3230",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Exchange awkward small talk.",
+   "src": "L3232"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Return home still rivals, but slightly kinder.",
+   "src": "L3234"
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Laugh at their predicament.",
+   "src": "L3233",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "rival1",
+     "mood": "good",
+     "src": "L3233"
+    },
+    {
+     "do": "mood",
+     "role": "rival2",
+     "mood": "good",
+     "src": "L3233"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Laugh at their predicament.",
+   "src": "L3233"
+  }
+ }
+}

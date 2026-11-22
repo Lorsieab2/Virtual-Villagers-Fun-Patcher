@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor's Farewell",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new150_visitor",
+  "source": "rewrites",
+  "lines": [
+   7157,
+   7212
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L7157",
+  "ledger": [
+   {
+    "src": "L7158",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7159",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7168",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7175",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7182",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7189",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7163",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7164",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7165",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7166",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7169",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7176",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7183",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7190",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7170",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7172",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7177",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7179",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7184",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7186",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7191",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7193",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7196-7212",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children have already hidden the visitor's sandals.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "For a whole season, the visitor has lived among them: mending nets, telling the funniest stories at the fire, teaching the children songs nobody's parents approve of. (Name) has become (his/her) closest friend.\nThis morning, the visitor announced that (he/she) must return to (his/her) home settlement. The canoe is ready. The bundles are packed.\nThe children have already hidden the visitor's sandals. All of them. (Name) knows exactly where they are, and has not said. (Name) doesn't want to say goodbye. What should (name) do?",
+   "choices": [
+    {
+     "label": "Throw a Farewell Supper",
+     "next": "c1",
+     "src": "L7163"
+    },
+    {
+     "label": "Ask About Their Way Home",
+     "next": "c2",
+     "src": "L7164"
+    },
+    {
+     "label": "Ask Them to Stay After All",
+     "next": "c3",
+     "src": "L7165"
+    },
+    {
+     "label": "Help Them Pack",
+     "next": "c4",
+     "src": "L7166"
+    }
+   ],
+   "src": "L7160-7162"
+  },
+  "c1o1": {
+   "text": "The visitor is given a farewell meal with every dish (he/she) ever said (he/she) liked, and the best sleeping mat in the village for (his/her) last night. There are stories, and songs, and the children sing the unapproved songs at the tops of their voices. Nobody stops them tonight.",
+   "src": "L7171"
+  },
+  "c1o2": {
+   "text": "The visitor brings out the last of the honey (he/she) brought at the start of the season, carefully saved, and shares it with everyone. It adds a little food to the stores, and the feast ends very sticky.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7173",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "If (he/she) has to go, (name) decides, then (he/she) is going to go properly fed...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7169"
+  },
+  "c2o1": {
+   "text": "The visitor points up at the sky and explains the stars (he/she) will steer by: the bright one that never moves, the three in a row that rise over home, the curved line like a fish hook. It teaches the village something genuinely useful about travel, and the fishers stay up half the night learning them.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L7178",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When (name) asks why (he/she) really has to go, the visitor is quiet for a while. Some of (his/her) reasons for leaving stay private, and (name) doesn't insist on hearing them. They watch the stars instead.",
+   "src": "L7180"
+  },
+  "c2": {
+   "text": "As the fire burns low, (name) asks how the visitor will find (his/her) way home across all that water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7176"
+  },
+  "c3o1": {
+   "text": "The visitor looks at (name), and at the village, and at the children peeking hopefully out from behind a hut. (He/She) changes (his/her) mind, and joins the village permanently as a new adult villager. The children solemnly return the sandals, all of them.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L7185",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The visitor thanks everyone, cries a little, hugs (name) for a long time, and goes home as planned. The sandals are returned at the very last moment, on the beach, by a very sulky child. (Name) watches the canoe until it's just a dot.",
+   "src": "L7187"
+  },
+  "c3": {
+   "text": "(Name) finally says it: \"You could stay, you know. We'd like you to.\"...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7183"
+  },
+  "c4o1": {
+   "text": "Before leaving, the visitor insists on helping with one last harvest, \"so you'll remember me every time you eat.\" It adds a good amount of food to the stores. And they do remember, every time.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L7192",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The villagers repair the visitor's split bundles and tighten every lashing on the canoe, and see (him/her) off from the beach the next morning. The whole village comes down to wave. (Name) waves the longest.",
+   "src": "L7194"
+  },
+  "c4": {
+   "text": "(Name) decides the kindest thing is to help, even if (he/she) doesn't want to...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7190"
+  }
+ }
+}

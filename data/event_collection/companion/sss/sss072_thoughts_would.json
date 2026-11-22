@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thoughts That Would Not Settle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss072_thoughts_would",
+  "source": "companion",
+  "lines": [
+   6815,
+   6823
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6815",
+  "ledger": [
+   {
+    "src": "L6823",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A craftsperson starts five beautiful necklaces and struggles to finish one commission.",
+  "cast_only": [
+   "craftsperson"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A craftsperson starts five beautiful necklaces and struggles to finish a single commission.",
+   "src": "L6816",
+   "choices": [
+    {
+     "label": "Break the work into small tasks",
+     "next": "a",
+     "src": "L6817"
+    },
+    {
+     "label": "Allow a period for experiments",
+     "next": "b",
+     "src": "L6819"
+    },
+    {
+     "label": "Negotiate with customers",
+     "next": "c",
+     "src": "L6821"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A surprising design emerges, but deadlines still need discussion.",
+   "src": "L6820"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Some accept a revised schedule; others take their orders elsewhere.",
+   "src": "L6822"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They complete one necklace and learn a useful method.",
+   "src": "L6818",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L6818"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They complete one necklace and learn a useful method.",
+   "src": "L6818"
+  }
+ }
+}

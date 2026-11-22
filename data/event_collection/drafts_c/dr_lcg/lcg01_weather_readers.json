@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weather Readers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg01_weather_readers",
+  "source": "draft_lcg",
+  "lines": [
+   8,
+   19
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a researcher)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L15",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L19",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name2); small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L19",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An old traveler and a researcher disagree about a coming storm: trust the traveler's signs, or the researcher's records.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 65
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has walked the island's paths for sixty years and says a storm is coming: the crabs are climbing the trees and the sea smells of iron. (friend) has kept records of the weather for five years and says the signs point to three more calm days. The fishers want to know whether to go out. Who should they trust?",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Trust the Old Signs",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Trust the Records",
+     "next": "o2",
+     "src": "L17"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The canoes stay home. The storm comes the next afternoon, exactly as (subject) said, and the village is ready for it. (friend) adds the climbing crabs to (friend.his/her) records, and asks (subject) for every other sign (subject.he/she) knows. It takes a month.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L15"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The canoes go out. The storm comes a day later than (subject) said and a day sooner than (friend) said, and the crews make it home soaked and frightened. Both of them were partly right. They sit down together and start comparing everything.",
+   "src": "L19",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L19"
+    },
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L19"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

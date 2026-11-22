@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silver Seam",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss018_silver_seam",
+  "source": "companion",
+  "lines": [
+   6247,
+   6255
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6247",
+  "ledger": [
+   {
+    "src": "L6255",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A miner sees a seam of silver behind unstable rock.",
+  "cast_only": [
+   "miner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "miner": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "worker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A narrow seam of silver glitters behind unstable rock. A miner believes it could support the village for years.",
+   "src": "L6248",
+   "choices": [
+    {
+     "label": "Shore up the tunnel",
+     "next": "a",
+     "src": "L6249"
+    },
+    {
+     "label": "Stop excavation",
+     "next": "b",
+     "src": "L6251"
+    },
+    {
+     "label": "Ignore the warning",
+     "next": "c",
+     "src": "L6253"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Answer C (1)",
+   "text": "A collapse damages equipment and may injure or kill an involved worker; safety procedures are reviewed.",
+   "src": "L6254",
+   "text_only": [
+    {
+     "what": "a collapse damages equipment and may injure or kill",
+     "reason": "the collapse damages equipment, not a structure; on this branch nobody is hurt",
+     "src": "L6254"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Answer C (2)",
+   "text": "A collapse damages equipment and may injure or kill an involved worker; safety procedures are reviewed.",
+   "src": "L6254",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "worker",
+     "min": -60,
+     "max": -40,
+     "src": "L6254"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a collapse damages equipment",
+     "reason": "the equipment, not a structure: only the worker is hurt",
+     "src": "L6254"
+    }
+   ],
+   "auto_text": true
+  },
+  "c3": {
+   "name": "Answer C (3)",
+   "text": "A collapse damages equipment and may injure or kill an involved worker; safety procedures are reviewed.",
+   "src": "L6254",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "worker",
+     "cause": "unknown",
+     "src": "L6254",
+     "line": "injuries"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a collapse damages equipment",
+     "reason": "the equipment, not a structure: only the worker is hurt",
+     "src": "L6254"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "c3",
+     "weight": 2,
+     "rarity": "very_rare"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Work is slow and expensive; the team finds a modest but workable deposit.",
+   "src": "L6250",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6250"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Work is slow and expensive; the team finds a modest but workable deposit.",
+   "src": "L6250"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The miner is disappointed but later discovers recycled silver can meet most orders.",
+   "src": "L6252",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "miner",
+     "mood": "bad",
+     "src": "L6252"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6252"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The miner is disappointed but later discovers recycled silver can meet most orders.",
+   "src": "L6252"
+  }
+ }
+}

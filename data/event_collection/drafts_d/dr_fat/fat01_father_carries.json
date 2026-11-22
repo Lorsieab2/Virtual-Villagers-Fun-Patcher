@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Father Who Carries",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat01_father_carries",
+  "source": "fathers30",
+  "lines": [
+   12,
+   30
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L12",
+  "ledger": [
+   {
+    "src": "L13",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L14",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L18",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L20",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L21",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L23",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L24",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L26",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L27",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L29",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L30",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L16",
+    "kind": "sensitivity",
+    "before": "a father",
+    "after": "(name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L12",
+    "kind": "note",
+    "why": "TODO: birth-sex check pending engine (feat/97-presentation): the carrier is a trans man, a villager born female who is now male; this base has no birth-sex condition, so the role is a male nursing parent (only a villager whose sex was changed while nursing can be one) and should also require the sex-change log's birth sex female once the engine has it"
+   }
+  ],
+  "description": "After several mornings of nausea, a father learns from the healer that he is expecting a child.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male",
+   "special": "nursing_parent"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After several mornings of nausea, (name1), a father, learns from the healer that he is expecting a child. He sits beside the hospital, considering what he wants and whom he trusts with the news.",
+   "src": "L16",
+   "choices": [
+    {
+     "label": "Tell a Trusted Partner",
+     "next": "a",
+     "src": "L19"
+    },
+    {
+     "label": "Ask the Healer About His Options",
+     "next": "b",
+     "src": "L22"
+    },
+    {
+     "label": "Take Time Alone",
+     "next": "c",
+     "src": "L25"
+    },
+    {
+     "label": "Confide in a Friend",
+     "next": "d",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They listen, ask what he wants, and make plans together.",
+   "src": "L20"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The news unsettles them; they agree to talk again after thinking.",
+   "src": "L21"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "He receives practical information without pressure to decide immediately.",
+   "src": "L23"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "He leaves with more questions and arranges another visit.",
+   "src": "L24"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A quiet walk helps him understand his own feelings.",
+   "src": "L26"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The uncertainty weighs on him, and he later seeks company.",
+   "src": "L27"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "His friend offers support without assuming how he feels.",
+   "src": "L29"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "His friend blurts out an assumption, then apologizes and listens.",
+   "src": "L30"
+  }
+ }
+}

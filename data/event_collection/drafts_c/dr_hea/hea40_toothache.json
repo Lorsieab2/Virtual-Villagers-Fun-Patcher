@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Toothache",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea40_toothache",
+  "source": "draft_hea",
+  "lines": [
+   479,
+   488
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L479",
+  "ledger": [
+   {
+    "src": "L480",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A healer gives a villager with a toothache two choices: wait and see with numbing bark, or take the tooth out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a toothache that has made (subject.him/her) miserable for two days. (friend) has looked at it. \"Two choices,\" (friend) says. \"I can pack it with numbing bark and we can wait and see if it settles. Or I can take it out. Taking it out will hurt a lot for a little while. Waiting might work, or it might not, and then we'll be back here.\"",
+   "src": "L482",
+   "choices": [
+    {
+     "label": "Wait and See",
+     "next": "o1",
+     "src": "L484"
+    },
+    {
+     "label": "Take It Out",
+     "next": "o2",
+     "src": "L487"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) chooses the bark. It tastes horrible and makes half (subject.his/her) face feel like a pillow. The ache settles over a few days. Maybe it will come back. Maybe not. (subject) decides to worry about that if it happens. In the meantime (subject.he/she) is chewing very carefully on one side and avoiding coconut.",
+   "src": "L485"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Take it,\" says (subject), who has had enough. It hurts, and then it's done, and (subject) holds the little tooth in (subject.his/her) palm and looks at it with deep hatred. The ache is gone by evening. (subject.He/she) puts the tooth on a shelf where (subject.he/she) can glare at it. Nobody is allowed to throw it away.",
+   "src": "L488",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L488"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Take it,\" says (subject), who has had enough. It hurts, and then it's done, and (subject) holds the little tooth in (subject.his/her) palm and looks at it with deep hatred. The ache is gone by evening. (subject.He/she) puts the tooth on a shelf where (subject.he/she) can glare at it. Nobody is allowed to throw it away.",
+   "src": "L488"
+  }
+ }
+}

@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwanted Mentor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl093_unwanted_mentor",
+  "source": "companion",
+  "lines": [
+   5021,
+   5031
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5021",
+  "ledger": [
+   {
+    "src": "L5022",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5030",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5031",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A master is assigned an apprentice they did not request.",
+  "cast_only": [
+   "master",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "master": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A master is assigned an apprentice they did not request.",
+   "src": "L5023",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5024"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5025"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5026"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "They develop mutual respect.",
+   "src": "L5027"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The apprentice requests a different teacher.",
+   "src": "L5028"
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "The master discovers an unexpected teaching talent.",
+   "src": "L5029",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "master",
+     "mood": "good",
+     "src": "L5029"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Outcome 3",
+   "text": "The master discovers an unexpected teaching talent.",
+   "src": "L5029"
+  }
+ }
+}

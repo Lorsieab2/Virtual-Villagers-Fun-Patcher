@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cousins' Competition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam10_cousins",
+  "source": "anthology",
+  "lines": [
+   28435,
+   28448
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28435",
+  "ledger": [
+   {
+    "src": "L28436",
+    "kind": "sensitivity",
+    "before": "Two cousins turn",
+    "after": "(cousin1) and (cousin2), two cousins, turn",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two cousins turn a friendly skill contest into a bitter rivalry.",
+  "label_case": "title",
+  "cast_only": [
+   "cousin1",
+   "cousin2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cousin1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  },
+  "cousin2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17,
+   "relation": {
+    "cousin_of": "cousin1"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(cousin1) and (cousin2), two cousins, turn a friendly skill contest into a bitter rivalry.",
+   "src": "L28436",
+   "choices": [
+    {
+     "label": "Celebrate Both Efforts",
+     "next": "a",
+     "src": "L28437"
+    },
+    {
+     "label": "Set Clearer Rules",
+     "next": "b",
+     "src": "L28440"
+    },
+    {
+     "label": "Pause the Competition",
+     "next": "c",
+     "src": "L28443"
+    },
+    {
+     "label": "Let Them Choose Different Activities",
+     "next": "d",
+     "src": "L28446"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28436"
+    },
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28436"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The cousins congratulate each other sincerely.",
+   "src": "L28438"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One cousin still feels overshadowed and asks for individual praise.",
+   "src": "L28439"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The rules reveal that the contest favored one cousin's experience.",
+   "src": "L28442",
+   "text_only": [
+    {
+     "what": "\"experience\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28442"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The cousins return to playing after cooling off.",
+   "src": "L28444"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One cousin decides competitions are no longer enjoyable.",
+   "src": "L28445"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Each cousin discovers a different strength.",
+   "src": "L28447"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They miss competing together and invent a cooperative challenge.",
+   "src": "L28448"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "A fair rematch ends in laughter.",
+   "src": "L28441",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "cousin1",
+     "mood": "good",
+     "src": "L28441"
+    },
+    {
+     "do": "mood",
+     "role": "cousin2",
+     "mood": "good",
+     "src": "L28441"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "A fair rematch ends in laughter.",
+   "src": "L28441"
+  }
+ }
+}

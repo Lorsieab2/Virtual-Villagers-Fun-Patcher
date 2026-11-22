@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What (name1) Overheard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon25_what_overheard",
+  "source": "draft_hon",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager overhears a friend nervously practicing a feast speech: let them know you heard, or keep it to yourself.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was resting in the shade behind the storehouse when (friend) came round the other side, thinking (friend.he/she) was alone, and began practicing, out loud, the few words (friend.he/she) has to say at tomorrow's feast. (friend) stumbled, started again, muttered \"oh, I'm hopeless\" to (friend.him/her)self, and started again. (subject) heard every bit of it.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Let (friend) Know You Heard",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Keep It to Yourself",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) waits until (friend) has gone, then slips quietly away. At the feast, (friend) gives the speech, stumbles once, and carries on. (subject) claps the hardest of anyone, and never mentions what (subject.he/she) heard. It wasn't (subject.his/her) place to mention.",
+   "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) steps out, a little awkwardly. \"I didn't mean to listen. I was here first.\" (friend) goes red. \"You heard all that?\" \"I heard the second try. It was good.\" (friend) groans, then laughs, and asks (subject.him/her) to listen to the third try. It's even better.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) steps out, a little awkwardly. \"I didn't mean to listen. I was here first.\" (friend) goes red. \"You heard all that?\" \"I heard the second try. It was good.\" (friend) groans, then laughs, and asks (subject.him/her) to listen to the third try. It's even better.",
+   "src": "L302"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L305",
+   "before": "(his/hers) to mention",
+   "after": "(his/her) place to mention"
+  }
+ ]
+}

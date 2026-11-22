@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher's Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm18_fisher_story",
+  "source": "draft_drm",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   }
+  ],
+  "description": "A fisher who secretly makes up stories hears someone at the fire ask for a story: tell the story, or let someone else go first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has fished for years, and everyone knows (him/her) as a fisher. What nobody knows is that (he/she) has been making up stories in (his/her) head the whole time: long ones, about a clever little crab and an enormous lazy octopus. Tonight at the fire, someone asks if anybody has a story. There's a silence. (name1) feels (his/her) mouth open.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Tell the Story",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Let Someone Else Go First",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) closes (his/her) mouth again. Someone else tells a story about a canoe that paddled itself, and it's very good. (name1) listens and thinks about the crab and the octopus. Maybe next time. It's comforting, somehow, to know the stories are there, waiting, whether (he/she) ever tells them or not.",
+   "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) tells the one about the crab who tricked the octopus into carrying it across the lagoon. (His/her) voice shakes at first. Then it doesn't. The children laugh in the right places, and some of the adults too. When it's over, a small voice says, \"Is there another one?\" There are about forty.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) tells the one about the crab who tricked the octopus into carrying it across the lagoon. (His/her) voice shakes at first. Then it doesn't. The children laugh in the right places, and some of the adults too. When it's over, a small voice says, \"Is there another one?\" There are about forty.",
+   "src": "L218"
+  }
+ }
+}

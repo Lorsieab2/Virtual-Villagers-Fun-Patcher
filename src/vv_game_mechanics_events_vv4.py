@@ -64,6 +64,14 @@ RULES = (
     Line("A loss of food or tech points takes no more than there is. Health and skills stop at 0 and 100."),
     Line("With the patcher's \"Story / Cheat Upgrades\" (in this game): Pick Island Event chooses the next event "
          "and, where the game rolls, the outcome.", only_with=STORY),
+    # VVFP VV4 Fruit Supply.dll (THE EVENT / ITS CHANCE in its source): the draw 0x4180A5 leaves slot 19 out; the
+    # separate roll there (rand(100) < 20); the delivery at the scheduler's update 0x43FA32 through 0x418190.
+    Line("With \"Yellow Fruit Trees are No Longer Unlimited\": the game's events are drawn exactly as above, each with "
+         "the game's own chance; A Closer Look (Yellow Breadfruit) never takes a share of the game's own draw. After "
+         "each island event from the village's second on, when the breadfruit could happen, there is a 20% chance "
+         "that it comes on its own, 30% to 70% of the way to the next island event; if another island event comes "
+         "first, or the game is closed or another village loaded before then, it does not come.",
+         only_with=YELLOW_FRUIT),
 )
 
 # Each event's result routine, in the order of its lines (the two-choice events: the first button, then the second).
@@ -97,8 +105,11 @@ EVENTS = (
         "The blackberry bushes gain 350 berries.",)),
     # The patch's own event (VVFP VV4 Fruit Supply.dll): its object in the event table's empty slot 19, the berry
     # event's title, the owner's text (id 0x2E7), the berry event's condition 0x415E00 after the Cooking Pit test.
+    # Its chance: a separate roll; the companion's draw at 0x4180A5 leaves slot 19 out of the game's own.
     Event("A Closer Look (Yellow Breadfruit)",
-          f"needs the Cooking Pit restored and {ANY}; added by \"Yellow Fruit Trees are No Longer Unlimited\" "
+          f"needs the Cooking Pit restored and {ANY}; never takes a share of the game's own draw: after each island "
+          "event from the village's second on there is a 20% chance it comes on its own before the next one; added "
+          "by \"Yellow Fruit Trees are No Longer Unlimited\" "
           "(without it the event does not exist)", (
               f"The Cooking Pit's yellow fruit tree gains {YELLOW_FRUIT_EVENT_GAIN} fruit, up to its 1,000, and the "
               "villager walks to the tree (as the blackberry event's farmer goes to the bushes).",),
@@ -252,3 +263,14 @@ EVENTS = with_scaling(4, EVENTS, frozenset({
     "The Mysterious Footprints (tech gained)", "The Mysterious Footprints (tech lost)", "The Arc of Brilliant Colors",
     "The Calabash Instrument", "The Climber", "The Mosquito Larvae", "Faces in the Night", "The Sealed Box",
     "The Aspiring Scientist"}))
+
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
+from vv_game_mechanics_adventurer import (adventurer_event, mysterious_mask_event,  # noqa: E402
+                                          playful_dolphins_event)
+
+EVENTS = EVENTS + (adventurer_event(4), playful_dolphins_event(), mysterious_mask_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(4), rumblings_event(4))

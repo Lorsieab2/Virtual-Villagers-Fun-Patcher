@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Crab Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il086_great_crab_story",
+  "source": "da_il05",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Someone tells the old family crab story wrong at a gathering: correct them, or let the new version live.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every family gathering, someone tells the story about the time an old relative was chased all the way up the beach by a crab \"the size of a basket.\" Everyone knows it by heart. Tonight (friend) tells it, and gets it wrong: in (friend.his/her) version it was a cooking pot, not a basket, and the crab was wearing a leaf on its head.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Correct (friend.him/her)",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Let the New Version Live",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"It was the size of a BASKET,\" says (subject). \"And there was no leaf.\" (friend) folds (friend.his/her) arms. \"There's always been a leaf.\" The argument draws in the whole gathering. By the end, nobody can agree on the crab, the basket or the leaf, and the story has never been funnier.",
+   "src": "L74"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) opens (subject.his/her) mouth to object, then closes it. The leaf is a good detail, honestly. Next time (subject) tells the story, (subject.he/she) puts the leaf in too. Within a year everyone agrees the leaf was always there.",
+   "src": "L77"
+  }
+ }
+}

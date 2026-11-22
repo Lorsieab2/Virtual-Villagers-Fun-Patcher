@@ -345,7 +345,7 @@ class EveryGameFindsAndFixesDifferences(unittest.TestCase):
                 self.assertEqual(vg.survey(v.folder, game, 1).differences, [])
                 self.assertEqual(struct.unpack_from("<I", logged.read_bytes(), 20)[0],
                                  fingerprint(game, "Mia Akikai", 1000), "Graves Logged follows the new name")
-                copies = list((v.folder / DATA / "Copies Made Before Repairs").rglob("*.before-grave-repair"))
+                copies = tools.copies.kept_copies(v.folder, v.save, vg.COPY_SUFFIX)
                 self.assertTrue(any(c.read_bytes() == before for c in copies), "a copy of the save before")
                 self.assertTrue(result.backup.backup_folder.is_dir())
                 repairs = list(tools.layout.slot_log_folder(v.folder, "Repairs Made", 1).glob("*.txt"))   # the save's own folder

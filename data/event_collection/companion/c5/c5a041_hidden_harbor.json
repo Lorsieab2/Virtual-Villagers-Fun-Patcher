@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hidden Harbor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a041_hidden_harbor",
+  "source": "companion",
+  "lines": [
+   952,
+   969
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L952",
+  "ledger": [
+   {
+    "src": "L954",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L958",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L963",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L965",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L967",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L969",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "An expedition finds a sheltered cove behind towering cliffs.",
+  "cast_only": [
+   "explorer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An expedition discovers a sheltered cove behind towering cliffs.",
+   "src": "L956",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L959"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L960"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L961"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "The cove becomes a useful stop for future voyages.",
+   "src": "L963"
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The passage proves accessible only under certain tides.",
+   "src": "L965"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "Strange marks on the rocks suggest earlier visitors.",
+   "src": "L967"
+  }
+ }
+}

@@ -1,0 +1,248 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Coconut Shy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b164_coconut_shy",
+  "source": "balance",
+  "lines": [
+   7574,
+   7617
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7574",
+  "ledger": [
+   {
+    "src": "L7575",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7576",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7584",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7593",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7581",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7582",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7585",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7594",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7587",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7590",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7596",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7599",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7602-7617",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every so often one falls by itself with a thud that makes everyone jump.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The coconut palms by the cooking fire are overdue for harvesting, and the coconuts at the top are as big and heavy as a child's head. Every so often one falls by itself with a thud that makes everyone jump. (builder) has been saying for weeks that someone should climb up and cut them before one lands on somebody.\nToday the wind is getting up, and the palms are swaying, and (subject) is the only one free. (subject.He/She) has a knife in (subject.his/her) belt and a rope over (subject.his/her) shoulder. Above, a coconut is already wobbling on its stalk.\nShould (subject) climb the palm now, or clear everyone away from under it and wait for the wind to drop?",
+   "choices": [
+    {
+     "label": "Climb Now",
+     "next": "c1",
+     "src": "L7581"
+    },
+    {
+     "label": "Clear the Area and Wait",
+     "next": "c2",
+     "src": "L7582"
+    }
+   ],
+   "src": "L7577-7579"
+  },
+  "c1o1": {
+   "text": "Halfway up, the wobbling coconut lets go, and hits (subject) right on the top of the head. (subject.He/She) slides down the trunk, very slowly, and sits at the bottom. \"Hello,\" (subject.he/she) says to everyone, very cheerfully. \"Who am I?\" The healers say there's no lasting harm, except that the name has been knocked clean out. The village calls (subject.him/her) \"?\". It is very sorry about the coconut.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L7588",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "At the top, the wind gives the palm a great shove, and the rope slips. (subject) falls a long way and lands badly, on the sand by the fire. (subject.He/She) lives. But (subject.his/her) hip is broken, and though it heals, (subject.he/she) never walks without a stick again, and never climbs anything again either, not even the steps to the {@chief}'s hut.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L7591",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) loops the rope round the trunk and starts to climb, leaning back, walking up the palm the way the old climbers taught (subject.him/her). The higher (subject.he/she) gets, the more the tree sways...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7585"
+  },
+  "c2o1": {
+   "text": "The wind doesn't drop. It gets stronger, and shakes every coconut off every palm by the fire, one after another, thud, thud, thud, into the empty cooking area. Nobody is under them. By evening the ground is covered, and (subject) and the cooks gather them up in baskets. \"That's one way to harvest,\" says (builder). Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L7597",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The wind drops at dusk and (subject) climbs up easily and cuts them all. The only casualty is the big cooking pot, which nobody moved, and which a coconut has gone straight through. The cooks are very annoyed. They have to make supper in three small pots, and it isn't as good, and they say so all evening.",
+   "src": "L7600"
+  },
+  "c2": {
+   "text": "(subject) shoos everyone away from the palms, the cooks complaining loudly, and ropes off the whole cooking area with a vine. Then (subject.he/she) sits down at a safe distance and waits for the wind to drop...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7594"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

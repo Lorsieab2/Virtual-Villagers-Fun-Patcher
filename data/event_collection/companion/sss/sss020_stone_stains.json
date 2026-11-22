@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Stains",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss020_stone_stains",
+  "source": "companion",
+  "lines": [
+   6267,
+   6275
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6267",
+  "ledger": [
+   {
+    "src": "L6275",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A jeweler wants to grind a staining blue mineral into pigment without knowing if the dust is safe."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "worker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A mineral leaves brilliant blue marks on skin. A jeweler wants to grind it into pigment without knowing whether the dust is safe.",
+   "src": "L6268",
+   "choices": [
+    {
+     "label": "Test it carefully",
+     "next": "a",
+     "src": "L6269"
+    },
+    {
+     "label": "Use it only as an intact stone",
+     "next": "b",
+     "src": "L6271"
+    },
+    {
+     "label": "Grind it immediately",
+     "next": "c",
+     "src": "L6273"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The unusual mineral becomes a striking pendant.",
+   "src": "L6272"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Several workers cough and the workshop closes pending investigation; the mineral's safety remains uncertain.",
+   "src": "L6274",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "worker",
+     "src": "L6274"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "Small controlled tests suggest a useful glaze, though the workshop adopts precautions.",
+   "src": "L6270",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "jeweler",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6270"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L6270"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "Small controlled tests suggest a useful glaze, though the workshop adopts precautions.",
+   "src": "L6270",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "jeweler",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6270"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

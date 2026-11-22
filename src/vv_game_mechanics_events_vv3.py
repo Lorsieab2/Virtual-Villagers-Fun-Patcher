@@ -27,7 +27,7 @@ THE SCHEDULER (0x468750; docs/reports/island-event-conditions.txt, The Secret Ci
 """
 from __future__ import annotations
 
-from vv_game_mechanics_events import Event, Line
+from vv_game_mechanics_events import Event, Line, with_every_event
 
 FIX = "vv3_fix_vanilla_bugs"
 BOTH = "vv3_both_factions"
@@ -366,3 +366,27 @@ EVENTS = (
         "\"Confront him\": +20 to 44 Research, up to 100, and the villager's name becomes \"?\".",
         f"\"Watch him work\": {M} 1,000 tech points.")),
 )
+
+# Every Island Event Can Happen (the owner, 2026-11-17): the technology tests of 0x4157E0, 0x4159B0, 0x415C40 and
+# 0x4171D0 always pass (scripts/build_every_island_event_can_happen_features.py); the raise 0x426FD0 stops at 3.
+# The Ghostly Dreams keep their Nature / Magic need by the owner's word.
+EVENTS = with_every_event(3, EVENTS, {
+    "The Bitter Brown Beans (taste or dye)": "it can happen at any Science level.",
+    "The Bitter Brown Beans (brew or fertilizer)": "it can happen at any Science level.",
+    "The Ancient Tablet (laundry or decoration)": "it can happen at any Science level.",
+    "The Ancient Tablet (research or display)": "it can happen at any Science and Alchemy level; \"Focus research on "
+                                                "tablet\" still raises Alchemy 1 level, up to 3 (at 3 the level stays "
+                                                "3).",
+    "The Medical Emergency": "it can happen at any Medicine level.",
+})
+
+# The Aspiring Adventurer (the owner, 2026-11-12): "VVFP More Island Events.dll" adds it (src/vv_game_mechanics_adventurer.py).
+from vv_game_mechanics_adventurer import (adventurer_event, diving_for_treasure_event,  # noqa: E402
+                                          troubling_signs_event)
+
+EVENTS = EVENTS + (adventurer_event(3), troubling_signs_event(), diving_for_treasure_event())
+
+# The Remembrance Ceremony and The Rumblings (the owner, 2026-11-13, all five games): the same companion.
+from vv_game_mechanics_ceremony import remembrance_event, rumblings_event  # noqa: E402
+
+EVENTS = EVENTS + (remembrance_event(3), rumblings_event(3))

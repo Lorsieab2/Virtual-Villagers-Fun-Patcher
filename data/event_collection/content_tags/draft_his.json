@@ -1,0 +1,592 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "draft_his",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "his01_festival_used": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his02_fisher_used_say": {
+   "filters": [
+    "F20",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F20",
+     "F25"
+    ],
+    "o1__text": [
+     "F20",
+     "F25"
+    ],
+    "o2": [
+     "F25"
+    ],
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his03_terraces_hill": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "his04_name_carved": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his05_song_nobody_can": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his06_someone_lived": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   }
+  },
+  "his07_path_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his08_why_we_cover": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his09_came_nothing": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F20"
+    ],
+    "o1__text": [
+     "F20"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his10_face_changed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "his11_feast_portions": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his12_two_ways_tie": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "his13_lullaby_nobody": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his14_gap_stones": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his15_year_pig": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his16_apparently": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his17_wrong_hero": {
+   "filters": [
+    "F21",
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F25"
+    ],
+    "setup": [
+     "F21",
+     "F25"
+    ]
+   }
+  },
+  "his18_unfinished": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his19_grave_name": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o1": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his20_shell_money": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his21_ending_changed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his22_stone_where_they": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his23_tidy_village": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his24_dish_everyone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his25_grown_up_version": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his26_quiet_day": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F03"
+    ],
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his27_tally_sticks": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend",
+    "elder"
+   ]
+  },
+  "his28_oldest_joke": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "elder"
+   ]
+  },
+  "his29_stone_resting": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F08"
+    ],
+    "o1__text": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his30_wall_under_water": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "o2": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his31_dance_eight": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his32_forgotten_seeds": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his33_handprints_cave": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his34_feud_nobody": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "his35_bundle_door": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his36_leader_nobody": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1": [
+     "F21"
+    ],
+    "setup": [
+     "F21"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his37_bones_bank": {
+   "filters": [
+    "F03"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his38_flood_line": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "his39_chant_nine_stars": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his40_remedy_wrong": {
+   "filters": [
+    "F07"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F07"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his41_worn_nose": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his42_why_we_hop": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject",
+    "elder"
+   ]
+  },
+  "his43_elder_there": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his44_wall_hooks": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "his45_lost_black_pots": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "his46_hiding_place": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "his47_hero_cut_down": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "his48_founding_play": {
+   "filters": [
+    "F08"
+   ],
+   "notes": [],
+   "nodes": {
+    "o1__fx": [
+     "F08"
+    ],
+    "o1__text": [
+     "F08"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his49_old_word_friend": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "his50_layers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

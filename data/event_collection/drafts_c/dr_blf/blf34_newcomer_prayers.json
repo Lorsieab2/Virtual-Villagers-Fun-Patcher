@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Newcomer's Prayers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf34_newcomer_prayers",
+  "source": "draft_blf",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult newcomer to the village and two children aged 5-11)"
+   }
+  ],
+  "description": "Two children watch a newcomer pray in a language nobody else speaks: invite them to watch properly, or let them wonder.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 11
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) arrived on Isola a few seasons ago from somewhere across the sea. Every evening (subject.he/she) kneels outside (subject.his/her) hut, facing the water, and says prayers in a language nobody else in the village speaks. Today (friend) and (third), two young villagers, are watching from behind a palm tree, whispering.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Invite Them to Watch Properly",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Let Them Wonder",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) finishes, turns round and says, \"You can come out.\" The children shuffle out, embarrassed. \"Is it a song?\" asks (friend). \"Sort of,\" says (subject). \"It's a way of saying thank you, where I come from.\" (subject.He/she) tells them a few of the words. The children practice them all the way home, getting them hilariously wrong. (subject) doesn't mind at all.",
+   "src": "L410"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) pretends not to notice them, finishes (subject.his/her) prayers and goes inside. The children whisper about it for days. Eventually one of them asks a grown-up, who says, \"It's how (subject) prays. Some people pray differently.\" \"Oh,\" says (third). That seems to be enough. The next evening, they wave to (subject) on their way past. (subject.He/she) waves back.",
+   "src": "L413"
+  }
+ }
+}

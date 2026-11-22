@@ -1,0 +1,265 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Crush at Seventeen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel02_crush",
+  "source": "anthology",
+  "lines": [
+   27032,
+   27045
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27032",
+  "ledger": [
+   {
+    "src": "L27033",
+    "kind": "sensitivity",
+    "before": "A seventeen-year-old is interested in another villager aged 14-17",
+    "after": "(teen), a seventeen-year-old, is interested in (other)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27035",
+    "kind": "sensitivity",
+    "before": "The other teen",
+    "after": "(other)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27036",
+    "kind": "sensitivity",
+    "before": "The other teen",
+    "after": "(other)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27038",
+    "kind": "sensitivity",
+    "before": "The peer",
+    "after": "(peer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27038",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27039",
+    "kind": "sensitivity",
+    "before": "The peer",
+    "after": "(peer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27044",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27045",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A seventeen-year-old is interested in another villager aged 14-17 and worries about saying anything.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "other",
+   "peer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 17,
+   "max_age": 17
+  },
+  "other": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "teen",
+    "years": 2
+   }
+  },
+  "peer": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen), a seventeen-year-old, is interested in (other) and worries about saying anything.",
+   "src": "L27033",
+   "choices": [
+    {
+     "label": "Speak Honestly",
+     "next": "a",
+     "src": "L27034"
+    },
+    {
+     "label": "Ask a Trusted Peer for Advice",
+     "next": "b",
+     "src": "L27037"
+    },
+    {
+     "label": "Share a Favorite Activity",
+     "next": "c",
+     "src": "L27040"
+    },
+    {
+     "label": "Keep Feelings Private for Now",
+     "next": "d",
+     "src": "L27043"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(other) returns the feeling and suggests getting to know each other.",
+   "src": "L27035"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(other) declines gently, and the friendship remains respectful.",
+   "src": "L27036"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(peer) helps (teen) find the words.",
+   "src": "L27038"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(peer) encourages patience rather than making assumptions.",
+   "src": "L27039"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The activity is pleasant but does not lead to romance.",
+   "src": "L27042"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(teen) enjoys the friendship without pressure.",
+   "src": "L27044"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(teen) decides later that the crush has faded.",
+   "src": "L27045"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The two enjoy working side by side and become closer.",
+   "src": "L27041",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L27041"
+    },
+    {
+     "do": "mood",
+     "role": "other",
+     "mood": "good",
+     "src": "L27041"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The two enjoy working side by side and become closer.",
+   "src": "L27041"
+  }
+ }
+}

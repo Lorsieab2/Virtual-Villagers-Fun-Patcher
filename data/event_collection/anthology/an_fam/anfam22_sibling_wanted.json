@@ -1,0 +1,238 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sibling Who Wanted Privacy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam22_sibling_wanted",
+  "source": "anthology",
+  "lines": [
+   28615,
+   28628
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28615",
+  "ledger": [
+   {
+    "src": "L28616",
+    "kind": "sensitivity",
+    "before": "A younger child repeatedly interrupts an older sibling's quiet time",
+    "after": "(younger), a younger child, repeatedly interrupts the quiet time of (older), an older sibling",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28618",
+    "kind": "sensitivity",
+    "before": "The younger child",
+    "after": "(younger)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28619",
+    "kind": "sensitivity",
+    "before": "The older sibling",
+    "after": "(older)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28622",
+    "kind": "sensitivity",
+    "before": "The younger child",
+    "after": "(younger)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28624",
+    "kind": "sensitivity",
+    "before": "The younger child",
+    "after": "(younger)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28625",
+    "kind": "sensitivity",
+    "before": "The older sibling",
+    "after": "(older)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A younger child repeatedly interrupts an older sibling's quiet time.",
+  "label_case": "title",
+  "cast_only": [
+   "younger",
+   "older"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "younger": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 9
+  },
+  "older": {
+   "kind": "villager",
+   "min_age": 10,
+   "max_age": 17,
+   "relation": {
+    "sibling_of": "younger"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(younger), a younger child, repeatedly interrupts the quiet time of (older), an older sibling.",
+   "src": "L28616",
+   "choices": [
+    {
+     "label": "Explain the Need for Privacy",
+     "next": "a",
+     "src": "L28617"
+    },
+    {
+     "label": "Plan a Shared Activity Later",
+     "next": "b",
+     "src": "L28620"
+    },
+    {
+     "label": "Help the Younger Child Find Something Else to Do",
+     "next": "c",
+     "src": "L28623"
+    },
+    {
+     "label": "Ask Both Siblings to Suggest Boundaries",
+     "next": "d",
+     "src": "L28626"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(younger) learns to knock before approaching.",
+   "src": "L28618"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(older) agrees to explain when they need space.",
+   "src": "L28619"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The siblings enjoy playing together afterward.",
+   "src": "L28621"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(younger) becomes impatient waiting and needs reassurance.",
+   "src": "L28622"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(older) misses their company and invites them back.",
+   "src": "L28625"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The siblings agree on a simple signal for quiet time.",
+   "src": "L28627"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Their first plan fails, and they revise it together.",
+   "src": "L28628"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(younger) finds a new favorite game.",
+   "src": "L28624",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "younger",
+     "mood": "good",
+     "src": "L28624"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(younger) finds a new favorite game.",
+   "src": "L28624"
+  }
+ }
+}

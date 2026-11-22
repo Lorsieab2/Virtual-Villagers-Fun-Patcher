@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Back in the Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il192_back_water",
+  "source": "da_il10",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L134",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "An elder who used to swim every day watches the children in the shallows: wade in, or just dip their feet.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) used to swim every day. Out past the reef and back, before breakfast. Then (his/her) knees started to complain, and the water seemed colder, and somehow (he/she) stopped. That was years ago. Today, watching the children splash in the shallows, (name1) finds (him/her)self taking off (his/her) sandals.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Wade In",
+     "next": "a",
+     "src": "L133"
+    },
+    {
+     "label": "Just Dip (his/her) Feet",
+     "next": "b",
+     "src": "L136"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The water is cold. Then it's not. (name1) lies back and floats, and the sea holds (him/her) up exactly the way it used to. (He/She) doesn't go out to the reef. (He/She) doesn't need to. (He/She) just floats there, looking at the sky, while the children swim round (him/her) like little fish. When (he/she) comes out, (his/her) knees ache. (He/She) decides it was worth it.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L134"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The water is cold. Then it's not. (name1) lies back and floats, and the sea holds (him/her) up exactly the way it used to. (He/She) doesn't go out to the reef. (He/She) doesn't need to. (He/She) just floats there, looking at the sky, while the children swim round (him/her) like little fish. When (he/she) comes out, (his/her) knees ache. (He/She) decides it was worth it.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) sits on a rock and lowers (his/her) feet into the water. It's cold, and lovely, and familiar. That's enough for today, (he/she) decides. The children splash (him/her), and (he/she) splashes them back, and nobody notices that (he/she) is smiling at something that has nothing to do with them.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) sits on a rock and lowers (his/her) feet into the water. It's cold, and lovely, and familiar. That's enough for today, (he/she) decides. The children splash (him/her), and (he/she) splashes them back, and nobody notices that (he/she) is smiling at something that has nothing to do with them.",
+   "src": "L137"
+  }
+ }
+}

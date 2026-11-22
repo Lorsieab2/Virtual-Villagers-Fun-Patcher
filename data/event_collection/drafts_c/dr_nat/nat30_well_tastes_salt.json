@@ -1,0 +1,98 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Well Tastes of Salt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat30_well_tastes_salt",
+  "source": "draft_nat",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L362",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The well by the shore has started to taste of salt: draw less from it, or dig a new well further inland.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It has been a long dry season, and lately the water from the well by the shore has started to taste a little salty. Today it tastes more than a little. (subject) spits it out. (friend), who knows a bit about wells, says that when people draw too much fresh water near the sea, the sea creeps in underneath to fill the space.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Draw Less from It",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Dig a New Well Further Inland",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They agree to take only what they need from the shore well and to carry the rest from the stream, which is a long walk. Everybody grumbles. Water jars get very heavy very fast. But after the rains come, the shore well tastes sweet again. (subject) carves a little sign by it: \"Only what you need.\" Some people listen.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They dig a new well up the slope, away from the beach. It takes days and a lot of argument about where exactly to dig. The first hole is dry. The second one isn't. The new water is sweet and cold, and the old shore well is left to rest. (subject) wonders how many wells on Isola have tasted of salt over the years, and how many people knew why.",
+   "src": "L365"
+  }
+ }
+}

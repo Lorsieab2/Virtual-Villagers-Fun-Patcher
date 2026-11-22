@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "We Stand Together",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca13_we_stand",
+  "source": "draft_lca",
+  "lines": [
+   180,
+   191
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L180",
+  "ledger": [
+   {
+    "src": "L181",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L191",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L191",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A family has been treated unfairly at the sharing of the catch: sing for them at the gathering, or speak for them instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For three days in a row, (friend)'s family has been given the smallest share of the catch, and everyone knows why: the fishers are still angry about an old quarrel that was not (friend)'s fault. (subject) thinks it is shameful. (friend) does not want a fuss. How should the village stand with (friend)'s family?",
+   "src": "L183",
+   "choices": [
+    {
+     "label": "Sing for Them at the Gathering",
+     "next": "o1",
+     "src": "L185"
+    },
+    {
+     "label": "Speak Up for Them",
+     "next": "o2",
+     "src": "L189"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "That evening, (subject) and a dozen neighbors stand behind (friend)'s family at the sharing and sing the old song about the net that holds everyone. The fishers look at their feet. The next day's share is fair. One of the fishers still will not look (friend) in the eye, but the shares stay fair.",
+   "src": "L187"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) stands up at the sharing and says, plainly, that the shares are unfair and everyone knows it. There is a long, awkward silence. One of the fishers says (subject) should mind (subject.his/her) own business. Another quietly moves an extra fish onto (friend)'s pile. The quarrel is not over, but the shares are better.",
+   "src": "L191",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L191"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

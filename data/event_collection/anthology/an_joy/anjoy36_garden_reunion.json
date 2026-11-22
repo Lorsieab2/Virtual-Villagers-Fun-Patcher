@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Garden Reunion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy36_garden_reunion",
+  "source": "anthology",
+  "lines": [
+   29208,
+   29221
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L29208",
+  "ledger": [],
+  "description": "Old friends reunite at a garden they planted years earlier.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Old friends reunite at a garden they planted years earlier.",
+   "src": "L29209",
+   "choices": [
+    {
+     "label": "Walk Among the Plants",
+     "next": "a",
+     "src": "L29210"
+    },
+    {
+     "label": "Plant Something New",
+     "next": "b",
+     "src": "L29213"
+    },
+    {
+     "label": "Invite Younger Relatives",
+     "next": "c",
+     "src": "L29216"
+    },
+    {
+     "label": "Enjoy a Quiet Afternoon",
+     "next": "d",
+     "src": "L29219"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They admire how much has grown.",
+   "src": "L29211"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They find that some favorite flowers have disappeared.",
+   "src": "L29212"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The friends begin a fresh shared project.",
+   "src": "L29214"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They decide to tend existing plants instead.",
+   "src": "L29215"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Children hear stories of the old friendship.",
+   "src": "L29217"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children are more interested in butterflies.",
+   "src": "L29218"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The friends sit together without needing conversation.",
+   "src": "L29220"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One admits they missed the other more than expected.",
+   "src": "L29221"
+  }
+ }
+}

@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Difficult Feeling",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp59_difficult",
+  "source": "anthology",
+  "lines": [
+   32176,
+   32190
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32176",
+  "ledger": [
+   {
+    "src": "L32177",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32178",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32180",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32183",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(caregiver), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32184",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32186",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32187",
+    "kind": "sensitivity",
+    "before": "The caregiver",
+    "after": "(caregiver)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32189",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child says they dislike their new sibling and fears this makes them a bad person.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "caregiver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) says they dislike their new sibling and fears this makes them a bad person.",
+   "src": "L32178",
+   "choices": [
+    {
+     "label": "Name the Feeling",
+     "next": "a",
+     "src": "L32179"
+    },
+    {
+     "label": "Give One-On-One Time",
+     "next": "b",
+     "src": "L32182"
+    },
+    {
+     "label": "Set Kind Boundaries",
+     "next": "c",
+     "src": "L32185"
+    },
+    {
+     "label": "Invite Gentle Involvement",
+     "next": "d",
+     "src": "L32188"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"dislike\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32178"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) admits missing undivided attention.",
+   "src": "L32180"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They discover feelings can change.",
+   "src": "L32181"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(caregiver), a caregiver, spends an afternoon together.",
+   "src": "L32183"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) asks for a regular small ritual.",
+   "src": "L32184"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) learns not to hurt the baby.",
+   "src": "L32186"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(caregiver) explains that jealousy itself is not wrongdoing.",
+   "src": "L32187"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) chooses a lullaby.",
+   "src": "L32189"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They prefer to play elsewhere for now.",
+   "src": "L32190"
+  }
+ }
+}

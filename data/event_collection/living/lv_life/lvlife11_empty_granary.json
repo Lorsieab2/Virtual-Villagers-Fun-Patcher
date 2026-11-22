@@ -1,0 +1,241 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Granary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife11_empty_granary",
+  "source": "living",
+  "lines": [
+   20772,
+   20783
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20772",
+  "ledger": [
+   {
+    "src": "L20783",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A farmer proposes drying fruit in the sun while a cook prefers smoking and sealed jars.",
+  "cast_only": [
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A farmer proposes drying fruit in the sun while a cook prefers smoking and sealed jars.",
+   "src": "L20773",
+   "choices": [
+    {
+     "label": "Dry the harvest on raised racks.",
+     "next": "a",
+     "src": "L20774"
+    },
+    {
+     "label": "Smoke part of the harvest.",
+     "next": "b",
+     "src": "L20777"
+    },
+    {
+     "label": "Compare several small batches.",
+     "next": "c",
+     "src": "L20780"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Most fruit keeps well, but unexpected rain ruins several trays.",
+   "src": "L20775",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20775"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The village learns to protect drying food from insects.",
+   "src": "L20776",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "farmer",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20776"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20776"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "food",
+     "reason": "the lesson is how to protect drying food; nothing is gained or lost",
+     "src": "L20776"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The food lasts longer, though some villagers dislike the taste.",
+   "src": "L20778",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L20778"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "dislike the taste",
+     "reason": "some villagers, not a cast one: no preference changes",
+     "src": "L20778"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A smoky batch becomes unpleasant, and the cook discards it.",
+   "src": "L20779",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20779"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village learns which method suits each food.",
+   "src": "L20781",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "farmer",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20781"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L20781"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "food",
+     "reason": "the village learns which method suits each food; nothing is gained or lost",
+     "src": "L20781"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The experiment consumes precious time before the next storm.",
+   "src": "L20782"
+  }
+ }
+}

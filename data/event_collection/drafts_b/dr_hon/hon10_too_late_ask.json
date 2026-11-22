@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Late to Ask",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon10_too_late_ask",
+  "source": "draft_hon",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager realizes they have said a friend's name slightly wrong for months: ask about it, or just start saying it right.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "For months (subject) has been saying (friend)'s name slightly wrong: just one sound off. (friend) has never corrected (subject.him/her). (subject) only realized today, hearing someone else say it properly. They talk every day. They're friends. It feels much too late to ask.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Ask Anyway",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Just Start Saying It Right",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Have I been saying your name wrong this whole time?\" (friend) bursts out laughing. \"Since the day we met.\" \"Why didn't you SAY?\" \"I liked it. And by the time I thought about it, it was too late.\" They agree to start again. (subject) says it right every time after that, very carefully, and (friend) secretly misses the old way a little.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Have I been saying your name wrong this whole time?\" (friend) bursts out laughing. \"Since the day we met.\" \"Why didn't you SAY?\" \"I liked it. And by the time I thought about it, it was too late.\" They agree to start again. (subject) says it right every time after that, very carefully, and (friend) secretly misses the old way a little.",
+   "src": "L122"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The next morning (subject) says (friend)'s name properly, as if (subject.he/she) always had. (friend) stops and looks at (subject.him/her). Says nothing. Smiles a very small smile. Neither of them ever mentions it.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The next morning (subject) says (friend)'s name properly, as if (subject.he/she) always had. (friend) stops and looks at (subject.him/her). Says nothing. Smiles a very small smile. Neither of them ever mentions it.",
+   "src": "L125"
+  }
+ }
+}

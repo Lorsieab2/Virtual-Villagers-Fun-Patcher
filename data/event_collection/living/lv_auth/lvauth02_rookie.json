@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rookie and the Collapsing Bridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth02_rookie",
+  "source": "living",
+  "lines": [
+   23347,
+   23361
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23347",
+  "ledger": [
+   {
+    "src": "L23361",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young builder claims a bridge is unsafe, though the master builder insists it will hold.",
+  "cast_only": [
+   "master"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "master": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young builder claims a bridge is unsafe, though the master builder insists it will hold.",
+   "src": "L23348",
+   "choices": [
+    {
+     "label": "Trust the master.",
+     "next": "a",
+     "src": "L23349"
+    },
+    {
+     "label": "Let the apprentice inspect it.",
+     "next": "b",
+     "src": "L23352"
+    },
+    {
+     "label": "Have both builders test it.",
+     "next": "c",
+     "src": "L23355"
+    },
+    {
+     "label": "Close the bridge until more is known.",
+     "next": "d",
+     "src": "L23358"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The bridge holds, and the apprentice learns why.",
+   "src": "L23350",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23350"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A support gives way, and the master admits a mistake.",
+   "src": "L23351"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The apprentice finds a crack and prevents an accident.",
+   "src": "L23353",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23353"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their competing plans delay the crossing.",
+   "src": "L23357"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers grumble, but the bridge is reinforced.",
+   "src": "L23359"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The closure cuts off supplies during a storm.",
+   "src": "L23360"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The apprentice mistakes an old mark for damage and apologizes.",
+   "src": "L23354",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "bad",
+     "src": "L23354"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The apprentice mistakes an old mark for damage and apologizes.",
+   "src": "L23354"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They discover a hidden weakness and repair it together.",
+   "src": "L23356",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L23356"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They discover a hidden weakness and repair it together.",
+   "src": "L23356"
+  }
+ }
+}

@@ -1,0 +1,306 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jar of Two Sunrises",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my072_jar_two_sunrises",
+  "source": "rewrites",
+  "lines": [
+   14050,
+   14104
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L14050",
+  "ledger": [
+   {
+    "src": "L14051",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14052",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14059",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14066",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14073",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14080",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14054",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14055",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14056",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14057",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14060",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14067",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14074",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14081",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14061",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14063",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14068",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14070",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14075",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14077",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14082",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14084",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14087-14104",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "While turning over an old field to plant, a villager's hoe strikes something hard.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook": {
+   "kind": "villager"
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "storyteller": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "While turning over an old field to plant, (subject)'s hoe strikes something hard. (subject.He/she) digs it out: a clay jar, crusted with soil and tiny seashells, with two suns painted above a little boat. After all those years in the ground, the paint on the suns still glows orange. When (subject) pries the lid up a crack, a smell drifts out, sharp and fresh and unmistakable. It smells of the sea. This field is a half-day's walk from the nearest beach, though the elders say that long ago, before the land rose, the sea came right up to these fields. Should (subject) open it?",
+   "choices": [
+    {
+     "label": "Open the Jar at Dawn",
+     "next": "c1",
+     "src": "L14054"
+    },
+    {
+     "label": "Ask About the Painting",
+     "next": "c2",
+     "src": "L14055"
+    },
+    {
+     "label": "Carry It to the Shore",
+     "next": "c3",
+     "src": "L14056"
+    },
+    {
+     "label": "Keep It Sealed",
+     "next": "c4",
+     "src": "L14057"
+    }
+   ],
+   "src": "L14053"
+  },
+  "c1o1": {
+   "text": "The jar is packed to the brim with dried fish, layered in coarse grey salt and smelling faintly of seaweed. They are perfectly preserved. (subject) cautiously tastes one, chews, and goes wide-eyed. They are delicious. The cooks are amazed, and the fish are shared out for a feast that evening. \"Whoever packed these,\" says (cook), the head cook, licking (subject.his/her) fingers, \"knew exactly what they were doing. I'd like to know how.\" So would everyone else.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14062",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Inside, rolled tight in oiled skin, is a map: the coastline of Isola, drawn in fine brown lines, with a dotted route snaking around it and little marks for reefs, currents and safe landing beaches. Some of the beaches no one in the village has ever heard of. The fishers and researchers pore over it for days, and soon canoes are using the old route to reach fishing grounds they never knew existed.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L14064",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "Two suns, (subject) reasons, must mean something about sunrise. So (subject.he/she) waits until dawn, sets the jar facing the first light, and as the sun breaks over the hills, lifts the lid...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14060"
+  },
+  "c2o1": {
+   "text": "\"Two suns, one boat,\" (elder), the eldest, says softly. \"My grandfather told me about this. It means a parent and a child sailing together, two lifetimes in one canoe. Families used to paint it on jars they buried for their grandchildren to find.\" (subject.He/she) hands the jar back to (subject) very gently. \"Someone, a long time ago, hoped this would be found by their family. I think they would be glad it was found by anyone at all.\" (subject) keeps the jar by (subject.his/her) bed.",
+   "src": "L14069"
+  },
+  "c2o2": {
+   "text": "(storyteller), the village storyteller, grabs the jar and launches into a long tale about an ancestor who dreamed of a land where two suns rose at once, and painted it on everything (subject.he/she) owned so (subject.he/she) would never forget it. The tale goes on for most of the night and involves a talking turtle, three marriages, and a very long argument with a volcano. Nobody is sure any of it is true. But the children ask to hear it again the next night, and the next.",
+   "src": "L14071"
+  },
+  "c2": {
+   "text": "(subject) carries the jar to the elders' fire and asks what the two suns and the little boat could mean. The elders pass it from hand to hand, squinting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14067"
+  },
+  "c3o1": {
+   "text": "As (subject) reaches the water's edge and the waves wash over (subject.his/her) feet, the jar grows warm in (subject.his/her) hands. Not hot, just warm, like something alive. (subject) stands very still. Slowly, the warmth fades, and the jar is just cool clay again. (subject.He/she) carries it home in silence. Nothing else ever happens with the jar, but (subject) swears to anyone who asks that it felt, for a moment, like it was happy to be home.",
+   "src": "L14076"
+  },
+  "c3o2": {
+   "text": "On the beach, a traveler mending (subject.his/her) canoe looks up, sees the jar, and drops (subject.his/her) net. \"Where did you get that? That's a jar from my island. My people make them, far to the east of here. Two suns for the two sunrises you see when you sail between our islands.\" (subject.He/she) traces the little boat with one finger. \"It's a long way from home.\" (subject.He/she) and (subject) talk until sunset, and the traveler stays in the village for several days, telling everyone about the faraway island.",
+   "src": "L14078"
+  },
+  "c3": {
+   "text": "The jar smells of the sea, so (subject) decides it should see the sea. (subject.He/she) walks the half-day to the beach with the jar cradled in (subject.his/her) arms like a baby...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14074"
+  },
+  "c4o1": {
+   "text": "The jar takes pride of place among the village's old objects, between a cracked stone axe and a carved shell older than anyone can say. The children like to sit in front of it and make up stories about the two suns, and every one of the stories is different. Nobody ever opens it again. Everyone agrees that some things are better as mysteries.",
+   "src": "L14083"
+  },
+  "c4o2": {
+   "text": "In the middle of the night, there is a sharp crack. In the morning, the jar has split clean down one side, and a little heap of fine white sand has spilled out across the floor, full of tiny broken shells, like a beach at low tide. There is nothing else inside. Just sand. The jar was buried a half-day from the sea, sealed tight, and full of a beach. Nobody can explain it, and the sand is swept up very carefully and kept in a bowl.",
+   "src": "L14085"
+  },
+  "c4": {
+   "text": "(subject) presses the lid firmly back on. Whatever is inside has waited this long; it can wait a bit longer. (subject.He/she) gives the jar to the elders, who place it with the village's collection of old things...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14081"
+  }
+ }
+}

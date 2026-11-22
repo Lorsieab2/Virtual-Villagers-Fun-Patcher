@@ -1,0 +1,91 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Path Every Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss079_same_path_every",
+  "source": "companion",
+  "lines": [
+   6885,
+   6893
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6885",
+  "ledger": [
+   {
+    "src": "L6893",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager is upset when an unexpected change disrupts a cherished routine.",
+  "cast_only": [
+   "villager",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager becomes upset when an unexpected change disrupts a cherished daily routine.",
+   "src": "L6886",
+   "choices": [
+    {
+     "label": "Explain the change in advance",
+     "next": "a",
+     "src": "L6887"
+    },
+    {
+     "label": "Keep one familiar part",
+     "next": "b",
+     "src": "L6889"
+    },
+    {
+     "label": "Laugh at their concern",
+     "next": "c",
+     "src": "L6891"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They adjust with time and help plan the new route.",
+   "src": "L6888"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A favorite morning stop remains possible.",
+   "src": "L6890"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The villager feels dismissed; the friend later apologizes.",
+   "src": "L6892"
+  }
+ }
+}

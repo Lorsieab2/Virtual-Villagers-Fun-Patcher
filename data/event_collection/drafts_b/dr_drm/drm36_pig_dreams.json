@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pig of (name1)'s Dreams",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm36_pig_dreams",
+  "source": "draft_drm",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A young pig wanders in and follows a villager who always wanted one: name the pig, or help it find its way home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always wanted a pig. Not to eat. A pig to have. A pig to walk around with. (subject.He/she) has never quite had one. Today a young pig has wandered into the village from somewhere, and has taken one look at (subject), and decided to follow (subject.him/her) everywhere. (friend) finds them sitting together under a tree.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Name the Pig",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Help It Find Its Way Home",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) names the pig Sir Bristle. Sir Bristle follows (subject.him/her) to the gardens, the stream and the fire. He tries to follow (subject.him/her) into (subject.his/her) hut and is gently refused. After a few days, Sir Bristle wanders off as mysteriously as he came. (subject) is sad for a day, then decides that was exactly the right amount of pig.",
+   "src": "L434"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Someone might be missing it,\" says (friend). They walk the pig gently out to the edge of the forest. It looks back once, then trots off into the trees. (subject) is a bit sad. The next morning there are pig tracks all round (subject.his/her) hut, as if something had come back to check on (subject.him/her). (subject) is absurdly pleased.",
+   "src": "L437",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L437"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Someone might be missing it,\" says (friend). They walk the pig gently out to the edge of the forest. It looks back once, then trots off into the trees. (subject) is a bit sad. The next morning there are pig tracks all round (subject.his/her) hut, as if something had come back to check on (subject.him/her). (subject) is absurdly pleased.",
+   "src": "L437"
+  }
+ }
+}

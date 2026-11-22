@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chore Stones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm72_chore_stones",
+  "source": "draft_rm2",
+  "lines": [
+   474,
+   487
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L474",
+  "ledger": [],
+  "description": "Two partners realize that one of them has been doing most of the household chores without either of them noticing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two partners realize that one of them has been doing most of the household chores without either of them noticing.",
+   "src": "L475",
+   "choices": [
+    {
+     "label": "Make a List of Chores Together.",
+     "next": "a",
+     "src": "L476"
+    },
+    {
+     "label": "Use Pebbles to Track Who Did What.",
+     "next": "b",
+     "src": "L479"
+    },
+    {
+     "label": "Swap Chores for a Week.",
+     "next": "c",
+     "src": "L482"
+    },
+    {
+     "label": "Ask a Trusted Friend for Ideas.",
+     "next": "d",
+     "src": "L485"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They divide the work fairly, and both feel lighter.",
+   "src": "L477"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The list is too long, so they decide some chores can simply wait.",
+   "src": "L478"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The pebbles make the imbalance clear, and they adjust.",
+   "src": "L480"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They forget to move the pebbles, and the system becomes a running joke.",
+   "src": "L481"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Each learns how hard the other's chores are.",
+   "src": "L483"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The friend shares a system from their own home, which works well.",
+   "src": "L486"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The friend's system does not suit them, but they enjoy the conversation.",
+   "src": "L487"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Both discover they prefer their old chores and trade back gratefully.",
+   "src": "L484",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L484"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Both discover they prefer their old chores and trade back gratefully.",
+   "src": "L484"
+  }
+ }
+}

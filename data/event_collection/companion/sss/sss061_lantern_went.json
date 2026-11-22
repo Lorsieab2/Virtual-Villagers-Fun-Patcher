@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lantern That Went Out",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss061_lantern_went",
+  "source": "companion",
+  "lines": [
+   6689,
+   6697
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6689",
+  "ledger": [
+   {
+    "src": "L6697",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A lantern goes out during a memorial: an omen, or a draft?",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "During a memorial, a lantern suddenly extinguishes. One villager calls it an omen; another blames a draft.",
+   "src": "L6690",
+   "choices": [
+    {
+     "label": "Relight it quietly",
+     "next": "a",
+     "src": "L6691"
+    },
+    {
+     "label": "Investigate the lantern",
+     "next": "b",
+     "src": "L6693"
+    },
+    {
+     "label": "Leave it dark",
+     "next": "c",
+     "src": "L6695"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The ceremony continues and everyone remembers the deceased differently.",
+   "src": "L6692"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A cracked fitting is found, though some still find the timing meaningful.",
+   "src": "L6694"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The family decides the unlit lantern suits their grief.",
+   "src": "L6696"
+  }
+ }
+}

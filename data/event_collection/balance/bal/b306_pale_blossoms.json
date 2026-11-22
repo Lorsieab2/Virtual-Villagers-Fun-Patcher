@@ -1,0 +1,199 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pale Blossoms of the Ridge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b306_pale_blossoms",
+  "source": "balance",
+  "lines": [
+   14191,
+   14233
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14191",
+  "ledger": [
+   {
+    "src": "L14192",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14193",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14200",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14209",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14197",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14198",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14201",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14210",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14203",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14206",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14212",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14215",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14218-14233",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Once every few years, a creeper on the high ridge covers itself in pale blossoms that smell like milk and honey.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "child": {
+   "kind": "villager"
+  },
+  "parent": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once every few years, a creeper on the high ridge covers itself in pale blossoms that smell like milk and honey. The elders say the first mothers of the island planted it, and that its blossoms, worn in the hair, give back the face a person had when they were young. Most people say it's a story for children.\n(child) has climbed the whole ridge to pick a crown of them for (subject), and stands in front of (subject.him/her), out of breath, holding it up. Should (subject) put it on, or thank (child) and put it in water instead?",
+   "choices": [
+    {
+     "label": "Put It On",
+     "next": "c1",
+     "src": "L14197"
+    },
+    {
+     "label": "Put It in Water",
+     "next": "c2",
+     "src": "L14198"
+    }
+   ],
+   "src": "L14194-14195"
+  },
+  "c1o1": {
+   "text": "By evening the blossoms have wilted, and when (subject) takes the crown off, the face underneath is the one (subject.he/she) had at twenty: smooth, bright, a little cheeky. (subject.His/her) back and knees are as old as ever. (child) is very proud and tells everyone (subject.he/she) did it. Technically, (subject.he/she) did.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14204",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Nothing happens to (subject). But (child) puts the crown on (subject.his/her) own head afterwards, to see, and by the next morning nothing has happened to (subject.him/her) either, except that (subject.he/she) smells of honey for a week and is followed everywhere by bees. (subject) laughs until (subject.he/she) cries. \"Stories for children,\" (subject.he/she) says.",
+   "src": "L14207"
+  },
+  "c1": {
+   "text": "(subject) bends down and lets (child) settle the crown on (subject.his/her) head. The blossoms are cool and soft and smell of milk...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14201"
+  },
+  "c2o1": {
+   "text": "All night (subject) breathes in the smell of milk and honey. In the morning, (subject.his/her) partner, family, or anyone else who comes to the door stops and stares. (subject)'s face is young again. Not the rest of (subject.him/her): only the face. \"The flowers didn't need to be on my head after all,\" (subject) says. \"They just needed to be near.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14213",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "In the morning the bowl is empty except for one blossom: (child)'s parent, (parent), came by in the night to fetch (child) home, smelled the flowers, and took the crown \"just to borrow it.\" (parent) turns up for breakfast looking twenty years younger in the face, and very sheepish.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14216",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) thanks (child) with a hug and puts the crown in a bowl of water on the windowsill, where the evening breeze carries the smell all through the hut...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14210"
+  }
+ }
+}

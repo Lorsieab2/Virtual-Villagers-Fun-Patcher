@@ -1,0 +1,206 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The People Who Dance in Pairs",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz128_people_dance",
+  "source": "draft_hz2",
+  "lines": [
+   582,
+   592
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L582",
+  "ledger": [
+   {
+    "src": "L583",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(name1)",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "After a festival dance in a big circle, a villager wonders whether distant people might dance in pairs instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a festival dance in a big circle, (name1) wonders whether distant people might dance in pairs instead.",
+   "src": "L583",
+   "choices": [
+    {
+     "label": "Imagine Dancing in Pairs.",
+     "next": "a",
+     "src": "L584"
+    },
+    {
+     "label": "Imagine Dancing Alone.",
+     "next": "b",
+     "src": "L587"
+    },
+    {
+     "label": "Mix the Ways.",
+     "next": "c",
+     "src": "L590"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A shy villager prefers the circle and says so.",
+   "src": "L586"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A teenager imagines dancing alone, free to move however they like.",
+   "src": "L588"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder says dancing alone can be just as joyful as dancing together.",
+   "src": "L589"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village tries a dance with circles, pairs and solos, and it becomes a new favorite.",
+   "src": "L591"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villagers try it and step on each other's feet, laughing.",
+   "src": "L585",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L585"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villagers try it and step on each other's feet, laughing.",
+   "src": "L585"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The mixture is so confusing that everyone collapses laughing.",
+   "src": "L592",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L592"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L592"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The mixture is so confusing that everyone collapses laughing.",
+   "src": "L592",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- story only: the file marks no effect (no new mechanics)",
+     "src": "L592"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Hiding Behind the Baskets",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim156_hiding_behind",
+  "source": "draft_tim2",
+  "lines": [
+   219,
+   224
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L219",
+  "ledger": [
+   {
+    "src": "L220",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L221",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L222",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L223",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L224",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L220",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child hides behind a stack of baskets during a game of seek-and-find.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. The seeker walks right past three times without noticing.",
+   "src": "L220,L221"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. A giggle gives the hiding place away.",
+   "src": "L220,L222"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. The baskets topple, and the child is found surrounded by spilled roots.",
+   "src": "L220,L223"
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. The child waits so long that the seeker gives up, and the child emerges in triumph.",
+   "src": "L220,L224",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L220,L224"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, hides behind a stack of baskets during a game of seek-and-find. The child waits so long that the seeker gives up, and the child emerges in triumph.",
+   "src": "L220,L224"
+  }
+ }
+}

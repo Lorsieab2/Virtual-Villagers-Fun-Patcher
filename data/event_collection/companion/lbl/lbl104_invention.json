@@ -1,0 +1,260 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Invention Nobody Needed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl104_invention",
+  "source": "companion",
+  "lines": [
+   5168,
+   5178
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5168",
+  "ledger": [
+   {
+    "src": "L5169",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5177",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5178",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A craftsperson creates an elaborate tool for a trivial task."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A craftsperson creates an elaborate tool for a trivial task.",
+   "src": "L5170",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5171"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5172"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5173"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Outcome 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The village laughs and keeps it as a novelty.",
+   "src": "L5174",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "good",
+     "src": "L5174"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The village laughs and keeps it as a novelty.",
+   "src": "L5174",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__fx": {
+   "name": "Outcome 2",
+   "text": "A practical use is discovered later.",
+   "src": "L5175",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L5175"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome 2",
+   "text": "A practical use is discovered later.",
+   "src": "L5175",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L5175"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "The inventor decides the experiment was worthwhile anyway.",
+   "src": "L5176",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    },
+    {
+     "do": "mood",
+     "role": "craftsperson",
+     "mood": "good",
+     "src": "L5176"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Outcome 3",
+   "text": "The inventor decides the experiment was worthwhile anyway.",
+   "src": "L5176",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "craftsperson",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5170"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

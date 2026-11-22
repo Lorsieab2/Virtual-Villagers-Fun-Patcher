@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's an Owl Doing in the Storehouse?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd13_what_owl_doing",
+  "source": "da_wd",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager opens the storehouse and an owl stares back from the top shelf with solemn disapproval.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) opens the storehouse to fetch some grain, and two enormous round yellow eyes stare back from the top shelf. It's an owl. It's sitting on the grain baskets, perfectly still, looking at (subject) with an expression of deep, solemn disapproval.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Leave the Door Open",
+     "next": "a",
+     "src": "L157"
+    },
+    {
+     "label": "Fetch Someone Brave",
+     "next": "b",
+     "src": "L160"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) fetches (friend). (friend) opens the door, sees the eyes, and closes it again. \"That's an owl,\" (friend.he/she) says. \"I know it's an owl.\" \"It's a big owl.\" They stand outside for a while. Eventually they decide that the grain can wait, and the owl can stay, and they eat fish for dinner instead.",
+   "src": "L161"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) backs out and leaves the door wide open. That night, the owl leaves. The next morning (subject) finds that the little mice that used to nibble at the grain have gone too, and there's not one nibbled basket in the whole storehouse. (subject) is not sure whether to thank the owl or not. (subject.He/She) does it anyway, out loud, at the doorway.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) backs out and leaves the door wide open. That night, the owl leaves. The next morning (subject) finds that the little mice that used to nibble at the grain have gone too, and there's not one nibbled basket in the whole storehouse. (subject) is not sure whether to thank the owl or not. (subject.He/She) does it anyway, out loud, at the doorway.",
+   "src": "L158"
+  }
+ }
+}

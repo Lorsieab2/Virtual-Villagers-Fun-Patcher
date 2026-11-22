@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Might Be Right",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs39_elder_might",
+  "source": "anthology",
+  "lines": [
+   30010,
+   30023
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L30010",
+  "ledger": [
+   {
+    "src": "L30011",
+    "kind": "sensitivity",
+    "before": "An eccentric elder",
+    "after": "(elder), an eccentric elder,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30013",
+    "kind": "sensitivity",
+    "before": "the elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30016",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30017",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30022",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30023",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An eccentric elder warns that an old footpath will soon become difficult to cross, though the sky is clear.",
+  "label_case": "title",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), an eccentric elder, warns that an old footpath will soon become difficult to cross, though the sky is clear.",
+   "src": "L30011",
+   "choices": [
+    {
+     "label": "Check the Path Carefully",
+     "next": "a",
+     "src": "L30012"
+    },
+    {
+     "label": "Ask What Signs the Elder Saw",
+     "next": "b",
+     "src": "L30015"
+    },
+    {
+     "label": "Choose an Alternate Route for Now",
+     "next": "c",
+     "src": "L30018"
+    },
+    {
+     "label": "Thank the Elder Without Promising Belief",
+     "next": "d",
+     "src": "L30021"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The group discovers erosion (elder) had noticed earlier.",
+   "src": "L30013"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The route appears sound, and no one treats uncertainty as proof of foolishness.",
+   "src": "L30014"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(elder) describes subtle changes in the soil.",
+   "src": "L30016"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) admits the warning came from a vivid dream rather than observation.",
+   "src": "L30017"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The detour is pleasant and uneventful.",
+   "src": "L30019"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The detour is exhausting, and the group discusses how to weigh uncertain warnings.",
+   "src": "L30020"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) appreciates being heard even without agreement.",
+   "src": "L30022"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(elder) laughs and says their predictions are wrong as often as anyone's.",
+   "src": "L30023",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L30023"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "(elder) laughs and says their predictions are wrong as often as anyone's.",
+   "src": "L30023"
+  }
+ }
+}

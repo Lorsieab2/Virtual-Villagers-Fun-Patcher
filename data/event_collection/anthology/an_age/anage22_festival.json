@@ -1,0 +1,263 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Invitation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage22_festival",
+  "source": "anthology",
+  "lines": [
+   30461,
+   30475
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30461",
+  "ledger": [
+   {
+    "src": "L30462",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30461",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L30463",
+    "kind": "sensitivity",
+    "before": "A nursing mother",
+    "after": "(mother), a nursing mother,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30471",
+    "kind": "sensitivity",
+    "before": "The companion",
+    "after": "(companion)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30472",
+    "kind": "sensitivity",
+    "before": "The mother",
+    "after": "(mother)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30472",
+    "kind": "sensitivity",
+    "before": "the companion",
+    "after": "(companion)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A nursing mother wants to attend a distant village celebration but worries about her baby's routine.",
+  "label_case": "title",
+  "cast_only": [
+   "mother",
+   "companion"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "nursing_parent"
+  },
+  "companion": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(mother), a nursing (mother.mother/father), wants to attend a distant village celebration but worries about (mother.his/her) baby's routine.",
+   "src": "L30463",
+   "choices": [
+    {
+     "label": "Plan a Shorter Visit",
+     "next": "a",
+     "src": "L30464"
+    },
+    {
+     "label": "Arrange a Comfortable Resting Place",
+     "next": "b",
+     "src": "L30467"
+    },
+    {
+     "label": "Ask a Trusted Companion to Join",
+     "next": "c",
+     "src": "L30470"
+    },
+    {
+     "label": "Celebrate Closer to Home",
+     "next": "d",
+     "src": "L30473"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\", \"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30463"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(mother.He/She) enjoys the music and returns before becoming overtired.",
+   "src": "L30465"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The baby becomes unsettled, and (mother.he/she) leaves early without embarrassment.",
+   "src": "L30466"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A shaded space makes the outing easier for both.",
+   "src": "L30468"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The planned space is noisy, so friends help find a calmer location.",
+   "src": "L30469"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(companion) helps carry supplies and shares the fun.",
+   "src": "L30471"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(mother) decides (mother.he/she) would rather go alone with (mother.his/her) baby, and (companion) respects that.",
+   "src": "L30472"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Friends bring a little festival music to (mother.his/her) neighborhood.",
+   "src": "L30474",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30474"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Friends bring a little festival music to (mother.his/her) neighborhood.",
+   "src": "L30474"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "(mother.He/She) declines a gathering and enjoys a restful evening instead.",
+   "src": "L30475",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30475"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "(mother.He/She) declines a gathering and enjoys a restful evening instead.",
+   "src": "L30475"
+  }
+ }
+}

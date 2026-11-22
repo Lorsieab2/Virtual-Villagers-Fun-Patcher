@@ -87,6 +87,7 @@
 #include "custom_titles.h"     /* vv_title_identity: who a former Heathen is */
 #include "former_heathens.h"
 #include "villager_rekey.h"   /* a rename at a load keeps a Former Heathen's entry (cod_former.inc) */
+#include "sex_change.h"       /* a sex change is the same villager (cod_roster.inc, VvfpVillagerSexChanged) */
 #include "identity_in_place.h"  /* a former Heathen whose likes change stays one (cod_former.inc) */
 #include "mask_line.h"         /* the mask a roster snapshot keeps */
 #include "save_folder.h"
@@ -123,6 +124,7 @@ struct vvfp_cause_stats {
     int left_tribe;           /* New Believers: believers who became Heathens */
     int lost;                 /* "Lost before birth" records (cod_lost.inc) */
     int creation_saves;       /* saves asked for a new village's founders (cod_creation_save.inc) */
+    int founder_screen_saves; /* saves made while VV4/VV5's founder screen was open: not the village yet */
 };
 __declspec(dllexport) struct vvfp_cause_stats VvfpCauseStats = { 0 };
 #define COD_COUNT(field) (++VvfpCauseStats.field)
@@ -450,23 +452,43 @@ static void cod_printable(char *out, int size, const char *text, int capacity) {
 /* The lines a Death record carries before the villager's identity. */
 static const char *roster_sex(int value);
 
+/* cod_cie_words.inc: a Custom Island Event's own cause words (VvfpCauseKilledBy). */
+static const char *cod_cause_words_of(int cause, unsigned int fingerprint);
+
 /* cod_lost.inc: the babies a mother carried when she died or disappeared. */
 static int lost_babies(const unsigned char *record);
 static void lost_line(char *out, int babies);
 static void lost_record(const unsigned char *record, int babies, const char *how);
 
+/* `text` added to `out` (`cap` bytes, NUL included), cut to what fits. */
+static void cod_append(char *out, int cap, const char *text) {
+    int n = lstrlenA(out);
+    if (text != NULL && n < cap - 1) {
+        lstrcpynA(out + n, text, cap - n);
+    }
+}
+
 static int cod_log_death(const unsigned char *record, int cause, const char *grave,
                          const char *epitaph) {
-    char before[640];
+    /* The cause may be a Custom Island Event's own words, up to 4,095 characters with Scrolling Popups (the owner,
+       2026-11-17; cod_cie_words.inc CW_WORDS): built by parts, past wsprintf's 1,024 characters. */
+    static char before[640 + 4096];
+    char head[160];
     char carrying[96];
     int babies = lost_babies(record);
     int written;
     lost_line(carrying, babies);
-    wsprintfA(before,
-              "  Age at death: %d\n  Sex: %s\n  Cause of death: %s\n  Grave: %s\n  Epitaph: %s\n%s",
-              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
-              cod_cause_words(cause), grave,
-              epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)", carrying);
+    wsprintfA(head, "  Age at death: %d\n  Sex: %s\n  Cause of death: ", rec_age(record),
+              roster_sex(*(const int *)(record + REC[g_game].sex)));
+    before[0] = '\0';
+    cod_append(before, (int)sizeof before, head);
+    cod_append(before, (int)sizeof before, cod_cause_words_of(cause, cod_record_fingerprint(record)));
+    cod_append(before, (int)sizeof before, "\n  Grave: ");
+    cod_append(before, (int)sizeof before, grave);
+    cod_append(before, (int)sizeof before, "\n  Epitaph: ");
+    cod_append(before, (int)sizeof before, epitaph != NULL && epitaph[0] != 0 ? epitaph : "(none)");
+    cod_append(before, (int)sizeof before, "\n");
+    cod_append(before, (int)sizeof before, carrying);
     written = cod_write(LOG_DEATH, record, 1, before, NULL, 1);
     lost_record(record, babies, "died");
     return written;
@@ -589,11 +611,13 @@ static void cod_add(unsigned int va, const char *stock_hex, site_fn fn) {
    before any is written, so a VirtualProtect refused at the twentieth site
    leaves the first nineteen stock too (native/shared/install_sites.h; it
    used to leave them detoured and report the install refused). */
-static vvfp_site_write cod_writes[SITES_MAX];
+/* cod_cie_words.inc: the later three's grave sites, in this same batch. */
+static int cw_graves_prepare(vvfp_site_write *w);
+static vvfp_site_write cod_writes[SITES_MAX + 4];   /* + the later three's grave sites (cod_cie_words.inc) */
 
 static int cod_install_sites(int first) {
     unsigned char *page;
-    int i;
+    int i, graves;
     for (i = first; i < site_count; ++i) {
         if (sites[i].length < 5 || !cod_bytes_are(sites[i].va, sites[i].stock, sites[i].length)) {
             return 0;
@@ -607,7 +631,9 @@ static int cod_install_sites(int first) {
         vvfp_site_branch(&cod_writes[i - first], sites[i].va, sites[i].length, sites[i].stock, 0xE9,
                          page + i * STUB_BYTES);
     }
-    if (site_count - first <= 0 || !vvfp_install_sites(cod_writes, site_count - first)) {
+    graves = cw_graves_prepare(&cod_writes[site_count - first]);   /* the later three's grave cause lines */
+    if (site_count - first <= 0 || graves < 0
+        || !vvfp_install_sites(cod_writes, site_count - first + graves)) {
         VirtualFree(page, 0, MEM_RELEASE);     /* no site points at it */
         return 0;
     }
@@ -703,6 +729,7 @@ static void arrival_noted_birth(int index);
 static void arrival_backfill_at_save(int slot, const void *save_buffer);
 static void report_follow(void);
 static void births_backfill_at_save(int slot, const void *save_buffer);
+static int founder_screen_open(void);     /* cod_creation_save.inc */
 
 /* cod_cie.inc: the bodies the Custom Island Event's "Dies" left (The Secret
    City, The Tree of Life, New Believers). */
@@ -710,6 +737,10 @@ static int cie_taken(const unsigned char *record, int game_cause);
 static void cie_tick(void);
 static void cie_saved(int slot);
 static void cie_reset(int slot);
+/* cod_cie_words.inc: their words, at each save and at Start Over. */
+static void cw_saved(int slot);
+static void cw_reset(int slot);
+static const char *cw_words(unsigned int fingerprint);
 
 #include "cod_roster.inc"
 #include "cod_gone.inc"
@@ -719,6 +750,7 @@ static void cie_reset(int slot);
 #include "cod_epitaph_edit.inc"
 #include "cod_backfill.inc"
 #include "cod_cie.inc"             /* the Custom Island Event's "Dies" */
+#include "cod_cie_words.inc"       /* ...and its own cause words (VvfpCauseKilledBy) */
 #include "cod_former.inc"
 #include "cod_arrivals.inc"
 #include "cod_creation_save.inc"   /* the logs at village creation */
@@ -952,6 +984,7 @@ __declspec(dllexport) void __stdcall VvfpCauseVillageReset(int game, int slot) {
     } else {
         cie_reset(slot);
     }
+    cw_reset(slot);
     if (saved_slot == slot) {
         saved_slot = 0;
     }

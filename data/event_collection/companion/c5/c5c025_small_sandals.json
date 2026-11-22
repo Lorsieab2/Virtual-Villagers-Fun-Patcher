@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Too-Small Sandals",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c025_small_sandals",
+  "source": "companion",
+  "lines": [
+   2335,
+   2344
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2335",
+  "ledger": [
+   {
+    "src": "L2338",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2340",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2344",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "A child discovers that last season's sandals no longer fit.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A child discovers that last season's sandals no longer fit.",
+   "src": "L2336",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A parent marvels at how quickly they've grown.",
+   "src": "L2341",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2341"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The sandals are passed to a younger sibling.",
+   "src": "L2342",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L2342"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

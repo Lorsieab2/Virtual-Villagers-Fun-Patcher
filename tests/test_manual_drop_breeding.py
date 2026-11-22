@@ -793,7 +793,8 @@ class ManualDropCatalogTests(unittest.TestCase):
             self.assertIn("Works the same with or without Birth Control",
                           _catalog()[feature_id(game)].description)
         for game in ("vv4", "vv5"):
-            self.assertIn("this game has no Birth Control patch",
+            # Birth Control there (2026-11-19) changes only catch-up's Children gate, not the drop's refusal.
+            self.assertIn("own, which Birth Control does not change",
                           _catalog()[feature_id(game)].description)
 
     def _decode(self, game: str) -> dict[int, tuple[str, str, int]]:

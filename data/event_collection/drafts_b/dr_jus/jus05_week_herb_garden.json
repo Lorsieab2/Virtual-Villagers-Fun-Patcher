@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Week in the Herb Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus05_week_herb_garden",
+  "source": "draft_jus",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L62",
+    "kind": "instruction",
+    "text": "[effect: small skill gain for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager chasing a pig flattened the healers' herb seedlings: tend the garden for a week, or replace what was lost.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Yesterday (subject) chased an escaped pig through the village and ran straight through the healers' herb garden, flattening a whole bed of seedlings. The pig was caught. The seedlings were not saved. (friend), who tends the herb garden, has asked the council what should be done.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Tend the Garden for a Week",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Replace What Was Lost",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council asks (subject) to work in the herb garden every morning for a week, replanting and weeding. (subject) agrees, a bit sheepishly. By the end of the week (subject.he/she) knows the names of twenty herbs, and (friend) has noticed that (subject.he/she) has a gentle touch with seedlings. (subject) keeps turning up long after the week is over.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The council asks (subject) to replace the seedlings. (subject) goes round the village asking for spare seedlings and cuttings, and gets them from five different gardens. The bed is replanted in a day. It's a bit of a mixture now. (friend) says it's actually rather interesting, and two of the new plants turn out to be useful.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The council asks (subject) to replace the seedlings. (subject) goes round the village asking for spare seedlings and cuttings, and gets them from five different gardens. The bed is replanted in a day. It's a bit of a mixture now. (friend) says it's actually rather interesting, and two of the new plants turn out to be useful.",
+   "src": "L65"
+  }
+ }
+}

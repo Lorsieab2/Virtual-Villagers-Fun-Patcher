@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Herbarium",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a012_great_herbarium",
+  "source": "companion",
+  "lines": [
+   327,
+   344
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L327",
+  "ledger": [
+   {
+    "src": "L329",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L333",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L338",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L340",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L342",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L344",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "A naturalist tries to preserve a sample of every known island plant."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A naturalist attempts to preserve a sample of every known island plant.",
+   "src": "L331",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L334"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L335"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L336"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "The resulting collection helps healers and farmers identify species.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L338"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "Poor storage ruins a season of delicate specimens.",
+   "src": "L340",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L340"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A pressed leaf reveals that two supposedly different plants are the same species.",
+   "src": "L342"
+  }
+ }
+}

@@ -1,0 +1,73 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Hard Day After a Good Week",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea50_hard_after_good",
+  "source": "draft_hea",
+  "lines": [
+   599,
+   602
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L599",
+  "ledger": [
+   {
+    "src": "L600",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult; a single popup, no choice)"
+   },
+   {
+    "src": "L602",
+    "kind": "sensitivity",
+    "before": "seeing the healer, talking",
+    "after": "seeing (healer), the healer, talking",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L602",
+    "kind": "sensitivity",
+    "before": "tells the healer. The healer listens",
+    "after": "tells (healer). (healer) listens",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "After a good week of healing, a villager has a heavy day and holds on to the good week like a smooth stone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "For months (subject) has been seeing (healer), the healer, talking, trying teas, walking in the mornings, slowly learning what helps and what doesn't. This last week has been good. Really good. (subject.He/she) laughed at dinner, slept through the night, and even sang a little while mending nets. Today, for no reason at all, it's all heavy again. (subject.He/she) sits on (subject.his/her) step and wonders if all of it was for nothing. Later, (subject.he/she) tells (healer). (healer) listens, then says, \"A hard day after a good week isn't going backwards. It's just a hard day. The good week still happened.\" (subject) isn't sure (subject.he/she) believes it. (subject.He/she) goes home and sits on the step again. The sun sets the way it always does. Tomorrow might be better. It might not. Either way, the good week happened, and (subject) holds onto that, like a smooth stone in (subject.his/her) pocket.",
+   "src": "L602"
+  }
+ }
+}

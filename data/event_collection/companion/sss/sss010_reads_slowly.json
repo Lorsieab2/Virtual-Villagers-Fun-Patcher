@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Reads Slowly",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss010_reads_slowly",
+  "source": "companion",
+  "lines": [
+   6163,
+   6171
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6163",
+  "ledger": [
+   {
+    "src": "L6171",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A teen who understands plants well struggles with written instructions and is called careless.",
+  "cast_only": [
+   "instructor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "instructor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A teen understands plants remarkably well but struggles with written instructions. Their instructor calls them careless.",
+   "src": "L6164",
+   "choices": [
+    {
+     "label": "Change the teaching method",
+     "next": "a",
+     "src": "L6165"
+    },
+    {
+     "label": "Let the apprentice explain their method",
+     "next": "b",
+     "src": "L6167"
+    },
+    {
+     "label": "Ask what tools would help",
+     "next": "c",
+     "src": "L6169"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "Demonstrations and labeled specimens help the teen thrive.",
+   "src": "L6166",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "teen",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6166"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Their detailed oral descriptions reveal knowledge the instructor overlooked.",
+   "src": "L6168",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6168"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Their detailed oral descriptions reveal knowledge the instructor overlooked.",
+   "src": "L6168"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The teen creates a symbol-based reference board that benefits several learners.",
+   "src": "L6170",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6170"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The teen creates a symbol-based reference board that benefits several learners.",
+   "src": "L6170"
+  }
+ }
+}

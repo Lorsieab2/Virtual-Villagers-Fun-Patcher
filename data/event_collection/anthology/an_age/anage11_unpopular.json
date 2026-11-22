@@ -1,0 +1,236 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unpopular Chief",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage11_unpopular",
+  "source": "anthology",
+  "lines": [
+   30285,
+   30299
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30285",
+  "ledger": [
+   {
+    "src": "L30286",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L30287",
+    "kind": "sensitivity",
+    "before": "A teenager",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30289",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30290",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30295",
+    "kind": "sensitivity",
+    "before": "the teen",
+    "after": "(teen)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30298",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30299",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A teenager thinks the chief is annoying and asks why anyone should listen to them.",
+  "label_case": "title",
+  "cast_only": [
+   "teen",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen) thinks the {@chief} is annoying and asks why anyone should listen to them.",
+   "src": "L30287",
+   "choices": [
+    {
+     "label": "Ask the {@Chief} to Explain a Decision",
+     "next": "a",
+     "src": "L30288"
+    },
+    {
+     "label": "Discuss Authority with Peers",
+     "next": "b",
+     "src": "L30291"
+    },
+    {
+     "label": "Bring a Concrete Proposal",
+     "next": "c",
+     "src": "L30294"
+    },
+    {
+     "label": "Ask an Elder About Past {@Chief}s",
+     "next": "d",
+     "src": "L30297"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} provides a reason (teen) had not heard.",
+   "src": "L30289"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The explanation remains unconvincing, and (teen) respectfully asks how decisions can be reviewed.",
+   "src": "L30290"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They distinguish rules that protect people from rules based on convenience.",
+   "src": "L30292"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The teens disagree sharply but agree that mockery is not a substitute for an argument.",
+   "src": "L30293"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The {@chief} accepts a small change after seeing (teen)'s plan.",
+   "src": "L30295"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The {@chief} declines and explains what evidence would justify reconsideration.",
+   "src": "L30296"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) recalls a beloved {@chief} who made a serious mistake.",
+   "src": "L30298"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(elder) tells of an unpopular {@chief} whose tedious caution once prevented harm.",
+   "src": "L30299"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Unpopular Leader"
+  }
+ ]
+}

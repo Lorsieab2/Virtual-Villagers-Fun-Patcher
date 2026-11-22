@@ -1,0 +1,151 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's That Crab Doing with a Leaf?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd45_what_crab_doing",
+  "source": "da_wd",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Sheltering from the rain, a villager sees a crab walk past holding a leaf over its head like an umbrella.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It's raining. (subject) is sheltering in a doorway, watching the drops, when a crab walks past holding a leaf above its head with one claw, exactly like a person holding a leaf to keep off the rain. It walks slowly and with great dignity across the path, leaf held high, and disappears behind a rock.",
+   "src": "L527",
+   "text_only": [
+    {
+     "what": "\"disappears\"",
+     "reason": "the word's everyday sense (a thing, a sound or a worry disappears); nobody goes missing",
+     "src": "L527"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Follow It",
+     "next": "a",
+     "src": "L529"
+    },
+    {
+     "label": "Tell (friend)",
+     "next": "b",
+     "src": "L532"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) dashes out into the rain to see where it's going. Behind the rock, the crab has stopped, put the leaf down over a little hole in the sand, and climbed in under it. A little leaf roof. (subject) crouches in the rain, soaked to the skin, absolutely delighted, and decides this is the most sensible crab (subject.he/she) has ever met.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) dashes out into the rain to see where it's going. Behind the rock, the crab has stopped, put the leaf down over a little hole in the sand, and climbed in under it. A little leaf roof. (subject) crouches in the rain, soaked to the skin, absolutely delighted, and decides this is the most sensible crab (subject.he/she) has ever met.",
+   "src": "L530"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) tells (friend) about the crab with the umbrella leaf. (friend) laughs and says it was probably just carrying food. \"It was holding it OVER ITS HEAD,\" says (subject). (friend) agrees that this does sound like an umbrella. They spend the rest of the rain shower watching for more crabs with leaves. They don't see any. (subject) knows what (subject.he/she) saw.",
+   "src": "L533",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L533"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L533"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) tells (friend) about the crab with the umbrella leaf. (friend) laughs and says it was probably just carrying food. \"It was holding it OVER ITS HEAD,\" says (subject). (friend) agrees that this does sound like an umbrella. They spend the rest of the rain shower watching for more crabs with leaves. They don't see any. (subject) knows what (subject.he/she) saw.",
+   "src": "L533",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L533"
+    }
+   ]
+  }
+ }
+}

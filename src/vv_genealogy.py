@@ -124,6 +124,11 @@ class Person:
     # whether a record says they left the tribe to become a Heathen (is_unconverted_heathen).
     faction_seen: tuple | None = None
     left_heathen: bool = False
+    # New Believers: every dated History snapshot's faction for them ((date, "Heathen" / "Believer"), oldest
+    # first once sorted), and whether an Arrived record says "How: Founder" (a founder who left for the Heathens
+    # and came back is still a founder).  Where a converted Heathen goes on the tree (conversion_snapshot).
+    factions: list = field(default_factory=list)
+    founder_record: bool = False
     # The jobs they are a Master of ("Farmer", "Doctor"...): the living by the save's skills now (save_masters),
     # the dead by their grave's line (its job: the best skill, or the checked preference with Checked Skill
     # Preferences are listed as Jobs on Graves).  Current, not ever held: the save keeps no history.
@@ -137,6 +142,7 @@ class Person:
     # and "|<rank>" after it only between namesakes sharing the marker (vv_family_tree.entry_key; Codex, PR #653).
     marker: str = ""
     edit_suffix: str = ""
+    sex_from_slot: bool = False         # the sex only guessed from a parent slot (_slot_sex): a record's own wins
 
     @property
     def key(self) -> Key:
@@ -277,6 +283,8 @@ def _merge_faction(p: Person, q: Person) -> None:
     """The older record `p`'s faction facts kept on `q`, the same villager."""
     q.converted = q.converted or p.converted
     q.left_heathen = q.left_heathen or p.left_heathen
+    q.founder_record = q.founder_record or p.founder_record
+    q.factions = sorted(set(q.factions) | set(p.factions))
     if p.faction_seen and (q.faction_seen is None or p.faction_seen[0] > q.faction_seen[0]):
         q.faction_seen = p.faction_seen
 
@@ -284,8 +292,8 @@ def _merge_faction(p: Person, q: Person) -> None:
 def converted_heathen(p: Person) -> bool:
     """Whether anything says they converted from the Heathens: a converted arrival, a Former Heathen or Retired
     Heathen Chief title (the logs, or New Believers' Former Heathens file)."""
-    return p.converted or any(s.startswith(("Converted ", "Former Heathen")) or s == "Retired Heathen Chief"
-                              for s in p.statuses)
+    return getattr(p, "converted", False) or any(s.startswith(("Converted ", "Former Heathen"))
+                                                 or s == "Retired Heathen Chief" for s in getattr(p, "statuses", ()))
 
 
 def is_unconverted_heathen(p: Person) -> bool:
@@ -364,6 +372,15 @@ class Village:
 # ---------------------------------------------------------------------------
 # Reading the village
 # ---------------------------------------------------------------------------
+
+def _slot_sex(person: Person, sex: str) -> None:
+    """A parent slot's sex for a parent whose sex nothing else gave yet: only a guess, as the carrier of a
+    pregnancy is in the Mother slot whatever their sex (a man made to carry, a sex changed mid-pregnancy),
+    so their own record's Sex line (_log_people) replaces it."""
+    if person.sex is None:
+        person.sex = sex
+        person.sex_from_slot = True
+
 
 def _i32(data: bytes, at: int) -> int:
     return int.from_bytes(data[at:at + 4], "little", signed=True)
@@ -458,6 +475,7 @@ class _Registry:
         self.conceptions: dict[Key, tuple] = {}        # mother -> (father key, babies), not born yet
         self.lost: list[tuple[Key, int]] = []          # (mother, babies): "Lost before birth" records
         self.relooked: dict[Key, Key] = {}             # an old look -> the look it changed to
+        self.sex_changed: set[str] = set()             # names whose sex changed (vv_sex_changes)
         self.full: dict[Key, Key] = {}                 # a name the Details screen cut -> the full name's key
         # A New Home's living villagers as its save names them: (id, name, gender, family, head, body).
         self.vv1_living: list[tuple] = []
@@ -544,7 +562,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         elif f.expecting is not None:
             # Her pregnancy field, as the Population log's "Nursing" -- never the expected father's
             # name alone, which the game leaves on her after the delivery (ln.PREGNANCY).
-            p.expecting = p.sex == "Female" and ln.carrying(game, data, at)
+            p.expecting = ln.carrying(game, data, at)         # whoever carries, whatever their sex now
             if p.expecting and data[at + f.expecting] != 0:
                 _fh, _fb, _mh, _mb, eh, eb = f.looks
                 reg.expected[p.id] = (_cstr(data, at + f.expecting, f.parent_cap),
@@ -562,7 +580,7 @@ def _save_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
                 name = _cstr(data, at + off, f.parent_cap)
                 if name:
                     parent = reg.get(name, _i32(data, at + head), _i32(data, at + body))
-                    parent.sex = parent.sex or sex
+                    _slot_sex(parent, sex)
                     if sex == "Male":
                         p.father = parent.id
                     else:
@@ -627,8 +645,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         if b.heading.startswith(("Death", "Disappeared")):
             p = _namesake_for(reg, p, b)     # a living villager's dead namesake (the identity audit)
         sex = b.value("Sex")
-        if sex in ("Male", "Female") and p.sex is None:
-            p.sex = sex
+        if sex in ("Male", "Female") and (p.sex is None or p.sex_from_slot):
+            p.sex, p.sex_from_slot = sex, False
         # Every status any record gives them, held then or now (a former Tribal Chief stays one).
         for title in _values(b.value("Special villager")):
             _add_status(p, status_marks(title))
@@ -648,6 +666,9 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             when = "9999" if additions.is_population(b.path) else (b.date or "")
             if faction in ("Heathen", "Believer") and (p.faction_seen is None or when >= p.faction_seen[0]):
                 p.faction_seen = (when, faction)
+            if faction in ("Heathen", "Believer") and b.date and not additions.is_population(b.path) \
+                    and (b.date, faction) not in p.factions:
+                p.factions.append((b.date, faction))
         else:
             # Any other record (a Death, a Disappeared, an Island Events change) whose title -- the one held
             # after it, the last of an "old -> new" -- is a Heathen role (Heathen Doctor, Heathen Mommy, ...)
@@ -675,6 +696,8 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
+            if (b.value("How") or "").strip() == "Founder":
+                p.founder_record = True
             # A backfilled "How: unknown" never replaces how a real Arrived record says they came.
             if not (is_backfilled_arrival(b) and p.how):
                 p.how = b.value("How") or p.how
@@ -709,7 +732,7 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         for label, sex, attr in (("Father", "Male", "father"), ("Mother", "Female", "mother")):
             if label in parents and getattr(p, attr) is None:
                 parent = reg.get(*parents[label])
-                parent.sex = parent.sex or sex
+                _slot_sex(parent, sex)
                 setattr(p, attr, parent.id)
 
 
@@ -844,7 +867,7 @@ def _births(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             parent_id = None
             if person is not None and person.name:
                 parent = reg.get(person.name, person.head, person.body)
-                parent.sex = parent.sex or sex
+                _slot_sex(parent, sex)
                 parent_id = parent.id
                 if getattr(child, attr) is None:
                     setattr(child, attr, parent.id)
@@ -1099,10 +1122,12 @@ def _parents_by_age(reg: _Registry, answers: dict, notes: list[str]) -> list[Par
             for attr, label in (("father", "Father"), ("mother", "Mother")):
                 if getattr(child, attr) not in group:
                     continue
-                # Only a man can be a father and only a woman a mother: namesakes of the other sex are never
-                # offered, linked or given by a kept answer (Codex, PR #653).  The sex unknown: still a candidate.
+                # The parent slot says the sex at the conception: namesakes of the other sex are never offered,
+                # linked or given by a kept answer (Codex, PR #653) -- unless their sex changed since
+                # (vv_sex_changes: the parents recorded stay as recorded).  The sex unknown: still a candidate.
                 sex = "Male" if label == "Father" else "Female"
-                pool = [pid for pid in others if reg.people[pid].sex in (sex, None)]
+                pool = [pid for pid in others if reg.people[pid].sex in (sex, None)
+                        or reg.people[pid].name in reg.sex_changed]
                 if not pool:
                     setattr(child, attr, None)
                     notes.append(f"{child.name}'s {label.lower()} is {key[0]} (head {key[1]}, body {key[2]}), but no "
@@ -1381,7 +1406,8 @@ def _renamed_villagers(reg: _Registry, answers: dict, notes: list[str]) -> list[
                 or o.sex is None or not o.likes_seen or o.name in living_names:
             continue
         fits = [q for q in living
-                if q.name != o.name and q.sex == o.sex and q.head == o.head and q.body == o.body
+                if q.name != o.name and (q.sex == o.sex or o.name in reg.sex_changed)
+                and q.head == o.head and q.body == o.body
                 and q.likes is not None and frozenset(w.lower() for w in q.likes) in o.likes_seen
                 and (o.age is None or q.age is None or q.age >= o.age)
                 and not (o.birth_record is not None and q.birth_record is not None)
@@ -1460,7 +1486,8 @@ def _could_be_same(reg: _Registry, p: Person, q: Person, together: dict, seen_on
     all before q's; and q older than every living child the records give p."""
     if q.id == p.id or q.upcoming or q.placeholder or not _same_name(p.name, q.name) or not (q.alive or q.gone):
         return False
-    if p.sex is not None and q.sex is not None and p.sex != q.sex:
+    if p.sex is not None and q.sex is not None and p.sex != q.sex \
+            and not {p.name, q.name} & reg.sex_changed:
         return False
     if q.id in together.get(p.id, ()):
         return False
@@ -1740,13 +1767,17 @@ def _appearance_changes(reg: _Registry, folder: Path, game: int, slot: int) -> N
     owner: "regarding appearance changes, sure. Log those.").  In log order, so a later change wins;
     a change back makes the old look the villager's own again."""
     import vv_log_additions as additions
+    import vv_sex_changes
     checker = tools.load_checker()
     villages = additions.current_villages(folder, game, slot)
+    # A change of sex (the save's log, and the records' Old sex / New sex): the same villager either sex.
+    reg.sex_changed |= vv_sex_changes.changed_names(folder, slot)
     births = [path for path in checker.log_files(folder) if "Births and Conceptions" in path.name]
     for path in sorted(births, key=lambda q: [int(s) if s.isdigit() else s for s in re.split(r"(\d+)", q.name)]):
         for b in additions.blocks(path):
             if b.heading != "Appearance changed" or not b.of(slot, game, villages):
                 continue
+            reg.sex_changed |= vv_sex_changes.history_names([b])
             values = [b.value(label) for label in ("Old head", "Old body", "New head", "New body")]
             name = b.value("Name")
             if not name or not all(v and v.lstrip("-").isdigit() for v in values):
@@ -1815,10 +1846,12 @@ def _vv1_sidecar(folder: Path, slot: int) -> list[_Vv1Entry]:
     return out
 
 
-def _vv1_fits(who: tuple, living: tuple) -> bool:
+def _vv1_fits(who: tuple, living: tuple, sex_changed=frozenset()) -> bool:
+    """The sidecar's roster entry `who` is this living villager: name, sex (either, for a villager whose
+    sex changed: vv_sex_changes), family and, where kept, head and body."""
     name, gender, family, head, body = who
     _pid, l_name, l_gender, l_family, l_head, l_body = living
-    return (name, gender, family) == (l_name, l_gender, l_family) \
+    return (name, family) == (l_name, l_family) and (gender == l_gender or name in sex_changed) \
         and (head is None or (head, body) == (l_head, l_body))
 
 
@@ -1856,8 +1889,8 @@ def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
                 continue
             target = reg.people[pid]
         else:
-            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v)]
-            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0])) != 1:
+            holders = [v for v in reg.vv1_living if _vv1_fits(e.who, v, reg.sex_changed)]
+            if len(holders) != 1 or sum(1 for o in present if _vv1_fits(o.who, holders[0], reg.sex_changed)) != 1:
                 continue
             target = reg.people[holders[0][0]]
             if e.stash is not None and target.id in expecting and target.id not in reg.expected:
@@ -1865,7 +1898,7 @@ def _vv1_from_sidecar(reg: _Registry, folder: Path, slot: int) -> None:
         for key, attr, sex in ((e.father, "father", "Male"), (e.mother, "mother", "Female")):
             if key is not None and getattr(target, attr) is None:
                 parent = reg.get(*key)
-                parent.sex = parent.sex or sex
+                _slot_sex(parent, sex)
                 setattr(target, attr, parent.id)
 
 def _upcoming(reg: _Registry) -> None:
@@ -1880,7 +1913,7 @@ def _upcoming(reg: _Registry) -> None:
         father_key = reg.expected.get(mother.id, father_key)
         father = reg.get(*father_key) if father_key and father_key[0] else None
         if father is not None:
-            father.sex = father.sex or "Male"
+            _slot_sex(father, "Male")
         n += 1
         litter = -n if babies > 1 else None
         for k in range(max(1, min(3, babies))):
@@ -1937,21 +1970,64 @@ def is_arrival(p: Person, first_snapshot: str | None) -> bool:
     "Founder"), or they first appear after the village's first History snapshot."""
     if p.father is not None or p.mother is not None or p.upcoming:
         return False
+    if is_converted_newcomer(p):
+        return True                     # a converted Heathen joined the tribe: never a founder (the owner, 2026-11-21)
+    if getattr(p, "founder_record", False) and converted_heathen(p):
+        return False                    # a founder who left for the Heathens and came back is still a founder
     if p.arrived and p.how:
         return p.how != "Founder"
     return p.first_seen is not None and first_snapshot is not None and p.first_seen[:16] > first_snapshot[:16]
+
+
+def is_converted_newcomer(p: Person) -> bool:
+    """New Believers: a Heathen with no recorded parent whom a record says converted and joined the tribe
+    (converted_heathen) -- never one of the founders (the owner, 2026-11-21: "heathens that are converted should
+    not be founders in Family Tree Maker.  When converted they should go under the generation they were converted
+    at").  A founder ("How: Founder") who left for the Heathens and came back is still a founder."""
+    return (p.father is None and p.mother is None and not p.upcoming and not getattr(p, "placeholder", False)
+            and not getattr(p, "founder_record", False) and converted_heathen(p))
+
+
+def heathen_not_founder(p: Person) -> bool:
+    """New Believers: a Heathen with no recorded parent -- one now, or one who converted -- is never called a
+    founder (the owner, 2026-11-21: "I would prefer they aren't labeled as founders").  They may still share the
+    founders' generation.  A founder ("How: Founder") who left for the Heathens and came back is still a founder."""
+    if p.father is not None or p.mother is not None or p.upcoming or getattr(p, "founder_record", False):
+        return False
+    return getattr(p, "heathen", False) or converted_heathen(p) or (isinstance(p, Person) and is_unconverted_heathen(p))
+
+
+def conversion_snapshot(p: Person) -> str | None:
+    """The History snapshot that first lists them a Believer after one that listed them a Heathen: their
+    conversion, as near as the snapshots tell it.  None when no snapshot shows the change (converted before the
+    logs began, or between two snapshots of which only the later lists them)."""
+    heathen = False
+    for date, faction in sorted(p.factions):
+        if faction == "Heathen":
+            heathen = True
+        elif heathen:
+            return date
+    return None
 
 
 def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
     """Generation I: the founders.  An arrival is in the generation they first appear in (the owner:
     "do not put arrivals in the same generation with the founders"): the newest generation among
     the villagers the History snapshot of their arrival lists.  A child is one below the later of
-    its parents."""
+    its parents.
+
+    A converted Heathen (is_converted_newcomer; the owner, 2026-11-21) goes in the generation the tribe was on
+    when they converted: the newest generation among the believers the snapshot of their conversion lists
+    (conversion_snapshot; the snapshot they first appear in when none shows the change).  A conversion while
+    only the founders lived puts them in generation I (the owner, 2026-11-21: "heathens can share the founders
+    row"); they are still never called founders (heathen_not_founder)."""
     people = village.people
     dates = sorted(snapshots)
     first = dates[0] if dates else None
     arrivals = [pid for pid, p in people.items() if is_arrival(p, first)]
-    base = {pid: 1 for pid in arrivals}
+    converts = {pid for pid in arrivals if is_converted_newcomer(people[pid])}
+    floor = {pid: 1 for pid in arrivals}   # owner 2026-11-21: a convert may share the founders' row
+    base = dict(floor)
 
     def compute() -> dict[int, int]:
         done: dict[int, int] = {}
@@ -1983,7 +2059,8 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
     for pid in arrivals:
         when = people[pid].first_seen
         snap = next((d for d in dates if when is not None and d[:16] >= when[:16]), None)
-        same_time[pid] = snap
+        converted_at = conversion_snapshot(people[pid]) if pid in converts else None
+        same_time[pid] = converted_at if converted_at in snapshots else snap
     later = {pid: descendants(pid) for pid in arrivals}
     gens = compute()
     for _round in range(len(arrivals) + 1):
@@ -1994,7 +2071,9 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
                 continue
             joined = {q for q, s in same_time.items() if s == snap}
             present = snapshots[snap] - joined - later[pid]
-            value = max((gens[q] for q in present), default=1)
+            if pid in converts:         # the tribe then: not the Heathens that snapshot lists
+                present = {q for q in present if (snap, "Heathen") not in people[q].factions}
+            value = max(max((gens[q] for q in present), default=1), floor[pid])
             if base[pid] != value:
                 base[pid] = value
                 changed = True
@@ -2609,8 +2688,12 @@ def report(village: Village, game_title: str) -> str:
             how = f"born to {parents}"
         elif p.placeholder:
             how = "named as a father only"
+        elif is_converted_newcomer(p):
+            how = f"arrived ({CONVERTED_HOW})"
         elif is_arrival(p, min(snapshot_dates(village), default=None)):
             how = f"arrived ({p.how})" if p.how else "arrived"
+        elif heathen_not_founder(p):
+            how = "a Heathen"
         else:
             how = "founder"
         seen = f", first seen {p.first_seen}" if p.first_seen else ""

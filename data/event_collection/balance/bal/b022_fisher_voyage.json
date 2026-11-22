@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Fisher's Last Voyage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b022_fisher_voyage",
+  "source": "balance",
+  "lines": [
+   980,
+   1021
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L980",
+  "ledger": [
+   {
+    "src": "L981",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L982",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L990",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L999",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L987",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L988",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L991",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1000",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L993",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L996",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1002",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1005",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1008-1021",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has fished these waters for sixty years.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has fished these waters for sixty years. These days (his/her) hands shake too much for the fine nets, and the young fishers carry (his/her) catch up the beach for (him/her), whether (he/she) asks them to or not.\nThis morning (name) is standing by (his/her) old canoe with a water gourd, a sail and a look the others have never seen before. \"I want to go out past the far reef,\" (he/she) says. \"Once more. Alone. I've always wanted to see what's on the other side of the morning.\"\nThe young fishers look at each other. Should they let (name) go, or talk (him/her) into staying close to shore?",
+   "choices": [
+    {
+     "label": "Let (Him/Her) Go",
+     "next": "c1",
+     "src": "L987"
+    },
+    {
+     "label": "Talk (Him/Her) into Staying",
+     "next": "c2",
+     "src": "L988"
+    }
+   ],
+   "src": "L983-985"
+  },
+  "c1o1": {
+   "text": "They watch until the sail is a white speck, and then nothing. (Name) doesn't come back that night, or the next. The canoes go looking, and find calm sea, and birds, and nothing else. Some say the sea took (him/her). Some say (he/she) found what (he/she) was looking for. The village puts (his/her) old fishing spear in the sand where the canoe used to sit, and the young fishers touch it for luck every morning on their way out.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L994",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "At sunset the sail comes back, low in the water, and (name) steers it in with a fish in the bottom so big that it takes four people to lift it. (He/She) is soaked, sunburnt and grinning like a child. \"There's a current out there,\" (he/she) says, \"that nobody's fished in a hundred years.\" The next morning (his/her) hands still shake. (He/She) goes out anyway, and the young fishers follow.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L997",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The young fishers help (name) push the canoe out through the surf. (He/She) raises the sail, waves once without turning round, and heads straight out towards the sunrise...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L991"
+  },
+  "c2o1": {
+   "text": "(Name) stays. (He/She) sits on the beach every day, mending nets with shaking hands and telling the young fishers what they're doing wrong. But something goes out of (him/her) that day, and it shows in (his/her) face: (he/she) suddenly looks every one of (his/her) years. \"I'm fine,\" (he/she) says, whenever anyone asks. And mostly, (he/she) is.",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L1003",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) stays, and teaches, and finds to (his/her) own surprise that (he/she) likes it. (Name) never had much patience for children, but watching the young ones learn, (he/she) finds (he/she) loves telling them stories. \"Too old to be cross,\" (he/she) says. \"Takes too much energy.\" The young fishers bring (him/her) the first fish of every catch.",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L1006"
+  },
+  "c2": {
+   "text": "\"Stay,\" says the youngest fisher. \"Teach us instead. Nobody knows these waters like you.\" (Name) looks out to sea for a long time, then at the young faces, and sighs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1000"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "children",
+     "role": "subject"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

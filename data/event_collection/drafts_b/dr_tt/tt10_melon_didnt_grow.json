@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Melon (name1) Didn't Grow",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt10_melon_didnt_grow",
+  "source": "draft_tt",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager with small melons finds a giant wild one on the way to the contest: enter your own melon, or enter the wild one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is holding a contest for the biggest melon, and (subject)'s melons are small this year. On the way to the contest, (subject.he/she) passes a wild vine at the edge of the forest with an enormous melon on it, bigger than anything in any garden in the village. Nobody planted it. Nobody would know.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Enter Your Own Melon",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Enter the Wild Melon",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) enters (subject.his/her) own small melon, and it comes last. Then (subject.he/she) tells everyone about the giant wild one, and the whole village troops off to see it. Everyone agrees it would have won easily. The elders give it a special mention, \"Best Melon, No Gardener,\" and (subject) is asked to cut it. It's delicious.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) enters (subject.his/her) own small melon, and it comes last. Then (subject.he/she) tells everyone about the giant wild one, and the whole village troops off to see it. Everyone agrees it would have won easily. The elders give it a special mention, \"Best Melon, No Gardener,\" and (subject) is asked to cut it. It's delicious.",
+   "src": "L122"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) carries the wild melon to the contest. It wins easily. Everyone wants to know how (subject.he/she) grew it, and (subject) mumbles something about \"lots of water.\" (friend) looks at the melon, then at (subject), and raises an eyebrow, but says nothing at all. (subject) finds (subject.he/she) can't quite enjoy the prize as much as (subject.he/she) expected. What (subject.he/she) does about that is (subject.his/her) own business.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) carries the wild melon to the contest. It wins easily. Everyone wants to know how (subject.he/she) grew it, and (subject) mumbles something about \"lots of water.\" (friend) looks at the melon, then at (subject), and raises an eyebrow, but says nothing at all. (subject) finds (subject.he/she) can't quite enjoy the prize as much as (subject.he/she) expected. What (subject.he/she) does about that is (subject.his/her) own business.",
+   "src": "L125"
+  }
+ }
+}

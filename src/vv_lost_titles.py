@@ -264,14 +264,14 @@ def _read_titles(path: Path, game: int) -> list[vv_titles_file.Entry] | None:
 
 
 def _held_for(game: int, entries: list[vv_titles_file.Entry], identity: int, looks: dict,
-              data: bytes | None = None, at: int | None = None) -> bool:
+              data: bytes | None = None, at: int | None = None, sex_changed: bool = False) -> bool:
     """Whether the titles file holds a title (bound or pending) for the villager of this title identity
     and these looks: an entry of that identity that could be them (vv_titles_file.could_be, as the
     game's load matches it).  Two villagers of one identity with their own looks each hold their own.
     The head and body only break ties (the owner, v1.35.80 update: a change of looks never makes a
     villager someone else): an entry kept under other looks is theirs unless another villager of the
     identity in the save (`data`, theirs at `at`) has exactly the entry's looks."""
-    could = [e for e in entries if e.identity == identity and vv_titles_file.could_be(game, e, looks)]
+    could = [e for e in entries if e.identity == identity and vv_titles_file.could_be(game, e, looks, sex_changed)]
     if not could:
         return False
     if any(not e.known or (e.head, e.body) == (looks["head"], looks["body"]) for e in could):
@@ -396,8 +396,12 @@ def _survey_titles(folder, game, slot, data, recs, people, prefs, ids, carriers,
     # load matches it (vv_titles_file.could_be; an older file's entry keeps no looks: anyone of its
     # identity).  Another villager of the same identity with their own looks and title (a twin) does not
     # hold theirs -- that hid a lost title, or refused a restore every time.
+    import vv_sex_changes
+    sex_changed = vv_sex_changes.changed_names(folder, slot)
+
     def held(v) -> bool:
-        return _held_for(game, entries, ids[v.at], vv_titles_file.looks_from_save(game, data, v.at), data, v.at)
+        return _held_for(game, entries, ids[v.at], vv_titles_file.looks_from_save(game, data, v.at), data, v.at,
+                         v.name in sex_changed)
 
     at_index = {e.index: e for e in entries if not e.pending}
     for e in lost:
@@ -589,11 +593,13 @@ def _plan(folder: Path, game: int, slot: int, chosen: list[Restore]) -> list[_Ch
         if entries is None:
             raise LostTitlesError(f"{path.name} is not a titles file this game reads; nothing was changed.")
         data = ln.save_path(folder, game, slot).read_bytes()
+        import vv_sex_changes
+        sex_changed = vv_sex_changes.changed_names(folder, slot)
         for r in titles:
             if not title_valid(r.title):
                 raise LostTitlesError(f"\"{r.title}\" is not a title the game can show; nothing was changed.")
             looks = vv_titles_file.looks_from_save(game, data, r.villager.at)
-            if _held_for(game, entries, r.identity, looks, data, r.villager.at):
+            if _held_for(game, entries, r.identity, looks, data, r.villager.at, r.villager.name in sex_changed):
                 raise LostTitlesError(f"{r.villager.name} already has a title in {path.name}; nothing was changed.")
             same = [e for e in entries if not e.pending and e.index == r.index]
             if r.rekey is not None:

@@ -393,8 +393,10 @@ class DescriptionTests(unittest.TestCase):
                 text += " " + " ".join(d["routine"] for d in row.get("runtime_detours", [])).lower()
                 for d in row.get("runtime_detours", []):
                     self.assertEqual(d["installed_by"], f"VVFP Golden Mushroom.dll, ordinal {game}")
+                # The Lost Children's own sheet holds the art: its companion keeps only the finds record.
                 self.assertEqual({c["destination"] for c in row.get("companion_files", [])},
-                                 set() if game == 2 else {"VVFP Golden Mushroom.dll", "Images/golden_mushroom.png"})
+                                 {"VVFP Golden Mushroom.dll"} if game == 2
+                                 else {"VVFP Golden Mushroom.dll", "Images/golden_mushroom.png"})
                 # (behavior_changes / explicit_non_changes / evidence_status are
                 # the loader's derived defaults, checked above and below.)
                 self.assertEqual(set(row) - {"id", "game_id", "name", "description", "output_tag", "patches",

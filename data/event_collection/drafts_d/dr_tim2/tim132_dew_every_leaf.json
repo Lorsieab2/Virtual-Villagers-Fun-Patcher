@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Dew on Every Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim132_dew_every_leaf",
+  "source": "draft_tim2",
+  "lines": [
+   51,
+   56
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L51",
+  "ledger": [
+   {
+    "src": "L52",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L53",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L54",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L55",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L56",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager steps outside early and finds every leaf in the garden beaded with dew.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) steps outside early and finds every leaf in the garden beaded with dew. The droplets sparkle as the first sunlight reaches them.",
+   "src": "L52,L53"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) steps outside early and finds every leaf in the garden beaded with dew. (name1) brushes a branch and gets a cold shower on the neck.",
+   "src": "L52,L54"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) steps outside early and finds every leaf in the garden beaded with dew. A small bird drinks from a leaf just beside (name1)'s hand.",
+   "src": "L52,L55"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) steps outside early and finds every leaf in the garden beaded with dew. By the time (name1) fetches a friend to see, the dew has gone.",
+   "src": "L52,L56"
+  }
+ }
+}

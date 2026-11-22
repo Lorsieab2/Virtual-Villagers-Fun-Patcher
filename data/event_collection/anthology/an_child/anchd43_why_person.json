@@ -1,0 +1,274 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Is That Person Alone?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd43_why_person",
+  "source": "anthology",
+  "lines": [
+   28202,
+   28215
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L28202",
+  "ledger": [
+   {
+    "src": "L28203",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28203",
+    "kind": "sensitivity",
+    "before": "an adult",
+    "after": "(loner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28205",
+    "kind": "sensitivity",
+    "before": "A caregiver",
+    "after": "(carer), a caregiver,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28206",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28208",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(loner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28209",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(loner)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28209",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28211",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28212",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28214",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28215",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks why an adult often chooses to spend time by themself.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "loner",
+   "carer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "loner": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "carer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks why (loner) often chooses to spend time by themself.",
+   "src": "L28203",
+   "choices": [
+    {
+     "label": "Explain Different Preferences.",
+     "next": "a",
+     "src": "L28204"
+    },
+    {
+     "label": "Offer a Friendly Greeting.",
+     "next": "b",
+     "src": "L28207"
+    },
+    {
+     "label": "Discuss Boundaries.",
+     "next": "c",
+     "src": "L28210"
+    },
+    {
+     "label": "Compare Personal Needs.",
+     "next": "d",
+     "src": "L28213"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(carer), a caregiver, says some people enjoy quiet and solitude.",
+   "src": "L28205"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) learns that being alone does not always mean being lonely.",
+   "src": "L28206"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(loner) says they would rather not talk, and (child) respects it.",
+   "src": "L28209"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) learns to ask before joining someone.",
+   "src": "L28211"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) realizes that friendship does not require constant company.",
+   "src": "L28212"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) notices that they sometimes want quiet too.",
+   "src": "L28214"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) invites a friend to play later instead.",
+   "src": "L28215"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "(loner) smiles and returns to reading.",
+   "src": "L28208",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "loner",
+     "mood": "good",
+     "src": "L28208"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "(loner) smiles and returns to reading.",
+   "src": "L28208"
+  }
+ }
+}

@@ -1,0 +1,92 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Today's Word",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il070_today_word",
+  "source": "da_il04",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L122",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager picks a word every morning and uses it as often as possible, and today's word is magnificent.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every morning (subject) picks a word and tries to use it as often as possible all day. Yesterday's word was \"sideways.\" Today's word is \"magnificent.\" So far the fruit has been magnificent, the weather has been magnificent, and (friend)'s slightly lopsided basket has been called \"a magnificent effort,\" which (friend) is still thinking about.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Ask About the Word Game",
+     "next": "a",
+     "src": "L121"
+    },
+    {
+     "label": "Play Along Without Saying Anything",
+     "next": "b",
+     "src": "L124"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) asks what's going on. (subject) explains. (friend) is delighted and insists on choosing tomorrow's word. (friend.He/She) picks \"crumbly.\" The next day is very difficult for (subject), and (subject.he/she) has never enjoyed a day more.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) starts using \"magnificent\" too. The fish is magnificent. The mud is magnificent. A passing crab is the most magnificent crab (friend.he/she) has ever seen. (subject) narrows (subject.his/her) eyes, says nothing, and the next morning chooses a word that is much, much harder to fit into conversation.",
+   "src": "L125"
+  }
+ }
+}

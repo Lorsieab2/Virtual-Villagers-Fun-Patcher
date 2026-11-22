@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Scout",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus20_missing_scout",
+  "source": "anthology",
+  "lines": [
+   31023,
+   31037
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31023",
+  "ledger": [
+   {
+    "src": "L31024",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31025",
+    "kind": "sensitivity",
+    "before": "A scout",
+    "after": "(scout), a scout,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31031",
+    "kind": "sensitivity",
+    "before": "An anxious villager",
+    "after": "(villager), an anxious villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31034",
+    "kind": "sensitivity",
+    "before": "A healer",
+    "after": "(healer), a healer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31036",
+    "kind": "sensitivity",
+    "before": "The scout",
+    "after": "(scout)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31037",
+    "kind": "sensitivity",
+    "before": "The scout",
+    "after": "(scout)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A scout is overdue, and villagers fear a kidnapping although no evidence yet supports it.",
+  "label_case": "title",
+  "cast_only": [
+   "scout",
+   "villager",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "scout": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(scout), a scout, is overdue, and villagers fear a kidnapping although no evidence yet supports it.",
+   "src": "L31025",
+   "choices": [
+    {
+     "label": "Search the Last Known Route",
+     "next": "a",
+     "src": "L31026"
+    },
+    {
+     "label": "Separate Fear from Fact",
+     "next": "b",
+     "src": "L31029"
+    },
+    {
+     "label": "Prepare a Safe Response",
+     "next": "c",
+     "src": "L31032"
+    },
+    {
+     "label": "Welcome the Scout Home",
+     "next": "d",
+     "src": "L31035"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Footprints lead to a sheltered ravine.",
+   "src": "L31027"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Scouts find a damaged marker and widen the search.",
+   "src": "L31028"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The {@chief} refuses to accuse a neighboring tribe without evidence.",
+   "src": "L31030"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager), an anxious villager, is heard but reminded that suspicion is not proof.",
+   "src": "L31031"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Small teams travel with clear check-in plans.",
+   "src": "L31033"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(healer), a healer, waits ready without assuming the worst.",
+   "src": "L31034"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(scout) returns after sheltering from a rockfall.",
+   "src": "L31036"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(scout) returns shaken and is given time before recounting events.",
+   "src": "L31037"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

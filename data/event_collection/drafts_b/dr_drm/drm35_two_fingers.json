@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Fingers and a Whistle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm35_two_fingers",
+  "source": "draft_drm",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager who never learned the two-finger whistle gets a patient teacher: keep at it all afternoon, or give up and clap instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Everyone in the village can whistle with two fingers in their mouth: that piercing whistle that carries all the way across the beach. Everyone except (subject). (subject.He/she) has tried for years. All (subject.he/she) produces is a sort of wet hiss. Today (friend) has offered to teach (subject.him/her), properly, for as long as it takes.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Keep at It All Afternoon",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Give Up and Clap Instead",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "After an hour, (subject) gives up. \"I'll clap,\" (subject.he/she) says, and does: one sharp, loud clap that echoes off the rocks. (friend) is impressed. Nobody else can clap like that. For the rest of the season, whenever someone needs calling across the beach, they ask (subject) to clap.",
+   "src": "L425"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They practice all afternoon. Fingers here. Tongue there. Blow. Hiss. Again. Hiss. (friend) is endlessly patient. Near sunset, (subject) blows, and out comes a whistle, piercing and clear. Every dog in the village barks. (subject) does it eleven more times before dinner. Nobody else enjoys this as much as (subject.he/she) does.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They practice all afternoon. Fingers here. Tongue there. Blow. Hiss. Again. Hiss. (friend) is endlessly patient. Near sunset, (subject) blows, and out comes a whistle, piercing and clear. Every dog in the village barks. (subject) does it eleven more times before dinner. Nobody else enjoys this as much as (subject.he/she) does.",
+   "src": "L422"
+  }
+ }
+}

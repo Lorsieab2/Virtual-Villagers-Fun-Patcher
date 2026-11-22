@@ -1,0 +1,149 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood Line",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his38_flood_line",
+  "source": "draft_his",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult, 18-25)"
+   }
+  ],
+  "description": "A young villager plans a hut below the old flood line on the cliff: build above the line, or below with an escape path.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "On the cliff behind the village, there's a long line scratched into the rock, high above everyone's heads, with a little carved wave beside it. The old people say that's how high the water came in the great wave, generations ago. (friend) has been planning a new hut on the low flat ground below it and has come to (subject) for advice. (subject) points at the line.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Build Above the Line",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Build Below, but Plan an Escape",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) laughs at first. The line is so high. Then (friend.he/she) stands under it and looks up, and stops laughing. (friend.He/she) builds the hut on the slope above, which is a much harder spot. People tease (friend.him/her) about building halfway up a cliff. (friend.He/she) doesn't mind. Every morning (friend.he/she) looks out over the low ground and is glad.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L458"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L458"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) laughs at first. The line is so high. Then (friend.he/she) stands under it and looks up, and stops laughing. (friend.He/she) builds the hut on the slope above, which is a much harder spot. People tease (friend.him/her) about building halfway up a cliff. (friend.He/she) doesn't mind. Every morning (friend.he/she) looks out over the low ground and is glad.",
+   "src": "L458"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) loves the flat ground too much and builds there. But (friend.he/she) clears a quick path up the slope behind the hut and teaches everyone in (friend.his/her) household to run up it, fast, if the sea ever does something strange. They practice it twice. (subject) watches, and nods. \"That's what the line is for,\" (subject.he/she) says. \"Not to scare you. To remind you.\"",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L461"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) loves the flat ground too much and builds there. But (friend.he/she) clears a quick path up the slope behind the hut and teaches everyone in (friend.his/her) household to run up it, fast, if the sea ever does something strange. They practice it twice. (subject) watches, and nods. \"That's what the line is for,\" (subject.he/she) says. \"Not to scare you. To remind you.\"",
+   "src": "L461"
+  }
+ }
+}

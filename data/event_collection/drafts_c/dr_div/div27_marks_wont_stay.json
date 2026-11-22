@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Marks That Won't Stay Still",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div27_marks_wont_stay",
+  "source": "draft_div",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 7-13 and a teacher or an adult)"
+   },
+   {
+    "src": "L326",
+    "kind": "instruction",
+    "text": "[effect: small skill gain for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The carved tally marks swap and blur for one clever child: try a different way, or let the child show what they know.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been teaching the children to read the carved marks on the storehouse tallies. Everyone is getting it except (subject). (subject.He/she) is clever, quick and funny, and can remember any song after one hearing. But the marks swap places and blur together when (subject.he/she) looks at them, and today (subject.he/she) has given up and is drawing fish on the tally board instead.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Try a Different Way",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Let (subject.him/her) Show What (subject.He/she) Knows",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits down with (subject.him/her) and tries something else: making the marks into a song, with a rhythm for each one. (subject) learns the song in one go. Then (subject.he/she) can read the tally, slowly, by singing it under (subject.his/her) breath. It's not how anyone else does it. It works. The other children want the song too.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L326"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks (subject) to tell (friend.him/her) what's in the storehouse without looking at the marks. (subject) lists everything, from memory, in perfect order, including the two missing coconuts nobody else noticed. (friend) is impressed. \"Marks aren't the only way to keep a tally,\" (friend.he/she) says. They start working on a way for (subject) to keep one that suits (subject.him/her).",
+   "src": "L329"
+  }
+ }
+}

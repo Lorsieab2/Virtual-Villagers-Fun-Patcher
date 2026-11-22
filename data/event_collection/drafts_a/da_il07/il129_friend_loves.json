@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Who Loves Nets",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il129_friend_loves",
+  "source": "da_il07",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A friend has talked about almost nothing but knots for days: change the subject kindly, or ask a question.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) has discovered net making and has talked about almost nothing else for days. Knots. Tension. The right kind of fiber. The difference between a square knot and a sheet knot. (subject) has heard everything there is to hear about knots, twice. (subject.He/She) loves (friend). (subject.He/She) does not love knots.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Change the Subject Kindly",
+     "next": "a",
+     "src": "L109"
+    },
+    {
+     "label": "Ask a Question About It",
+     "next": "b",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I'm really glad you've found something you love,\" says (subject). \"Can we talk about something else for a bit? My head is full of knots.\" (friend) laughs. \"Sorry! I get carried away.\" They talk about other things for the whole walk. Right at the end, (friend) mentions a knot, very quietly. (subject) lets that one go.",
+   "src": "L110"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) decides to ask one real question. \"What's your favorite knot?\" (friend) lights up and shows (subject.him/her), and it turns out there's a knot that ties itself if you shake it the right way. That one, (subject) admits, is actually quite good. (subject.He/She) practices it all evening, to (subject.his/her) great annoyance.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) decides to ask one real question. \"What's your favorite knot?\" (friend) lights up and shows (subject.him/her), and it turns out there's a knot that ties itself if you shake it the right way. That one, (subject) admits, is actually quite good. (subject.He/She) practices it all evening, to (subject.his/her) great annoyance.",
+   "src": "L113"
+  }
+ }
+}

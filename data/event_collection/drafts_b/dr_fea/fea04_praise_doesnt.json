@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Praise That Doesn't Fit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea04_praise_doesnt",
+  "source": "draft_fea",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   }
+  ],
+  "description": "A villager praised as the best at their work secretly feels like a fraud: tell a friend, or keep smiling.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the fire tonight, someone raises a cup to (subject): \"The best in the village at what (subject.he/she) does!\" Everyone cheers. (subject) smiles and wants to disappear. (subject.He/she) knows about every mistake, every lucky guess, every time (subject.he/she) didn't know and pretended. Surely one day everyone will find out (subject.he/she) is just making it up as (subject.he/she) goes along.",
+   "src": "L47",
+   "text_only": [
+    {
+     "what": "\"disappear\"",
+     "reason": "the word's everyday sense (a thing, a sound or a person out of sight for a moment); nobody leaves the village -- the draft's notes: everything but the marked effects is story only",
+     "src": "L47"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Tell (friend) How It Feels",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Keep Smiling",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Later, (subject) admits it to (friend). (friend) laughs, not unkindly. \"You think anyone knows what they're doing? I've been guessing for years.\" (subject) isn't sure (subject.he/she) believes (friend.him/her). But it helps to hear it. A little. (subject.He/she) still feels like a fraud. (subject.He/she) feels like a fraud with company.",
+   "src": "L50"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) smiles and thanks everyone and says nothing. That night (subject.he/she) lies awake going over every mistake. In the morning (subject.he/she) goes to work and does it well, the way (subject.he/she) always does. The feeling doesn't go away. It never has. (subject.He/she) works with it anyway, every day, and nobody can tell.",
+   "src": "L53"
+  }
+ }
+}

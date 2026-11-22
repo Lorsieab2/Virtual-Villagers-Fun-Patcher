@@ -1,0 +1,90 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Thank You, Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il073_thank_you_water",
+  "source": "da_il04",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L161",
+    "kind": "casting",
+    "before": "and a very surprised builder",
+    "after": "and (builder), a very surprised builder",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A child asks a villager who thanks the water whenever they fill a jar whether the water can hear.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  },
+  "builder": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every time (subject) fills (subject.his/her) jar at the water, (subject.he/she) says \"thank you\" to it. Quietly, the way you'd thank someone passing you a bowl. Today (friend) is with (subject.him/her) and wants to know: \"Can the water hear you?\"",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Say You Don't Know",
+     "next": "a",
+     "src": "L157"
+    },
+    {
+     "label": "Ask What (friend) Thinks",
+     "next": "b",
+     "src": "L160"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I don't know,\" says (subject), honestly. \"Some people think so. Some people don't. I just like saying it.\" (friend) thinks about this, then leans over the water and says \"thank you\" too, very loudly, just in case it's a little hard of hearing.",
+   "src": "L158"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"What do you think?\" asks (subject). (friend) looks at the water for a long time. \"I think it hears the fish,\" (friend.he/she) says. \"So it can probably hear us.\" (subject) agrees that this sounds reasonable. On the way home, (friend) thanks a puddle, two coconuts and (builder), a very surprised builder.",
+   "src": "L161"
+  }
+ }
+}

@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Are the Birds Doing in the Bathing Pool?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd16_what_are_birds",
+  "source": "da_wd",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The bathing pool is full of small birds having a wonderful bath: wait your turn, or join them.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) comes down to the bathing pool and finds it full of small birds: twenty or thirty of them, splashing, ducking their heads, fluffing up their feathers, and shaking water everywhere. They are having a wonderful time. They take no notice of (name1) at all.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "Wait Your Turn",
+     "next": "a",
+     "src": "L193"
+    },
+    {
+     "label": "Join Them",
+     "next": "b",
+     "src": "L196"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) wades in anyway. The birds hop out of the way, then decide (he/she) is harmless and hop back. For a few minutes (name1) is having a bath surrounded by tiny splashing birds, which is one of the most ridiculous and wonderful things that has ever happened to (him/her). Nobody believes (him/her) later.",
+   "src": "L197"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) sits on a rock to wait. It's a long wait. The birds splash and squabble and shake themselves off, and go back for seconds. By the time they finally fly off in a cloud, (name1) has been sitting there for ages, and is laughing about it. (He/She) has a quick bath in water full of feathers.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) sits on a rock to wait. It's a long wait. The birds splash and squabble and shake themselves off, and go back for seconds. By the time they finally fly off in a cloud, (name1) has been sitting there for ages, and is laughing about it. (He/She) has a quick bath in water full of feathers.",
+   "src": "L194"
+  }
+ }
+}

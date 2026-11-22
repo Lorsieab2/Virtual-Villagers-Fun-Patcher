@@ -1,0 +1,268 @@
+LCF-01
+DESC: A glowing stone falls from the sky and hits a villager on the head: keep it, or bury it far away.
+ROLES: name1=18+ name2=18+
+FIX S: 4=1
+REVIEW: 15/15 pass (minor injury; origin never settled)
+
+LCF-02
+DESC: A child finds a lavastone washed up on the beach: tell the elders, or keep it as a secret treasure.
+ROLES: name1=6-13 name2=55+
+REVIEW: 15/15 pass (child safe; magic ambiguous)
+
+LCF-03
+DESC: A healer wants to crush a lavastone into a stew for a very sick villager: use it, or try ordinary medicine first.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (no miracle; real cost; consent of the sick assumed through the family)
+
+LCF-04
+DESC: A badly injured villager might be saved by the forbidden practice of implanting a lavastone: do it, or refuse.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s 2=s
+FIX O1: 1=s
+FIX O2: 1=s
+REVIEW: 15/15 pass (the forbidden act weighed seriously; no graphic detail; outcome uncertain)
+
+LCF-05
+DESC: A villager grabbed a lavastone to see what would happen and is dazed: let them rest, or try to draw the power out.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=1
+REVIEW: 15/15 pass (no blame for curiosity; harm moderate)
+
+LCF-06
+DESC: An old lavastone master offers to train a young villager: accept the training, or decline the cost.
+ROLES: name1=55+ name2=18-25
+REVIEW: 15/15 pass (the cost honest; declining respected)
+
+LCF-07
+DESC: A villager wants to use a lavastone as a wishing stone for rain: make the wish, or keep it for an emergency.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (outcome ambiguous; no confirmation)
+
+LCF-08
+DESC: A farmer wants to bury a lavastone in a tired field to make it fertile: bury it, or rest the field.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (two ways of knowing; neither proven)
+
+LCF-09
+DESC: A fisher's catch has been amazing since they found a lavastone: credit the stone, or credit their own skill.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (luck ambiguous; believers and skeptics respected)
+
+LCF-10
+DESC: A villager is sure their lavastone is bringing bad luck: throw it in the sea, or give it to someone who wants it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (bad luck not punishment; ambiguity)
+
+LCF-11
+DESC: The village's oldest lavastone has started to crack: use what power is left, or let it crumble in peace.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (loss accepted; no miracle)
+
+LCF-12
+DESC: A lavastone has gone dark after use: wait for it to recharge, or try to wake it with sunlight and song.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (magic ambiguous; patience)
+
+LCF-13
+DESC: Villagers argue about where lavastones come from: let each tell their story, or ask the elder for the true one.
+ROLES: name1=70+ name2=18+ name3=18+
+REVIEW: 15/15 pass (origin never settled; every view respected)
+
+LCF-14
+DESC: A villager wants to use a lavastone to bring out a hidden talent: try it, or train the ordinary way.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (magic ambiguous; cost real)
+
+LCF-15
+DESC: A trader offers a lavastone for the village's best canoe: buy it, or refuse.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+REVIEW: 15/15 pass (uncertainty; no outsider confirmed beyond a trader)
+
+LCF-16
+DESC: The elders' lavastone has gone missing: search the huts, or ask whoever took it to return it quietly.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (accountability without humiliation)
+
+LCF-17
+DESC: An elder used a lavastone to heal a child and has not woken since: wait at their side, or try the stone again.
+ROLES: name1=55+ name2=18+
+FIX S: 2=1
+REVIEW: 15/15 pass (sacrifice honored; no miracle)
+
+LCF-18
+DESC: A cook dropped a lavastone chip into the feast stew by accident: serve it anyway, or throw the stew out.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (mild effects; humor)
+
+LCF-19
+DESC: A villager says their lavastone speaks to them in dreams: listen to the dreams, or worry about them.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (belief respected; never confirmed)
+
+LCF-20
+DESC: A storm is coming and someone wants to use a lavastone to turn it: try it, or prepare the ordinary way.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (ambiguity; real preparation valued)
+
+LCF-21
+DESC: A Nature villager and a Science villager argue about the dwindling stream: study it, or protect it at once.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no school simply right)
+
+LCF-22
+DESC: A researcher and a believer debate whether faith has any place in studying the stars: debate in public, or work together.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=s 2=s
+REVIEW: 15/15 pass (both views respected; no winner)
+
+LCF-23
+DESC: The village wants to clear more forest for gardens: take what is needed, or only what the forest can spare.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (competing needs; no single right answer)
+
+LCF-24
+DESC: A villager believes spirits guard the reef and wants offerings left there: leave them, or ask why.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2 2=2
+FIX O2: 2=1
+REVIEW: 15/15 pass (belief respected; never confirmed)
+
+LCF-25
+DESC: A villager who believes in nothing unseen is asked to lead the harvest thanks: lead it their own way, or let a believer lead.
+ROLES: name1=18+ name2=18+
+FIX O2: 1=1
+REVIEW: 15/15 pass (non-belief respected; ceremony adapts)
+
+LCF-26
+DESC: Three villagers argue whether magic is real power, striving, or talent: hold a public test, or leave it open.
+ROLES: name1=18+ name2=18+ name3=18+
+REVIEW: 15/15 pass (never settled)
+
+LCF-27
+DESC: A researcher's new theory about the tides contradicts the old fishers: test the theory, or trust the old fishers.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (both kinds of knowledge partly right)
+
+LCF-28
+DESC: Two healers disagree: herbs and rest, or ritual and prayer: try both, or let the patient choose.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=s
+REVIEW: 15/15 pass (the patient decides; no approach ranked)
+
+LCF-29
+DESC: A child asks a researcher and a believer why the sun rises: give both answers, or ask the child what they think.
+ROLES: name1=6-13 name2=18+ name3=18+
+REVIEW: 15/15 pass (beliefs not ranked; child's thinking valued)
+
+LCF-30
+DESC: A Nature villager borrows a Science villager's method to save the coral: admit it, or keep it quiet.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (humor; schools borrow)
+
+LCF-31
+DESC: A villager belongs to no school of thought and is being pestered by all four: choose one, or stay free.
+ROLES: name1=18+ name2=18+
+FIX S: 3=1
+REVIEW: 15/15 pass (belonging needs no conformity)
+
+LCF-32
+DESC: A teen wants to learn about lavastones: teach the stories only, or let them hold one under supervision.
+ROLES: name1=55+ name2=14-17
+FIX O2: 1=2
+REVIEW: 15/15 pass (safety for a teen; respect)
+
+LCF-33
+DESC: A villager wants to wear a tiny lavastone chip as a necklace: wear it, or keep it in a pouch.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (effects ambiguous; mild)
+
+LCF-34
+DESC: Villagers who climbed the mountain say they saw lavastones being born in the fire: believe them, or doubt it.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (origins unconfirmed)
+
+LCF-35
+DESC: The village argues whether lavastones are a gift or a curse: ban them, or keep them with care.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (both views reasonable)
+
+LCF-36
+DESC: A researcher wants to build a stone circle to measure the seasons by the sun: build it, or keep using the old signs.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (innovation alongside tradition)
+
+LCF-37
+DESC: A spring some call sacred could water the new gardens: dig a channel, or leave it untouched.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (sacred and practical both respected)
+
+LCF-38
+DESC: A sudden silence in the forest before a storm: one says spirits warned them, the other says the birds know: does it matter?
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (two explanations coexist)
+
+LCF-39
+DESC: A lavastone dropped in a blighted garden seems to have cured it: spread the dust to other gardens, or leave things be.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (outcomes uncertain)
+
+LCF-40
+DESC: An old lavastone master is ready to stop: pass on their stone, or let it rest with them.
+ROLES: name1=65+ name2=18+
+FIX S: 3=1
+REVIEW: 15/15 pass (the elder's choice)
+
+LCF-41
+DESC: A villager wants Isola to stop using lavastones and rely on its own hands: argue for it, or accept the village as it is.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (both views respected)
+
+LCF-42
+DESC: A villager stepped on a lavastone shard on the beach: pull it out now, or wait for a master.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (injury non-graphic)
+
+LCF-43
+DESC: Four villagers from the four schools must agree on how to treat a sick reef: debate it out, or each try their own way.
+ROLES: name1=18+ name2=18+ name3=18+ name4=18+
+REVIEW: 15/15 pass (no school simply right; partial success)
+
+LCF-44
+DESC: A child asks if lavastones were ever used in war: tell the old story, or say it is not for children.
+ROLES: name1=55+ name2=6-13
+FIX O2: 1=2
+REVIEW: 15/15 pass (past harm implied; age-appropriate)
+
+LCF-45
+DESC: Since holding a lavastone, a villager sometimes sees things before they happen: use it, or try to make it stop.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (never confirmed; the villager's choice)
+
+LCF-46
+DESC: A lavastone glows only when one particular villager is near: give it to them, or keep it with the elders.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no destiny confirmed)
+
+LCF-47
+DESC: The researchers want to study a lavastone: let them, or refuse because some consider it sacred.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (both sides respected; compromise possible)
+
+LCF-48
+DESC: A villager is selling painted pebbles as lucky lavastone chips: expose it, or let people believe.
+ROLES: name1=18+ name2=18+
+FIX O1: 1=2
+REVIEW: 15/15 pass (accountability without humiliation)
+
+LCF-49
+DESC: One night every lavastone on the island glows at once: gather to watch, or stay indoors.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (mystery unresolved)
+
+LCF-50
+DESC: An old story says lavastones must one day be returned to where they came from: return one to the sea, or keep it.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (ritual is the villagers' own; meaning open)

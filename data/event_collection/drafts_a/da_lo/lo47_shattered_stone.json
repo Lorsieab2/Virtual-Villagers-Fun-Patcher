@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shattered Stone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo47_shattered_stone",
+  "source": "da_lo",
+  "lines": [
+   570,
+   581
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L570",
+  "ledger": [
+   {
+    "src": "L571",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L577",
+    "kind": "instruction",
+    "text": "[effect: villagers nearby celebrate]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L577",
+    "kind": "structural",
+    "text": "(About 6 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   },
+   {
+    "src": "L578",
+    "kind": "instruction",
+    "text": "[effect: (name1) is sick for a short while]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   },
+   {
+    "src": "L578",
+    "kind": "structural",
+    "text": "(About 4 in 10)",
+    "why": "the outcome's odds: the branch's weight"
+   }
+  ],
+  "description": "A humming lavastone has been giving people headaches, and a villager has been asked to break it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A lavastone kept in the village storehouse has been making people uneasy: it hums at night, and two villagers say it gives them headaches. A meeting has decided it should be broken and the pieces scattered in the sea. (subject) has been asked to do it. (subject.He/She) is holding a heavy stone over it, and (friend) is watching nervously.",
+   "src": "L573",
+   "choices": [
+    {
+     "label": "Break It",
+     "next": "a",
+     "src": "L575"
+    },
+    {
+     "label": "Change Your Mind",
+     "next": "b",
+     "src": "L580"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Everyone it touches feels suddenly, absurdly happy. Villagers laugh for no reason all afternoon. Nobody knows why. The headaches stop.",
+   "src": "L577",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L577"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Several villagers feel dizzy and queasy for the rest of the day, (subject) among them. It passes. The headaches stop too.",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "subject",
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) brings the stone down. The lavastone shatters, and a burst of warm light rolls out across the whole village, like a gust of summer wind.",
+   "src": "L576",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 6,
+     "odds": "About 6 in 10"
+    },
+    {
+     "next": "a2",
+     "weight": 4,
+     "odds": "About 4 in 10"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) lowers the stone. \"I don't want to destroy something we don't understand,\" (subject.he/she) says. Some people are relieved. Some are frustrated. In the end, the village agrees to carry the lavastone out to a small rock island off the coast and leave it there, where it can hum all it likes. The headaches stop. Whether that proves anything, nobody can say.",
+   "src": "L581"
+  }
+ }
+}

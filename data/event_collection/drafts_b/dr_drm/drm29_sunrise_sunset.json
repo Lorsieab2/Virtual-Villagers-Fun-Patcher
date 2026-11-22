@@ -1,0 +1,158 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sunrise and Sunset in One Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm29_sunrise_sunset",
+  "source": "draft_drm",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a young adult and a teen aged 14-17)"
+   }
+  ],
+  "description": "Two friends plan to watch sunrise and sunset from opposite ends of the island in one day: run for it, or take it slowly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have a plan: watch the sunrise from the eastern cliffs and the sunset from the western beach, on the same day, crossing the whole island in between. It's been done before, people say, but not often. They are standing on the eastern cliffs in the grey dawn, waiting.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Run for It",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Take It Slowly and Miss the Sunset",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The sun comes up gold and huge, and the moment it's clear of the water they set off running. They get lost twice, stop for a swim they don't have time for, and arrive at the western beach just as the last bit of sun slips under. They collapse on the sand, gasping, triumphant. Their legs ache for three days.",
+   "src": "L350",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L350"
+    }
+   ],
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L350"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -15,
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The sun comes up gold and huge, and the moment it's clear of the water they set off running. They get lost twice, stop for a swim they don't have time for, and arrive at the western beach just as the last bit of sun slips under. They collapse on the sand, gasping, triumphant. Their legs ache for three days.",
+   "src": "L350",
+   "text_only": [
+    {
+     "what": "\"collapse\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L350"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They watch the sunrise and set off at a sensible pace, stopping to eat, to swim and to look at a very interesting beetle. They reach the western beach well after dark. They've missed the sunset completely. \"Again tomorrow?\" says (friend). \"Absolutely not,\" says (subject). \"But it was a good day.\"",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L353"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "They watch the sunrise and set off at a sensible pace, stopping to eat, to swim and to look at a very interesting beetle. They reach the western beach well after dark. They've missed the sunset completely. \"Again tomorrow?\" says (friend). \"Absolutely not,\" says (subject). \"But it was a good day.\"",
+   "src": "L353"
+  }
+ }
+}

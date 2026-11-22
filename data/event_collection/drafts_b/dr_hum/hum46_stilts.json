@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stilts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum46_stilts",
+  "source": "draft_hum",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 8-13 and an adult)"
+   }
+  ],
+  "description": "An adult asks a child for a turn on homemade stilts: give the adult a turn, or ask for proper lessons.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has made a pair of stilts out of two long poles and can walk on them quite well. (friend) asks for a turn. (friend) is a grown-up, (friend) reasons. How hard can it be?",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Give (friend) a Turn",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Ask for Proper Lessons",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "With help, (friend) climbs up and stands very tall. Then (friend.he/she) takes one step, and then a lot more steps, very fast, in a circle, unable to stop, shouting, \"How do I stop?\" while (subject) runs alongside shouting, \"Lean back! No, the other back!\" (friend) stops by stepping off, quite gently, into a pile of drying seaweed. (friend.He/she) is unhurt and delighted.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L554"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "With help, (friend) climbs up and stands very tall. Then (friend.he/she) takes one step, and then a lot more steps, very fast, in a circle, unable to stop, shouting, \"How do I stop?\" while (subject) runs alongside shouting, \"Lean back! No, the other back!\" (friend) stops by stepping off, quite gently, into a pile of drying seaweed. (friend.He/she) is unhurt and delighted.",
+   "src": "L554"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) teaches (friend.him/her) slowly and very strictly: lean, step, breathe, lean, step, breathe. (friend) wobbles a great deal. By evening (friend.he/she) can manage ten steps in a row. (subject) is the proudest teacher on Isola. The next morning, (friend) gets up early to practice in secret.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) teaches (friend.him/her) slowly and very strictly: lean, step, breathe, lean, step, breathe. (friend) wobbles a great deal. By evening (friend.he/she) can manage ten steps in a row. (subject) is the proudest teacher on Isola. The next morning, (friend) gets up early to practice in secret.",
+   "src": "L557"
+  }
+ }
+}

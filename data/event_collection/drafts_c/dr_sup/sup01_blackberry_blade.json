@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blackberry Blade Contest",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup01_blackberry_blade",
+  "source": "draft_sup",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and an elder)"
+   },
+   {
+    "src": "L8",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L14",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 cutting tool]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L17",
+    "kind": "instruction",
+    "text": "[effect: the village gains 2 cutting tools]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Two villagers each claim the best cutting tool: race at the blackberry bushes, or let an elder judge.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have each sharpened a cutting tool from a fish bone, and each one says theirs is the best on Isola. They have argued about it since breakfast. (third), who is old enough to have heard every argument there is, tells them to settle it at the blackberry bushes: whoever fills a basket first wins.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Race at the Bushes",
+     "next": "o1",
+     "src": "L13"
+    },
+    {
+     "label": "Let the Elder Judge the Edges",
+     "next": "o2",
+     "src": "L16"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They race. Thorns fly, berries fly, and so does a good deal of language (third) pretends not to hear. Halfway through, (subject)'s tool snaps on a thick stem with a sad little click. (friend) wins by a handful and is unbearable about it until dinner, when (friend.he/she) quietly offers (subject) half the berries.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": -1,
+     "max": -1,
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(third) tests both tools on a leaf, then on a vine, then on a very old piece of dried fish. \"Both excellent,\" (third.he/she) announces, and drops them both in the village's tool basket. \"Good tools belong to everyone.\" (subject) and (friend) look at each other, outsmarted, and start sharpening two more.",
+   "src": "L17",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": 2,
+     "max": 2,
+     "src": "L17"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

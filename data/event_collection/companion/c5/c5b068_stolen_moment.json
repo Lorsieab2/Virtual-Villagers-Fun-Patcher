@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stolen Moment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b068_stolen_moment",
+  "source": "companion",
+  "lines": [
+   1730,
+   1735
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1730",
+  "ledger": [
+   {
+    "src": "L1732",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1735",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "Two busy friends find a few minutes to talk between chores.",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "Two busy friends find a few minutes to talk between chores.",
+   "src": "L1731",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They promise to meet more often.",
+   "src": "L1733"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They share a quick laugh and hurry back.",
+   "src": "L1734",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L1734"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L1734"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They share a quick laugh and hurry back.",
+   "src": "L1734"
+  }
+ }
+}

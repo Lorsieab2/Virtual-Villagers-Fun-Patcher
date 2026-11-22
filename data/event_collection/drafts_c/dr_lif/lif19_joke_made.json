@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Joke That Made Everyone Laugh",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif19_joke_made",
+  "source": "draft_lif",
+  "lines": [
+   218,
+   227
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L218",
+  "ledger": [
+   {
+    "src": "L219",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older and another villager)"
+   }
+  ],
+  "description": "A villager is proudest of a joke that once made everyone laugh: tell the joke, or explain why it matters.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) asks (subject) what (subject.he/she) is proudest of in (subject.his/her) whole life. (subject) thinks about it seriously. Not (subject.his/her) work. Not the hut (subject.he/she) built. Not the famous fish. \"Once,\" (subject.he/she) says, \"at a feast, years ago, I made a joke, and EVERYONE laughed. All of them. Even the grumpy ones. Even the babies.\"",
+   "src": "L221",
+   "choices": [
+    {
+     "label": "Ask What the Joke Was",
+     "next": "o1",
+     "src": "L223"
+    },
+    {
+     "label": "Ask Why That's the Proudest",
+     "next": "o2",
+     "src": "L226"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Why that?\" asks (friend). (subject) thinks. \"Because for a moment, everybody was happy at the same time, and I did that. You can't plan it. It just happened, and I was the one who made it happen.\" (friend) thinks about this. It's a better answer than (friend.he/she) expected. (friend.He/she) decides to try making everyone laugh at the next feast. (friend.He/she) doesn't. But (friend.he/she) tries.",
+   "src": "L227"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) wants to hear it. (subject) tells it. It's about a pig and a coconut. (friend) doesn't laugh. (subject) explains that you had to be there, and the pig was also there, and that's what made it. (friend) still doesn't laugh. (subject) doesn't mind in the least. (subject.He/she) tells it again later, to (subject.him/her)self, and laughs until (subject.he/she) cries.",
+   "src": "L224",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L224"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) wants to hear it. (subject) tells it. It's about a pig and a coconut. (friend) doesn't laugh. (subject) explains that you had to be there, and the pig was also there, and that's what made it. (friend) still doesn't laugh. (subject) doesn't mind in the least. (subject.He/she) tells it again later, to (subject.him/her)self, and laughs until (subject.he/she) cries.",
+   "src": "L224"
+  }
+ }
+}

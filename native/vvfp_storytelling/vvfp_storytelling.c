@@ -36,10 +36,12 @@
      * A New Home has neither routine nor "Listening to a story": the same
        storyteller steps (0x449F40) in A New Home's own step types (op 2
        wait 0x439550, op 7 gesture 0x439650 -- the same code as The Lost
-       Children's -- op 15 pose, op 6 practice with skill 2, Breeding), in
-       place, because A New Home has no storytelling spot and the owner wants
-       the child to wait where it is, like the listener of a joke
-       (0x4454B0's standing wait).  The teller's label is the game's own
+       Children's -- op 15 pose, op 6 practice with skill 2, Breeding).  The
+       owner (2026-11-17, skill practice item 24): the child and the adult
+       first walk to the centre of the village (op 3), and the adult tells
+       the story with the researching animation (op 7, Researching's gesture)
+       without its sound (Researching's op 0x12 is never queued); see
+       v1_story.  The teller's label is the game's own
        "Telling a story" (string 0xA7, every language); the child's is
        written here in the game's four languages.
 
@@ -213,6 +215,7 @@ static const char *v1_listening(unsigned char *array) {
 static int __stdcall v1_story(unsigned char *array, int listener, int teller) {
     unsigned char *t;
     unsigned char *l;
+    int centre_x, centre_y;
 #ifdef VVFP_TEST
     ++VvfpStorytellingStats.drops_seen;
 #endif
@@ -224,25 +227,43 @@ static int __stdcall v1_story(unsigned char *array, int listener, int teller) {
     if (at(t, V1_AGE) < AGE_ADULT || at(l, V1_HEALTH) <= 0 || at(l, V1_AGE) >= AGE_ADULT) {
         return 0;                                   /* 0 is a real age */
     }
-    /* The child: standing waits as long as The Lost Children's listener's
-       (10-19, then 13-22). */
+    /* The spot: inside the box the game's own "Going to village center"
+       picks (0x447AD8: x 3*(rand(0x50)+0x106), y 3*(rand(0x50)+0xC8)), x
+       narrowed to rand(0x40) so the child, 0x30 to the right, stays inside
+       it.  A walk is op 3 (a, b = the feet target, d = 0x64, the normal
+       speed; the game adjusts it for children and elders, 0x43CCF0); op 15
+       turns them to face each other (rec+0x30: 1 down-right, 2 down-left). */
+    centre_x = 3 * (v1_rand(0x40) + 0x106);
+    centre_y = 3 * (v1_rand(0x50) + 0xC8);
+
+    /* The child: walks there, then standing waits as long as The Lost
+       Children's listener's (10-19, then 13-22), and one more while the
+       adult, who walks more slowly, finishes. */
     ((index_fn)(uintptr_t)V1_CLEAR)(array, NULL, listener);
     v1_label(l, v1_listening(array));
+    v1_step(array, listener, 3, centre_x + 0x30, centre_y, 0, 0x64);
+    v1_step(array, listener, 15, 2, 2, 0, 0);
     v1_step(array, listener, 2, 0, 0, v1_rand(10) + 10, 0);
     v1_step(array, listener, 2, 0, 0, v1_rand(10) + 13, 0);
+    v1_step(array, listener, 2, 0, 0, v1_rand(10) + 15, 0);
     ((index_fn)(uintptr_t)V1_START)(array, NULL, listener);
 
-    /* The adult: The Lost Children's 0x449F40 without its walks. */
+    /* The adult: walks there, faces the child and tells the story with the
+       researching animation -- op 7, the gesture Researching (0x442C10)
+       shows -- for as long as before.  Researching's sound is an op of its
+       own (0x12, a looping emitter), never queued here.  The one Breeding
+       practice roll (op 6, d = 2) is as before; nothing of Researching's tech
+       points or lab accident (op 0xE) is copied. */
     ((index_fn)(uintptr_t)V1_CLEAR)(array, NULL, teller);
     v1_label(t, ((string_fn)(uintptr_t)V1_STRING)(*(void **)(array + V1_STRINGS), NULL, V1_TELLING));
-    v1_step(array, teller, 15, 3, 3, 0, 0);                 /* talking pose */
-    v1_step(array, teller, 2, 0, 0, 3, 0);                  /* wait */
-    v1_step(array, teller, 7, 0, 0, v1_rand(8) + 3, 0);     /* gesture */
-    v1_step(array, teller, 15, 3, 0, 0, 0);                 /* pose */
-    v1_step(array, teller, 2, 0, 0, v1_rand(3) + 3, 0);     /* wait */
+    v1_step(array, teller, 3, centre_x, centre_y, 0, 0x64); /* to the centre */
+    v1_step(array, teller, 15, 1, 1, 0, 0);                 /* face the child */
+    v1_step(array, teller, 7, 0, 0, 3, 0);                  /* researching gesture */
+    v1_step(array, teller, 7, 0, 0, v1_rand(8) + 3, 0);
+    v1_step(array, teller, 7, 0, 0, v1_rand(3) + 3, 0);
     v1_step(array, teller, 6, 0, 0, 0, 2);                  /* one Breeding practice roll */
-    v1_step(array, teller, 7, 0, 0, v1_rand(8) + 3, 0);     /* gesture */
-    v1_step(array, teller, 2, 0, 0, v1_rand(5) + 3, 0);     /* wait */
+    v1_step(array, teller, 7, 0, 0, v1_rand(8) + 3, 0);
+    v1_step(array, teller, 7, 0, 0, v1_rand(5) + 3, 0);
     ((index_fn)(uintptr_t)V1_START)(array, NULL, teller);
 #ifdef VVFP_TEST
     ++VvfpStorytellingStats.stories_started;

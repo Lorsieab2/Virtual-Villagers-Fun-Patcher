@@ -1,0 +1,222 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child with the Long Fever",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed14_child_long",
+  "source": "living",
+  "lines": [
+   20388,
+   20399
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20388",
+  "ledger": [
+   {
+    "src": "L20399",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child has been ill for many days; the healers disagree about whether an experimental remedy is worth its risks.",
+  "cast_only": [
+   "guardian",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "guardian": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "healer2": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child has been ill for many days; the healers disagree about whether an experimental remedy is worth its risks.",
+   "src": "L20389",
+   "choices": [
+    {
+     "label": "Explain the uncertain treatment to the child's guardians",
+     "next": "a",
+     "src": "L20390"
+    },
+    {
+     "label": "Continue familiar supportive care.",
+     "next": "b",
+     "src": "L20393"
+    },
+    {
+     "label": "Invite another healer to review the case.",
+     "next": "c",
+     "src": "L20396"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Explain the uncertain treatment to the child's guardians and listen to the child where possible.\nThe remedy is given, and the child slowly improves.",
+   "src": "L20390,L20391",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": 10,
+     "max": 30,
+     "src": "L20391"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Explain the uncertain treatment to the child's guardians and listen to the child where possible.\nThe remedy causes distress and is stopped; the child remains ill.",
+   "src": "L20390,L20392",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": -30,
+     "max": -10,
+     "src": "L20392"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child recovers and asks to return to play.",
+   "src": "L20394",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": 10,
+     "max": 30,
+     "src": "L20394"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The child grows weaker, and the family requests more help.",
+   "src": "L20395",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "child",
+     "min": -60,
+     "max": -40,
+     "src": "L20395"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The new healer identifies a source of contaminated water.",
+   "src": "L20397",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer2",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20397"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healers remain uncertain and explain the limits of their knowledge.",
+   "src": "L20398"
+  }
+ }
+}

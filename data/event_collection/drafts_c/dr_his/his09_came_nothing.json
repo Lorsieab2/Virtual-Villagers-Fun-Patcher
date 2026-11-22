@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Came with Nothing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his09_came_nothing",
+  "source": "draft_his",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 6-13)"
+   }
+  ],
+  "description": "At a child's naming day, an elder tells how their people came across the sea with nothing: tell it as always, or take questions.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It's (friend)'s naming day, and (subject), the oldest person at the fire, is asked to tell the family story, the one that's told at every naming. It goes like this: long ago, some of the people of this village came across the sea in canoes, with almost nothing, from a place they could never go back to. Nobody remembers why they had to leave. Only that they did, and that Isola let them stay.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Tell It the Way It's Always Told",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Let (friend) Ask Questions",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) has questions. Why couldn't they go back? (subject) doesn't know. Were they scared? Probably. Were they sad? Yes, for a long time. Are we still sad? (subject) thinks. \"Some of us carry a bit of it. You don't have to. But it's yours to know.\" (friend) thinks about this. Then (friend.he/she) asks if there's cake. There is. That's alright too.",
+   "src": "L113"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) tells it plainly: the long crossing, the hunger, the first sight of the island, the people already here who shared their fish. (subject.He/she) doesn't say what they left. Nobody ever does. At the end, (subject.he/she) puts a pinch of sand from the beach in (friend)'s hand. \"This is where we're from now,\" (subject.he/she) says. (friend) holds the sand very tightly. It's a solemn moment, and a happy one.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) tells it plainly: the long crossing, the hunger, the first sight of the island, the people already here who shared their fish. (subject.He/she) doesn't say what they left. Nobody ever does. At the end, (subject.he/she) puts a pinch of sand from the beach in (friend)'s hand. \"This is where we're from now,\" (subject.he/she) says. (friend) holds the sand very tightly. It's a solemn moment, and a happy one.",
+   "src": "L110"
+  }
+ }
+}

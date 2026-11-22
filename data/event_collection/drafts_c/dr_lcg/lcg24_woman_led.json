@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Woman Who Led the Negotiations",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcg24_woman_led",
+  "source": "draft_lcg",
+  "lines": [
+   330,
+   341
+  ],
+  "section": "dr_lcg",
+  "credit": "NEW EVENTS - LIVING CULTURE VII: KNOWLEDGE, CONSENT AND SHARED WORK (LCG-01..50, draft, 2026-11-18)\nFrom the owner's Volume III concepts (201-300): weather readers and navigators, seed keepers and terrace builders, permission and consent, who leads and who is heard, homes built by many hands, songs for the uncelebrated, and a village writing its own story.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcg",
+  "title_src": "L330",
+  "ledger": [
+   {
+    "src": "L331",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult woman and an adult)"
+   },
+   {
+    "src": "L337",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L341",
+    "kind": "instruction",
+    "text": "[effect: small tech gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Visitors keep speaking to the wrong person and ignore the village's lead negotiator: correct them, or let her handle it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is the village's best negotiator, and the elders have sent her to settle the fishing rights with visitors from another island. The visitors keep turning to (friend), standing beside her, as though (friend.he/she) were in charge. (friend) is embarrassed. What should happen?",
+   "src": "L333",
+   "choices": [
+    {
+     "label": "(friend) Corrects Them",
+     "next": "o1",
+     "src": "L335"
+    },
+    {
+     "label": "She Handles It",
+     "next": "o2",
+     "src": "L339"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) says, firmly, that (subject) speaks for the village, and steps back. The visitors are startled, then attentive. (subject) gets a better deal than anyone expected. Afterwards, she thanks (friend), and says next time she will correct them herself.",
+   "src": "L337"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) simply keeps talking, ignoring their mistake, until the visitors realize she is the one making every decision. It takes them a whole morning. She gets a very good deal, and the visitors leave much more polite than they came.",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

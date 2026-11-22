@@ -1,0 +1,178 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of Little Sleep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss075_night_sleep",
+  "source": "companion",
+  "lines": [
+   6845,
+   6853
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6845",
+  "ledger": [
+   {
+    "src": "L6853",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An elder has slept poorly for weeks and grows irritable with friends.",
+  "cast_only": [
+   "elder",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An elder has slept poorly for weeks and grows irritable with friends.",
+   "src": "L6846",
+   "choices": [
+    {
+     "label": "Ask about discomfort and routine",
+     "next": "a",
+     "src": "L6847"
+    },
+    {
+     "label": "Offer help with dawn chores",
+     "next": "b",
+     "src": "L6849"
+    },
+    {
+     "label": "Dismiss the complaints",
+     "next": "c",
+     "src": "L6851"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder withdraws and misses a gathering; a friend later apologizes.",
+   "src": "L6852"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "A healer notices aching joints and helps the elder rest more comfortably.",
+   "src": "L6848",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6848"
+    },
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 15,
+     "max": 30,
+     "src": "L6848"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "A healer notices aching joints and helps the elder rest more comfortably.",
+   "src": "L6848",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6848"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The elder accepts later mornings and feels less exhausted.",
+   "src": "L6850",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 15,
+     "max": 30,
+     "src": "L6850"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The elder accepts later mornings and feels less exhausted.",
+   "src": "L6850"
+  }
+ }
+}

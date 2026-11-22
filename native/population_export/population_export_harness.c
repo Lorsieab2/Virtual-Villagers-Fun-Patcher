@@ -93,26 +93,32 @@ struct game {
     unsigned int age_at_conception;
     /* i32; at 0 or below an occupied record is a body awaiting burial. */
     unsigned int health;
+    /* The sex field and its male value (The Lost Children 1 / 2, the later games 0 / 1). */
+    unsigned int sex;
+    int male;
 };
 
 static const struct game GAMES[] = {
     { 2, "Virtual Villagers 2", 0x99F24u, 1, 0u, 0xE48Cu, 256u,
       0x30u, 0x530u, 0x548u, 0x54Cu, 0x564u, 0x18u,
       0x57Du, 0x596u, 0x18u, 0x5B0u, 0x5B4u, 0x5B8u, 0x5BCu,
-      0x5C0u, 0x18u, 0x5E0u, 0x5DCu, 0x540u, 0x52Cu },
+      0x5C0u, 0x18u, 0x5E0u, 0x5DCu, 0x540u, 0x52Cu, 0x538u, 1 },
     { 3, "Virtual Villagers 3", 0x19E110u, 0, 0x14u, 0x1F8Cu, 150u,
       0xF10u, 0xDC4u, 0xDF0u, 0xDF4u, 0xDD4u, 0x19u,
       0xDF8u, 0xE11u, 0x19u, 0xE2Cu, 0xE30u, 0xE34u, 0xE38u,
-      0xE48u, 0x18u, 0xE68u, 0xE64u, 0xE8Cu, 0xE78u },
+      0xE48u, 0x18u, 0xE68u, 0xE64u, 0xE8Cu, 0xE78u, 0xDC8u, 0 },
     { 4, "Virtual Villagers 4", 0x10E568u, 0, 0x44u, 0x2E3Cu, 150u,
       0x1CC4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu, 0x1B9Cu, 0x19u,
       0x1BC0u, 0x1BD9u, 0x19u, 0x1BF4u, 0x1BF8u, 0x1BFCu, 0x1C00u,
-      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu, 0x1C40u },
+      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu, 0x1C40u, 0x1B90u, 0 },
     { 5, "Virtual Villagers 5", 0x154148u, 0, 0x48u, 0x2F44u, 150u,
       0x1CD4u, 0x1B8Cu, 0x1BB8u, 0x1BBCu, 0x1B9Cu, 0x19u,
       0x1BC0u, 0x1BD9u, 0x19u, 0x1BF4u, 0x1BF8u, 0x1BFCu, 0x1C00u,
-      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu, 0x1C40u }
+      0x1C10u, 0x18u, 0x1C30u, 0x1C2Cu, 0x1C4Cu, 0x1C40u, 0x1B90u, 0 }
 };
+
+/* The stand-in companions (kept_values_stub.c) are loaded: the kept values are checked. */
+static int g_kept_stubs;
 
 static void put_int(unsigned char *rec, unsigned int off, int v) {
     *(int *)(rec + off) = v;
@@ -360,6 +366,7 @@ static void run_game(const struct game *g, write_population_t write) {
     put_int(rec, g->age, 240);
     put_int(rec, g->head, 7);
     put_int(rec, g->body, 3);
+    put_int(rec, g->sex, g->male);          /* male now; born female (the stand-in companion says) */
     put_name(rec, g->parent_father_name, "Budi", g->parent_name_cap);
     put_name(rec, g->parent_mother_name, "Iriatai", g->parent_name_cap);
     put_int(rec, g->parent_father_head, 11);
@@ -375,6 +382,7 @@ static void run_game(const struct game *g, write_population_t write) {
     put_int(rec, g->age, 900);
     put_int(rec, g->head, 11);
     put_int(rec, g->body, 23);
+    put_int(rec, g->sex, g->male);
     put_name(rec, g->parent_father_name, "", g->parent_name_cap);
     put_name(rec, g->parent_mother_name, "", g->parent_name_cap);
     /* New Believers: the founder is a Heathen (faction byte +0x1CEC), an
@@ -481,6 +489,26 @@ static void run_game(const struct game *g, write_population_t write) {
                       "%s: the villager being reanimated stays a look-alike", which);
                 CHECK(log != NULL && strstr(log, "Standin") == NULL,
                       "%s: Reanimate's stand-in corpse is not", which);
+            }
+            /* What the patcher keeps outside the save (population_export.c write_kept_values; the owner,
+               2026-11-17), in BOTH rosters, each line only when it says something. */
+            if (log != NULL && g_kept_stubs) {
+                block = villager_block(log, 1, &length);
+                CHECK(block != NULL && block_has(block, length, "  Sex at birth: Female"),
+                      "%s: Kiwi, male now and born female: Sex at birth", which);
+                CHECK(block != NULL && block_has(block, length, "  Gender presentation: Other sex's look"),
+                      "%s: Kiwi's gender presentation", which);
+                CHECK(block != NULL && block_has(block, length, "  Head look: Old"), "%s: Kiwi's head look", which);
+                CHECK(block != NULL && block_has(block, length, "  Story traits: mute"),
+                      "%s: Kiwi's story trait", which);
+                block = villager_block(log, 2, &length);
+                CHECK(block != NULL && block_has(block, length, "  Head look: Young"), "%s: Budi's head look", which);
+                CHECK(block != NULL && !block_has(block, length, "Sex at birth")
+                      && !block_has(block, length, "Gender presentation") && !block_has(block, length, "Story traits"),
+                      "%s: Budi: nothing else (born as he is, his own look, no trait)", which);
+                block = villager_block(log, 4, &length);
+                CHECK(block != NULL && !block_has(block, length, "Head look") && !block_has(block, length, "Sex at birth"),
+                      "%s: Zea: none of the lines (Auto prints nothing)", which);
             }
             free(log);
         }
@@ -593,6 +621,34 @@ static void run_game(const struct game *g, write_population_t write) {
           "roster: her OWN father is still printed");
 
     free(log);
+
+    /* THE FOUNDER SCREEN (The Tree of Life, New Believers; the live round 7, 2026-11-21): the game's
+       autosave runs while "Select 5 villagers" is open (the save manager's scene 3), when the records
+       hold the founders chosen so far and the candidate on show, whom a Reject replaces.  That save
+       adds no Village History snapshot -- append-only, it could never be taken back -- while the
+       Population, rewritten at every save, is written as always.  Scene 0 (the village) appends. */
+    if (g->id == 4 || g->id == 5) {
+        static unsigned char manager[0x18000];
+        const unsigned int manager_rva = g->id == 4 ? 0xCB51Cu : 0xDACE0u;
+        const unsigned int scene = g->id == 4 ? 0x171A8u : 0x17E1Cu;
+        *(unsigned char **)(image + manager_rva) = manager;
+        *(unsigned int *)(manager + scene) = 3u;
+        remove_log();
+        CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4,
+              "founder screen open: the Population is written");
+        log = read_log(LOG_ROSTER);
+        CHECK(log != NULL && strstr(log, "Name: Kiwi") != NULL, "founder screen open: the roster lists the records");
+        free(log);
+        log = read_log(LOG_HISTORY);
+        CHECK(log == NULL, "founder screen open: no Village History snapshot is appended");
+        free(log);
+        *(unsigned int *)(manager + scene) = 0u;
+        CHECK(write(g->id, image, "Village: Harness (Save 1)\n") == 4, "the village: written");
+        log = read_log(LOG_HISTORY);
+        CHECK(log != NULL && strstr(log, "Name: Kiwi") != NULL, "the village: the History snapshot is appended");
+        free(log);
+        *(unsigned char **)(image + manager_rva) = NULL;
+    }
     remove_log();
     VirtualFree(image, 0, MEM_RELEASE);
 }
@@ -696,6 +752,19 @@ static void run_vv1(write_population_t write) {
     VirtualFree(image, 0, MEM_RELEASE);
 }
 
+#define SMALL_STACK (256u * 1024u)
+static write_population_t g_write;
+
+static DWORD WINAPI run_all(LPVOID unused) {
+    size_t i;
+    (void)unused;
+    for (i = 0; i < sizeof GAMES / sizeof GAMES[0]; ++i) {
+        run_game(&GAMES[i], g_write);
+    }
+    run_vv1(g_write);
+    return 0;
+}
+
 int main(int argc, char **argv) {
     harness_ldw_tree_begin();   /* first: leaves Documents\LDW as it found it */
     HMODULE dll;
@@ -715,10 +784,38 @@ int main(int argc, char **argv) {
         printf("WriteVillagePopulation is not exported\n");
         return 2;
     }
-    for (i = 0; i < sizeof GAMES / sizeof GAMES[0]; ++i) {
-        run_game(&GAMES[i], write);
+    /* argv[2]: the folder of the stand-in companions (kept_values_stub.c), loaded so the exporter finds them with
+       GetModuleHandleA as it finds the real ones in the game. */
+    if (argc >= 3) {
+        static const char *const STUBS[3] = {
+            "VVFP Gender Presentation.dll", "VVFP Head Look.dll", "VVFP Story Upgrades.dll"
+        };
+        char path[MAX_PATH];
+        int k, loaded = 0;
+        for (k = 0; k < 3; ++k) {
+            _snprintf(path, sizeof path, "%s\\%s", argv[2], STUBS[k]);
+            path[sizeof path - 1] = '\0';
+            loaded += LoadLibraryA(path) != NULL;
+        }
+        CHECK(loaded == 3, "the three stand-in companions are loaded");
+        g_kept_stubs = loaded == 3;
     }
-    run_vv1(write);
+    /* Every export runs on a thread whose stack is only SMALL_STACK: the game calls the roster from inside its
+       save, already deep in its own 1 MB stack (The Lost Children's save routine alone holds a 193 KB frame).
+       The exporter once kept about 700 KB of path buffers on the stack and overflowed here. */
+    g_write = write;
+    {
+        HANDLE thread = CreateThread(NULL, SMALL_STACK, run_all, NULL, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+        DWORD code = 0;
+        CHECK(thread != NULL, "start the small-stack thread");
+        if (thread != NULL) {
+            WaitForSingleObject(thread, INFINITE);
+            GetExitCodeThread(thread, &code);
+            CloseHandle(thread);
+            CHECK(code == 0, "the exports ran within a %u KB stack", SMALL_STACK / 1024u);
+        }
+    }
+    (void)i;
     printf("\n%d failure(s)\n", g_failures);
     return g_failures ? 1 : 0;
 }

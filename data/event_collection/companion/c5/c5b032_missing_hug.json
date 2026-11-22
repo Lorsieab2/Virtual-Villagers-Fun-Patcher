@@ -1,0 +1,153 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Hug",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b032_missing_hug",
+  "source": "companion",
+  "lines": [
+   1415,
+   1420
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1415",
+  "ledger": [
+   {
+    "src": "L1417",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1420",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A child asks why a usually affectionate caregiver seems distant today.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "child"
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A child asks why a usually affectionate caregiver seems distant today.",
+   "src": "L1416",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They make time for a quiet cuddle.",
+   "src": "L1419",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1419"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The caregiver explains they are tired.",
+   "src": "L1418",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1418"
+    },
+    {
+     "do": "health_change",
+     "role": "caregiver",
+     "min": -30,
+     "max": -15,
+     "src": "L1418"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The caregiver explains they are tired.",
+   "src": "L1418",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "caregiver",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L1418"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

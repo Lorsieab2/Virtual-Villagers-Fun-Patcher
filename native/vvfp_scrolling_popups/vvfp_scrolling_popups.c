@@ -1,0 +1,2959 @@
+/* VVFP Scrolling Popups -- "Scrolling Popups" (vv3_scrolling_popups, vv4_scrolling_popups, vv5_scrolling_popups).
+
+   WHAT (the owner, 2026-11-12: "Let the patcher handle it").  A popup whose text is taller than the screen allows,
+   or has a line wider than its box (an unbroken long word), gets a vertical and/or a horizontal scrollbar drawn
+   with the game's own scrollbar pictures, so the player can read all of it: the mouse wheel, the arrows, dragging
+   the knob and clicking the track scroll it.  A popup whose text fits is drawn exactly as the game draws it (the
+   same single call, nothing else).  Stage 1: the island-event dialog of The Secret City, The Tree of Life and New
+   Believers (native/shared/scroll_popup.h has the rows; more popups and games are rows to add).  The dialog's text
+   field keeps the game's 2000-byte size: a longer text (the owner, 2026-11-16: "practically unlimited") is kept whole
+   by the companion that shows it, the field holding its start, and is measured and drawn whole here
+   (native/shared/one_popup.h VvfpPopupWholeText); a title wider than the box wraps; a choice's row grows to its
+   label's lines.
+
+   A WORD WIDER THAN THE BOX (a long unbroken word).  The game's justified paragraph never places such a word: it
+   backs off to an empty line and tries it again, for ever, so the stock game hangs on it.  The constructor's
+   measures of the dialog's texts (scroll_popup.h measure_sites) call the companion too, which gives the paragraph
+   the width of the widest word when that is wider than the box; the draw wraps at that same width and the box
+   scrolls sideways.
+
+   HOW.  After every site's stock bytes (and the instructions they rely on) are checked -- all of them, or none
+   (native/shared/install_sites.h) -- three calls in the game's code call this companion instead:
+     * the dialog constructor's `call sizer` (scroll_popup.h size_site): the panel's height is capped to the screen
+       less a margin, in the call's argument and in edi, the register the constructor pushed it from and centres the
+       panel's contents by (the game then centres the panel and puts the buttons at its bottom, as always);
+     * the dialog draw's `call justify` (draw_site): the body text is measured; when it fits the box (the panel's
+       bottom less the room the dialog keeps for its buttons) the stock call is made unchanged; otherwise the text
+       is drawn under a clip rectangle set to the box (ctx+0x60, restored after), moved by the scroll position, and
+       the scrollbars are drawn with the game's own pictures (VerticalScrollTrack tiled under a clip, the knob,
+       Up/DownArrowButton; WideSlider2 and sliderhandle for the horizontal bar);
+     * the event pump's `call` of the mouse dispatcher (mouse_site): an event on a scrollbar of the dialog drawn this
+       moment (or a knob drag in progress) is used here and not passed on; every other event goes to the game's
+       dispatcher unchanged, so the dialog's buttons work as before.
+   The island-event dialog's call of the villager's picture (scroll_popup.h portrait_site) calls the companion too, so
+   the picture scrolls with the text: moved with a scrolled body (A New Home, The Lost Children; any scrolled
+   encounter, as its title and text already move), or, in a one-popup event of the later three, drawn by the text's
+   draw first in the scrolled box, which then starts under the title.
+   The wheel: an SDL event watch (SDL_AddEventWatch, installed the first time a scrollbar is drawn) counts
+   SDL_MOUSEWHEEL; the next draw scrolls the dialog under the mouse: up and down, or sideways when the mouse is on
+   the horizontal bar or the popup has no vertical bar; a sideways wheel (tilt, touchpad: the event's x) always
+   scrolls sideways.  Every covered panel can show both bars at once (the owner, 2026-11-12: "for everything put
+   horizontal and vertical scrollbars"; tests/test_scrolling_popups.py BothWays).  The scroll position starts at the top and
+   starts over whenever the text changes (the result replacing the question).  No keyboard scrolling (Copy and
+   Paste owns the key events).
+
+   SAFETY.  Runs on the game's thread inside the game's draw and event code; reads the dialog's own fields, writes
+   only the clip rectangle (restored) and its own state; nothing is saved.  A fault falls back to the stock call.
+   No debug output. */
+#include <windows.h>
+#include "../shared/install_sites.h"
+#include "../shared/scroll_popup.h"
+#include "../shared/one_popup.h"
+
+#define SP_GAME_BASE 0x400000u
+#define SP_MARGIN 16              /* kept free above and below a capped panel */
+#define SP_GAP 6                  /* between the text box and the vertical bar */
+#define SP_HBAR_GAP 4             /* between the text and the horizontal bar */
+#define SP_WHEEL_LINES 3
+#define SP_TRACK_CAP 8            /* VerticalScrollTrack's rounded ends, kept at the track's two ends */
+#define SP_SLIDER_CAP 16          /* WideSlider2's rounded ends, kept at the bar's two ends */
+#define SP_RECENT_MS 500u         /* a dialog drawn this recently takes the mouse */
+
+typedef int (__fastcall *sp_justify_fn)(void *holder, void *edx, const char *text, int x, int y, int width,
+                                        unsigned int colour, void *font, int measure_only);
+typedef int (__fastcall *sp_nbyte_fn)(void *ctx, void *edx, const char *text, int bytes, int x, int y,
+                                      int measure_only, unsigned int colour, void *font);
+typedef const unsigned char *(__stdcall *sp_lookup_fn)(unsigned int id);
+typedef void *(__fastcall *sp_frame_image_fn)(void *strip, void *edx, const char *file, int columns, int rows);
+typedef void (__fastcall *sp_frame_draw_fn)(void *holder, void *edx, void *strip, int x, int y, int frame, float a);
+typedef int (__fastcall *sp_vbool_fn)(void *self, void *edx);
+typedef int (__fastcall *sp_vint_fn)(void *self, void *edx);
+typedef int (__cdecl *sp_add_watch_fn)(void *callback, void *userdata);
+
+typedef struct sp_picture {
+    void *image;
+    int w, h;                     /* one frame */
+    int tx, ty, tw, th;           /* its drawn part (the rest is transparent): left, top, width, height */
+    unsigned char strip[0x40];    /* the game's frame strip (0x34 bytes), built here */
+} sp_picture;
+
+typedef struct sp_view {         /* the dialog drawn last, where its parts are */
+    unsigned char *popup;
+    DWORD tick;
+    int panel_l, panel_t, panel_r, panel_b;
+    int box_x, box_y, box_w, box_h; /* the visible text box */
+    int content_w, content_h;
+    int vbar, hbar;               /* shown */
+    int vx, vy, vh;               /* vertical bar: x, top, height (arrows included) */
+    int arrow_h, knob_w, knob_h, track_w;
+    int hx, hy, hw, hh;           /* horizontal bar */
+    int handle_w, handle_h;
+    int line;                     /* one line's height: an arrow's step */
+} sp_view;
+
+static const sp_game *g_game;
+static int g_game_number;
+static int g_installed;
+static sp_view g_view;
+static int g_sx, g_sy;            /* the scroll position */
+static unsigned char *g_state_popup;
+static unsigned int g_state_hash;
+static int g_mx = -1, g_my = -1;  /* the mouse, as the dispatcher last saw it */
+static int g_drag;                /* 0, 1 the vertical knob, 2 the horizontal handle */
+static int g_drag_offset;
+static int g_pressed;             /* 0, 1 the up arrow, 2 the down arrow (drawn pressed), 3 a track */
+static volatile LONG g_wheel;
+static volatile LONG g_wheel_x;   /* the wheel's sideways notches (SDL_MouseWheelEvent x, + to the right) */
+static int g_watch;               /* 0 not tried, 1 installed, -1 no SDL */
+static sp_picture g_up, g_down, g_track, g_knob, g_wide, g_handle;
+static int g_art;                 /* 0 not loaded, 1 loaded, -1 missing */
+static int g_bars = 1;            /* sp_scroll draws the bars (a tombstone's lines after its first: not again) */
+#ifdef VVFP_TEST
+static volatile LONG g_scroll_draws;   /* the test build only: dialog bodies drawn scrolled */
+#endif
+
+/* ---- The game's helpers ------------------------------------------------------------------------------------ */
+
+static void *sp_holder(void) {
+    return *(void **)(UINT_PTR)g_game->ctx_global;
+}
+
+static int *sp_clip(void *holder) {
+    unsigned char *ctx = holder != NULL ? *(unsigned char **)holder : NULL;
+    return ctx != NULL ? (int *)(ctx + 0x60) : NULL;
+}
+
+static int sp_screen_w(void) {
+    void *holder = sp_holder();
+    unsigned char *ctx = holder != NULL ? *(unsigned char **)holder : NULL;
+    int w = ctx != NULL ? *(int *)(ctx + 0x08) : 0;
+    return w > 0 && w <= 4096 ? w : g_game->screen_w;
+}
+
+static int sp_screen_h(void) {
+    void *holder = sp_holder();
+    unsigned char *ctx = holder != NULL ? *(unsigned char **)holder : NULL;
+    int h = ctx != NULL ? *(int *)(ctx + 0x0C) : 0;
+    return h > 0 && h <= 4096 ? h : g_game->screen_h;
+}
+
+static int sp_measure(void *holder, const char *text, int width, unsigned int colour, void *font) {
+    return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, text, 0, 0, width, colour, font, 1);
+}
+
+/* The widest word of `text` as the game's justified paragraph cuts it into words: spaces and line breaks part
+   them, and a word also ends after '.' (not before another '.'), after ',' (not before a digit) and after '?'.
+   A line holds one word wider than the box, or words that fit; so the widest line is the box or this. */
+static int sp_widest_word(void *holder, const char *text, unsigned int colour, void *font) {
+    sp_nbyte_fn nbyte = (sp_nbyte_fn)(UINT_PTR)g_game->nbyte;
+    void *ctx = *(void **)holder;
+    const char *p = text, *start;
+    int widest = 0;
+    while (*p != 0) {
+        while (*p == ' ' || *p == '\n') {
+            ++p;
+        }
+        if (*p == 0) {
+            break;
+        }
+        start = p;
+        for (;;) {
+            char c = *p;
+            if (c == 0 || c == ' ' || c == '\n') {
+                break;
+            }
+            ++p;
+            if ((c == '.' && *p != '.') || (c == ',' && !(*p >= '0' && *p <= '9')) || c == '?') {
+                break;
+            }
+        }
+        {
+            int w = nbyte(ctx, NULL, start, (int)(p - start), 0, 0, 1, colour, font);
+            if (w > widest) {
+                widest = w;
+            }
+        }
+    }
+    return widest;
+}
+
+static unsigned int sp_hash(const char *text) {
+    unsigned int h = 2166136261u;
+    while (*text != 0) {
+        h = (h ^ (unsigned char)*text++) * 16777619u;
+    }
+    return h;
+}
+
+static int sp_vcall_int(void *object, unsigned int slot) {
+    void **vtable = *(void ***)object;
+    return ((sp_vint_fn)vtable[slot / 4])(object, NULL);
+}
+
+typedef int (__stdcall *sp_room_fn)(const void *popup);
+
+/* The room More Island Events' four-answer popup (The Troubling Signs) takes beyond the game's two buttons
+   ("VVFP More Island Events.dll" VvfpMoreIslandEventsButtonRoom): 0 for every other popup, or without it. */
+static int sp_more_room(const unsigned char *popup) {
+    HMODULE module = GetModuleHandleA("VVFP More Island Events.dll");
+    sp_room_fn room = module != NULL ? (sp_room_fn)(void *)GetProcAddress(module, "VvfpMoreIslandEventsButtonRoom")
+                                     : NULL;
+    int r = room != NULL ? room(popup) : 0;
+    /* ... or a Custom Island Event question's third and fourth answers ("VVFP Story Upgrades.dll"
+       VvfpStoryButtonRoom, the same shared popup: native/shared/vvfp_multi_answer.h). */
+    if (r <= 0) {
+        module = GetModuleHandleA("VVFP Story Upgrades.dll");
+        room = module != NULL ? (sp_room_fn)(void *)GetProcAddress(module, "VvfpStoryButtonRoom") : NULL;
+        r = room != NULL ? room(popup) : 0;
+    }
+    return r > 0 && r < 2048 ? r : 0;
+}
+
+/* The room the class keeps below its text for its buttons; -1 when it cannot be told. */
+static int sp_reserve(const sp_class *c, unsigned char *popup) {
+    if (c->reserve == SP_RESERVE_EVENT_DIALOG) {
+        void *event = *(void **)(popup + c->event);
+        void *button;
+        if (event == NULL) {
+            return -1;
+        }
+        if ((sp_vcall_int(event, 0x10) & 0xFF) != 0) {
+            button = *(void **)(popup + c->choice_button);
+            return button != NULL ? 4 * sp_vcall_int(button, 0x10) + sp_more_room(popup) : -1;
+        }
+        button = *(void **)(popup + c->ok_button);
+        if (button == NULL) {
+            return -1;
+        }
+        {
+            int b5 = 5 * sp_vcall_int(button, 0x10);
+            return (b5 - (b5 >> 31)) >> 1;          /* the game's (5 x h) / 2: cdq, sub, sar */
+        }
+    }
+    return -1;
+}
+
+/* ---- One popup per island event (native/shared/one_popup.h) ---------------------------------------------------
+
+   A popup a companion runs a whole island event in: its text, then its choices drawn here as rows at the end of the
+   text, inside the scrolled content (both bars scroll them), each hit-tested at its scrolled place.  Its panel is
+   asked for the text, the rows and the room the companion's OK keeps below them (capped to the screen as any), and
+   it is always drawn through sp_scroll (bars only when needed) so the rows are drawn and clicked. */
+
+typedef struct sp_op {
+    int on;                       /* the popup asked about is a one-popup event */
+    op_rows r;
+    op_pick_fn pick;
+} sp_op;
+static sp_op g_op;                /* the popup sp_op_query asked about last */
+static sp_picture g_row;          /* the game's answer-button picture */
+static int g_row_art;             /* 0 not loaded, 1 loaded, -1 missing */
+typedef struct sp_op_draw {       /* the rows sp_scroll draws after the content (on: 1) */
+    int on, top;                  /* `top`: the first row's top, below the content's top */
+    int cx;                       /* the rows' centre (screen x) when the content is no wider than the box (0: the
+                                     box's centre) */
+    void *font;
+    unsigned int colour;
+} sp_op_draw;
+static sp_op_draw g_op_draw;
+/* Where the rows of the view's popup were drawn last (screen), and the choice pressed (1 + its index). */
+static int g_rows_n, g_row_x, g_row_y0, g_row_w, g_row_h, g_row_step;
+static op_pick_fn g_rows_pick;
+static int g_row_pressed;
+
+static int sp_op_query(const unsigned char *popup) {
+    static const char *const MODULES[2] = { "VVFP Story Upgrades.dll", "VVFP More Island Events.dll" };
+    int k;
+    g_op.on = 0;
+    for (k = 0; k < 2 && popup != NULL; ++k) {
+        HMODULE module = GetModuleHandleA(MODULES[k]);
+        op_rows_fn rows = module != NULL ? (op_rows_fn)(void *)GetProcAddress(module, "VvfpOnePopupRows") : NULL;
+        ZeroMemory(&g_op.r, sizeof g_op.r);
+        g_op.r.size = (int)sizeof g_op.r;
+        if (rows != NULL && rows(popup, &g_op.r) == 1) {
+            g_op.pick = (op_pick_fn)(void *)GetProcAddress(module, "VvfpOnePopupPick");
+            if (g_op.r.rows < 0 || g_op.r.rows > OP_MAX_ROWS || g_op.pick == NULL) {
+                g_op.r.rows = 0;
+            }
+            if (g_op.r.reserve < 0 || g_op.r.reserve > 1024) {
+                g_op.r.reserve = 0;
+            }
+            g_op.on = 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The room a one-popup event keeps below its content for OK: the companion's (5/2 of OK's height, the single-OK
+   layout's room, OK 0x14 above the panel's bottom), or more when the dialog was made with two choices -- the
+   constructor then puts OK 2 1/2 x the CHOICE button's height above the bottom (The Secret City 0x41993D, The Tree
+   of Life 0x417DE2, New Believers 0x418666), and the answer picture is taller than OK's: 3 x that height keeps the
+   text half a button above OK, as the game keeps it above its first choice. */
+static int sp_op_reserve(const sp_class *c, unsigned char *popup) {
+    int r = g_op.r.reserve;
+    if (c->reserve == SP_RESERVE_EVENT_DIALOG) {
+        void *event = *(void **)(popup + c->event);
+        void *button = *(void **)(popup + c->choice_button);
+        if (event != NULL && button != NULL && (sp_vcall_int(event, 0x10) & 0xFF) != 0) {
+            int h = sp_vcall_int(button, 0x10);
+            if (h > 0 && h < 200 && 3 * h > r) {
+                r = 3 * h;
+            }
+        }
+    }
+    return r;
+}
+
+static int sp_load(sp_picture *pic, const sp_art *art);
+static int sp_art_ready(void);
+static int sp_row_ready(void);
+
+/* ---- The villager's picture scrolls with the text (scroll_popup.h portrait_site) ------------------------------
+
+   A New Home, The Lost Children: the dialog's whole body is drawn moved (sp_draw_shifted); the picture, drawn at a
+   place the constructor kept (x 0x16D, y +0x68) rather than by the moved fields, is moved by the same amount here,
+   under the same clip.  The later three: in a one-popup event the picture's call is held (not drawn) and the text's
+   draw (sp_body) draws it first in the scrolled content, between the title and the text; when that draw is not
+   scrolled after all, the picture is drawn where the game put it, just before the text. */
+static unsigned char *g_shift_dialog;   /* the body being drawn moved, and by how much */
+static int g_shift_dx, g_shift_dy;
+typedef struct sp_portrait {
+    int pending;
+    const unsigned char *popup;
+    void *self;                         /* the call's ecx */
+    unsigned int args[8];
+} sp_portrait;
+static sp_portrait g_portrait;
+
+/* The game's portrait draw with `args` (thiscall; it pops them). */
+static void sp_portrait_call(void *self, const unsigned int *args) {
+    unsigned int fn = g_game->portrait_fn;
+    int n = g_game->portrait_args;
+    if (fn == 0 || n <= 0 || n > 8) {
+        return;
+    }
+    __asm {
+        mov ecx, n
+        mov edx, args
+    push_one:
+        push dword ptr [edx + ecx * 4 - 4]
+        loop push_one
+        mov ecx, self
+        call fn
+    }
+}
+
+/* From the stub at portrait_site: 1 the game draws it now (its arguments perhaps moved), 0 it is held. */
+static int __stdcall sp_portrait_at(void *self, const unsigned char *popup, unsigned int *args) {
+    __try {
+        if (g_game->classes == NULL) {
+            if (popup != NULL && popup == g_shift_dialog) {
+                args[1] += (unsigned int)g_shift_dx;         /* (index, x, y) */
+                args[2] += (unsigned int)g_shift_dy;
+            }
+            return 1;
+        }
+        g_portrait.pending = 0;
+        if (popup != NULL && sp_op_query(popup) && sp_art_ready()) {
+            int k;
+            g_portrait.popup = popup;
+            g_portrait.self = self;
+            for (k = 0; k < g_game->portrait_args && k < 8; ++k) {
+                g_portrait.args[k] = args[k];
+            }
+            g_portrait.pending = 1;
+            return 0;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        g_portrait.pending = 0;
+    }
+    return 1;
+}
+
+static unsigned int g_portrait_fn, g_portrait_pop;
+
+__declspec(naked) static void sp_portrait_stub(void) {
+    __asm {
+        push ecx
+        lea eax, [esp + 8]
+        push eax                            /* the arguments */
+        push esi                            /* the dialog */
+        push ecx                            /* the call's ecx */
+        call sp_portrait_at
+        pop ecx
+        test eax, eax
+        jz held
+        jmp dword ptr [g_portrait_fn]
+    held:
+        pop eax                             /* the return address */
+        add esp, dword ptr [g_portrait_pop]
+        jmp eax
+    }
+}
+
+/* The held picture of `popup`, drawn where the game put it, moved by (dx, dy). */
+static void sp_portrait_draw(const unsigned char *popup, int dx, int dy) {
+    unsigned int a[8];
+    int k;
+    if (!g_portrait.pending || g_portrait.popup != popup) {
+        return;
+    }
+    g_portrait.pending = 0;
+    for (k = 0; k < 8; ++k) {
+        a[k] = g_portrait.args[k];
+    }
+    a[0] += (unsigned int)dx;                               /* (x, y, ...) */
+    a[1] += (unsigned int)dy;
+    sp_portrait_call(g_portrait.self, a);
+}
+
+static int sp_row_ready(void) {
+    if (g_row_art == 0) {
+        g_row_art = sp_load(&g_row, &g_game->row) ? 1 : -1;
+    }
+    return g_row_art == 1;
+}
+
+/* The rows below the text: half a row's height of space, then each row a quarter of a row's height below the last
+   (a one-line row: 1.25 rows' heights from the top of the one before). */
+static int sp_rows_gap(void) {
+    return g_row.h / 2;
+}
+
+static int sp_rows_space(void) {
+    return g_row.h / 4;
+}
+
+typedef int (__fastcall *sp_label_w_fn)(void *font, void *edx, const char *text, float scale);
+typedef int (__fastcall *sp_label_h_fn)(void *font, void *edx, const char *text);
+
+/* ---- Lines that fit a width (multi-line choices; long titles) --------------------------------------------------
+
+   A text broken at its spaces into lines no wider than `width` in `font` (the game's own width of a text), and at
+   its line breaks; a word wider than the width is a line of its own (it runs past: readable, and the box scrolls
+   sideways over it).  Each line is handed over NUL-ended (copied: the text itself is never written), with its index
+   and width.  Returns the lines. */
+typedef void (*sp_line_fn)(void *data, const char *line, int index, int width);
+
+#define SP_LINE_BYTES 16384        /* one line's bytes (a longer unbroken word is measured and drawn by its start) */
+static char g_wrap_line[SP_LINE_BYTES];
+
+static int sp_text_w(void *font, const char *text) {
+    return ((sp_label_w_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
+}
+
+/* text[s, e) as a NUL-ended line (g_wrap_line). */
+static const char *sp_line_of(const char *s, const char *e) {
+    int n = (int)(e - s);
+    if (n > SP_LINE_BYTES - 1) {
+        n = SP_LINE_BYTES - 1;
+    }
+    CopyMemory(g_wrap_line, s, (SIZE_T)n);
+    g_wrap_line[n] = 0;
+    return g_wrap_line;
+}
+
+static int sp_wrap(void *font, const char *text, int width, sp_line_fn fn, void *data, int *widest) {
+    int lines = 0;
+    const char *p = text;
+    if (widest != NULL) {
+        *widest = 0;
+    }
+    if (font == NULL || text == NULL || g_game->width_fn == 0) {
+        return 0;
+    }
+    for (;;) {
+        const char *s = p, *e = p;
+        int w = 0;
+        for (;;) {                          /* the words that fit from s */
+            const char *q = e, *we;
+            int tw;
+            while (*q == ' ') {
+                ++q;
+            }
+            we = q;
+            while (*we != 0 && *we != ' ' && *we != '\n') {
+                ++we;
+            }
+            if (we == q) {
+                break;                      /* the line's end: the text's end or a line break */
+            }
+            tw = sp_text_w(font, sp_line_of(s, we));
+            if (e != s && tw > width) {
+                break;                      /* the next word starts the next line */
+            }
+            e = we;
+            w = tw;
+            if (tw > width) {
+                break;                      /* one word wider than the line: alone on it */
+            }
+        }
+        if (fn != NULL) {
+            fn(data, sp_line_of(s, e), lines, w);
+        }
+        if (widest != NULL && w > *widest) {
+            *widest = w;
+        }
+        ++lines;
+        p = e;
+        while (*p == ' ') {
+            ++p;
+        }
+        if (*p == '\n') {
+            ++p;
+        } else if (*p == 0) {
+            break;
+        }
+    }
+    return lines;
+}
+
+/* A choice's words: whole (op_rows.label_text) when its companion handed them over so, else as op_rows holds them. */
+static const char *sp_label(int k) {
+    const char *t = g_op.r.label_text[k];
+    return t != NULL ? t : g_op.r.labels[k];
+}
+
+/* One line's height in `font`. */
+static int sp_line_h(void *font) {
+    int h = font != NULL && g_game->height_fn != 0 ? ((sp_label_h_fn)(UINT_PTR)g_game->height_fn)(font, NULL, "X") : 0;
+    return h > 0 && h < 512 ? h : 16;
+}
+
+#define SP_ROW_PAD 10              /* a label's lines keep this far from its row's sides */
+
+/* The rows of the choices asked now laid out from 0 (the first row's top): each row's top and height (a label of n
+   lines: n lines and the room a one-line row keeps above and below its line), and the label's lines and widest
+   line.  Returns the rows' height, first top to last bottom. */
+static int g_lay_top[OP_MAX_ROWS], g_lay_h[OP_MAX_ROWS], g_lay_lines[OP_MAX_ROWS], g_lay_wide[OP_MAX_ROWS];
+
+static int sp_rows_layout(void *font) {
+    int k, y = 0, lh = sp_line_h(font), margin = g_row.h > lh ? g_row.h - lh : 0;
+    int width = g_row.w - 2 * SP_ROW_PAD > 16 ? g_row.w - 2 * SP_ROW_PAD : 16;
+    for (k = 0; k < g_op.r.rows && k < OP_MAX_ROWS; ++k) {
+        int lines = sp_wrap(font, sp_label(k), width, NULL, NULL, &g_lay_wide[k]);
+        g_lay_lines[k] = lines > 0 ? lines : 1;
+        g_lay_h[k] = g_lay_lines[k] <= 1 ? g_row.h : g_lay_lines[k] * lh + margin;
+        if (g_lay_h[k] < g_row.h) {
+            g_lay_h[k] = g_row.h;
+        }
+        g_lay_top[k] = y;
+        y += g_lay_h[k] + sp_rows_space();
+    }
+    return k > 0 ? y - sp_rows_space() : 0;
+}
+
+static int sp_rows_h(void *font) {
+    return g_op.r.rows > 0 && sp_row_ready() ? sp_rows_gap() + sp_rows_layout(font) : 0;
+}
+
+/* The widest row: its picture, or a line of its label that is wider (one word wider than the row: a label may run
+   past its button while it stays readable, the owner 2026-11-12). */
+static int sp_rows_w(void *font) {
+    int w = sp_row_ready() ? g_row.w : 0, k;
+    if (font == NULL || g_game->width_fn == 0 || g_op.r.rows <= 0 || w <= 0) {
+        return w;
+    }
+    sp_rows_layout(font);
+    for (k = 0; k < g_op.r.rows && k < OP_MAX_ROWS; ++k) {
+        if (g_lay_wide[k] + 2 * SP_ROW_PAD > w) {
+            w = g_lay_wide[k] + 2 * SP_ROW_PAD;
+        }
+    }
+    return w;
+}
+
+static unsigned int sp_row_colour(void) {
+    unsigned int c = 0xFF000000u;
+    if (g_game->row_colour_va != 0) {
+        __try {
+            c = *(const unsigned int *)(UINT_PTR)g_game->row_colour_va;
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            c = 0xFF000000u;
+        }
+    }
+    return c;
+}
+
+static int sp_row_at(int x, int y);
+static void sp_frame_at(void *holder, const struct sp_picture *p, int x, int y, int frame);
+typedef void (__fastcall *sp_text_draw_fn)(void *holder, void *edx, const char *text, int x, int y,
+                                           unsigned int colour, void *font);
+
+static void sp_draw_fitted(void *holder, int *clip, const int *old, const struct sp_picture *p, int frame, int x,
+                           int y, int w, int h, int capx, int capy);
+static int g_rows_top[OP_MAX_ROWS], g_rows_hgt[OP_MAX_ROWS], g_rows_lines[OP_MAX_ROWS];
+static void sp_clip_to(int *clip, const int *old, int l, int t, int r, int b);
+
+/* A row's picture made `h` tall (its whole width at x): its top and bottom `cap` pixels kept, its middle repeated
+   as often as the height needs (never a fixed count of pieces: a label of thousands of characters makes a row
+   thousands of pixels tall), each piece only where it shows inside `box`. */
+static void sp_draw_tall(void *holder, int *clip, const int *box, const struct sp_picture *p, int frame, int x, int y,
+                         int h, int cap) {
+    int step = p->th - 2 * cap, m, bottom = y + h - cap;
+    if (cap <= 0 || step <= 0 || h <= 2 * cap) {
+        sp_draw_fitted(holder, clip, box, p, frame, x, y, p->tw, h, 0, cap);
+        return;
+    }
+    if (y + cap > box[1] && y < box[3]) {
+        sp_clip_to(clip, box, x, y, x + p->tw, y + cap);
+        sp_frame_at(holder, p, x - p->tx, y - p->ty, frame);                  /* the top */
+    }
+    for (m = y + cap; m < bottom; m += step) {
+        int hi = m + step < bottom ? m + step : bottom;
+        if (hi <= box[1] || m >= box[3]) {
+            continue;                                                          /* not in sight */
+        }
+        sp_clip_to(clip, box, x, m, x + p->tw, hi);
+        sp_frame_at(holder, p, x - p->tx, m - cap - p->ty, frame);            /* the middle, again */
+    }
+    if (y + h > box[1] && bottom < box[3]) {
+        sp_clip_to(clip, box, x, bottom, x + p->tw, y + h);
+        sp_frame_at(holder, p, x - p->tx, y + h - p->th - p->ty, frame);      /* the bottom */
+    }
+    clip[0] = box[0]; clip[1] = box[1]; clip[2] = box[2]; clip[3] = box[3];
+}
+
+/* One line of a label, centred on its row (sp_wrap's callback). */
+typedef struct sp_label_line {
+    void *holder;
+    int rx, y0, lh;
+} sp_label_line;
+
+static void sp_draw_label_line(void *data, const char *line, int index, int width) {
+    sp_label_line *d = (sp_label_line *)data;
+    ((sp_text_draw_fn)(UINT_PTR)g_game->text_draw)(d->holder, NULL, line, d->rx + (g_row.w - width) / 2,
+                                                    d->y0 + index * d->lh, g_op_draw.colour, g_op_draw.font);
+}
+
+/* The rows at (x, y0) (the first row's top), centred on `cw` from x, under the clip the caller set (the box): each
+   the game's answer-button picture (taller for a label of several lines: its ends kept, its middle repeated) with
+   its label's lines centred on it. */
+static void sp_draw_rows(void *holder, int x, int y0, int cw) {
+    int k, rx = x + (cw - g_row.w) / 2, hover = sp_row_at(g_mx, g_my), lh = sp_line_h(g_op_draw.font);
+    int *clip = sp_clip(holder), box[4];
+    int width = g_row.w - 2 * SP_ROW_PAD > 16 ? g_row.w - 2 * SP_ROW_PAD : 16;
+    if (clip == NULL) {
+        return;
+    }
+    box[0] = clip[0]; box[1] = clip[1]; box[2] = clip[2]; box[3] = clip[3];
+    sp_rows_layout(g_op_draw.font);
+    g_rows_n = g_op.r.rows;
+    g_row_x = rx;
+    g_row_y0 = y0;
+    g_row_w = g_row.w;
+    g_row_h = g_lay_h[0];
+    g_row_step = g_op.r.rows > 1 ? g_lay_top[1] - g_lay_top[0] : g_row.h + sp_rows_space();
+    g_rows_pick = g_op.pick;
+    for (k = 0; k < g_op.r.rows && k < OP_MAX_ROWS; ++k) {
+        int ry = y0 + g_lay_top[k], rh = g_lay_h[k];
+        int frame = g_row_pressed == k + 1 ? 2 : hover == k ? 1 : 0;
+        sp_label_line line;
+        g_rows_top[k] = ry;
+        g_rows_hgt[k] = rh;
+        g_rows_lines[k] = g_lay_lines[k];
+        if (rh == g_row.h) {
+            sp_frame_at(holder, &g_row, rx, ry, frame);
+        } else {
+            sp_draw_tall(holder, clip, box, &g_row, frame, rx, ry, rh, g_row.h / 3);
+        }
+        line.holder = holder;
+        line.rx = rx;
+        line.lh = lh;
+        line.y0 = ry + (rh - g_lay_lines[k] * lh) / 2;
+        if (g_op_draw.font != NULL && g_game->width_fn != 0) {
+            sp_wrap(g_op_draw.font, sp_label(k), width, sp_draw_label_line, &line, NULL);
+        }
+    }
+}
+
+/* The row under (x, y) (inside the box shown, where rows were drawn last), or -1. */
+static int sp_row_at(int x, int y) {
+    int k;
+    if (g_rows_n <= 0 || g_view.popup == NULL || x < g_view.box_x || x >= g_view.box_x + g_view.box_w
+        || y < g_view.box_y || y >= g_view.box_y + g_view.box_h || x < g_row_x || x >= g_row_x + g_row_w) {
+        return -1;
+    }
+    for (k = 0; k < g_rows_n && k < OP_MAX_ROWS; ++k) {
+        if (y >= g_rows_top[k] && y < g_rows_top[k] + g_rows_hgt[k]) {
+            return k;
+        }
+    }
+    return -1;
+}
+
+/* ---- The art ------------------------------------------------------------------------------------------------ */
+
+static int sp_load(sp_picture *pic, const sp_art *art) {
+    const unsigned char *entry;
+    const char *file;
+    void *loaded;
+    unsigned char *surface;
+    if (art->columns <= 0) {
+        return 0;
+    }
+    if (art->file != NULL) {
+        file = art->file;                   /* a picture file by name, loaded by the game's own loader */
+    } else {
+        if (art->id == 0 || g_game->image_lookup == 0) {
+            return 0;
+        }
+        entry = ((sp_lookup_fn)(UINT_PTR)g_game->image_lookup)(art->id);
+        file = entry != NULL ? *(const char *const *)(entry + 4) : NULL;
+        if (entry == NULL || *(const unsigned int *)entry != art->id || file == NULL) {
+            return 0;
+        }
+    }
+    ZeroMemory(pic->strip, sizeof pic->strip);
+    ((sp_frame_image_fn)(UINT_PTR)g_game->frame_image)(pic->strip, NULL, file, art->columns, 1);
+    loaded = *(void **)(pic->strip + 4);
+    surface = loaded != NULL ? *(unsigned char **)loaded : NULL;
+    if (surface == NULL) {
+        return 0;
+    }
+    pic->image = pic->strip;
+    pic->w = *(int *)(surface + 8) / art->columns;
+    pic->h = *(int *)(surface + 0x0C);
+    pic->tx = 0; pic->ty = 0; pic->tw = pic->w; pic->th = pic->h;
+    if (art->trim[2] > 0 && art->trim[3] > 0 && art->trim[0] + art->trim[2] <= pic->w
+        && art->trim[1] + art->trim[3] <= pic->h) {
+        pic->tx = art->trim[0]; pic->ty = art->trim[1]; pic->tw = art->trim[2]; pic->th = art->trim[3];
+    }
+    return pic->w > 0 && pic->h > 0;
+}
+
+static int sp_art_ready(void) {
+    if (g_art == 0) {
+        g_art = -1;
+        if (sp_load(&g_up, &g_game->up) && sp_load(&g_down, &g_game->down) && sp_load(&g_track, &g_game->track)
+            && sp_load(&g_knob, &g_game->knob) && sp_load(&g_wide, &g_game->wide)
+            && sp_load(&g_handle, &g_game->handle)) {
+            g_art = 1;
+        }
+    }
+    return g_art == 1;
+}
+
+static void sp_picture_at(void *holder, const sp_picture *p, int x, int y) {
+    ((sp_frame_draw_fn)(UINT_PTR)g_game->frame_draw)(holder, NULL, p->image, x, y, 0, 1.0f);
+}
+
+static void sp_frame_at(void *holder, const sp_picture *p, int x, int y, int frame) {
+    ((sp_frame_draw_fn)(UINT_PTR)g_game->frame_draw)(holder, NULL, p->image, x, y, frame, 1.0f);
+}
+
+/* Sets the clip to r intersected with the saved clip `old`. */
+static void sp_clip_to(int *clip, const int *old, int l, int t, int r, int b) {
+    clip[0] = l > old[0] ? l : old[0];
+    clip[1] = t > old[1] ? t : old[1];
+    clip[2] = r < old[2] ? r : old[2];
+    clip[3] = b < old[3] ? b : old[3];
+    if (clip[2] < clip[0]) {
+        clip[2] = clip[0];
+    }
+    if (clip[3] < clip[1]) {
+        clip[3] = clip[1];
+    }
+}
+
+static int sp_max_sy(void) {
+    int m = g_view.content_h - g_view.box_h;
+    return m > 0 ? m : 0;
+}
+
+static int sp_max_sx(void) {
+    int m = g_view.content_w - g_view.box_w;
+    return m > 0 ? m : 0;
+}
+
+static void sp_clamp(void) {
+    if (g_sy > sp_max_sy()) g_sy = sp_max_sy();
+    if (g_sy < 0) g_sy = 0;
+    if (g_sx > sp_max_sx()) g_sx = sp_max_sx();
+    if (g_sx < 0) g_sx = 0;
+}
+
+/* The knob's top for the current position, and the travel it has. */
+static int sp_knob_travel(void) {
+    int t = g_view.vh - 2 * g_view.arrow_h - g_view.knob_h;
+    return t > 0 ? t : 0;
+}
+
+static int sp_knob_y(void) {
+    int m = sp_max_sy();
+    return g_view.vy + g_view.arrow_h + (m > 0 ? (int)((long long)g_sy * sp_knob_travel() / m) : 0);
+}
+
+static int sp_handle_travel(void) {
+    int t = g_view.hw - g_view.handle_w;
+    return t > 0 ? t : 0;
+}
+
+static int sp_handle_x(void) {
+    int m = sp_max_sx();
+    return g_view.hx + (m > 0 ? (int)((long long)g_sx * sp_handle_travel() / m) : 0);
+}
+
+/* One axis of a picture fitted to [from, to) without scaling it: its two ends (`cap` pixels each) at the two ends,
+   and between them its middle -- repeated when the run is longer than the picture, its centre when shorter.  Each
+   piece is [lo, hi) with the picture placed at pos.  Returns the pieces. */
+#define SP_MAX_PIECES 24
+static int sp_pieces(int from, int to, int size, int cap, int *lo, int *hi, int *pos) {
+    int len = to - from, n = 0, m, step;
+    if (len <= 0 || size <= 0) {
+        return 0;
+    }
+    if (len == size) {
+        lo[0] = from; hi[0] = to; pos[0] = from;
+        return 1;
+    }
+    if (2 * cap >= size) {
+        cap = (size - 1) / 2;
+    }
+    if (2 * cap > len) {
+        cap = len / 2;
+    }
+    lo[n] = from; hi[n] = from + cap; pos[n] = from; ++n;                       /* the first end */
+    if (len < size) {
+        lo[n] = from + cap; hi[n] = to - cap; pos[n] = (from + to) / 2 - size / 2; ++n;   /* the picture's centre */
+    } else {
+        step = size - 2 * cap;
+        hi[0] = from + size - cap < to - cap ? from + size - cap : to - cap;
+        for (m = from + size - cap; m < to - cap && n < SP_MAX_PIECES - 1; m += step) {
+            lo[n] = m; hi[n] = m + step < to - cap ? m + step : to - cap; pos[n] = m - cap; ++n;   /* the middle */
+        }
+    }
+    lo[n] = to - cap; hi[n] = to; pos[n] = to - size; ++n;                      /* the last end */
+    return n;
+}
+
+/* A picture's drawn part fitted to the rectangle (x, y, w, h) without scaling it, cut by the clip: its ends kept
+   (capx pixels left and right, capy top and bottom), its middle repeated or cut (sp_pieces) along each axis. */
+static void sp_draw_fitted(void *holder, int *clip, const int *old, const sp_picture *p, int frame, int x, int y,
+                           int w, int h, int capx, int capy) {
+    int xl[SP_MAX_PIECES], xh[SP_MAX_PIECES], xp[SP_MAX_PIECES], yl[SP_MAX_PIECES], yh[SP_MAX_PIECES],
+        yp[SP_MAX_PIECES];
+    int nx = sp_pieces(x, x + w, p->tw, capx, xl, xh, xp), ny = sp_pieces(y, y + h, p->th, capy, yl, yh, yp), i, j;
+    for (j = 0; j < ny; ++j) {
+        for (i = 0; i < nx; ++i) {
+            if (xh[i] > xl[i] && yh[j] > yl[j]) {
+                sp_clip_to(clip, old, xl[i], yl[j], xh[i], yh[j]);
+                sp_frame_at(holder, p, xp[i] - p->tx, yp[j] - p->ty, frame);
+            }
+        }
+    }
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+}
+
+static void sp_draw_bars(void *holder, int *clip, const int *old) {
+    if (g_view.vbar) {
+        int ty = g_view.vy + g_view.arrow_h, tb = g_view.vy + g_view.vh - g_view.arrow_h;
+        int hover_up = g_mx >= g_view.vx && g_mx < g_view.vx + g_view.track_w && g_my >= g_view.vy && g_my < ty;
+        int hover_down = g_mx >= g_view.vx && g_mx < g_view.vx + g_view.track_w && g_my >= tb
+                         && g_my < g_view.vy + g_view.vh;
+        sp_draw_fitted(holder, clip, old, &g_track, 0, g_view.vx, ty, g_track.w, tb - ty, 0, SP_TRACK_CAP);
+        sp_frame_at(holder, &g_up, g_view.vx, g_view.vy, g_pressed == 1 ? 2 : hover_up ? 1 : 0);
+        sp_frame_at(holder, &g_down, g_view.vx, tb, g_pressed == 2 ? 2 : hover_down ? 1 : 0);
+        if (g_view.knob_h < g_knob.h) {
+            /* a short track: the knob fitted to its shorter length, its ends kept (it still drags) */
+            int clip_track[4];
+            sp_clip_to(clip, old, g_view.vx, ty, g_view.vx + g_view.track_w, tb);
+            clip_track[0] = clip[0]; clip_track[1] = clip[1]; clip_track[2] = clip[2]; clip_track[3] = clip[3];
+            sp_draw_fitted(holder, clip, clip_track, &g_knob, 0, g_view.vx + (g_view.track_w - g_view.knob_w) / 2,
+                           sp_knob_y(), g_view.knob_w, g_view.knob_h, 0, g_view.knob_h / 3);
+        } else {
+            sp_clip_to(clip, old, g_view.vx, ty, g_view.vx + g_view.track_w, tb);
+            sp_picture_at(holder, &g_knob, g_view.vx + (g_view.track_w - g_view.knob_w) / 2, sp_knob_y());
+        }
+        clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+    }
+    if (g_view.hbar) {
+        /* The horizontal bar is as thick as the vertical track: WideSlider2 with its rounded ends and its top and
+           bottom edges kept, its middle cut; the handle is sliderhandle fitted to the vertical knob's size turned
+           sideways (the knob's length along the bar, its width across). */
+        sp_draw_fitted(holder, clip, old, &g_wide, 0, g_view.hx, g_view.hy, g_view.hw, g_view.hh, SP_SLIDER_CAP,
+                       g_view.hh * 2 / 5);
+        sp_draw_fitted(holder, clip, old, &g_handle, 0, sp_handle_x(), g_view.hy + (g_view.hh - g_view.handle_h) / 2,
+                       g_view.handle_w, g_view.handle_h, g_handle.tw / 2 - 1, g_view.handle_h / 3);
+    }
+}
+
+/* The horizontal bar's thickness: the vertical track's width. */
+static int sp_hbar_h(void) {
+    return g_track.w;
+}
+
+static int __cdecl sp_event_watch(void *userdata, void *event) {
+    const unsigned char *e = (const unsigned char *)event;
+    (void)userdata;
+    if (e != NULL && *(const unsigned int *)e == 0x403u) {
+        InterlockedExchangeAdd(&g_wheel, *(const int *)(e + 20));
+        InterlockedExchangeAdd(&g_wheel_x, *(const int *)(e + 16));   /* a tilt wheel / touchpad: sideways */
+    }
+    return 1;
+}
+
+static void sp_install_watch(void) {
+    HMODULE sdl;
+    sp_add_watch_fn add;
+    if (g_watch != 0) {
+        return;
+    }
+    g_watch = -1;
+    sdl = GetModuleHandleA("SDL2.dll");
+    add = sdl != NULL ? (sp_add_watch_fn)GetProcAddress(sdl, "SDL_AddEventWatch") : NULL;
+    if (add != NULL) {
+        add((void *)sp_event_watch, NULL);
+        g_watch = 1;
+    }
+}
+
+/* ---- The draw ------------------------------------------------------------------------------------------------ */
+
+/* draw: 1 the draw site, 0 the size site, 2 a measure site. */
+static const sp_class *sp_class_at(unsigned int site, int draw) {
+    int i, k;
+    for (i = 0; i < g_game->class_count; ++i) {
+        const sp_class *c = &g_game->classes[i];
+        if (draw == 2) {
+            for (k = 0; k < 4; ++k) {
+                if (c->measure_sites[k] == site) {
+                    return c;
+                }
+            }
+        } else if ((draw ? c->draw_site : c->size_site) == site) {
+            return c;
+        }
+    }
+    return NULL;
+}
+
+/* Draws a popup's text that does not fit, scrolled: `draw` draws it with its top left at (x, y).  The box (bx, by,
+   bw, bh) is where the text may show (the horizontal bar, when one is needed, takes its bottom); `ox` is where the
+   text's left edge goes when it is no wider than the box (the game's own place for it), else it starts at bx;
+   the vertical bar goes right of the box, within `room_r` (the box gives up width for it when it must).  `line` is
+   one line's height (an arrow's step; the box shows whole lines).  The scroll position is the popup's while it
+   shows the same text (`hash`).  Returns 0 when it cannot (the art is missing, no room): the caller makes the
+   stock call. */
+typedef void (*sp_draw_cb)(void *holder, void *data, int x, int y);
+
+static int sp_scroll(void *holder, unsigned char *popup, const int *panel, int bx, int by, int bw, int bh, int ox,
+                     int room_r, int content_w, int content_h, int line, unsigned int hash, sp_draw_cb draw,
+                     void *data) {
+    int *clip = sp_clip(holder);
+    int old[4], need_v, need_h, vis_h, wheel, wheel_x;
+    if (clip == NULL || bw <= 0 || bh <= 0 || !sp_art_ready()) {
+        return 0;
+    }
+    if (line <= 0) {
+        line = 16;
+    }
+    need_h = content_w > bw;
+    vis_h = need_h ? bh - SP_HBAR_GAP - sp_hbar_h() : bh;
+    need_v = content_h > vis_h;
+    if (need_v && bx + bw + SP_GAP + g_track.w > room_r) {
+        bw = room_r - g_track.w - SP_GAP - bx;      /* the box gives up width for the vertical bar */
+        if (bw <= 0) {
+            return 0;
+        }
+        if (!need_h && content_w > bw) {
+            need_h = 1;
+            vis_h = bh - SP_HBAR_GAP - sp_hbar_h();
+        }
+    }
+    if (need_v && vis_h > line) {
+        vis_h -= vis_h % line;              /* whole lines: none is cut at the box's bottom */
+    }
+    if (!need_v && content_h < vis_h) {
+        vis_h = content_h;                  /* the horizontal bar right below the text */
+    }
+    if (vis_h < (need_v ? 2 * g_up.h + 6 : line)) {
+        return 0;                           /* no room for a bar (or a line): as the game draws it */
+    }
+    sp_install_watch();
+    if (g_state_popup != popup || g_state_hash != hash) {
+        g_state_popup = popup;
+        g_state_hash = hash;
+        g_sx = g_sy = 0;
+        g_drag = g_pressed = 0;
+    }
+    if (need_h) {
+        ox = bx;
+    }
+    g_view.popup = popup;
+    g_view.tick = GetTickCount();
+    g_view.panel_l = panel[0]; g_view.panel_t = panel[1]; g_view.panel_r = panel[2]; g_view.panel_b = panel[3];
+    g_view.box_x = bx; g_view.box_y = by; g_view.box_w = bw; g_view.box_h = vis_h;
+    g_view.content_w = content_w; g_view.content_h = content_h;
+    g_view.vbar = need_v; g_view.hbar = need_h;
+    g_view.arrow_h = g_up.h;
+    g_view.track_w = g_track.w;
+    g_view.knob_w = g_knob.w; g_view.knob_h = g_knob.h;
+    {
+        /* A track shorter than twice the knob (a small panel with both bars, Create Nickname's) gets a knob half
+           its length (8 px at least), so the knob always has room to be dragged. */
+        int track = vis_h - 2 * g_up.h;
+        if (need_v && track < 2 * g_knob.h) {
+            g_view.knob_h = track / 2 > 8 ? track / 2 : 8;
+        }
+    }
+    g_view.vx = bx + bw + SP_GAP; g_view.vy = by; g_view.vh = vis_h;
+    g_view.handle_w = g_knob.h; g_view.handle_h = g_knob.w;
+    g_view.hx = bx; g_view.hy = by + vis_h + SP_HBAR_GAP; g_view.hw = bw;
+    g_view.hh = sp_hbar_h();
+    g_view.line = line;
+    /* The wheel over the panel scrolls up and down; over the horizontal bar (or with no vertical bar) it scrolls
+       sideways, and a sideways wheel (tilt, touchpad) always does. */
+    wheel = (int)InterlockedExchange(&g_wheel, 0);
+    wheel_x = (int)InterlockedExchange(&g_wheel_x, 0);
+    if ((wheel != 0 || wheel_x != 0) && g_mx >= g_view.panel_l && g_mx < g_view.panel_r && g_my >= g_view.panel_t
+        && g_my < g_view.panel_b) {
+        int on_hbar = need_h && g_mx >= g_view.hx && g_mx < g_view.hx + g_view.hw && g_my >= g_view.hy
+                      && g_my < g_view.hy + g_view.hh;
+        if (need_v && !on_hbar) {
+            g_sy -= wheel * SP_WHEEL_LINES * g_view.line;
+        } else {
+            g_sx -= wheel * SP_WHEEL_LINES * g_view.line;
+        }
+        g_sx += wheel_x * SP_WHEEL_LINES * g_view.line;
+    }
+    sp_clamp();
+    old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+    sp_clip_to(clip, old, bx, by, bx + bw, by + vis_h);
+    draw(holder, data, ox - g_sx, by - g_sy);
+    g_rows_n = 0;
+    if (g_op_draw.on && g_op.r.rows > 0 && sp_row_ready()) {
+        /* one_popup.h: the choices after the content, scrolled with it, centred on the box (or the content when
+           it is wider) */
+        sp_clip_to(clip, old, bx, by, bx + bw, by + vis_h);
+        if (need_h || g_op_draw.cx == 0) {
+            sp_draw_rows(holder, bx - g_sx, by - g_sy + g_op_draw.top, need_h ? content_w : bw);
+        } else {
+            sp_draw_rows(holder, g_op_draw.cx - g_row.w / 2, by - g_sy + g_op_draw.top, g_row.w);
+        }
+    }
+    if (g_rows_n == 0) {
+        g_row_pressed = 0;
+    }
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+    if (g_bars) {
+        sp_draw_bars(holder, clip, old);
+    }
+    g_bars = 1;
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+#ifdef VVFP_TEST
+    InterlockedIncrement(&g_scroll_draws);
+#endif
+    return 1;
+}
+
+/* ---- Practically unlimited text (one_popup.h VvfpPopupWholeText) --------------------------------------------- */
+
+/* The whole text of which a dialog's field `shown` holds only the start (its companion keeps it), or NULL. */
+static const char *sp_whole(const char *shown) {
+    static const char *const MODULES[2] = { "VVFP Story Upgrades.dll", "VVFP More Island Events.dll" };
+    int k;
+    if (shown == NULL || shown[0] == 0) {
+        return NULL;
+    }
+    for (k = 0; k < 2; ++k) {
+        HMODULE module = GetModuleHandleA(MODULES[k]);
+        op_whole_fn whole = module != NULL ? (op_whole_fn)(void *)GetProcAddress(module, "VvfpPopupWholeText")
+                                           : NULL;
+        const char *w = whole != NULL ? whole(shown) : NULL;
+        if (w != NULL && w != shown) {
+            return w;
+        }
+    }
+    return NULL;
+}
+
+/* ---- Lines wider than the box wrap (A New Home, The Lost Children) -------------------------------------------------
+
+   The first two games' island-event texts are broken into lines by hand ('\n'), some spaced out to look justified
+   ("As  *  approaches  the  mysterious  visage,"); a long full name or a translation makes such a line wider than the
+   box, which would then scroll sideways.  Instead, a line (after the first, which the dialog draws on its own) wider
+   than `width` is wrapped as text wraps: its words one space apart, in as many lines no wider than `width` as it needs
+   -- a word wider than the box alone on its line (the one case that scrolls sideways).  Every other line, and every
+   line break, is kept as it is.  The wrapped text is kept (two at a time) while the text, the width and the font stay
+   the same; NULL when every line fits. */
+typedef struct sp_fit_memo {
+    unsigned int hash;
+    int len, width;
+    void *font;
+    char *text;                   /* HeapAlloc'd, or NULL: every line fits */
+} sp_fit_memo;
+static sp_fit_memo g_fit[2];
+static int g_fit_next;
+static const unsigned char *g_fit_dialog;   /* the measured dialog drawn last and the width its lines wrap at */
+static int g_fit_w;
+
+static int sp_span_w(void *font, const char *s, const char *e) {
+    return e > s ? sp_text_w(font, sp_line_of(s, e)) : 0;
+}
+
+/* Does a line of text[p, pe) run wider than `width`? */
+static int sp_any_wide(void *font, const char *p, const char *pe, int width) {
+    const char *e;
+    while (p < pe) {
+        for (e = p; e < pe && *e != '\n'; ++e) {
+        }
+        if (sp_span_w(font, p, e) > width) {
+            return 1;
+        }
+        p = e + 1;
+    }
+    return 0;
+}
+
+/* `keep_first`: the first line is kept as it is (an island event's: drawn on its own); 0: every line (a tip's). */
+static const char *sp_fit_lines(void *font, const char *text, int width, int keep_first) {
+    const char *first, *p, *pe, *w, *ws;
+    char *out, *o, *line;
+    unsigned int hash;
+    int len, k;
+    sp_fit_memo *m;
+    if (font == NULL || text == NULL || width <= 0 || g_game->width_fn == 0) {
+        return NULL;
+    }
+    first = text - 1;                       /* the kept part ends at first + 1 */
+    if (keep_first) {
+        for (first = text; *first != 0 && *first != '\n'; ++first) {
+        }
+        if (*first == 0) {
+            return NULL;                    /* one line */
+        }
+    }
+    len = lstrlenA(text);
+    hash = sp_hash(text) ^ (keep_first ? 0x5A5A5A5Au : 0u);
+    for (k = 0; k < 2; ++k) {
+        m = &g_fit[k];
+        if (m->hash == hash && m->len == len && m->width == width && m->font == font) {
+            return m->text;
+        }
+    }
+    m = &g_fit[g_fit_next];
+    g_fit_next = (g_fit_next + 1) % 2;
+    if (m->text != NULL) {
+        HeapFree(GetProcessHeap(), 0, m->text);
+        m->text = NULL;
+    }
+    m->hash = hash; m->len = len; m->width = width; m->font = font;
+    if (!sp_any_wide(font, first + 1, text + len, width)) {
+        return NULL;
+    }
+    out = (char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)len + 2);
+    if (out == NULL) {
+        return NULL;
+    }
+    CopyMemory(out, text, (SIZE_T)(first + 1 - text));   /* the first line, as it is */
+    o = out + (first + 1 - text);
+    p = first + 1;
+    while (*p != 0) {
+        for (pe = p; *pe != 0 && *pe != '\n'; ++pe) {
+        }
+        if (sp_span_w(font, p, pe) <= width) {
+            CopyMemory(o, p, (SIZE_T)(pe - p));
+            o += pe - p;
+        } else {
+            line = o;
+            for (w = p; w < pe;) {
+                while (w < pe && (*w == ' ' || *w == '\n')) {
+                    ++w;
+                }
+                if (w >= pe) {
+                    break;
+                }
+                for (ws = w; w < pe && *w != ' ' && *w != '\n'; ++w) {
+                }
+                if (o > line) {
+                    char *gap = o;
+                    *o++ = ' ';
+                    CopyMemory(o, ws, (SIZE_T)(w - ws));
+                    o += w - ws;
+                    if (sp_span_w(font, line, o) > width) {
+                        *gap = '\n';        /* the word starts the next line */
+                        line = gap + 1;
+                    }
+                } else {
+                    CopyMemory(o, ws, (SIZE_T)(w - ws));
+                    o += w - ws;
+                }
+            }
+        }
+        p = pe;
+        if (*p == '\n') {
+            *o++ = *p++;
+        }
+    }
+    *o = 0;
+    m->text = out;
+    return out;
+}
+
+static const char *sp_fit(void *font, const char *text, int width) {
+    return sp_fit_lines(font, text, width, 1);
+}
+
+/* A measured island-event dialog's font (its text manager's). */
+static void *sp_shift_font(const sp_shift *s, const unsigned char *dialog) {
+    const unsigned char *manager = *(const unsigned char *const *)(dialog + s->font_mgr);
+    return manager != NULL ? *(void *const *)manager : NULL;
+}
+
+/* ---- A New Home's and The Lost Children's tips: lines wider than the box wrap (scroll_popup.h lookup_sites) ---- */
+static const sp_shift *g_lookup_shift;
+static unsigned int g_lookup_fn;
+
+static int sp_cap(int limit, int cell);
+static int sp_screen_w(void);
+
+/* The text the tip at `dialog` is given (from the stub after the string table's lookup): every line wider than the
+   box broken at its spaces (sp_fit_lines), so the panel the constructor makes as wide as the widest line fits the
+   screen and the text never scrolls sideways (a word wider than the box alone on its line excepted).  A tutorial
+   tip's paragraph is the game's own. */
+static const char *__stdcall sp_tip_text(const unsigned char *dialog, const char *text) {
+    __try {
+        const sp_shift *s = g_lookup_shift;
+        const char *fit;
+        int w;
+        if (s == NULL || dialog == NULL || text == NULL) {
+            return text;
+        }
+        if (s->tutorial != 0 && dialog[s->tutorial] != 0 && *(const int *)(dialog + s->tutorial_on) == s->tutorial_is) {
+            return text;
+        }
+        w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, s->lookup_cell) - 2 * s->side;
+        fit = sp_fit_lines(sp_shift_font(s, dialog), text, w, 0);
+        return fit != NULL ? fit : text;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return text;
+}
+
+__declspec(naked) static void sp_lookup_stub(void) {
+    __asm {
+        push dword ptr [esp + 4]            /* the string id (ecx: the text manager) */
+        call dword ptr [g_lookup_fn]        /* ret 4 */
+        push eax
+        push esi                            /* the tip */
+        call sp_tip_text
+        ret 4
+    }
+}
+
+/* A text's size as the justified paragraph lays it out in a box `w` wide: the content's width (the box, or its
+   widest word when wider) and its height wrapped at that width.  A long text is measured once while it stays the
+   same (a 20,000-character text is not laid out again every frame just to be measured). */
+typedef struct sp_size_memo {
+    const char *text;
+    unsigned int hash;
+    int len, w;
+    unsigned int colour;
+    void *font;
+    int content_w, h;
+} sp_size_memo;
+static sp_size_memo g_memo[2];
+static int g_memo_next;
+
+static void sp_text_size(void *holder, const char *text, int w, unsigned int colour, void *font, int *content_w,
+                         int *h) {
+    int len = lstrlenA(text), k;
+    unsigned int hash = sp_hash(text);
+    for (k = 0; k < 2; ++k) {
+        const sp_size_memo *m = &g_memo[k];
+        if (m->text == text && m->hash == hash && m->len == len && m->w == w && m->colour == colour
+            && m->font == font) {
+            *content_w = m->content_w;
+            *h = m->h;
+            return;
+        }
+    }
+    *content_w = sp_widest_word(holder, text, colour, font);
+    if (*content_w < w) {
+        *content_w = w;
+    }
+    *h = sp_measure(holder, text, *content_w, colour, font);   /* wrapped at the widest word */
+    if (len > 512) {
+        sp_size_memo *m = &g_memo[g_memo_next];
+        g_memo_next = (g_memo_next + 1) % 2;
+        m->text = text; m->hash = hash; m->len = len; m->w = w; m->colour = colour; m->font = font;
+        m->content_w = *content_w; m->h = *h;
+    }
+}
+
+/* ---- Long titles wrap (scroll_popup.h title_site) --------------------------------------------------------------
+
+   The later three's island-event dialog: a title wider than its text box is held at its draw and drawn by the
+   text's draw in lines at the top of the scrolled box (sp_body); when the text's draw cannot scroll after all, the
+   game's own call draws it as before. */
+typedef struct sp_title {
+    int pending;
+    const unsigned char *popup;
+    const char *text;
+    int x, y;                      /* the centre the game draws it on, and its top */
+    unsigned int colour;
+    void *font;
+} sp_title;
+static sp_title g_title;
+static unsigned int g_title_fn;
+
+typedef void (__fastcall *sp_title_fn)(void *holder, void *edx, const char *text, int x, int y, unsigned int colour,
+                                       void *font);
+
+/* The title's box: the dialog's text box (scroll_popup.h sp_class box: x, y, width). */
+static int sp_title_box_w(const unsigned char *popup) {
+    const sp_class *c = g_game->class_count > 0 ? &g_game->classes[0] : NULL;
+    return c != NULL ? *(const int *)(popup + c->box + 8) : 0;
+}
+
+/* From the stub at title_site: 1 the game draws it now, 0 it is held (wider than the box). */
+static int __stdcall sp_title_at(void *holder, const unsigned char *popup, const unsigned int *args) {
+    (void)holder;
+    g_title.pending = 0;
+    __try {
+        const char *text = (const char *)(UINT_PTR)args[0];
+        void *font = (void *)(UINT_PTR)args[4];
+        int box_w = popup != NULL ? sp_title_box_w(popup) : 0;
+        if (text == NULL || font == NULL || box_w <= 0 || g_game->width_fn == 0 || !sp_art_ready()
+            || sp_text_w(font, text) <= box_w) {
+            return 1;
+        }
+        g_title.popup = popup;
+        g_title.text = text;
+        g_title.x = (int)args[1];
+        g_title.y = (int)args[2];
+        g_title.colour = args[3];
+        g_title.font = font;
+        g_title.pending = 1;
+        return 0;
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        g_title.pending = 0;
+    }
+    return 1;
+}
+
+__declspec(naked) static void sp_title_stub(void) {
+    __asm {
+        push ecx
+        lea eax, [esp + 8]
+        push eax                            /* the five arguments */
+        push esi                            /* the dialog */
+        push ecx                            /* the holder */
+        call sp_title_at
+        pop ecx
+        test eax, eax
+        jz held
+        jmp dword ptr [g_title_fn]
+    held:
+        ret 0x14
+    }
+}
+
+/* The held title of `popup` drawn as the game draws it (one line), when the text's draw did not take it. */
+static void sp_title_stock(void *holder, const unsigned char *popup) {
+    if (!g_title.pending || g_title.popup != popup) {
+        return;
+    }
+    g_title.pending = 0;
+    ((sp_title_fn)(UINT_PTR)g_title_fn)(holder, NULL, g_title.text, g_title.x, g_title.y, g_title.colour,
+                                        g_title.font);
+}
+
+typedef struct sp_title_line {
+    void *holder;
+    int cx, y0, lh;
+} sp_title_line;
+
+static void sp_draw_title_line(void *data, const char *line, int index, int width) {
+    sp_title_line *d = (sp_title_line *)data;
+    (void)width;
+    ((sp_title_fn)(UINT_PTR)g_title_fn)(d->holder, NULL, line, d->cx, d->y0 + index * d->lh, g_title.colour,
+                                        g_title.font);
+}
+
+/* The island-event body: the held title's lines, the villager's picture, the game's justified paragraph at the
+   content's width (the rows follow, sp_scroll). */
+typedef struct sp_justify_draw {
+    const char *text;
+    int width;
+    unsigned int colour;
+    void *font;
+    int result;
+    const unsigned char *popup;
+    int portrait;                 /* the villager's picture is drawn first */
+    int gap;                      /* from the box's top (as the game laid it out) to the text */
+    int text_x, top;              /* where the game put the text, and the box's top */
+    int title_lines, title_lh, title_cx, title_w;   /* the held title (0 lines: none): its lines' centre from the
+                                                       text's x, and the width they wrap at */
+    int extra;                    /* what the title's lines take beyond the one line the game left it */
+} sp_justify_draw;
+
+static void sp_draw_justified(void *holder, void *data, int x, int y) {
+    sp_justify_draw *d = (sp_justify_draw *)data;
+    if (d->title_lines > 0) {
+        sp_title_line t;
+        t.holder = holder;
+        t.cx = x + d->title_cx;
+        t.y0 = y;
+        t.lh = d->title_lh;
+        sp_wrap(g_title.font, g_title.text, d->title_w, sp_draw_title_line, &t, NULL);
+    }
+    if (d->portrait) {
+        sp_portrait_draw(d->popup, x - d->text_x, y - d->top + d->extra);
+    }
+    d->result = ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, d->text, x, y + d->gap + d->extra, d->width,
+                                                            d->colour, d->font, 0);
+}
+
+/* The body text, scrolled when it does not fit; returns what the game's call returns (its height). */
+static int sp_body(const sp_class *c, void *holder, const unsigned int *a) {
+    const char *text = (const char *)(UINT_PTR)a[0], *whole;
+    int x = (int)a[1], y = (int)a[2], w = (int)a[3];
+    unsigned int colour = a[4];
+    void *font = (void *)(UINT_PTR)a[5];
+    unsigned char *popup = (unsigned char *)text - c->text;
+    const int *panel = (const int *)(popup + c->panel);
+    int reserve, box_h, content_h, content_w, line, op = 0, text_h, gap = 0, by = y, force, title = 0, extra = 0;
+    int title_widest = 0;
+    sp_justify_draw d;
+    if (a[6] == 0 && sp_op_query(popup)) {
+        op = 1;                             /* one_popup.h: the rows after the text, the companion's OK room */
+        reserve = sp_op_reserve(c, popup);
+    } else {
+        reserve = sp_reserve(c, popup);
+    }
+    if (reserve < 0 || sp_clip(holder) == NULL || a[6] != 0 || w <= 0) {
+        return -1;
+    }
+    whole = sp_whole(text);                 /* the field holds only the start of a longer text */
+    if (whole != NULL) {
+        text = whole;
+    }
+    line = sp_measure(holder, "X", w, colour, font);
+    d.portrait = 0;
+    if (g_title.pending && g_title.popup == popup && g_title.y < y) {
+        /* A title wider than the box: its lines at the box's top, everything the game put below its one line
+           moved down by what the others take. */
+        int lines = sp_wrap(g_title.font, g_title.text, w, NULL, NULL, &title_widest);
+        if (lines > 0) {
+            title = lines;
+            extra = (lines - 1) * line;
+            by = g_title.y;
+            gap = y - by;
+        }
+    }
+    if (g_portrait.pending && g_portrait.popup == popup && (op || title)) {
+        /* The villager's picture scrolls with the text: the box starts under the title (one line high), the
+           content is the room the game left for the picture above the text, then the text and the rows. */
+        int below_title = *(const int *)(popup + SP_TITLE_Y) + line;
+        d.portrait = 1;
+        if (!title && below_title < y) {
+            gap = y - below_title;
+            by = below_title;
+        }
+    }
+    force = op || whole != NULL || title > 0;
+    box_h = panel[3] - reserve - by;
+    sp_text_size(holder, text, w, colour, font, &content_w, &text_h);
+    if (title_widest > content_w) {
+        content_w = title_widest;
+    }
+    text_h += gap + extra;
+    content_h = text_h;
+    if (op) {
+        int rw = sp_rows_w(font);
+        content_h += sp_rows_h(font);
+        if (rw > content_w) {
+            content_w = rw;
+        }
+    }
+    if (box_h <= 0 || (!force && content_h <= box_h && content_w <= w)) {
+        if (g_view.popup == popup) {
+            g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
+        }
+        return -1;
+    }
+    d.text = text;
+    d.width = content_w;
+    d.colour = colour;
+    d.font = font;
+    d.result = -1;
+    d.popup = popup;
+    d.gap = gap;
+    d.text_x = x;
+    d.top = by;
+    d.title_lines = title;
+    d.title_lh = line;
+    d.title_cx = title ? g_title.x - x : 0;
+    d.title_w = w;
+    d.extra = extra;
+    g_op_draw.on = op;
+    g_op_draw.cx = 0;
+    g_op_draw.top = text_h + sp_rows_gap();
+    g_op_draw.font = font;
+    g_op_draw.colour = sp_row_colour();
+    {
+        int k = sp_scroll(holder, popup, panel, x, by, w, box_h, x, panel[2] - 4, content_w, content_h, line,
+                          sp_hash(text) ^ (unsigned int)(op ? g_op.r.rows * 0x9E3779B1u : 0u), sp_draw_justified, &d);
+        g_op_draw.on = 0;
+        if (!k) {
+            return -1;
+        }
+    }
+    if (title) {
+        g_title.pending = 0;
+    }
+    return d.result;
+}
+
+/* From the stub at draw_site or a measure site: the return address, the holder (ecx) and the call's seven
+   arguments. */
+static int __stdcall sp_draw(unsigned int ret, void *holder, const unsigned int *a) {
+    const sp_class *c = sp_class_at(ret - 5u, 1);
+    int r = -1;
+    if (c == NULL && (sp_class_at(ret - 5u, 2) != NULL || ret - 5u == g_game->widen_site)) {
+        int width = (int)a[3];
+        __try {
+            int widest = sp_widest_word(holder, (const char *)(UINT_PTR)a[0], a[4], (void *)(UINT_PTR)a[5]);
+            if (widest > width) {
+                width = widest;             /* the paragraph never gets stuck on a word wider than its box */
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            width = (int)a[3];
+        }
+        return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, (const char *)(UINT_PTR)a[0], (int)a[1],
+                                                           (int)a[2], width, a[4], (void *)(UINT_PTR)a[5], (int)a[6]);
+    }
+    if (c != NULL) {
+        int *clip = NULL, old[4] = {0, 0, 0, 0};
+        __try {
+            clip = sp_clip(holder);
+            if (clip != NULL) {
+                old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+            }
+            r = sp_body(c, holder, a);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            r = -1;
+            g_op_draw.on = 0;
+            if (clip != NULL) {
+                __try {
+                    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+                } __except (EXCEPTION_EXECUTE_HANDLER) {
+                }
+            }
+            g_view.popup = NULL;
+        }
+        if (r != -1) {
+            g_portrait.pending = 0;
+            g_title.pending = 0;
+            return r;
+        }
+        __try {
+            sp_portrait_draw((const unsigned char *)(UINT_PTR)a[0] - c->text, 0, 0);   /* not scrolled: as placed */
+            sp_title_stock(holder, (const unsigned char *)(UINT_PTR)a[0] - c->text);
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            g_portrait.pending = 0;
+            g_title.pending = 0;
+        }
+    }
+    {
+        int width = (int)a[3];
+        __try {
+            int widest = sp_widest_word(holder, (const char *)(UINT_PTR)a[0], a[4], (void *)(UINT_PTR)a[5]);
+            if (widest > width) {
+                width = widest;             /* never stuck on a word wider than the box */
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+            width = (int)a[3];
+        }
+        return ((sp_justify_fn)(UINT_PTR)g_game->justify)(holder, NULL, (const char *)(UINT_PTR)a[0], (int)a[1],
+                                                           (int)a[2], width, a[4], (void *)(UINT_PTR)a[5], (int)a[6]);
+    }
+}
+
+__declspec(naked) static void sp_draw_stub(void) {
+    __asm {
+        lea eax, [esp + 4]
+        push eax                            /* the seven arguments */
+        push ecx                            /* the holder */
+        push dword ptr [esp + 8]            /* the return address */
+        call sp_draw
+        ret 0x1C
+    }
+}
+
+/* ---- The panel's size ----------------------------------------------------------------------------------------- */
+
+/* The largest size the 9-slice panel may be asked for along one axis: it rounds the size up to whole cells of its
+   picture (the strip's frame width +0x10 or height +0x14), so a size one cell short of the whole cells that fit
+   keeps the rounded panel inside `limit`. */
+static int sp_cap(int limit, int cell) {
+    if (cell > 0 && cell < limit) {
+        return (limit / cell) * cell - cell + 1;
+    }
+    return limit;
+}
+
+/* A message box asked for (w_req, h_req): what it was asked for is kept (a few at a time), so its draw knows how
+   much of its text the capped panel left out and where the game put the text in it. */
+#define SP_ASKED 4
+typedef struct sp_asked {
+    const unsigned char *popup;
+    unsigned int vtable;
+    int w_req, h_req;             /* as asked */
+    int w_eff, h_eff;             /* as asked, with the room for the bars the capped panel needs */
+    int reserve;                  /* SP_SHIFT_MEASURED: the room asked for below the text */
+} sp_asked;
+static sp_asked g_asked[SP_ASKED];
+static int g_asked_next;
+
+/* A popup's virtual table as the game made it: A New Home's and The Lost Children's encounter dialog with three or
+   four answers carries a copy (More Island Events' or Story / Cheat Upgrades' VvfpMultiAnswerGameVtable, the shared
+   native/shared/vvfp_multi_answer_12.h), which gives the game's table and the room its question keeps for the extra
+   buttons (*room, else 0). */
+typedef int (__stdcall *sp_multi_fn)(const void *popup, int *room);
+
+static unsigned int sp_vtable_of(const unsigned char *popup, int *room) {
+    static const char *const MODULES[2] = { "VVFP More Island Events.dll", "VVFP Story Upgrades.dll" };
+    unsigned int vt = *(const unsigned int *)popup;
+    int k;
+    if (room != NULL) {
+        *room = 0;
+    }
+    for (k = 0; k < 2; ++k) {
+        HMODULE module = GetModuleHandleA(MODULES[k]);
+        sp_multi_fn fn = module != NULL ? (sp_multi_fn)(void *)GetProcAddress(module, "VvfpMultiAnswerGameVtable")
+                                        : NULL;
+        int r = 0;
+        unsigned int game = fn != NULL ? (unsigned int)fn(popup, &r) : 0u;
+        if (game != 0u) {
+            if (room != NULL) {
+                *room = r > 0 && r < 2048 ? r : 0;
+            }
+            return game;
+        }
+    }
+    return vt;
+}
+
+static const sp_asked *sp_asked_for(const unsigned char *popup) {
+    int i;
+    for (i = 0; i < SP_ASKED; ++i) {
+        if (g_asked[i].popup == popup && popup != NULL && sp_vtable_of(popup, NULL) == g_asked[i].vtable) {
+            return &g_asked[i];
+        }
+    }
+    return NULL;
+}
+
+static void sp_ask(const unsigned char *popup, int w_req, int h_req) {
+    int i, k = -1;
+    for (i = 0; i < SP_ASKED; ++i) {
+        if (g_asked[i].popup == popup) {
+            k = i;
+        }
+    }
+    if (k < 0) {
+        k = g_asked_next;
+        g_asked_next = (g_asked_next + 1) % SP_ASKED;
+    }
+    g_asked[k].popup = popup;
+    g_asked[k].vtable = sp_vtable_of(popup, NULL);
+    g_asked[k].w_req = w_req;
+    g_asked[k].h_req = h_req;
+}
+
+static int g_asked_reserve(int h_req, int text_top, int height) {
+    int r = h_req - text_top - height;
+    return r > 0 ? r : 0;
+}
+
+/* Caps a size asked for (a[1] width, a[2] height, a[0] the panel picture) to the screen, keeping what was asked:
+   a capped height gives the width room for the vertical bar, a capped width gives the height room for the
+   horizontal bar (the asked size with that room is kept as w_eff / h_eff).  `keep_w`: the width is not capped (a
+   tutorial tip, sp_tip_narrow). */
+static void sp_cap_asked(const unsigned char *popup, unsigned int *a, int keep_w) {
+    const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
+    int cap_w = keep_w ? 0 : sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
+    int cap_h = sp_cap(sp_screen_h() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x14) : 0);
+    sp_asked *k;
+    sp_ask(popup, (int)a[1], (int)a[2]);
+    k = (sp_asked *)sp_asked_for(popup);
+    if (cap_h > 0 && (int)a[2] > cap_h && sp_art_ready()) {
+        a[1] += (unsigned int)(SP_GAP + g_track.w);       /* room for the vertical bar */
+    }
+    if (cap_w > 0 && (int)a[1] > cap_w) {
+        if (sp_art_ready()) {
+            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
+        }
+    }
+    if (k != NULL) {
+        k->w_eff = (int)a[1];
+        k->h_eff = (int)a[2];
+    }
+    if (cap_w > 0 && (int)a[1] > cap_w) {
+        a[1] = (unsigned int)cap_w;
+    }
+    if (cap_h > 0 && (int)a[2] > cap_h) {
+        a[2] = (unsigned int)cap_h;
+    }
+}
+
+typedef int (__fastcall *sp_height_fn)(void *font, void *edx, const char *text);
+typedef int (__fastcall *sp_width_fn)(void *font, void *edx, const char *text, float scale);
+
+/* A measured panel's text field shown now. */
+static const char *sp_field(const sp_shift *s, const unsigned char *dialog) {
+    return (const char *)(dialog + (s->text_b != 0 && dialog[s->flag] != 0 ? s->text_b : s->text_a));
+}
+
+/* A measured panel's text shown now (the whole text when the field holds only its start: one_popup.h), and its
+   font. */
+static const char *sp_shown(const sp_shift *s, const unsigned char *dialog, void **font) {
+    const unsigned char *manager = *(const unsigned char *const *)(dialog + s->font_mgr);
+    const char *field = sp_field(s, dialog), *whole = g_game->whole_fn != 0 ? sp_whole(field) : NULL;
+    *font = manager != NULL ? *(void *const *)manager : NULL;
+    return whole != NULL ? whole : field;
+}
+
+/* ---- The whole text in A New Home and The Lost Children (scroll_popup.h whole_sites) ---------------------------
+
+   The body draw's second call of the centred-lines draw (the text from its first line break): when the dialog's
+   field holds only the start of a whole text, the text drawn is the whole text from the same place. */
+static unsigned int g_whole_fn;
+static const sp_shift *sp_shift_at(unsigned int site, unsigned int vtable);
+
+static void __stdcall sp_whole_at(const unsigned char *dialog, unsigned int *args) {
+    __try {
+        const sp_shift *s = dialog != NULL ? sp_shift_at(0, sp_vtable_of(dialog, NULL)) : NULL;
+        const char *field, *p = (const char *)(UINT_PTR)args[0], *whole;
+        int n;
+        if (s == NULL || s->mode != SP_SHIFT_MEASURED || p == NULL) {
+            return;
+        }
+        field = sp_field(s, dialog);
+        n = lstrlenA(field);
+        if (p < field || p > field + n) {
+            return;
+        }
+        whole = sp_whole(field);
+        {
+            /* lines wider than the box wrapped (sp_fit keeps the first line, which ends where this call starts) */
+            const int *panel = (const int *)(dialog + 0x14);
+            const char *nl = field, *fit;
+            while (*nl != 0 && *nl != '\n') {
+                ++nl;
+            }
+            fit = p <= nl ? sp_fit(sp_shift_font(s, dialog), whole != NULL ? whole : field,
+                                   g_fit_dialog == dialog ? g_fit_w : panel[2] - panel[0] - 2 * s->side) : NULL;
+            if (fit != NULL) {
+                whole = fit;
+            }
+        }
+        if (whole != NULL) {
+            args[0] = (unsigned int)(UINT_PTR)(whole + (p - field));
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+__declspec(naked) static void sp_whole_stub(void) {
+    __asm {
+        push ecx
+        lea eax, [esp + 8]
+        push eax                            /* the five arguments: the text first */
+        push esi                            /* the dialog */
+        call sp_whole_at
+        pop ecx
+        jmp dword ptr [g_whole_fn]
+    }
+}
+
+static const sp_shift *sp_shift_at(unsigned int site, unsigned int vtable) {
+    int i;
+    for (i = 0; i < g_game->shift_count; ++i) {
+        const sp_shift *s = &g_game->shifts[i];
+        if (site != 0 ? s->size_site == site : s->vtable == vtable) {
+            return s;
+        }
+    }
+    return NULL;
+}
+
+/* A tip asked wider than the screen holds (scroll_popup.h sp_shift wrap_w: the later three's tutorial tips, made as
+   wide as the screen and a little more, and any tip with a long line): its text is wrapped narrower by as much as the
+   panel is capped by, and the panel asks for the height of the lines that adds, so the text wraps inside the box as
+   the game wraps it and never scrolls sideways -- unless one word is wider than the box, which then sets the width.
+   A tutorial tip keeps the width it asks for (its text is placed on the screen by the game; only its frame runs past
+   the sides): returns 1 for one, and its width is not capped. */
+typedef int (__fastcall *sp_wrap_h_fn)(void *font, void *edx, const char *text, int width, float scale);
+
+static int sp_tip_narrow(const sp_shift *s, unsigned char *popup, unsigned int *a) {
+    const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0], *manager;
+    const char *text;
+    void *font, *holder = sp_holder();
+    int cap_w, over, old_w, new_w, widest, old_h, new_h;
+    if (s->tutorial != 0 && popup[s->tutorial] != 0 && *(const int *)(popup + s->tutorial_on) == s->tutorial_is) {
+        return 1;
+    }
+    if (s->wrap_w == 0 || s->wrap_height_fn == 0 || holder == NULL) {
+        return 0;
+    }
+    cap_w = sp_cap(sp_screen_w() - 2 * SP_MARGIN, pic != NULL ? *(const int *)(pic + 0x10) : 0);
+    over = (int)a[1] - cap_w;
+    text = *(const char *const *)(popup + s->wrap_text);
+    manager = *(const unsigned char *const *)(popup + s->font_mgr);
+    font = manager != NULL ? *(void *const *)manager : NULL;
+    old_w = *(const int *)(popup + s->wrap_w);
+    if (cap_w <= 0 || over <= 0 || text == NULL || font == NULL || old_w <= 0) {
+        return 0;
+    }
+    new_w = old_w - over;
+    widest = sp_widest_word(holder, text, 0, font);
+    if (new_w < widest) {
+        new_w = widest;
+    }
+    if (new_w >= old_w || new_w <= 0) {
+        return 0;
+    }
+    old_h = ((sp_wrap_h_fn)(UINT_PTR)s->wrap_height_fn)(font, NULL, text, old_w, 1.0f);
+    new_h = ((sp_wrap_h_fn)(UINT_PTR)s->wrap_height_fn)(font, NULL, text, new_w, 1.0f);
+    *(int *)(popup + s->wrap_w) = new_w;
+    a[1] -= (unsigned int)(old_w - new_w);
+    if (new_h > old_h) {
+        a[2] += (unsigned int)(new_h - old_h);
+    }
+    return 0;
+}
+
+/* From the stub at a size site: the island-event dialog makes room for a horizontal bar when its text has a word
+   wider than its box and caps the height (*set_edi = 1: the constructor centres its contents by edi); the message
+   box and the panels scrolled whole (tips) cap the width and the height and keep what they asked for.  Returns the
+   sizer to continue to. */
+static unsigned int sp_size_common(unsigned int ret, void *popup, unsigned int *a, int *set_edi) {
+    const sp_class *c = sp_class_at(ret - 5u, 0);
+    *set_edi = 0;
+    if (c == NULL) {
+        const sp_shift *s = sp_shift_at(ret - 5u, 0);
+        if (ret - 5u == g_game->msgbox.size_site || s != NULL) {
+            unsigned int vtable = s != NULL ? s->vtable : g_game->msgbox.vtable;
+            __try {
+                int room = 0;
+                if (sp_vtable_of((const unsigned char *)popup, &room) == vtable) {
+                    if (s != NULL && s->mode == SP_SHIFT_MEASURED && g_game->height_fn != 0) {
+                        void *font;
+                        const char *text = sp_shown(s, (const unsigned char *)popup, &font);
+                        int height = 0, width = 0, asked_h = (int)a[2];
+                        sp_asked *k;
+                        if (font != NULL) {
+                            /* lines wider than the box wrapped (sp_fit), in the panel the sizer makes: the width
+                               asked for, in whole cells of its picture */
+                            const unsigned char *pic = (const unsigned char *)(UINT_PTR)a[0];
+                            int cell = pic != NULL ? *(const int *)(pic + 0x10) : 0, pw = (int)a[1], fit_h;
+                            const char *fit;
+                            if (cell > 0 && cell < 4096) {
+                                pw = (pw + cell - 1) / cell * cell;
+                            }
+                            height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+                            fit = sp_fit(font, text, pw - 2 * s->side);
+                            if (fit != NULL) {
+                                fit_h = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, fit);
+                                if (fit_h > height) {
+                                    a[2] += (unsigned int)(fit_h - height);
+                                    asked_h = (int)a[2];
+                                }
+                                height = fit_h;
+                                text = fit;
+                            }
+                            width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
+                        }
+                        if (sp_op_query((const unsigned char *)popup)) {
+                            /* one_popup.h: the text, the rows after it and the companion's OK room (no room for
+                               the game's own answers, which the companion hides) */
+                            int rw = sp_rows_w(font);
+                            room = 0;
+                            asked_h = s->text_top + height + sp_rows_h(font) + g_op.r.reserve;
+                            a[2] = (unsigned int)asked_h;
+                            if (rw > width) {
+                                width = rw;
+                            }
+                            height = asked_h - s->text_top - g_op.r.reserve;   /* the reserve below is the OK's */
+                        }
+                        if (width > (int)a[1] - 2 * s->side && sp_art_ready()) {
+                            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());   /* room for the horizontal bar */
+                        }
+                        sp_cap_asked((const unsigned char *)popup, a, 0);
+                        k = (sp_asked *)sp_asked_for((const unsigned char *)popup);
+                        if (k != NULL) {
+                            k->reserve = g_asked_reserve(asked_h, s->text_top, height) + room;   /* + extra buttons */
+                        }
+                    } else {
+                        int keep_w = s != NULL ? sp_tip_narrow(s, (unsigned char *)popup, a) : 0;
+                        sp_cap_asked((const unsigned char *)popup, a, keep_w);
+                    }
+                }
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+            return s != NULL ? s->sizer : g_game->msgbox.sizer;
+        }
+        return 0;                           /* never: every size site is a class's */
+    }
+    *set_edi = 1;
+    __try {
+        int cell = a[0] != 0 ? *(const int *)((const unsigned char *)(UINT_PTR)a[0] + 0x14) : 0;
+        int cap = sp_cap(sp_screen_h() - 2 * SP_MARGIN, cell);
+        unsigned char *p = (unsigned char *)popup;
+        int box_w = *(int *)(p + c->box + 8);
+        void *holder = sp_holder();
+        void *font = *(void **)(p + c->font);
+        const char *whole = sp_whole((const char *)(p + c->text));
+        if (sp_op_query(p)) {
+            /* one_popup.h: the room for the game's own buttons becomes the companion's OK room, and the rows
+               after the text are asked for too */
+            int stock = sp_reserve(c, p);
+            a[2] = (unsigned int)((int)a[2] - (stock > 0 ? stock : 0) + sp_op_reserve(c, p) + sp_rows_h(font));
+        }
+        if (holder != NULL && box_w > 0 && whole != NULL) {
+            /* the whole text, of which the field (the constructor measured) holds only the start */
+            int fw, fh, ww, wh;
+            sp_text_size(holder, (const char *)(p + c->text), box_w, 0, font, &fw, &fh);
+            sp_text_size(holder, whole, box_w, 0, font, &ww, &wh);
+            if (wh > fh) {
+                a[2] += (unsigned int)(wh - fh);
+            }
+        }
+        __try {
+            /* a title wider than the box: the lines it takes beyond its one */
+            const char *title = *(const char *const *)(p + 0x54);
+            int widest = 0, lines;
+            if (holder != NULL && title != NULL && font != NULL && g_game->width_fn != 0 && box_w > 0
+                && sp_text_w(font, title) > box_w) {
+                lines = sp_wrap(font, title, box_w, NULL, NULL, &widest);
+                if (lines > 1) {
+                    a[2] += (unsigned int)((lines - 1) * sp_measure(holder, "X", box_w, 0, font));
+                }
+            }
+        } __except (EXCEPTION_EXECUTE_HANDLER) {
+        }
+        /* the widest word of the text drawn: the whole text when the field holds only its start (a wide word past
+           the cut needs the horizontal bar's room too) */
+        if (holder != NULL && box_w > 0 && sp_art_ready()
+            && sp_widest_word(holder, whole != NULL ? whole : (const char *)(p + c->text), 0,
+                              *(void **)(p + c->font)) > box_w) {
+            a[2] += (unsigned int)(SP_HBAR_GAP + sp_hbar_h());
+        }
+        if (cap > 0 && (int)a[2] > cap) {
+            a[2] = (unsigned int)cap;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+    return c->sizer;
+}
+
+/* Returns the sizer in eax and, in edx, 1 when edi takes the (capped) height. */
+static unsigned __int64 __stdcall sp_size(unsigned int ret, void *popup, unsigned int *a) {
+    int set_edi = 0;
+    unsigned int to = sp_size_common(ret, popup, a, &set_edi);
+    return ((unsigned __int64)(unsigned int)set_edi << 32) | to;
+}
+
+__declspec(naked) static void sp_size_stub(void) {
+    __asm {
+        push ecx
+        lea eax, [esp + 8]
+        push eax                            /* the three arguments */
+        push ecx                            /* the popup */
+        push dword ptr [esp + 0xC]          /* the return address */
+        call sp_size
+        pop ecx
+        test edx, edx
+        jz keep
+        mov edi, dword ptr [esp + 0xC]      /* the height, capped: the constructor centres by edi */
+    keep:
+        jmp eax
+    }
+}
+
+/* ---- The message box's text ------------------------------------------------------------------------------------ */
+
+typedef void (__fastcall *sp_text_fn)(void *holder, void *edx, const char *text, int x, int y, unsigned int colour,
+                                      void *font);
+
+typedef struct sp_text_draw {
+    const char *text;
+    unsigned int colour;
+    void *font;
+} sp_text_draw;
+
+static void sp_draw_text(void *holder, void *data, int x, int y) {
+    sp_text_draw *d = (sp_text_draw *)data;
+    ((sp_text_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, d->text, x, y, d->colour, d->font);
+}
+
+/* The message box's text control (its only one) drawn at (x, y): 1 when drawn scrolled, 0 when the game's call is
+   to be made.  The game lays the box out as: the text `SP_MSG_TOP` below the panel's top (plus half of what the
+   panel is taller than asked, or less half of what it is shorter), `SP_MSG_SIDE` from each side, and below it the
+   room for its buttons -- what was asked for less the text and its top.  Scrolled, the text's room starts
+   `SP_MSG_TOP` below the panel's top (the size site gave the panel the horizontal bar's height when it capped the
+   width). */
+#define SP_MSG_TOP 0x14
+#define SP_MSG_SIDE 0x1E
+static int sp_message(void *holder, const unsigned char *ctl, const unsigned int *a) {
+    const unsigned char *popup = *(const unsigned char *const *)(ctl + 0x18);
+    const sp_asked *asked;
+    const int *panel, *rect = (const int *)(ctl + 8);
+    int x = (int)a[1], y = (int)a[2], lw, lh, top, bottom, left, right, newlines = 0, line;
+    const char *text = (const char *)(UINT_PTR)a[0], *p;
+    sp_text_draw d;
+    if (popup == NULL || text == NULL || *(const unsigned int *)popup != g_game->msgbox.vtable) {
+        return 0;
+    }
+    asked = sp_asked_for(popup);
+    if (asked == NULL) {
+        return 0;
+    }
+    panel = (const int *)(popup + 0x14);
+    lw = rect[2] - rect[0];
+    lh = rect[3] - rect[1];
+    top = panel[1] + SP_MSG_TOP;
+    bottom = panel[3] - (asked->h_req - lh - SP_MSG_TOP);
+    left = panel[0] + SP_MSG_SIDE;
+    right = panel[2] - SP_MSG_SIDE;
+    if (lw <= 0 || lh <= 0 || (y >= top && y + lh <= bottom && x >= left && x + lw <= right)) {
+        if (g_view.popup == popup) {
+            g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
+        }
+        return 0;
+    }
+    for (p = text; *p != 0; ++p) {
+        newlines += *p == '\n';
+    }
+    line = lh / (newlines + 1);
+    d.text = text;
+    d.colour = a[3];
+    d.font = (void *)(UINT_PTR)a[4];
+    return sp_scroll(holder, (unsigned char *)popup, panel, left, top, right - left, bottom - top,
+                     x >= left && x + lw <= right ? x : left, panel[2] - SP_MSG_SIDE / 2, lw, lh, line, sp_hash(text), sp_draw_text,
+                     &d);
+}
+
+/* ---- The tombstone ---------------------------------------------------------------------------------------------- */
+
+#define SP_TOMB_SIDE 0x10         /* the box: this far in from the panel's sides */
+#define SP_TOMB_BUTTON_GAP 0x14   /* the game puts the OK / Done button this far above the panel's bottom */
+
+/* The room the tombstone keeps below its lines: its button, the gap below it and 4 px above it. */
+/* The box's top for lines spanning (l, t)-(r, b): the first line's top; when the lines are wider than the box and the
+   horizontal bar would not fit between the last line and the button, the lines are lifted (at most to 12 px below
+   the panel's top) to make room for it. */
+static int sp_tomb_top(const int *panel, int l, int t, int r, int b, int bx, int bw, int bottom) {
+    int top = t, need;
+    if ((l < bx || r > bx + bw) && sp_art_ready()) {
+        need = b + SP_HBAR_GAP + sp_hbar_h() - bottom;
+        if (need > 0) {
+            top = t - need;
+        }
+    }
+    if (top < panel[1] + 12) {
+        top = panel[1] + 12 < t ? panel[1] + 12 : t;
+    }
+    return top;
+}
+
+static int sp_tomb_bottom(const unsigned char *popup) {
+    const int *panel = (const int *)(popup + 0x14);
+    void *button = *(void *const *)(popup + g_game->tomb_button);
+    int h = button != NULL ? sp_vcall_int(button, 0x10) : 0;
+    return panel[3] - SP_TOMB_BUTTON_GAP - (h > 0 && h < 200 ? h : 0) - 4;
+}
+
+/* The later three: a tombstone line is a text control, drawn by the text control draw.  Every line of the
+   tombstone (its window's controls of the same class, visible, not the editable epitaph) is measured as the
+   text control draw places it (its font, scale, alignment and the window's origin); when one runs past the panel's
+   sides (a long name, a long cause, a translation), each line is drawn moved by the scroll position under a clip
+   set to the panel less SP_TOMB_SIDE on each side, above its button, with a horizontal bar below the lines.  The
+   editable epitaph (its box cuts its own text) is drawn as the game draws it. */
+typedef struct sp_label_draw {
+    const char *text;
+    int x, y, l, t;               /* where the game draws it; the lines' left and top there */
+    unsigned int colour;
+    void *font;
+} sp_label_draw;
+
+static void sp_draw_label(void *holder, void *data, int x, int y) {
+    sp_label_draw *d = (sp_label_draw *)data;
+    ((sp_text_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, d->text, d->x + (x - d->l), d->y + (y - d->t), d->colour,
+                                               d->font);
+}
+
+/* One text control's text extent as the text control draw places it: 1 when measured. */
+static int sp_label_extent(const unsigned char *impl, const int *origin, void *font_default, int *l, int *t, int *r,
+                           int *b) {
+    const char *text = *(const char *const *)(impl + 0x30);
+    const int *rect = (const int *)(impl + 8);
+    void *font = *(void *const *)(impl + 0x3C);
+    float scale = *(const float *)(impl + 0x58);
+    int w, h, x;
+    if (text == NULL || *text == 0) {
+        return 0;
+    }
+    if (font == NULL) {
+        font = font_default;
+    }
+    if (font == NULL) {
+        return -1;
+    }
+    w = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, scale);
+    h = (int)((float)((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text) * scale);
+    switch (*(const int *)(impl + 0x40)) {
+    case 0: x = rect[0] + *(const int *)(impl + 0x44); break;
+    case 1: x = rect[0] + (rect[2] - rect[0] - w) / 2; break;
+    case 2: x = rect[2] - *(const int *)(impl + 0x44) - w; break;
+    default: return -1;
+    }
+    *l = origin[0] + x;
+    *r = *l + w;
+    *t = origin[1] + rect[1] + *(const int *)(impl + 0x48);
+    *b = *t + h;
+    return 1;
+}
+
+typedef void (__fastcall *sp_rect_fn)(const void *control, void *edx, int *rect);
+
+/* A child control's top, from its vtable+8 (its rectangle on the screen); 0x7FFFFFFF when it cannot be told.  *right
+   gets its right edge. */
+static int sp_child_top(const unsigned char *wrapper, int *right) {
+    int rect[4] = {0, 0, 0, 0};
+    __try {
+        ((sp_rect_fn)(*(void *const *const *)wrapper)[2])(wrapper, NULL, rect);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0x7FFFFFFF;
+    }
+    *right = rect[2];
+    return rect[1] > -4096 && rect[1] < 4096 && rect[3] >= rect[1] ? rect[1] : 0x7FFFFFFF;
+}
+
+static int sp_is_label_panel(unsigned int vtable) {
+    int i;
+    for (i = 0; i < g_game->label_panel_count; ++i) {
+        if (g_game->label_panels[i] == vtable) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+#define SP_MAX_TOPS 32
+static int sp_label_panel(void *holder, const unsigned char *ctl, const unsigned int *a) {
+    const unsigned char *popup = *(const unsigned char *const *)(ctl + 0x18), *node, *n, *first = NULL;
+    const int *panel, *origin;
+    unsigned char *ctx = *(unsigned char **)holder;
+    void *font_default;
+    int l = 0x7FFFFFFF, t = 0x7FFFFFFF, r = -0x7FFFFFFF, b = -0x7FFFFFFF, guard = 0, bx, bw, by, bottom, line = 0;
+    int ml, mt, mr, mb, here_l = 0, here_t = 0, k, mid, below = 0x7FFFFFFF, top, tops = 0, top_of[SP_MAX_TOPS];
+    int right_of[SP_MAX_TOPS], column;
+    sp_label_draw d;
+    if (popup == NULL || ctl[0x24] != 0 || g_game->width_fn == 0
+        || !sp_is_label_panel(*(const unsigned int *)popup)) {
+        return 0;
+    }
+    /* The text control draw has set the drawing context's font to the control's own, when it has one: the
+       window's default font is then not known here, and every line must have its own or none. */
+    font_default = *(void *const *)(ctl + 0x3C) == NULL ? *(void **)(ctx + 0x5C) : NULL;
+    node = *(const unsigned char *const *)(popup + 4);
+    origin = (const int *)(node + 4);
+    if (sp_label_extent(ctl, origin, font_default, &here_l, &here_t, &mr, &mb) != 1 || here_l != (int)a[1]
+        || here_t != (int)a[2]) {
+        return 0;                           /* not where the game draws it: as the game draws it */
+    }
+    panel = (const int *)(popup + 0x14);
+    mid = (panel[1] + panel[3]) / 2;
+    for (n = *(const unsigned char *const *)(node + 0x18); n != NULL && guard < 256; n = *(const unsigned char *const *)(n + 4), ++guard) {
+        const unsigned char *wrapper = *(const unsigned char *const *)n, *impl;
+        if (wrapper == NULL) {
+            continue;
+        }
+        impl = *(const unsigned char *const *)(wrapper + 0x10);
+        if (impl == NULL || *(const unsigned int *)impl != *(const unsigned int *)ctl
+            || *(const unsigned char *const *)(impl + 0x18) != popup) {
+            int right = 0x7FFFFFFF;
+            top = sp_child_top(wrapper, &right);   /* another control (a button): the lines stay above it */
+            if (top != 0x7FFFFFFF && tops < SP_MAX_TOPS) {
+                right_of[tops] = right;
+                top_of[tops++] = top;
+            }
+            continue;
+        }
+        if (impl[0x24] != 0) {                       /* a text box (the epitaph, a name): drawn as the game draws it */
+            if (tops < SP_MAX_TOPS) {
+                right_of[tops] = origin[0] + *(const int *)(impl + 0x10);
+                top_of[tops++] = origin[1] + *(const int *)(impl + 0xC);
+            }
+            continue;
+        }
+        if (impl[0x2C] == 0) {
+            continue;
+        }
+        k = sp_label_extent(impl, origin, font_default, &ml, &mt, &mr, &mb);
+        if (k < 0) {
+            return 0;
+        }
+        if (k == 0) {
+            continue;
+        }
+        first = impl;                       /* the list runs newest first: the last one met is the first made */
+        if (ml < l) l = ml;
+        if (mt < t) t = mt;
+        if (mr > r) r = mr;
+        if (mb > b) b = mb;
+        if (line == 0 || mb - mt < line) {
+            line = mb - mt;
+        }
+    }
+    /* The lines' box ends above the first control (a button, a text box) in the panel's lower half, or below the
+       first line's top and reaching the vertical bar's column at the panel's right (Create Nickname's name box, the
+       panel's width): no bar ever covers a control; the lines below it scroll into the box.  A control between the
+       lines and clear of that column (the tombstone's epitaph) keeps the lines around it as the game places them. */
+    column = panel[2] - SP_TOMB_SIDE / 2 - (g_art == 1 ? g_track.w : 18);   /* sp_scroll's room_r less the track */
+    for (k = 0; k < tops; ++k) {
+        if ((top_of[k] >= mid || (top_of[k] > t && right_of[k] > column)) && top_of[k] < below) {
+            below = top_of[k];
+        }
+    }
+    bx = panel[0] + SP_TOMB_SIDE;
+    bw = panel[2] - panel[0] - 2 * SP_TOMB_SIDE;
+    bottom = (below != 0x7FFFFFFF ? below : panel[3] - 0x10) - 4;   /* above those controls */
+    if (first == NULL || r <= l || (l >= bx && r <= bx + bw && b <= bottom && t >= panel[1])) {
+        if (g_view.popup == popup) {
+            g_view.popup = NULL;            /* fits: no bars, the mouse is the game's */
+        }
+        return 0;
+    }
+    by = sp_tomb_top(panel, l, t, r, b, bx, bw, bottom);
+    d.text = (const char *)(UINT_PTR)a[0];
+    d.x = (int)a[1];
+    d.y = (int)a[2];
+    d.l = l;
+    d.t = t;
+    d.colour = a[3];
+    d.font = (void *)(UINT_PTR)a[4];
+    g_bars = first == ctl;                  /* the bars once a frame, with the first line */
+    k = sp_scroll(holder, (unsigned char *)popup, panel, bx, by, bw, bottom - by, l, panel[2] - SP_TOMB_SIDE / 2,
+                  r - l, b - t, line, (unsigned int)(r - l) * 31u + (unsigned int)(b - t), sp_draw_label, &d);
+    g_bars = 1;
+    return k;
+}
+
+/* From the stub at the text control draw's call of the text draw: the holder (ecx), the control (esi) and the
+   call's five arguments. */
+static void __stdcall sp_control(void *holder, const unsigned char *ctl, const unsigned int *a) {
+    int *clip = NULL, old[4] = {0, 0, 0, 0}, done = 0;
+    g_bars = 1;
+    __try {
+        clip = sp_clip(holder);
+        if (clip != NULL) {
+            old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+        }
+        done = sp_label_panel(holder, ctl, a);
+        if (!done) {
+            done = sp_message(holder, ctl, a);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        done = 0;
+        if (clip != NULL) {
+            __try {
+                clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+        }
+        g_view.popup = NULL;
+    }
+    if (!done) {
+        ((sp_text_fn)(UINT_PTR)g_game->text_draw)(holder, NULL, (const char *)(UINT_PTR)a[0], (int)a[1], (int)a[2],
+                                                   a[3], (void *)(UINT_PTR)a[4]);
+    }
+}
+
+__declspec(naked) static void sp_control_stub(void) {
+    __asm {
+        lea eax, [esp + 4]
+        push eax                            /* the five arguments */
+        push esi                            /* the text control */
+        push ecx                            /* the holder */
+        call sp_control
+        ret 0x14
+    }
+}
+
+/* ---- Panels scrolled whole (tips) ------------------------------------------------------------------------------- */
+
+typedef void (__fastcall *sp_content_fn)(void *dialog, void *edx);
+
+typedef struct sp_shifted {
+    unsigned char *dialog;
+    sp_content_fn content;
+    int bx, by, dx0, dy0;
+    unsigned int yfield;          /* moved instead of the panel's top and bottom (0: the panel's) */
+} sp_shifted;
+
+/* The dialog's body drawn with its panel rectangle (+0x14..+0x20, which its body draw places everything by) moved
+   so the body's top left lands at (x, y), then put back. */
+static void sp_draw_shifted(void *holder, void *data, int x, int y) {
+    sp_shifted *s = (sp_shifted *)data;
+    int *panel = (int *)(s->dialog + 0x14), saved[4], dx = s->dx0 + (x - s->bx), dy = s->dy0 + (y - s->by);
+    int *yfield = s->yfield != 0 ? (int *)(s->dialog + s->yfield) : NULL, saved_y = yfield != NULL ? *yfield : 0;
+    (void)holder;
+    saved[0] = panel[0]; saved[1] = panel[1]; saved[2] = panel[2]; saved[3] = panel[3];
+    panel[0] += dx; panel[2] += dx;
+    if (yfield != NULL) {
+        *yfield += dy;
+    } else {
+        panel[1] += dy; panel[3] += dy;
+    }
+    g_shift_dialog = s->dialog;             /* the villager's picture moves with the body (sp_portrait_at) */
+    g_shift_dx = dx;
+    g_shift_dy = dy;
+    __try {
+        s->content(s->dialog, NULL);
+    } __finally {
+        g_shift_dialog = NULL;
+        panel[0] = saved[0]; panel[1] = saved[1]; panel[2] = saved[2]; panel[3] = saved[3];
+        if (yfield != NULL) {
+            *yfield = saved_y;
+        }
+    }
+}
+
+/* A measured panel (A New Home's and The Lost Children's island events): the text shown now, measured; when it
+   does not fit above the room kept for the buttons (the result replacing the question in a panel sized for the
+   question, or a text taller than the capped panel) or is wider than the box, it is drawn under the clip with the
+   y the constructor keeps (and the panel's sides, for a wide text) moved by the scroll position. */
+static int sp_measured_body(const sp_shift *s, const sp_asked *asked, unsigned char *dialog, sp_content_fn content,
+                            void *holder) {
+    const int *panel = (const int *)(dialog + 0x14);
+    int pw = panel[2] - panel[0], top, bottom, bx, bw, by, height, width, line, newlines = 0;
+    void *font;
+    const char *text = sp_shown(s, dialog, &font), *p;
+    sp_shifted d;
+    if (font == NULL || g_game->height_fn == 0 || g_game->width_fn == 0) {
+        return 0;
+    }
+    top = *(const int *)(dialog + s->yfield) + s->text_top;
+    bottom = panel[3] - asked->reserve;
+    bx = panel[0] + s->side;
+    bw = pw - 2 * s->side;
+    {
+        /* lines wider than the box wrapped (sp_fit), as the body draw draws them (sp_whole_at); at the narrower box a
+           vertical bar leaves (sp_scroll) when the text is taller than its room */
+        const char *shown = text, *fit = sp_fit(font, shown, bw);
+        int room_r = panel[2] - s->side / 3, vw = sp_art_ready() ? room_r - g_track.w - SP_GAP - bx : bw, tall;
+        text = fit != NULL ? fit : shown;
+        height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+        tall = sp_op_query(dialog) ? height + sp_rows_h(font) > panel[3] - g_op.r.reserve - (panel[1] + s->text_top)
+                                   : !(top >= panel[1] && top + height <= bottom);
+        g_fit_dialog = dialog;
+        g_fit_w = bw;
+        if (tall && vw > 0 && vw < bw) {
+            g_fit_w = vw;
+            fit = sp_fit(font, shown, vw);
+            text = fit != NULL ? fit : shown;
+            height = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, text);
+        }
+    }
+    width = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, text, 1.0f);
+    if (sp_op_query(dialog)) {
+        /* one_popup.h: the whole body (the title, the villager's picture, the text) and the rows after it, from
+           the top of the panel's room down to the companion's OK room; always drawn so (the rows are ours). */
+        int rw = sp_rows_w(font), text_h = height;
+        bottom = panel[3] - g_op.r.reserve;
+        height += sp_rows_h(font);
+        if (rw > width) {
+            width = rw;
+        }
+        by = panel[1] + s->text_top;
+        for (p = text; *p != 0; ++p) {
+            newlines += *p == '\n';
+        }
+        line = text_h / (newlines + 1);
+        d.dialog = dialog;
+        d.content = content;
+        d.bx = bx;
+        d.by = by;
+        d.dx0 = width > bw ? bx - (panel[0] + (pw - width) / 2) : 0;
+        d.dy0 = by - top;
+        d.yfield = s->yfield;
+        g_op_draw.on = 1;
+        g_op_draw.cx = (panel[0] + panel[2]) / 2;   /* where the game centres the text */
+        g_op_draw.top = text_h + sp_rows_gap();
+        g_op_draw.font = font;
+        g_op_draw.colour = sp_row_colour();
+        {
+            int k = sp_scroll(holder, dialog, panel, bx, by, bw, bottom - by, bx, panel[2] - s->side / 3,
+                              width, height, line > 0 ? line : s->line,
+                              sp_hash(text) ^ (unsigned int)(g_op.r.rows * 0x9E3779B1u), sp_draw_shifted, &d);
+            g_op_draw.on = 0;
+            return k;
+        }
+    }
+    if (top >= panel[1] && top + height <= bottom && width <= bw) {
+        if (g_view.popup == dialog) {
+            g_view.popup = NULL;
+        }
+        return 0;
+    }
+    by = panel[1] + s->text_top;              /* scrolled: the text from the top of its room */
+    for (p = text; *p != 0; ++p) {
+        newlines += *p == '\n';
+    }
+    line = height / (newlines + 1);
+    d.dialog = dialog;
+    d.content = content;
+    d.bx = bx;
+    d.by = by;
+    d.dx0 = width > bw ? bx - (panel[0] + (pw - width) / 2) : 0;
+    d.dy0 = by - top;
+    d.yfield = s->yfield;
+    return sp_scroll(holder, dialog, panel, bx, by, bw, bottom - by, bx, panel[2] - s->side / 3,
+                     width, height, line > 0 ? line : s->line, sp_hash(text), sp_draw_shifted, &d);
+}
+
+/* A panel that asked for more than the screen holds: its body is drawn under the clip, moved by the scroll position
+   (and by what the capped panel moved it: the game centres a panel's contents by (panel - asked) / 2), with the
+   bars.  1 when drawn so. */
+static int sp_shift_body(unsigned char *dialog, sp_content_fn content) {
+    const sp_shift *s = sp_shift_at(0, sp_vtable_of(dialog, NULL));
+    const sp_asked *asked = s != NULL ? sp_asked_for(dialog) : NULL;
+    const int *panel = (const int *)(dialog + 0x14);
+    void *holder = sp_holder(), *button;
+    int pw = panel[2] - panel[0], ph = panel[3] - panel[1], over_x, over_y, reserve = 0, bx, by, bw, bh;
+    int content_w, content_h;
+    sp_shifted d;
+    if (asked == NULL || holder == NULL) {
+        return 0;
+    }
+    if (s->mode == SP_SHIFT_MEASURED) {
+        return sp_measured_body(s, asked, dialog, content, holder);
+    }
+    over_x = asked->w_eff - pw;
+    over_y = asked->h_eff - ph;
+    if (over_x <= 0 && over_y <= 0) {
+        if (g_view.popup == dialog) {
+            g_view.popup = NULL;
+        }
+        return 0;
+    }
+    button = s->button != 0 ? *(void **)(dialog + s->button) : NULL;
+    if (button != NULL) {
+        reserve = s->reserve_buttons * sp_vcall_int(button, 0x10);
+    }
+    bx = panel[0] + s->side;
+    bw = pw - 2 * s->side;
+    by = panel[1] + s->top;
+    bh = panel[3] - reserve - by;
+    d.dialog = dialog;
+    d.content = content;
+    d.bx = bx;
+    d.by = by;
+    d.yfield = 0;
+    d.dx0 = over_x > 0 ? -((pw - asked->w_req) / 2) : 0;
+    d.dy0 = over_y > 0 ? -((ph - asked->h_req) / 2) : 0;
+    /* The body below the box's top, as the game laid it out for what it asked: down to the room for the buttons,
+       moved by half of what the panel is taller than asked when it is. */
+    content_h = asked->h_req - reserve - s->top + (over_y > 0 ? 0 : (ph - asked->h_req) / 2);
+    content_w = asked->w_req - 2 * s->side;
+    return sp_scroll(holder, dialog, panel, bx, by, bw, bh, bx, panel[2] - s->side / 3,
+                     content_w > bw || over_x > 0 ? content_w : bw, content_h, s->line,
+                     (unsigned int)asked->h_req * 31u + (unsigned int)asked->w_req, sp_draw_shifted, &d);
+}
+
+/* A New Home and The Lost Children: the tombstone's body draw draws every line with the centred-block draw, which
+   calls the core draw from one place (`centre_site`).  The body is drawn once measuring (that call records each
+   line's extent and draws nothing; the clip is empty meanwhile, so nothing else shows), then, when a line runs past
+   the panel's sides, drawn with the panel rectangle (which the body draw and Cause of Death's cause line, drawn from
+   its hook in that body draw, place everything by) moved by the scroll position, under the clip. */
+static volatile LONG g_measuring;
+static int g_ext[5];              /* left, top, right, bottom; one line's height */
+static unsigned int g_core_draw;
+
+static void __stdcall sp_measured(void *ctx, const unsigned int *a) {
+    const char *s = (const char *)(UINT_PTR)a[0];
+    void *font = (void *)(UINT_PTR)a[4];
+    int w, h, x = (int)a[1], y = (int)a[2];
+    __try {
+        if (font == NULL && ctx != NULL) {
+            font = *(void **)((unsigned char *)ctx + 0x5C);
+        }
+        if (s == NULL || *s == 0 || font == NULL) {
+            return;
+        }
+        w = ((sp_width_fn)(UINT_PTR)g_game->width_fn)(font, NULL, s, 1.0f);
+        h = ((sp_height_fn)(UINT_PTR)g_game->height_fn)(font, NULL, s);
+        if (x < g_ext[0]) g_ext[0] = x;
+        if (y < g_ext[1]) g_ext[1] = y;
+        if (x + w > g_ext[2]) g_ext[2] = x + w;
+        if (y + h > g_ext[3]) g_ext[3] = y + h;
+        if (g_ext[4] == 0 || (h > 0 && h < g_ext[4])) {
+            g_ext[4] = h;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
+}
+
+__declspec(naked) static void sp_centre_stub(void) {
+    __asm {
+        cmp dword ptr [g_measuring], 0
+        jne measure
+        jmp dword ptr [g_core_draw]
+    measure:
+        lea eax, [esp + 4]
+        push eax                            /* the five arguments */
+        push ecx                            /* the drawing context */
+        call sp_measured
+        ret 0x14
+    }
+}
+
+static int sp_tomb_drawn(unsigned char *dialog, sp_content_fn content) {
+    const int *panel = (const int *)(dialog + 0x14);
+    void *holder = sp_holder();
+    int *clip = holder != NULL ? sp_clip(holder) : NULL, old[4], bx, bw, by, bottom;
+    sp_shifted d;
+    if (clip == NULL || g_game->width_fn == 0 || g_game->height_fn == 0) {
+        return 0;
+    }
+    old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+    g_ext[0] = g_ext[1] = 0x7FFFFFFF;
+    g_ext[2] = g_ext[3] = -0x7FFFFFFF;
+    g_ext[4] = 0;
+    clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[0]; clip[3] = old[1];   /* empty: nothing shows */
+    InterlockedExchange(&g_measuring, 1);
+    __try {
+        content(dialog, NULL);
+    } __finally {
+        InterlockedExchange(&g_measuring, 0);
+        clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+    }
+    bx = panel[0] + SP_TOMB_SIDE;
+    bw = panel[2] - panel[0] - 2 * SP_TOMB_SIDE;
+    bottom = sp_tomb_bottom(dialog);
+    if (g_ext[2] <= g_ext[0] || (g_ext[0] >= bx && g_ext[2] <= bx + bw && g_ext[3] <= bottom)) {
+        if (g_view.popup == dialog) {
+            g_view.popup = NULL;
+        }
+        return 0;
+    }
+    by = sp_tomb_top(panel, g_ext[0], g_ext[1], g_ext[2], g_ext[3], bx, bw, bottom);
+    d.dialog = dialog;
+    d.content = content;
+    d.bx = bx;
+    d.by = by;
+    d.dx0 = bx - g_ext[0];
+    d.dy0 = by - g_ext[1];
+    d.yfield = 0;
+    return sp_scroll(holder, dialog, panel, bx, by, bw, bottom - by, g_ext[0], panel[2] - SP_TOMB_SIDE / 2,
+                     g_ext[2] - g_ext[0], g_ext[3] - g_ext[1], g_ext[4],
+                     (unsigned int)(g_ext[2] - g_ext[0]) * 31u + (unsigned int)(g_ext[3] - g_ext[1]), sp_draw_shifted,
+                     &d);
+}
+
+/* From the stub at the frame draw's tail: the dialog's body (vtable+0x30), as the frame draw's `jmp` called it. */
+static void __stdcall sp_content(unsigned char *dialog) {
+    sp_content_fn content = (sp_content_fn)(*(void ***)dialog)[0x30 / 4];
+    int *clip = NULL, old[4] = {0, 0, 0, 0}, done = 0;
+    __try {
+        clip = sp_clip(sp_holder());
+        if (clip != NULL) {
+            old[0] = clip[0]; old[1] = clip[1]; old[2] = clip[2]; old[3] = clip[3];
+        }
+        if (g_game->centre_site != 0 && *(const unsigned int *)dialog == g_game->tomb_vtable) {
+            done = sp_tomb_drawn(dialog, content);
+        } else {
+            done = sp_shift_body(dialog, content);
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        done = 0;
+        g_op_draw.on = 0;
+        if (clip != NULL) {
+            __try {
+                clip[0] = old[0]; clip[1] = old[1]; clip[2] = old[2]; clip[3] = old[3];
+            } __except (EXCEPTION_EXECUTE_HANDLER) {
+            }
+        }
+        g_view.popup = NULL;
+    }
+    if (!done) {
+        content(dialog, NULL);
+    }
+}
+
+/* The frame draw's tail, replaced from `mov edx, [esi]` through `jmp [edx+0x30]` (A New Home to The Secret City:
+   8B 16 5F 8B CE 5E 5B 83 C4 04 FF 62 30) or `jmp eax` (The Tree of Life, New Believers: 8B 16 8B 42 30 5F 8B CE
+   5E 83 C4 04 FF E0): the same pops, then the body through sp_content, returning to the frame draw's caller. */
+__declspec(naked) static void sp_tail_stub_5(void) {
+    __asm {
+        pop edi
+        mov ecx, esi
+        pop esi
+        pop ebx
+        add esp, 4
+        push ecx
+        call sp_content
+        ret
+    }
+}
+
+__declspec(naked) static void sp_tail_stub_4(void) {
+    __asm {
+        pop edi
+        mov ecx, esi
+        pop esi
+        add esp, 4
+        push ecx
+        call sp_content
+        ret
+    }
+}
+
+/* ---- The mouse ------------------------------------------------------------------------------------------------- */
+
+static int sp_in(int x, int y, int l, int t, int w, int h) {
+    return x >= l && x < l + w && y >= t && y < t + h;
+}
+
+static void sp_drag_to(int x, int y) {
+    if (g_drag == 1) {
+        int travel = sp_knob_travel();
+        int top = y - g_drag_offset - (g_view.vy + g_view.arrow_h);
+        g_sy = travel > 0 ? (int)((long long)top * sp_max_sy() / travel) : 0;
+    } else if (g_drag == 2) {
+        int travel = sp_handle_travel();
+        int left = x - g_drag_offset - g_view.hx;
+        g_sx = travel > 0 ? (int)((long long)left * sp_max_sx() / travel) : 0;
+    }
+    sp_clamp();
+}
+
+/* 1: the event was a scrollbar's (not passed on). */
+static int __stdcall sp_mouse(int type, int x, int y) {
+    int used = 0;
+    __try {
+        g_mx = x;
+        g_my = y;
+        if (g_view.popup == NULL || GetTickCount() - g_view.tick > SP_RECENT_MS) {
+            g_drag = g_pressed = 0;
+            return 0;
+        }
+        if (type == 1) {                    /* move */
+            if (g_drag != 0) {
+                sp_drag_to(x, y);
+                used = 1;
+            }
+        } else if (type == 2 && sp_row_at(x, y) >= 0) {
+            g_row_pressed = sp_row_at(x, y) + 1;   /* one_popup.h: a choice pressed (taken when let go on it) */
+            used = 1;
+        } else if (type == 3 && g_row_pressed != 0) {
+            int k = g_row_pressed - 1;
+            op_pick_fn pick = g_rows_pick;
+            unsigned char *popup = g_view.popup;
+            g_row_pressed = 0;
+            used = 1;
+            if (sp_row_at(x, y) == k && pick != NULL) {
+                g_rows_n = 0;                       /* the popup's content changes: drawn again before a click */
+                pick(popup, k);
+            }
+        } else if (type == 2) {             /* down */
+            if (g_view.vbar && sp_in(x, y, g_view.vx, g_view.vy, g_view.track_w, g_view.vh)) {
+                int ky = sp_knob_y();
+                used = 1;
+                if (y < g_view.vy + g_view.arrow_h) {
+                    g_sy -= g_view.line;
+                    g_pressed = 1;
+                } else if (y >= g_view.vy + g_view.vh - g_view.arrow_h) {
+                    g_sy += g_view.line;
+                    g_pressed = 2;
+                } else if (y >= ky && y < ky + g_view.knob_h) {
+                    g_drag = 1;
+                    g_drag_offset = y - ky;
+                } else {
+                    g_sy += (y < ky ? -1 : 1) * (g_view.box_h - g_view.line > g_view.line
+                                                 ? g_view.box_h - g_view.line : g_view.line);
+                    g_pressed = 3;                  /* the track: its release is the bar's too */
+                }
+            } else if (g_view.hbar && sp_in(x, y, g_view.hx, g_view.hy, g_view.hw, g_view.hh)) {
+                int hx = sp_handle_x();
+                used = 1;
+                if (x >= hx && x < hx + g_view.handle_w) {
+                    g_drag = 2;
+                    g_drag_offset = x - hx;
+                } else {
+                    g_sx += (x < hx ? -1 : 1) * (g_view.box_w * 3 / 4);
+                    g_pressed = 3;
+                }
+            }
+            sp_clamp();
+        } else if (type == 3) {             /* up */
+            if (g_drag != 0 || g_pressed != 0) {
+                used = 1;
+            }
+            g_drag = 0;
+            g_pressed = 0;
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        used = 0;
+    }
+    return used;
+}
+
+static unsigned int g_mouse_dispatch;
+
+__declspec(naked) static void sp_mouse_stub(void) {
+    __asm {
+        push ecx
+        push dword ptr [esp + 0x10]         /* y */
+        push dword ptr [esp + 0x10]         /* x */
+        push dword ptr [esp + 0x10]         /* type */
+        call sp_mouse
+        pop ecx
+        test eax, eax
+        jnz used
+        jmp dword ptr [g_mouse_dispatch]
+    used:
+        ret 0xC
+    }
+}
+
+/* ---- Install ----------------------------------------------------------------------------------------------------- */
+
+/* 1 when every site of the game is installed (for the tests' emulation), else 0. */
+int __stdcall VvfpScrollingPopupsInstalled(void) {
+    return g_installed;
+}
+
+#ifdef VVFP_TEST
+/* The TEST build only (vvfp_scrolling_popups_test.def, tests\test_dlls): never shipped.
+   Dialog bodies drawn scrolled so far. */
+int __stdcall VvfpScrollingPopupsTestScrolled(void) {
+    return (int)g_scroll_draws;
+}
+
+/* The dialog drawn last (for the tests' emulation): 26 ints -- shown (1/0), the box x, y, width, visible height,
+   the content's width and height, the bars shown (vertical, horizontal), the vertical bar's x, top, height and
+   arrow height, the horizontal bar's x, y, width, height, one line's height, the scroll position x, y, and the
+   one-popup rows drawn (their count, the first's x and top, a row's width and height, the step between rows).
+   Returns how many it wrote. */
+int __stdcall VvfpScrollingPopupsTestView(int *out, int count) {
+    int v[26], i;
+    v[0] = g_view.popup != NULL;
+    v[1] = g_view.box_x; v[2] = g_view.box_y; v[3] = g_view.box_w; v[4] = g_view.box_h;
+    v[5] = g_view.content_w; v[6] = g_view.content_h; v[7] = g_view.vbar; v[8] = g_view.hbar;
+    v[9] = g_view.vx; v[10] = g_view.vy; v[11] = g_view.vh; v[12] = g_view.arrow_h;
+    v[13] = g_view.hx; v[14] = g_view.hy; v[15] = g_view.hw; v[16] = g_view.hh;
+    v[17] = g_view.line; v[18] = g_sx; v[19] = g_sy;
+    v[20] = g_rows_n; v[21] = g_row_x; v[22] = g_row_y0; v[23] = g_row_w; v[24] = g_row_h; v[25] = g_row_step;
+    if (out == NULL || count <= 0) {
+        return 0;
+    }
+    if (count > 26) {
+        count = 26;
+    }
+    __try {
+        for (i = 0; i < count; ++i) {
+            out[i] = v[i];
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+    return count;
+}
+
+/* The one-popup rows drawn last (for the tests' emulation): 3 ints a row -- its top (screen), its height and its
+   label's lines.  Returns the rows written. */
+int __stdcall VvfpScrollingPopupsTestRows(int *out, int rows) {
+    int k;
+    if (out == NULL || rows <= 0) {
+        return 0;
+    }
+    __try {
+        for (k = 0; k < rows && k < g_rows_n && k < OP_MAX_ROWS; ++k) {
+            out[3 * k] = g_rows_top[k];
+            out[3 * k + 1] = g_rows_hgt[k];
+            out[3 * k + 2] = g_rows_lines[k];
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return 0;
+    }
+    return k;
+}
+#endif
+
+static void sp_call_bytes(unsigned char *out, unsigned int site, unsigned int target) {
+    unsigned int rel = target - (site + 5u);
+    out[0] = 0xE8;
+    CopyMemory(out + 1, &rel, 4);
+}
+
+/* Called once by VVFP Startup.dll before WinMain. */
+#define SP_MAX_SITES 64
+void __stdcall VvfpStartup(int game, unsigned int shipped) {
+    static vvfp_site_write w[SP_MAX_SITES];
+    static unsigned char stock[SP_MAX_SITES][5];
+    const unsigned char *module;
+    const sp_game *g;
+    int count = 0, i, k;
+    (void)shipped;
+    if (g_installed || game < 1 || game > 5) {
+        return;
+    }
+    module = (const unsigned char *)GetModuleHandleA(NULL);
+    if (module != NULL && (UINT_PTR)module != SP_GAME_BASE) {
+        return;                             /* every site is a VA of the games' fixed base */
+    }
+    g = &SP_GAMES[game];
+    if (g->class_count < 0 || g->class_count > 8 || g->mouse_site == 0 || g->msgbox.size_site == 0) {
+        return;
+    }
+    sp_call_bytes(stock[count], g->mouse_site, g->mouse_dispatch);
+    if (!vvfp_site_holds(g->mouse_site - 2u, (const unsigned char *)"\x8B\xC8", 2)) {
+        return;                             /* mov ecx, eax: the manager */
+    }
+    vvfp_site_branch(&w[count], g->mouse_site, 5, stock[count], 0xE8, (const void *)sp_mouse_stub);
+    ++count;
+    for (i = 0; i < g->class_count; ++i) {
+        const sp_class *c = &g->classes[i];
+        if (!vvfp_site_holds(c->draw_site - 6u, c->draw_before, 6)
+            || !vvfp_site_holds(c->size_push, (const unsigned char *)"W", 1)) {
+            return;
+        }
+        sp_call_bytes(stock[count], c->draw_site, g->justify);
+        vvfp_site_branch(&w[count], c->draw_site, 5, stock[count], 0xE8, (const void *)sp_draw_stub);
+        ++count;
+        sp_call_bytes(stock[count], c->size_site, c->sizer);
+        vvfp_site_branch(&w[count], c->size_site, 5, stock[count], 0xE8, (const void *)sp_size_stub);
+        ++count;
+        for (k = 0; k < 4; ++k) {
+            if (c->measure_sites[k] != 0) {
+                sp_call_bytes(stock[count], c->measure_sites[k], g->justify);
+                vvfp_site_branch(&w[count], c->measure_sites[k], 5, stock[count], 0xE8, (const void *)sp_draw_stub);
+                ++count;
+            }
+        }
+    }
+    /* The message box: its constructor's sizer call (after `push eax; mov ecx, esi`) and the text control draw's
+       call of the text draw (esi = the control). */
+    if (!vvfp_site_holds(g->msgbox.size_site - 3u, (const unsigned char *)"\x50\x8B\xCE", 3)
+        || !vvfp_site_holds(g->ctl_site - 4u, g->ctl_before, 4)) {
+        return;
+    }
+    sp_call_bytes(stock[count], g->msgbox.size_site, g->msgbox.sizer);
+    vvfp_site_branch(&w[count], g->msgbox.size_site, 5, stock[count], 0xE8, (const void *)sp_size_stub);
+    ++count;
+    sp_call_bytes(stock[count], g->ctl_site, g->text_draw);
+    vvfp_site_branch(&w[count], g->ctl_site, 5, stock[count], 0xE8, (const void *)sp_control_stub);
+    ++count;
+    /* The panels scrolled whole (tips): each one's sizer call, and the frame draw's tail that calls every
+       dialog's body; a tip's per-line justified paragraph (never stuck on a word wider than its box). */
+    for (i = 0; i < g->shift_count; ++i) {
+        const sp_shift *s = &g->shifts[i];
+        if (!vvfp_site_holds(s->size_site - 3u, s->size_before, 3)) {
+            return;
+        }
+        sp_call_bytes(stock[count], s->size_site, s->sizer);
+        vvfp_site_branch(&w[count], s->size_site, 5, stock[count], 0xE8, (const void *)sp_size_stub);
+        ++count;
+        if (s->lookup_fn != 0) {
+            /* A New Home, The Lost Children: the tip's string-table lookups (constructor, body draw) */
+            for (k = 0; k < 2; ++k) {
+                sp_call_bytes(stock[count], s->lookup_sites[k], s->lookup_fn);
+                vvfp_site_branch(&w[count], s->lookup_sites[k], 5, stock[count], 0xE8, (const void *)sp_lookup_stub);
+                ++count;
+            }
+            g_lookup_shift = s;
+            g_lookup_fn = s->lookup_fn;
+        }
+    }
+    if (g->shift_count > 0) {
+        static const unsigned char tail5[13] = {0x8B, 0x16, 0x5F, 0x8B, 0xCE, 0x5E, 0x5B, 0x83, 0xC4, 0x04,
+                                                0xFF, 0x62, 0x30};
+        static const unsigned char tail4[14] = {0x8B, 0x16, 0x8B, 0x42, 0x30, 0x5F, 0x8B, 0xCE, 0x5E, 0x83,
+                                                0xC4, 0x04, 0xFF, 0xE0};
+        int four = g->tail_pops == 4;
+        if (!vvfp_site_holds(g->tail_site - 6u, (const unsigned char *)(four ? "\x0F\x8A" : "\x0F\x85"), 2)) {
+            return;                         /* jne / jp: the open fade not finished (no body drawn) */
+        }
+        vvfp_site_branch(&w[count], g->tail_site, four ? 14 : 13, four ? tail4 : tail5, 0xE9,
+                         four ? (const void *)sp_tail_stub_4 : (const void *)sp_tail_stub_5);
+        ++count;
+    }
+    /* A New Home, The Lost Children: the centred-block draw's call of the core draw (the tombstone's lines are
+       measured there). */
+    if (g->centre_site != 0) {
+        if (!vvfp_site_holds(g->centre_site - 3u, (const unsigned char *)"\x57\x8B\xCB", 3)) {
+            return;                         /* push edi; mov ecx, ebx */
+        }
+        sp_call_bytes(stock[count], g->centre_site, g->core_draw);
+        vvfp_site_branch(&w[count], g->centre_site, 5, stock[count], 0xE8, (const void *)sp_centre_stub);
+        ++count;
+    }
+    if (g->widen_site != 0) {
+        sp_call_bytes(stock[count], g->widen_site, g->justify);
+        vvfp_site_branch(&w[count], g->widen_site, 5, stock[count], 0xE8, (const void *)sp_draw_stub);
+        ++count;
+    }
+    /* The island-event dialog's call of the villager's picture (after `push eax`; esi = the dialog). */
+    if (g->portrait_site != 0) {
+        if (g->portrait_args <= 0 || g->portrait_args > 8
+            || !vvfp_site_holds(g->portrait_site - 1u, (const unsigned char *)"\x50", 1)) {
+            return;
+        }
+        sp_call_bytes(stock[count], g->portrait_site, g->portrait_fn);
+        vvfp_site_branch(&w[count], g->portrait_site, 5, stock[count], 0xE8, (const void *)sp_portrait_stub);
+        ++count;
+    }
+    /* The later three: the island-event dialog's call of the title's centred draw (after `push edx; mov ecx,
+       edi`; esi = the dialog). */
+    if (g->title_site != 0) {
+        if (!vvfp_site_holds(g->title_site - 3u, (const unsigned char *)"\x52\x8B\xCF", 3)) {
+            return;
+        }
+        sp_call_bytes(stock[count], g->title_site, g->title_fn);
+        vvfp_site_branch(&w[count], g->title_site, 5, stock[count], 0xE8, (const void *)sp_title_stub);
+        ++count;
+    }
+    /* A New Home, The Lost Children: each island-event dialog's call drawing its text from the first line break
+       (after `push eax; push ebx`; esi = the dialog). */
+    for (i = 0; i < 3; ++i) {
+        unsigned int site = g->whole_sites[i];
+        if (site == 0) {
+            continue;
+        }
+        if (g->whole_fn == 0 || !vvfp_site_holds(site - 2u, (const unsigned char *)"\x50\x53", 2)) {
+            return;
+        }
+        sp_call_bytes(stock[count], site, g->whole_fn);
+        vvfp_site_branch(&w[count], site, 5, stock[count], 0xE8, (const void *)sp_whole_stub);
+        ++count;
+    }
+    g_game = g;
+    g_title_fn = g->title_fn;
+    g_whole_fn = g->whole_fn;
+    g_game_number = game;
+    g_mouse_dispatch = g->mouse_dispatch;
+    g_core_draw = g->core_draw;
+    g_portrait_fn = g->portrait_fn;
+    g_portrait_pop = (unsigned int)g->portrait_args * 4u;
+    if (vvfp_install_sites(w, count)) {
+        g_installed = 1;
+    } else {
+        g_game = NULL;
+    }
+}
+
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
+    (void)reserved;
+    if (reason == DLL_PROCESS_ATTACH) {
+        DisableThreadLibraryCalls(instance);
+    }
+    return TRUE;
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Path in the Stars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz109_path_stars",
+  "source": "draft_hz2",
+  "lines": [
+   354,
+   364
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L354",
+  "ledger": [
+   {
+    "src": "L355",
+    "kind": "sensitivity",
+    "before": "A navigator",
+    "after": "(Name1), a navigator,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A navigator wonders whether distant sailors might read the stars the same way Isolans do.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a navigator, wonders whether distant sailors might read the stars the same way Isolans do.",
+   "src": "L355",
+   "choices": [
+    {
+     "label": "Imagine Shared Stars.",
+     "next": "a",
+     "src": "L356"
+    },
+    {
+     "label": "Imagine Different Methods.",
+     "next": "b",
+     "src": "L359"
+    },
+    {
+     "label": "Teach a Child to Read the Stars.",
+     "next": "c",
+     "src": "L362"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The navigator imagines sailors far away following the same bright points across the sea.",
+   "src": "L357"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar wonders whether different seas might show different stars.",
+   "src": "L358"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A builder imagines distant sailors using clever objects shaped like discs or spoons to find their way.",
+   "src": "L360"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder wonders whether such objects might make sailors forget how to read the sky.",
+   "src": "L361"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child learns three new stars and is very proud.",
+   "src": "L363"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Clouds roll in, and the lesson becomes a story about stars instead.",
+   "src": "L364"
+  }
+ }
+}

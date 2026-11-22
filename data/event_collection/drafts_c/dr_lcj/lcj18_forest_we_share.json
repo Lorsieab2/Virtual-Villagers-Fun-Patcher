@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forest We Share",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj18_forest_we_share",
+  "source": "draft_lcj",
+  "lines": [
+   250,
+   261
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L250",
+  "ledger": [
+   {
+    "src": "L251",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a builder and an elder)"
+   },
+   {
+    "src": "L257",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L257",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L261",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Builders want timber from a grove that shelters birds and holds family memories: take a little, or leave it whole.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) needs timber, and the best is in the old grove behind the village, where the birds nest and where (friend)'s family has scattered the ashes of the dead for generations. (subject) says the grove can spare a few trees. (friend) is not sure it can. What should they do?",
+   "src": "L253",
+   "choices": [
+    {
+     "label": "Take a Little",
+     "next": "o1",
+     "src": "L255"
+    },
+    {
+     "label": "Leave It Whole",
+     "next": "o2",
+     "src": "L259"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes three trees, chosen with (friend), from the edge of the grove, and plants six in their place. (friend) says a few words over each stump. The birds shift a little deeper into the grove.",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L257"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) leaves the grove alone and fetches timber from the far hills. It takes longer. (friend) brings (subject.him/her) food on the long walks, and stories of the grove.",
+   "src": "L261",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L261"
+    }
+   ]
+  }
+ }
+}

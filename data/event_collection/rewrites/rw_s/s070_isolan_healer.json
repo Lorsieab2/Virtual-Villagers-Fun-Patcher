@@ -1,0 +1,260 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Isolan Healer",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "s070_isolan_healer",
+  "source": "rewrites",
+  "lines": [
+   3303,
+   3348
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L3303",
+  "ledger": [
+   {
+    "src": "L3305",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3306",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3314",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3323",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3304",
+    "kind": "note",
+    "why": "the writer's note, never shown"
+   },
+   {
+    "src": "L3311",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3312",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3315",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3324",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3317",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3320",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3326",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3329",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3332-3348",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Another villager has been sick for days now, and the believers' healers are worried.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Another villager has been sick for days now, and the faithful's healers are worried."
+   }
+  ]
+ },
+ "patches": [
+  "guardians_of_isola"
+ ],
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "believers_only": false,
+   "heathen_ok": true
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "healer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(friend) has been sick for days now, and the believers' healers are worried. They've tried their teas and their poultices and their prayers, and none of it is working. (friend) lies on (friend.his/her) mat, pale and sweating, and barely knows anyone.\nOn the fourth evening, an Isolan comes to the edge of the village and stops there, just outside the last hut, the way Isolans do. It's (subject). (subject.His/her) mask is painted with green leaves, and (subject.his/her) hands are stained green to the wrists from the bundle of herbs (subject.he/she) is holding.\n\"I can help,\" (subject.he/she) says quietly, to the healers. \"If you'll let me.\" Isolans and believers have kept apart for a long time, and some of the healers look doubtful. Should they let (subject) help?",
+   "choices": [
+    {
+     "label": "Let (subject.Him/Her) Help",
+     "next": "c1",
+     "src": "L3311"
+    },
+    {
+     "label": "Thank (subject.Him/Her) and Refuse",
+     "next": "c2",
+     "src": "L3312"
+    }
+   ],
+   "src": "L3307-3309",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(friend) has been sick for days now, and the faithful's healers are worried. They've tried their teas and their poultices and their prayers, and none of it is working. (friend) lies on (friend.his/her) mat, pale and sweating, and barely knows anyone.\nOn the fourth evening, an Isolan comes to the edge of the village and stops there, just outside the last hut, the way Isolans do. It's (subject). (subject.His/her) mask is painted with green leaves, and (subject.his/her) hands are stained green to the wrists from the bundle of herbs (subject.he/she) is holding.\n\"I can help,\" (subject.he/she) says quietly, to the healers. \"If you'll let me.\" Isolans and tribe members have kept apart for a long time, and some of the healers look doubtful. Should they let (subject) help?"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "(subject) crushes the leaves between (subject.his/her) green palms and makes a paste, and spreads it on (friend)'s chest and forehead, and brews a tea from the roots and holds the cup to (friend)'s lips. (subject.He/She) hums something under (subject.his/her) breath the whole time, very low. The herbs work. By morning, (friend)'s fever is gone, and (friend.he/she) is sitting up, asking for food. The believers' healers have a great many questions for (subject). (subject) answers some of them, and smiles at the rest, and goes back to the Isolans at midday. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    },
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L3318",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(subject) crushes the leaves between (subject.his/her) green palms and makes a paste, and spreads it on (friend)'s chest and forehead, and brews a tea from the roots and holds the cup to (friend)'s lips. (subject.He/She) hums something under (subject.his/her) breath the whole time, very low. The herbs work. By morning, (friend)'s fever is gone, and (friend.he/she) is sitting up, asking for food. The faithful's healers have a great many questions for (subject). (subject) answers some of them, and smiles at the rest, and goes back to the Isolans at midday. Your villagers gain (award) tech points."
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The herbs help, a little. The fever drops, a little. It isn't a miracle, and (subject) doesn't pretend it is. But (subject.he/she) stays all night anyway, kneeling by (friend)'s mat, changing the cloths, giving the tea, humming. The believers' healers stay too, and watch everything (subject.he/she) does: how (subject.he/she) holds a wrist to count the heartbeat, which leaves (subject.he/she) uses for what, how (subject.he/she) mixes them. They learn more in that one night than in a whole season. (friend) gets better slowly, over the following week.",
+   "effects": [
+    {
+     "do": "skill",
+     "skills": [
+      "Healing"
+     ],
+     "min": 10,
+     "max": 10,
+     "target": {
+      "skill": "Healing"
+     }
+    }
+   ],
+   "src": "L3321",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The herbs help, a little. The fever drops, a little. It isn't a miracle, and (subject) doesn't pretend it is. But (subject.he/she) stays all night anyway, kneeling by (friend)'s mat, changing the cloths, giving the tea, humming. The faithful's healers stay too, and watch everything (subject.he/she) does: how (subject.he/she) holds a wrist to count the heartbeat, which leaves (subject.he/she) uses for what, how (subject.he/she) mixes them. They learn more in that one night than in a whole season. (friend) gets better slowly, over the following week."
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The healers look at each other for a long time. Then (healer), the oldest of them, steps aside, and nods. (subject) walks into the village, slowly, past all the watching faces, and kneels down beside (friend)'s mat, and unwraps the herbs...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3315"
+  },
+  "c2o1": {
+   "text": "(subject) doesn't argue. (subject.He/She) bends down, lays the bundle of herbs gently on the ground at the edge of the village, and goes back the way (subject.he/she) came, without a word. The healers leave the herbs there all night. In the morning, with (friend) worse than ever, the youngest healer goes out and picks them up, and nobody stops them. They try them, in the end. They work. Nobody ever quite says out loud where they came from.",
+   "effects": [
+    {
+     "do": "cure",
+     "role": "friend"
+    }
+   ],
+   "src": "L3327",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) shrugs, and wraps the herbs back up, and goes. The healers keep trying their own teas and poultices. (friend) gets better, in the end, slowly, painfully, on (friend.his/her) own, over two long weeks. When (friend) is finally well enough to walk, (friend.he/she) asks who the Isolan was, at the edge of the village, that night. Nobody quite wants to tell (friend.him/her).",
+   "src": "L3330"
+  },
+  "c2": {
+   "text": "(healer), the oldest of the believers' healers, steps forward. \"Thank you,\" (healer.he/she) says, carefully. \"But we will look after our own.\" (subject) is quiet for a moment. Then (subject.he/she) nods...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3324",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(healer), the oldest of the faithful's healers, steps forward. \"Thank you,\" (healer.he/she) says, carefully. \"But we will look after our own.\" (subject) is quiet for a moment. Then (subject.he/she) nods..."
+    }
+   ]
+  }
+ }
+}

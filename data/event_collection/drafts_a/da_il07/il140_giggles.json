@@ -1,0 +1,158 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Giggles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il140_giggles",
+  "source": "da_il07",
+  "lines": [
+   236,
+   245
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L236",
+  "ledger": [
+   {
+    "src": "L237",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L242",
+    "kind": "casting",
+    "before": "One elder sighs.",
+    "after": "One elder, (sigher), sighs.",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L242",
+    "kind": "casting",
+    "before": "Another elder, to everyone's surprise,",
+    "after": "Another elder, (laugher), to everyone's surprise,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "The elders are counting the harvest baskets very seriously, and two villagers catch the giggles.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "sigher": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "laugher": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The elders are counting the harvest baskets, out loud, very slowly and very seriously, and everyone is supposed to stand quietly while they do it. (subject) catches (friend)'s eye across the group. (friend)'s mouth twitches. (subject)'s mouth twitches. A small squeak escapes from somewhere. Nobody knows which of them it came from.",
+   "src": "L239",
+   "choices": [
+    {
+     "label": "Look Away Immediately",
+     "next": "a",
+     "src": "L241"
+    },
+    {
+     "label": "Hold It in at All Costs",
+     "next": "b",
+     "src": "L244"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) stares very hard at a tree. It doesn't help. (subject.He/She) can feel (friend) shaking silently on the other side of the group. The elders reach \"forty-one\" and (subject) lets out a snort that echoes off the huts. One elder, (sigher), sighs. Another elder, (laugher), to everyone's surprise, starts laughing too. The count starts over.",
+   "src": "L242",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "laugher",
+     "mood": "good",
+     "src": "L242"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) stares very hard at a tree. It doesn't help. (subject.He/She) can feel (friend) shaking silently on the other side of the group. The elders reach \"forty-one\" and (subject) lets out a snort that echoes off the huts. One elder, (sigher), sighs. Another elder, (laugher), to everyone's surprise, starts laughing too. The count starts over.",
+   "src": "L242"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) bites (subject.his/her) lip, holds (subject.his/her) breath and thinks very sad thoughts about cold soup. It works, just. The count finishes. The elders walk away. (subject) and (friend) look at each other, and both of them fall over laughing in the dust, while the rest of the village steps around them.",
+   "src": "L245",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L245"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L245"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) bites (subject.his/her) lip, holds (subject.his/her) breath and thinks very sad thoughts about cold soup. It works, just. The count finishes. The elders walk away. (subject) and (friend) look at each other, and both of them fall over laughing in the dust, while the rest of the village steps around them.",
+   "src": "L245"
+  }
+ }
+}

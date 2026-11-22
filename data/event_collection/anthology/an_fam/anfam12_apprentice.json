@@ -1,0 +1,343 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice's Hurt Feelings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam12_apprentice",
+  "source": "anthology",
+  "lines": [
+   28465,
+   28478
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28465",
+  "ledger": [
+   {
+    "src": "L28466",
+    "kind": "sensitivity",
+    "before": "A master",
+    "after": "(master), a master,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28468",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28469",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28469",
+    "kind": "sensitivity",
+    "before": "the master",
+    "after": "(master)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28471",
+    "kind": "sensitivity",
+    "before": "the apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28472",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28474",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28475",
+    "kind": "sensitivity",
+    "before": "The master",
+    "after": "(master)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28477",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28478",
+    "kind": "sensitivity",
+    "before": "The apprentice",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A master criticizes an apprentice's work too sharply in front of others.",
+  "label_case": "title",
+  "cast_only": [
+   "master",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "master": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(master), a master, criticizes an apprentice's work too sharply in front of others.",
+   "src": "L28466",
+   "choices": [
+    {
+     "label": "Apologize Privately",
+     "next": "a",
+     "src": "L28467"
+    },
+    {
+     "label": "Acknowledge the Mistake Publicly",
+     "next": "b",
+     "src": "L28470"
+    },
+    {
+     "label": "Give Specific Constructive Feedback",
+     "next": "c",
+     "src": "L28473"
+    },
+    {
+     "label": "Ask the Apprentice What Support Would Help",
+     "next": "d",
+     "src": "L28476"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(apprentice) asks (master) not to repeat the public criticism.",
+   "src": "L28469"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(master) realizes the task was poorly explained.",
+   "src": "L28475"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(apprentice) requests more time to practice.",
+   "src": "L28477"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(apprentice) asks to work with a different teacher for a while.",
+   "src": "L28478"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(apprentice) appreciates the private apology.",
+   "src": "L28468",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L28468"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(apprentice) appreciates the private apology.",
+   "src": "L28468"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The public correction restores (apprentice)'s confidence.",
+   "src": "L28471",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L28471"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The public correction restores (apprentice)'s confidence.",
+   "src": "L28471"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(apprentice) feels uncomfortable being singled out again.",
+   "src": "L28472",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "bad",
+     "src": "L28472"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(apprentice) feels uncomfortable being singled out again.",
+   "src": "L28472"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(apprentice) improves after receiving practical guidance.",
+   "src": "L28474",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L28474"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(apprentice) improves after receiving practical guidance.",
+   "src": "L28474"
+  }
+ }
+}

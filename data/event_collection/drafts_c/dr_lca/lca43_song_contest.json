@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song Contest Between the Huts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca43_song_contest",
+  "source": "draft_lca",
+  "lines": [
+   600,
+   611
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L600",
+  "ledger": [
+   {
+    "src": "L601",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults and a child)"
+   },
+   {
+    "src": "L607",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L607",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L611",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The north huts and the south huts challenge each other to a singing contest: let the children judge, or let the elders judge.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The north huts, led by (subject), and the south huts, led by (friend), have been teasing each other for weeks about who sings better. Now there is going to be a contest. The only question left is who judges, because every elder lives in one row or the other. (third) has offered, very seriously. Who should judge?",
+   "src": "L603",
+   "choices": [
+    {
+     "label": "Let the Children Judge",
+     "next": "o1",
+     "src": "L605"
+    },
+    {
+     "label": "Let the Elders Judge",
+     "next": "o2",
+     "src": "L609"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) and the other children judge. They award points for loudness, silliness and whether anyone fell over. The north huts win on loudness, the south huts on silliness, and a goat that wandered on stage wins overall. Both sides agree this is fair.",
+   "src": "L607",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L607"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The elders judge, and after a very long discussion declare the south huts the winners. The north huts insist the elders were biased, which they probably were. (subject) demands a rematch next year. The teasing goes on, and gets better.",
+   "src": "L611"
+  }
+ }
+}

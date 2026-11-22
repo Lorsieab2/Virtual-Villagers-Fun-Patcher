@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child With the Foreign Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss031_child_foreign",
+  "source": "companion",
+  "lines": [
+   6381,
+   6389
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6381",
+  "ledger": [
+   {
+    "src": "L6389",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A rescued child sings a lullaby nobody recognizes.",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A rescued child sings a lullaby nobody recognizes. Several villagers try to guess where it came from.",
+   "src": "L6382",
+   "choices": [
+    {
+     "label": "Record the melody",
+     "next": "a",
+     "src": "L6383"
+    },
+    {
+     "label": "Let the child decide when to speak",
+     "next": "b",
+     "src": "L6385"
+    },
+    {
+     "label": "Sing a familiar island song together",
+     "next": "c",
+     "src": "L6387"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The song becomes a clue for future contact, not proof of an origin.",
+   "src": "L6384"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They eventually share memories at their own pace.",
+   "src": "L6386"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The child joins in on the refrain, finding comfort without forgetting home.",
+   "src": "L6388",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L6388"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The child joins in on the refrain, finding comfort without forgetting home.",
+   "src": "L6388"
+  }
+ }
+}

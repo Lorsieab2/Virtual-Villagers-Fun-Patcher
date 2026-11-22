@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Elders, Two Answers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv16_two_elders_two",
+  "source": "draft_adv",
+  "lines": [
+   182,
+   191
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L182",
+  "ledger": [
+   {
+    "src": "L183",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and two elders)"
+   }
+  ],
+  "description": "Two elders give a villager opposite advice on where to plant a fruit tree: plant it in between, or plant two trees.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to plant a fruit tree. (friend) says plant it in the shade by the stream: \"The roots like water.\" (third) says plant it on the sunny hill: \"Fruit needs sun!\" Both of them are standing right there, both are very sure, and they're starting to look at each other the way two cats look at each other.",
+   "src": "L185",
+   "choices": [
+    {
+     "label": "Plant It Somewhere in Between",
+     "next": "o1",
+     "src": "L187"
+    },
+    {
+     "label": "Plant Two Trees",
+     "next": "o2",
+     "src": "L190"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) plants it halfway between, on the edge of the slope near the stream, where it gets sun in the morning and shade in the afternoon. Both elders inspect the spot and say, \"Hmm,\" in exactly the same way. The tree grows. Slowly. It isn't a spectacular tree. It's (subject)'s tree.",
+   "src": "L188"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) gets two saplings and plants one in each place. \"We'll see,\" (subject.he/she) says. The elders nod, satisfied. Over the years, the shade tree grows big but gives little fruit, and the hill tree stays small but gives a lot. Both elders feel completely proven right. (subject) gets fruit from both and doesn't mention it to either.",
+   "src": "L191",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L191"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) gets two saplings and plants one in each place. \"We'll see,\" (subject.he/she) says. The elders nod, satisfied. Over the years, the shade tree grows big but gives little fruit, and the hill tree stays small but gives a lot. Both elders feel completely proven right. (subject) gets fruit from both and doesn't mention it to either.",
+   "src": "L191"
+  }
+ }
+}

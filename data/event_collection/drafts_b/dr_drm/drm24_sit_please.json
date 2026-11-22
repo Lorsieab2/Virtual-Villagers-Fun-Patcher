@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sit, Please",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm24_sit_please",
+  "source": "draft_drm",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager has spent eleven days trying to teach a village dog to sit: keep trying, or teach it something else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has set (subject.him/her)self the goal of teaching one of the village dogs to sit when asked. Just sit. That's all. It has been eleven days. The dog has learned to lie down, roll over, bark once and eat an entire fish, but it has not sat down once. (friend) comes by to see how it's going.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Keep Trying",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Teach It Something Else",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Why don't you teach it the thing it's good at?\" says (friend). So (subject) teaches the dog to roll over when asked. It learns in an afternoon. The dog is clearly delighted with this arrangement. (subject) decides that a dog who rolls over on request is, in fact, what (subject.he/she) wanted all along.",
+   "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) holds up a bit of fish. \"Sit.\" The dog lies down. \"Sit.\" The dog rolls over. \"SIT.\" The dog barks once. (friend) is crying with laughter. Then, very slowly, the dog sits. Both villagers freeze. The dog, looking deeply pleased with itself, immediately lies down again. It counts. (subject) has decided it counts.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L290"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L290"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) holds up a bit of fish. \"Sit.\" The dog lies down. \"Sit.\" The dog rolls over. \"SIT.\" The dog barks once. (friend) is crying with laughter. Then, very slowly, the dog sits. Both villagers freeze. The dog, looking deeply pleased with itself, immediately lies down again. It counts. (subject) has decided it counts.",
+   "src": "L290"
+  }
+ }
+}

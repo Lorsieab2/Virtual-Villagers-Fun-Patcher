@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Prayer, Different Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf24_same_prayer",
+  "source": "draft_blf",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "In the storm one villager prayed and the other tied down the roof, and the hut stands: say the prayers worked, or say nothing.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "During the storm last night, (subject) and (friend) sheltered in the same hut. When the wind was at its worst, (subject) prayed out loud to the spirits of the sea. (friend), who doesn't believe in any spirits, was busy tying down the roof as tightly as (friend.he/she) could. This morning, the storm has passed and the hut is still standing.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "(subject) Says the Prayers Worked",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "They Don't Talk About It",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Neither says anything about the prayers or the ropes. They just go out together to check the other huts, helping where they can. Later, at the fire, someone asks how they got through it. \"(subject) prayed and I tied ropes,\" says (friend) simply. \"And we're both still here.\" Everyone nods. That seems like as good an answer as any.",
+   "src": "L293"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"The spirits held the roof,\" says (subject). \"I held the roof,\" says (friend), rubbing (friend.his/her) sore hands. They look at each other. Then (subject) laughs. \"Maybe both.\" (friend) shrugs, smiling. \"Maybe both.\" Whatever held the roof, it held. They go out together to see how the rest of the village fared.",
+   "src": "L290",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -15,
+     "src": "L290"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L290"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"The spirits held the roof,\" says (subject). \"I held the roof,\" says (friend), rubbing (friend.his/her) sore hands. They look at each other. Then (subject) laughs. \"Maybe both.\" (friend) shrugs, smiling. \"Maybe both.\" Whatever held the roof, it held. They go out together to see how the rest of the village fared.",
+   "src": "L290"
+  }
+ }
+}

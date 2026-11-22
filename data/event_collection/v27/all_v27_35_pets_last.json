@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pet's Last Morning",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_35_pets_last",
+  "source": "v28",
+  "lines": [
+   10761,
+   10767
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10761",
+  "ledger": [
+   {
+    "src": "L10762",
+    "kind": "note",
+    "why": "the cast: ANIMALS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10767",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A beloved old animal companion grows weak with age.",
+  "cast_only": [
+   "guardian"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "guardian": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A beloved longtime animal companion becomes weak with age.",
+   "src": "L10763",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A healer offers comfort; the animal recovers enough for more gentle days.",
+   "src": "L10764"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The animal disappears; the family keeps a favorite toy but has no grave.",
+   "src": "L10766",
+   "text_only": [
+    {
+     "what": "disappears",
+     "reason": "the animal disappears, not a villager",
+     "src": "L10766"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The pet dies peacefully; its guardian grieves and remembers it.",
+   "src": "L10765",
+   "text_only": [
+    {
+     "what": "dies",
+     "reason": "the pet dies, not a villager",
+     "src": "L10765"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "guardian",
+     "mood": "bad",
+     "src": "L10765"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The pet dies peacefully; its guardian grieves and remembers it.",
+   "src": "L10765",
+   "text_only": [
+    {
+     "what": "dies",
+     "reason": "the pet dies, not a villager",
+     "src": "L10765"
+    }
+   ]
+  }
+ }
+}

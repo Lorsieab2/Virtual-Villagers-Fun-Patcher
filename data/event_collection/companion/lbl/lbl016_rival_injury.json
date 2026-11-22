@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rival's Injury",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl016_rival_injury",
+  "source": "companion",
+  "lines": [
+   3996,
+   4006
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3996",
+  "ledger": [
+   {
+    "src": "L3997",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4005",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4006",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Two competing apprentices face a difficult day when one is hurt.",
+  "cast_only": [
+   "rival"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "injured": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "rival": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two competing apprentices face a difficult day when one is hurt.",
+   "src": "L3998",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L3999"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4000"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4001"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The healthy rival offers genuine help.",
+   "src": "L4002",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "injured",
+     "min": -30,
+     "max": -10,
+     "src": "L3998"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "Competition briefly becomes bitter resentment.",
+   "src": "L4003",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "injured",
+     "min": -30,
+     "max": -10,
+     "src": "L3998"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The injury prompts both to reconsider their rivalry.",
+   "src": "L4004",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "injured",
+     "min": -30,
+     "max": -10,
+     "src": "L3998"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

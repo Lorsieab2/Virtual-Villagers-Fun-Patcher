@@ -1,0 +1,185 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Injured Shorebird",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau07_injured",
+  "source": "anthology",
+  "lines": [
+   32545,
+   32559
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32545",
+  "ledger": [
+   {
+    "src": "L32546",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS / ADULTS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32550",
+    "kind": "sensitivity",
+    "before": "A curious child",
+    "after": "(child), a curious child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32552",
+    "kind": "sensitivity",
+    "before": "A capable caretaker",
+    "after": "(caretaker), a capable caretaker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A shorebird limps near the tideline while people gather to watch.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "caretaker"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "caretaker": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A shorebird limps near the tideline while people gather to watch.",
+   "src": "L32547",
+   "choices": [
+    {
+     "label": "Keep People Back",
+     "next": "a",
+     "src": "L32548"
+    },
+    {
+     "label": "Seek Experienced Help",
+     "next": "b",
+     "src": "L32551"
+    },
+    {
+     "label": "Protect the Feeding Area",
+     "next": "c",
+     "src": "L32554"
+    },
+    {
+     "label": "Record Its Condition",
+     "next": "d",
+     "src": "L32557"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The bird rests without being chased.",
+   "src": "L32549"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child), a curious child, needs a gentle explanation.",
+   "src": "L32550"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(caretaker), a capable caretaker, assesses the situation.",
+   "src": "L32552"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "No safe intervention is possible yet.",
+   "src": "L32553"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The bird can forage undisturbed.",
+   "src": "L32555"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Fisherfolk must temporarily share space.",
+   "src": "L32556"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Observers notice gradual improvement.",
+   "src": "L32558"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Its condition worsens and the village discusses humane options.",
+   "src": "L32559"
+  }
+ }
+}

@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sleepless Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus25_sleepless",
+  "source": "anthology",
+  "lines": [
+   31103,
+   31117
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31103",
+  "ledger": [
+   {
+    "src": "L31104",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L31105",
+    "kind": "sensitivity",
+    "before": "An apprentice who survived a frightening event has",
+    "after": "(apprentice), an apprentice who survived a frightening event, has",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31108",
+    "kind": "sensitivity",
+    "before": "a familiar mentor",
+    "after": "(mentor), a familiar mentor",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31110",
+    "kind": "sensitivity",
+    "before": "The mentor",
+    "after": "(mentor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31113",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31116",
+    "kind": "sensitivity",
+    "before": "The teen",
+    "after": "(apprentice)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An apprentice who survived a frightening event has trouble sleeping and begins missing lessons.",
+  "label_case": "title",
+  "cast_only": [
+   "apprentice",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(apprentice), an apprentice who survived a frightening event, has trouble sleeping and begins missing lessons.",
+   "src": "L31105",
+   "choices": [
+    {
+     "label": "Ask What Would Help Today",
+     "next": "a",
+     "src": "L31106"
+    },
+    {
+     "label": "Protect Privacy",
+     "next": "b",
+     "src": "L31109"
+    },
+    {
+     "label": "Support Gradual Recovery",
+     "next": "c",
+     "src": "L31112"
+    },
+    {
+     "label": "Offer Age-Appropriate Choices",
+     "next": "d",
+     "src": "L31115"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They request shorter lessons temporarily.",
+   "src": "L31107"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They ask to work beside (mentor), a familiar mentor.",
+   "src": "L31108"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(mentor) shares only necessary scheduling information.",
+   "src": "L31110"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Other apprentices are told not to speculate.",
+   "src": "L31111"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They still have difficult nights, and progress is not treated as linear.",
+   "src": "L31114"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(apprentice) selects a manageable project.",
+   "src": "L31116"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They decide to pause training without losing their place.",
+   "src": "L31117"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(apprentice) returns to a favorite activity.",
+   "src": "L31113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L31113"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(apprentice) returns to a favorite activity.",
+   "src": "L31113"
+  }
+ }
+}

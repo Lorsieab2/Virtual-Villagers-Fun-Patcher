@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Trade Goods",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage16_missing_trade",
+  "source": "anthology",
+  "lines": [
+   30365,
+   30379
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30365",
+  "ledger": [
+   {
+    "src": "L30366",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30367",
+    "kind": "sensitivity",
+    "before": "A trader",
+    "after": "(trader), a trader,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30375",
+    "kind": "sensitivity",
+    "before": "The trader",
+    "after": "(trader)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A trader discovers a discrepancy in the village's exchange records, and neighbors begin whispering about dishonesty.",
+  "label_case": "title",
+  "cast_only": [
+   "trader"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "trader": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(trader), a trader, discovers a discrepancy in the village's exchange records, and neighbors begin whispering about dishonesty.",
+   "src": "L30367",
+   "choices": [
+    {
+     "label": "Recount Goods with Witnesses",
+     "next": "a",
+     "src": "L30368"
+    },
+    {
+     "label": "Review the Recording Method",
+     "next": "b",
+     "src": "L30371"
+    },
+    {
+     "label": "Ask Everyone to Stop Speculating",
+     "next": "c",
+     "src": "L30374"
+    },
+    {
+     "label": "Create a Clearer System",
+     "next": "d",
+     "src": "L30377"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A misplaced bundle resolves the discrepancy and ends the suspicion.",
+   "src": "L30369"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The count confirms a shortage but reveals no evidence of theft.",
+   "src": "L30370"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An ambiguous symbol caused two people to record the same exchange differently.",
+   "src": "L30372"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The records are accurate, so the village examines transport and storage losses.",
+   "src": "L30373"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(trader) feels less isolated while the investigation continues.",
+   "src": "L30375"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some remain suspicious, prompting a discussion of evidence and reputation.",
+   "src": "L30376"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The new system proves cumbersome, and traders refine it after a trial.",
+   "src": "L30379"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "A simple double-check prevents future mistakes.",
+   "src": "L30378",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L30378"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "A simple double-check prevents future mistakes.",
+   "src": "L30378"
+  }
+ }
+}

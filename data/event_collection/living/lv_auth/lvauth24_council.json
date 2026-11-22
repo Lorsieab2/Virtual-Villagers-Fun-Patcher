@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Council's Unwelcome Answer",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth24_council",
+  "source": "living",
+  "lines": [
+   23699,
+   23713
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23699",
+  "ledger": [
+   {
+    "src": "L23713",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A popular leader asks the village whether to abandon an exhausted field; the answer is not what the leader expected.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A popular {@chief} asks the village whether to abandon an exhausted field; the answer is not what the {@chief} expected.",
+   "src": "L23700",
+   "choices": [
+    {
+     "label": "Overrule the council.",
+     "next": "a",
+     "src": "L23701"
+    },
+    {
+     "label": "Accept the council's decision.",
+     "next": "b",
+     "src": "L23704"
+    },
+    {
+     "label": "Explain the evidence and call another vote.",
+     "next": "c",
+     "src": "L23707"
+    },
+    {
+     "label": "Try a limited experiment.",
+     "next": "d",
+     "src": "L23710"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} protects a food reserve the council overlooked.",
+   "src": "L23702",
+   "text_only": [
+    {
+     "what": "a food reserve",
+     "reason": "the reserve is kept: nothing is gained or lost",
+     "src": "L23702"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Villagers feel their voices were merely ceremonial.",
+   "src": "L23703"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The transition brings a difficult hungry season.",
+   "src": "L23706",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L23706"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village reaches a more informed decision.",
+   "src": "L23708"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The repeated debate deepens suspicion.",
+   "src": "L23709"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The trial produces ambiguous results.",
+   "src": "L23712"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The new fields eventually flourish.",
+   "src": "L23705",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23705"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The new fields eventually flourish.",
+   "src": "L23705"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The village gathers useful evidence without full commitment.",
+   "src": "L23711",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23711"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The village gathers useful evidence without full commitment.",
+   "src": "L23711"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

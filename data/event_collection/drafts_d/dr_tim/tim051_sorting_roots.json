@@ -1,0 +1,172 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Sorting Roots Together",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim051_sorting_roots",
+  "source": "moments500",
+  "lines": [
+   853,
+   867
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L854",
+  "ledger": [
+   {
+    "src": "L853",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L857",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L858",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L861",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L862",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L865",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L866",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L855",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L859",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L863",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L867",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child helps a parent sort freshly gathered roots.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, helps a parent sort freshly gathered roots. The parent is pleasantly surprised by the offer.",
+   "src": "L855"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a child, helps a parent sort freshly gathered roots. The task takes longer together, but the company is welcome.",
+   "src": "L859"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a child, helps a parent sort freshly gathered roots. The child asks several questions nobody expected.",
+   "src": "L863"
+  },
+  "e4": {
+   "type": "branch",
+   "name": "Ending 4",
+   "children": [
+    {
+     "next": "e4__fx"
+    },
+    {
+     "next": "e4__text"
+    }
+   ]
+  },
+  "e4__fx": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, helps a parent sort freshly gathered roots. (Name1) feels useful and hopes someone noticed.",
+   "src": "L867",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L867"
+    }
+   ],
+   "auto_text": true
+  },
+  "e4__text": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, helps a parent sort freshly gathered roots. (Name1) feels useful and hopes someone noticed.",
+   "src": "L867"
+  }
+ }
+}

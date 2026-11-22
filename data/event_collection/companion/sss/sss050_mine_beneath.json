@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mine Beneath the Shrine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss050_mine_beneath",
+  "source": "companion",
+  "lines": [
+   6575,
+   6583
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6575",
+  "ledger": [
+   {
+    "src": "L6583",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A valuable ore deposit lies beneath a place important to several families.",
+  "cast_only": [
+   "miner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "miner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A valuable ore deposit lies beneath a place important to several families, though not all villagers share its significance.",
+   "src": "L6576",
+   "choices": [
+    {
+     "label": "Leave the site intact",
+     "next": "a",
+     "src": "L6577"
+    },
+    {
+     "label": "Negotiate limited excavation",
+     "next": "b",
+     "src": "L6579"
+    },
+    {
+     "label": "Relocate the ceremony voluntarily",
+     "next": "c",
+     "src": "L6581"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The village searches elsewhere and debates the cost.",
+   "src": "L6578"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Families and miners set boundaries; trust depends on keeping promises.",
+   "src": "L6580"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Some accept a new site while others mourn the change.",
+   "src": "L6582"
+  }
+ }
+}

@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever After the Expedition",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_54_fever",
+  "source": "v28",
+  "lines": [
+   10913,
+   10919
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10913",
+  "ledger": [
+   {
+    "src": "L10914",
+    "kind": "note",
+    "why": "the cast: MYSTERY; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10918",
+    "kind": "note",
+    "text": "A rare enabled outcome results in death;",
+    "why": "designer words: the rare death is this outcome's kill"
+   },
+   {
+    "src": "L10918",
+    "kind": "note",
+    "text": " without graphic detail",
+    "why": "designer note on tone"
+   },
+   {
+    "src": "L10919",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "Several explorers come home with an unfamiliar illness."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "explorer1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "explorer2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "Several explorers return with an unfamiliar illness.",
+   "src": "L10915",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "explorer1",
+     "min": -30,
+     "max": -10,
+     "src": "L10915"
+    },
+    {
+     "do": "health_change",
+     "role": "explorer2",
+     "min": -30,
+     "max": -10,
+     "src": "L10915"
+    }
+   ],
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 5,
+     "rarity": "rare"
+    },
+    {
+     "next": "c",
+     "weight": 2,
+     "rarity": "very_rare"
+    }
+   ],
+   "auto_text": true
+  },
+  "a": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "One villager remains ill and requires ongoing care.",
+   "src": "L10917",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "explorer1",
+     "min": -60,
+     "max": -40,
+     "src": "L10917"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Survivors record the loss.",
+   "src": "L10918",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "explorer1",
+     "cause": "unknown",
+     "src": "L10918"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Healers provide supportive care and the group recovers.",
+   "src": "L10916",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "explorer1",
+     "min": 15,
+     "max": 30,
+     "src": "L10916"
+    },
+    {
+     "do": "health_change",
+     "role": "explorer2",
+     "min": 15,
+     "max": 30,
+     "src": "L10916"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Healers provide supportive care and the group recovers.",
+   "src": "L10916"
+  }
+ }
+}

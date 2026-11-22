@@ -76,13 +76,33 @@ class GodPowers(unittest.TestCase):
         words = [name for name, _, _ in powers.TABLE
                  if name not in ("Revive", "Sunshine", "Tempest", "Time Warp", "Grant Youth")]
         words += ["0x422EB0", "0x4234A0", "0x498840", "0x4CA000", "Divine Energy", "Spell"]
+        # Rows that name a power or Divine Energy without changing any power's cost, range, duration, odds or
+        # targets (what PATCHED says); each is described on its own Game Mechanics line, so a new row still fails.
+        around_the_powers = {
+            # the stock +1 Divine Energy step for polishing the statue (10e99038a; Puzzles: The Tribute Statue)
+            "vv5_fix_vanilla_bugs",
+            # the per-year Faith and Divine Energy follow the age multiplier (the 0.1-10x sliders)
+            "vv5_age_speed",
+            # what a believer's drop does under the Fog of Doom's thick fog (Faith: vv_game_mechanics_faith_vv5)
+            "vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions",
+            # a 1 in 10 chance of +1 Divine Energy (and Faith) on each Devotion check, through the stock adder up to the
+            # cap; no power's cost, range or effect changes (Faith: vv_game_mechanics_faith_vv5)
+            "vv5_devotion_builds_faith",
+        }
         data = ROOT / "data"
-        for path in [data / "builds.json"] + sorted(data.glob("vv5_*_feature.json")):
-            for row in strings(json.loads(path.read_text(encoding="utf-8"))):
+        catalog = [(row.get("id"), row) for row in json.loads((data / "builds.json").read_text(encoding="utf-8"))
+                   ["fun_patches"]]
+        catalog += [(json.loads(p.read_text(encoding="utf-8")).get("id"), json.loads(p.read_text(encoding="utf-8")))
+                    for p in sorted(data.glob("vv5_*_feature.json"))]
+        for patch_id, record in catalog:
+            for row in strings(record):
+                if row.endswith(".cieg"):
+                    continue    # an island event file's name (sss043_spell_worked.cieg): a story, not a God Power
                 for word in words:
-                    if word.lower() not in row.lower():
+                    if word.lower() not in row.lower() or patch_id in around_the_powers:
                         continue
-                    self.assertIn("Reanimate", row, f"{path.name}: {word}: {row[:160]}")
+                    self.assertIn("Reanimate", row, f"{patch_id}: {word}: {row[:160]}")
+        self.assertIn("no patch changes a power's cost, range, duration, odds or targets", powers.PATCHED)
 
     def test_table_matches_the_stock_exe(self) -> None:
         img = _image()

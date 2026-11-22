@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Land of Sand Without Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz116_land_sand",
+  "source": "draft_hz2",
+  "lines": [
+   438,
+   448
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L438",
+  "ledger": [
+   {
+    "src": "L439",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Pouring sand through their fingers, a child wonders whether there might be a land made only of sand, with no water at all.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Pouring sand through their fingers, (name1), a child, wonders whether there might be a land made only of sand, with no water at all.",
+   "src": "L439",
+   "choices": [
+    {
+     "label": "Imagine a Dry Land.",
+     "next": "a",
+     "src": "L440"
+    },
+    {
+     "label": "Imagine Its Beauty.",
+     "next": "b",
+     "src": "L443"
+    },
+    {
+     "label": "Ask How Isolans Would Survive There.",
+     "next": "c",
+     "src": "L446"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A scholar wonders how anyone could live there, and an elder suggests they might know secrets of water Isolans never needed.",
+   "src": "L442"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A storyteller imagines golden hills of sand stretching forever.",
+   "src": "L444"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village decides they would learn from the people who already live there.",
+   "src": "L447"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A fisher says they would simply stay home, thank you.",
+   "src": "L448"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The child imagines people walking for days to find water, and feels grateful for the stream.",
+   "src": "L441",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L441"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The child imagines people walking for days to find water, and feels grateful for the stream.",
+   "src": "L441"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "A skeptic says it sounds hot, and everyone laughs.",
+   "src": "L445",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L445"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "A skeptic says it sounds hot, and everyone laughs.",
+   "src": "L445"
+  }
+ }
+}

@@ -11,10 +11,12 @@
    newly-spawned villagers from events will default to no last name
    (because otherwise everyone will have the wrong last name)".  So a baby
    born in the village (a child of one of its mothers' deliveries) and a new
-   village's founders get one; a villager an island event brings, a cheat's
-   or the Origins page's villager, and every stand-in or ghost the game makes
-   and takes away again get none.  New Believers' Heathens (the owner,
-   2026-11-08) get a random last name of their own: see HEATHENS below.
+   village's founders get one; every stand-in or ghost the game makes and
+   takes away again gets none.  A villager an island event brings, a cheat's
+   or the Origins page's villager -- every other arrival -- gets a random one
+   of the list (the owner, 2026-11-19: see ARRIVALS below).  New Believers'
+   Heathens (the owner, 2026-11-08) get a random last name of their own: see
+   HEATHENS below.
 
    WHERE THE GAMES NAME A VILLAGER, read from the stock executables:
 
@@ -121,7 +123,8 @@
    unchanged and then, for a birth or a founder only, reads the villager's family and,
    for a family of 1 to 50, appends " " and that family's last name (the
    list's name number family - 1) to the name the routine just wrote --
-   only if the whole name fits where it is kept.  Every pairing of the
+   only if the whole name fits where it is kept; for an arrival (ARRIVALS),
+   " " and a last name of the list drawn at random.  Every pairing of the
    games' own lists fits with room to spare (the longest is 17 characters of
    23-27); the bound is kept because the lists are read from the executable
    at run time.  A family outside 1-50 (A New Home's Golden Child is family
@@ -150,6 +153,7 @@
 #include "../shared/vv5_villager_table.h"  /* New Believers' table, stock or 256 */
 #include "../shared/patcher_files.h"     /* the Parentage Export companion, by its full path */
 #include "../shared/villager_rekey.h"    /* the owners' VvfpVillagersRenamed (HEATHENS) */
+#include "../shared/sex_change.h"       /* a sex change keeps the villager's own rule (VvfpVillagerSexChanged) */
 
 #define GAMES 5
 #define FAMILIES 50
@@ -224,6 +228,61 @@ static const struct named_path NAMED_VV5[] = {
 };
 static const struct named_path *const NAMED[GAMES + 1] = {
     NULL, NAMED_VV1, NAMED_VV2, NAMED_VV3, NAMED_VV4, NAMED_VV5,
+};
+
+/* ARRIVALS (the owner, 2026-11-19: "would be nice if strangers/villagers
+   without a last name spawned in with a last name ... the last name for
+   newcomers can be random. i don't care if they share last names with the
+   village or not").  Every other naming -- not a birth or a founder (NAMED),
+   not a Heathen (HEATHENS) and not one of the records below -- is a villager
+   arriving: an island event's newcomer, a barrel's babies, a canoe, Old
+   Friends, a copy (the Silver Mirror, the Crystal of Reflections, the amber
+   vial), the Origins purchase, the F7 command, and every villager the Story /
+   Cheat Upgrades and the Custom Island Events make (their calls come from
+   their own code, on no path of the game's).  The routine has just written a
+   one-word first name; the arrival gets " " and a last name drawn at random
+   from the game's list, every name that fits equally likely (drawn_last_name,
+   the draw "Random last name from the list" makes) -- shared with the village
+   or not.  A name the routine left with more than one word is kept as it is.
+   An event that writes a name of its own afterwards (a Custom Island Event's
+   named villager, The Lost Children's "Biggles") replaces this one, as it
+   replaced the game's first name.
+
+   The records the game makes and takes away again get none (the same
+   records as native/vvfp_cause_of_death/cod_arrival_sites.inc's
+   MARK_TEMPORARY, at the naming routine's entry: each offset there is the
+   creator hook's plus the pushes between that hook and the naming call): the
+   seeding the startup scan and the no-save-yet default make for a load to
+   overwrite (every game but The Tree of Life and New Believers), The Lost
+   Children's Strange Request stranger, The Tree of Life's ghosts and adoption
+   stand-in father, New Believers' founder candidate's stand-in father and
+   Reanimate's stand-in. */
+static const struct named_path TEMPORARY_VV1[] = {
+    { 0x43C692u, { { 0x4Cu, VV1_SEEDING }, { 0x98u, { 0x41D23Au, 0x41D26Du } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV2[] = {
+    { 0x44CD3Bu, { { 0x188u, VV2_SEEDING }, { 0x1D8u, { 0x4263F0u, 0x42641Du } } } },
+    { 0x44CD3Bu, { { 0x188u, { 0x44F5B0u } }, { 0x1C4u, { 0x41F963u } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV3[] = {
+    { 0x4565ADu, { { 0x158u, { 0x45F1C9u } }, { 0x198u, VV3_SEEDING },
+                   { 0x1E0u, { 0x428428u, 0x4285EAu, 0x4285BDu } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV4[] = {
+    { 0x45F338u, { { 0x15Cu, { 0x4663E5u } } } },
+    { 0x45F338u, { { 0x15Cu, { 0x466302u } }, { 0x19Cu, { 0x467D40u } }, { 0x1D8u, { 0x43B965u } } } },
+    { 0 },
+};
+static const struct named_path TEMPORARY_VV5[] = {
+    { 0x46863Du, { { 0x15Cu, { 0x46FE5Cu } } } },
+    { 0x46863Du, { { 0x15Cu, { 0x46FB6Fu } }, { 0x1A4u, { 0x471E50u } }, { 0x1E0u, { 0x43E353u } } } },
+    { 0 },
+};
+static const struct named_path *const TEMPORARY[GAMES + 1] = {
+    NULL, TEMPORARY_VV1, TEMPORARY_VV2, TEMPORARY_VV3, TEMPORARY_VV4, TEMPORARY_VV5,
 };
 
 static int g_game;                                   /* the installed game */
@@ -574,9 +633,10 @@ static int own_line_of(const char *line, struct own_line *o) {
    the record's "villager" lines: 'f', 'm', 'r', 'l' or 'v'; 0 for none -- no line, the
    looks unknown (negative; a head or body 0 is a real look), or two lines for
    the same villager that disagree. */
-static char own_rule(const char *name, int head, int body, char sex) {
+static char own_rule_lines(const char *name, int head, int body, char sex, int *lines) {
     const char *line;
     char found = 0;
+    *lines = 0;
     if (name == NULL || name[0] == '\0' || head < 0 || body < 0) {
         return 0;
     }
@@ -586,10 +646,61 @@ static char own_rule(const char *name, int head, int body, char sex) {
             || o.sex != sex) {
             continue;
         }
+        ++*lines;
         if (found != 0 && found != o.rule) {
-            return 0;
+            found = -1;
+        } else if (found != -1) {
+            found = o.rule;
         }
-        found = o.rule;
+    }
+    return found == -1 ? 0 : found;
+}
+
+static char own_rule(const char *name, int head, int body, char sex) {
+    int lines;
+    return own_rule_lines(name, head, body, sex, &lines);
+}
+
+/* The slot's "Sex Changes" log (native/shared/sex_change.h), NUL-terminated in log[cap]: found as this
+   companion finds its own record (record_path: the save's own folder, or the older layout's), so a harness's
+   folder is the log's too.  0 when there is none. */
+static int read_sex_log(int slot, char *log, DWORD cap) {
+    char folder[MAX_PATH], path[MAX_PATH * 2];
+    HANDLE h;
+    DWORD got = 0;
+    log[0] = '\0';
+    if (slot < 1 || slot > 9 || cap < 2 || !save_folder(folder, sizeof folder)
+        || _snprintf(path, sizeof path, "%s\\Virtual Villagers Fun Patcher Data\\Sex Changes\\"
+                     "Sex Changes - Save %d.txt", folder, slot) <= 0) {
+        return 0;
+    }
+    path[sizeof path - 1] = '\0';
+    (void)vv_ps_route_a(path, MAX_PATH - 16, 0);
+    h = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+                    FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!ReadFile(h, log, cap - 1u, &got, NULL)) {
+        got = 0;
+    }
+    CloseHandle(h);
+    log[got] = '\0';
+    return got > 0;
+}
+
+/* A PARENT's own rule (the father's or the mother's slot, recorded at conception): the line of the slot's sex
+   -- or, when there is none and the slot's "Sex Changes" log (native/shared/sex_change.h) names the parent,
+   their line of the other sex: a father whose sex changed since is still the father, and his own rule still
+   applies.  A parent the log does not name is never taken for a villager of the other sex. */
+static char parent_rule(const char *name, int head, int body, char sex, int slot) {
+    static char log[VV_SEX_LOG_MAX];
+    int lines, others;
+    char found = own_rule_lines(name, head, body, sex, &lines);
+    char other = lines == 0 ? own_rule_lines(name, head, body, sex == 'M' ? 'F' : 'M', &others) : 0;
+    /* The log is read only when there is a line of the other sex to take. */
+    if (other != 0 && slot > 0 && read_sex_log(slot, log, sizeof log) && vv_sex_log_names(log, name)) {
+        found = other;
     }
     return found;
 }
@@ -1022,8 +1133,8 @@ static int rule_last_name(char *name, unsigned int room,
     if (rule[0] == '\0' && !names_a_rule()) {
         rule[0] = DEFAULT_RULE;             /* no rule chosen: the one Repair shows (the owner, 2026-10-14) */
     }
-    use = decide(own_rule(father, father_head, father_body, 'M'),
-                 own_rule(mother, mother_head, mother_body, 'F'), rule[0]);
+    use = decide(parent_rule(father, father_head, father_body, 'M', slot),
+                 parent_rule(mother, mother_head, mother_body, 'F', slot), rule[0]);
     if (use == 0) {
         return 0;                           /* no rule decides: the family's stays */
     }
@@ -1104,6 +1215,32 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName3(char *name, unsigned int r
                           table, stride, slots, active, name_at, capacity);
 }
 
+/* The slot's record at `path` replaced by out[used], through a temporary file swapped in whole.  1 when it was. */
+static int swap_in_record(const char *path, const char *out, size_t used) {
+    char temporary[MAX_PATH * 2 + 16];
+    HANDLE h;
+    DWORD wrote = 0;
+    if (_snprintf(temporary, sizeof temporary, "%s.relook-tmp", path) <= 0) {
+        return 0;
+    }
+    temporary[sizeof temporary - 1] = '\0';
+    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (h == INVALID_HANDLE_VALUE) {
+        return 0;
+    }
+    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
+        CloseHandle(h);
+        DeleteFileA(temporary);
+        return 0;
+    }
+    CloseHandle(h);
+    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        DeleteFileA(temporary);
+        return 0;
+    }
+    return 1;
+}
+
 /* A villager's looks changed (the coordinator, 2026-10-09: the rule must
    follow the villager at the moment the look changes -- an island event
    changed Papu's head in the owner's A New Home).  From the Parentage Export
@@ -1119,12 +1256,10 @@ __declspec(dllexport) int __stdcall VvfpRuleLastName3(char *name, unsigned int r
 __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int male, int old_head, int old_body,
                                                        int new_head, int new_body, int slot) {
     static char out[RULE_FILE_MAX + 64 * 64];
-    char rule[8], path[MAX_PATH * 2], temporary[MAX_PATH * 2 + 16];
+    char rule[8], path[MAX_PATH * 2];
     const char *line;
     size_t used = 0;
     int moved = 0, has_new;
-    HANDLE h;
-    DWORD wrote = 0;
     if (install_state != 1 || name == NULL || name[0] == '\0' || old_head < 0 || old_body < 0 || new_head < 0
         || new_body < 0 || (old_head == new_head && old_body == new_body)) {
         return 0;
@@ -1164,25 +1299,54 @@ __declspec(dllexport) int __stdcall VvfpRelookLastName(const char *name, int mal
             ++moved;
         }
     }
-    if (moved == 0 || _snprintf(temporary, sizeof temporary, "%s.relook-tmp", path) <= 0) {
+    return moved > 0 && swap_in_record(path, out, used) ? moved : 0;
+}
+
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): `record` live (the new sex), `before` as it was.  Their
+   own rule stays theirs: each "villager" line of their name and looks with the old sex is rewritten with the new
+   one, right away (swap_in_record), every other byte of the record kept.  `slot` 0: the slot whose save holds the
+   name (slot_of_parents).  Returns 1 when a line was rewritten. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    static char out[RULE_FILE_MAX + 64];
+    char rule[8], path[MAX_PATH * 2], name[64];
+    const unsigned char *r = (const unsigned char *)record;
+    const char *line;
+    size_t used = 0;
+    int head, body, moved = 0;
+    char was, now;
+    if (install_state != 1 || game != g_game || !vv_sex_game_ok(game) || record == NULL || before == NULL) {
         return 0;
     }
-    temporary[sizeof temporary - 1] = '\0';
-    h = CreateFileA(temporary, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    if (h == INVALID_HANDLE_VALUE) {
+    vv_sex_name(game, r, name);
+    head = *(const int *)(r + VV_SEX_LAYOUT[game].head);
+    body = *(const int *)(r + VV_SEX_LAYOUT[game].body);
+    was = vv_sex_female(game, (const unsigned char *)before) ? 'F' : 'M';
+    now = vv_sex_female(game, r) ? 'F' : 'M';
+    if (name[0] == '\0' || was == now) {
         return 0;
     }
-    if (!WriteFile(h, out, (DWORD)used, &wrote, NULL) || wrote != used || !FlushFileBuffers(h)) {
-        CloseHandle(h);
-        DeleteFileA(temporary);
+    if (slot <= 0) {
+        slot = was == 'M' ? slot_of_parents(name, NULL) : slot_of_parents(NULL, name);
+    }
+    if (!read_record(slot, rule, sizeof rule) || g_rule_size >= RULE_FILE_MAX || !record_path(slot, path, sizeof path)) {
         return 0;
     }
-    CloseHandle(h);
-    if (!MoveFileExA(temporary, path, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
-        DeleteFileA(temporary);
-        return 0;
+    for (line = g_rule_file; line != NULL && *line != '\0';
+         line = strchr(line, '\n') ? strchr(line, '\n') + 1 : NULL) {
+        size_t n = strchr(line, '\n') ? (size_t)(strchr(line, '\n') + 1 - line) : strlen(line);
+        struct own_line o;
+        if (n >= sizeof out - used) {
+            return 0;
+        }
+        memcpy(out + used, line, n);
+        if (own_line_of(line, &o) && strcmp(o.name, name) == 0 && o.sex == was && o.head == head
+            && o.body == body) {
+            out[used + (size_t)(o.looks_end + 1 - line)] = now;   /* the sex field, after the body's tab */
+            ++moved;
+        }
+        used += n;
     }
-    return moved;
+    return moved > 0 && swap_in_record(path, out, used);
 }
 
 /* HEATHENS (New Believers; the owner, 2026-11-08: "in vv5, please give
@@ -1777,6 +1941,7 @@ static const char *const RENAME_OWNERS[] = {
     "VVFP Origins Icons.dll",           /* New Believers' masks */
     "VVFP Head Look.dll",
     "VVFP Original Look.dll",
+    "VVFP Gender Presentation.dll",
     "VVFP Cause of Death.dll",          /* Former Heathens */
 };
 
@@ -2104,10 +2269,9 @@ static int one_of(unsigned int value, const unsigned int *values) {
 
 /* entry: the stack as the routine was entered, entry[0] its return
    address.  A slot is read only once the nearer ones have placed its frame. */
-static int gets_a_last_name(const unsigned int *entry) {
-    const struct named_path *p;
+static int on_a_path(const struct named_path *p, const unsigned int *entry) {
     int k;
-    for (p = NAMED[g_game]; p->from != 0; ++p) {
+    for (; p->from != 0; ++p) {
         if (entry[0] != p->from) {
             continue;
         }
@@ -2123,12 +2287,34 @@ static int gets_a_last_name(const unsigned int *entry) {
     return 0;
 }
 
+static int gets_a_last_name(const unsigned int *entry) {
+    return on_a_path(NAMED[g_game], entry);
+}
+
+/* ARRIVALS: " " and a random last name of the game's list, for a one-word
+   name that has room for it. */
+static void give_arrival_last_name(char *name, unsigned int room) {
+    size_t have = strlen(name);
+    const char *last;
+    if (have == 0 || strchr(name, ' ') != NULL) {
+        return;
+    }
+    last = drawn_last_name(have, room);
+    if (last[0] == '\0') {
+        return;
+    }
+    name[have] = ' ';
+    memcpy(name + have + 1, last, strlen(last) + 1);
+}
+
 /* VV1/VV2: after the routine, `out` holds the first name; the record is
    array + index * stride. */
 static void __cdecl after_out(const unsigned int *entry, unsigned char *array, unsigned int index, char *out) {
     const struct game_site *s = &SITES[g_game];
     if (gets_a_last_name(entry)) {
         give_last_name(out, s->room, *(int *)(array + index * s->stride + s->family));
+    } else if (!on_a_path(TEMPORARY[g_game], entry)) {
+        give_arrival_last_name(out, s->room);   /* ARRIVALS */
     }
 }
 
@@ -2139,6 +2325,8 @@ static void __cdecl after_villager(const unsigned int *entry, unsigned char *vil
         give_last_name((char *)(villager + s->name), s->room, *(int *)(villager + s->family));
     } else if (is_heathen_naming(entry)) {
         heathen_named(villager);            /* New Believers: one of the village's four (HEATHENS) */
+    } else if (!on_a_path(TEMPORARY[g_game], entry)) {
+        give_arrival_last_name((char *)(villager + s->name), s->room);   /* ARRIVALS */
     }
     families_flush_pending();               /* the four of a village whose slot is known now */
 }
@@ -2287,6 +2475,125 @@ static int heathen_sites_are_the_games(void) {
     return NB_HEATHEN_FROM + rel == NB_FRESH_INIT;
 }
 
+/* THE CHOOSE-YOUR-FOUNDERS SCREEN ("Select 5 villagers": The Tree of Life and
+   New Believers; the other three games seed their founders with no such
+   screen).  Its draw writes each candidate's name on one line, centred under
+   them, with the game's centred draw -- The Tree of Life 0x43B80A `call
+   0x409BE0` (centres 97, 245, 398, 546, 698; y 0x91), New Believers 0x43E1EE
+   `call 0x409EB0` (centres 202, 350, 503, 651, 803; y 0xDD), thiscall(holder;
+   text, centre x, y, colour, font) ret 0x14.  The centres are at least 148
+   pixels apart, so a "<first> <last>" name wider than that ran into its
+   neighbour (live, 2026-11-20: "Pangai Temitope" / "Makawa Runako").  That one
+   call comes here instead: a name the game's own width (font; text, 1.0)
+   puts within FOUNDER_NAME_ROOM is drawn exactly as before; a wider one is
+   broken at its spaces into lines that fit, each drawn with the same centred
+   draw, centre, colour and font, one line height (font; 0) apart and centred
+   on the stock line -- the whole name, never cut.  A single word wider than
+   the room stays whole on its own line.  Written on its own after the naming
+   detour (a site that is not stock leaves the screen as it was). */
+struct founders_site {
+    unsigned int call, centred, width, line_height;
+};
+static const struct founders_site FOUNDERS[GAMES + 1] = {
+    { 0 }, { 0 }, { 0 }, { 0 },
+    { 0x43B80Au, 0x409BE0u, 0x402430u, 0x402500u },                      /* The Tree of Life */
+    { 0x43E1EEu, 0x409EB0u, 0x4023E0u, 0x4024B0u },                      /* New Believers */
+};
+#define FOUNDER_NAME_ROOM 140      /* the closest centres are 148 apart: a few pixels between neighbours */
+#define FOUNDER_LINES 4
+#define FOUNDER_LINE_MAX 96
+
+typedef void (__fastcall *founder_centred_fn)(void *holder, void *edx, const char *text, int x, int y,
+                                              unsigned int colour, void *font);
+typedef int (__fastcall *founder_width_fn)(void *font, void *edx, const char *text, float scale);
+typedef int (__fastcall *founder_line_height_fn)(void *font, void *edx, int unused);
+static const struct founders_site *g_founders;
+
+static void __fastcall founder_name(void *holder, void *edx, const char *text, int x, int y, unsigned int colour,
+                                    void *font) {
+    const struct founders_site *f = g_founders;
+    founder_centred_fn centred = (founder_centred_fn)(uintptr_t)f->centred;
+    founder_width_fn width = (founder_width_fn)(uintptr_t)f->width;
+    char lines[FOUNDER_LINES][FOUNDER_LINE_MAX];
+    char trial[FOUNDER_LINE_MAX];
+    int count = 0, i, height, top;
+    const char *p;
+    (void)edx;
+    /* No font of its own (the draw would use the holder's), no text, or a name that fits: the stock line. */
+    if (font == NULL || text == NULL || strlen(text) >= FOUNDER_LINE_MAX
+        || width(font, NULL, text, 1.0f) <= FOUNDER_NAME_ROOM) {
+        centred(holder, NULL, text, x, y, colour, font);
+        return;
+    }
+    lines[0][0] = '\0';
+    for (p = text; *p != '\0';) {
+        size_t n = 0;
+        while (*p == ' ') {
+            ++p;
+        }
+        while (p[n] != '\0' && p[n] != ' ') {
+            ++n;
+        }
+        if (n == 0) {
+            break;
+        }
+        if (count == 0) {
+            count = 1;
+        }
+        if (lines[count - 1][0] == '\0') {
+            memcpy(lines[count - 1], p, n);
+            lines[count - 1][n] = '\0';
+        } else {
+            _snprintf(trial, sizeof trial, "%s %.*s", lines[count - 1], (int)n, p);
+            trial[sizeof trial - 1] = '\0';
+            if (width(font, NULL, trial, 1.0f) <= FOUNDER_NAME_ROOM || count == FOUNDER_LINES) {
+                memcpy(lines[count - 1], trial, sizeof trial);
+            } else {
+                memcpy(lines[count], p, n);
+                lines[count][n] = '\0';
+                ++count;
+            }
+        }
+        p += n;
+    }
+    if (count < 2) {
+        centred(holder, NULL, text, x, y, colour, font);
+        return;
+    }
+    height = ((founder_line_height_fn)(uintptr_t)f->line_height)(font, NULL, 0);
+    if (height <= 0 || height > 64) {
+        centred(holder, NULL, text, x, y, colour, font);
+        return;
+    }
+    top = y - (count - 1) * height / 2;
+    for (i = 0; i < count; ++i) {
+        centred(holder, NULL, lines[i], x, top + i * height, colour, font);
+    }
+}
+
+/* The founders screen's one call, written on its own: the call to the centred draw, or nothing. */
+static void install_founders(int game) {
+    const struct founders_site *f;
+    unsigned char stock[5];
+    unsigned int rel;
+    vvfp_site_write w;
+    if (game < 1 || game > GAMES || FOUNDERS[game].call == 0) {
+        return;
+    }
+    f = &FOUNDERS[game];
+    rel = f->centred - (f->call + 5u);
+    stock[0] = 0xE8;
+    memcpy(stock + 1, &rel, 4);
+    if (!vvfp_site_holds(f->call, stock, sizeof stock)) {
+        return;
+    }
+    g_founders = f;
+    vvfp_site_branch(&w, f->call, sizeof stock, stock, 0xE8, (const void *)founder_name);
+    if (!vvfp_install_sites(&w, 1)) {
+        g_founders = NULL;
+    }
+}
+
 static int install(int game) {
     const struct game_site *s;
     unsigned char bytes[6], load_bytes[6];
@@ -2345,6 +2652,7 @@ static int install(int game) {
         return 0;
     }
     install_state = 1;
+    install_founders(game);
     return 1;
 }
 

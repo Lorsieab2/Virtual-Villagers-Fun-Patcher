@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Houses Stacked Like Shells",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz009_houses_stacked",
+  "source": "horizon",
+  "lines": [
+   124,
+   134
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L124",
+  "ledger": [
+   {
+    "src": "L127",
+    "kind": "instruction",
+    "text": "; small Building experience",
+    "why": "an instruction inside the outcome, never shown: the node's skill effect"
+   }
+  ],
+  "description": "A builder asks whether distant people might live in dwellings built above one another.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A builder asks whether distant people might live in dwellings built above one another, with many families sharing one enormous structure.",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "Test the Idea with Models.",
+     "next": "a",
+     "src": "L126"
+    },
+    {
+     "label": "Imagine the Residents.",
+     "next": "b",
+     "src": "L129"
+    },
+    {
+     "label": "Compare with Island Homes.",
+     "next": "c",
+     "src": "L132"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The model collapses, reminding everyone that a tall building needs more than ambition.",
+   "src": "L128",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small model collapses; no building of the village is damaged",
+     "src": "L128"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Children invent neighbors borrowing salt across floors and complaining about noise.",
+   "src": "L130"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder wonders how someone unable to climb steps would reach the top; accessibility becomes central to the design.",
+   "src": "L131"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The builders admire the potential to shelter many people on limited land.",
+   "src": "L133"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A farmer worries about gardens, waste, and fresh air; the imagined city grows more complicated.",
+   "src": "L134"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "A stable miniature tower inspires a useful discussion of weight and supports.",
+   "src": "L127",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L127"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L127"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "A stable miniature tower inspires a useful discussion of weight and supports.",
+   "src": "L127",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "builder",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L127"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Something for the Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea16_something_hands",
+  "source": "draft_hea",
+  "lines": [
+   191,
+   200
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L191",
+  "ledger": [
+   {
+    "src": "L192",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder)"
+   }
+  ],
+  "description": "A healer offers a sad villager a lump of clay to give their hands something to do: take the clay, or try something else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been sad since the rainy season began. (subject.He/she) can't say why. (friend) doesn't try to talk (subject.him/her) out of it. Instead (friend.he/she) says, \"When I'm low, I find it helps to give my hands something to do. Something slow, where you can see what you've made at the end.\" (friend.He/she) holds out a lump of wet clay.",
+   "src": "L194",
+   "choices": [
+    {
+     "label": "Take the Clay",
+     "next": "o1",
+     "src": "L196"
+    },
+    {
+     "label": "Try Something Else with (subject.his/her) Hands",
+     "next": "o2",
+     "src": "L199"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes it, mostly to be polite. (subject.He/she) sits by the fire and squeezes it. Rolls it. Makes a bowl, a bad one, then squashes it and makes another. Somewhere in the middle of the third bowl, (subject.he/she) notices an hour has passed without (subject.him/her) thinking about anything. The sadness is still there when (subject.he/she) stops. But for an hour it went quiet. (subject.He/she) asks for more clay.",
+   "src": "L197",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L197"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes it, mostly to be polite. (subject.He/she) sits by the fire and squeezes it. Rolls it. Makes a bowl, a bad one, then squashes it and makes another. Somewhere in the middle of the third bowl, (subject.he/she) notices an hour has passed without (subject.him/her) thinking about anything. The sadness is still there when (subject.he/she) stops. But for an hour it went quiet. (subject.He/she) asks for more clay.",
+   "src": "L197"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'm hopeless with clay,\" says (subject). \"What about rope?\" (friend) shrugs. \"Rope's fine. Anything's fine.\" (subject) spends the evening plaiting rope. It's long, even and very good rope. The sadness isn't gone. But there's a coil of rope by the door the next morning, and that is a thing (subject.he/she) made, on a day (subject.he/she) didn't think (subject.he/she) could make anything.",
+   "src": "L200",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L200"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"I'm hopeless with clay,\" says (subject). \"What about rope?\" (friend) shrugs. \"Rope's fine. Anything's fine.\" (subject) spends the evening plaiting rope. It's long, even and very good rope. The sadness isn't gone. But there's a coil of rope by the door the next morning, and that is a thing (subject.he/she) made, on a day (subject.he/she) didn't think (subject.he/she) could make anything.",
+   "src": "L200"
+  }
+ }
+}

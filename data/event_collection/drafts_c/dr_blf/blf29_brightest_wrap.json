@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Brightest Wrap on Isola",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf29_brightest_wrap",
+  "source": "draft_blf",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager has dyed a wrap in every color they could make: a friend pretends to be blinded, or asks for one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has dyed (subject.his/her) wrap in every color (subject.he/she) could make: orange, blue, red, yellow, purple, all in great swirls. It is the loudest piece of cloth anyone on Isola has ever seen. (subject.He/she) is wearing it to the gathering tonight, and is very, very happy about it. (friend) sees (subject.him/her) coming and shades (friend.his/her) eyes.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "(friend) Pretends to Be Blinded",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "(friend) Asks for One",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Aaagh!\" says (friend), staggering back. \"The colors!\" (subject) laughs and spins round. \"Isn't it wonderful?\" \"It's TERRIFYING,\" says (friend), grinning. \"I love it.\" Everyone at the gathering finds (subject) instantly, all night. Several villagers ask how (subject.he/she) made the purple. (subject) refuses to tell anyone.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Aaagh!\" says (friend), staggering back. \"The colors!\" (subject) laughs and spins round. \"Isn't it wonderful?\" \"It's TERRIFYING,\" says (friend), grinning. \"I love it.\" Everyone at the gathering finds (subject) instantly, all night. Several villagers ask how (subject.he/she) made the purple. (subject) refuses to tell anyone.",
+   "src": "L350"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) stares. \"Can you make me one?\" (subject) is delighted. \"What colors?\" \"All of them,\" says (friend). (subject) spends the next week dyeing. When (friend) wears it, the two of them stand together at the fire and it's like looking into the sun. Nobody minds. Several more villagers put in orders.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L353"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L353"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) stares. \"Can you make me one?\" (subject) is delighted. \"What colors?\" \"All of them,\" says (friend). (subject) spends the next week dyeing. When (friend) wears it, the two of them stand together at the fire and it's like looking into the sun. Nobody minds. Several more villagers put in orders.",
+   "src": "L353"
+  }
+ }
+}

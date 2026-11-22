@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Chore Trade",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il171_chore_trade",
+  "source": "da_il09",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "One child hates sweeping and another hates fetching water, and a very serious negotiation begins.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) hates sweeping. (friend) hates fetching water. They have just realized this about each other, and a negotiation has begun. It is very serious. It involves a great deal of pointing.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Make a Fair Trade",
+     "next": "a",
+     "src": "L133"
+    },
+    {
+     "label": "Try to Get a Better Deal",
+     "next": "b",
+     "src": "L136"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "After much discussion, they agree: (subject) will fetch water for a week, and (friend) will sweep for a week. They shake hands. It works perfectly for two days. On the third day they discover that they both secretly miss their old chores a tiny bit, and neither of them will admit it.",
+   "src": "L134"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"I'll fetch water,\" says (subject), \"if you sweep AND give me your fruit at lunch.\" (friend) narrows (friend.his/her) eyes. The negotiations go on so long that both of them are late with their chores, and the grown-ups have to do them. The two children spend the rest of the afternoon blaming each other cheerfully.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"I'll fetch water,\" says (subject), \"if you sweep AND give me your fruit at lunch.\" (friend) narrows (friend.his/her) eyes. The negotiations go on so long that both of them are late with their chores, and the grown-ups have to do them. The two children spend the rest of the afternoon blaming each other cheerfully.",
+   "src": "L137"
+  }
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Setting It Straight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus33_setting_straight",
+  "source": "draft_jus",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager wrongly told people a neighbor's stew made them sick: ask them to set it straight, or ask the cook what would help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) told several people that (friend)'s fish stew made (subject.him/her) sick. It didn't: it turns out (subject) had eaten a bad clam earlier that day. But the story has spread, and nobody has touched (friend)'s stew since. (friend) has asked the elders for help.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Ask (subject) to Set the Story Straight",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Ask (friend) What Would Help",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The elders ask (subject) to tell the people (subject.he/she) told that (subject.he/she) was wrong: no speech, no apology in front of everyone, just the facts. (subject) does it at the fire, briefly and clearly. Then, without being asked, (subject.he/she) holds out a bowl for (friend)'s stew. Others follow.",
+   "src": "L398"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders ask (friend) what (friend.he/she) would like. (friend) thinks. \"I'd like (subject.him/her) to try my stew again, and say honestly whether it's good.\" (subject) does. It's very good, and (subject.he/she) says so, plainly. Coming from (subject), it's the most convincing thing anyone could have said. The stew pot is empty by the end of the evening.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The elders ask (friend) what (friend.he/she) would like. (friend) thinks. \"I'd like (subject.him/her) to try my stew again, and say honestly whether it's good.\" (subject) does. It's very good, and (subject.he/she) says so, plainly. Coming from (subject), it's the most convincing thing anyone could have said. The stew pot is empty by the end of the evening.",
+   "src": "L401"
+  }
+ }
+}

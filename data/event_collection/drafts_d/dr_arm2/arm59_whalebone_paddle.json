@@ -1,0 +1,63 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Whalebone Paddle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm59_whalebone_paddle",
+  "source": "draft_arm2",
+  "lines": [
+   23,
+   23
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L23",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "structural",
+    "text": "59. The Whalebone Paddle  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L23",
+    "kind": "sensitivity",
+    "before": "a child",
+    "after": "(name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A ceremonial paddle carved from the bone of a long-stranded whale has never touched the water.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A ceremonial paddle carved from the bone of a whale that stranded generations ago has never touched the water. It is carried at the head of the canoe blessing, and (name1), a child, asks whether it gets lonely on its shelf.",
+   "src": "L23"
+  }
+ }
+}

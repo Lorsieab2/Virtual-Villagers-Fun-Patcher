@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ants Are Moving House",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat15_ants_are_moving",
+  "source": "draft_nat",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "Ants are carrying their eggs uphill under a clear blue sky: bring the drying mats in, or leave everything out.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has noticed a long, busy line of ants marching up the path from the low ground, every single one carrying a tiny white egg. They're heading for the big rocks up by the trees. The sky is clear and blue. The old people always used to say ants move uphill before heavy rain. Or was it before a dry spell? (He/she) can't remember.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Bring the Drying Mats In",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Leave Everything Out",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides the sky knows more than the ants. It stays dry. The next day, too. The ants settle into the rocks and stay there, busy and unbothered. A week later, without any warning at all, it rains. (name1) wonders whether the ants just plan very far ahead. (He/she) starts watching them closely after that, just in case.",
+   "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) brings in (his/her) drying fish and mats and tells everyone else to do the same. People look at the clear blue sky and then at (him/her). Some of them do it anyway. That night it pours. (name1) is unbearable about it for days. Nobody, including (name1), can say for certain whether the ants knew or just got lucky.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) brings in (his/her) drying fish and mats and tells everyone else to do the same. People look at the clear blue sky and then at (him/her). Some of them do it anyway. That night it pours. (name1) is unbearable about it for days. Nobody, including (name1), can say for certain whether the ants knew or just got lucky.",
+   "src": "L182"
+  }
+ }
+}

@@ -1,0 +1,148 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Thumbprints in Clay",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim131_thumbprints",
+  "source": "draft_tim2",
+  "lines": [
+   44,
+   49
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L46",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L47",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L48",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L49",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager presses a row of thumbprints around the rim of a wet clay bowl.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. A child adds one tiny thumbprint beside the others, and it stays.",
+   "src": "L45,L47"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. (name1) decides the bowl is too pretty to use and sets it on a shelf.",
+   "src": "L45,L48"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The bowl cracks in the kiln, but the thumbprints survive on the largest piece.",
+   "src": "L45,L49"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The pattern comes out of the fire looking even better than (name1) hoped.",
+   "src": "L45,L46",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L45,L46"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L45,L46"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(name1) presses a row of thumbprints around the rim of a wet clay bowl. The pattern comes out of the fire looking even better than (name1) hoped.",
+   "src": "L45,L46"
+  }
+ }
+}

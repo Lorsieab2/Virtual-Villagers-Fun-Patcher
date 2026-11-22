@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name on the Tip of the Tongue",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il084_name_tip_tongue",
+  "source": "da_il05",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has spent all morning trying to remember the name of a neighbor's noisy pet bird from long ago.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been trying all morning to remember the name of the noisy pet bird a neighbor kept when (subject.he/she) was little. It was a big green bird. It shrieked every morning. It bit (subject) once on the ear. And its name is completely, infuriatingly gone.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Ask (friend)",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Stop Trying",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) offers suggestions all through lunch. \"Squawk? Greenie? Biter?\" None of them are right, although (subject) admits \"Biter\" would have suited it. The two of them come up with a list of thirty names, and (subject) is still sure it was none of them.",
+   "src": "L50"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) gives up and goes back to work. Hours later, halfway through hauling water, (subject.he/she) stops dead and shouts \"MANGO!\" Several villagers jump. (subject) doesn't explain. (subject.He/She) just goes on hauling water, looking enormously relieved.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) gives up and goes back to work. Hours later, halfway through hauling water, (subject.he/she) stops dead and shouts \"MANGO!\" Several villagers jump. (subject) doesn't explain. (subject.He/She) just goes on hauling water, looking enormously relieved.",
+   "src": "L53"
+  }
+ }
+}

@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Struck Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b006_struck_tree",
+  "source": "balance",
+  "lines": [
+   253,
+   295
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L253",
+  "ledger": [
+   {
+    "src": "L254",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L255",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L263",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L272",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L260",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L261",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L264",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L273",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L266",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L269",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L275",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L278",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L281-295",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Last night lightning struck the big banyan by the path, splitting it from top to bottom.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Last night lightning struck the big banyan by the path, splitting it from top to bottom. This morning the two halves are still smoking a little, and the wood inside glows a faint blue, humming like a hive.\n(subject) and (friend) were sheltering under it when it happened. Neither of them can remember the flash, only waking up in the wet grass with their hair standing on end, and a ringing in their ears that sounds a lot like each other's voices.\nNow they're back to look at it. (friend) wants to touch the glowing wood. (subject) thinks they should stay well away. What should they do?",
+   "choices": [
+    {
+     "label": "Touch the Glowing Wood Together",
+     "next": "c1",
+     "src": "L260"
+    },
+    {
+     "label": "Leave It Be",
+     "next": "c2",
+     "src": "L261"
+    }
+   ],
+   "src": "L256-258"
+  },
+  "c1o1": {
+   "text": "When the buzzing stops, (subject) looks down at (subject.his/her) hands, and they aren't (subject.his/her) hands. They're (friend)'s. And (friend) is staring back at (subject.him/her) out of (subject)'s face, with exactly the expression (subject) makes when (subject.he/she) is about to panic. They go back to the tree every day for a month. It stays dark. In the end they learn to live in each other's skins, swapping huts and chores, and a surprising number of people say they never noticed.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L267",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "There's a loud crack, a smell like singed hair, and both of them are sitting in the grass again, a body length back. The blue glow goes out of the wood like a snuffed lamp. \"Well,\" says (friend), patting at (friend.his/her) smoking eyebrows, \"that was a mistake.\" Their hair doesn't lie flat for a week, and the children follow them around trying to touch it.",
+   "src": "L270"
+  },
+  "c1": {
+   "text": "They count to three and each lay a hand on the blue wood. It buzzes up their arms like a swarm of bees under the skin. The ringing in their ears gets louder and louder...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L264"
+  },
+  "c2o1": {
+   "text": "They wake up in each other's huts, in each other's bodies. The lightning did its work the night before, the elders decide, and the tree only showed them. The two of them meet in the middle of the village, both still in their sleeping wraps, and stare at each other for a long time. \"Your back hurts,\" (subject) says at last, accusingly. \"I know,\" says (friend), from (subject)'s mouth. \"I did tell you.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L276",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They wake up in their own bodies, a little disappointed. At breakfast they tell the whole village about the shared dream, and then act it out, each of them doing a perfect impression of the other: (subject)'s walk, (friend)'s laugh, the way they both eat their fish. Soon the whole village is crying with laughter. People are still doing the impressions days later.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L279",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) grabs (friend)'s arm and walks (friend.him/her) firmly away. They go home and try to forget about it. That night, both of them have the same dream, of standing under the tree, looking out of the other one's eyes...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L273"
+  }
+ }
+}

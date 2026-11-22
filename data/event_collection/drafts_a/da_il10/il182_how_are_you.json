@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "How Old Are You, Exactly?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il182_how_are_you",
+  "source": "da_il10",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); the child is cast aged 6 (the text: \"though (he/she) is six\")"
+   }
+  ],
+  "description": "A child asks an elder how old they are, and the elder realizes they do not know: let the child guess, or pick one.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 6
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) has asked (subject) how old (subject.he/she) is, and (subject) has realized (subject.he/she) doesn't know. Not exactly. (subject.He/She) knows roughly. (subject.He/She) knows it's quite a lot. But somewhere along the way (subject.he/she) stopped counting, and now (friend) is waiting for a number.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Let (friend) Guess",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Pick a Number",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) thinks about it, then picks one: a nice round number that seems about right. \"That one,\" (subject.he/she) says. \"Is that true?\" asks (friend). \"It is now.\" (friend) seems to find this a perfectly reasonable way to have an age. Later (friend.he/she) tells the other children (friend.he/she) is going to pick (friend.his/her) own, too. (friend.He/She) picks eleven, though (friend.he/she) is six.",
+   "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Guess,\" says (subject). (friend) looks at (subject.him/her) very carefully. \"A hundred?\" \"Lower.\" \"Ninety-nine?\" \"Much lower.\" This goes on for some time, with (friend) getting closer by ones. When (friend.he/she) reaches a number (subject) likes the sound of, (subject) says, \"That's it! Exactly that.\" (friend) is extremely proud of (friend.him/her)self.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Guess,\" says (subject). (friend) looks at (subject.him/her) very carefully. \"A hundred?\" \"Lower.\" \"Ninety-nine?\" \"Much lower.\" This goes on for some time, with (friend) getting closer by ones. When (friend.he/she) reaches a number (subject) likes the sound of, (subject) says, \"That's it! Exactly that.\" (friend) is extremely proud of (friend.him/her)self.",
+   "src": "L26"
+  }
+ }
+}

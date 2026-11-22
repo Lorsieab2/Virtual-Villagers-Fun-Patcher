@@ -135,7 +135,8 @@ class TheRule(unittest.TestCase):
         in_place = {k.casefold() for k in patcher_files.GAME_READS_IN_PLACE}
         self.assertEqual(in_place - catalog, set())
         non_dll = {d for d in catalog if not d.endswith(".dll")}
-        self.assertEqual(non_dll - in_place, {k.casefold() for k in patcher_files.PATCHER_READS})
+        in_folders = {d for d in non_dll if d.startswith(tuple(f.casefold() for f in patcher_files.PATCHER_READ_FOLDERS))}
+        self.assertEqual(non_dll - in_place - in_folders, {k.casefold() for k in patcher_files.PATCHER_READS})
 
     def test_an_unclassified_file_is_refused(self):
         with self.assertRaises(vfp.PatcherError):
@@ -521,7 +522,9 @@ class DeepOutputFolders(unittest.TestCase):
         base = short_base(self)
         recovery = vfp._publish_sibling(base, "recovery", "0" * 8)
         retained = recovery / vfp.RECOVERY_RETAINED_FOLDERS[0]
-        rel = "Backups/" + "b" * 120 + "/" + "c" * 60 + "/save.ldw"
+        # Deeper than MAX_PATH from this base, whatever TEMP's length (short_base may be only a few characters).
+        fixed = len(str(retained)) + len("/Backups/" + "b" * 120 + "//save.ldw")
+        rel = "Backups/" + "b" * 120 + "/" + "c" * max(60, patcher_files.MAX_PATH + 1 - fixed) + "/save.ldw"
         member = patcher_files.long_path(retained / rel)
         member.parent.mkdir(parents=True)
         member.write_bytes(b"the player's")

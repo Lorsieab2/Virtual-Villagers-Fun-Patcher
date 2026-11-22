@@ -1,0 +1,183 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief Who Wanted to Be Ordinary",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth26_chief_wanted",
+  "source": "living",
+  "lines": [
+   23731,
+   23745
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23731",
+  "ledger": [
+   {
+    "src": "L23745",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A weary leader asks to spend a day fishing without making decisions.",
+  "cast_only": [
+   "deputy"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "deputy": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A weary {@chief} asks to spend a day fishing without making decisions.",
+   "src": "L23732",
+   "choices": [
+    {
+     "label": "Appoint a temporary leader.",
+     "next": "a",
+     "src": "L23733"
+    },
+    {
+     "label": "Let the council share duties.",
+     "next": "b",
+     "src": "L23736"
+    },
+    {
+     "label": "Ask the {@chief} to remain available.",
+     "next": "c",
+     "src": "L23739"
+    },
+    {
+     "label": "Respect a full day away.",
+     "next": "d",
+     "src": "L23742"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The deputy handles disputes capably.",
+   "src": "L23734"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The deputy makes an unpopular decision that the {@chief} must later address.",
+   "src": "L23735"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The {@chief} returns rested to a well-run village.",
+   "src": "L23737"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The council struggles to settle an urgent argument.",
+   "src": "L23738"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village feels reassured.",
+   "src": "L23740"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The {@chief} cannot rest and grows more exhausted.",
+   "src": "L23741"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The {@chief} enjoys being treated as an ordinary villager.",
+   "src": "L23743"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "An unexpected emergency tests the village's independence.",
+   "src": "L23744"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader Who Wanted to Be Ordinary"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

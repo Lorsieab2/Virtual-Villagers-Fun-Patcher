@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hermit's Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b279_hermit_children",
+  "source": "balance",
+  "lines": [
+   12987,
+   13029
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12987",
+  "ledger": [
+   {
+    "src": "L12988",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12989",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12997",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13006",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12994",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12995",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12998",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13007",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13000",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13003",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13009",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13012",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13015-13029",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They left for another island when they were young.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "hermit": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(hermit) has lived alone in a hut on the far side of the island for as long as anyone can remember. (subject.He/She) comes to the village twice a year to trade dried fish for salt and doesn't talk to anybody. Today (subject.he/she) comes early, out of season, and finds (subject).\n\"My children,\" (hermit) says. \"They left for another island when they were young. A trader says they're coming back to find me. But I don't know if I want them to.\" (subject.He/She) looks at (subject) as if (subject) will know the answer.\nShould (subject) tell (subject.him/her) to welcome them, or offer to meet them first and see how things stand?",
+   "choices": [
+    {
+     "label": "Tell (subject.Him/Her) to Welcome Them",
+     "next": "c1",
+     "src": "L12994"
+    },
+    {
+     "label": "Meet Them First",
+     "next": "c2",
+     "src": "L12995"
+    }
+   ],
+   "src": "L12990-12992"
+  },
+  "c1o1": {
+   "text": "A canoe arrives a week later with (hermit)'s grown child and (subject.his/her) partner, and a baby that has (hermit)'s exact frown. (hermit) holds the baby for a long time without saying anything. {#made:Only one of them can stay, as the village has no room for more|The family decides to stay}, in the village rather than on the far side of the island, and (hermit) starts coming to the cooking fire in the evenings.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L13001",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The canoe brings one of (hermit)'s children, now grown, and two grandchildren: a gangly teenager and a small child who won't let go of (subject.his/her) parent's leg. The teenager takes one look at the island and declares that it is \"much better than the last one.\" {#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}. (hermit) teaches the teenager to dry fish, and they don't talk much, which suits them both.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    }
+   ],
+   "src": "L13004",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "\"They're coming all this way,\" says (subject). \"Let them come.\" (hermit) nods slowly, and goes home to sweep (subject.his/her) hut for the first time in years...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12998"
+  },
+  "c2o1": {
+   "text": "In the canoe are a nervous young couple with a {#made:baby, though the village has room for only one of them|baby}. (subject) spends the whole walk across the island telling them about (hermit): (subject.his/her) dried fish, (subject.his/her) frown, (subject.his/her) twice-yearly silences. By the time they arrive, they know what to expect, and the meeting goes better than anyone hoped. (subject) turns out to have a gift for this sort of thing.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L13010",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The canoe is just a trader, who has never heard of (hermit)'s children. The rumour, it turns out, came from somebody else's cousin. (subject) walks across the island to break the news. (hermit) listens, nods, and goes back to drying fish. But (subject.he/she) leaves (subject.his/her) hut swept, and next time (subject.he/she) comes to the village, (subject.he/she) says hello.",
+   "src": "L13013"
+  },
+  "c2": {
+   "text": "(subject) waits on the beach every morning for a week. On the eighth morning, a canoe comes in around the point, and (subject) wades out to meet it...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13007"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L13001",
+   "before": "The family decides to stay,",
+   "after": "{#made:Only one of them can stay, as the village has no room for more|The family decides to stay},"
+  },
+  {
+   "src": "L13004",
+   "before": "They stay.",
+   "after": "{#made:Only one of them can stay; the village has no room for more|Only two of them can stay; the village has no room for more|They stay}."
+  },
+  {
+   "src": "L13010",
+   "before": "with a baby.",
+   "after": "with a {#made:baby, though the village has room for only one of them|baby}."
+  }
+ ]
+}

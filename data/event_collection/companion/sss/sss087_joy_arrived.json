@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Joy That Arrived Suddenly",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss087_joy_arrived",
+  "source": "companion",
+  "lines": [
+   6965,
+   6973
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6965",
+  "ledger": [
+   {
+    "src": "L6973",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A villager has an unusually energetic day, starts grand projects and sleeps little.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A villager has an unusually energetic day, starts several grand projects, and sleeps little; friends are uncertain whether to celebrate or worry.",
+   "src": "L6966",
+   "choices": [
+    {
+     "label": "Check in without assumptions",
+     "next": "a",
+     "src": "L6967"
+    },
+    {
+     "label": "Help set safe limits on commitments",
+     "next": "b",
+     "src": "L6969"
+    },
+    {
+     "label": "Consult a healer if the pattern persists",
+     "next": "c",
+     "src": "L6971"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "whether to celebrate",
+     "reason": "the friends' question; nobody celebrates",
+     "src": "L6966"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The team postpones costly decisions until everyone has rested.",
+   "src": "L6970"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The healer asks about sleep, changes in behavior, and wellbeing without assigning a label.",
+   "src": "L6972"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The villager appreciates attention and agrees to rest.",
+   "src": "L6968",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L6968"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The villager appreciates attention and agrees to rest.",
+   "src": "L6968"
+  }
+ }
+}

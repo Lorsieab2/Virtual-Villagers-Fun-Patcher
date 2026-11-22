@@ -1,0 +1,293 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice of Questions",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd12_apprentice",
+  "source": "anthology",
+  "lines": [
+   27737,
+   27750
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27737",
+  "ledger": [
+   {
+    "src": "L27738",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27738",
+    "kind": "sensitivity",
+    "before": "a busy craftsperson",
+    "after": "(craftsperson), a busy craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27740",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27741",
+    "kind": "sensitivity",
+    "before": "The craftsperson",
+    "after": "(craftsperson)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27743",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27744",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27746",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27747",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27749",
+    "kind": "sensitivity",
+    "before": "A nearby apprentice",
+    "after": "(apprentice), a nearby apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27750",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child asks so many questions that a busy craftsperson cannot finish a task.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "craftsperson",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) asks so many questions that (craftsperson), a busy craftsperson, cannot finish a task.",
+   "src": "L27738",
+   "choices": [
+    {
+     "label": "Set a Question Time.",
+     "next": "a",
+     "src": "L27739"
+    },
+    {
+     "label": "Invite Hands-On Learning.",
+     "next": "b",
+     "src": "L27742"
+    },
+    {
+     "label": "Explain a Safety Boundary.",
+     "next": "c",
+     "src": "L27745"
+    },
+    {
+     "label": "Ask Another Willing Teacher.",
+     "next": "d",
+     "src": "L27748"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) saves questions for a calmer moment.",
+   "src": "L27740"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) learns why a tool must be handled carefully.",
+   "src": "L27743"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) gets tired and chooses to watch instead.",
+   "src": "L27744"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child) understands why touching a sharp tool is unsafe.",
+   "src": "L27746"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) asks for a safer object to explore.",
+   "src": "L27747"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) hears a different explanation and compares them.",
+   "src": "L27750"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(craftsperson) discovers that one saved question reveals a useful idea.",
+   "src": "L27741",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L27741"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(craftsperson) discovers that one saved question reveals a useful idea.",
+   "src": "L27741"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(apprentice), a nearby apprentice, enjoys explaining the craft.",
+   "src": "L27749",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L27749"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(apprentice), a nearby apprentice, enjoys explaining the craft.",
+   "src": "L27749"
+  }
+ }
+}

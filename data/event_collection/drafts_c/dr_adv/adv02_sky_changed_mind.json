@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sky Changed Its Mind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv02_sky_changed_mind",
+  "source": "draft_adv",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   }
+  ],
+  "description": "An elder's weather advice sends a villager out into a downpour: go and find the elder, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been watching the weather on Isola for fifty years. This morning (subject.he/she) looked at the clouds and told (friend), \"Fine all day. Take the canoe out to the far reef.\" (friend) did. At midday the sky turned black, and (friend) paddled home in a downpour, soaked to the bone and very, very cold.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "(friend) Goes to Find (subject)",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "(friend) Lets It Go",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) dries off, eats something hot and decides not to mention it. The next morning (subject) comes by with a basket of dried fish. \"For yesterday,\" (subject.he/she) says, and doesn't say anything else. (friend) takes it. Next time (friend.he/she) asks about the weather, (friend.he/she) also looks at the sky (friend.him/her)self.",
+   "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) drips into (subject)'s hut. (subject) looks up. There is a long pause. \"The sky,\" (subject) says, \"changed its mind.\" (friend) stares at (subject.him/her). Then, despite (friend.him/her)self, (friend.he/she) starts to laugh. (subject) hands (friend.him/her) a blanket. Neither of them says the word \"wrong.\" Both of them know.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) drips into (subject)'s hut. (subject) looks up. There is a long pause. \"The sky,\" (subject) says, \"changed its mind.\" (friend) stares at (subject.him/her). Then, despite (friend.him/her)self, (friend.he/she) starts to laugh. (subject) hands (friend.him/her) a blanket. Neither of them says the word \"wrong.\" Both of them know.",
+   "src": "L26"
+  }
+ }
+}

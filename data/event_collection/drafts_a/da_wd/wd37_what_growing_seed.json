@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's Growing in the Seed Basket?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd37_what_growing_seed",
+  "source": "da_wd",
+  "lines": [
+   434,
+   443
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L434",
+  "ledger": [
+   {
+    "src": "L435",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L440",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A forgotten basket of seeds has sprouted into a little jungle: plant them all, or keep it as it is.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "In the corner of (name1)'s hut is an old basket of seeds (he/she) forgot about months ago. A little rain got in through the roof. Now, when (name1) finally looks, the whole basket is sprouting: a dense green tangle of shoots, all leaning towards the window, like a small, very determined jungle.",
+   "src": "L437",
+   "choices": [
+    {
+     "label": "Plant Them All",
+     "next": "a",
+     "src": "L439"
+    },
+    {
+     "label": "Keep It as It Is",
+     "next": "b",
+     "src": "L442"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) carries the whole basket out to the garden and plants every single sprout, which takes the entire afternoon. Most of them survive. Some of them turn out to be things (name1) doesn't recognize at all. By the end of the season, (his/her) garden is the most interesting one in the village, and nobody, including (name1), knows quite what's growing in it.",
+   "src": "L440",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L440"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) decides it looks rather nice. (He/She) moves the basket into the sunlight by the door and waters it. It becomes a strange little basket garden, all shoots and leaves, and people stop to look at it. (name1) tells them (he/she) planned it that way. Nobody believes (him/her), but it's a nice story.",
+   "src": "L443"
+  }
+ }
+}

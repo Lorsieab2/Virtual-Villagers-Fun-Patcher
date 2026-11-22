@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Disappearing Skill",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk055_skill_fading",
+  "source": "companion",
+  "lines": [
+   5986,
+   5993
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5986",
+  "ledger": [
+   {
+    "src": "L5992",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5993",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "After a long illness, a craftsperson struggles with a technique once mastered.",
+  "cast_only": [
+   "craftsperson"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "After a long illness, a craftsperson struggles with a technique once mastered.",
+   "src": "L5987",
+   "choices": [
+    {
+     "label": "Relearn slowly and regain confidence.",
+     "next": "outcome",
+     "src": "L5988"
+    },
+    {
+     "label": "Adapt tools to a new limitation.",
+     "next": "outcome",
+     "src": "L5989"
+    },
+    {
+     "label": "Give up and develop a dislike of the craft.",
+     "next": "outcome_c",
+     "src": "L5990"
+    },
+    {
+     "label": "Teach theory while recovering practical skill.",
+     "next": "outcome",
+     "src": "L5991"
+    }
+   ]
+  },
+  "outcome_c": {
+   "name": "Ending (C)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5992",
+   "auto_text": true
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5992"
+  }
+ }
+}

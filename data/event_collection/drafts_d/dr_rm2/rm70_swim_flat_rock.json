@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swim to the Flat Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm70_swim_flat_rock",
+  "source": "draft_rm2",
+  "lines": [
+   444,
+   457
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L444",
+  "ledger": [],
+  "description": "A group of teenagers decides to swim out to a flat rock in the lagoon, and one of them is a much weaker swimmer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A group of teenagers decides to swim out to a flat rock in the lagoon, and one of them is a much weaker swimmer.",
+   "src": "L445",
+   "choices": [
+    {
+     "label": "Swim Beside the Weaker Swimmer.",
+     "next": "a",
+     "src": "L446"
+    },
+    {
+     "label": "Bring a Floating Log Along.",
+     "next": "b",
+     "src": "L449"
+    },
+    {
+     "label": "Suggest a Closer Rock Instead.",
+     "next": "c",
+     "src": "L452"
+    },
+    {
+     "label": "Let the Swimmer Decide Without Pressure.",
+     "next": "d",
+     "src": "L455"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Halfway there, the swimmer turns back, and the friend returns with them without complaint.",
+   "src": "L448"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The log gives everyone a place to rest, and the swim becomes a game.",
+   "src": "L450"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The log drifts away, and the group spends the afternoon chasing it.",
+   "src": "L451"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Everyone enjoys the shorter swim, and nobody feels left out.",
+   "src": "L453"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some grumble, but they agree to try the far rock another day.",
+   "src": "L454"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The swimmer chooses to try, and the others swim slowly beside them.",
+   "src": "L457"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Both reach the rock, and the weaker swimmer feels proud.",
+   "src": "L447",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L447"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Both reach the rock, and the weaker swimmer feels proud.",
+   "src": "L447"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The swimmer chooses to wade near shore and is happy to watch.",
+   "src": "L456",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L456"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The swimmer chooses to wade near shore and is happy to watch.",
+   "src": "L456"
+  }
+ }
+}

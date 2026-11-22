@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Adze",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm76_missing_adze",
+  "source": "draft_rm2",
+  "lines": [
+   535,
+   548
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L535",
+  "ledger": [
+   {
+    "src": "L536",
+    "kind": "sensitivity",
+    "before": "A builder's favorite adze",
+    "after": "(Name1)'s favorite adze",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A builder's favorite adze has gone missing, and someone mutters that the newcomer was seen near the workshop.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1)'s favorite adze has gone missing, and someone mutters that the newcomer was seen near the workshop.",
+   "src": "L536",
+   "choices": [
+    {
+     "label": "Refuse to Assume Anything.",
+     "next": "a",
+     "src": "L537"
+    },
+    {
+     "label": "Ask the Newcomer Directly and Kindly.",
+     "next": "b",
+     "src": "L540"
+    },
+    {
+     "label": "Search the Workshop Thoroughly.",
+     "next": "c",
+     "src": "L543"
+    },
+    {
+     "label": "Speak to the One Who Muttered.",
+     "next": "d",
+     "src": "L546"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The adze turns up under a pile of shavings.",
+   "src": "L538"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The adze is never found, but no one is blamed.",
+   "src": "L539"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The newcomer had borrowed it, meaning to ask, and returns it immediately.",
+   "src": "L541"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The newcomer knows nothing about it and is hurt by the suspicion, and the builder apologizes.",
+   "src": "L542"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The adze is found in a basket of tools.",
+   "src": "L544"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "They admit they had no real reason for the suspicion.",
+   "src": "L547"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They insist on their view, and the builder decides not to follow it.",
+   "src": "L548"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The search finds three other tools missing for months but no adze.",
+   "src": "L545",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L545"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The search finds three other tools missing for months but no adze.",
+   "src": "L545"
+  }
+ }
+}

@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Just in Time",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day10_just_time",
+  "source": "draft_day",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager gets home just as the rain pours down, without a drop on them: watch from the doorway, or invite someone in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been out at the far gardens all afternoon, and the sky has been getting darker and darker. Now (subject.he/she) is hurrying home with a heavy basket, eyeing the clouds. (subject.He/she) steps into (subject.his/her) hut, puts the basket down, and at that exact moment the rain comes down like a waterfall. Not a drop on (subject.him/her).",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Watch the Rain from the Doorway",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Invite Someone In",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits in the doorway, completely dry, and watches the rain hammer the village. People run past, soaked, shrieking. (subject.He/she) waves at them cheerfully. It's petty. It's also one of the most satisfying moments of (subject.his/her) week. (subject.He/she) enjoys every second of it.",
+   "src": "L122",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L122"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sits in the doorway, completely dry, and watches the rain hammer the village. People run past, soaked, shrieking. (subject.He/she) waves at them cheerfully. It's petty. It's also one of the most satisfying moments of (subject.his/her) week. (subject.He/she) enjoys every second of it.",
+   "src": "L122"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) dashes past, already soaked. \"Come in!\" calls (subject). (friend) tumbles in, dripping everywhere, and they sit together listening to the rain on the roof. \"How are you so dry?\" asks (friend). \"Good timing,\" says (subject), and tries, without much success, not to look smug.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) dashes past, already soaked. \"Come in!\" calls (subject). (friend) tumbles in, dripping everywhere, and they sit together listening to the rain on the roof. \"How are you so dry?\" asks (friend). \"Good timing,\" says (subject), and tries, without much success, not to look smug.",
+   "src": "L125"
+  }
+ }
+}

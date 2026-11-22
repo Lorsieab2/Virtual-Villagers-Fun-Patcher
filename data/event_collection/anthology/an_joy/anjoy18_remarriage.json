@@ -1,0 +1,224 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Remarriage Celebration",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy18_remarriage",
+  "source": "anthology",
+  "lines": [
+   28938,
+   28951
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28938",
+  "ledger": [
+   {
+    "src": "L28939",
+    "kind": "sensitivity",
+    "before": "Two adults choose",
+    "after": "(partner1) and (partner2), two adults, choose",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two adults choose to marry after earlier relationships ended.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "partner1": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "partner2": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "partner1",
+    "years": 15
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(partner1) and (partner2), two adults, choose to marry after earlier relationships ended.",
+   "src": "L28939",
+   "choices": [
+    {
+     "label": "Hold a Public Celebration",
+     "next": "a",
+     "src": "L28940"
+    },
+    {
+     "label": "Keep the Ceremony Intimate",
+     "next": "b",
+     "src": "L28943"
+    },
+    {
+     "label": "Invite Children to Help Plan",
+     "next": "c",
+     "src": "L28946"
+    },
+    {
+     "label": "Honor the Past Gently",
+     "next": "d",
+     "src": "L28949"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28939"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Friends celebrate the couple's new beginning.",
+   "src": "L28941",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "partner1",
+     "src": "L28941"
+    },
+    {
+     "do": "celebrate",
+     "who": "partner2",
+     "src": "L28941"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The couple finds the attention overwhelming and leaves early.",
+   "src": "L28942"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some relatives ask for a later gathering.",
+   "src": "L28945"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children choose a meaningful song.",
+   "src": "L28947"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One child prefers not to participate and is respected.",
+   "src": "L28948"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The couple acknowledges earlier chapters without comparison.",
+   "src": "L28950"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They decide some memories should remain private.",
+   "src": "L28951"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The couple enjoys a peaceful commitment.",
+   "src": "L28944",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "partner1",
+     "mood": "good",
+     "src": "L28944"
+    },
+    {
+     "do": "mood",
+     "role": "partner2",
+     "mood": "good",
+     "src": "L28944"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The couple enjoys a peaceful commitment.",
+   "src": "L28944"
+  }
+ }
+}

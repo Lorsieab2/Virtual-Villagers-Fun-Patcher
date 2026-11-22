@@ -1,0 +1,195 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Map of the Old Path",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife22_map_old_path",
+  "source": "living",
+  "lines": [
+   20915,
+   20926
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20915",
+  "ledger": [
+   {
+    "src": "L20926",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young explorer draws a map that contradicts the elders' remembered route.",
+  "cast_only": [
+   "explorer",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young explorer draws a map that contradicts the elders' remembered route.",
+   "src": "L20916",
+   "choices": [
+    {
+     "label": "Trust the new map.",
+     "next": "a",
+     "src": "L20917"
+    },
+    {
+     "label": "Follow the oral directions.",
+     "next": "b",
+     "src": "L20920"
+    },
+    {
+     "label": "Compare both accounts.",
+     "next": "c",
+     "src": "L20923"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "type": "branch",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The party avoids a dangerous ravine.",
+   "src": "L20921"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The familiar route takes longer than expected.",
+   "src": "L20922"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elders reveal a landmark the cartographer overlooked.",
+   "src": "L20924"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A disagreement becomes a lesson in how memory and drawings both fail.",
+   "src": "L20925"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The villagers find a shorter path, but the drawing omits a seasonal flood.",
+   "src": "L20918",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20918"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The villagers find a shorter path, but the drawing omits a seasonal flood.",
+   "src": "L20918"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The explorers reach the destination and improve the map.",
+   "src": "L20919",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20919"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The explorers reach the destination and improve the map.",
+   "src": "L20919"
+  }
+ }
+}

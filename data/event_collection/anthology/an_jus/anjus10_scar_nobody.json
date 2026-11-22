@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scar Nobody Asked About",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus10_scar_nobody",
+  "source": "anthology",
+  "lines": [
+   30863,
+   30877
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30863",
+  "ledger": [
+   {
+    "src": "L30864",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30865",
+    "kind": "sensitivity",
+    "before": "A newcomer",
+    "after": "(newcomer), a newcomer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30868",
+    "kind": "sensitivity",
+    "before": "A curious child",
+    "after": "(child), a curious child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30873",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30876",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A newcomer has an old scar and grows weary of strangers inventing stories about it.",
+  "label_case": "title",
+  "cast_only": [
+   "newcomer",
+   "child",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(newcomer), a newcomer, has an old scar and grows weary of strangers inventing stories about it.",
+   "src": "L30865",
+   "choices": [
+    {
+     "label": "Respect Privacy",
+     "next": "a",
+     "src": "L30866"
+    },
+    {
+     "label": "Invite the Newcomer to Share Skills",
+     "next": "b",
+     "src": "L30869"
+    },
+    {
+     "label": "Challenge the Rumors",
+     "next": "c",
+     "src": "L30872"
+    },
+    {
+     "label": "Let Friendship Develop Naturally",
+     "next": "d",
+     "src": "L30875"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Neighbors stop asking for an explanation.",
+   "src": "L30867"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child), a curious child, receives a gentle lesson about personal questions.",
+   "src": "L30868"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They prefer to contribute through quiet garden work.",
+   "src": "L30871"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) corrects a false claim without revealing private history.",
+   "src": "L30873"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The gossipers acknowledge that uncertainty is not permission to speculate.",
+   "src": "L30874"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(newcomer) eventually shares a little of their past.",
+   "src": "L30876"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They never discuss the scar and are still fully welcomed.",
+   "src": "L30877"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Their knowledge of ropework earns appreciation.",
+   "src": "L30870",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L30870"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Their knowledge of ropework earns appreciation.",
+   "src": "L30870"
+  }
+ }
+}

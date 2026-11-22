@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Favorite Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il051_favorite_place",
+  "source": "da_il03",
+  "lines": [
+   122,
+   131
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager walks to a favorite thinking rock at the end of the beach and finds someone already sitting on it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Everyone needs somewhere to think. For (subject) it's a flat rock at the end of the beach, where the waves are loud enough to drown out everything else. Today (subject.he/she) walks all the way there and finds (friend) sitting on it.",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "Share the Rock",
+     "next": "a",
+     "src": "L127"
+    },
+    {
+     "label": "Find a New Place",
+     "next": "b",
+     "src": "L130"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Mind if I sit?\" asks (subject). (friend) shifts over. Neither says anything for a long time. It turns out a good thinking rock is big enough for two, as long as both of them are quiet.",
+   "src": "L128"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) wanders back along the shore and finds a tree with a low, curving branch that fits (subject.him/her) perfectly. It's not the rock. But the shade is lovely, and the sea sounds just as loud from here. (subject.He/She) might come back tomorrow.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L131"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) wanders back along the shore and finds a tree with a low, curving branch that fits (subject.him/her) perfectly. It's not the rock. But the shade is lovely, and the sea sounds just as loud from here. (subject.He/She) might come back tomorrow.",
+   "src": "L131"
+  }
+ }
+}

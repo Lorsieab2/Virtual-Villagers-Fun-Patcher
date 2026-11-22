@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Honey on a Leaf",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim164_honey_leaf",
+  "source": "draft_tim2",
+  "lines": [
+   275,
+   280
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L275",
+  "ledger": [
+   {
+    "src": "L276",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L277",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L278",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L279",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L280",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager shares a little wild honey, spread on a broad leaf.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. The children lick the leaf until there is nothing left.",
+   "src": "L276,L277"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. A bee follows (name1) home, hoping for more.",
+   "src": "L276,L279"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. (name1) saves a little for an elder who loves sweets.",
+   "src": "L276,L280"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. It is the sweetest thing anyone has tasted all season.",
+   "src": "L276,L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L276,L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(name1) shares a little wild honey, spread on a broad leaf. It is the sweetest thing anyone has tasted all season.",
+   "src": "L276,L278"
+  }
+ }
+}

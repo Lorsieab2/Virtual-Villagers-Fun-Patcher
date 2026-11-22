@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teen's Crush",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcd02_teen_crush",
+  "source": "draft_lcd",
+  "lines": [
+   22,
+   33
+  ],
+  "section": "dr_lcd",
+  "credit": "NEW EVENTS - LIVING CULTURE IV: ROMANCE, COURTSHIP AND WEDDINGS (LCD-01..50, draft, 2026-11-18)\nCrushes and courting on Isola: wondering whether someone likes you back, flowers and love songs, first dates, serenades gone wrong, proposals, weddings big and small, how many children, breakups and starting over.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcd",
+  "title_src": "L22",
+  "ledger": [
+   {
+    "src": "L23",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens)"
+   },
+   {
+    "src": "L29",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L33",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A teen has a crush on another teen: tell them, or write it in a song nobody knows is about them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has noticed (friend) at every gathering lately: the way (friend.he/she) helps the little ones across the stream, the way (friend.he/she) hums when (friend.he/she) thinks nobody is listening. (subject) goes red every time (friend) looks over. (subject.His/her) friends say (subject.he/she) should just say something. What should (subject) do?",
+   "src": "L25",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L27"
+    },
+    {
+     "label": "Put It in a Song",
+     "next": "o2",
+     "src": "L31"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) waits until the walk back from the stream and blurts it out, all at once, very fast. (friend) blinks. Then (friend.he/she) says (friend.he/she) thought (subject) only liked (friend.him/her) as a friend, and smiles, and asks if (subject) wants to sit together at the next gathering. (subject) says yes so quickly (subject.he/she) trips over a root.",
+   "src": "L29"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) writes a song about someone kind who hums by the stream, and sings it at the youth gathering without saying who it is about. Everyone guesses wrong. (friend) listens with a strange look on (friend.his/her) face. Later, (friend.he/she) hums it by the stream. (subject) has no idea what that means.",
+   "src": "L33"
+  }
+ }
+}

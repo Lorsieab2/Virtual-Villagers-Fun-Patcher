@@ -1,0 +1,233 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rivals at the Spirit Rock",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b023_rivals_spirit",
+  "source": "balance",
+  "lines": [
+   1025,
+   1067
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1025",
+  "ledger": [
+   {
+    "src": "L1026",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1027",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1035",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1044",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1032",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1033",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1036",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1045",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1038",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1041",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1047",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1050",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1053-1067",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An elder told them to put their hands on it at the same time if they really meant to end the quarrel.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been arguing for a year about a fishing spot, a borrowed pot and, by now, mostly about who started it. Today they have come to the old spirit rock to settle it, because the elders say a quarrel spoken at the rock \"has to end one way or another.\"\nThey stand on either side of the rock, which is warm and covered in faded handprints. (subject) says (subject.his/her) side. (friend) says (friend.his/her) side. The rock gets warmer.\nAn elder told them to put their hands on it at the same time if they really meant to end the quarrel. Should they?",
+   "choices": [
+    {
+     "label": "Put Their Hands on the Rock",
+     "next": "c1",
+     "src": "L1032"
+    },
+    {
+     "label": "Walk Away Still Arguing",
+     "next": "c2",
+     "src": "L1033"
+    }
+   ],
+   "src": "L1028-1030"
+  },
+  "c1o1": {
+   "text": "(subject) blinks, and is looking at (subject.himself/herself) across the rock. The rock has ended the quarrel in the simplest way it knows: now each of them has to live the other's life. It is very hard to stay angry at someone after living in their aching back and learning why they wanted that fishing spot so badly. The two of them never swap back, and within a month they're fishing together.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1039",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The drumming fades. They stand there with their hands on the rock, and feel the anger just drain out of them, like water from a cracked pot. \"I don't even like that fishing spot,\" says (subject). \"I never wanted the pot,\" says (friend). They both start laughing and can't stop. Neither of them has ever been one for idle chat, but they sit by the rock and talk until dark.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L1042"
+  },
+  "c1": {
+   "text": "They glare at each other, and slap their hands down on the warm stone at the same moment. The rock thrums like a struck drum. The world turns over...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1036"
+  },
+  "c2o1": {
+   "text": "That night, both of them dream of the rock. In the morning they wake in each other's huts, in each other's bodies. \"It has to end one way or another,\" the elder reminds them, not very sympathetically. The quarrel doesn't last long after that. It's hard to argue about a pot when it's in their own hut either way.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1048",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The quarrel goes on. Eventually, the whole village gets so tired of it that the cooks give (subject) a new pot and the fishers give (friend) a new fishing spot. Neither of them is happy. They have nothing to argue about. They take up arguing about the weather instead.",
+   "src": "L1051"
+  },
+  "c2": {
+   "text": "\"This is silly,\" says (subject). \"You're silly,\" says (friend). They turn their backs on the rock and stomp off in different directions. Behind them, the rock goes on thrumming, very quietly, as if it isn't finished...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1045"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "talking",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "talking"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tall Tale Contest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt14_tall_tale_contest",
+  "source": "draft_tt",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders)"
+   }
+  ],
+  "description": "Two elders hold their yearly tall tale contest by the fire: answer with a bigger fish, or a smaller one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once a year, (subject) and (friend) hold a contest of tall tales by the fire. Everyone knows the stories are made up; that's the whole point. Tonight (subject) has told of a fish so big it had its own island. Now (friend) is on (friend.his/her) feet, ready to answer.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Go Bigger",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Go Smaller",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) tells of a fish so big that the island was on IT, and that they are all living on its back right now. The crowd roars. (subject) stands up: that fish was (subject)'s cousin. It goes on until the fire burns low and the children are asleep in grown-ups' laps. Nobody declares a winner. Nobody ever does.",
+   "src": "L170"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) tells, in a solemn whisper, of a fish so small that it lived in a single drop of water, and once got lost in a raindrop for a whole season. The crowd goes quiet, then delighted. (subject) concedes. \"Small,\" (subject.he/she) mutters. \"Never thought of small.\" Next year (subject.he/she) comes back with a fish so small it's invisible.",
+   "src": "L173",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L173"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) tells, in a solemn whisper, of a fish so small that it lived in a single drop of water, and once got lost in a raindrop for a whole season. The crowd goes quiet, then delighted. (subject) concedes. \"Small,\" (subject.he/she) mutters. \"Never thought of small.\" Next year (subject.he/she) comes back with a fish so small it's invisible.",
+   "src": "L173"
+  }
+ }
+}

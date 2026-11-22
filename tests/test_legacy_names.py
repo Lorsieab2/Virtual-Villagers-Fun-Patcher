@@ -67,8 +67,9 @@ class OldQuestionMarkNames(unittest.TestCase):
         expected = before.replace(b"  Child: Zo? ???ez\r\n", b"  Child: " + ZOE.encode(GAME_TEXT) + b"\r\n")
         self.assertEqual(after, expected, "only the name, in place: every record keeps its number and place")
         # The save folder was backed up first.
-        self.assertTrue(any("before rewriting old question-mark names" in p.name for p in folder.parent.rglob("*")
-                            if p.is_dir()) or any("before rewriting old question-mark names" in str(p) for p in folder.rglob("*")))
+        # (A backup's folder has a short name; its label is in the Backups index, as the list reads it.)
+        import vv_save_backup
+        self.assertIn(legacy.BACKUP_LABEL, [b.suffix for b in vv_save_backup.list_backups(folder)])
         # A second repair finds nothing and changes nothing.
         self.assertEqual(legacy.survey(folder, 3, 1).found, [])
         with self.assertRaises(ln.LastNamesError):

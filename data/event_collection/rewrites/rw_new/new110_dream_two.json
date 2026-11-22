@@ -1,0 +1,257 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dream of Two Selves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new110_dream_two",
+  "source": "rewrites",
+  "lines": [
+   5148,
+   5194
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L5148",
+  "ledger": [
+   {
+    "src": "L5149",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5150",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5159",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5166",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5173",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5155",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5156",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5157",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5160",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5167",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5174",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5161",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5163",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5168",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5170",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5175",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5177",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5180-5194",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager barely speak to each other.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) barely speak to each other. They are not enemies, exactly; they just have nothing in common and both like it that way.\nSo it is a shock to everybody when, at breakfast, they both describe the same dream.\nThey woke up in each other's bodies, in each other's huts, and spent the whole day faking it. (subject) describes (friend)'s sleeping mat perfectly. (friend) knows which of (subject)'s pots has the chipped handle. They both mention a cracked water jar by the door, right down to the shape of the crack.\nThey look at each other across the fire. Neither of them is eating anymore. Was it just a dream? (subject) wonders. Or something more?",
+   "choices": [
+    {
+     "label": "Compare the Two Accounts",
+     "next": "c1",
+     "src": "L5155"
+    },
+    {
+     "label": "Sleep Side by Side Tonight",
+     "next": "c2",
+     "src": "L5156"
+    },
+    {
+     "label": "Ask the Dream Reader",
+     "next": "c3",
+     "src": "L5157"
+    }
+   ],
+   "src": "L5151-5154"
+  },
+  "c1o1": {
+   "text": "Set side by side, the two accounts match in ways nobody could have guessed, down to what was for lunch. The researchers learn a little about dreams and memory, and come up with a careful way of questioning witnesses separately that turns out to be useful for all sorts of disputes. (subject) and (friend) start nodding to each other at the well. It is a start.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5162",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The dreams stop the next night. By the time the researcher sits down with them, the details have already started to fade, the way dreams do. Was the jar cracked on the left or the right? Neither of them is sure anymore. The matter is dropped, but (subject) and (friend) keep giving each other odd, thoughtful looks.",
+   "src": "L5164"
+  },
+  "c1": {
+   "text": "A researcher takes (subject) to one side and (friend) to the other, and has each tell the dream in every detail, without the other listening. The two lists get longer, and longer...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5160"
+  },
+  "c2o1": {
+   "text": "In the morning, (subject) opens (subject.his/her) eyes, sits up, and looks down at hands that are not (subject.his/hers). Across the hut, (subject.his/her) own face is staring back at (subject.him/her) in horror. This time it is not a dream: they really are in each other's bodies. Each keeps (subject.his/her) own memories and mind, so each must now learn to live in the other's skin. The first thing they discover is that they will have to talk to each other a great deal more from now on.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L5169",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Halfway through the night, (friend) sits up, grabs (subject.his/her) mat, and walks out. \"I'm not risking it.\" A moment later (subject) follows, going the other way. Neither of them sleeps a wink, but both wake up in their own bodies, and the village lets the dream stay a dream.",
+   "src": "L5171"
+  },
+  "c2": {
+   "text": "Against all common sense, and mostly because the whole village is dying to know, (subject) and (friend) agree to sleep in the same hut, mats side by side. They lie there in the dark, very stiff, very polite. \"Good night.\" \"Good night.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5167"
+  },
+  "c3o1": {
+   "text": "\"A shared dream means two paths crossing,\" (elder) announces. Then, honestly: \"I say that about most dreams. It's usually true enough.\" (subject) and (friend) look at each other and laugh for the first time, and the cracked jar, when they check, turns out to be perfectly whole.",
+   "src": "L5176"
+  },
+  "c3o2": {
+   "text": "\"Here's what you do.\" (elder) gives them each a stick and teaches them the old way of keeping a dream tally: a notch for each dream, a different notch for each place, a cross for each face. Over many nights the pattern shows things that no single dream could. The researchers adopt the method, and the dream reader gets a lot more fish.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L5178",
+   "auto_text": true
+  },
+  "c3": {
+   "text": "(elder), who reads dreams for anyone who brings (subject.him/her) a fish, listens to both of them very gravely, chewing on the fish...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5174"
+  }
+ }
+}

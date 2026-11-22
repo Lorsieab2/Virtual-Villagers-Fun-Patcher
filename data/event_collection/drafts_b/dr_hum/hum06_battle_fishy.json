@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Battle of Fishy Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum06_battle_fishy",
+  "source": "draft_hum",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L74",
+    "kind": "sensitivity",
+    "before": "An elder declares",
+    "after": "(elder), an elder, declares",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two villagers start trading fish jokes and neither will stop: keep going, or call a truce.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It starts innocently. (subject) holds up a small crab and says, \"This one's being a bit shellfish.\" (friend) narrows (friend.his/her) eyes and says, \"No need to be so crabby.\" By midday they are standing in the middle of the village trading fish jokes, and neither of them is willing to be the one who stops.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Keep Going",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Call a Truce",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Shall we stop?\" says (subject). \"Water you mean?\" says (friend). (subject) walks away. (friend) follows, saying, \"Don't leave me, I'm drowning in sorrow. Get it? Sorrow? Sea?\" It doesn't stop. It never really stops. For weeks, every meal of fish comes with at least one of them saying something terrible about it.",
+   "src": "L77"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"You're just floundering.\" \"I'd never stoop so eel-ow.\" \"Water you talking about?\" It goes on all afternoon. People avoid them, then gather to watch. At sunset (friend) says, \"I'll let minnow when I've had enough,\" and (subject) has no answer. (elder), an elder, declares (friend) the winner, and everyone else declares relief. (subject) wakes up in the night with the perfect reply and has to wait until morning.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"You're just floundering.\" \"I'd never stoop so eel-ow.\" \"Water you talking about?\" It goes on all afternoon. People avoid them, then gather to watch. At sunset (friend) says, \"I'll let minnow when I've had enough,\" and (subject) has no answer. (elder), an elder, declares (friend) the winner, and everyone else declares relief. (subject) wakes up in the night with the perfect reply and has to wait until morning.",
+   "src": "L74"
+  }
+ }
+}

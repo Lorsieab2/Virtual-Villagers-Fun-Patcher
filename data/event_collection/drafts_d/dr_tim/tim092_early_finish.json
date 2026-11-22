@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Early Finish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim092_early_finish",
+  "source": "moments500",
+  "lines": [
+   1541,
+   1555
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L1542",
+  "ledger": [
+   {
+    "src": "L1541",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1545",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1546",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1549",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1550",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1553",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L1554",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L1543",
+    "kind": "sensitivity",
+    "before": "A farmer",
+    "after": "(Name1), a farmer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1547",
+    "kind": "sensitivity",
+    "before": "A farmer",
+    "after": "(Name1), a farmer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1551",
+    "kind": "sensitivity",
+    "before": "A farmer",
+    "after": "(Name1), a farmer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L1555",
+    "kind": "sensitivity",
+    "before": "A farmer",
+    "after": "(Name1), a farmer,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A farmer finishes the day earlier than expected.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a farmer, finishes the day earlier than expected. The afternoon feels unusually long, despite the simple work.",
+   "src": "L1551"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a farmer, finishes the day earlier than expected. (Name1) decides not every day has to be remarkable.",
+   "src": "L1555"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a farmer, finishes the day earlier than expected. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1543",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1543"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a farmer, finishes the day earlier than expected. (Name1) is proud of the progress nobody else can see.",
+   "src": "L1543"
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "(Name1), a farmer, finishes the day earlier than expected. A cheerful interruption is welcome for once.",
+   "src": "L1547",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L1547"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "(Name1), a farmer, finishes the day earlier than expected. A cheerful interruption is welcome for once.",
+   "src": "L1547"
+  }
+ }
+}

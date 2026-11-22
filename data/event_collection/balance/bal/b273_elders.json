@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elders' Anniversary Wish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b273_elders",
+  "source": "balance",
+  "lines": [
+   12715,
+   12757
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12715",
+  "ledger": [
+   {
+    "src": "L12716",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12717",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12725",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12734",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12722",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12723",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12726",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12735",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12728",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12737",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12743-12757",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager and another villager have been together for longer than most of the village has been alive.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 45
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) and (friend) have been together for longer than most of the village has been alive. Tonight is the anniversary of the day they met, on the beach under a falling star, and as they sit on the same beach a falling star streaks across the sky again.\nThe old saying is that a couple who see a falling star on their anniversary get one wish, but only if they wish for the same thing. (friend) squeezes (subject)'s hand. \"Well?\" (subject.he/she) says. \"What do we wish for?\"\nShould they wish to be young again, or wish for nothing but another good year together?",
+   "choices": [
+    {
+     "label": "Wish to Be Young Again",
+     "next": "c1",
+     "src": "L12722"
+    },
+    {
+     "label": "Wish for Another Good Year",
+     "next": "c2",
+     "src": "L12723"
+    }
+   ],
+   "src": "L12718-12720"
+  },
+  "c1o1": {
+   "text": "When they open their eyes, they stare at each other. Their faces are the ones they had that night, smooth and bright, though their backs still creak exactly as before. \"You've still got the nose,\" says (friend). \"And you've still got the laugh,\" says (subject). They walk home arm in arm, slowly, and the village spends the next morning staring.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "friend"
+    }
+   ],
+   "src": "L12729",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They wake up the next morning with springy knees and straight backs, fifteen years younger, both of them. They spend the whole day doing everything they haven't been able to do for years: climbing, swimming, dancing at the cooking fire. In the evening they sit on the beach, exhausted. \"Same as last time,\" says (friend). \"We wore ourselves out by sunset.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "years": [
+      -15,
+      -15
+     ],
+     "role": "subject"
+    },
+    {
+     "do": "change_age",
+     "role": "friend",
+     "years": [
+      -15,
+      -15
+     ]
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L12732",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They both close their eyes and wish, as hard as they can, to be as young as they were the night they met. The sand under them grows warm...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12726"
+  },
+  "c2o1": {
+   "text": "They have a good year. A very good year: the best of all of them, (friend) says later. And on the next anniversary, they sit on the same beach and watch for a falling star, and (subject) falls asleep with (subject.his/her) head on (friend)'s shoulder and doesn't wake. (friend) sits with (subject.him/her) until dawn. The village buries (subject) above the beach, where the stars can see.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L12738",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They have a good year, and then another. Something about that night stays with them. Neither of them has ever had any patience for games, but now, when the children are racing on the beach or playing stones on the flat rock, the two old ones join in. \"What's the point of waiting?\" (friend) says. \"We wished for good years. Might as well enjoy them.\"",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "dislike": "playing",
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "dislike": "playing"
+    }
+   ],
+   "src": "L12741",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Another good year,\" says (subject). \"That's all.\" (friend) smiles and nods, and they wish it together, quietly. The star burns out over the sea...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12735"
+  }
+ }
+}

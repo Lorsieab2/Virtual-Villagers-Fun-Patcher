@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Wrong Name, Three Times",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day32_wrong_name_three",
+  "source": "draft_day",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has called a friend by the wrong name three times, the last at the fire: apologize and laugh, or blame the day.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This morning (subject) called (friend) by the wrong name. (friend) laughed. At lunch, (subject.he/she) did it again. Same wrong name. This evening, at the fire, in front of everyone, (subject.he/she) has just done it a third time. Everyone has gone quiet. (subject) can feel (subject.his/her) face getting hot.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Apologize and Laugh",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Blame the Day",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm sorry!\" says (subject). \"I don't know what's wrong with me. I know your name. It's (friend). (friend), (friend), (friend).\" (friend) is laughing. Everyone is laughing. By the end of the night, half the village is calling (friend) by the wrong name too, just to be funny. (friend) doesn't seem to mind at all.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L386"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm sorry!\" says (subject). \"I don't know what's wrong with me. I know your name. It's (friend). (friend), (friend), (friend).\" (friend) is laughing. Everyone is laughing. By the end of the night, half the village is calling (friend) by the wrong name too, just to be funny. (friend) doesn't seem to mind at all.",
+   "src": "L386"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"It's been a wrong-name day,\" says (subject). \"I don't know why. Tomorrow will be better.\" (friend) says it's fine. It is fine. (subject) is still embarrassed all evening. The next morning (subject.he/she) greets (friend) very carefully, by (friend.his/her) right name, and (friend) applauds.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"It's been a wrong-name day,\" says (subject). \"I don't know why. Tomorrow will be better.\" (friend) says it's fine. It is fine. (subject) is still embarrassed all evening. The next morning (subject.he/she) greets (friend) very carefully, by (friend.his/her) right name, and (friend) applauds.",
+   "src": "L389"
+  }
+ }
+}

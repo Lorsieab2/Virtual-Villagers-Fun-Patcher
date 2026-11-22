@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Harvest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb06_quiet_harvest",
+  "source": "draft_lcb",
+  "lines": [
+   78,
+   89
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L78",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L85",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L89",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A farmer wants to leave part of the field for the birds and animals: leave it, or harvest everything this year.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The fruit garden has done well this year. (subject) wants to leave the last row unpicked for the birds, the fruit bats and the little lizards, the way (subject.his/her) grandmother always did. (friend) says the village is not rich enough to feed bats. What should they do?",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Leave the Last Row",
+     "next": "o1",
+     "src": "L83"
+    },
+    {
+     "label": "Harvest Everything",
+     "next": "o2",
+     "src": "L87"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They leave the last row. All season, the garden is full of birds, and the birds eat a great many insects that would have eaten the rest of the crop. (friend) is not sure if that was the point, but admits the garden has never been so loud.",
+   "src": "L85"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They harvest every row. The stores are full. The birds move to the other side of the island, and next season the garden is crawling with insects. (subject) does not say anything. (subject.He/she) just hands (friend) a stick for knocking off the caterpillars.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

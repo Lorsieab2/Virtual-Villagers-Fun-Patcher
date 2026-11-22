@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nursing Mother's Impossible Day",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk053_nursing_mother",
+  "source": "companion",
+  "lines": [
+   5968,
+   5975
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5968",
+  "ledger": [
+   {
+    "src": "L5974",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5975",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A nursing mother is asked to help during a village emergency."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "nursing_parent",
+   "protected": "allow"
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A nursing (mother.mother/father) caring for an infant is asked to help during a village emergency.",
+   "src": "L5969",
+   "choices": [
+    {
+     "label": "Arrange trusted infant care and help briefly.",
+     "next": "outcome",
+     "src": "L5970"
+    },
+    {
+     "label": "Stay with the baby while coordinating supplies.",
+     "next": "outcome",
+     "src": "L5971"
+    },
+    {
+     "label": "Overextend (mother.himself/herself) and become ill.",
+     "next": "outcome_c",
+     "src": "L5972"
+    },
+    {
+     "label": "Ask the village to share caregiving responsibilities.",
+     "next": "outcome",
+     "src": "L5973"
+    }
+   ]
+  },
+  "outcome_c": {
+   "name": "Ending (C)",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5974",
+   "effects": [
+    {
+     "do": "sick",
+     "role": "mother",
+     "src": "L5974"
+    }
+   ],
+   "auto_text": true
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5974"
+  }
+ }
+}

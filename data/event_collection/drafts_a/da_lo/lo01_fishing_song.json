@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fishing Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo01_fishing_song",
+  "source": "da_lo",
+  "lines": [
+   9,
+   18
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L9",
+  "ledger": [
+   {
+    "src": "L10",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L15",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A fisher realizes halfway to the reef that they forgot their lucky fishing song: turn back, or keep going.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every time (subject) goes fishing, (subject.he/she) sings the same little song as (subject.he/she) pushes the canoe out. (subject.He/She) has done it for years, and (subject.he/she) is quite sure it's why (subject.he/she) catches so much. This morning, halfway out to the reef, (subject) realizes (subject.he/she) forgot to sing it.",
+   "src": "L12",
+   "choices": [
+    {
+     "label": "Turn Back and Sing It",
+     "next": "a",
+     "src": "L14"
+    },
+    {
+     "label": "Keep Going Without It",
+     "next": "b",
+     "src": "L17"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) paddles all the way back to the beach, climbs out, pushes the canoe off again and sings the song, loudly, while (friend) watches from the shore with raised eyebrows. (subject) catches a good basket of fish. Whether it was the song, nobody can say. (subject) can say. It was the song.",
+   "src": "L15",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L15"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides to see what happens. (subject.He/She) fishes all morning. (subject.He/She) catches exactly as many fish as usual. On the way back, (subject.he/she) feels a little bit disappointed and a little bit relieved, and isn't sure which one wins. The next morning, (subject.he/she) sings the song anyway. It's a nice song.",
+   "src": "L18"
+  }
+ }
+}

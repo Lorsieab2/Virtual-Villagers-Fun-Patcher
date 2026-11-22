@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mice Didn't Do It",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon30_mice_didnt_do",
+  "source": "draft_hon",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager secretly ate the feast nuts, and a friend is setting mouse traps: stop them, or help set the traps.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last night (subject) slipped into the storehouse and ate some of the sweet roasted nuts set aside for the feast. This morning (friend) has found the nibbled bag and is setting mouse traps all round the storehouse, very seriously.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Stop (friend.him/her)",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Help Set the Traps",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"It wasn't mice,\" says (subject). (friend) looks up from a trap. \"It was me. Last night. I'm sorry.\" (friend) stares, then looks down at the trap in (friend.his/her) hands. \"I spent all morning on these.\" \"I know. They're very good traps.\" (subject) spends the afternoon roasting and shelling a new batch of nuts. It takes the whole afternoon.",
+   "src": "L362"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) helps set traps, feeling worse with every one. No mouse is caught, of course. The next morning (friend) says thoughtfully, \"Funny sort of mouse. Only took the sweet ones, and tied the bag up again afterward.\" (friend.He/she) doesn't look at (subject). That afternoon a basket of fresh nuts appears in the storehouse. (friend) quietly takes up the traps.",
+   "src": "L365",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L365"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) helps set traps, feeling worse with every one. No mouse is caught, of course. The next morning (friend) says thoughtfully, \"Funny sort of mouse. Only took the sweet ones, and tied the bag up again afterward.\" (friend.He/she) doesn't look at (subject). That afternoon a basket of fresh nuts appears in the storehouse. (friend) quietly takes up the traps.",
+   "src": "L365"
+  }
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shaved Head",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf04_shaved_head",
+  "source": "draft_blf",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager has shaved off all their hair and loves it, and a friend stops dead on the path: the friend asks why, or just stares.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has shaved off all (subject.his/her) hair. Every last bit. (subject.He/she) has wanted to for years and today (subject.he/she) finally did it, and (subject.he/she) loves it. It feels cool and light, the wind on (subject.his/her) head is wonderful, and it takes no time at all to wash. (friend) passes (subject.him/her) on the path and stops dead.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "(friend) Asks Why",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "(friend) Says Nothing and Stares",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"What happened to your hair?\" asks (friend). \"Nothing happened,\" says (subject). \"I cut it off. I like it.\" (friend) waits, as though there must be more to the story. There isn't. \"Oh,\" says (friend). \"Well. It suits you.\" \"I know,\" says (subject), grinning, and runs a hand over (subject.his/her) head. It's the best decision (subject.he/she) has made all year.",
+   "src": "L50"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) just stares. (subject) waits. (friend) keeps staring. \"It's my hair,\" says (subject) eventually. \"Or it was.\" (friend) blinks. \"Sorry. I just wasn't expecting it. You look... different.\" \"I look like me,\" says (subject), and walks on. (subject.He/she) doesn't owe anyone an explanation. (subject.He/she) whistles all the way home.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) just stares. (subject) waits. (friend) keeps staring. \"It's my hair,\" says (subject) eventually. \"Or it was.\" (friend) blinks. \"Sorry. I just wasn't expecting it. You look... different.\" \"I look like me,\" says (subject), and walks on. (subject.He/she) doesn't owe anyone an explanation. (subject.He/she) whistles all the way home.",
+   "src": "L53"
+  }
+ }
+}

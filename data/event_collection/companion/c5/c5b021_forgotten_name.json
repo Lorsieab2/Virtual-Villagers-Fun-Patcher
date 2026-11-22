@@ -1,0 +1,102 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forgotten Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b021_forgotten_name",
+  "source": "companion",
+  "lines": [
+   1317,
+   1325
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1317",
+  "ledger": [
+   {
+    "src": "L1319",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1322",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1325",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "An elder struggles to recall the name of an old friend.",
+  "cast_only": [
+   "elder",
+   "elder2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "elder2": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An elder struggles to recall the name of an old friend.",
+   "src": "L1318",
+   "choices": [
+    {
+     "label": "Let the moment unfold naturally.",
+     "next": "ending",
+     "src": "L1320"
+    },
+    {
+     "label": "Invite someone else into the moment.",
+     "next": "ending",
+     "src": "L1321"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "A familiar song brings it back.",
+   "src": "L1323"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "Another elder helps piece together the memory.",
+   "src": "L1324"
+  }
+ }
+}

@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Jellyfish Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat49_jellyfish_season",
+  "source": "draft_nat",
+  "lines": [
+   572,
+   581
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L572",
+  "ledger": [
+   {
+    "src": "L573",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-13)"
+   }
+  ],
+  "description": "Jellyfish have closed the swimming in the hottest week of the year: go and look at them, or find another place to swim.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The warm current has brought the jellyfish in: clear, pale, trailing long threads that sting. They wash up in rows along the tide line and drift in the shallows. Swimming is off until they're gone. (friend) is heartbroken. It's the hottest week of the year and (friend.he/she) has been looking forward to swimming for days.",
+   "src": "L575",
+   "choices": [
+    {
+     "label": "Go Look at Them Instead",
+     "next": "o1",
+     "src": "L577"
+    },
+    {
+     "label": "Find a Different Place to Swim",
+     "next": "o2",
+     "src": "L580"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) leads (friend) up the stream to the deep cold pool under the rocks. It's freezing. They shriek. Other children follow, then grown-ups. For a week the stream pool is the busiest place on the island. When the jellyfish finally drift away, half the children say they prefer the pool now. They don't, really, but they say it.",
+   "src": "L581"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) along the beach with a long stick, keeping well back. They look at the stranded jellyfish shining in the sun like dropped glass, with tiny shrimp living inside some of them. (friend) forgets to be sad for a while. \"They're beautiful,\" (friend.he/she) says, \"and I hate them.\" That seems fair to (subject).",
+   "src": "L578",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L578"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) along the beach with a long stick, keeping well back. They look at the stranded jellyfish shining in the sun like dropped glass, with tiny shrimp living inside some of them. (friend) forgets to be sad for a while. \"They're beautiful,\" (friend.he/she) says, \"and I hate them.\" That seems fair to (subject).",
+   "src": "L578"
+  }
+ }
+}

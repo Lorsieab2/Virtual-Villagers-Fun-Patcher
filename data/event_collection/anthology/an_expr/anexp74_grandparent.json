@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandparent's Game",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp74_grandparent",
+  "source": "anthology",
+  "lines": [
+   32416,
+   32430
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32416",
+  "ledger": [
+   {
+    "src": "L32417",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32418",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32424",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder teaches children a game from their youth, but nobody agrees on the original rules.",
+  "label_case": "title",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder) teaches children a game from their youth, but nobody agrees on the original rules.",
+   "src": "L32418",
+   "choices": [
+    {
+     "label": "Use the Elder's Version",
+     "next": "a",
+     "src": "L32419"
+    },
+    {
+     "label": "Let Children Adapt",
+     "next": "b",
+     "src": "L32422"
+    },
+    {
+     "label": "Combine the Versions",
+     "next": "c",
+     "src": "L32425"
+    },
+    {
+     "label": "Record the Differences",
+     "next": "d",
+     "src": "L32428"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children enjoy its odd challenges.",
+   "src": "L32420"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A second elder disputes the scoring.",
+   "src": "L32421"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A new version becomes popular.",
+   "src": "L32423"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(elder) misses an old tradition.",
+   "src": "L32424"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The game becomes hilariously complicated.",
+   "src": "L32427"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several rule sets are preserved.",
+   "src": "L32429"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The children decide there need not be one true version.",
+   "src": "L32430"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The group invents a cheerful hybrid.",
+   "src": "L32426",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L32426"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The group invents a cheerful hybrid.",
+   "src": "L32426"
+  }
+ }
+}

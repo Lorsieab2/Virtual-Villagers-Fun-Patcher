@@ -59,6 +59,7 @@ from datetime import datetime
 from pathlib import Path
 
 import vv_log_tools as tools
+import vv_long_paths as lp
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
 
 KIND_ID = "history_revision"
@@ -252,8 +253,10 @@ def _age_ok(person: Person, age: int | None) -> bool:
     return age is None or person.youngest is None or age >= person.youngest
 
 
-def _sex_ok(person: Person, sex: str | None) -> bool:
-    return not person.sexes or sex is None or sex in person.sexes
+def _sex_ok(person: Person, sex: str | None, changed=frozenset()) -> bool:
+    """The same sex as some record of `person`, or a villager whose sex changed (`changed`, the names
+    vv_sex_changes reads: the save's log and the Appearance changed records' Old sex / New sex)."""
+    return not person.sexes or sex is None or sex in person.sexes or person.name in changed
 
 
 def _sub(lines: list[str], label: str) -> tuple | None:
@@ -330,6 +333,8 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
     linked: dict[str, str] = {}         # name -> the record that ties it to a change
     births_links: list[tuple] = []      # (child key, mother key, father key)
     lines_of: dict[Path, list[str]] = {}
+    import vv_sex_changes
+    sexed: set[str] = set()             # names whose sex changed, by the logs (vv_sex_changes)
 
     def person(name, head, body) -> Person:
         key = (name, head, body)
@@ -401,6 +406,10 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
                 note_person(p, b.value("Sex"), None if DEPARTED.match(head) else age,
                             _words(b.value("Likes")), _words(b.value("Dislikes")), path, b.start, head)
                 records.append(("person", path, b.start, count, head, p.key))
+            elif (BIRTH.match(head) or CONCEPTION.match(head)) and b.not_kept:
+                # Never in the saved village (src/vv_not_kept.py): its child is nobody, it ties no snapshot
+                # to the tribe, and the record is left exactly as it is.
+                continue
             elif BIRTH.match(head):
                 child, mother, father = _sub(b.lines, "Child"), _sub(b.lines, "Mother"), _sub(b.lines, "Father")
                 if child is not None:
@@ -424,6 +433,7 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
                         linked.setdefault(b.value(label), f"a Name changed record ({b.value('Old name')} -> "
                                                           f"{b.value('Name')})")
             elif head == "Appearance changed":
+                sexed |= vv_sex_changes.history_names([b])
                 if b.value("Name"):
                     linked.setdefault(b.value("Name"), f"an Appearance changed record names {b.value('Name')}")
             elif EVENT.match(head):
@@ -434,6 +444,8 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
                         linked.setdefault(n, f"{head} in the Island Events log changes the name {name}")
                     records.append(("event", path, b.start, count, head, None))
                     continue
+                if name and any(re.match(r"^  Sex: .* -> ", line) for line in b.lines):
+                    sexed.add(name)
                 if name and any(re.match(r"^  (Head|Body|Sex): .* -> ", line) for line in b.lines):
                     linked.setdefault(name, f"{head} in the Island Events log changes {name}'s looks")
                 records.append(("event", path, b.start, count, head, name or None))
@@ -441,13 +453,14 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
     # -- the tribe being played: every census that lists one of its villagers, and every census joined to
     # one by a shared villager or a Birth record.
     living_keys = {s.key for s in living}
+    changed = vv_sex_changes.changed_names(folder, slot, sexed)
 
     def strong(p: Person):
         """The villager in the save `p` is: by name, head and body, or by identity (renamed)."""
-        exact = [s for s in living if s.key == p.key and _sex_ok(p, s.sex)]
+        exact = [s for s in living if s.key == p.key and _sex_ok(p, s.sex, changed)]
         if exact:
             return exact[0], "is in the save now"
-        same = [s for s in living if s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)
+        same = [s for s in living if s.head == p.head and s.body == p.body and _sex_ok(p, s.sex, changed)
                 and _prefs_ok(p, s.likes, s.dislikes) and _age_ok(p, s.age)]
         if same:
             s = same[0]
@@ -497,7 +510,7 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
             reason = found[1]
         if reason is None:
             copies = [path.name for path, s in older
-                      if (s.key == p.key or (s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)))]
+                      if (s.key == p.key or (s.head == p.head and s.body == p.body and _sex_ok(p, s.sex, changed)))]
             if copies:
                 reason = f"an older copy of the save ({copies[0]}) holds them"
         if reason is None and p.censuses & lineage:
@@ -517,7 +530,7 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
             continue
         # A possible match in the save: not proven, so the player decides (kept unless ticked to remove).
         unsure_reason = None
-        looks = [s for s in living if s.head == p.head and s.body == p.body and _sex_ok(p, s.sex)
+        looks = [s for s in living if s.head == p.head and s.body == p.body and _sex_ok(p, s.sex, changed)
                  and _age_ok(p, s.age)]
         if looks:
             unsure_reason = (f"may be {looks[0].name}: the same sex, head and body (likes or dislikes may have "
@@ -531,7 +544,7 @@ def plan(folder: Path, game: int, slot: int, also_remove: frozenset = frozenset(
         if unsure_reason is None and p.name in linked:
             unsure_reason = f"{linked[p.name]}, which may tie them to a villager in the save"
         if unsure_reason is None:
-            partly = [s for s in living if (s.head == p.head or s.body == p.body) and _sex_ok(p, s.sex)
+            partly = [s for s in living if (s.head == p.head or s.body == p.body) and _sex_ok(p, s.sex, changed)
                       and _age_ok(p, s.age) and _prefs_ok(p, s.likes, s.dislikes)]
             if partly:
                 unsure_reason = (f"may be {partly[0].name} with a changed head or body: the same sex, likes "
@@ -906,11 +919,15 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
         # The save's own copies, and for a log moved into its save's own folder also the copies made
         # before the move, at its older-layout place (vv_log_tools.copy_places).
         for probe in tools.copy_places(folder, log, BACKUP_SUFFIX):
-            if not probe.parent.is_dir():
+            if not lp.is_dir(probe.parent):
                 continue
-            for c in probe.parent.glob(glob.escape(probe.name) + "*"):
+            for c in lp.extended(probe.parent).glob(glob.escape(probe.name) + "*"):
                 if c.name in wanted and re.fullmatch(re.escape(probe.name) + r"(-\d+)?", c.name):
-                    found.setdefault(c.name, []).append((log, c))
+                    found.setdefault(c.name, []).append((log, lp.plain(c)))
+        # A copy this build made: a short name in Copies Made Before Repairs, its file named in the index.
+        for c in tools.copies.kept_copies(folder, log, BACKUP_SUFFIX):
+            if c.name in wanted:
+                found.setdefault(c.name, []).append((log, c))
     try:
         when = datetime.strptime(latest["date"], "%Y-%m-%d %H:%M:%S").timestamp()
     except ValueError:
@@ -919,7 +936,7 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
     for name, matches in found.items():
         if len(matches) > 1:
             matches = [(log, c) for log, c in matches
-                       if when is not None and when - 600 <= c.stat().st_mtime <= when + 60]
+                       if when is not None and when - 600 <= lp.mtime(c) <= when + 60]
         if not matches:
             refused.append(f"{name}: more than one log has a copy of this name, and which one the revision of "
                            f"{latest['date']} made cannot be told")
@@ -929,7 +946,7 @@ def undo_plan(folder: Path, game: int, slot: int) -> UndoPlan | None:
     for log, copy in pairs:
         seen.add(copy.name)
         try:
-            restored, moved, since = _merge(log.read_bytes(), copy.read_bytes())
+            restored, moved, since = _merge(log.read_bytes(), lp.read_bytes(copy))
         except ValueError as exc:
             refused.append(f"{_rel(folder, log)}: {exc}")
             continue

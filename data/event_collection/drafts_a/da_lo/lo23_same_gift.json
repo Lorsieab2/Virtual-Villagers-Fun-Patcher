@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo23_same_gift",
+  "source": "da_lo",
+  "lines": [
+   273,
+   282
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L273",
+  "ledger": [
+   {
+    "src": "L274",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two friends swap secret presents and find they have both carved exactly the same little turtle.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) have each spent days secretly making the other a present for no particular reason. Today they swap. They unwrap them at the same time. They have both made exactly the same thing: a little carved turtle, almost identical, down to the pattern on the shell.",
+   "src": "L276",
+   "choices": [
+    {
+     "label": "Decide It's a Sign",
+     "next": "a",
+     "src": "L278"
+    },
+    {
+     "label": "Wonder How It Happened",
+     "next": "b",
+     "src": "L281"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They sit and try to work it out. Did they talk about turtles? Did someone tell them? Did they both see the same carving somewhere? They can't think of anything. It's just one of those strange coincidences, the kind that makes the world feel smaller and friendlier. Neither of them ever makes the other a turtle again. It would be pushing their luck.",
+   "src": "L282"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"It's a sign,\" says (subject). \"Of what?\" says (friend). (subject) thinks hard. \"That we're very good friends. Or that there's only one good idea for a present.\" They laugh until they cry. They each put the turtle on their shelf. Every time they visit each other, the turtles are side by side.",
+   "src": "L279",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L279"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L279"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"It's a sign,\" says (subject). \"Of what?\" says (friend). (subject) thinks hard. \"That we're very good friends. Or that there's only one good idea for a present.\" They laugh until they cry. They each put the turtle on their shelf. Every time they visit each other, the turtles are side by side.",
+   "src": "L279"
+  }
+ }
+}

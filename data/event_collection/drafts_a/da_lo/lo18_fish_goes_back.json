@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Fish Goes Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo18_fish_goes_back",
+  "source": "da_lo",
+  "lines": [
+   213,
+   222
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L213",
+  "ledger": [
+   {
+    "src": "L214",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L219",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "On the first fishing day, a younger fisher pulls in a beautiful first fish that should go back to the sea.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It's the first fishing day of the season. In (subject)'s family, the first fish caught is always returned to the sea, for luck. (friend), a younger fisher, has just pulled in a big, beautiful first fish, and is looking at (subject) with a pained expression. \"Really? This one?\"",
+   "src": "L216",
+   "choices": [
+    {
+     "label": "Let It Go",
+     "next": "a",
+     "src": "L218"
+    },
+    {
+     "label": "Keep It",
+     "next": "b",
+     "src": "L221"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(friend) sighs, and slides the fish back into the water. It flicks its tail and is gone. They fish all day after that. It's a good day: not wonderful, but good. \"Was that because of the fish?\" (friend) asks. \"Maybe,\" says (subject). \"Or maybe we're just good at fishing. It doesn't hurt to say thank you.\"",
+   "src": "L219",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L219"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"It's your fish,\" says (subject). \"Your choice.\" (friend) keeps it. They fish all day. It's an ordinary day: some fish, some nothing. (friend) wonders, now and then, whether the first fish would have made a difference. (subject) doesn't say anything. Next season, without being asked, (friend) lets the first one go.",
+   "src": "L222"
+  }
+ }
+}

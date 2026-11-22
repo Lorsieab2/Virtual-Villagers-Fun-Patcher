@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rain Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf25_rain_song",
+  "source": "draft_blf",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L302",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The village sang the old rain song, and no rain came: wait and see, or talk about whether the song does anything.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It hasn't rained in weeks, and the gardens are suffering. The village sang the old rain song together last night, as some of them have done in dry years for as long as anyone can remember. This morning, no rain. Not a cloud. (subject), who led the song, is standing in (subject.his/her) dry garden. (friend) comes to stand beside (subject.him/her).",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Wait and See",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Talk About It",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Do you think the song does anything?\" (friend) asks quietly. (subject) is quiet a while. \"I don't know,\" (subject.he/she) admits. \"I think it helps us. We feel less alone when we're worried together.\" (friend) nods. \"Then it does something.\" They carry water from the stream all day. The rain comes eventually. It always has, so far.",
+   "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Maybe it takes time,\" says (subject). \"Maybe,\" says (friend). They carry water from the stream to the gardens all day. Four days later, the rain comes. Some villagers say the song worked. Some say it would have rained anyway. Nobody can say for sure, and both groups are very happy about the rain.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L302"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L302"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Maybe it takes time,\" says (subject). \"Maybe,\" says (friend). They carry water from the stream to the gardens all day. Four days later, the rain comes. Some villagers say the song worked. Some say it would have rained anyway. Nobody can say for sure, and both groups are very happy about the rain.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

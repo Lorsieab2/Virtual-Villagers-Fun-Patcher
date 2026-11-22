@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night Without a Sign",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway32_night_without",
+  "source": "living",
+  "lines": [
+   23200,
+   23214
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23200",
+  "ledger": [
+   {
+    "src": "L23214",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "After a disaster, villagers wait for a sign from their gods.",
+  "cast_only": [
+   "mourner"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "mourner": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a disaster, villagers wait for a sign from their gods.",
+   "src": "L23201",
+   "choices": [
+    {
+     "label": "Keep vigil and pray.",
+     "next": "a",
+     "src": "L23202"
+    },
+    {
+     "label": "Begin rebuilding immediately.",
+     "next": "b",
+     "src": "L23205"
+    },
+    {
+     "label": "Discuss whether the gods exist.",
+     "next": "c",
+     "src": "L23208"
+    },
+    {
+     "label": "Hold a remembrance, then rebuild.",
+     "next": "d",
+     "src": "L23211"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "No sign appears, and some villagers feel abandoned.",
+   "src": "L23204"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village makes rapid progress.",
+   "src": "L23206"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some mourners feel rushed past their grief.",
+   "src": "L23207"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The discussion remains thoughtful and open.",
+   "src": "L23209"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The debate becomes heated and is postponed.",
+   "src": "L23210"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Villagers find room for grief and action.",
+   "src": "L23212"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A few choose solitude instead, and their wishes are respected.",
+   "src": "L23213"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The gathering comforts the mourners.",
+   "src": "L23203",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mourner",
+     "mood": "good",
+     "src": "L23203"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The gathering comforts the mourners.",
+   "src": "L23203"
+  }
+ }
+}

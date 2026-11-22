@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Who Needed Time",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel21_friend_needed",
+  "source": "anthology",
+  "lines": [
+   27317,
+   27330
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27317",
+  "ledger": [
+   {
+    "src": "L27318",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27318",
+    "kind": "sensitivity",
+    "before": "a villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27320",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27321",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27323",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27324",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27324",
+    "kind": "sensitivity",
+    "before": "the friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27326",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27327",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A friend is surprised by a villager's personal revelation but wants to respond kindly.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is surprised by (villager)'s personal revelation but wants to respond kindly.",
+   "src": "L27318",
+   "choices": [
+    {
+     "label": "Say That the Friendship Matters",
+     "next": "a",
+     "src": "L27319"
+    },
+    {
+     "label": "Ask Respectful Questions",
+     "next": "b",
+     "src": "L27322"
+    },
+    {
+     "label": "Learn by Listening",
+     "next": "c",
+     "src": "L27325"
+    },
+    {
+     "label": "Keep Ordinary Routines",
+     "next": "d",
+     "src": "L27328"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) feels reassured and understood.",
+   "src": "L27320"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(friend) admits uncertainty without withdrawing affection.",
+   "src": "L27321"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager) answers what they feel comfortable sharing.",
+   "src": "L27323"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager) asks for privacy, and (friend) accepts it.",
+   "src": "L27324"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(friend) becomes more comfortable with unfamiliar words.",
+   "src": "L27326"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(friend) realizes they do not need every detail to be supportive.",
+   "src": "L27327"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The friends enjoy their familiar activities together.",
+   "src": "L27329"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The friends agree to discuss the topic again only if wanted.",
+   "src": "L27330"
+  }
+ }
+}

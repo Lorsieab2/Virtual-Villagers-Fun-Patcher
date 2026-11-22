@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Magic That Failed",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway13_magic_failed",
+  "source": "living",
+  "lines": [
+   22896,
+   22910
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22896",
+  "ledger": [
+   {
+    "src": "L22910",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A Magic master cannot repeat a celebrated feat."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "master": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A Magic master cannot repeat a celebrated feat.",
+   "src": "L22897",
+   "choices": [
+    {
+     "label": "Keep trying under safer conditions.",
+     "next": "a",
+     "src": "L22898"
+    },
+    {
+     "label": "Seek a natural explanation.",
+     "next": "b",
+     "src": "L22901"
+    },
+    {
+     "label": "Interpret it as a spiritual lesson.",
+     "next": "c",
+     "src": "L22904"
+    },
+    {
+     "label": "Accept the failure and use ordinary tools.",
+     "next": "d",
+     "src": "L22907"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "a celebrated feat",
+     "reason": "a feat of the past: no celebration now",
+     "src": "L22897"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A smaller effect appears, suggesting limits to the method.",
+   "src": "L22899"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Repeated attempts exhaust the master.",
+   "src": "L22900",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "master",
+     "min": -30,
+     "max": -10,
+     "src": "L22900"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scientist identifies a hidden environmental factor.",
+   "src": "L22902",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L22902"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The investigation cannot explain the original event.",
+   "src": "L22903"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The master becomes more patient with uncertainty.",
+   "src": "L22905"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Other villagers object to declaring a divine intention.",
+   "src": "L22906"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The work is completed through shared labor.",
+   "src": "L22908"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The slower approach misses an important deadline.",
+   "src": "L22909"
+  }
+ }
+}

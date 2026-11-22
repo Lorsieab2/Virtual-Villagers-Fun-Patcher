@@ -1,0 +1,204 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Polished Shell Mirror",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b271_polished_shell",
+  "source": "balance",
+  "lines": [
+   12625,
+   12667
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L12625",
+  "ledger": [
+   {
+    "src": "L12626",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L12627",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12635",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12644",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L12632",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12633",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L12636",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12645",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L12638",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12641",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12647",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12650",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L12653-12667",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's the best mirror anyone in the village has ever seen.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "polisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(polisher) has spent the whole wet season polishing the inside of a giant clam shell with sand and water until it shines like still water. It's the best mirror anyone in the village has ever seen. (subject.He/She) says the trick came from an old song about a clam that kept the faces of everyone who looked into it, which (subject.he/she) always thought was just a song.\n(subject) is the first to look. (subject.His/her) face in the shell is very clear. Too clear. It blinks a moment after (subject) does.\nShould (subject) keep looking, or turn the shell face-down on the mat?",
+   "choices": [
+    {
+     "label": "Keep Looking",
+     "next": "c1",
+     "src": "L12632"
+    },
+    {
+     "label": "Turn It Face-Down",
+     "next": "c2",
+     "src": "L12633"
+    }
+   ],
+   "src": "L12628-12630"
+  },
+  "c1o1": {
+   "text": "The surface bulges, and someone climbs out of the shell, the way a person climbs out of a pool. It has (subject)'s face, (subject)'s hair and (subject)'s height. It does not have (subject)'s manners. It looks around the hut, says \"Is this where you live? Really?\", and helps itself to (polisher)'s breakfast. It takes the name (made1), and spends its first week in the village doing every job (subject) has always avoided.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L12639",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Someone climbs out of the shell who is (subject) in every single way: the same laugh, the same favourite food, the same way of scratching (subject.his/her) ear when (subject.he/she) is thinking. The two of them scratch their ears at the same time and then both stop, embarrassed. \"Well,\" says (polisher), \"the song was right.\" The village names the newcomer (made1).",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L12642",
+   "text_only": [
+    {
+     "src": "L12642",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) leans closer. The face in the shell leans closer too, and then a little further, until its nose is right at the surface, as if it is pressing on a window...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12636"
+  },
+  "c2o1": {
+   "text": "That night (polisher) can't resist turning the shell back over for one last look at (subject.his/her) work. In the morning there are two of (subject.him/her): one who polished the shell, and one who looks exactly like (subject.him/her) and thinks polishing shells is the most boring thing in the world. The second one takes the name (made1), and goes fishing.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "polisher"
+    }
+   ],
+   "src": "L12648",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(polisher) sighs, carries the shell to the cooking fire, and the cooks use it as a soup bowl. Nobody uses it as a mirror again, though one of the cooks swears that every so often, a face looks up at (subject.him/her) from the bottom of the soup.",
+   "src": "L12651"
+  },
+  "c2": {
+   "text": "(subject) flips the shell over quickly. There's a soft thump from underneath, as if something has bumped into the inside of a door. (polisher) looks at the shell, then at (subject)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L12645"
+  }
+ }
+}

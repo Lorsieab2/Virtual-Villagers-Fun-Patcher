@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Across the Path",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl09_friend_across",
+  "source": "living",
+  "lines": [
+   21772,
+   21784
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21772",
+  "ledger": [
+   {
+    "src": "L21773",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L21783",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L21784",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A villager says a Heathen has become a close friend despite tribal tension.",
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A villager says an Isolan has become a close friend despite tribal tension."
+   }
+  ],
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A villager says a Heathen has become a close friend despite tribal tension.",
+   "src": "L21773",
+   "choices": [
+    {
+     "label": "Support the friendship.",
+     "next": "a",
+     "src": "L21774"
+    },
+    {
+     "label": "Ask them to be cautious.",
+     "next": "b",
+     "src": "L21777"
+    },
+    {
+     "label": "Discourage the visits.",
+     "next": "c",
+     "src": "L21780"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A villager says an Isolan has become a close friend despite tribal tension.",
+     "src": "L21773"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A rumor about their meetings creates suspicion.",
+   "src": "L21776"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The villager appreciates the concern but continues the friendship.",
+   "src": "L21778"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The warning makes the villager reluctant to speak openly.",
+   "src": "L21779"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villager feels isolated and hides the friendship.",
+   "src": "L21781"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The two find another way to remain in contact.",
+   "src": "L21782"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The friends exchange songs and strengthen their trust.",
+   "src": "L21775",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L21775"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The friends exchange songs and strengthen their trust.",
+   "src": "L21775"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

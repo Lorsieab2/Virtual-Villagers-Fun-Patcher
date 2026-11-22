@@ -40,3 +40,8 @@ j*.xml
 # Picture Studio's copy of the player's own game pictures (src/vv_picture_image.py CACHE_ROOT): never commit game art
 Picture Studio Pictures/
 Installed translations/
+junit-parts/
+
+# Player Events: the player's own event files, rules and settings (src/vv_player_events.py); the AI prompt and
+# the tone reference beside them ship.
+Player Events/VV*/

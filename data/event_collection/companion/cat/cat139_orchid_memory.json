@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Orchid That Remembers",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat139_orchid_memory",
+  "source": "companion",
+  "lines": [
+   8765,
+   8775
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8765",
+  "ledger": [
+   {
+    "src": "L8775",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A Nox Orchid is said to bloom near the grieving, and a scientist notices it flowers after rain."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A Nox Orchid is said to bloom near people who are grieving. A scientist notices that its flowering follows rain.",
+   "src": "L8766",
+   "choices": [
+    {
+     "label": "Offer the flower as remembrance",
+     "next": "a",
+     "src": "L8767"
+    },
+    {
+     "label": "Track weather and blooms",
+     "next": "b",
+     "src": "L8769"
+    },
+    {
+     "label": "Ask a spiritual elder",
+     "next": "c",
+     "src": "L8771"
+    },
+    {
+     "label": "Leave it alone",
+     "next": "d",
+     "src": "L8773"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "A family finds comfort without claiming proof of magic.",
+   "src": "L8768"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The correlation grows clearer but does not explain every story.",
+   "src": "L8770",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8770"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder says meanings need not be laboratory facts.",
+   "src": "L8772"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The orchid flowers again, and nobody agrees why this particular day feels important.",
+   "src": "L8774"
+  }
+ }
+}

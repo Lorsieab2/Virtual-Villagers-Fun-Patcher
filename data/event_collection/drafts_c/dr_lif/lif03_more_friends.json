@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "More Friends Than Pots",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif03_more_friends",
+  "source": "draft_lif",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35-55)"
+   }
+  ],
+  "description": "A villager counts everything they own, then the people they could knock on: keep counting, or go and knock on one door.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35,
+   "max_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided to count everything (subject.he/she) owns, for no particular reason except that it's raining. Two pots. One good knife, one bad knife. A sleeping mat. Some baskets, a fishing line, a carved comb, a shell (subject.he/she) found when (subject.he/she) was eight. It's not much. Then (subject.he/she) starts counting people (subject.he/she) could knock on the door of tonight if (subject.he/she) needed anything, and keeps going for a long time.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Keep Counting",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Go Knock on One",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) gets up, goes through the rain, and knocks on (friend)'s door, just to see. \"Is something wrong?\" asks (friend). \"No,\" says (subject), dripping. \"I was counting things. You're on the list.\" (friend) has no idea what (subject.he/she) is talking about, but lets (subject.him/her) in and gives (subject.him/her) something warm to drink. That's exactly what the list was for.",
+   "src": "L41"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) gets up to a surprising number before (subject.he/she) loses track. Some of them (subject.he/she) hadn't thought of in that way before. Some of them might be surprised to be on the list. (subject.He/she) sits back, listening to the rain, feeling oddly rich. Two pots, one bad knife, and all those people. (subject.He/she) decides that's a good inventory.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) gets up to a surprising number before (subject.he/she) loses track. Some of them (subject.he/she) hadn't thought of in that way before. Some of them might be surprised to be on the list. (subject.He/she) sits back, listening to the rain, feeling oddly rich. Two pots, one bad knife, and all those people. (subject.He/she) decides that's a good inventory.",
+   "src": "L38"
+  }
+ }
+}

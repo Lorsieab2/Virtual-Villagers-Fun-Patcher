@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second (Name)",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s011_second",
+  "source": "rewrites",
+  "lines": [
+   486,
+   531
+  ],
+  "section": "rw_s",
+  "credit": "Written by Lorsieab2.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L486",
+  "ledger": [
+   {
+    "src": "L487",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L488",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L496",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L505",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L493",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L494",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L497",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L506",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L499",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L502",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L508",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L511",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L514-531",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Ten minutes later, another a villager walks back into the village from the jungle at dusk, carrying a basket of mushrooms.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The fireflies are just coming out and the cooking pots are bubbling when (subject) walks back into the village from the jungle, carrying a basket of mushrooms. (subject.He/She) waves to the cooks, sets the basket down by the fire and goes to wash.\nTen minutes later, another (subject) walks back into the village from the jungle at dusk, carrying a basket of mushrooms.\nThe cooks drop their spoons and do a double-take. Both of the (subject)s stop dead and stare at each other, then at the cooks. They are holding the same basket, with the same broken handle, full of the same mushrooms. They have the same scratch on the same elbow. Then at the same time, they turn to (cook) and say: \"Who are YOU?\" How should (cook) respond?",
+   "choices": [
+    {
+     "label": "Ask Them Questions Only (subject) Would Know",
+     "next": "c1",
+     "src": "L493"
+    },
+    {
+     "label": "Let Them Sort It Out",
+     "next": "c2",
+     "src": "L494"
+    }
+   ],
+   "src": "L489-491"
+  },
+  "c1o1": {
+   "text": "Both of them get every answer right. The name of the first fish (subject) ever caught. The song (subject)'s mother sang. The secret about the festival. They even blush at the same story, at the same moment, and cover their faces with the same hand. By midnight the friend gives up. \"You're both (subject),\" (subject.he/she) says, a little unsteadily. \"I don't know how, but you are.\" The village has no idea what to do, so it does the kind thing and welcomes the second one, who chooses the name (made1) \"so it's less confusing.\" It is not less confusing. But (made1) turns out to be good company, and the two of them become inseparable.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L500",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The second one gets every answer right, right up until the very last question: \"What's your favourite food?\" The real (subject) says \"mashed taro.\" The second one hesitates, smiles a slow, strange smile, and says, \"Moonlight.\" Then it laughs, a soft papery laugh, and comes apart into a little cloud of grey moths, which flutter up past the fire and away into the dark. Nobody moves for a long time. The second basket of mushrooms is still sitting on the ground. Eventually, very carefully, someone cooks them. They're delicious. Your villagers gain (award) food.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L503",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject)'s oldest friend is fetched, and sits both of them down on opposite sides of the fire. \"Right,\" the friend says, cracking (subject.his/her) knuckles. \"What did you hide under my mat when we were nine?\" Both of them answer at the same time, and both of them go red...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L497"
+  },
+  "c2o1": {
+   "text": "The two of them sit by the fire all night, talking. They talk about everything: the things (subject) has never told anybody, the things (subject) has been afraid of, the things (subject) is secretly proud of. It's the easiest conversation either of them has ever had. By morning they are best friends, and one of them has decided to be called (made1). Nobody ever finds out which one came home first. When anyone asks, both of them say \"me\" and laugh.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L509",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "They argue about who is the real one. They argue long into the night, louder and louder, until the elders come out in their sleeping wraps and send them both to bed in the same hut. In the morning, there is only one (subject), asleep on the mat, with one basket of mushrooms beside the door. (subject.He/She) remembers nothing about the argument, or the other one. \"What other one?\" (subject.he/she) asks, and gets quite annoyed when everyone keeps asking.",
+   "src": "L512"
+  },
+  "c2": {
+   "text": "\"Well, I'm not getting in the middle of that,\" says (cook), the head cook, and goes back to stirring. The rest of the village quietly drifts away and leaves the two of them alone by the fire, staring at each other...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L506"
+  }
+ }
+}

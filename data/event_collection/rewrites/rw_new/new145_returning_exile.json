@@ -1,0 +1,311 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Returning Exile",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new145_returning_exile",
+  "source": "rewrites",
+  "lines": [
+   6866,
+   6921
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6866",
+  "ledger": [
+   {
+    "src": "L6867",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6868",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6877",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6884",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6891",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6898",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6872",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6873",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6874",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6875",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6878",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6885",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6892",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6899",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6879",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6881",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6886",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6888",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6893",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6895",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6900",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6902",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6905-6921",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Years ago, a villager left after a bitter fight over a broken promise.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Years ago, a villager left after a bitter fight over a broken promise. There was shouting, a lot of it, and a door flap ripped right off its hut, and then they were gone, and nobody spoke their name for a long time.\nNow they are standing at the edge of the village, thinner and greyer than anyone remembers, holding a small bundle. They are asking, very quietly, whether they may come back.\nA few people remember what the fight was actually about. Everyone remembers the shouting. (Name) remembers both, and is standing very still, watching. Should (name) welcome them back, or does (he/she) need to hear where they have been first?",
+   "choices": [
+    {
+     "label": "Meet Them at the Village Edge",
+     "next": "c1",
+     "src": "L6872"
+    },
+    {
+     "label": "Ask Where They Have Been",
+     "next": "c2",
+     "src": "L6873"
+    },
+    {
+     "label": "Let Them Decide About Staying",
+     "next": "c3",
+     "src": "L6874"
+    },
+    {
+     "label": "Rebuild Trust Through Work",
+     "next": "c4",
+     "src": "L6875"
+    }
+   ],
+   "src": "L6869-6871"
+  },
+  "c1o1": {
+   "text": "\"Come and eat,\" (name) says finally. The returnee is given a meal and a place to sleep. A few old friends come to sit with them by the fire, in silence, not saying anything about the past at all. It is more welcome than any words would have been. The returnee cries, a little, into the stew.",
+   "src": "L6880"
+  },
+  "c1o2": {
+   "text": "The returnee holds out the bundle: a basket of smoked fish wrapped carefully in leaves, a peace offering. \"I didn't know what else to bring.\" (Name) takes it. It adds a little food to the stores, and the basket sits by the fire all evening like a promise.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6882",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) walks out to the edge of the village alone. For a long moment the two of them just look at each other...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6878"
+  },
+  "c2o1": {
+   "text": "The returnee describes the coastline they followed, mile after mile, and all the safe landings along it: which beaches have fresh water, which coves shelter from storms, which reefs to avoid. The village learns something genuinely useful about travel, and the fishers ask a hundred questions.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L6887",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The returnee talks about the places they saw, but when the talk drifts toward the old fight, they go quiet. They are not ready to talk about it, and nobody makes them. \"Another day,\" (name) says, and means it kindly.",
+   "src": "L6889"
+  },
+  "c2": {
+   "text": "Later, by the fire, (name) asks where they have been all these years...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6885"
+  },
+  "c3o1": {
+   "text": "The returnee decides to come home for good, and joins the village as a villager once more. It is awkward for a while. Then one evening, the person they fought with all those years ago sits down beside them at the fire, and passes them a bowl, and that is the end of it.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    }
+   ],
+   "src": "L6894",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The returnee shakes their head, smiling for the first time. They didn't come back to stay. They only needed to make peace, and now they have. They leave again the next morning, with a lighter step than anyone has ever seen, and (name) watches them go.",
+   "src": "L6896"
+  },
+  "c3": {
+   "text": "(Name) tells the returnee plainly that the choice is theirs, and that (he/she), at least, won't stand in the way...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6892"
+  },
+  "c4o1": {
+   "text": "The returnee throws themselves into the harvest from dawn to dusk, day after day, without being asked, without complaining. It adds a good amount of food to the stores. Slowly, the village starts nodding to them in the mornings, and then saying hello, and then saving them a seat.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L6901",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The villagers help mend the returnee's leaky canoe instead, working side by side with them for two days, and in the working, the old anger seems to wear away. When the returnee finally paddles off, they are seen off from the beach with more warmth than anyone expected, including the returnee.",
+   "src": "L6903"
+  },
+  "c4": {
+   "text": "The returnee asks to help, any way they can. (Name) hands them a digging stick and points at the fields...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6899"
+  }
+ }
+}

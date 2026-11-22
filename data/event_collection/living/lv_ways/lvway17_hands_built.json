@@ -1,0 +1,197 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hands That Built the Hut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway17_hands_built",
+  "source": "living",
+  "lines": [
+   22960,
+   22974
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22960",
+  "ledger": [
+   {
+    "src": "L22974",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young builder proposes a new hut design against the advice of experienced elders.",
+  "cast_only": [
+   "builder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "builder": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young builder proposes a new hut design against the advice of experienced elders.",
+   "src": "L22961",
+   "choices": [
+    {
+     "label": "Follow the proven design.",
+     "next": "a",
+     "src": "L22962"
+    },
+    {
+     "label": "Build the experimental design.",
+     "next": "b",
+     "src": "L22965"
+    },
+    {
+     "label": "Build a small model first.",
+     "next": "c",
+     "src": "L22968"
+    },
+    {
+     "label": "Ask both generations to collaborate.",
+     "next": "d",
+     "src": "L22971"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The hut survives a storm.",
+   "src": "L22963"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The hut remains hot and poorly ventilated.",
+   "src": "L22964"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Fresh air circulates and the family sleeps better.",
+   "src": "L22966"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Rain enters through an untested roof joint.",
+   "src": "L22967"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The test delays the family's move.",
+   "src": "L22970"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A sturdy, airy hut emerges.",
+   "src": "L22972"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The builders argue over whose idea deserves credit.",
+   "src": "L22973"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The model reveals a weakness before construction.",
+   "src": "L22969",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22969"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The model reveals a weakness before construction.",
+   "src": "L22969"
+  }
+ }
+}

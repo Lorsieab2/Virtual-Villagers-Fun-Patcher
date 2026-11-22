@@ -286,7 +286,7 @@ static void backfill_words(vv_grave_fact *f) {
         const unsigned char *grave = cod_grave(f->place);
         const struct cod_entry *entry = cod_grave_entry(f->place, grave);
         int cause = entry != NULL ? entry->cause : CAUSE_NONE;
-        lstrcpynA(f->cause, cod_cause_words(cause), VV_GRAVE_CAUSE);
+        lstrcpynA(f->cause, cod_cause_words_of(cause, entry != NULL ? entry->fingerprint : 0u), VV_GRAVE_CAUSE);
         if (g_game == 1) {
             /* The epitaph A New Home's popup shows: the one this companion
                gave the grave (cod_grave_entry gives one now to a grave from

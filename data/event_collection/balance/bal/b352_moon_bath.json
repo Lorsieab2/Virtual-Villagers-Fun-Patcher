@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon Bath",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b352_moon_bath",
+  "source": "balance",
+  "lines": [
+   16244,
+   16284
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L16244",
+  "ledger": [
+   {
+    "src": "L16245",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L16246",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16253",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16262",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L16250",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16251",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L16254",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16263",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L16256",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16259",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16265",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16268",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L16271-16284",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Once a year, the full moon rises straight out of the sea, and its light lies on the lagoon like a silver path.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Once a year, the full moon rises straight out of the sea, and its light lies on the lagoon like a silver path. The old story says that whoever bathes in the moon's path at midnight has their face washed clean of the years, or, if the moon is in a sour mood, washed clean of their youth. The trick, the elders say, is to bathe facing the moon, never with one's back to it.\nIt's midnight. (Name) is standing waist-deep in the silver light, and has just realised (he/she) doesn't know which way is which. Should (name) turn and face the moon, or stay as (he/she) is and duck under?",
+   "choices": [
+    {
+     "label": "Turn to Face the Moon",
+     "next": "c1",
+     "src": "L16250"
+    },
+    {
+     "label": "Duck Under As (He/She) Is",
+     "next": "c2",
+     "src": "L16251"
+    }
+   ],
+   "src": "L16247-16248"
+  },
+  "c1o1": {
+   "text": "The water is warm, warmer than the night, and when (name) comes up, (his/her) face feels new. On the beach, by torchlight, the others gasp. (His/her) face is the one (he/she) had at twenty, though nothing else has changed. \"Facing the moon,\" (name) says, very pleased with (himself/herself). \"It's all in the facing.\"",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16257",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The water is cold, colder than the night, and when (name) comes up, (his/her) face feels stiff. By torchlight, it's lined and grey at the brows. (His/her) age is the same. \"I was facing it!\" (name) protests. The elders shrug. \"Sometimes,\" says the eldest, \"the moon is just in a mood.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16260",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) turns slowly in the water until the full moon is right in front of (him/her), huge and white. (He/She) takes a breath and ducks under...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16254"
+  },
+  "c2o1": {
+   "text": "Back to the moon, it turns out. When (name) comes up, (his/her) face is heavier, more lined, older-looking, though nothing else is. The elders don't say \"told you.\" They don't need to. (Name) goes back next year, faces the moon very carefully, and comes up looking exactly the same as the year before. \"It doesn't undo,\" says the eldest. \"It only does.\"",
+   "effects": [
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16266",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(Name) was facing the moon all along, without knowing it: the moon had climbed round while (he/she) dithered. (He/She) comes up with a young, bright face, and has no idea why. \"Luck,\" say the elders. \"Pure luck.\" (Name) tells everyone it was skill.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L16269",
+   "text_only": [
+    {
+     "src": "L16269",
+     "what": "\"skill\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) decides not to risk turning the wrong way, and ducks under right where (he/she) stands, with the moon somewhere behind (him/her)...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L16263"
+  }
+ }
+}

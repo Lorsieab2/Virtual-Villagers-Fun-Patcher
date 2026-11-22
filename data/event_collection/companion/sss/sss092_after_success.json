@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strange Quiet After Success",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss092_after_success",
+  "source": "companion",
+  "lines": [
+   7015,
+   7023
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L7015",
+  "ledger": [
+   {
+    "src": "L7023",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A researcher completes a long project but feels no triumph, only exhaustion.",
+  "cast_only": [
+   "researcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A researcher completes a long project but feels no triumph, only exhaustion.",
+   "src": "L7016",
+   "choices": [
+    {
+     "label": "Celebrate gently",
+     "next": "a",
+     "src": "L7017"
+    },
+    {
+     "label": "Offer time away",
+     "next": "b",
+     "src": "L7019"
+    },
+    {
+     "label": "Ask what comes next",
+     "next": "c",
+     "src": "L7021"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They accept a small meal rather than a noisy feast.",
+   "src": "L7018"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They admit uncertainty and choose not to rush into another project.",
+   "src": "L7022"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Rest reveals interests they had neglected.",
+   "src": "L7020",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "researcher",
+     "min": 15,
+     "max": 30,
+     "src": "L7020"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Rest reveals interests they had neglected.",
+   "src": "L7020"
+  }
+ }
+}

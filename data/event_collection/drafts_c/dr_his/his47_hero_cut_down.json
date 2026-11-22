@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hero Who Cut Down the Grove",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his47_hero_cut_down",
+  "source": "draft_his",
+  "lines": [
+   560,
+   569
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L560",
+  "ledger": [
+   {
+    "src": "L561",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager learns the builder of the first meeting hut cut down the sacred grove: talk about both sides, or keep the story.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every child learns about the great builder who made the first meeting hut, the one whose beams have lasted for generations. Today, (subject) has found out from an old carving that to build it, the builder cut down the entire sacred grove that used to stand on the hill. Every tree. The hill has been bare ever since. (subject) brings this up with (friend).",
+   "src": "L563",
+   "choices": [
+    {
+     "label": "Talk About Both Sides",
+     "next": "o1",
+     "src": "L565"
+    },
+    {
+     "label": "Keep the Story as It Is",
+     "next": "o2",
+     "src": "L568"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says the story is the story; people need heroes. (subject) isn't sure, but lets it go. That evening, though, at the fire, someone tells the story of the great builder, and (subject) says quietly, \"And the grove.\" A few people look at (subject.him/her). One of them asks what (subject.he/she) means. It's a start, maybe.",
+   "src": "L569"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) is surprised and a little defensive. \"But the meeting hut is wonderful.\" \"It is,\" says (subject). \"And the grove is gone. Both things.\" They talk for a long time. In the end, they agree the builder was great and also did something that couldn't be undone, and that it's alright to say both. They start planting saplings on the bare hill. It will take longer than their lives to grow back.",
+   "src": "L566",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L566"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) is surprised and a little defensive. \"But the meeting hut is wonderful.\" \"It is,\" says (subject). \"And the grove is gone. Both things.\" They talk for a long time. In the end, they agree the builder was great and also did something that couldn't be undone, and that it's alright to say both. They start planting saplings on the bare hill. It will take longer than their lives to grow back.",
+   "src": "L566"
+  }
+ }
+}

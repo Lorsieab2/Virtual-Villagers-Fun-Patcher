@@ -1,0 +1,85 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mended Shirt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b052_mended_shirt",
+  "source": "companion",
+  "lines": [
+   1590,
+   1595
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1590",
+  "ledger": [
+   {
+    "src": "L1592",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L1595",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A friend quietly repairs a torn piece of clothing for someone else.",
+  "cast_only": [
+   "friend",
+   "recipient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "recipient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A friend quietly repairs a torn piece of clothing for someone else.",
+   "src": "L1591",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The recipient is touched.",
+   "src": "L1593"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The repair is crooked but sturdy.",
+   "src": "L1594"
+  }
+ }
+}

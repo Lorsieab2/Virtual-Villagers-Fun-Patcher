@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Canoe of One's Own Making",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm15_canoe_own_making",
+  "source": "draft_drm",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager has built a canoe alone over a season and not yet dared to launch it: launch it together, or launch it alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has wanted to build a canoe entirely alone, from the first cut to the first paddle. Not because (subject.he/she) needs a canoe. There are plenty. (subject.He/she) just wants to have done it. It has taken most of a season. Today it's finished, sitting on the sand, and (subject) hasn't dared to put it in the water yet. (friend) wanders over.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Launch It Together",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Launch It Alone",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'd like to do this bit alone,\" says (subject). (friend) nods and sits back to watch. (subject) pushes it in, climbs in, and paddles out, and the canoe holds. Out on the water, by (subject.him/her)self, (subject) lifts the paddle and just sits for a while in the thing (subject.he/she) made. Then (subject.he/she) comes back for lunch.",
+   "src": "L185"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Shall we?\" asks (friend). They push it in together. It floats. It floats a little crooked, leaning to one side, so that paddling it takes a strange sort of skill. (subject) paddles it round the lagoon twice, leaning, grinning, wet to the waist. \"It works,\" (subject.he/she) says. \"It's terrible, and it works.\"",
+   "src": "L182",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- the draft's notes: everything but the marked effects is story only",
+     "src": "L182"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Shall we?\" asks (friend). They push it in together. It floats. It floats a little crooked, leaning to one side, so that paddling it takes a strange sort of skill. (subject) paddles it round the lagoon twice, leaning, grinning, wet to the waist. \"It works,\" (subject.he/she) says. \"It's terrible, and it works.\"",
+   "src": "L182",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"experience\" / \"skill\" in the everyday sense, not a skill gain -- the draft's notes: everything but the marked effects is story only",
+     "src": "L182"
+    }
+   ]
+  }
+ }
+}

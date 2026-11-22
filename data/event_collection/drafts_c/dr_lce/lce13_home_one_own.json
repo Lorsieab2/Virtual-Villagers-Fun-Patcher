@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Home of One's Own",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lce13_home_one_own",
+  "source": "draft_lce",
+  "lines": [
+   176,
+   187
+  ],
+  "section": "dr_lce",
+  "credit": "NEW EVENTS - LIVING CULTURE V: FAMILY DRAMA, FEUDS AND LEADERSHIP DISPUTES (LCE-01..50, draft, 2026-11-18)\nAll sorts of real-life drama suited to Isola: parents with opinions about who their children marry, arranged matches, inheritances, feuds between families, accusations, apologies that are not enough, and arguments about who should lead.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lce",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L183",
+    "kind": "instruction",
+    "text": "[effect: small Building skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L183",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L187",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two unmarried friends want to share a hut as a household: support them, or let the gossip run.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are old friends, both unmarried, and tired of living in crowded family huts. They have decided to build a hut together and share it as a household. Some of the elders find this very strange, and the gossip has begun. How should the village respond?",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Help Build the Hut",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Let the Gossip Run",
+     "next": "o2",
+     "src": "L185"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Half the village shows up to help build it, the gossip-mongers among them, mostly out of curiosity. The hut is finished in a week. (subject) and (friend) throw a small feast. The gossip runs out of steam, because there is nothing to gossip about.",
+   "src": "L183",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L183"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village leaves them to it. The gossip goes on for a season. (subject) and (friend) build their hut alone, slowly. By the time it is finished, the gossip has moved on to someone else. They are very happy there.",
+   "src": "L187"
+  }
+ }
+}

@@ -1,0 +1,152 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Smell of the Fish Racks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day42_smell_fish_racks",
+  "source": "draft_day",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L506",
+    "kind": "sensitivity",
+    "before": "one of the fishers takes pity",
+    "after": "(fisher), one of the fishers, takes pity",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "The smell of the smoking fish racks keeps drawing a villager past them: admit you are hungry, or pretend you are busy.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The fishers are smoking fish on the racks today, and the smell has drifted across the whole village. Rich, smoky, salty. Everyone is trying to work and everyone is distracted. (subject) has walked past the racks four times \"on the way\" to places that are not in that direction. (friend) has caught (subject.him/her) on the fifth.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Admit You're Just Hungry",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Pretend You're Busy",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm just hungry,\" says (subject). \"It's the smell. It's torture.\" (friend) laughs. \"It's torture for everyone.\" They stand downwind of the racks for a while, just breathing it in. Then (fisher), one of the fishers, takes pity on them and hands them each a small piece. It's even better than it smells.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L506"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm just hungry,\" says (subject). \"It's the smell. It's torture.\" (friend) laughs. \"It's torture for everyone.\" They stand downwind of the racks for a while, just breathing it in. Then (fisher), one of the fishers, takes pity on them and hands them each a small piece. It's even better than it smells.",
+   "src": "L506"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I'm on my way to the... storehouse,\" says (subject). The storehouse is the other way. (friend) lets it go. (subject) walks on with great purpose, then circles back for the sixth time. By evening, when the smoked fish is shared out at the fire, (subject) eats (subject.his/her) share in about three bites and has never been happier.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"I'm on my way to the... storehouse,\" says (subject). The storehouse is the other way. (friend) lets it go. (subject) walks on with great purpose, then circles back for the sixth time. By evening, when the smoked fish is shared out at the fire, (subject) eats (subject.his/her) share in about three bites and has never been happier.",
+   "src": "L509"
+  }
+ }
+}

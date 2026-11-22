@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "I'd Like to Raise a Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam231_id_like_raise",
+  "source": "draft_fam2",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult with no partner; any sex)"
+   }
+  ],
+  "description": "A villager with no partner tells a close friend they would like to raise a child: the friend says it is not strange, or asks more.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has no partner and doesn't want one. But for a long time now (subject.he/she) has wanted to raise a child. Tonight, by the fire, (subject.he/she) says it out loud for the first time, to (friend), a close friend. \"Is that strange? Wanting a child without wanting a partner?\"",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "(friend) Says It's Not Strange",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "(friend) Asks What (subject.he/she) Imagines",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What do you imagine?\" asks (friend). (subject) describes it: teaching a child to swim, showing them the stars, being the one they run to. (friend) listens to all of it. \"You'd be good at it,\" (friend.he/she) says at the end. Nothing is decided. Nothing has to be. But (subject) walks home thinking it might, one day, really happen.",
+   "src": "L377"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"It's not strange at all,\" says (friend). \"Plenty of people raise children on their own, or with family, or with friends helping.\" (subject) breathes out. \"I don't know how it would happen yet.\" \"You don't have to know tonight,\" says (friend). \"You just had to say it.\" (subject) smiles. It feels real now. That's a start.",
+   "src": "L374",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L374"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"It's not strange at all,\" says (friend). \"Plenty of people raise children on their own, or with family, or with friends helping.\" (subject) breathes out. \"I don't know how it would happen yet.\" \"You don't have to know tonight,\" says (friend). \"You just had to say it.\" (subject) smiles. It feels real now. That's a start.",
+   "src": "L374"
+  }
+ }
+}

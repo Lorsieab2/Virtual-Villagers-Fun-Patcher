@@ -1,0 +1,215 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flood Before Dawn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway01_flood_before",
+  "source": "living",
+  "lines": [
+   22704,
+   22718
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22704",
+  "ledger": [
+   {
+    "src": "L22718",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "River water rises toward the sleeping huts."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "adept": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "River water rises toward the sleeping huts.",
+   "src": "L22705",
+   "choices": [
+    {
+     "label": "Ask a Magic adept to turn the water.",
+     "next": "a",
+     "src": "L22706",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     }
+    },
+    {
+     "label": "Study the banks and dig a channel.",
+     "next": "b",
+     "src": "L22709"
+    },
+    {
+     "label": "Gather everyone to pray and prepare.",
+     "next": "c",
+     "src": "L22712"
+    },
+    {
+     "label": "Build a barrier by hand.",
+     "next": "d",
+     "src": "L22715"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The current bends around the huts, but the adept collapses from exhaustion.",
+   "src": "L22707",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "adept",
+     "min": -30,
+     "max": -10,
+     "src": "L22707"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "collapses",
+     "reason": "the adept collapses from exhaustion, not a structure",
+     "src": "L22707"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The water ignores the attempt, and precious time passes.",
+   "src": "L22708"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A carefully placed ditch spares the homes.",
+   "src": "L22710"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The ritual steadies frightened families while volunteers move supplies.",
+   "src": "L22713"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The flood still arrives, and some villagers resent the lost time.",
+   "src": "L22714"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A wall of stones holds until morning.",
+   "src": "L22716"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The wall breaks, but the warning gives families time to flee.",
+   "src": "L22717"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The ditch sends muddy water into the gardens.",
+   "src": "L22711",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L22711"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The ditch sends muddy water into the gardens.",
+   "src": "L22711"
+  }
+ }
+}

@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Secret Fishing Spot",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt40_fishing_spot",
+  "source": "draft_tt",
+  "lines": [
+   476,
+   485
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L476",
+  "ledger": [
+   {
+    "src": "L477",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L482",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager sneaks out to a secret fishing spot and finds a friend already there: share the spot, or find a new one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has found a spot where the fish practically leap into the net. (subject.He/she) has told nobody. Every morning (subject.he/she) sets off in a different direction, doubles back, and paddles there by a long, winding route. This morning (subject) arrives at the secret spot to find (friend) already there, fishing happily.",
+   "src": "L479",
+   "choices": [
+    {
+     "label": "Share the Spot",
+     "next": "o1",
+     "src": "L481"
+    },
+    {
+     "label": "Find a New Secret Spot",
+     "next": "o2",
+     "src": "L484"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"How long have you known?\" asks (subject). \"A while,\" says (friend). \"I've been watching you sneak about. It's been very entertaining.\" They fish together, and the catch is excellent. They make a pact to keep it between the two of them, and both break it within a week by telling exactly one other person each.",
+   "src": "L482",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L482"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) paddles off, offended, to find somewhere even better. (subject.He/she) doesn't. Hours later (subject.he/she) comes back with three small fish, and (friend), still at the old spot, has a canoe full. \"There's room,\" says (friend). (subject) pretends not to hear. The next morning, though, (subject.he/she) is there at dawn.",
+   "src": "L485",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L485"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L485"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) paddles off, offended, to find somewhere even better. (subject.He/she) doesn't. Hours later (subject.he/she) comes back with three small fish, and (friend), still at the old spot, has a canoe full. \"There's room,\" says (friend). (subject) pretends not to hear. The next morning, though, (subject.he/she) is there at dawn.",
+   "src": "L485"
+  }
+ }
+}

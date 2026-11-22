@@ -1,0 +1,262 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Reconciliation",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam20_reconciliation",
+  "source": "anthology",
+  "lines": [
+   28585,
+   28598
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28585",
+  "ledger": [
+   {
+    "src": "L28586",
+    "kind": "sensitivity",
+    "before": "Two friends who drifted apart meet",
+    "after": "(friend1) and (friend2), two friends who drifted apart, meet",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two friends who drifted apart meet unexpectedly while gathering fruit.",
+  "label_case": "title",
+  "cast_only": [
+   "friend1",
+   "friend2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "friend1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend1) and (friend2), two friends who drifted apart, meet unexpectedly while gathering fruit.",
+   "src": "L28586",
+   "choices": [
+    {
+     "label": "Begin with a Simple Greeting",
+     "next": "a",
+     "src": "L28587"
+    },
+    {
+     "label": "Mention a Happy Shared Memory",
+     "next": "b",
+     "src": "L28590"
+    },
+    {
+     "label": "Ask Whether They Want to Reconnect",
+     "next": "c",
+     "src": "L28593"
+    },
+    {
+     "label": "Enjoy the Moment Without Forcing Closeness",
+     "next": "d",
+     "src": "L28596"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The greeting becomes an easy conversation.",
+   "src": "L28588"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Both smile politely and continue separately.",
+   "src": "L28589"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The memory reminds one friend of a painful ending.",
+   "src": "L28592"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They agree to meet again soon.",
+   "src": "L28594"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One friend prefers occasional conversation rather than close friendship.",
+   "src": "L28595"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The memory makes them laugh together.",
+   "src": "L28591",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L28591"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L28591"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The memory makes them laugh together.",
+   "src": "L28591"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "They gather fruit together in comfortable silence.",
+   "src": "L28597",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L28597"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "They gather fruit together in comfortable silence.",
+   "src": "L28597"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They part warmly without trying to restore the past.",
+   "src": "L28598",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend1",
+     "mood": "good",
+     "src": "L28598"
+    },
+    {
+     "do": "mood",
+     "role": "friend2",
+     "mood": "good",
+     "src": "L28598"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "They part warmly without trying to restore the past.",
+   "src": "L28598"
+  }
+ }
+}

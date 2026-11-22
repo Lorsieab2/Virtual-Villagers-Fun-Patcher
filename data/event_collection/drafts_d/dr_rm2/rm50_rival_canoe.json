@@ -1,0 +1,237 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rival's Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm50_rival_canoe",
+  "source": "draft_rm2",
+  "lines": [
+   144,
+   157
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L144",
+  "ledger": [],
+  "description": "Two fishers have competed for years over the best fishing spots. One morning, one finds the other's canoe cracked on the rocks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two fishers have competed for years over the best fishing spots. One morning, one finds the other's canoe cracked on the rocks.",
+   "src": "L145",
+   "choices": [
+    {
+     "label": "Lend Your Own Canoe.",
+     "next": "a",
+     "src": "L146"
+    },
+    {
+     "label": "Help Repair the Crack.",
+     "next": "b",
+     "src": "L149"
+    },
+    {
+     "label": "Tell the Rival About a Calm Spot to Fish from Shore.",
+     "next": "c",
+     "src": "L152"
+    },
+    {
+     "label": "Leave Them Some Fish from Your Catch.",
+     "next": "d",
+     "src": "L155"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The rival refuses out of pride but seems touched by the offer.",
+   "src": "L148"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Working side by side, they trade stories and a little rivalry fades.",
+   "src": "L150"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The repair takes most of the day, and both fishers miss the morning tide.",
+   "src": "L151"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The rival catches enough for supper and nods in thanks.",
+   "src": "L153"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The fish are accepted without a word, and the rivalry continues as before.",
+   "src": "L157"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The rival fishes from it all day and returns it with a share of the catch.",
+   "src": "L147",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L147"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The rival fishes from it all day and returns it with a share of the catch.",
+   "src": "L147"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The rival already knew the spot, and both find this funnier than expected.",
+   "src": "L154",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L154"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The rival already knew the spot, and both find this funnier than expected.",
+   "src": "L154"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The rival brings a basket of fruit in return the next day.",
+   "src": "L156",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L156"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The rival brings a basket of fruit in return the next day.",
+   "src": "L156"
+  }
+ }
+}

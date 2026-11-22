@@ -1,0 +1,244 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shed Skin",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfau02_shed_skin",
+  "source": "anthology",
+  "lines": [
+   32460,
+   32474
+  ],
+  "section": "an_fauna",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fauna",
+  "title_src": "L32460",
+  "ledger": [
+   {
+    "src": "L32461",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L32464",
+    "kind": "sensitivity",
+    "before": "A knowledgeable villager",
+    "after": "(villager), a knowledgeable villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32468",
+    "kind": "sensitivity",
+    "before": "A frightened child",
+    "after": "(child), a frightened child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32474",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A long, translucent reptile skin hangs from a branch, alarming a few villagers.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A long, translucent reptile skin hangs from a branch, alarming a few villagers.",
+   "src": "L32462",
+   "choices": [
+    {
+     "label": "Examine Without Touching",
+     "next": "a",
+     "src": "L32463"
+    },
+    {
+     "label": "Tell a Scary Story",
+     "next": "b",
+     "src": "L32466"
+    },
+    {
+     "label": "Search for Its Owner",
+     "next": "c",
+     "src": "L32469"
+    },
+    {
+     "label": "Display a Drawing",
+     "next": "d",
+     "src": "L32472"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager), a knowledgeable villager, identifies a harmless shedding process.",
+   "src": "L32464"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The species remains uncertain.",
+   "src": "L32465"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child), a frightened child, asks for reassurance.",
+   "src": "L32468"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The search reveals useful tracks.",
+   "src": "L32470"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The animal stays hidden and is left alone.",
+   "src": "L32471"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) exaggerates the size hilariously.",
+   "src": "L32474"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Children delight in an invented monster.",
+   "src": "L32467",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L32467"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Children delight in an invented monster.",
+   "src": "L32467"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The drawing becomes a teaching aid.",
+   "src": "L32473",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L32473"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The drawing becomes a teaching aid.",
+   "src": "L32473"
+  }
+ }
+}

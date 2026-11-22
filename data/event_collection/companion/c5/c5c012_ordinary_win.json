@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Very Ordinary Victory",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c012_ordinary_win",
+  "source": "companion",
+  "lines": [
+   2179,
+   2188
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2179",
+  "ledger": [
+   {
+    "src": "L2182",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2184",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2188",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "A novice finally manages a simple task that has defeated them for weeks.",
+  "cast_only": [
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A novice finally manages a simple task that has defeated them for weeks.",
+   "src": "L2180",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Nobody notices, but the villager beams.",
+   "src": "L2185"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A nearby apprentice offers a quiet congratulations.",
+   "src": "L2186",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "novice",
+     "mood": "good",
+     "src": "L2186"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A nearby apprentice offers a quiet congratulations.",
+   "src": "L2186"
+  }
+ }
+}

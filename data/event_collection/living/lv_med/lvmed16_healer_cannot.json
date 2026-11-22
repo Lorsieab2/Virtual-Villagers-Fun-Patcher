@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Cannot Let Go",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed16_healer_cannot",
+  "source": "living",
+  "lines": [
+   20414,
+   20425
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20414",
+  "ledger": [
+   {
+    "src": "L20425",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A respected healer insists on continuing treatment for a dying friend, even after the friend asks for rest.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A respected healer insists on continuing treatment for a dying friend, even after the friend asks for rest.",
+   "src": "L20415",
+   "choices": [
+    {
+     "label": "Honor the patient's request to stop.",
+     "next": "a",
+     "src": "L20416"
+    },
+    {
+     "label": "Ask the healer to explain the remaining options.",
+     "next": "b",
+     "src": "L20419"
+    },
+    {
+     "label": "Invite a neutral elder to help them talk.",
+     "next": "c",
+     "src": "L20422"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healer grieves but remains beside their friend.",
+   "src": "L20417"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient dies peacefully, and the healer later teaches apprentices about listening.",
+   "src": "L20418",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown",
+     "src": "L20418"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The healer admits that another procedure is unlikely to work.",
+   "src": "L20420"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The discussion helps the patient choose a final treatment on their own terms.",
+   "src": "L20421"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The healer struggles with guilt but accepts the patient's wishes.",
+   "src": "L20424"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The friend and healer reconcile before the illness worsens.",
+   "src": "L20423",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "healer",
+     "mood": "good",
+     "src": "L20423"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L20423"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The friend and healer reconcile before the illness worsens.",
+   "src": "L20423"
+  }
+ }
+}

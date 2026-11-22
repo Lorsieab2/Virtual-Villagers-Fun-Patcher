@@ -1,0 +1,243 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Grandparent's Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "new138_grandparent",
+  "source": "rewrites",
+  "lines": [
+   6485,
+   6532
+  ],
+  "section": "rw_new",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_new",
+  "title_src": "L6485",
+  "ledger": [
+   {
+    "src": "L6486",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6487",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6497",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6504",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6511",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6493",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6494",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6495",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6498",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6505",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6512",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6499",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6501",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6506",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6508",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6513",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6515",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6518-6532",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Around the fire, a villager is telling the story of how the village found its very first canoe.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Around the fire, (subject) is telling the story of how the village found its very first canoe. Every child in the village knows this story by heart. They mouth along with the words. They know when to gasp. They know the ending: the canoe washed up on the beach after a storm, and the first fishers dragged it ashore.\nExcept tonight, (subject) changes the ending.\n\"...and that's when we realized,\" (subject.he/she) says, leaning in, \"that the canoe wasn't found at all. It was a GIFT.\"\nThe children gasp, for real this time. \"From WHO?\" they shriek.\n(subject) sits back, folds (subject.his/her) arms and smiles mysteriously. (subject.He/She) isn't saying. Not yet. (young) wants to know: is this the real ending, or did (subject) just make it up?",
+   "choices": [
+    {
+     "label": "Ask Which Ending They Want",
+     "next": "c1",
+     "src": "L6493"
+    },
+    {
+     "label": "Memorize Both Endings",
+     "next": "c2",
+     "src": "L6494"
+    },
+    {
+     "label": "Tell It Over Several Nights",
+     "next": "c3",
+     "src": "L6495"
+    }
+   ],
+   "src": "L6488-6492"
+  },
+  "c1o1": {
+   "text": "(subject) just smiles. \"The one I tell.\" (subject.He/She) chooses to tell the story (subject.his/her) own way, and the listeners let (subject.him/her). The next night, (subject.he/she) reveals the gift came from \"someone who lived on the island before any of us,\" and refuses to say any more. The children talk about nothing else for a week.",
+   "src": "L6500"
+  },
+  "c1o2": {
+   "text": "(subject) admits that (subject.he/she) isn't quite sure how the new ending goes yet. (subject.He/She) asks for help telling the rest, surprising the family, who thought (subject.he/she) never wanted help with a story. Together, (subject) and the children build the new ending around the fire, each adding a piece. It ends with a talking turtle. Nobody minds.",
+   "src": "L6502"
+  },
+  "c1": {
+   "text": "(young) asks (subject) quietly, once the children have calmed down, which ending is the real one...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6498"
+  },
+  "c2o1": {
+   "text": "(subject) shows (young) how storytellers keep long tales straight with knotted cords: a big knot for each part of the story, little knots for each character, a twist for each surprise. Feeling the knots, the teller always knows what comes next. (young) learns a useful skill for remembering anything, and makes a cord of (subject.his/her) own with both endings on it.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "young",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20
+    }
+   ],
+   "src": "L6507",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When (young) asks for the new ending again, (subject) frowns. \"Now, was it a gift from the turtle people or the fish people?\" (subject.He/She) can't remember the details of the new ending, and asks the others to help reconstruct it. Five different versions later, the children have decided on all of them.",
+   "src": "L6509"
+  },
+  "c2": {
+   "text": "(young) asks how storytellers keep long tales straight, so (subject.he/she) can remember both endings. (subject) pulls a knotted cord out of (subject.his/her) pocket. \"With this.\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6505"
+  },
+  "c3o1": {
+   "text": "Telling the story a little each night lets (subject) enjoy it without tiring, and it turns the whole village into eager listeners. Every evening, more people gather around the fire to hear the next part. By the end of the week, even the grown-ups are begging for \"just one more bit.\"",
+   "src": "L6514"
+  },
+  "c3o2": {
+   "text": "On the second night, (subject) says (subject.he/she) is too tired for stories tonight, and goes to rest early. The children are desperate. One of them sneaks into (subject.his/her) hut to ask \"WHO WAS IT FROM?\" and is sent back out with a sleepy \"Tomorrow.\"",
+   "src": "L6516"
+  },
+  "c3": {
+   "text": "(young) suggests (subject) tell the new version a little each night, so (subject.he/she) doesn't get too tired...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6512"
+  }
+ }
+}

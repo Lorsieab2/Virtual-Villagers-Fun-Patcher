@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Reluctant Hero",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il035_reluctant_hero",
+  "source": "da_il02",
+  "lines": [
+   401,
+   415
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L401",
+  "ledger": [
+   {
+    "src": "L403",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L415",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager praised as a hero for helping repair a footbridge finds the attention deeply embarrassing.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been praised for helping repair a damaged footbridge. The villagers call (subject.him/her) a hero. (subject) finds this deeply embarrassing. (subject.He/She) was simply nearby, knew how to work with rope, and didn't want anyone falling into the stream.",
+   "src": "L405",
+   "choices": [
+    {
+     "label": "Accept the Praise",
+     "next": "a",
+     "src": "L407"
+    },
+    {
+     "label": "Change the Subject",
+     "next": "b",
+     "src": "L411"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Thank you,\" says (subject), somewhat awkwardly. Later (subject.he/she) admits to (friend) that the attention was uncomfortable. \"You can be pleased with what you did without enjoying the fuss,\" (friend) replies.",
+   "src": "L409"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"It was a team effort,\" says (subject). \"Speaking of which, has anyone seen my hammer?\" The villagers eventually stop praising (subject.him/her), much to (subject.his/her) relief. The bridge remains in excellent condition.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"It was a team effort,\" says (subject). \"Speaking of which, has anyone seen my hammer?\" The villagers eventually stop praising (subject.him/her), much to (subject.his/her) relief. The bridge remains in excellent condition.",
+   "src": "L413"
+  }
+ }
+}

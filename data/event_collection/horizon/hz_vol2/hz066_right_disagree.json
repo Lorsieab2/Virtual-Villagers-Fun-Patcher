@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Right to Disagree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz066_right_disagree",
+  "source": "horizon",
+  "lines": [
+   887,
+   897
+  ],
+  "section": "hz_vol2",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events\nEXPANSION VOLUME II — THE CONSTRUCTS, THE CITIES, AND THE COMMON FIRE\n40 ADDITIONAL SPECULATIVE BRANCHING EVENTS (041–080)",
+  "draw_weight": 1,
+  "series": "hz_vol2",
+  "title_src": "L887",
+  "ledger": [],
+  "description": "An elder wonders whether distant peoples choose leaders, inherit authority, or settle decisions in ways Isola has never tried.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder wonders whether distant peoples choose leaders, inherit authority, or settle decisions in ways Isola has never tried.",
+   "src": "L888",
+   "choices": [
+    {
+     "label": "Imagine Voting.",
+     "next": "a",
+     "src": "L889"
+    },
+    {
+     "label": "Imagine Councils.",
+     "next": "b",
+     "src": "L892"
+    },
+    {
+     "label": "Imagine Dissent.",
+     "next": "c",
+     "src": "L895"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A child asks whether everyone gets a voice, including the poor.",
+   "src": "L890"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A researcher wonders how voters judge promises they cannot verify.",
+   "src": "L891"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elders compare distant hypothetical assemblies with their own meetings.",
+   "src": "L893"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A young villager asks whose concerns are usually missing from the circle.",
+   "src": "L894"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A storyteller imagines people punished for questioning rulers.",
+   "src": "L896"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Another villager imagines laws that protect disagreement even when it is inconvenient.",
+   "src": "L897"
+  }
+ }
+}

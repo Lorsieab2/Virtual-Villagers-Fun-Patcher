@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Family's Worst Jokes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam238_family_worst",
+  "source": "draft_fam2",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a younger relative aged 6-13 (where the game records it; otherwise any child aged 6-13)"
+   }
+  ],
+  "description": "A child has finally had enough of an adult relative's terrible jokes: tell a worse one, or challenge the child to tell one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "friend"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) tells the worst jokes on Isola. Truly terrible. \"Why did the coconut cross the beach? It was nuts!\" Every family gathering, (subject.he/she) tells them, laughing hardest of all. Today (friend), a young relative, has finally had enough. \"Those jokes are SO bad,\" (friend.he/she) groans.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "(subject) Tells a Worse One",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "(subject) Challenges (friend.him/her)",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Oh?\" says (subject). \"Then you'll hate this one. What do you call a fish with no eyes? A fsh!\" (friend) groans so loudly the dog howls. But (friend.he/she) is laughing too, a little, against (friend.his/her) will. By the end of the evening, (friend.he/she) is telling them too. It's catching. Nobody is safe.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L458"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Oh?\" says (subject). \"Then you'll hate this one. What do you call a fish with no eyes? A fsh!\" (friend) groans so loudly the dog howls. But (friend.he/she) is laughing too, a little, against (friend.his/her) will. By the end of the evening, (friend.he/she) is telling them too. It's catching. Nobody is safe.",
+   "src": "L458"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Fine,\" says (subject). \"You tell one, then.\" (friend) thinks. And thinks. Then: \"Why did the crab never share? Because it was shellfish.\" Silence. Then (subject) roars with laughter. \"That's AWFUL. That's perfect. You're one of us now.\" (friend) is horrified and very proud.",
+   "src": "L461",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L461"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L461"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Fine,\" says (subject). \"You tell one, then.\" (friend) thinks. And thinks. Then: \"Why did the crab never share? Because it was shellfish.\" Silence. Then (subject) roars with laughter. \"That's AWFUL. That's perfect. You're one of us now.\" (friend) is horrified and very proud.",
+   "src": "L461"
+  }
+ }
+}

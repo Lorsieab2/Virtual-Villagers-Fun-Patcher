@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Brand-New Old Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt23_brand_song",
+  "source": "draft_tt",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   }
+  ],
+  "description": "A villager proudly sings a new song, and an elder joins in word for word: laugh about it, or say yours is different.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has made up a new song, and is very proud of it. Tonight (subject.he/she) sings it at the fire. It's lovely. Halfway through, (friend) begins to sing along quietly, word for word. It's an old song. (friend) learned it as a child. (subject) must have heard it long ago, forgotten it, and remembered it as (subject.his/her) own.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Laugh About It",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Say Yours Is Different",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "When the song ends, (subject) turns to (friend). \"You know it?\" \"Since I was small.\" (subject) laughs and covers (subject.his/her) face. \"I was so proud of it.\" \"You should be,\" says (friend). \"You remembered it better than any of us. I'd lost the second verse years ago.\"",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "When the song ends, (subject) turns to (friend). \"You know it?\" \"Since I was small.\" (subject) laughs and covers (subject.his/her) face. \"I was so proud of it.\" \"You should be,\" says (friend). \"You remembered it better than any of us. I'd lost the second verse years ago.\"",
+   "src": "L278"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Mine has a different ending,\" says (subject). Everyone waits. (subject) sings an ending that (subject.he/she) is making up right there and then. It's actually rather good. (friend) nods slowly. \"That part's new,\" (friend.he/she) admits. From then on, the village sings the old song with (subject)'s ending.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Mine has a different ending,\" says (subject). Everyone waits. (subject) sings an ending that (subject.he/she) is making up right there and then. It's actually rather good. (friend) nods slowly. \"That part's new,\" (friend.he/she) admits. From then on, the village sings the old song with (subject)'s ending.",
+   "src": "L281"
+  }
+ }
+}

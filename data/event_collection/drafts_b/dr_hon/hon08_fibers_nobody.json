@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fibers Nobody Soaked",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon08_fibers_nobody",
+  "source": "draft_hon",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager forgot to soak the fibers for tomorrow's net weaving: get up and soak them now, or tell the weavers in the morning.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Tomorrow a group is meeting to weave a big new net, and it was (subject)'s job to soak the fibers overnight so they'd be soft. (subject) remembers this just as (subject.he/she) is falling asleep. It is very late. The fibers are as dry as straw.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Get Up and Soak Them Now",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Tell Them in the Morning",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) gets up in the dark and soaks them. By morning they're half soft. The weaving goes slowly, with a lot of grumbling about stiff fibers, but it goes. (subject) explains what happened. \"Half soaked is better than none,\" says (friend). It isn't exactly praise. It isn't exactly not.",
+   "src": "L98"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "In the morning (subject) tells the weavers before they start. There's a groan, and the weaving is put off for a day. (friend) is disappointed, having cleared the whole day for it, and says so. That night (subject) soaks the fibers and checks them three times. The next day goes well.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "In the morning (subject) tells the weavers before they start. There's a groan, and the weaving is put off for a day. (friend) is disappointed, having cleared the whole day for it, and says so. That night (subject) soaks the fibers and checks them three times. The next day goes well.",
+   "src": "L101"
+  }
+ }
+}

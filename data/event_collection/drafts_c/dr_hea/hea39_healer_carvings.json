@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Carvings",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea39_healer_carvings",
+  "source": "draft_hea",
+  "lines": [
+   467,
+   476
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L467",
+  "ledger": [
+   {
+    "src": "L468",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer or elder and a child aged 7-13)"
+   },
+   {
+    "src": "L476",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name2), only where the game has it]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A curious child asks a healer why they carve down the remedies that did not work: explain, or let the child help.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) keeps a set of carved boards: what (subject.he/she) gave to whom, what happened, what helped and what didn't. Today (friend), a curious young villager, has been looking at them over (subject.his/her) shoulder for an hour. \"Why do you write down the ones that didn't work?\" (friend) finally asks.",
+   "src": "L470",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L472"
+    },
+    {
+     "label": "Let (friend) Help",
+     "next": "o2",
+     "src": "L475"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Because those are the most useful,\" says (subject). \"If I only remembered the good ones, I'd think everything worked. Then I'd keep giving people things that don't help.\" (friend) thinks about this very seriously. The next day (friend.he/she) starts carving (friend.his/her) own board: which shells are best for scooping, and which aren't. Most of them, it turns out, aren't.",
+   "src": "L473"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Would you like to help me sort them?\" asks (subject). (friend) spends the whole afternoon sorting carvings into \"helped,\" \"didn't help\" and \"not sure.\" The \"not sure\" pile is the biggest. (friend) is surprised. \"That's medicine,\" says (subject). \"A lot of not sure.\"",
+   "src": "L476",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L476"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

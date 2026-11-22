@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Forgets Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss004_healer_forgets",
+  "source": "companion",
+  "lines": [
+   6103,
+   6111
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6103",
+  "ledger": [
+   {
+    "src": "L6111",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An experienced healer forgets patients' names, and a younger colleague corrects them in public.",
+  "cast_only": [
+   "healer",
+   "colleague"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "colleague": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An experienced healer remembers symptoms but sometimes forgets patients' names. A younger colleague starts correcting them in public.",
+   "src": "L6104",
+   "choices": [
+    {
+     "label": "Discuss it privately",
+     "next": "a",
+     "src": "L6105"
+    },
+    {
+     "label": "Ask the healer what support they want",
+     "next": "b",
+     "src": "L6107"
+    },
+    {
+     "label": "Review duties together",
+     "next": "c",
+     "src": "L6109"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They develop discreet patient markers and avoid unnecessary embarrassment.",
+   "src": "L6106",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6106"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They develop discreet patient markers and avoid unnecessary embarrassment.",
+   "src": "L6106"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "The healer requests written records and keeps practicing, though not every day is easy.",
+   "src": "L6108",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L6108"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "The healer requests written records and keeps practicing, though not every day is easy.",
+   "src": "L6108"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The healer chooses more teaching and fewer exhausting night shifts; expertise remains valued.",
+   "src": "L6110",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "healer",
+     "min": 15,
+     "max": 30,
+     "src": "L6110"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The healer chooses more teaching and fewer exhausting night shifts; expertise remains valued.",
+   "src": "L6110"
+  }
+ }
+}

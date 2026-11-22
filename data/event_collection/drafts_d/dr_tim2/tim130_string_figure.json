@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The String Figure",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim130_string_figure",
+  "source": "draft_tim2",
+  "lines": [
+   37,
+   42
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L37",
+  "ledger": [
+   {
+    "src": "L38",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L39",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L40",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L41",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L42",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L38",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child loops a length of cord between their fingers to make a string figure.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "(Name1), a child, loops a length of cord between their fingers to make a string figure. The figure turns into something that looks remarkably like a turtle.",
+   "src": "L38,L39"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a child, loops a length of cord between their fingers to make a string figure. An elder shows the child a figure their own grandparent taught them.",
+   "src": "L38,L40"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(Name1), a child, loops a length of cord between their fingers to make a string figure. The cord tangles hopelessly, and the child decides that was the plan all along.",
+   "src": "L38,L41"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a child, loops a length of cord between their fingers to make a string figure. Soon several children are comparing figures on the sand.",
+   "src": "L38,L42"
+  }
+ }
+}

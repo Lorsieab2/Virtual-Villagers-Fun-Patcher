@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cool Breeze",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day28_cool_breeze",
+  "source": "draft_day",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "After weeks of heat a cool breeze blows through the village: stay and enjoy it a while, or get on with the day.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After weeks of heavy heat, a cool breeze has come in off the sea this morning, and it hasn't stopped. It's moving through the village, through doorways, through hair, rustling everything. (name1) has stepped out of (his/her) hut and is standing with (his/her) arms out, eyes closed, face turned into it.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Stay There a While",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Get on with the Day",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) stays there for a long time, just breathing. Someone walks past and stands next to (him/her), arms out, eyes closed. Then someone else. Soon there's a small row of villagers on the path, all standing in the breeze with their eyes closed. Nobody says anything. Nobody needs to.",
+   "src": "L338"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) enjoys it for a moment, then gets on with the day. But everything is easier in the cool. Work goes quickly. Food tastes better. People laugh more. It's not a special day, exactly. It's just a good one, and (name1) notices, on the way to bed, that (he/she) hasn't been grumpy once.",
+   "src": "L341",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L341"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(name1) enjoys it for a moment, then gets on with the day. But everything is easier in the cool. Work goes quickly. Food tastes better. People laugh more. It's not a special day, exactly. It's just a good one, and (name1) notices, on the way to bed, that (he/she) hasn't been grumpy once.",
+   "src": "L341",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L341"
+    }
+   ]
+  }
+ }
+}

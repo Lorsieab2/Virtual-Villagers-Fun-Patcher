@@ -1,0 +1,230 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Island Day of Many Talents",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage33_island_many",
+  "source": "anthology",
+  "lines": [
+   30637,
+   30651
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30637",
+  "ledger": [
+   {
+    "src": "L30638",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L30642",
+    "kind": "sensitivity",
+    "before": "A shy child",
+    "after": "(child), a shy child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30648",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30650",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "The village holds a celebration where each age group can contribute without being assigned a stereotype.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village holds a celebration where each age group can contribute without being assigned a stereotype.",
+   "src": "L30639",
+   "choices": [
+    {
+     "label": "Invite Children to Lead an Activity",
+     "next": "a",
+     "src": "L30640"
+    },
+    {
+     "label": "Invite Teens to Coordinate",
+     "next": "b",
+     "src": "L30643"
+    },
+    {
+     "label": "Invite Adults to Share Practical Skills",
+     "next": "c",
+     "src": "L30646"
+    },
+    {
+     "label": "Invite Elders to Choose Their Role",
+     "next": "d",
+     "src": "L30649"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30639"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child), a shy child, prefers to design the signs and still receives recognition.",
+   "src": "L30642"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Teen organizers keep events running while learning to delegate.",
+   "src": "L30644"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scheduling mistake becomes an opportunity to improvise rather than blame.",
+   "src": "L30645"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A craft demonstration turns into a lively exchange of techniques.",
+   "src": "L30647"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult) chooses to participate as a learner instead of an instructor.",
+   "src": "L30648"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) leads a captivating history game.",
+   "src": "L30650"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Another elder spends the day dancing rather than giving the expected speech.",
+   "src": "L30651"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Children organize a joyful pebble puzzle competition.",
+   "src": "L30641",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L30641"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Children organize a joyful pebble puzzle competition.",
+   "src": "L30641"
+  }
+ }
+}

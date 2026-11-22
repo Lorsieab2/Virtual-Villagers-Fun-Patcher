@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Home Already?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep21_home_already",
+  "source": "draft_dep",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A homesick villager sneaks home early from a long walk and meets a friend on the path: pretend not to notice, or say you're glad.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) set off yesterday morning for a long walk along the coast, with a full bag and a big farewell. (subject.He/she) is now walking back into the village, a day and a half early, trying to look casual. (subject.He/she) missed home. Badly. On the first night. (subject.He/she) is hoping nobody will notice. (friend) is standing right in the middle of the path.",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Pretend Not to Notice",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Say You're Glad",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"You're back!\" says (friend). \"Good. It's been too quiet.\" (subject) braces for teasing, and none comes. (subject.He/she) explains, a bit sheepishly, about missing home. (friend) shrugs. \"Sounds like you found out something about yourself.\" (subject) thinks about that. Maybe (subject.he/she) did. (subject.He/she) might try the walk again someday. Or not.",
+   "src": "L257"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Oh, hello,\" says (friend), as if (subject) has just popped out for a moment. \"Good timing. Stew's nearly ready.\" (subject) is so grateful (subject.he/she) could cry. They eat together and talk about everything except the walk. Much later, (subject) admits, \"I missed home.\" \"I know,\" says (friend). \"Have some more stew.\"",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L254"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Oh, hello,\" says (friend), as if (subject) has just popped out for a moment. \"Good timing. Stew's nearly ready.\" (subject) is so grateful (subject.he/she) could cry. They eat together and talk about everything except the walk. Much later, (subject) admits, \"I missed home.\" \"I know,\" says (friend). \"Have some more stew.\"",
+   "src": "L254"
+  }
+ }
+}

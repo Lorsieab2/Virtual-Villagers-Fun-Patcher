@@ -364,6 +364,11 @@ static void write_files(int buried, int twins, int chiefs) {
             "Conception 1\r\n  Mother: Ann\r\n  Babies in pregnancy: 2\r\n\r\n"
             "Conception 2\r\n  Mother: Ann\r\n  Babies in pregnancy: 1\r\n\r\n"
             "Conception 3\r\n  Mother: Ann\r\n  Babies nursing: 2\r\n\r\n"
+            /* v1.35.97: the time played twice before the first save -- never this village's twins. */
+            "Conception 5\r\n  Mother: Bea\r\n  Babies nursing: 2\r\n"
+            "  Note: Not in the village as it was saved: the game played this time, then\r\n"
+            "    loaded the village again from its save and played the same time over, so\r\n"
+            "    this pregnancy was not kept.\r\n\r\n"
             "Village: Other Tribe (Save 1)\r\n"
             "Conception 4\r\n  Mother: Zoe\r\n  Babies in pregnancy: 2\r\n\r\n");
         write_file(LOGS "\\Births and Conceptions\\Virtual Villagers 2 Births and Conceptions Log 1.txt", h);

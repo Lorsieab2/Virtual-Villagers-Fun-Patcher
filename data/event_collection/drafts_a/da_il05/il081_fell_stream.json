@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Who Fell in the Stream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il081_fell_stream",
+  "source": "da_il05",
+  "lines": [
+   8,
+   17
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L14",
+    "kind": "casting",
+    "before": "One elder remembers",
+    "after": "(elder), an elder, remembers",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L14",
+    "kind": "casting",
+    "before": "Another says",
+    "after": "Another, (other), says",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "Two old friends remember the same childhood fall into the stream, but each remembers the other falling in.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age_gap": {
+    "role": "subject",
+    "years": 5
+   }
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) were children together, and tonight by the fire they are remembering the day somebody fell into the stream trying to catch a frog. They both remember it perfectly. The trouble is that (subject) remembers (friend) falling in, and (friend) remembers (subject) falling in.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Ask the Others at the Fire",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Agree to Disagree",
+     "next": "b",
+     "src": "L16"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They put it to the whole fire. Opinions are split. (elder), an elder, remembers that nobody fell in at all, and that it was a lizard, not a frog. Another, (other), says it was both of them, and the frog too. By the end of the night there are five versions of the story, and everyone likes theirs best.",
+   "src": "L14"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Fine,\" says (subject). \"It was you.\" \"It was YOU,\" says (friend). They grin at each other. Neither of them will ever give in, and both of them, privately, have started to wonder. The frog, wherever it is now, isn't telling.",
+   "src": "L17"
+  }
+ }
+}

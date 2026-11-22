@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The God Who May Have Been a Person",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvuns34_god_may_have",
+  "source": "living",
+  "lines": [
+   22609,
+   22620
+  ],
+  "section": "lv_unseen",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22609",
+  "ledger": [
+   {
+    "src": "L22620",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A carving depicts a figure worshipped in legend, but its tools resemble those of ordinary villagers.",
+  "cast_only": [
+   "researcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carving depicts a figure worshipped in legend, but its tools resemble those of ordinary villagers.",
+   "src": "L22610",
+   "choices": [
+    {
+     "label": "Study the carving as history.",
+     "next": "a",
+     "src": "L22611"
+    },
+    {
+     "label": "Preserve its sacred meaning.",
+     "next": "b",
+     "src": "L22614"
+    },
+    {
+     "label": "Present both interpretations.",
+     "next": "c",
+     "src": "L22617"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "A researcher suggests the figure may have been an admired ancestor.",
+   "src": "L22612"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The damaged inscription cannot settle the question.",
+   "src": "L22613"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Believers continue honoring the figure without demanding proof.",
+   "src": "L22615",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The faithful continue honoring the figure without demanding proof."
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A skeptic asks whether respect requires belief.",
+   "src": "L22616"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village displays the carving with competing stories.",
+   "src": "L22618"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some visitors leave more puzzled than before.",
+   "src": "L22619"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

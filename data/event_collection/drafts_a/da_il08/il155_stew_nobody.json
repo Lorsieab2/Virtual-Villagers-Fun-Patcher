@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stew Nobody Mentioned",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il155_stew_nobody",
+  "source": "da_il08",
+  "lines": [
+   170,
+   179
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L170",
+  "ledger": [
+   {
+    "src": "L171",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager made the best stew of their life tonight, and nobody said a word about it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) made the stew tonight. (subject.He/She) tried something new: a pinch of a sour green herb, and the fish cooked just a little less than usual. (subject.He/She) thinks it's the best stew (subject.he/she) has ever made. Everyone ate it. Nobody said a word about it. (subject) is now sitting by the empty pot, slightly deflated.",
+   "src": "L173",
+   "choices": [
+    {
+     "label": "Ask What People Thought",
+     "next": "a",
+     "src": "L175"
+    },
+    {
+     "label": "Let It Go",
+     "next": "b",
+     "src": "L178"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"How was the stew?\" (subject) asks (friend), trying to sound casual. (friend) looks up. \"Oh! It was wonderful. I had two bowls. I didn't think to say.\" Then, louder: \"Did everybody like the stew?\" A chorus of \"yes!\" comes back from round the fire. (subject) sits up a little straighter.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L176"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"How was the stew?\" (subject) asks (friend), trying to sound casual. (friend) looks up. \"Oh! It was wonderful. I had two bowls. I didn't think to say.\" Then, louder: \"Did everybody like the stew?\" A chorus of \"yes!\" comes back from round the fire. (subject) sits up a little straighter.",
+   "src": "L176"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) cleans the pot without a word. The stew was good. (subject.He/She) knows it was good. Next morning, though, (subject.he/she) finds that someone has quietly scraped the last bits out of the pot and left a little flower on the lid. (subject.He/She) never finds out who.",
+   "src": "L179",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L179"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) cleans the pot without a word. The stew was good. (subject.He/She) knows it was good. Next morning, though, (subject.he/she) finds that someone has quietly scraped the last bits out of the pot and left a little flower on the lid. (subject.He/She) never finds out who.",
+   "src": "L179"
+  }
+ }
+}

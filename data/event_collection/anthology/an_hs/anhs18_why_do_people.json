@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Do People Look Different?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs18_why_do_people",
+  "source": "anthology",
+  "lines": [
+   29695,
+   29708
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29695",
+  "ledger": [
+   {
+    "src": "L29699",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29701",
+    "kind": "sensitivity",
+    "before": "A visitor",
+    "after": "(visitor), a visitor,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29704",
+    "kind": "sensitivity",
+    "before": "A curious child",
+    "after": "(child), a curious child,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29705",
+    "kind": "sensitivity",
+    "before": "An adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29707",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Children notice differences in skin tones, hair textures, and facial features among families and visiting tribes.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "visitor": {
+   "kind": "stranger",
+   "sex": "random",
+   "named": true
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children notice differences in skin tones, hair textures, and facial features among families and visiting tribes.",
+   "src": "L29696",
+   "choices": [
+    {
+     "label": "Discuss Ancestry and Inheritance",
+     "next": "a",
+     "src": "L29697"
+    },
+    {
+     "label": "Invite Personal Stories Without Demanding Them",
+     "next": "b",
+     "src": "L29700"
+    },
+    {
+     "label": "Explore How Sunlight and Environments Matter",
+     "next": "c",
+     "src": "L29703"
+    },
+    {
+     "label": "Discuss Unfair Assumptions",
+     "next": "d",
+     "src": "L29706"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They learn that human variation has many overlapping patterns and does not define ability or worth.",
+   "src": "L29698"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(visitor), a visitor, volunteers a story about their family's journeys.",
+   "src": "L29701"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another visitor declines to explain their appearance, and the children respect that.",
+   "src": "L29702"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(child), a curious child, asks good questions about pigmentation and adaptation.",
+   "src": "L29704"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(adult) clarifies that simple environmental stories cannot explain every individual trait.",
+   "src": "L29705"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) recognizes they made a mistaken guess about someone's skills.",
+   "src": "L29707"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The group learns to ask what people enjoy rather than assuming from appearance.",
+   "src": "L29708"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) compares relatives and delights in how family members can look different.",
+   "src": "L29699",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29699"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) compares relatives and delights in how family members can look different.",
+   "src": "L29699"
+  }
+ }
+}

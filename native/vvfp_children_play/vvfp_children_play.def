@@ -1,0 +1,5 @@
+LIBRARY "VVFP Children Play"
+EXPORTS
+    VvfpStartup
+    VvfpChildrenPlayInstalled
+

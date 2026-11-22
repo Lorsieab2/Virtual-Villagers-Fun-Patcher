@@ -655,6 +655,23 @@ static int c5_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as The Secret City's c3_behave_at; New
+   Believers' walk step is type 4 (80 steps of 0x58 bytes at record +0): Harvesting noni a point of the noni area,
+   Researching, Health chanting and Praising their own places; then "Needs to sit down" queues its steps, its walk is
+   taken out and the job's walk put first. */
+static int c5_behave_at(int index, int job, int behaviour) {
+    unsigned char *r = c5_record(index);
+    unsigned char w[0x58];
+    if (!ce_site_pick(&C5_ADAPTER, 5, index, job, w)) {
+        return c5_behave(index, behaviour);
+    }
+    if (!c5_behave(index, behaviour)) {
+        return 0;
+    }
+    ce_queue_at_site(r, 0x58, 80, 4, w);
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": the pregnancy +0x1C4C and its litter +0x1C50 cleared, then
@@ -736,11 +753,16 @@ static int c5_skeleton(const unsigned char *r) {
    under way: its stand-in corpse is a second body of the same villager. */
 static int c5_revive(int index, int health, int cure) {
     unsigned char *r = c5_record(index);
+    /* the game object 0x425950 keeps at 0x4DACE0: read, never the getter (which would build it) */
+    unsigned char *world = *(unsigned char *volatile *)(uintptr_t)VV5_WORLD_GLOBAL;
     if (c5_reanimating()) {
         return ce_because(CE_WHY_REVIVE);
     }
+    if (world == NULL) {
+        return 0;
+    }
     TC2(0x4758B0u, r + 0x1C34, health, -1);
-    *(int *)(r + 0x1C38) = TC0(0x4036E0u, ((getter_fn)(uintptr_t)0x425950u)());
+    *(int *)(r + 0x1C38) = TC0(0x4036E0u, world);
     if (cure) {
         r[0x1C48] = 0;
     }
@@ -1019,6 +1041,15 @@ static const ce_probe_field C5_PROBE[] = {
     { 0x1CEC, 1, 0, 1 },
 };
 
+/* New Believers' villager catch-up 0x472C90 on the villager array 0x554148 (its one caller, the update 0x4260EB,
+   right after the aging 0x46FE90). */
+static void c5_catch_up(void) {
+    TC0(0x472C90u, 0x554148u);
+}
+
+static const ce_birth_layout C5_BIRTH = { 0x1B8Cu, 0x1C3Cu, 0x1C4Cu, 0x1C40u, c5_catch_up };
+static int c5_deliver(int index, int *early);
+
 static const ce_adapter C5_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT | CAP_PREFS
         | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK | CAP_STATUS
@@ -1067,16 +1098,19 @@ static const ce_adapter C5_ADAPTER = {
     2, 0x1C4C,
     /* The two-choice popup (0x418020): 48 characters, 11 lines for the
        question and 17 for a result (the tallest stock question and result:
-       Innovation in Farming's), the title above the result, labels of 38
-       characters (the longest stock). */
-    48, 11, 48, 17, 0, 38, c5_rand_below, c5_believer, c5_role,
+       Innovation in Farming's), the title above the result, labels of up
+       to 39 characters, as wide as the screen shows whole
+       (story_label_widths.h). */
+    48, 11, 48, 17, 0, 39, c5_rand_below, c5_believer, c5_role,
     C5_PROBE, (int)(sizeof C5_PROBE / sizeof C5_PROBE[0]),
     c5_set_faith,
     "Do at your own risk: purple, Chief and Heathen Mommy are the roles the game's "
     "puzzles use; giving them to anyone, or changing a puzzle's own Heathen, can change "
     "or break those puzzles.",
     5,
-    c5_set_health                                /* the note is for purple, the Chief and the Mommy */
+    c5_set_health                                /* the note is for purple, the Chief and the Mommy */,
+    c5_deliver,
+    c5_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -1151,4 +1185,9 @@ static const ce_adapter *c5_adapter(void) {
         ready = 1;
     }
     return &adapter;
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c5_deliver(int index, int *early) {
+    return ce_birth_now(&C5_ADAPTER, &C5_BIRTH, index, early);
 }

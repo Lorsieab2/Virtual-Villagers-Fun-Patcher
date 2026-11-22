@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV4 Empty Sources"
+EXPORTS
+    VvfpStartup
+    VvfpEmptySourcesInstalled

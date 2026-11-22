@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Second Try",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif31_second_try",
+  "source": "draft_lif",
+  "lines": [
+   356,
+   365
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L356",
+  "ledger": [
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older and a young adult, 18-25)"
+   }
+  ],
+  "description": "A villager who once failed as a healer meets a young apprentice who just failed: tell the story, or just sit together.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, (subject.he/she) tried to become a healer. (subject.He/she) was bad at it. Truly bad. (subject.He/she) fainted at the sight of a splinter. (subject.He/she) gave up and went into fishing instead, a little ashamed, and turned out to love it. Today, (friend), a young apprentice, has just failed at (friend.his/her) first craft and is sitting on the beach looking like the world has ended.",
+   "src": "L359",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) Your Story",
+     "next": "o1",
+     "src": "L361"
+    },
+    {
+     "label": "Just Sit with (friend.him/her)",
+     "next": "o2",
+     "src": "L364"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't say anything clever. (subject.He/she) just sits down and looks at the sea with (friend) for a while. After a long time, (friend) says, \"Did you ever fail at something?\" \"Spectacularly,\" says (subject). \"It was the best thing that ever happened to me. I didn't know that for years, though.\" (friend) thinks about that. It doesn't fix today. But it's something to remember.",
+   "src": "L365"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits down and tells (friend.him/her) about the splinter and the fainting. (friend) laughs in spite of (friend.him/her)self. \"And then?\" \"And then I found something I liked better. And I've been happy ever since. Mostly.\" (friend) isn't comforted right away. But (friend.he/she) asks (subject) to show (friend.him/her) how to mend a net. Just to see.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sits down and tells (friend.him/her) about the splinter and the fainting. (friend) laughs in spite of (friend.him/her)self. \"And then?\" \"And then I found something I liked better. And I've been happy ever since. Mostly.\" (friend) isn't comforted right away. But (friend.he/she) asks (subject) to show (friend.him/her) how to mend a net. Just to see.",
+   "src": "L362"
+  }
+ }
+}

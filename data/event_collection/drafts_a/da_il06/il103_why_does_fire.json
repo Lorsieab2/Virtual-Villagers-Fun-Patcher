@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Does the Fire Crackle?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il103_why_does_fire",
+  "source": "da_il06",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L38",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager by the fire wonders why it crackles: test different kinds of wood, or just listen.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) is sitting by the fire, and the fire is doing what it always does: crackling, popping, now and then spitting a little spark. Tonight (name1) wonders why. Is it the wood? Is it something inside the wood? Does dry wood crackle less than wet wood? Does every kind of wood sound different?",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Test Different Woods",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Just Listen",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) collects a little pile of different woods \\(driftwood, palm, a dry stick, a damp one\\) and adds them one at a time, listening carefully. The damp one hisses and pops like an angry crab. The driftwood barely makes a sound. (name1) is so absorbed that (he/she) doesn't notice the others have stopped talking to listen too. By the end, the whole fire is guessing which piece will be loudest.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) doesn't test anything. (He/She) just listens: the little snaps, the long whispers, the sudden pop that makes everyone jump. It sounds a bit like the fire is talking to itself. (name1) decides that's as good an explanation as any, and doesn't interrupt.",
+   "src": "L41"
+  }
+ }
+}

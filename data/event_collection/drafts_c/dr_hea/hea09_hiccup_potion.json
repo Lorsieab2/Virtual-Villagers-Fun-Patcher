@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hiccup Potion",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea09_hiccup_potion",
+  "source": "draft_hea",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a healer or elder; VV3-VV5 if the potion should be magical, otherwise all five games as an ordinary brew)"
+   }
+  ],
+  "description": "A healer's new calming potion works on a jumpy villager but brings hiccups: keep taking it, or stop and report it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been jumpy and nervous for a month: every sudden noise makes (subject.him/her) leap. (friend) has brewed a new potion that is supposed to soothe the nerves. \"I've only given it to two people,\" (friend) admits. \"One felt calmer. The other felt nothing at all. I'll be watching for anything odd.\" (subject) drinks it. An hour later, (subject.he/she) does feel calmer. (subject.He/she) also has hiccups. Every time (subject.he/she) relaxes, (subject.he/she) hiccups.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Keep Taking It",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Stop and Tell (friend)",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'll take calm with hiccups,\" says (subject), hic. For a week (subject.he/she) is noticeably less jumpy, and noticeably louder. The children follow (subject.him/her) around trying to count the hiccups. On the eighth day (subject) decides that enough is enough, hic, and stops. The hiccups go. Some of the calm stays. Some doesn't.",
+   "src": "L110"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) goes straight back. \"It works,\" (subject.he/she) says. Hic. \"But.\" Hic. (friend) writes it down carefully. \"Calm, but hiccups. That's new.\" (friend.He/she) stops the potion and tries changing the recipe. The second batch makes no hiccups, and also, as far as (subject) can tell, does nothing. They keep working on it. Medicine is mostly trying again.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) goes straight back. \"It works,\" (subject.he/she) says. Hic. \"But.\" Hic. (friend) writes it down carefully. \"Calm, but hiccups. That's new.\" (friend.He/she) stops the potion and tries changing the recipe. The second batch makes no hiccups, and also, as far as (subject) can tell, does nothing. They keep working on it. Medicine is mostly trying again.",
+   "src": "L113"
+  }
+ }
+}

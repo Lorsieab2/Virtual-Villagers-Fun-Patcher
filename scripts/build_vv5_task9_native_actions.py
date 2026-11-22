@@ -46,8 +46,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "19B6F10F12DECECE71CC81BFD972480AD378E30E3699F68792D7BA09EF6F0513"
-ACTIVE_SOURCE_TEXT_SHA256 = "19B6F10F12DECECE71CC81BFD972480AD378E30E3699F68792D7BA09EF6F0513"
+ACTIVE_SHA256 = "F52CA6121E2A29E6BD84B78558EDA5D47D2A6BDA9B18F161755E293ABCC0C795"
+ACTIVE_SOURCE_TEXT_SHA256 = "F52CA6121E2A29E6BD84B78558EDA5D47D2A6BDA9B18F161755E293ABCC0C795"
 C342_COUNT = 0          # the expanded-256 ledger is removed; assert it stays gone
 C342_ROWS_SHA256 = "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -3601,7 +3601,19 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
     is shifted by the same delta, and +0x1C4C is shifted only when it is nonzero.
     Villagers already at exactly 360 are left untouched. Charges one verified
     200,000 deduction after the shared confirm; if no villager needed changing it
-    deducts nothing."""
+    deducts nothing.
+
+    +0x1C3C is the age the villager tick has already lived (0x472C90 steps every
+    villager whose +0x1C3C is behind +0x1B8C one unit at a time, in ONE update,
+    with 4 job turns per unit), and +0x1C4C is the age a pregnancy or nursing
+    started at (0x465E7A writes +0x1C3C there; the birth at 0x4730BA is due 40
+    units later). Until v1.35.97 this row moved +0x1B8C only (0x46F7F0 is a
+    plain add), so a child made 18 replayed every missing year at once on the
+    next update: conception after conception and birth after birth while the
+    shown age stayed 360 (live R4, 2026-11-20: Maoa five Conception and five
+    Birth records at age 360, 93 babies born before the next Tech row was
+    bought). An elder made 18 the other way stopped living units until the
+    shown age caught up with the old one."""
     return put(page, page_va, "age18_all", f"""
         push ebp
         mov ebp, esp
@@ -3640,11 +3652,13 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov eax, 360
         sub eax, dword ptr [esi+0x1B8C]
         jz age_already
-        push eax
-        lea ecx, [esi+0x1B8C]
-        call 0x46F7F0
-        inc dword ptr [ebp-0x10]
-        jmp age_next
+        # Out of line (age_shift, after the ret), padded to the 17 bytes the
+        # write took before: the Story DLL patches this routine's charge
+        # (0x7CE8BF, 0x7CE8D1) at fixed addresses, so nothing here may move.
+        # The padding after the jump never runs: zero bytes, not nops, so no
+        # unreachable code ships (tests/test_vv5_origins_dead_code_removed).
+        jmp age_shift
+        .byte {zero_fill(12)}
     age_already:
         inc dword ptr [ebp-0x14]
     age_next:
@@ -3686,6 +3700,18 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         pop ebx
         pop ebp
         ret
+    age_shift:
+        mov edi, eax
+        push eax
+        lea ecx, [esi+0x1B8C]
+        call 0x46F7F0
+        add dword ptr [esi+0x1C3C], edi
+        cmp dword ptr [esi+0x1C4C], 0
+        je age_counted
+        add dword ptr [esi+0x1C4C], edi
+    age_counted:
+        inc dword ptr [ebp-0x10]
+        jmp age_next
     """)
 
 
@@ -4464,7 +4490,7 @@ def main() -> None:
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
         "name": "Enable Origins-Exclusive Features + Heathen Mask Cosmetics (Task9 native actions)",
-        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the cost, the current speed and the exact number of years before you buy, with the cost written the same way as every other row (50,000, not 50000). Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
+        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years on slow, six on normal and twelve on fast for a single 50,000 tech-point charge, and is refused with no charge while the game is paused; the confirmation names the cost, the current speed and the exact number of years before you buy, with the cost written the same way as every other row (50,000, not 50000). Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. The Tech Point Doubler (500,000 tech points) doubles research tech points (with the second collectible set's bonus and the fire's point) and duplicate collectibles; the Food Point Doubler (500,000) doubles food gathered from food sources: noni, crops, lake fish and mushrooms, after Food Mastery. Island events, rewards, purchases and cheats are never doubled. This patch also includes the Heathen mask cosmetics: a per-villager Change Appearance chooser on the Details screen (head/body/mask, 5,000 tech points) and a 450,000-point \"Change Appearance for All\" Tech upgrade. Both charge only when something actually changes: if every villager already has the chosen head, body and mask, they say so and deduct nothing. The chosen Heathen masks are rendered over villagers in the village view and on the Details portrait. Mask choices persist per save slot in a sidecar next to your saves. Exact costs are shown in each confirmation.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,

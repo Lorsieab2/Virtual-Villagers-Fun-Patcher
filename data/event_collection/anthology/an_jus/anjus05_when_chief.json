@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "When a Chief Is Ignored",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus05_when_chief",
+  "source": "anthology",
+  "lines": [
+   30783,
+   30797
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30783",
+  "ledger": [
+   {
+    "src": "L30784",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30790",
+    "kind": "sensitivity",
+    "before": "A quiet worker",
+    "after": "(villager), a quiet worker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30797",
+    "kind": "sensitivity",
+    "before": "A villager who objected respectfully is",
+    "after": "(villager), who objected respectfully, is",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A chief issues a confusing order about shared supplies; villagers begin ignoring it rather than asking questions.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A {@chief} issues a confusing order about shared supplies; villagers begin ignoring it rather than asking questions.",
+   "src": "L30785",
+   "choices": [
+    {
+     "label": "Request an Explanation",
+     "next": "a",
+     "src": "L30786"
+    },
+    {
+     "label": "Hear Objections Openly",
+     "next": "b",
+     "src": "L30789"
+    },
+    {
+     "label": "Set Limits on Authority",
+     "next": "c",
+     "src": "L30792"
+    },
+    {
+     "label": "Address Deliberate Defiance",
+     "next": "d",
+     "src": "L30795"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The {@chief} clarifies a real shortage and revises the order.",
+   "src": "L30787"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The {@chief} realizes their instructions contradicted each other.",
+   "src": "L30788"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager), a quiet worker, identifies an overlooked hardship.",
+   "src": "L30790"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A heated complaint becomes a useful proposal after tempers settle.",
+   "src": "L30791"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council agrees to publish clear, reviewable rules.",
+   "src": "L30793"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The {@chief} accepts that respect cannot be demanded by title alone.",
+   "src": "L30794"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A repeat offender faces a proportionate work-related consequence.",
+   "src": "L30796"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager), who objected respectfully, is not punished for dissent.",
+   "src": "L30797"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "When a Leader Is Ignored"
+  }
+ ]
+}

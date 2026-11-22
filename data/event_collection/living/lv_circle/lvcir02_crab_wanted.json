@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crab That Wanted to Live",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir02_crab_wanted",
+  "source": "living",
+  "lines": [
+   21257,
+   21268
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21257",
+  "ledger": [
+   {
+    "src": "L21268",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A fisher catches an egg-bearing crab while the village food stores run low.",
+  "cast_only": [
+   "fisher",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher catches an egg-bearing crab while the village food stores run low.",
+   "src": "L21258",
+   "choices": [
+    {
+     "label": "Keep the crab for food.",
+     "next": "a",
+     "src": "L21259"
+    },
+    {
+     "label": "Return the crab to the shallows.",
+     "next": "b",
+     "src": "L21262"
+    },
+    {
+     "label": "Discuss seasonal harvest limits.",
+     "next": "c",
+     "src": "L21265"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "food stores run low",
+     "reason": "the premise: the stores are already low; nothing is lost now",
+     "src": "L21258"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The meal helps a hungry family, but a child asks about the eggs.",
+   "src": "L21261"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The fisher releases it, and the family shares a smaller supper.",
+   "src": "L21263"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A child begins watching the shore for young crabs.",
+   "src": "L21264"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council protects egg-bearing crabs but faces complaints from hungry fishers.",
+   "src": "L21266"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family eats and offers thanks, though the fisher remains troubled.",
+   "src": "L21260",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "bad",
+     "src": "L21260"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family eats and offers thanks, though the fisher remains troubled.",
+   "src": "L21260"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Fishers help record breeding seasons before agreeing on a rule.",
+   "src": "L21267",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L21267"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Fishers help record breeding seasons before agreeing on a rule.",
+   "src": "L21267"
+  }
+ }
+}

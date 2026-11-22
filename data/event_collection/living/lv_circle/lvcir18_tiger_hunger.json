@@ -1,0 +1,163 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tiger's Hunger",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir18_tiger_hunger",
+  "source": "living",
+  "lines": [
+   21465,
+   21476
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21465",
+  "ledger": [
+   {
+    "src": "L21476",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A rare large predator takes a goat from the edge of the village.",
+  "cast_only": [
+   "hunter"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "hunter": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A rare large predator takes a goat from the edge of the village.",
+   "src": "L21466",
+   "choices": [
+    {
+     "label": "Hunt the predator.",
+     "next": "a",
+     "src": "L21467"
+    },
+    {
+     "label": "Protect livestock and leave the predator alone.",
+     "next": "b",
+     "src": "L21470"
+    },
+    {
+     "label": "Study its movements from a distance.",
+     "next": "c",
+     "src": "L21473"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village feels safer, but the forest loses a rare hunter.",
+   "src": "L21468"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Stronger enclosures reduce losses, though building takes time.",
+   "src": "L21471"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The predator returns, and the villagers must adapt again.",
+   "src": "L21472"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers learn which paths to avoid.",
+   "src": "L21474"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A mistaken track leads to a false alarm.",
+   "src": "L21475"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The hunters fail to find it and return uneasy.",
+   "src": "L21469",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "hunter",
+     "mood": "bad",
+     "src": "L21469"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The hunters fail to find it and return uneasy.",
+   "src": "L21469"
+  }
+ }
+}

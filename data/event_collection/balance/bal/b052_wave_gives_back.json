@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wave That Gives Back",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b052_wave_gives_back",
+  "source": "balance",
+  "lines": [
+   2343,
+   2384
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2343",
+  "ledger": [
+   {
+    "src": "L2344",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2345",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2353",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2362",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2350",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2351",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2354",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2363",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2356",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2359",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2365",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2368",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2371-2384",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "They also say it sometimes takes a thing in exchange.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every so often a single huge wave rolls in on a calm day, out of nowhere, and the fishers call it \"the wave that gives back,\" because it leaves things on the beach that the sea took years ago: old paddles, lost nets, once a whole canoe. They also say it sometimes takes a thing in exchange.\n(Name) is on the beach when (he/she) sees it coming, a green wall rising over the reef, and right in front of (him/her), in the sand, something is glinting: (his/her) own lost bone necklace, gone for years.\nShould (name) grab the necklace and run, or just run?",
+   "choices": [
+    {
+     "label": "Grab It and Run",
+     "next": "c1",
+     "src": "L2350"
+    },
+    {
+     "label": "Just Run",
+     "next": "c2",
+     "src": "L2351"
+    }
+   ],
+   "src": "L2346-2348"
+  },
+  "c1o1": {
+   "text": "(Name) sits up, coughing, with the necklace still in (his/her) fist. Beside (him/her), coughing just as hard, is somebody with (his/her) face. The sea has given back the shape of (name) as (he/she) was the day (he/she) lost the necklace, but not the person: the newcomer has different likes, different skills, a different laugh. It takes the name (made1), and wears a necklace exactly like (name)'s.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L2357",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The wave rolls back out. The beach is wet and empty, except for the necklace, lying in the sand where (name) dropped it. The fishers search the water all day, and all the next. The sea gave something back, and took something in exchange, and doesn't give (name) back. The necklace is hung in (his/her) hut, and nobody touches it.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "subject"
+    }
+   ],
+   "src": "L2360",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) snatches up the necklace and turns to run, but the wave is faster. It picks (him/her) up, rolls (him/her) over and over in green water, and drops (him/her) on the sand...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2354"
+  },
+  "c2o1": {
+   "text": "When the water goes back, there's someone lying on the sand where the necklace was, wearing it. (His/Her) face is (name)'s face. Everything else about (him/her) is someone else's. The newcomer stands up, dripping, and looks around the beach as if (he/she) has never seen land before. The village names (him/her) (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L2366",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "When (name) comes back down the beach, the necklace is still there, washed clean and shining. The wave has given it back and asked for nothing. (Name) wears it every day after that, and on calm days (he/she) watches the reef, half hoping and half afraid.",
+   "src": "L2369"
+  },
+  "c2": {
+   "text": "(Name) leaves the necklace and runs up the beach as fast as (he/she) can. The wave crashes down behind (him/her), and foams up to (his/her) heels, and stops...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2363"
+  }
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Ancestral Spear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm08_ancestral_spear",
+  "source": "openq97",
+  "lines": [
+   535,
+   537
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L536",
+  "ledger": [
+   {
+    "src": "L535",
+    "kind": "structural",
+    "text": "[M08]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L537",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L535",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder recounts the history of an ancestral spear.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), an elder, recounts the history of an ancestral spear. The elder traces a worn mark with one finger. A listener leans closer to hear the next part.",
+   "src": "L535,L537"
+  }
+ }
+}

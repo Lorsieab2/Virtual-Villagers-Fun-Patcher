@@ -1,0 +1,264 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwanted Advice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage21_unwanted",
+  "source": "anthology",
+  "lines": [
+   30445,
+   30459
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30445",
+  "ledger": [
+   {
+    "src": "L30446",
+    "kind": "note",
+    "why": "the volume's casting tag (NURSING MOTHERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30445",
+    "kind": "note",
+    "why": "TODO: a carrying or nursing parent must be born female; the engine reads only the sex field now (the role is the game's nursing parent, female), not a birth sex"
+   },
+   {
+    "src": "L30447",
+    "kind": "sensitivity",
+    "before": "a nursing mother",
+    "after": "(mother), a nursing mother,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30453",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30455",
+    "kind": "sensitivity",
+    "before": "The caregiver",
+    "after": "(helper)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30456",
+    "kind": "sensitivity",
+    "before": "the mother",
+    "after": "(mother)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Several relatives offer conflicting advice to a nursing mother who is already exhausted.",
+  "label_case": "title",
+  "cast_only": [
+   "mother",
+   "helper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "mother": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "nursing_parent"
+  },
+  "helper": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Several relatives offer conflicting advice to (mother), a nursing (mother.mother/father), who is already exhausted.",
+   "src": "L30447",
+   "choices": [
+    {
+     "label": "Ask Which Advice (mother.He/She) Actually Wants",
+     "next": "a",
+     "src": "L30448"
+    },
+    {
+     "label": "Offer Practical Help Instead",
+     "next": "b",
+     "src": "L30451"
+    },
+    {
+     "label": "Consult an Experienced Caregiver About a Specific Concern",
+     "next": "c",
+     "src": "L30454"
+    },
+    {
+     "label": "Set a Gentle Boundary",
+     "next": "d",
+     "src": "L30457"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(mother.He/She) chooses one trusted helper and feels less crowded.",
+   "src": "L30449"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(mother.He/She) says (mother.he/she) wants company, not instruction, and the relatives adjust.",
+   "src": "L30450"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Someone brings water and prepares a meal while (mother.he/she) rests.",
+   "src": "L30452",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "mother",
+     "min": 15,
+     "max": 30,
+     "src": "L30452"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Someone brings water and prepares a meal while (mother.he/she) rests.",
+   "src": "L30452"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "(helper) takes over a household chore, giving (mother.him/her) a peaceful hour.",
+   "src": "L30453",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mother",
+     "mood": "good",
+     "src": "L30453"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "(helper) takes over a household chore, giving (mother.him/her) a peaceful hour.",
+   "src": "L30453"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(helper) answers (mother.his/her) question without judging (mother.his/her) choices.",
+   "src": "L30455"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The concern warrants a health assessment, and (mother) receives calm support.",
+   "src": "L30456",
+   "text_only": [
+    {
+     "what": "\"health\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30456"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The relatives apologize for overwhelming (mother.him/her).",
+   "src": "L30458"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One relative feels hurt, but eventually understands that care does not grant control.",
+   "src": "L30459"
+  }
+ }
+}

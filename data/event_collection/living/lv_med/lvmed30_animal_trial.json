@@ -1,0 +1,180 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Animal Experiment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed30_animal_trial",
+  "source": "living",
+  "lines": [
+   20596,
+   20607
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20596",
+  "ledger": [
+   {
+    "src": "L20607",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A scientist has tested an unfamiliar treatment on several animals and proposes trying it on a gravely ill villager."
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A scientist has tested an unfamiliar treatment on several animals and proposes trying it on a gravely ill villager.",
+   "src": "L20597",
+   "choices": [
+    {
+     "label": "Offer a carefully explained human trial.",
+     "next": "a",
+     "src": "L20598"
+    },
+    {
+     "label": "Require better evidence first.",
+     "next": "b",
+     "src": "L20601"
+    },
+    {
+     "label": "Discuss the ethics of the animal experiments.",
+     "next": "c",
+     "src": "L20604"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient consents and improves, but the scientist records that one success proves little.",
+   "src": "L20599",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20599"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient develops complications, and the trial is stopped.",
+   "src": "L20600",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20600"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The scientist discovers that earlier animal results were recorded incorrectly.",
+   "src": "L20602",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20602"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Further studies show inconsistent effects, and the patient receives established care.",
+   "src": "L20603"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The scientist reduces unnecessary suffering and changes the study design.",
+   "src": "L20605"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An apprentice argues that neither animal nor human lives should be treated as expendable.",
+   "src": "L20606"
+  }
+ }
+}

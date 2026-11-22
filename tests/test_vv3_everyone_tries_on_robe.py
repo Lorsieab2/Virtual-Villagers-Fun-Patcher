@@ -36,17 +36,17 @@ ISOLATED_RESULTS = {
 # holds for BASE_RESULTS (the same modes with no optional patch).
 RENDERED_RESULTS = {
     "collection_progression": (
-        "67896E9AD5E40D18F7AE9D938F9A22ADBAD4FF3300E5498CB5B70345970C5930",
-        "AFAF0D00",
+        "132EBD3A06EE7FA8E2A39E5B0635F6121ABCE8BFD2FFC6F2FC17AB6BED5C3995",
+        "953B0D00",
     ),
     "immediate_fixed": (
-        "F72A66C7002B9DF3A730326A3DA003C37555E8E54A82A2D441EEA51D3464FBB9",
-        "AEF10C00",
+        "3B2974522D021955D3360A5D04AB5F0C6E10D9812F0792A1D931B6E870D78B25",
+        "937D0D00",
     ),
 }
 BASE_RESULTS = {
-    "collection_progression": "0C171C35138A3044DD83DF2C847F19615A7D59F8B0AF4D201E9AAFD9633D0C91",
-    "immediate_fixed": "1CD9850EB4D8920E83A5369D768937439586D90A862D6F59FCB1038DEFF04AA4",
+    "collection_progression": "8B2B0560855C22F8F18D0B264F73BDF2470673C7F33FEF1EBEC46237FC8030A3",
+    "immediate_fixed": "17047501BDBEEF0D8129991484D644F09A39A5560993C43ECA9278D477E8B24C",
 }
 EXPANDED_COMPOSITION_RESULTS = {
     "experimental_expanded_256": (
@@ -73,7 +73,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned when Children's Graves Say Apprentice (vv3_apprentice_graves) joined the catalog: rendering the full
     # catalog without that row gives exactly the previous pins in every mode; with it, 77-78 bytes differ, every one
     # inside its own grave-dialog edits (0x1E939..0x1E995) or the PE CheckSum (0x160..0x163); the length is unchanged.
-    # Re-pinned again when 2-10x Tech Cost (vv3_tech_cost_multiplier) joined the catalog too: its only bytes are the
+    # Re-pinned again when 0.1-10x Tech Cost (vv3_tech_cost_multiplier) joined the catalog too: its only bytes are the
     # 16 price-table dwords (0xA8194..0xA81E3) and the PE CheckSum (0x160..0x163); the length is unchanged.
     # Re-pinned for the v1.35.91 in-place update (#708, #709): verified by rendering the full catalog with and
     # without the two new cloud rows -- in every mode only the PE CheckSum (0x160..0x162) and the Disable Clouds
@@ -130,7 +130,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # (0xCB800..0xCBC00), its new nine-byte site at 0x5C229 (the low-food
     # farming test) or the PE CheckSum; nothing else moved.
     # Re-pinned when the fix-huts page gained the dispatcher stub for the
-    # Builders and Healers Work First addendum. Justified BEFORE re-pinning by
+    # Villagers Work Their Own Job First addendum. Justified BEFORE re-pinning by
     # rendering the full catalog on main (ac363f0e) and on the branch and
     # diffing byte for byte: 168 differing bytes per mode, every one inside the
     # fix-huts overlay (0xCB800..0xCBC00), the dispatcher's ten-byte entry at
@@ -250,7 +250,7 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # fruit row's ranges above, the honey row's clock-read site 0x319F4..0x319F8, its stock
     # arithmetic restored at 0x319F9..0x31A08, its cave 0x7B2A0..0x7B2DF, or the PE CheckSum.
     # Re-pinned once more for Checked Skill Preferences are listed as Jobs on Graves (vv3_preferred_job_graves): without
-    # it the render equals the 2-10x Tech Cost pins; with it 80-81 bytes differ, all in its writer block
+    # it the render equals the 0.1-10x Tech Cost pins; with it 80-81 bytes differ, all in its writer block
     # (0x5504E..0x550AC) or the PE CheckSum.
     # Re-pinned for Hungrier Villagers (vv3_hungrier_villagers): without it the render equals the pins above; with
     # it exactly 3 bytes differ in every mode, the meal immediates 0x60081 and 0x600C5 and the PE CheckSum byte 0x161.
@@ -260,17 +260,25 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Picked Up Collectibles Stay Collected When Dropped (vv3_collectibles_stay_collected): without it
     # the render equals the pins before it (FB106BB0..., 9E0FEA89..., EAB765F8...); with it exactly 15 bytes differ in
     # every mode, the two area-test NOPs 0x2DEEA..0x2DEEF and 0x2DF1A..0x2DF1F and the PE CheckSum; same length.
+    # Re-pinned for Villagers Work Their Own Job First (#807): the catch-up worker's Parenting pick (0x45BF52) is no
+    # longer diverted and the dispatcher stub's protocol changed. Rendered from 3584eb2f2 and from this tree and
+    # compared byte for byte: only the PE CheckSum (0x160..0x162), 0x5BF52..0x5BF56 (back to the stock cmp/jne) and
+    # the fix-huts overlay's stubs (0xCBA0C, 0xCBA2A..0xCBAFE) differ, in every mode; same length.
+    # Re-pinned on the v1.35.97 integration branch for Birth Control's catch-up gate (#829, which itself says only
+    # 0x5BF63 and the PE CheckSum differ): a fresh render of the merged catalog.
+    # Re-pinned when All Villagers are 18 (the village-wide VVFPOWU payload at 0x7B820) began moving the lived age
+    # (+0xE74) and a running conception mark (+0xE8C) with the age (v1.35.97): that payload and the PE CheckSum only.
     "stock": (
-        "B8B3AC4E38B24A6C0333BFFC4E3CB376AE27F840CD0D32F1B60F31266595D58E",
-        "78E20C00",
+        "D0D8EAE4F0D80CBBA8438B2E635CAB62BD54FC5F4E4A51C6702BFA4FF34657DB",
+        "2CCB0D00",
     ),
     "collection_progression": (
-        "B099D35A7AC0D1CDF80266DB6C81BA2A55E22D295B931CFE80073C78A6ADEC02",
-        "78FB0C00",
+        "745719D7E5DAFD923027471417CBE57D48629F7BD375D2D93894315D7CC91C9C",
+        "2DE40C00",
     ),
     "immediate_fixed": (
-        "8F04028774CBA8A73505F88AF675528D321E45A607360FAD840F876CD2EC6AFE",
-        "763D0D00",
+        "DD2876EFC22A8E4ED74627D888A225258DCABA7F7D2F0B8920D45E1EC910CB06",
+        "2B260D00",
     ),
     # Re-pinned for the hospital tables' Fix Vanilla Bugs bytes (052a1b81), which changed this
     # render on main without re-pinning it: the three digests above are main's own render at
@@ -278,6 +286,10 @@ STOCK_CATALOG_COMPOSITION_RESULTS = {
     # Re-pinned for Fix Vanilla Bugs' zero-length line fix (no divide by zero in the rain): putting its
     # two sites (0x3EB9..0x3EC5, 0x45A4..0x45AE) back to stock and restoring the previous CheckSum
     # gives the previous digest in all three modes.
+    # Re-pinned for Every Island Event Can Happen (vv3_every_island_event_can_happen): without it the render equals
+    # the pins before it (B8B3AC4E..., B099D35A..., 8F040287...); with it 15/15/14 bytes differ, every one inside the
+    # row's own sites (0x157FB..0x157FF, 0x15817..0x1581A, 0x159DD, 0x15C6B, 0x15C81, 0x17217) or the PE CheckSum
+    # (0x160..0x163); the length is unchanged.
 }
 
 

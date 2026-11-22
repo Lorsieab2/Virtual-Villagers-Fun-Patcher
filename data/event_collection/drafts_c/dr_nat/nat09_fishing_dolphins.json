@@ -1,0 +1,123 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Fishing with the Dolphins",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat09_fishing_dolphins",
+  "source": "draft_nat",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two fishers or two adults)"
+   },
+   {
+    "src": "L110",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Dolphins are driving a shoal of silver fish into the shallows: fish alongside them, or just watch.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A pod of dolphins has come into the bay, and they're doing something clever: swimming in a tight curve, driving a great shoal of silver fish toward the shallows. The water is boiling with fish. (subject) is already running for (subject.his/her) net. (friend) is standing very still, watching the dolphins.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Fish Alongside Them",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Just Watch",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) and (friend) wade in at the edge of the shoal, careful to stay out of the dolphins' way. The nets come up heavy, again and again. The dolphins don't seem to mind. Afterward, one of them swims past close enough to look (subject) right in the eye, as if to say, \"You're welcome.\" (subject) says \"thank you\" out loud, and feels silly, and doesn't take it back.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"They did all the work,\" says (friend). \"Let them eat.\" (subject) puts down the net. The two of them sit on the sand and watch the dolphins circle and dive and turn, again and again, until the shoal is gone and the bay is calm. They go home with no fish at all. (subject) can't stop talking about it at dinner. Nobody minds the plain supper.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"They did all the work,\" says (friend). \"Let them eat.\" (subject) puts down the net. The two of them sit on the sand and watch the dolphins circle and dive and turn, again and again, until the shoal is gone and the bay is calm. They go home with no fish at all. (subject) can't stop talking about it at dinner. Nobody minds the plain supper.",
+   "src": "L113"
+  }
+ }
+}

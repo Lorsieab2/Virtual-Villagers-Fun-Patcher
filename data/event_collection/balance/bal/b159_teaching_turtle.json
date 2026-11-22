@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teaching Turtle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b159_teaching_turtle",
+  "source": "balance",
+  "lines": [
+   7335,
+   7378
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7335",
+  "ledger": [
+   {
+    "src": "L7336",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7337",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7345",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7354",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7342",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7343",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7346",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7355",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7348",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7351",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7357",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7360",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7363-7378",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A huge old sea turtle has come up onto the beach and will not leave.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A huge old sea turtle has come up onto the beach and will not leave. It has barnacles on its shell older than the village, and one cloudy eye, and it lies in the shallows all day watching whoever is working nearby. (fisher) says that turtles that old have seen everything, and that anyone who sits with one long enough learns what it knows.\n(subject) is supposed to be working. Instead (subject.he/she) keeps finding (subject.himself/herself) sitting on the sand near the turtle, watching it watch (subject.him/her). Today it has crawled right up to (subject.his/her) feet, and put its head on (subject.his/her) foot, and closed its good eye.\nShould (subject) sit with the turtle, or get back to work?",
+   "choices": [
+    {
+     "label": "Sit With the Turtle",
+     "next": "c1",
+     "src": "L7342"
+    },
+    {
+     "label": "Get Back to Work",
+     "next": "c2",
+     "src": "L7343"
+    }
+   ],
+   "src": "L7338-7340"
+  },
+  "c1o1": {
+   "text": "By sunset (subject) has not moved, and (subject.he/she) has never felt so calm. The next day, back at work, (subject.he/she) finds that everything goes more smoothly. (subject.He/She) isn't rushing. (subject.He/She) isn't worrying. (subject.He/She) is just doing it, slowly and well, and getting more done than ever. The turtle swims away that night. (subject) swears it winked.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L7349",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) sits with the turtle for three days. On the third day (subject.he/she) carefully scrapes the barnacles off its shell, one by one, while it sleeps. When it wakes, it looks at (subject.him/her) for a long time with its good eye, and swims away much faster than it came. (subject) never runs anywhere again. (subject.He/She) does everything slowly, and everything well, and drives (subject.his/her) family slightly mad.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "running",
+     "role": "subject"
+    }
+   ],
+   "src": "L7352",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) sits down. The turtle breathes slowly against (subject.his/her) foot, a long, slow breath every minute or so. The sun goes across the sky. (subject) finds (subject.his/her) own breath slowing down to match...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7346"
+  },
+  "c2o1": {
+   "text": "The turtle follows (subject), very slowly, up the beach and into the village, and settles beside wherever (subject.he/she) is working. Every day. For a month. Nobody can rush with a turtle underfoot. By the time it finally goes back to the sea, (subject) has got much better at (subject.his/her) job, and much worse at rushing.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L7358",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "By the time (subject) looks up from (subject.his/her) work, the turtle has gone back into the sea. (subject) feels oddly sad about it. (subject.He/She) goes and sits where it was, the next morning, and the morning after, but it doesn't come back. (fisher) pats (subject.him/her) on the shoulder. \"They don't ask twice,\" (subject.he/she) says.",
+   "src": "L7361"
+  },
+  "c2": {
+   "text": "(subject) gently slides (subject.his/her) foot out from under the turtle's head and goes back to work. The turtle opens its eye, and watches (subject.him/her) go, and sighs...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7355"
+  }
+ }
+}

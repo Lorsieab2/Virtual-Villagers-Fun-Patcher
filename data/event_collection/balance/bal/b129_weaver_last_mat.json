@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weaver's Last Mat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b129_weaver_last_mat",
+  "source": "balance",
+  "lines": [
+   5901,
+   5944
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5901",
+  "ledger": [
+   {
+    "src": "L5902",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5903",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5911",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5920",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5908",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5909",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5912",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5921",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5914",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5917",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5923",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5926",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5929-5944",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "I'd like to teach you while I make it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "weaver": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(weaver) has woven every sleeping mat in the village for longer than anyone can remember. (subject.His/her) fingers are knotted like old roots now, and (subject.he/she) can't see the pattern any more, only feel it. (subject.He/She) has called (subject) to (subject.his/her) hut, and patted the mat beside (subject.him/her).\n\"I've one more in me,\" (weaver) says. \"One more mat. I'd like to teach you while I make it. Or I could make you something to wear instead, and you can learn the rest the hard way, like I did.\" (subject.His/her) hands are already reaching for the reeds.\nShould (subject) ask to be taught, or ask for something to wear?",
+   "choices": [
+    {
+     "label": "Ask to Be Taught",
+     "next": "c1",
+     "src": "L5908"
+    },
+    {
+     "label": "Ask for Something to Wear",
+     "next": "c2",
+     "src": "L5909"
+    }
+   ],
+   "src": "L5904-5906"
+  },
+  "c1o1": {
+   "text": "It takes all week. (subject)'s fingers are raw by the end of it, and the mat is lumpy at one corner where (subject.he/she) got distracted. (weaver) runs (subject.his/her) hands over it and says it's the best first mat (subject.he/she) has ever felt. Something about the patience of it, the over and under, sticks with (subject) in everything (subject.he/she) does after. Even (subject.his/her) own work goes better, and (subject.he/she) can't explain why.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5915",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "They finish the mat on the fifth evening. (weaver) ties the last knot, says \"There,\" and lies down on it for a nap. (subject.He/She) doesn't wake up. The whole village comes to sit with (subject.him/her) on (subject.his/her) last mat. (subject) used to be first at every job. For a long time after that, (subject.he/she) can't settle to any of them, and sits by the empty mat instead while the others go ahead.",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "work",
+     "role": "subject"
+    },
+    {
+     "do": "kill",
+     "role": "weaver",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L5918",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(weaver) puts (subject)'s hands on the reeds and covers them with (subject.his/her) own. \"Not with your eyes,\" (subject.he/she) says. \"Feel it. Over, under, over. The reed tells you.\" They weave until the light goes...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5912"
+  },
+  "c2o1": {
+   "text": "In three days (weaver) has made (subject) a whole new set of clothes, finely woven, soft as feathers, with a pattern along the hem that nobody in the village has seen before. \"My mother's pattern,\" (weaver) says. \"Nobody else has it now. Don't sit in the mud.\" (subject) wears them to every festival, and is very, very careful where (subject.he/she) sits.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L5924",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(weaver) makes (subject) a beautiful wrap, and while (subject.he/she) works, (subject.he/she) talks: about the old days, the friends (subject.he/she) outlived, all the small things (subject.he/she) used to fuss about and wishes (subject.he/she) hadn't. (subject) goes home thinking. A few of the things (subject.he/she) used to fuss about stop seeming worth it.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L5927",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) asks shyly for something to wear. (weaver) laughs, delighted. \"Everyone always asks to be taught. Nobody's asked me for a present in years.\" (subject.He/She) starts at once, (subject.his/her) knotted fingers flying...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5921"
+  }
+ }
+}

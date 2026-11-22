@@ -1,0 +1,135 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rain Decides",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv27_rain_decides",
+  "source": "draft_adv",
+  "lines": [
+   314,
+   323
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L314",
+  "ledger": [
+   {
+    "src": "L315",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager cannot choose between fishing and weeding when it starts to pour: go fishing anyway, or stay home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has been standing in the doorway for ten minutes trying to decide whether to go fishing or work in the garden today. Fishing would be nice. The garden really needs weeding. Fishing is more fun. The garden... and then, quite suddenly, it begins to pour.",
+   "src": "L317",
+   "choices": [
+    {
+     "label": "Go Fishing Anyway",
+     "next": "o1",
+     "src": "L319"
+    },
+    {
+     "label": "Stay Home and Do Neither",
+     "next": "o2",
+     "src": "L322"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fish don't care about rain,\" says (name1), and goes fishing. (He/she) gets soaked. (He/she) catches four fish. (He/she) also sees a pod of dolphins, close, playing in the rain. (He/she) comes home soaking and happier than (he/she) has been all week. The garden waits. It's good at that.",
+   "src": "L320",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L320"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L320"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Fish don't care about rain,\" says (name1), and goes fishing. (He/she) gets soaked. (He/she) catches four fish. (He/she) also sees a pod of dolphins, close, playing in the rain. (He/she) comes home soaking and happier than (he/she) has been all week. The garden waits. It's good at that.",
+   "src": "L320"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The rain has made the choice for (him/her): neither. (name1) sits in (his/her) hut and listens to the rain on the roof, mending a basket that didn't really need mending. It's a lovely quiet day. Tomorrow, (he/she) will have the same problem. Today, (he/she) doesn't.",
+   "src": "L323",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L323"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The rain has made the choice for (him/her): neither. (name1) sits in (his/her) hut and listens to the rain on the roof, mending a basket that didn't really need mending. It's a lovely quiet day. Tomorrow, (he/she) will have the same problem. Today, (he/she) doesn't.",
+   "src": "L323"
+  }
+ }
+}

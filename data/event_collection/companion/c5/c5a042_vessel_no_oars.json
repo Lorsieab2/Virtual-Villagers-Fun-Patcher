@@ -1,0 +1,189 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Vessel Without Oars",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a042_vessel_no_oars",
+  "source": "companion",
+  "lines": [
+   972,
+   989
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L972",
+  "ledger": [
+   {
+    "src": "L974",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L978",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L983",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L985",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L987",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L989",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "A mysterious craft drifts offshore, moved by a mechanism hidden beneath its hull.",
+  "cast_only": [
+   "explorer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "explorer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A mysterious craft is found drifting offshore, moving by a mechanism hidden beneath its hull.",
+   "src": "L976",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L979"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L980"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L981"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The mechanism is too damaged to understand.",
+   "src": "L985"
+  },
+  "o3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "o3__fx"
+    },
+    {
+     "next": "o3__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome 1",
+   "text": "Engineers recover clues about unfamiliar propulsion.",
+   "src": "L983",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L983"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome 1",
+   "text": "Engineers recover clues about unfamiliar propulsion.",
+   "src": "L983"
+  },
+  "o3__fx": {
+   "name": "Outcome 3",
+   "text": "The craft carries a map of waters beyond known Isola.",
+   "src": "L987",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L987"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3__text": {
+   "name": "Outcome 3",
+   "text": "The craft carries a map of waters beyond known Isola.",
+   "src": "L987",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L987"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

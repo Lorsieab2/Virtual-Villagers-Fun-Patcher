@@ -1,0 +1,147 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wedding of a Thousand Guests",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz114_wedding_thousand",
+  "source": "draft_hz2",
+  "lines": [
+   414,
+   424
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L414",
+  "ledger": [
+   {
+    "src": "L415",
+    "kind": "sensitivity",
+    "before": "a guest wonders",
+    "after": "(name1), a guest, wonders",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "At a small wedding, a guest wonders whether distant weddings might have thousands of guests.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At a small wedding, (name1), a guest, wonders whether distant weddings might have thousands of guests.",
+   "src": "L415",
+   "choices": [
+    {
+     "label": "Imagine a Huge Celebration.",
+     "next": "a",
+     "src": "L416"
+    },
+    {
+     "label": "Imagine Small Weddings.",
+     "next": "b",
+     "src": "L419"
+    },
+    {
+     "label": "Focus on This Wedding.",
+     "next": "c",
+     "src": "L422"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The guests imagine dancing that never ends and food piled high.",
+   "src": "L417",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- story only: the file marks no effect (no new mechanics)",
+     "src": "L417"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A shy villager says such a crowd would be overwhelming.",
+   "src": "L418"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests that some couples far away might prefer quiet ceremonies, just like this one.",
+   "src": "L420"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says there might be as many ways to marry as there are peoples, and just as many good reasons not to marry at all.",
+   "src": "L421"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The couple says this is exactly the size they wanted.",
+   "src": "L423"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The couple admits they nearly invited everyone and are glad they did not.",
+   "src": "L424"
+  }
+ }
+}

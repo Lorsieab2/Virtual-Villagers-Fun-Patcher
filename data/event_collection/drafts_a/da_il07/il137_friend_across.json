@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Friend Across the Village",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il137_friend_across",
+  "source": "da_il07",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two friends who used to meet every day now live on opposite sides of the village: walk over, or wave.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) used to see each other every day. Now (friend) has moved to a hut on the other side of the village, and they keep missing each other. They both still mean to visit. Somehow, a week has gone by. Today (subject) catches a glimpse of (friend) far away across the fields.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Walk Over",
+     "next": "a",
+     "src": "L205"
+    },
+    {
+     "label": "Wave",
+     "next": "b",
+     "src": "L208"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) waves, a big wave with both arms. Far away, (friend) waves back the same way. It's not the same as talking. But it's something. (subject) goes back to work feeling a bit less far away. That evening (subject.he/she) walks over to the other side of the village after all, just to say hello.",
+   "src": "L209"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) puts down (subject.his/her) basket and walks all the way across the fields. (friend) sees (subject.him/her) coming and starts walking too. They meet in the middle, both slightly out of breath. \"I've been meaning to visit,\" they both say at once. They make a plan to meet at the halfway tree every few days. Mostly, they manage it.",
+   "src": "L206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L206"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L206"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) puts down (subject.his/her) basket and walks all the way across the fields. (friend) sees (subject.him/her) coming and starts walking too. They meet in the middle, both slightly out of breath. \"I've been meaning to visit,\" they both say at once. They make a plan to meet at the halfway tree every few days. Mostly, they manage it.",
+   "src": "L206"
+  }
+ }
+}

@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Much in the Basket",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon29_too_much_basket",
+  "source": "draft_hon",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager finds a traded basket holds far more fruit than agreed, plus a lost comb: take it all back, or return only the comb.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) traded (friend) a basket of fish for a basket of fruit. Back home, unpacking it, (subject) finds that (friend) has given (subject.him/her) far more than they agreed: twice as much fruit, and a little carved comb at the bottom that has clearly fallen in by accident.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Take It All Back",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Return Only the Comb",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) returns the comb and keeps the fruit, which might have been meant as a gift. (friend) thanks (subject.him/her) for the comb and says nothing about the fruit. (subject) never finds out whether the extra was kindness or a mistake. Next time they trade, (subject.he/she) slips an extra fish into the basket, just in case.",
+   "src": "L353"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) carries the extra fruit and the comb back to (friend), who is surprised. \"Oh! My comb! Thank you, I've been looking everywhere for it. But the fruit's yours. I had far too much; I was glad to be rid of it.\" (subject) walks home with all the fruit again, feeling slightly foolish and quite pleased.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) carries the extra fruit and the comb back to (friend), who is surprised. \"Oh! My comb! Thank you, I've been looking everywhere for it. But the fruit's yours. I had far too much; I was glad to be rid of it.\" (subject) walks home with all the fruit again, feeling slightly foolish and quite pleased.",
+   "src": "L350"
+  }
+ }
+}

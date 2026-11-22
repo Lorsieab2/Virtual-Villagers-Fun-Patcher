@@ -52,6 +52,8 @@ except ImportError:                     # run on its own: src/ is beside scripts
 # (src/vv_game_text.py), so a name like "Šárka" is the same person in the save and in the logs, and
 # village_id() hashes the very bytes the companions hash.
 from vv_game_text import GAME_TEXT  # noqa: E402
+# A Conception or Birth the saved village never held (src/vv_not_kept.py): one rule for every reader.
+from vv_not_kept import is_not_kept, is_not_kept_line  # noqa: E402,F401
 
 GAME_TITLES = {
     1: "A New Home", 2: "The Lost Children", 3: "The Secret City",
@@ -414,6 +416,10 @@ class LogRecord:
     how: str = ""              # an Arrived record's "How:" ("unknown": the backfill knew nothing of it)
     heading: str = ""          # an Arrived record's own "Arrived <n>"
     recorded_afterwards: bool = False   # an Arrived record's "Note: Recorded afterwards ..."
+    # A Conception or Birth marked "Note: Not in the village as it was saved" (v1.35.97,
+    # parentage_export.c conception_not_kept / birth_not_kept): the game played that time twice
+    # before the first save, and the saved village never held it -- it bounds no counter.
+    not_kept: bool = False
     number: str = ""           # a Birth record's own heading ("Birth 252"; an older log's plain "Birth")
 
 
@@ -510,13 +516,17 @@ def whole(p: Person | None) -> bool:
     return p is None or not p.name or (p.head is not None and p.body is not None)
 
 
-def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[BirthsLog, list[Path]]:
+def births_log(game_dir: Path, game: int, slot: int, headers=None,
+               keep_not_kept: bool = False) -> tuple[BirthsLog, list[Path]]:
     """This slot's Birth and Conception records, in log order, from every numbered file (the
     same reading the in-game cross-check and the owner's repair tool do).  The village is the
     slot's LATEST header, whether or not a record follows it yet (Codex, #522: a new village
     whose header is all its file holds so far is not the previous village).  `headers`, when
     given, keeps the records under any of those headers instead -- "every" for all of the slot's
-    (the Family Tree Maker: a renamed village's records before its rename, Codex, #555)."""
+    (the Family Tree Maker: a renamed village's records before its rename, Codex, #555).
+    A Conception or Birth carrying the not-kept Note (src/vv_not_kept.py: the game played that time
+    twice before the first save) is left out -- the saved village never held it, so it is nobody's
+    parent, child or pregnancy -- unless `keep_not_kept` (then marked `not_kept`)."""
     files = game_logs(game_dir, "Births and Conceptions", f"Virtual Villagers {game} Births and Conceptions Log", slot)
     records: list[LogRecord] = []
     renames: list[tuple[str, tuple]] = []        # (village header, (old, new, head, body))
@@ -582,6 +592,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 m = re.match(r"\s*Born as:\s*(Single birth|Twin|Triplet|Golden Child)\s*$", line)
                 if m:
                     rec.born_as = {"Single birth": 1, "Twin": 2, "Triplet": 3, "Golden Child": 1}[m.group(1)]
+                if is_not_kept_line(line):
+                    rec.not_kept = True
             birth = is_birth_heading(kind)
             if birth or kind.startswith("Conception"):
                 main = rec.child if birth else rec.mother
@@ -598,6 +610,8 @@ def births_log(game_dir: Path, game: int, slot: int, headers=None) -> tuple[Birt
                 rec.kind = "lost"
             else:
                 continue
+            if rec.not_kept and not keep_not_kept:
+                continue                          # never in the saved village: no parent, child or pregnancy
             records.append(rec)
     out = BirthsLog(r for r in records if (r.village == latest if headers is None else
                                            headers == "every" or r.village in headers))
@@ -1364,13 +1378,13 @@ def check_statistics(game_dir: Path, slot: int, game: int, roster: list[Villager
         rep.add(label, "OK" if oldest >= now else "NOTE",
                 f"Oldest Villager {oldest} {'>=' if oldest >= now else '<'} the oldest living now ({now})")
     babies = num("Babies Made")
-    nb = sum(r.kind == "birth" for r in births)
+    nb = sum(r.kind == "birth" and not r.not_kept for r in births)
     if babies is not None:
         rep.add(label, "OK" if babies >= nb else "NOTE",
                 f"Babies Made {babies} {'>=' if babies >= nb else '<'} the {nb} Birth records in the log "
                 "(the log is a lower bound: births before it began are not in it)")
     twins = num("Twins Birthed")
-    nt = sum(r.kind == "conception" and r.babies == 2 for r in births)
+    nt = sum(r.kind == "conception" and r.babies == 2 and not r.not_kept for r in births)
     if twins is not None:
         rep.add(label, "OK" if twins >= nt else "NOTE",
                 f"Twins Birthed {twins} {'>=' if twins >= nt else '<'} the {nt} twin conceptions in the log")
@@ -1409,7 +1423,8 @@ def check_counters(game_dir: Path, slot: int, game: int, births: list[LogRecord]
         return
     checks = [("villagers_buried", "Villagers Buried", graves, "Death records with a grave in the Deaths log")]
     if game == 2:
-        checks.append(("twins_birthed", "Twins Birthed", sum(r.kind == "conception" and r.babies == 2 for r in births),
+        checks.append(("twins_birthed", "Twins Birthed", sum(r.kind == "conception" and r.babies == 2 and not r.not_kept
+                                                                  for r in births),
                        "twin conceptions in the Births log"))
     for k, row, bound, what in checks:
         if k not in counters:
@@ -2394,11 +2409,50 @@ def log_files(game_dir: Path) -> list[Path]:
     return shared + sorted(slots, key=lambda p: (layout.is_slot_folder(p), str(p)))
 
 
+SEX_CHANGED = "Changed"     # a known_sexes "sex": the logs say this villager's sex changed (src/vv_sex_changes.py)
+
+
+def sex_changed_names(game_dir: Path, slot: int) -> set[str]:
+    """The names the save's "Sex Changes - Save S.txt" (native/shared/sex_change.h; read as
+    src/vv_sex_changes.py reads it, here so the checker needs no more modules) holds: lines
+    "<M|F>\\t<M|F>\\t<name>", both places of the file."""
+    out: set[str] = set()
+    for path in layout.both_places(Path(game_dir), f"{DATA}\\Sex Changes\\Sex Changes - Save {slot}.txt"):
+        try:
+            text = Path(path).read_bytes().decode(GAME_TEXT, errors="replace")
+        except OSError:
+            continue
+        for line in text.splitlines():
+            parts = line.split("\t", 2)
+            if len(parts) == 3 and {parts[0], parts[1]} == {"M", "F"} and parts[2]:
+                out.add(parts[2])
+    return out
+
+
+def sex_change_record_name(block: list[str]) -> str | None:
+    """The villager an "Appearance changed" record's lines say changed sex ("  Old sex:" / "  New sex:"
+    that differ), else None."""
+    block = list(block)
+    while block and block[0].startswith(("===", "Village:")):
+        block = block[1:]
+    if not block or block[0].strip() != "Appearance changed":
+        return None
+    name = next((l.split(":", 1)[1].strip() for l in block if l.startswith("  Name:")), None)
+    old = next((l.split(":", 1)[1].strip() for l in block if l.startswith("  Old sex:")), None)
+    new = next((l.split(":", 1)[1].strip() for l in block if l.startswith("  New sex:")), None)
+    return name if name and old and new and old != new else None
+
+
 def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
     """What the save and the logs say each villager is: by (name, head, body), and by name alone --
-    each a set of the sexes seen, so two sources that disagree decide nothing (Codex, #553)."""
+    each a set of the sexes seen, so two sources that disagree decide nothing (Codex, #553).  A villager
+    whose sex changed (the save's "Sex Changes" log, an Appearance changed record's Old sex / New sex)
+    carries SEX_CHANGED too: which sex an older record without a Sex line meant is never guessed."""
     exact: dict[tuple, set] = {}
     by_name: dict[str, set] = {}
+    changed: set[str] = set()
+    for slot in range(1, 6):
+        changed |= sex_changed_names(game_dir, slot)
     for slot in range(1, 6):
         save = game_dir / f"{SAVE_STEMS[game]}{slot}.ldw"
         if not save.is_file():
@@ -2420,6 +2474,8 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
             continue
         for s, e in _blocks("\n".join(lines)):
             block = lines[s:e]
+            if sex_change_record_name(block):
+                changed.add(sex_change_record_name(block))
             sex_lines = [l for l in block if re.match(r"^\s+Sex: (Male|Female)\s*$", l)]
             if not sex_lines:
                 continue
@@ -2442,6 +2498,11 @@ def known_sexes(game_dir: Path, game: int) -> tuple[dict, dict]:
                 if head and body:
                     exact.setdefault((name, int(head.group(1)), int(body.group(1))), set()).add(sex)
                 by_name.setdefault(name, set()).add(sex)
+    for name in changed:
+        by_name.setdefault(name, set()).add(SEX_CHANGED)
+        for key in exact:
+            if key[0] == name:
+                exact[key].add(SEX_CHANGED)
     return exact, by_name
 
 
@@ -2449,6 +2510,8 @@ def sex_for(game: int, person: dict, exact: dict, by_name: dict) -> tuple[str | 
     """The villager's sex and where it came from: the save or the logs (the same name, head and
     body), the game's name lists, or every record of the name agreeing."""
     seen = exact.get((person["name"], person["head"], person["body"]), set())
+    if SEX_CHANGED in seen or SEX_CHANGED in by_name.get(person["name"], set()):
+        return None, ""                 # their sex changed: an older record's is the player's to say
     if person["head"] is not None and len(seen) == 1:
         return next(iter(seen)), "the save or the logs"
     # A New Home's Golden Child is named from either list and then made male, head 19, body 19

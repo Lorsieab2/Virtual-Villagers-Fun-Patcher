@@ -1,0 +1,173 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "living_engine",
+ "note": "the Living Event Engine's archetypes (vv_living_mixer.outcome_categories); each variant's own words and effects are tagged when the mixer compiles it (vv_living_mixer.variant_tags)",
+ "archetypes": {
+  "le_arc_good_01": {
+   "index": 0,
+   "filters": []
+  },
+  "le_arc_good_02": {
+   "index": 1,
+   "filters": []
+  },
+  "le_arc_good_03": {
+   "index": 2,
+   "filters": []
+  },
+  "le_arc_good_04": {
+   "index": 3,
+   "filters": []
+  },
+  "le_arc_good_05": {
+   "index": 4,
+   "filters": []
+  },
+  "le_arc_good_06": {
+   "index": 5,
+   "filters": []
+  },
+  "le_arc_good_07": {
+   "index": 6,
+   "filters": []
+  },
+  "le_arc_good_08": {
+   "index": 7,
+   "filters": []
+  },
+  "le_arc_good_09": {
+   "index": 8,
+   "filters": []
+  },
+  "le_arc_good_10": {
+   "index": 9,
+   "filters": []
+  },
+  "le_arc_mixed_01": {
+   "index": 10,
+   "filters": []
+  },
+  "le_arc_mixed_02": {
+   "index": 11,
+   "filters": []
+  },
+  "le_arc_mixed_03": {
+   "index": 12,
+   "filters": [
+    "F20"
+   ]
+  },
+  "le_arc_mixed_04": {
+   "index": 13,
+   "filters": []
+  },
+  "le_arc_mixed_05": {
+   "index": 14,
+   "filters": []
+  },
+  "le_arc_mixed_06": {
+   "index": 15,
+   "filters": []
+  },
+  "le_arc_mixed_07": {
+   "index": 16,
+   "filters": []
+  },
+  "le_arc_mixed_08": {
+   "index": 17,
+   "filters": []
+  },
+  "le_arc_mixed_09": {
+   "index": 18,
+   "filters": []
+  },
+  "le_arc_mixed_10": {
+   "index": 19,
+   "filters": []
+  },
+  "le_arc_bad_01": {
+   "index": 20,
+   "filters": []
+  },
+  "le_arc_bad_02": {
+   "index": 21,
+   "filters": []
+  },
+  "le_arc_bad_03": {
+   "index": 22,
+   "filters": [
+    "F20"
+   ]
+  },
+  "le_arc_bad_04": {
+   "index": 23,
+   "filters": []
+  },
+  "le_arc_bad_05": {
+   "index": 24,
+   "filters": []
+  },
+  "le_arc_bad_06": {
+   "index": 25,
+   "filters": []
+  },
+  "le_arc_bad_07": {
+   "index": 26,
+   "filters": []
+  },
+  "le_arc_bad_08": {
+   "index": 27,
+   "filters": []
+  },
+  "le_arc_bad_09": {
+   "index": 28,
+   "filters": []
+  },
+  "le_arc_bad_10": {
+   "index": 29,
+   "filters": []
+  },
+  "le_arc_rare_01": {
+   "index": 30,
+   "filters": [
+    "F04",
+    "F19"
+   ]
+  },
+  "le_arc_rare_02": {
+   "index": 31,
+   "filters": [
+    "F03",
+    "F05",
+    "F08"
+   ]
+  },
+  "le_arc_rare_03": {
+   "index": 32,
+   "filters": [
+    "F13"
+   ]
+  },
+  "le_arc_rare_04": {
+   "index": 33,
+   "filters": []
+  },
+  "le_arc_rare_05": {
+   "index": 34,
+   "filters": []
+  },
+  "le_arc_rare_06": {
+   "index": 35,
+   "filters": []
+  },
+  "le_arc_rare_07": {
+   "index": 36,
+   "filters": []
+  },
+  "le_arc_rare_08": {
+   "index": 37,
+   "filters": []
+  }
+ }
+}

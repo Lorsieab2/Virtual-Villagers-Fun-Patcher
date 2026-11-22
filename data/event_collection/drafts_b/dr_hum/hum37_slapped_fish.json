@@ -1,0 +1,89 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Slapped by a Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum37_slapped_fish",
+  "source": "draft_hum",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L449",
+    "kind": "sensitivity",
+    "before": "One of the fishers hands",
+    "after": "(fisher), one of the fishers, hands",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager shows off a big fish and gets slapped by its tail: bow to the fish, or dive after it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has caught a big, lively fish, and, with everyone on the beach watching, holds it up to show it off. The fish has opinions about this. It gives one great flap of its tail, slaps (subject) smartly across the cheek, slips out of (subject.his/her) hands, and flops neatly back into the sea.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Bow to the Fish",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Dive After It",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) watches it swim away, touches (subject.his/her) wet cheek, and gives a small, respectful bow to the waves. \"Fair,\" (subject.he/she) says. The watching fishers agree that this is the most dignified response to being slapped by a fish that any of them has ever seen.",
+   "src": "L446"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) dives in after it. The fish is long gone. (subject.He/she) comes up spluttering, with a crown of seaweed on (subject.his/her) head, and the whole beach cheers. (fisher), one of the fishers, hands (subject.him/her) a smaller fish from the day's catch, \"to make up for it.\"",
+   "src": "L449"
+  }
+ }
+}

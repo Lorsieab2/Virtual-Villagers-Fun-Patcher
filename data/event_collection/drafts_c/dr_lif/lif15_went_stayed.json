@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The One Who Went and the One Who Stayed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif15_went_stayed",
+  "source": "draft_lif",
+  "lines": [
+   170,
+   179
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L170",
+  "ledger": [
+   {
+    "src": "L171",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults of about the same age, 40 or older)"
+   }
+  ],
+  "description": "Two villagers, one who traveled and one who stayed, compare their lives: admit their envy, or tell the best parts.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are about the same age. (subject) spent years going on every long journey the village made: inland, along the coast, out to the far islands. (friend) stayed home, raised a garden and helped raise half the children in the village. Tonight, at the fire, they've started comparing lives.",
+   "src": "L173",
+   "choices": [
+    {
+     "label": "Admit You Envy Each Other",
+     "next": "o1",
+     "src": "L175"
+    },
+    {
+     "label": "Tell Each Other the Best Parts",
+     "next": "o2",
+     "src": "L178"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I always envied you,\" says (subject). \"You have a real home. Everyone knows you.\" (friend) stares. \"I envied YOU. You've seen everything.\" They look at each other for a long moment. Then they both start laughing. \"So we both got it wrong,\" says (subject). \"Or both got it right,\" says (friend). They don't decide which. They talk until the fire goes out.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L176"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L176"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I always envied you,\" says (subject). \"You have a real home. Everyone knows you.\" (friend) stares. \"I envied YOU. You've seen everything.\" They look at each other for a long moment. Then they both start laughing. \"So we both got it wrong,\" says (subject). \"Or both got it right,\" says (friend). They don't decide which. They talk until the fire goes out.",
+   "src": "L176"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They take turns telling the best parts. (subject) tells about a beach of black sand and a bird with a voice like a flute. (friend) tells about the night every child in the village sang (friend.him/her) a song when (friend.he/she) was sick. Neither of them would swap. Both of them are glad the other one did it their way.",
+   "src": "L179",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L179"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L179"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "They take turns telling the best parts. (subject) tells about a beach of black sand and a bird with a voice like a flute. (friend) tells about the night every child in the village sang (friend.him/her) a song when (friend.he/she) was sick. Neither of them would swap. Both of them are glad the other one did it their way.",
+   "src": "L179"
+  }
+ }
+}

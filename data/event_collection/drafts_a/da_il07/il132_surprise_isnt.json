@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Surprise That Isn't",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il132_surprise_isnt",
+  "source": "da_il07",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has planned a surprise meal for a friend, and on the morning of it the friend says they cannot wait.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has spent days secretly planning a little surprise meal for (friend): (friend.his/her) favorite fish, a bowl of the sweet berries (friend.he/she) loves, and a few friends. Today, the morning of the surprise, (friend) says casually, \"Can't wait for tonight!\" (subject) freezes.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Act as Though Nothing's Planned",
+     "next": "a",
+     "src": "L145"
+    },
+    {
+     "label": "Admit It's Been Found Out",
+     "next": "b",
+     "src": "L148"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"How did you find out?\" (subject) groans. (friend) points at (subject)'s hut, where the berries are clearly visible in a bowl by the door. \"I wasn't snooping, I promise. They were just... there.\" The meal is lovely anyway. Next time, (subject) decides, (subject.he/she) will hide the berries somewhere better.",
+   "src": "L149"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Tonight? What's tonight?\" says (subject), very badly. (friend) grins. That evening (friend) walks in, gasps, puts (friend.his/her) hands to (friend.his/her) face and says \"A SURPRISE? For ME?\" in the worst acting anyone has ever seen. Everybody laughs. The berries are excellent.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L146"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Tonight? What's tonight?\" says (subject), very badly. (friend) grins. That evening (friend) walks in, gasps, puts (friend.his/her) hands to (friend.his/her) face and says \"A SURPRISE? For ME?\" in the worst acting anyone has ever seen. Everybody laughs. The berries are excellent.",
+   "src": "L146"
+  }
+ }
+}

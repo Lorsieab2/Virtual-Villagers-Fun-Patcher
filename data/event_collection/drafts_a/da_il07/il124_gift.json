@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il124_gift",
+  "source": "da_il07",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A friend proudly gives a villager a lumpy carved bowl with a turtle on it that is not much like a turtle.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) has carved (subject) a bowl, and (friend.he/she) is so proud of it. It's lumpy. It's lopsided. It has a face on the side that (friend) says is a turtle and (subject) is fairly sure is not a turtle. (friend) is watching (subject.him/her) expectantly.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Thank (friend.him/her) Warmly",
+     "next": "a",
+     "src": "L49"
+    },
+    {
+     "label": "Ask About the Turtle",
+     "next": "b",
+     "src": "L52"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"You made this for me?\" says (subject). \"Thank you.\" And (subject.he/she) means it, which surprises (subject.him/her) a little. (subject.He/She) uses the bowl for fruit, and every time (subject.he/she) looks at the not-quite-turtle, (subject.he/she) thinks of (friend) carving it with (friend.his/her) tongue sticking out. After a while the bowl stops looking lopsided and just looks like (friend).",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"You made this for me?\" says (subject). \"Thank you.\" And (subject.he/she) means it, which surprises (subject.him/her) a little. (subject.He/She) uses the bowl for fruit, and every time (subject.he/she) looks at the not-quite-turtle, (subject.he/she) thinks of (friend) carving it with (friend.his/her) tongue sticking out. After a while the bowl stops looking lopsided and just looks like (friend).",
+   "src": "L50"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Tell me about the turtle,\" says (subject). (friend) explains that it's a turtle who has just heard a very funny joke. (subject) looks again. It's still not much like a turtle. But now that (subject.he/she) knows about the joke, (subject.he/she) can see it perfectly: a creature that's about to laugh. (subject.He/She) puts it in pride of place.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"Tell me about the turtle,\" says (subject). (friend) explains that it's a turtle who has just heard a very funny joke. (subject) looks again. It's still not much like a turtle. But now that (subject.he/she) knows about the joke, (subject.he/she) can see it perfectly: a creature that's about to laugh. (subject.He/She) puts it in pride of place.",
+   "src": "L53"
+  }
+ }
+}

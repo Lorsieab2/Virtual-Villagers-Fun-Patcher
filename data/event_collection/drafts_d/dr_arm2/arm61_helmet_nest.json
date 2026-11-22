@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Helmet Nest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm61_helmet_nest",
+  "source": "draft_arm2",
+  "lines": [
+   25,
+   25
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L25",
+  "ledger": [
+   {
+    "src": "L25",
+    "kind": "structural",
+    "text": "61. The Helmet Nest  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L25",
+    "kind": "sensitivity",
+    "before": "The keeper decides",
+    "after": "The keeper, (name1), decides",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A seabird builds a nest inside a ceremonial helmet left on a high shelf.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "A seabird builds a nest inside a ceremonial helmet left on a high shelf. The keeper, (name1), decides the festival can do without the helmet this season.",
+   "src": "L25"
+  }
+ }
+}

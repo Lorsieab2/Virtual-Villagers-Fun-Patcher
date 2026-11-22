@@ -1,0 +1,119 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Needs Quiet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss005_child_needs",
+  "source": "companion",
+  "lines": [
+   6113,
+   6121
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6113",
+  "ledger": [
+   {
+    "src": "L6121",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child covers their ears during a crowded feast and retreats behind a hut.",
+  "cast_only": [
+   "child",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child covers their ears during a crowded feast and retreats behind a hut. Several adults assume the child is being rude.",
+   "src": "L6114",
+   "choices": [
+    {
+     "label": "Offer a quiet place",
+     "next": "a",
+     "src": "L6115"
+    },
+    {
+     "label": "Ask what bothered them",
+     "next": "b",
+     "src": "L6117"
+    },
+    {
+     "label": "Respect their wish to leave",
+     "next": "c",
+     "src": "L6119"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The child returns later and enjoys a smaller gathering with a trusted friend.",
+   "src": "L6116"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They describe the pounding drums; next feast, they choose a seat farther away.",
+   "src": "L6118"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "The child spends the evening carving a little boat, happy without joining the crowd.",
+   "src": "L6120",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L6120"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "The child spends the evening carving a little boat, happy without joining the crowd.",
+   "src": "L6120"
+  }
+ }
+}

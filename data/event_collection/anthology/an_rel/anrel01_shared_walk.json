@@ -1,0 +1,281 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Shared Walk",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anrel01_shared_walk",
+  "source": "anthology",
+  "lines": [
+   27017,
+   27030
+  ],
+  "section": "an_rel",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_rel",
+  "title_src": "L27017",
+  "ledger": [
+   {
+    "src": "L27018",
+    "kind": "sensitivity",
+    "before": "Two villagers aged 14-17",
+    "after": "(teen1) and (teen2)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27027",
+    "kind": "sensitivity",
+    "before": "The recipient",
+    "after": "(teen2)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two villagers aged 14-17 enjoy spending time together and wonder whether their friendship might be romantic.",
+  "label_case": "title",
+  "cast_only": [
+   "teen1",
+   "teen2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen1": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "teen2": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17,
+   "max_age_gap": {
+    "role": "teen1",
+    "years": 2
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(teen1) and (teen2) enjoy spending time together and wonder whether their friendship might be romantic.",
+   "src": "L27018",
+   "choices": [
+    {
+     "label": "Let Them Talk Privately",
+     "next": "a",
+     "src": "L27019"
+    },
+    {
+     "label": "Invite a Small Group Outing",
+     "next": "b",
+     "src": "L27022"
+    },
+    {
+     "label": "Write a Kind Note",
+     "next": "c",
+     "src": "L27025"
+    },
+    {
+     "label": "Give the Friendship Time",
+     "next": "d",
+     "src": "L27028"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They realize they prefer friendship and continue their usual games.",
+   "src": "L27021"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They find it easier to talk while walking with friends.",
+   "src": "L27023"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The busy gathering makes them shy, so they postpone the conversation.",
+   "src": "L27024"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(teen2) answers kindly that the feelings are not mutual.",
+   "src": "L27027"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Their affection grows gradually without pressure.",
+   "src": "L27029"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "They discover they share a gentle crush and agree to spend more time together.",
+   "src": "L27020",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27020"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27020"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "They discover they share a gentle crush and agree to spend more time together.",
+   "src": "L27020"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The note is welcomed and kept as a happy memory.",
+   "src": "L27026",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27026"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27026"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The note is welcomed and kept as a happy memory.",
+   "src": "L27026"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They remain close friends and feel relieved not to rush.",
+   "src": "L27030",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen1",
+     "mood": "good",
+     "src": "L27030"
+    },
+    {
+     "do": "mood",
+     "role": "teen2",
+     "mood": "good",
+     "src": "L27030"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "They remain close friends and feel relieved not to rush.",
+   "src": "L27030"
+  }
+ }
+}

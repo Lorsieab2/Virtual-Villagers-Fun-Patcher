@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Honey Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon46_honey_tree",
+  "source": "draft_hon",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has a secret wild honey tree, and a friend spots honey on their chin: tell them about it, or say it was breakfast.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Deep in the forest, (subject) has found a hollow tree full of wild honey. Wild honey is rare, and the whole village loves it. (subject) has been going there alone all week, taking a little at a time, and hasn't mentioned it to anyone. Today (friend) notices a smear of honey on (subject.his/her) chin.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Tell (friend) About the Tree",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Say It Was Breakfast",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Breakfast,\" says (subject). \"We didn't have honey at breakfast,\" says (friend). \"...A private breakfast.\" (friend) lets it go. But the next day (friend) quietly follows (subject.him/her) into the forest, and the day after that there are two villagers with honey on their chins. Then three. By the end of the week everybody knows, and the tree is very nearly empty.",
+   "src": "L557"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"There's a honey tree,\" (subject) admits. \"I've been keeping it to myself.\" (friend) wipes (subject.his/her) chin for (subject.him/her). \"How much is there?\" \"Lots.\" That evening (subject) tells the village, and the honey is shared at the next feast. (subject) gets the first spoonful, since (subject.he/she) found it. It tastes every bit as good as the secret ones did.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true,
+     "src": "L554"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"There's a honey tree,\" (subject) admits. \"I've been keeping it to myself.\" (friend) wipes (subject.his/her) chin for (subject.him/her). \"How much is there?\" \"Lots.\" That evening (subject) tells the village, and the honey is shared at the next feast. (subject) gets the first spoonful, since (subject.he/she) found it. It tastes every bit as good as the secret ones did.",
+   "src": "L554"
+  }
+ }
+}

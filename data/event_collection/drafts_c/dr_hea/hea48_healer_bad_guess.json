@@ -1,0 +1,136 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer's Bad Guess",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea48_healer_bad_guess",
+  "source": "draft_hea",
+  "lines": [
+   575,
+   584
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L575",
+  "ledger": [
+   {
+    "src": "L576",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer or elder and an adult)"
+   }
+  ],
+  "description": "A healer finds the thorn they missed in a villager's swollen foot: say they missed it, or take it out and explain.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) came in a few days ago with a painful, swollen foot. (subject) the healer was fairly sure it was a sprain and told (friend.him/her) to rest it. It isn't getting better. Today (subject) looks again, more carefully, and finds a tiny thorn deep under the skin that (subject.he/she) missed the first time.",
+   "src": "L578",
+   "choices": [
+    {
+     "label": "Say (subject.he/she) Missed It",
+     "next": "o1",
+     "src": "L580"
+    },
+    {
+     "label": "Take It Out and Explain",
+     "next": "o2",
+     "src": "L583"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I missed this,\" says (subject). \"I should have looked closer. I'm sorry you've had three bad days because of it.\" (subject.He/she) takes the thorn out. (friend) winces, then breathes out. \"Three days of resting for nothing,\" (friend.he/she) says. \"Not for nothing,\" says (subject). \"But not for the reason I said.\" The foot is better in two days. (subject) looks very closely at feet for a long time after.",
+   "src": "L581",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 15,
+     "max": 30,
+     "src": "L581"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I missed this,\" says (subject). \"I should have looked closer. I'm sorry you've had three bad days because of it.\" (subject.He/she) takes the thorn out. (friend) winces, then breathes out. \"Three days of resting for nothing,\" (friend.he/she) says. \"Not for nothing,\" says (subject). \"But not for the reason I said.\" The foot is better in two days. (subject) looks very closely at feet for a long time after.",
+   "src": "L581"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) takes the thorn out first, carefully, while (friend) grips the bed. Then (subject.he/she) explains: (subject.he/she) guessed wrong, and the resting didn't hurt, but it didn't help either. (friend) is quiet. \"I'm glad you found it,\" (friend.he/she) says eventually. \"Next time, look harder.\" \"I will,\" says (subject). There's no argument in it. It's fair.",
+   "src": "L584",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 15,
+     "max": 30,
+     "src": "L584"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) takes the thorn out first, carefully, while (friend) grips the bed. Then (subject.he/she) explains: (subject.he/she) guessed wrong, and the resting didn't hurt, but it didn't help either. (friend) is quiet. \"I'm glad you found it,\" (friend.he/she) says eventually. \"Next time, look harder.\" \"I will,\" says (subject). There's no argument in it. It's fair.",
+   "src": "L584"
+  }
+ }
+}

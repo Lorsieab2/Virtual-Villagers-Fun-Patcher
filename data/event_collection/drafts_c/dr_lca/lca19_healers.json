@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healers' Encouragement",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca19_healers",
+  "source": "draft_lca",
+  "lines": [
+   264,
+   275
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L264",
+  "ledger": [
+   {
+    "src": "L265",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer and an adult)"
+   },
+   {
+    "src": "L271",
+    "kind": "instruction",
+    "text": "[effect: (name1) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L271",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L275",
+    "kind": "instruction",
+    "text": "[effect: (name1) gains health; small Healing skill for (name2)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L275",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The healers are worn out after a long sickness: sing for them, or take over their chores for a while.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fever has gone through the village, and for ten days (subject) and the other healers have barely slept. The sick are recovering now, but (subject) fell asleep standing up this morning and nearly walked into the stream. (friend) thinks the village should do something to thank the healers. What should they do?",
+   "src": "L267",
+   "choices": [
+    {
+     "label": "Sing for the Healers",
+     "next": "o1",
+     "src": "L269"
+    },
+    {
+     "label": "Take Over Their Chores",
+     "next": "o2",
+     "src": "L273"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village gathers outside the healers' hut at sunset and sings the old song of thanks. (subject) comes out, blinking, and listens with (subject.his/her) arms around the other healers. Then (subject.he/she) goes straight back in and sleeps for a whole day and a half.",
+   "src": "L271",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 30,
+     "src": "L271"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) organizes the village to do the healers' chores: fetching water, cooking, tending their gardens, even washing their bandages. It is not glamorous, and (friend)'s hands are raw by the end of the week. But the healers rest, and that is the point.",
+   "src": "L275",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 30,
+     "src": "L275"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L275"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

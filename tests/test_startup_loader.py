@@ -156,6 +156,13 @@ def selections(game: str) -> dict[str, list[str]]:
     return out
 
 
+# The window's numbers every build here is published with: each 0.1x-10x slider moved off 1x (at 1x its third-word
+# companion installs nothing, native/shared/slider_scale.h) and Hungrier Villagers at a multiplier whose 2 x N is not
+# whole food, which only "VVFP Meal Scale.dll" carries (vfp.meal_in_bytes).
+SLIDERS_MOVED_TO = 2
+MEAL_MULTIPLIER = 0.3
+
+
 @lru_cache(maxsize=None)
 def published(game: str, mode: str, selection: tuple[str, ...], loader: bool = True):
     """The executable as the patcher publishes it, and the files beside it.
@@ -164,7 +171,7 @@ def published(game: str, mode: str, selection: tuple[str, ...], loader: bool = T
     data, applied = vfp.render_patched_bytes(stock_path(game), build, mode, list(selection))
     features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(build, list(selection)))
     if loader:
-        vfp._finalize_published_bytes(data, build, features, applied)
+        vfp._finalize_published_bytes(data, build, features, applied, meal_multiplier=MEAL_MULTIPLIER)
     elif game not in vfp.NAME_CRASH_IMMUNITY_EXEMPT_BUILD_IDS:
         vfp._require_name_crash_immunity(data, build.input_name, applied)
     shipped = {}
@@ -175,6 +182,39 @@ def published(game: str, mode: str, selection: tuple[str, ...], loader: bool = T
                     continue
                 shipped[item["destination"]] = ROOT / item["source"]
     return bytes(data), shipped, tuple(f.id for f in features)
+
+
+@lru_cache(maxsize=None)
+def folder_files(game: str, selection: tuple[str, ...]) -> dict[str, bytes]:
+    """The files other than DLLs the patcher puts in the game folder when it publishes this selection: the
+    companions' other files (pictures in Images), and what the patcher writes beside them -- the third word in
+    "VVFP More Companions.txt", each slider's number, Hungrier Villagers' and Village Solidarity's ... -- by its own
+    writers, with the sliders at SLIDERS_MOVED_TO and meals at MEAL_MULTIPLIER: path in the game folder -> bytes."""
+    import tempfile
+    features = vfp._attach_automatic_companions(game, vfp._selected_fun_patches(build_of(game), list(selection)))
+    out_files = {}
+    for feature in features:
+        for item in feature.raw.get("companion_files", []):
+            if not str(item["destination"]).lower().endswith(".dll") and (ROOT / item["source"]).is_file():
+                out_files[str(vfp._safe_companion_destination(item["destination"]))] = (ROOT / item["source"]).read_bytes()
+    saved = {slider.key: vfp.runtime_slider_multiplier(slider.key) for slider in vfp.RUNTIME_SLIDERS}
+    try:
+        for slider in vfp.RUNTIME_SLIDERS:
+            vfp.set_runtime_slider_multiplier(slider.key, SLIDERS_MOVED_TO)
+        with tempfile.TemporaryDirectory() as folder:
+            out = Path(folder)
+            vfp._write_unicode_font_choice(out, features)
+            vfp._write_louder_flutes_choice(out, features)
+            vfp._write_island_frequency_choice(out, features)
+            vfp._write_runtime_slider_choices(out, features)
+            vfp._write_village_solidarity_choice(out, features)
+            vfp._write_meal_scale_choice(out, features, MEAL_MULTIPLIER)
+            vfp._write_more_companions_choice(out, features)
+            out_files.update({str(p.relative_to(out)): p.read_bytes() for p in out.rglob("*") if p.is_file()})
+            return out_files
+    finally:
+        for key, value in saved.items():
+            vfp.set_runtime_slider_multiplier(key, value)
 
 
 def started(shipped) -> set[str]:
@@ -191,10 +231,26 @@ STARTED_BY_A_COMPANION = {"VVFP VV1 Golden Child Safe.dll": "VVFP Speed Change T
 
 def loaded_at_winmain(shipped) -> set[str]:
     """The shipped DLLs in the process when WinMain is entered: those the loader starts, and those
-    a started companion loads and starts itself at game start (never one whose loader is missing)."""
-    first = started(shipped)
+    a started companion loads and starts itself at game start (never one whose loader is missing).
+    The third word's companions are started by VVFP More Companions.dll from the number the patcher
+    writes into "VVFP More Companions.txt" at publish (folder_files): only when it is there."""
+    third = set(vfp.STARTUP_LOADER_COMPANIONS_3)
+    first = started(shipped) - third
+    if vfp.MORE_COMPANIONS_DLL in first:
+        first |= started(shipped) & third
     return first | {name for name, loader in STARTED_BY_A_COMPANION.items()
                     if name in shipped and loader in first}
+
+
+# Declared sites in the game's writable data (StaticGameData): The Tree of Life's island-event table slot 19
+# (Yellow Fruit Trees are No Longer Unlimited) and its sprite table's ten pier-hole rows (Pier Holes).
+PIER_HOLE_ROWS = tuple(0x4C1248 + 0x30 * i for i in range(10))
+STATIC_DECLARED_DATA = frozenset({("vv4", 0x4CCA74)} | {("vv4", va) for va in PIER_HOLE_ROWS})
+# A New Home's and The Lost Children's string tables, [start, end): rows {id, text, ...} (VVFP Text Fixes.dll's
+# GAMES: 0x275 rows of 0x14 bytes, 0x36C rows of 12), and the one instruction of the game that names them -- the
+# lookup's `mov edx, table` (VV1 0x433880, VV2 0x4415A0), which only reads them.
+STATIC_STRING_TABLES = {"vv1": (0x487208, 0x487208 + 0x275 * 0x14), "vv2": (0x496300, 0x496300 + 0x36C * 12)}
+STRING_TABLE_READERS = {"vv1": {0x433891}, "vv2": {0x4415B1}}
 
 
 # Rows whose companion arms its sites only when the player has chosen a language (VVFP Translations.dll
@@ -219,10 +275,12 @@ def declared_detours(feature_ids) -> list[tuple[int, bytes, str]]:
     return out
 
 
-def run(game: str, mode: str, selection, loader: bool = True, drop=()):
+def run(game: str, mode: str, selection, loader: bool = True, drop=(), swap=None):
+    """swap: shipped file name -> another file loaded in its place (a companion's TEST build)."""
     exe, shipped, features = published(game, mode, tuple(selection), loader)
-    shipped = {k: v for k, v in shipped.items() if k not in drop}
-    machine = StartupMachine(exe, build_of(game).input_name, shipped)
+    shipped = {k: (swap or {}).get(k, v) for k, v in shipped.items() if k not in drop}
+    machine = StartupMachine(exe, build_of(game).input_name, shipped,
+                             game_files=folder_files(game, tuple(selection)))
     call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
     before = {va: machine.code(va, len(stock)) for va, stock, _ in declared_detours(features)}
     result = machine.run_to_winmain(call_va, winmain)
@@ -286,9 +344,10 @@ class StartupLoaderPlacement(unittest.TestCase):
                     build_of(game), [i for i in public_ids(game) if i not in POPULATION_256]))
                 mask = vfp._startup_loader_mask(game, features)
                 mask_2 = vfp._startup_loader_mask_2(features)
-                # all but the loader, in the two words; bit 30 is the tech-point setting, not a companion
-                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1") + bin(mask_2).count("1"),
-                                 len(started(shipped)) - 1)
+                mask_3 = vfp._startup_loader_mask_3(features)
+                # all but the loader, in the three words; bit 30 is the tech-point setting, not a companion
+                self.assertEqual(bin(mask & ~vfp.STARTUP_LOADER_STORY_CHARGES).count("1") + bin(mask_2).count("1")
+                                 + bin(mask_3).count("1"), len(started(shipped)) - 1)
                 # Check logs automatically is on by default: bit 31 rides with the companion bits.
                 block = vfp._startup_loader_block(va, int(game[2]), mask | vfp.STARTUP_LOADER_CHECK_LOGS,
                                                   slots[b"GetModuleHandleA"], slots[b"GetProcAddress"],
@@ -356,6 +415,7 @@ class StartupLoaderPlacement(unittest.TestCase):
         source = (ROOT / "native" / "vvfp_startup" / "vvfp_startup.c").read_text(encoding="utf-8")
         source += (ROOT / "native" / "shared" / "startup_companions.h").read_text(encoding="utf-8")
         source += (ROOT / "native" / "shared" / "startup_companions_2.h").read_text(encoding="utf-8")
+        source += (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
         named = set(re.findall(r'"(VVFP [^"]+\.dll)"', source))
         shipped = {str(item["destination"]) for p in vfp.load_fun_patches()
                    for item in p.raw.get("companion_files", [])
@@ -479,13 +539,19 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
         audit = machine.audit(stock_path(game).read_bytes(), vfp.STARTUP_LOADER_WINMAIN_CALL[game][1])
         call_va = vfp.STARTUP_LOADER_WINMAIN_CALL[game][0]
         audit["game_code_run"] = [a for a in audit["game_code_run"] if a[1] != f"{call_va:#x}"]
-        # A selected row's own declared site in the game's writable data -- only The Tree of Life's island-event
-        # table slot 19 (0x4CCA74), empty in the stock game, which Yellow Fruit Trees are No Longer Unlimited
-        # fills with its event object -- is verified and written like any code site (unverified_writes still
-        # catches a write nothing read first).  Every other access to the game's data stays forbidden.
+        # A selected row's own declared site in the game's writable data that holds the same bytes from the file
+        # until the game reads it (StaticGameData proves each one) is verified and written like any code site
+        # (unverified_writes still catches a write nothing read first): The Tree of Life's island-event table
+        # slot 19 (0x4CCA74), empty in the stock game, which Yellow Fruit Trees are No Longer Unlimited fills with
+        # its event object, and its sprite table's ten pier-hole rows (Fix Vanilla Bugs' Pier Holes).
         declared_data = {va + i for va, stock, _ in declared_detours(features) for i in range(len(stock))
-                         if va == 0x4CCA74 and game == "vv4"}
-        audit["game_data"] = [a for a in audit["game_data"] if int(a[1], 16) not in declared_data]
+                         if (game, va) in STATIC_DECLARED_DATA}
+        # A New Home's and The Lost Children's string tables (STATIC_STRING_TABLES): VVFP Text Fixes.dll reads
+        # their rows and points a row at its fixed text; StaticGameData proves the game never writes them.
+        # Every other access to the game's data stays forbidden.
+        lo, hi = STATIC_STRING_TABLES.get(game, (0, 0))
+        audit["game_data"] = [a for a in audit["game_data"] if int(a[1], 16) not in declared_data
+                              and not (lo <= int(a[1], 16) < hi and a[3] == "VVFP Text Fixes.dll")]
         for key in ("game_data", "game_code_run", "unverified_writes", "writable_data"):
             self.assertEqual(audit[key], [], f"{key}: {audit[key][:5]}")
         # The quit hook: in place with the Origins companion, never without.
@@ -509,6 +575,80 @@ class EveryCompanionArmsBeforeWinMain(unittest.TestCase):
                 for name, selection in selections(game).items():
                     with self.subTest(game=game, mode=mode, selection=name):
                         self.check(game, mode, name, selection)
+
+
+def code_naming(exe: Path, lo: int, hi: int) -> list[tuple[int, str, str]]:
+    """Every instruction of the executable's code that names an address in [lo, hi) as a 32-bit operand (an
+    immediate or a displacement): (address, mnemonic, operands)."""
+    import capstone
+    md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+    pe = pefile.PE(str(exe))
+    image = pe.get_memory_mapped_image(ImageBase=0x400000)
+    out = []
+    for s in pe.sections:
+        if not s.Characteristics & 0x20000000:
+            continue
+        code = image[s.VirtualAddress:s.VirtualAddress + s.Misc_VirtualSize]
+        for k in range(len(code) - 3):
+            value = struct.unpack_from("<I", code, k)[0]
+            if not lo <= value < hi:
+                continue
+            for back in range(1, 8):
+                ins = next(md.disasm(code[k - back:k - back + 16], 0x400000 + s.VirtualAddress + k - back), None)
+                if ins is not None and ins.size >= back + 4 and hex(value) in ins.op_str:
+                    out.append((ins.address, ins.mnemonic, ins.op_str))
+                    break
+    return out
+
+
+@unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
+class StaticGameData(unittest.TestCase):
+    """The game data a companion reads before WinMain (EveryCompanionArmsBeforeWinMain allows only these) holds
+    the bytes the loader maps from the file: the C runtime and the game write none of them before WinMain, so the
+    install-time guard checks see what the game will see.
+
+    * A New Home's and The Lost Children's string tables (VVFP Text Fixes.dll; VVFP Translations.dll with a
+      language): initialised in the file, every row a text pointer into the image, and named by one instruction
+      of the game -- the lookup's `mov reg, table`, which only reads it.  Nothing else of the game names them.
+    * The Tree of Life's declared data sites: each holds its declared stock bytes in the file.  The pier-hole rows
+      are entries of the sprite table 0x4C07C8, filled from the file and first written by the game's registry on a
+      sprite's first use (after WinMain); island-event slot 19 (0x4CCA74) is the one slot the game's table set-up
+      never writes (no instruction names it)."""
+
+    def test_the_string_tables_are_only_read(self):
+        for game, (lo, hi) in STATIC_STRING_TABLES.items():
+            with self.subTest(game=game):
+                pe = pefile.PE(str(stock_path(game)))
+                image = pe.get_memory_mapped_image(ImageBase=0x400000)
+                section = next(s for s in pe.sections
+                               if s.VirtualAddress <= lo - 0x400000 < s.VirtualAddress + s.Misc_VirtualSize)
+                self.assertTrue(section.Characteristics & 0x80000000)              # writable data
+                self.assertLessEqual(hi - 0x400000, section.VirtualAddress + section.SizeOfRawData)   # from the file
+                stride = (hi - lo) // {"vv1": 0x275, "vv2": 0x36C}[game]
+                for row in range(lo, hi, stride):
+                    text = struct.unpack_from("<I", image, row - 0x400000 + 4)[0]
+                    self.assertTrue(0x400000 <= text < 0x400000 + len(image), f"row {row:#x}")
+                    self.assertIn(b"\0", image[text - 0x400000:text - 0x400000 + 4096])
+                naming = code_naming(stock_path(game), lo, hi)
+                self.assertEqual({address for address, _, _ in naming}, STRING_TABLE_READERS[game], naming)
+                for _, mnemonic, operands in naming:
+                    self.assertEqual(mnemonic, "mov")
+                    self.assertNotIn("[", operands)                                 # loads the address only
+
+    def test_the_declared_data_sites_hold_the_files_bytes(self):
+        pier_holes = sorted(int(str(d["va"]), 0) for f in catalog().values() if f.game_id == "vv4"
+                            for d in f.raw.get("runtime_detours", []) or []
+                            if str(d.get("installed_by", "")).startswith("VVFP VV4 Pier Holes.dll"))
+        self.assertEqual(tuple(pier_holes), PIER_HOLE_ROWS)
+        pe = pefile.PE(str(stock_path("vv4")))
+        image = pe.get_memory_mapped_image(ImageBase=0x400000)
+        declared = {int(str(d["va"]), 0): bytes.fromhex(d["stock_bytes"]) for f in catalog().values()
+                    if f.game_id == "vv4" for d in f.raw.get("runtime_detours", []) or []}
+        for game, va in sorted(STATIC_DECLARED_DATA):
+            with self.subTest(va=hex(va)):
+                stock = declared[va]
+                self.assertEqual(image[va - 0x400000:va - 0x400000 + len(stock)], stock)
+        self.assertEqual(code_naming(stock_path("vv4"), 0x4CCA74, 0x4CCA78), [])
 
 
 @unittest.skipUnless(STOCK_PRESENT, STOCK_ABSENT)
@@ -599,7 +739,7 @@ class OnlyThisBuildsCompanions(unittest.TestCase):
     def run_with_stale(self, game, selection, stale):
         exe, shipped, features = published(game, "collection_progression", tuple(selection))
         folder = dict(shipped, **{name: ROOT / source for name, source in stale.items()})
-        machine = StartupMachine(exe, build_of(game).input_name, folder)
+        machine = StartupMachine(exe, build_of(game).input_name, folder, game_files=folder_files(game, tuple(selection)))
         call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
         machine.run_to_winmain(call_va, winmain)
         return machine, shipped
@@ -861,7 +1001,7 @@ class DeepInstallFolders(unittest.TestCase):
             folder = "C:\\" + "d" * (length - 4) + "\\"
             self.assertEqual(len(folder), length)
             with self.subTest(folder_length=length):
-                machine = StartupMachine(exe, name, shipped, game_dir=folder)
+                machine = StartupMachine(exe, name, shipped, game_dir=folder, game_files=folder_files(game, selection))
                 call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
                 result = machine.run_to_winmain(call_va, winmain)
                 self.assertEqual(result["registers_at_winmain"], result["registers_before"])
@@ -903,8 +1043,8 @@ class AUnicodeGameFolder(unittest.TestCase):
                     continue
                 with self.subTest(game=game, selection=name):
                     exe, shipped, features = published(game, "collection_progression", tuple(selection))
-                    machine = StartupMachine(exe, build_of(game).input_name, shipped,
-                                             game_dir=UNICODE_FOLDER)
+                    machine = StartupMachine(exe, build_of(game).input_name, shipped, game_dir=UNICODE_FOLDER,
+                                             game_files=folder_files(game, tuple(selection)))
                     call_va, winmain = vfp.STARTUP_LOADER_WINMAIN_CALL[game]
                     before = {va: machine.code(va, len(stock)) for va, stock, _ in declared_detours(features)}
                     result = machine.run_to_winmain(call_va, winmain)

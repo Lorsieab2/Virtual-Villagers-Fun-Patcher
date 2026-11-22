@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everywhere (name1) Goes",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day06_everywhere_goes",
+  "source": "draft_day",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers keep bumping into each other all day by accident: spend the rest of the day together, or go opposite ways.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "This morning (subject) bumped into (friend) at the stream. Then at the gardens. Then at the storehouse. Then at the cooking fire, the beach, and, somehow, behind a tree where (subject) had gone for a moment of peace. Neither of them has planned any of this. They are now standing face to face on the path for the seventh time today.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Spend the Rest of the Day Together",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Go Opposite Ways",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Well,\" says (friend), \"we might as well.\" They spend the afternoon together on purpose. It's very pleasant. Then (subject) goes to the stream for water in the evening, and (friend) is not there, and (subject) is surprised to feel a little disappointed.",
+   "src": "L74"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They laugh and deliberately walk off in opposite directions. Half an hour later, having walked all the way round the village, they meet again at the far end of the beach. Neither says a word. They just sit down on the sand together, defeated, and watch the sea.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L77"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L77"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "They laugh and deliberately walk off in opposite directions. Half an hour later, having walked all the way round the village, they meet again at the far end of the beach. Neither says a word. They just sit down on the sand together, defeated, and watch the sea.",
+   "src": "L77"
+  }
+ }
+}

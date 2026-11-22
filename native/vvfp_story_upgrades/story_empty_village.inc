@@ -196,10 +196,15 @@ static int __cdecl ce_trigger_bypass(int game, int count, void *scene, void *cou
     ce_dead_first = 0;
     /* A New Home, The Lost Children: a village's first island event is the game's own visitor
        (0x42382C, 0x42EF3C).  A player's own event comes first: the trigger goes on past that check
-       for it, uncounted, so the visitor is still the village's first island event after it. */
-    if ((game == 1 || game == 2) && ce_first_before == game && ce_pending(game) && !ce_armed_is_notice) {
+       for it, uncounted, so the visitor is still the village's first island event after it.  A
+       question goes on just before the family roll instead (CE_DEAD_GO): that roll sends it to the
+       two-choice family, which asks it.  Past the check only the island-event-or-crate roll is left,
+       which sends anything but a plain event to the crate / the Mysterious Sack (live, v1.35.97: a
+       picked "The Great Coconut Debate" came as "A Mysterious Sack"). */
+    if ((game == 1 || game == 2) && ce_first_before == game && ce_pending(game)
+        && (!ce_armed_is_notice || cg_owns_armed(game))) {   /* (a branching event's later pages too) */
         ce_dead_first = game;
-        return CE_DEAD_FIRST;
+        return ce_choice_pending(game) ? CE_DEAD_GO : CE_DEAD_FIRST;
     }
     if (!ce_plain_pending(game) || ce_trigger_accepts(game, scene, count_this)) {
         return 0;
@@ -460,3 +465,10 @@ __declspec(naked) static void c5_select_stub(void) {
         ret
     }
 }
+
+#ifdef VVFP_TEST
+/* The first-event marks a trigger run leaves (test build only): ce_dead_first | ce_first_before << 8. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeFirstMarks(void) {
+    return ce_dead_first | (ce_first_before << 8);
+}
+#endif

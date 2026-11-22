@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Many Tongues",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz098_many_tongues",
+  "source": "draft_hz2",
+  "lines": [
+   222,
+   232
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L222",
+  "ledger": [
+   {
+    "src": "L223",
+    "kind": "sensitivity",
+    "before": "A scholar",
+    "after": "(Name1), a scholar,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A scholar wonders whether there might be many peoples beyond the sea, each with its own language.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a scholar, wonders whether there might be many peoples beyond the sea, each with its own language.",
+   "src": "L223",
+   "choices": [
+    {
+     "label": "Imagine Endless Languages.",
+     "next": "a",
+     "src": "L224"
+    },
+    {
+     "label": "Imagine One Shared Language.",
+     "next": "b",
+     "src": "L227"
+    },
+    {
+     "label": "Remember Isola's Own Variety.",
+     "next": "c",
+     "src": "L230"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Children invent nonsense languages and spend the afternoon \"translating.\"",
+   "src": "L225"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A teacher wonders how people who spoke different languages would ever understand each other.",
+   "src": "L226"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A scholar wonders whether distant peoples might share a common tongue for trade.",
+   "src": "L228"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An elder worries that a shared tongue might make smaller languages fade.",
+   "src": "L229"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Villagers realize that even on Isola, different villages use different words for the same fish.",
+   "src": "L231"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "A villager who signs rather than speaks points out that languages need not be spoken at all; everyone learns a new sign that evening.",
+   "src": "L232",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L232"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "A villager who signs rather than speaks points out that languages need not be spoken at all; everyone learns a new sign that evening.",
+   "src": "L232"
+  }
+ }
+}

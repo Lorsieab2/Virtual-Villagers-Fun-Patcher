@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Three Good Things Before Breakfast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day03_three_good",
+  "source": "draft_day",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "Three good things happen to a villager before breakfast: tell a friend, or wait and see what comes next.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It is barely past dawn, and already three good things have happened to (subject). (subject.He/she) found a perfect shell on the way to the water. A little bird landed on the water jar and sang. And (subject.his/her) sandal, missing for a week, turned up under a bush. (subject.He/she) hasn't even had breakfast. (subject.He/she) is almost nervous about it.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Wait and See",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells (friend) all three. (friend) is impressed. \"What's the fourth?\" (subject) had not thought about a fourth. All day (subject.he/she) keeps an eye out. There isn't one. It's an ordinary day after that. (subject) decides three was plenty, and that being greedy about good things is how you stop noticing them.",
+   "src": "L38"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) eats breakfast quietly, waiting. Nothing else happens. The day is ordinary from then on: a bit of work, a bit of rest, an ordinary dinner. That evening (subject.he/she) sits with the shell in (subject.his/her) hand and thinks that three good things before breakfast and nothing after is not a bad way to spend a day.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) eats breakfast quietly, waiting. Nothing else happens. The day is ordinary from then on: a bit of work, a bit of rest, an ordinary dinner. That evening (subject.he/she) sits with the shell in (subject.his/her) hand and thinks that three good things before breakfast and nothing after is not a bad way to spend a day.",
+   "src": "L41"
+  }
+ }
+}

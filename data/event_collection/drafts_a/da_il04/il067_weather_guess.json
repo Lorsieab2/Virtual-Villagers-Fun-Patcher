@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weather Guess",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il067_weather_guess",
+  "source": "da_il04",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il04",
+  "credit": "NEW EVENTS — INNER LIFE, PART IV (61-80, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il04",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager guesses the weather out loud every morning, and today a friend says the guess is wrong.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Every morning, before (subject.he/she) has even sat up, (subject) guesses the weather out loud. \"Sunny, with a little wind after lunch.\" Then (subject.he/she) scratches a mark on the wall: a line if (subject.he/she) was right, a dot if (subject.he/she) was wrong. After years of this, the wall is about half lines and half dots. Today (friend) hears the guess and says, \"No. Rain by midday.\"",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Make It a Contest",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Keep the Guessing Private",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They shake on it. All morning both of them keep glancing at the sky. At midday there isn't a cloud anywhere. (subject) is very gracious about winning. Then, just after lunch, a single small cloud drifts over and drops about nine raindrops directly on (subject)'s head. They argue happily all evening about who won. The wall gets a line and a dot.",
+   "src": "L86"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) just smiles and says nothing. The day turns out sunny, with a little wind after lunch. That evening (subject.he/she) scratches a line on the wall, then, after a moment, a tiny extra mark next to it, which is (subject.his/her) private way of saying \"and (friend) was wrong.\" (subject.He/She) has never been so pleased with a mark in (subject.his/her) life.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) just smiles and says nothing. The day turns out sunny, with a little wind after lunch. That evening (subject.he/she) scratches a line on the wall, then, after a moment, a tiny extra mark next to it, which is (subject.his/her) private way of saying \"and (friend) was wrong.\" (subject.He/She) has never been so pleased with a mark in (subject.his/her) life.",
+   "src": "L89"
+  }
+ }
+}

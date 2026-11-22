@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swimming Lesson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev021_swimming",
+  "source": "companion",
+  "lines": [
+   3468,
+   3476
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3472",
+  "ledger": [
+   {
+    "src": "L3468",
+    "kind": "structural",
+    "why": "the group heading 'WATER, WEATHER AND TRAVEL'"
+   },
+   {
+    "src": "L3476",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A confident swimmer helps a nervous apprentice practice in shallow water.",
+  "cast_only": [
+   "swimmer",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "swimmer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A confident swimmer helps a nervous apprentice practice in shallow, supervised water.",
+   "src": "L3473",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They decide to try again another day.",
+   "src": "L3475"
+  },
+  "e1__fx": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The apprentice gains confidence.",
+   "src": "L3474",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "apprentice",
+     "mood": "good",
+     "src": "L3474"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The apprentice gains confidence.",
+   "src": "L3474"
+  }
+ }
+}

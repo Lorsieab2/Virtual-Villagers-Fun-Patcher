@@ -1,0 +1,196 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wall of the Ancestors",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway08_wall_ancestors",
+  "source": "living",
+  "lines": [
+   22816,
+   22830
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22816",
+  "ledger": [
+   {
+    "src": "L22830",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A ceremonial stone wall blocks the easiest route to a new garden.",
+  "cast_only": [
+   "elder",
+   "youngster"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "youngster": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A ceremonial stone wall blocks the easiest route to a new garden.",
+   "src": "L22817",
+   "choices": [
+    {
+     "label": "Preserve the wall and build around it.",
+     "next": "a",
+     "src": "L22818"
+    },
+    {
+     "label": "Move selected stones after consultation.",
+     "next": "b",
+     "src": "L22821"
+    },
+    {
+     "label": "Ask the spirits for a sign.",
+     "next": "c",
+     "src": "L22824"
+    },
+    {
+     "label": "Let young and old design a compromise.",
+     "next": "d",
+     "src": "L22827"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The new path honors a cherished landmark.",
+   "src": "L22819"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The detour costs hours of labor.",
+   "src": "L22820"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An irreplaceable carving cracks during the move.",
+   "src": "L22823"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "An unusual bird arrives, but villagers disagree about its meaning.",
+   "src": "L22825"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Nothing unusual happens, and the council must decide.",
+   "src": "L22826"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A narrow passage preserves most of the wall.",
+   "src": "L22828"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Neither side feels entirely satisfied.",
+   "src": "L22829"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The garden expands and the carvings are recorded.",
+   "src": "L22822",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22822"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The garden expands and the carvings are recorded.",
+   "src": "L22822"
+  }
+ }
+}

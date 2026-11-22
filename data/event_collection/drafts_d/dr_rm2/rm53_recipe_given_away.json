@@ -1,0 +1,245 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Recipe Given Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm53_recipe_given_away",
+  "source": "draft_rm2",
+  "lines": [
+   189,
+   202
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L189",
+  "ledger": [
+   {
+    "src": "L190",
+    "kind": "sensitivity",
+    "before": "A cook",
+    "after": "(Name1), a cook,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A cook is famous for a fish stew that everyone loves, and a young villager asks how to make it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a cook, is famous for a fish stew that everyone loves, and a young villager asks how to make it.",
+   "src": "L190",
+   "choices": [
+    {
+     "label": "Teach Every Step.",
+     "next": "a",
+     "src": "L191"
+    },
+    {
+     "label": "Write the Recipe on a Piece of Bark.",
+     "next": "b",
+     "src": "L194"
+    },
+    {
+     "label": "Invite Everyone Interested to Cook Together.",
+     "next": "c",
+     "src": "L197"
+    },
+    {
+     "label": "Keep One Small Secret but Share the Rest.",
+     "next": "d",
+     "src": "L200"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The young villager makes a good stew and credits the cook for every bite.",
+   "src": "L192"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The first try is a disaster, and the cook kindly teaches the hard parts again.",
+   "src": "L193"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The recipe is misread, and one family's stew becomes very salty indeed.",
+   "src": "L196"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Too many cooks argue over the pot, and the stew is only average.",
+   "src": "L199"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Everyone's stew is good, and the cook's is still a little better.",
+   "src": "L201"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The bark is copied and passed around, and soon many families make the stew.",
+   "src": "L195",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L195"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The bark is copied and passed around, and soon many families make the stew.",
+   "src": "L195"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The cooking lesson turns into a merry afternoon with a huge pot of stew.",
+   "src": "L198",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L198"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The cooking lesson turns into a merry afternoon with a huge pot of stew.",
+   "src": "L198"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "A curious villager guesses the secret ingredient, and the cook laughs and admits it.",
+   "src": "L202",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L202"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "A curious villager guesses the secret ingredient, and the cook laughs and admits it.",
+   "src": "L202"
+  }
+ }
+}

@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Worms Beneath the Roots",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife15_worms_beneath",
+  "source": "living",
+  "lines": [
+   20824,
+   20835
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20824",
+  "ledger": [
+   {
+    "src": "L20835",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A child claims earthworms improve the soil, while an elder insists they are pests.",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A child claims earthworms improve the soil, while an elder insists they are pests.",
+   "src": "L20825",
+   "choices": [
+    {
+     "label": "Protect the worms and compare garden plots.",
+     "next": "a",
+     "src": "L20826"
+    },
+    {
+     "label": "Remove worms from one test plot.",
+     "next": "b",
+     "src": "L20829"
+    },
+    {
+     "label": "Record observations for several seasons.",
+     "next": "c",
+     "src": "L20832"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The protected plot thrives, though rainfall may also explain the difference.",
+   "src": "L20827"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The worms disturb seedlings, and the child revises the claim.",
+   "src": "L20828"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The comparison reveals unexpected differences between beds.",
+   "src": "L20830"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The plot suffers, and the elder admits the question is unsettled.",
+   "src": "L20831"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The village gains more reliable evidence over time.",
+   "src": "L20833"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child grows impatient with results that refuse to be simple.",
+   "src": "L20834"
+  }
+ }
+}

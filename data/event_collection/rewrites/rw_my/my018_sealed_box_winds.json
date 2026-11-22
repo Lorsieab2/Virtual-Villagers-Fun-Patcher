@@ -1,0 +1,329 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sealed Box of Winds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my018_sealed_box_winds",
+  "source": "rewrites",
+  "lines": [
+   10877,
+   10932
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L10877",
+  "ledger": [
+   {
+    "src": "L10878",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10879",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10888",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10895",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10902",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10909",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10883",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10884",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10885",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10886",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10889",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10896",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10903",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10910",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10890",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10892",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10897",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10899",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10904",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10906",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10911",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10913",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10916-10932",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L10891",
+    "kind": "instruction",
+    "text": "Your villagers lose (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Whenever a storm is coming, the box hums.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Among the things a trader leaves behind, (subject) finds a small carved box, no bigger than two hands, covered in swirling lines like the patterns wind leaves on sand. Whenever a storm is coming, the box hums. A low, steady drone that can be felt in the teeth.\nBurned into the lid are a few words: 'Open when the air grows still.' The village has been arguing about it for days. Today the air is perfectly calm, and everyone is looking at (subject). What should (subject.he/she) do?",
+   "choices": [
+    {
+     "label": "Open It in Calm Weather",
+     "next": "c1",
+     "src": "L10883"
+    },
+    {
+     "label": "Wait for a Storm",
+     "next": "c2",
+     "src": "L10884"
+    },
+    {
+     "label": "Ask a Builder to Inspect It",
+     "next": "c3",
+     "src": "L10885"
+    },
+    {
+     "label": "Give It to a Traveler",
+     "next": "c4",
+     "src": "L10886"
+    }
+   ],
+   "src": "L10880-10881"
+  },
+  "c1o1": {
+   "text": "WHOOSH. A burst of wind explodes out of the box, knocking (subject) flat on (subject.his/her) back and tearing across the drying racks. Grain flies everywhere. The gulls arrive within moments, shrieking with joy, and the whole village spends the afternoon chasing grain across the sand, waving their arms at birds. Most of it is lost. The box, when (subject) finally picks it up again, is silent.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L10891"
+  },
+  "c1o2": {
+   "text": "Nothing bursts out. Inside, folded very small, is a drawing on bark: a fence of woven branches set at a careful angle, with little arrows showing the wind flowing over it and the crops behind it sitting safe and still. The builders put one up beside the gardens. When the next storm comes, the plants behind it barely stir. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10893",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "On the stillest afternoon of the season, with the whole village watching from a safe distance, (subject) lifts the little lid...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10889"
+  },
+  "c2o1": {
+   "text": "At the very height of the storm, when the wind is screaming and the huts are shaking, the box goes completely silent. Not a hum. Nothing. As if it's listening. It stays silent until the last of the wind dies down, and then, very softly, it starts humming again. (subject) doesn't sleep at all.",
+   "src": "L10898",
+   "text_only": [
+    {
+     "src": "L10898",
+     "what": "\"dies\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o2": {
+   "text": "With a sharp crack, the box splits along one side, and out pours a cloud of soft grey moths, the exact colour of storm clouds. They don't fly away. They settle on every roof in the village and sit there through the whole storm, wings folded. When the rain finally stops, they rise together and drift away over the trees. The box never hums again.",
+   "src": "L10900"
+  },
+  "c2": {
+   "text": "(subject) decides the box should be watched, not opened. When the next storm rolls in, (subject.he/she) sits up with it all night, listening to it hum louder and louder...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10896"
+  },
+  "c3o1": {
+   "text": "\"Ha! Clever,\" (friend) says, pressing a hidden panel. Inside the walls is a tiny chamber with a split reed in it, like a flute. When the air pressure drops before a storm, air is drawn through tiny holes in the carving and makes the reed hum. The builders are so taken with it that they make a few more, and soon the village has storm warnings in every hut. Your villagers gain (award) tech points.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "defer": true
+    },
+    {
+     "do": "pay_award"
+    }
+   ],
+   "src": "L10905",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "(friend) looks at it all day and finally hands it back, frowning. \"The lid is sealed tight,\" (friend.he/she) says. \"No crack, no hole, nothing for air to get in or out. It's one solid piece of wood.\" The box hums softly in (subject)'s hands, as if amused.",
+   "src": "L10907"
+  },
+  "c3": {
+   "text": "(subject) brings the box to (friend), the best builder in the village, who turns it over with clever, calloused fingers...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10903"
+  },
+  "c4o1": {
+   "text": "The traveler's eyes light up. \"I've heard of boxes like this! There's a carver far up the coast...\" The traveler promises to take it there and come back with news of its maker. (subject) waves goodbye. The traveler hasn't come back yet, but it's a long way, and (subject) still looks up the road now and then.",
+   "src": "L10912"
+  },
+  "c4o2": {
+   "text": "The traveler takes one look at the box and steps back, hands up. \"No. No, I won't touch that.\" Shaken, the traveler explains that (subject.he/she) once saw the very same box in a dream, years ago, the night before a great storm took (subject.his/her) home. The traveler leaves the village that same hour. The box hums quietly in (subject)'s hands.",
+   "src": "L10914"
+  },
+  "c4": {
+   "text": "When a traveler passes through on the way to the far shore, (subject) holds out the box. \"Maybe you know where this came from?\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10910"
+  }
+ }
+}

@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Best Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif11_best_year",
+  "source": "draft_lif",
+  "lines": [
+   122,
+   131
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L122",
+  "ledger": [
+   {
+    "src": "L123",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 35 or older and another adult)"
+   },
+   {
+    "src": "L131",
+    "kind": "sensitivity",
+    "before": "Another villager is sure",
+    "after": "(villager) is sure",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Asked for the best year of their life, a villager says the year their roof leaked: explain why, or refuse to say.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the fire, someone has asked everyone, \"What was the best year of your life?\" People are giving the expected answers: the year they married, the year a baby came, the year of the great harvest. When it's (subject)'s turn, (subject.he/she) thinks for a moment and says, \"The year my roof leaked.\"",
+   "src": "L125",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "o1",
+     "src": "L127"
+    },
+    {
+     "label": "Refuse to Explain",
+     "next": "o2",
+     "src": "L130"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Everyone wants to know why. (subject) explains: (subject.his/her) roof leaked all year, so (subject.he/she) slept at a different friend's hut every few nights. (subject.He/she) has never laughed so much, eaten so many different dinners, or heard so many stories. (subject.He/she) finally fixed the roof and was a bit sad about it. (friend) says (friend.he/she) remembers (subject) sleeping over. \"You snored,\" (friend.he/she) says. \"So did you,\" says (subject).",
+   "src": "L128"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Why?\" says everyone. (subject) just smiles. \"It was a very good year.\" (subject.He/she) won't say any more. People guess for weeks. (friend) is convinced it was a secret love affair. (villager) is sure (subject) found treasure. It was the roof. (subject) enjoys the guessing almost as much as (subject.he/she) enjoyed the year.",
+   "src": "L131",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L131"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Why?\" says everyone. (subject) just smiles. \"It was a very good year.\" (subject.He/she) won't say any more. People guess for weeks. (friend) is convinced it was a secret love affair. (villager) is sure (subject) found treasure. It was the roof. (subject) enjoys the guessing almost as much as (subject.he/she) enjoyed the year.",
+   "src": "L131"
+  }
+ }
+}

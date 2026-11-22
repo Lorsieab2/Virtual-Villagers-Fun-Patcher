@@ -1,0 +1,264 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Why Does Rain Fall?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd13_why_does_rain",
+  "source": "anthology",
+  "lines": [
+   27752,
+   27765
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27752",
+  "ledger": [
+   {
+    "src": "L27753",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27755",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27756",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27758",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27759",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27761",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27762",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27764",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27765",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child watches water fall from clouds and asks where it came from.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) watches water fall from clouds and asks where it came from.",
+   "src": "L27753",
+   "choices": [
+    {
+     "label": "Explain Evaporation and Condensation.",
+     "next": "a",
+     "src": "L27754"
+    },
+    {
+     "label": "Explore Puddles.",
+     "next": "b",
+     "src": "L27757"
+    },
+    {
+     "label": "Share a Rain Legend.",
+     "next": "c",
+     "src": "L27760"
+    },
+    {
+     "label": "Admit What Remains Uncertain.",
+     "next": "d",
+     "src": "L27763"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) wonders why some clouds produce no rain.",
+   "src": "L27756"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) watches a puddle shrink after sunshine.",
+   "src": "L27758"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(child) learns that water can move without disappearing forever.",
+   "src": "L27759"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder) tells a beloved story and calls it a legend.",
+   "src": "L27761"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) compares the story with a natural explanation.",
+   "src": "L27762"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult) explains what is known and what is still hard to predict.",
+   "src": "L27764"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) begins recording rainy and clear days.",
+   "src": "L27765"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(child) follows water from sea to cloud to rain in a simple lesson.",
+   "src": "L27755",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "child",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L27755"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(child) follows water from sea to cloud to rain in a simple lesson.",
+   "src": "L27755"
+  }
+ }
+}

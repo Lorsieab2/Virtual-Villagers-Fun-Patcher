@@ -1,0 +1,296 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Beggar Who Returned as a King",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my070_beggar_returned",
+  "source": "rewrites",
+  "lines": [
+   13935,
+   13989
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13935",
+  "ledger": [
+   {
+    "src": "L13936",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13937",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13951",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13958",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13965",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13939",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13940",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13941",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13942",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13945",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13952",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13959",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13966",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13946",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13948",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13953",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13955",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13960",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13962",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13967",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13969",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13972-13989",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "An old beggar in rags knocks on a villager's door one evening, asking for a little bread.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "An old beggar in rags knocks on (name)'s door one evening, asking for a little bread. (He/she) is thin and dusty and smells of the road, and the only thing of value on (him/her) is a copper ring shaped like a coiled snake, with a green stone for an eye. The stew is bubbling behind (name), and there is not a great deal of it. The beggar waits, looking hopeful and very tired. (Name) is torn. Should (he/she) give away part of tonight's supper to a stranger?",
+   "choices": [
+    {
+     "label": "Welcome the Beggar",
+     "next": "c1",
+     "src": "L13939"
+    },
+    {
+     "label": "Offer Work and Shelter",
+     "next": "c2",
+     "src": "L13940"
+    },
+    {
+     "label": "Refuse the Beggar",
+     "next": "c3",
+     "src": "L13941"
+    },
+    {
+     "label": "Ask About the Ring",
+     "next": "c4",
+     "src": "L13942"
+    }
+   ],
+   "src": "L13938"
+  },
+  "c1o1": {
+   "text": "\"You fed me when I had nothing,\" the stranger says, loud enough for the whole village to hear. \"Kindness should be repaid with interest.\" (He/she) waves to the attendants, who begin unloading sack after sack of grain from the cart. They do not stop until a small mountain of it is piled outside (name)'s door. The stranger refuses to explain whether (he/she) was ever really a beggar. \"Some of us like to see a village as it really is,\" is all (he/she) says, and rides away before supper.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "large",
+     "scaled": true
+    }
+   ],
+   "src": "L13947",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "When the stranger reaches (name), (he/she) frowns, then laughs. \"No, no, I'm not the one you fed. That was my old uncle. We all wear the family ring.\" A few days later, the beggar returns, in ordinary clean clothes this time, and shyly gives (name) a carved wooden bowl. \"For the stew,\" (he/she) says. \"It was the best I'd had in a year.\" (Name) uses the bowl every single day after that.",
+   "src": "L13949"
+  },
+  "c1": {
+   "text": "(Name) brings the beggar inside, sits (him/her) by the fire and gives (him/her) the best of the stew. The beggar eats every drop, thanks (name) twice, and is gone by morning. Days later, a finely dressed stranger rides into the village on a cart, with two strong attendants walking beside it. On (his/her) finger is a copper snake ring with a green stone eye. The stranger climbs down, looks around the staring crowd, and walks straight toward (name)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13945"
+  },
+  "c2o1": {
+   "text": "\"Ah! The one with the broken adze!\" the stranger says. (Name) remembers: the beggar had spent an evening fixing (his/her) cracked stone adze, binding it with a clever criss-cross wrap that (name) had never seen before. It is still the sharpest tool (he/she) owns. \"I hope you've taught everyone that wrapping by now,\" the stranger says. (Name) has not. That evening, (he/she) shows every builder in the village, and within a week every adze, axe and hoe in the village has been rebound.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13954",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The stranger nods at (name) as (he/she) passes. (Name) remembers that the beggar had turned down the work, politely but firmly \\(\"These old hands have done enough work for three lifetimes\"\\), and gratefully accepted the sleeping mat instead. (He/she) had slept like a stone and left at dawn. Now the stranger simply raises a hand to (name) in thanks and rides on through the village, and (name) never finds out anything more.",
+   "src": "L13956"
+  },
+  "c2": {
+   "text": "\"I can't spare much bread,\" (name) says, \"but I can give you a mat by the fire, if you'll help me with a few jobs.\" The beggar stays the night and is gone at dawn. Days later, a finely dressed stranger rides into the village on a cart, with two strong attendants walking beside it, wearing a copper snake ring with a green stone eye. The stranger catches sight of (name) in the crowd and smiles in recognition...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13952"
+  },
+  "c3o1": {
+   "text": "\"I came to this door hungry,\" the stranger says quietly, so that only (name) and those nearby can hear. \"Why did this village turn away someone with nothing?\" (Name) opens (his/her) mouth and finds (he/she) has no answer at all. The stranger looks at (him/her) a moment longer, then climbs back onto the cart and rides away without another word. That night, (name) leaves a basket of bread outside the village gate, and keeps doing it, every week, for a long time.",
+   "src": "L13961"
+  },
+  "c3o2": {
+   "text": "The stranger looks over the crowd, passes (name) without a flicker of recognition, and rides away toward the next village. Perhaps it was never the same person at all. (Name) is relieved, and then, a little later, not relieved at all. The memory of that knock on the door sits uncomfortably in (his/her) stomach for weeks, and (he/she) finds (himself/herself) answering the door very differently from then on.",
+   "src": "L13963"
+  },
+  "c3": {
+   "text": "\"Sorry. Nothing to spare,\" (name) says, and shuts the door. The beggar's slow footsteps shuffle away. Days later, a finely dressed stranger rides into the village on a cart, with two strong attendants walking beside it. On (his/her) finger is a copper snake ring with a green stone eye, catching the light exactly the same way. The stranger climbs down, scans the faces in the crowd...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13959"
+  },
+  "c4o1": {
+   "text": "The stranger smiles and holds up (his/her) hand. \"It's a family ring. My grandmother had five made, one for each of her children, and we've passed them down ever since. There must be twenty of us wearing them by now.\" (He/she) roars with laughter at the look on (name)'s face. \"If you met one of us in rags, it was probably my cousin. (He/she) does like to travel light.\" The village laughs too, and the stranger stays for supper.",
+   "src": "L13968"
+  },
+  "c4o2": {
+   "text": "The stranger looks at (name) for a long moment, and smiles. \"Some faces,\" (he/she) says, \"are easier to recognize than others.\" (He/she) turns the ring once on (his/her) finger, climbs back on the cart, and rolls away down the road, humming. (Name) stands staring after (him/her) long after the cart is gone. The tune the stranger was humming is the same one the beggar hummed at the door.",
+   "src": "L13970"
+  },
+  "c4": {
+   "text": "\"Where did you get a ring like that?\" (name) asks. The beggar only smiles, takes a heel of bread, and wanders off. Days later, a finely dressed stranger rides into the village on a cart, wearing the very same copper snake ring. (Name) pushes to the front of the crowd. \"Excuse me,\" (he/she) says, pointing. \"That ring. An old beggar came to my door wearing one exactly like it. Who are you?\"...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13966"
+  }
+ }
+}

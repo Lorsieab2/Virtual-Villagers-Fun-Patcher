@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Luck or Effort",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif22_luck_effort",
+  "source": "draft_lif",
+  "lines": [
+   254,
+   263
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L254",
+  "ledger": [
+   {
+    "src": "L255",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older and another adult)"
+   }
+  ],
+  "description": "A friend praises a villager's hard work, but much of their good life was luck: say so, or say they do not know.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has been praising (subject) for how well (subject.his/her) life has turned out: a good harvest every year, a sturdy hut, friends everywhere. \"You worked so hard for all of it,\" (friend.he/she) says. (subject) is about to agree. Then (subject.he/she) stops and thinks about how much of it was luck: the year the storm missed (subject.his/her) hut, the seeds that happened to be good, the people who happened to be kind.",
+   "src": "L257",
+   "choices": [
+    {
+     "label": "Say It Was Mostly Luck",
+     "next": "o1",
+     "src": "L259"
+    },
+    {
+     "label": "Say You Don't Know",
+     "next": "o2",
+     "src": "L262"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Some of it was work,\" says (subject). \"A lot of it was luck. I've watched people work just as hard and get nothing but storms.\" (friend) is surprised. (subject) shrugs. \"That's why I try to share the good years. I didn't earn all of it.\" (friend) thinks about that for a long time. That season, both of them leave a little more in the sharing basket.",
+   "src": "L260"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) honestly doesn't know how much was work and how much was luck. (friend) wants an answer. (subject) doesn't have one. \"Both, probably. In some mix I'll never work out.\" They argue about it pleasantly for an hour, with examples. Neither wins. (subject) quite enjoys not knowing.",
+   "src": "L263",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L263"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) honestly doesn't know how much was work and how much was luck. (friend) wants an answer. (subject) doesn't have one. \"Both, probably. In some mix I'll never work out.\" They argue about it pleasantly for an hour, with examples. Neither wins. (subject) quite enjoys not knowing.",
+   "src": "L263"
+  }
+ }
+}

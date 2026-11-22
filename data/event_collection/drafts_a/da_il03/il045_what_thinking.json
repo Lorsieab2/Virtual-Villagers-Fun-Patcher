@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Is (name2) Thinking?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il045_what_thinking",
+  "source": "da_il03",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager wonders what a quiet friend is thinking about all through the meal: ask, or let them be quiet.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) has been very quiet all through the meal. (subject) watches (friend.him/her) chew slowly and stare into the fire, and starts to wonder. Is (friend.he/she) upset? Did (subject) say something wrong? Is (friend.he/she) planning something? Is (friend.he/she) secretly unhappy with the whole village?",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Ask",
+     "next": "a",
+     "src": "L61"
+    },
+    {
+     "label": "Don't Ask",
+     "next": "b",
+     "src": "L64"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"What are you thinking about?\" (subject) asks, finally. (friend) blinks, as if waking up. \"Whether crabs ever get bored of walking sideways.\" (subject) has no answer to that. Neither does anyone else at the fire. The conversation lasts until bedtime.",
+   "src": "L62"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) decides that (friend) is allowed to be quiet. After a while (friend) stretches, says \"That was a good meal,\" and goes home humming. Whatever (friend.he/she) was thinking about, it seems to have been a nice thing.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) decides that (friend) is allowed to be quiet. After a while (friend) stretches, says \"That was a good meal,\" and goes home humming. Whatever (friend.he/she) was thinking about, it seems to have been a nice thing.",
+   "src": "L65"
+  }
+ }
+}

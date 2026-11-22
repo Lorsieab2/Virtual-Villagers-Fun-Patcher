@@ -1,0 +1,292 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hammock That Belonged to Everyone",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs01_hammock",
+  "source": "anthology",
+  "lines": [
+   29440,
+   29453
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29440",
+  "ledger": [
+   {
+    "src": "L29444",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29449",
+    "kind": "sensitivity",
+    "before": "A shy villager",
+    "after": "(villager), a shy villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29452",
+    "kind": "sensitivity",
+    "before": "An exhausted healer",
+    "after": "(villager), an exhausted healer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A carefully woven hammock has become the most sought-after resting place in the village.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carefully woven hammock has become the most sought-after resting place in the village.",
+   "src": "L29441",
+   "choices": [
+    {
+     "label": "Post a Turn-Taking Schedule",
+     "next": "a",
+     "src": "L29442"
+    },
+    {
+     "label": "Make a Second Hammock",
+     "next": "b",
+     "src": "L29445"
+    },
+    {
+     "label": "Let People Negotiate",
+     "next": "c",
+     "src": "L29448"
+    },
+    {
+     "label": "Leave It Open for Whoever Needs Rest",
+     "next": "d",
+     "src": "L29451"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The early risers enjoy quiet naps; night workers say the schedule overlooks them.",
+   "src": "L29443"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Several villagers volunteer fibers and finish it before dusk.",
+   "src": "L29446"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The second hammock is so narrow that it becomes a beloved seat for two friends.",
+   "src": "L29447"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The loudest villagers keep claiming it until someone gently objects.",
+   "src": "L29450"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) invents a cheerful sign-up system that surprisingly lasts.",
+   "src": "L29444",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29444"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) invents a cheerful sign-up system that surprisingly lasts.",
+   "src": "L29444"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager), a shy villager, finally asks for a turn and is warmly welcomed.",
+   "src": "L29449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29449"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager), a shy villager, finally asks for a turn and is warmly welcomed.",
+   "src": "L29449"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(villager), an exhausted healer, sleeps undisturbed for the first time in days.",
+   "src": "L29452",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "villager",
+     "min": 15,
+     "max": 30,
+     "src": "L29452"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(villager), an exhausted healer, sleeps undisturbed for the first time in days.",
+   "src": "L29452"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "Two villagers disagree over who is more tired and end up laughing at themselves.",
+   "src": "L29453",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29453"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "Two villagers disagree over who is more tired and end up laughing at themselves.",
+   "src": "L29453"
+  }
+ }
+}

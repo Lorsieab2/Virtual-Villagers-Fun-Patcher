@@ -24,6 +24,36 @@ sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 
+# The owner's doubler scope (2026-11-17, the same rule in all five games):
+# FOOD is only food gathered from a food source; TECH is research-table work.
+# Island events (also the ones a companion DLL runs), the milestone dialogs'
+# rewards, puzzle discoveries, purchases and cheats are never doubled.  The
+# Golden Child's +150 food is doubled (the owner, 2026-11-18).  The wrappers
+# double only a call whose immediate return address is one of these exact
+# stock returns; every other caller stays native.
+# A New Home has no collectibles and no fire bonus.
+VV1_TECH_DOUBLER_ELIGIBLE_RETURNS = (
+    0x43B318,  # research at Science 1
+    0x43B333,  # research at Science 2
+    0x43B350,  # research at Science 3
+)
+VV1_FOOD_DOUBLER_ELIGIBLE_RETURNS = (
+    0x43AD91,  # berries
+    0x43AED2,  # crops
+    0x43AF41,  # fish
+    0x43AF93,  # crab
+    0x43AFFC,  # mushroom
+    0x43B0A0,  # the Golden Child's +150 food (the owner, 2026-11-18)
+)
+
+
+def vv1_whitelist_asm(addresses: tuple[int, ...], label: str) -> str:
+    return "\n".join(
+        f"cmp dword ptr [esp + 4], 0x{address:X}\n            je {label}_eligible"
+        for address in addresses
+    ) + f"\n            jmp {label}_apply\n        {label}_eligible:"
+
+
 IMAGE_BASE = 0x400000
 CODE_FILE_OFFSET = 0x56900
 CODE_VA = IMAGE_BASE + CODE_FILE_OFFSET
@@ -1476,12 +1506,7 @@ def main() -> None:
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle tech_apply
-            cmp dword ptr [esp + 4], 0x428194
-            je tech_apply
-            cmp dword ptr [esp + 4], 0x41A378
-            je tech_apply
-            cmp dword ptr [esp + 4], 0x42BB18
-            je tech_apply
+            {vv1_whitelist_asm(VV1_TECH_DOUBLER_ELIGIBLE_RETURNS, "tech")}
             cmp dword ptr [ebx + 0x9E90], 0
             jz tech_apply
             shl dword ptr [esp + 8], 1
@@ -1502,14 +1527,7 @@ def main() -> None:
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle food_apply
-            cmp dword ptr [esp + 4], 0x4281DA
-            je food_apply
-            cmp dword ptr [esp + 4], 0x419459
-            je food_apply
-            cmp dword ptr [esp + 4], 0x419F14
-            je food_apply
-            cmp dword ptr [esp + 4], 0x42B86A
-            je food_apply
+            {vv1_whitelist_asm(VV1_FOOD_DOUBLER_ELIGIBLE_RETURNS, "food")}
             cmp dword ptr [ebx + 0x9E94], 0
             jz food_apply
             shl dword ptr [esp + 8], 1
@@ -1681,13 +1699,15 @@ def main() -> None:
             jne running_dislike_loop
             jmp detail_success
 
+        # The age is MOVED: the lived age (+0x34C, the life loop's cursor at
+        # 0x42EC74) and a running conception mark (+0x358) move by the same
+        # delta as the shown age (+0x348), as the stock age change at
+        # 0x419543-0x4195BE does -- so the life loop neither replays the
+        # years at once nor skips them, and a pregnancy stays as far along.
         detail_age_18:
-            mov dword ptr [edx + 0x348], 360
-            mov dword ptr [edx + 0x34C], 360
-            cmp dword ptr [edx + 0x358], 0
-            je detail_success
-            mov dword ptr [edx + 0x358], 318
-            jmp detail_success
+            mov eax, 360
+            sub eax, dword ptr [edx + 0x348]
+            jmp detail_shift_age
 
         detail_youth:
             mov eax, dword ptr [edx + 0x348]
@@ -1696,16 +1716,13 @@ def main() -> None:
             jge detail_youth_ready
             mov eax, 100
         detail_youth_ready:
-            mov dword ptr [edx + 0x348], eax
+            sub eax, dword ptr [edx + 0x348]
+        detail_shift_age:
+            add dword ptr [edx + 0x348], eax
+            add dword ptr [edx + 0x34C], eax
             cmp dword ptr [edx + 0x358], 0
-            je detail_youth_not_pregnant
-            lea ecx, [eax - 1]
-            mov dword ptr [edx + 0x34C], ecx
-            sub eax, 42
-            mov dword ptr [edx + 0x358], eax
-            jmp detail_success
-        detail_youth_not_pregnant:
-            mov dword ptr [edx + 0x34C], eax
+            je detail_success
+            add dword ptr [edx + 0x358], eax
             jmp detail_success
 
         detail_mastery:
@@ -2358,14 +2375,8 @@ def main() -> None:
             pop eax
             ret
         preflight_age_check:
+            # Already 18: the age moves by nothing (detail_shift_age).
             cmp dword ptr [edx + 0x348], 360
-            jne preflight_change
-            cmp dword ptr [edx + 0x34C], 360
-            jne preflight_change
-            mov eax, dword ptr [edx + 0x358]
-            test eax, eax
-            je preflight_no_change
-            cmp eax, 318
             jne preflight_change
             jmp preflight_no_change
 
@@ -2378,18 +2389,6 @@ def main() -> None:
             mov eax, 100
         preflight_youth_target:
             cmp ecx, eax
-            jne preflight_change
-            cmp dword ptr [edx + 0x358], 0
-            jne preflight_youth_pregnant
-            cmp dword ptr [edx + 0x34C], eax
-            jne preflight_change
-            jmp preflight_no_change
-        preflight_youth_pregnant:
-            lea ecx, [eax - 1]
-            cmp dword ptr [edx + 0x34C], ecx
-            jne preflight_change
-            sub eax, 42
-            cmp dword ptr [edx + 0x358], eax
             jne preflight_change
             jmp preflight_no_change
 
@@ -4436,7 +4435,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features (includes the Heathen Mask mod)",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. The Golden Child is skipped by all three, as by Equal Division. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each: the Tech Point Doubler doubles research tech points; the Food Point Doubler doubles food gathered from food sources (berries, crops, fish, crabs and mushrooms) and the Golden Child's +150 food. Island events, story/puzzle discoveries (Whale, berries, mushroom, device), milestone-dialog rewards, purchases and cheats are never doubled. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Equal Division of Labor (Includes Parenting / No Parenting, 1,000,000 tech points each) splits the village evenly across the jobs, with males and females balanced per job, and gives each villager the job whose skill they have made the most progress in while that job has room (then their next-best job); villagers with no progress, ties and anyone left over are placed at random in the remaining seats. Clear All Skill Preferences (500,000 tech points) unchecks every villager's skill preference (job checkmark) so each villager chooses their own work again, as in the stock game; skills are not changed. Check Highest Skill (Includes Parenting) / (No Parenting) (1,000,000 tech points each) sets each villager's skill preference to the skill they have the most progress in; the No Parenting version ignores Parenting, ties go to the first skill in the Skills list order (Farming, Building, Research, Healing, Parenting), and villagers with no progress yet keep their preference. The Golden Child is skipped by all three, as by Equal Division. This patch also contains the Heathen Mask mod: villagers can wear Heathen tribal masks, chosen per-villager via Change Appearance or across the whole village via Change Appearance for All, and rendered both on the Villager Details portrait and in the village view.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -4488,30 +4487,31 @@ def main() -> None:
                 "0x419459 food (Whale puzzle: harvest outcome)",
                 "0x419F14 food (berries/mushroom/device discovery choice dispatcher)",
             ],
-            "milestone_dialog_producers": ["0x42BB18 tech", "0x42B86A food (fixed one-time 2-choice reward dialog)"],
-            "tech_exclusions": [
-                "Golden Child tech-point gain (no tech award route in this exact build)",
-                "Duplicate Collectibles tech-point gain (no duplicate-collectible tech writer route in this exact build)",
-                "Island Event tech-point gain (return 0x428194)",
-                "Story/puzzle discovery tech-point gain (return 0x41A378)",
-                "One-time milestone dialog tech-point gain (return 0x42BB18)",
+            "milestone_dialog_producers": [
+                "0x42BB18, 0x42BBF7, 0x42BCD6, 0x42BE50, 0x42BFB0, 0x42C110 tech",
+                "0x42B86A, 0x42B938, 0x42BA06 food (fixed reward dialogs)",
             ],
-            "hook_status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event, story-puzzle, and one-time-milestone returns remain native; runtime/player confirmation pending",
+            "golden_child_producers": ["0x43B0A0 food (+150, the Golden Child's act; doubled: the owner, 2026-11-18)"],
+            "tech_eligible_returns": [f"0x{va:X}" for va in VV1_TECH_DOUBLER_ELIGIBLE_RETURNS],
+            "food_eligible_returns": [f"0x{va:X}" for va in VV1_FOOD_DOUBLER_ELIGIBLE_RETURNS],
+            "hook_status": "GO: exact-build static whitelist of research, the gathered food sources and the Golden Child's +150 food; Island Event, story-puzzle, milestone-dialog and every other caller (companion DLLs too) stay native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
                 "positive earned tech deltas only",
                 "positive food-source deltas only",
             ],
+            "scope": {
+                "tech": ["research"],
+                "food": ["berries", "crops", "fish", "crab", "mushrooms", "the Golden Child's +150 food"],
+            },
             "exclusions": [
-                "Golden Child tech-point gain",
-                "Island Event tech-point gain",
-                "Duplicate Collectibles tech-point gain",
-                "Story/puzzle discovery tech-point and food-point gain (Whale, berries, mushroom, device-discovery choices)",
-                "One-time milestone dialog tech-point and food-point gain",
+                "Island Event tech-point and food-point gain",
+                "Reward tech-point and food-point gain (story/puzzle discoveries, milestone dialogs)",
+                "Purchases and cheats",
             ],
             "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",
-            "status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
+            "status": "GO: exact-build static whitelist doubles each eligible positive delta once; every other caller stays native; runtime/player confirmation pending",
         },
         "doubler_purchase_status": {
             "new_purchase": "available at 500,000 tech points for each doubler",

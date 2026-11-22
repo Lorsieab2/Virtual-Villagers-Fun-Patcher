@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Upstream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus17_upstream",
+  "source": "draft_jus",
+  "lines": [
+   200,
+   209
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L200",
+  "ledger": [
+   {
+    "src": "L201",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has been washing pots upstream of the drinking water: show them the soapy jar, or take it to the elders.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a village rule: no washing pots or clothes above the bend in the stream, because the drinking water is taken from below it. (subject) has been washing pots above the bend, because the flat rocks there are so convenient. (friend) has just filled a water jar and found it full of suds.",
+   "src": "L203",
+   "choices": [
+    {
+     "label": "Show (subject.him/her) the Jar",
+     "next": "o1",
+     "src": "L205"
+    },
+    {
+     "label": "Take It to the Elders",
+     "next": "o2",
+     "src": "L208"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) walks up the stream with the soapy jar and holds it out without a word. (subject) looks at it. \"...Ah.\" (subject.He/she) moves below the bend, grumbling about the rocks. The next day (friend) helps (subject.him/her) roll two flat rocks down to the new spot. Now both places are convenient.",
+   "src": "L206"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The elders remind (subject) of the rule and ask (subject.him/her) to fetch fresh water for everyone downstream for the day, since it was (subject.his/her) suds. (subject) carries water back and forth all day, and by evening understands the rule with every part of (subject.his/her) aching arms. (subject.He/she) never washes upstream again.",
+   "src": "L209",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L209"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The elders remind (subject) of the rule and ask (subject.him/her) to fetch fresh water for everyone downstream for the day, since it was (subject.his/her) suds. (subject) carries water back and forth all day, and by evening understands the rule with every part of (subject.his/her) aching arms. (subject.He/she) never washes upstream again.",
+   "src": "L209"
+  }
+ }
+}

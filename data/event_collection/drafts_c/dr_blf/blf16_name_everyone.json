@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Everyone Uses Now",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "blf16_name_everyone",
+  "source": "draft_blf",
+  "lines": [
+   188,
+   197
+  ],
+  "section": "dr_blf",
+  "credit": "NEW EVENTS — BELIEF, IDENTITY AND PERSONAL EXPRESSION (BLF-01..50, draft for the owner, 2026-11-15)\nReligious, spiritual, atheist, agnostic, questioning and simply uninterested villagers living side by side; who people are, whom they love and how they present themselves. Privacy is respected, nobody has to explain or justify anything, and differences don't have to be the subject. Gods and spirits stay unconfirmed either way.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_blf",
+  "title_src": "L188",
+  "ledger": [
+   {
+    "src": "L189",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult; story only: no name is changed in the game)"
+   }
+  ],
+  "description": "A visitor from long ago calls a villager by their old name across the beach: the villager corrects them, or the village does.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Years ago, (subject) started going by a new name, one (subject.he/she) chose (subject.him/her)self. Today a visitor who knew (subject.him/her) long ago arrives in the village and calls (subject.him/her) by the old name, loudly, across the beach. Several villagers turn to look.",
+   "src": "L191",
+   "choices": [
+    {
+     "label": "(subject) Corrects (other.him/her)",
+     "next": "o1",
+     "src": "L193"
+    },
+    {
+     "label": "The Village Corrects (other.him/her)",
+     "next": "o2",
+     "src": "L196"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Before (subject) can say anything, (friend), standing nearby, says, \"You mean (subject)?\" The visitor looks confused. \"Is that what (subject.he/she) goes by now?\" \"It's (subject.his/her) name,\" says (friend) simply. The visitor uses it. (subject) didn't have to say a thing. Afterwards, (subject.he/she) thanks (friend), who just shrugs. \"It's your name.\"",
+   "src": "L197"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) walks over, smiling. \"It's (subject) now,\" (subject.he/she) says. The visitor blinks. \"Oh! Since when?\" \"A long time,\" says (subject). \"I like it better.\" The visitor nods slowly and uses the new name the rest of the visit, mostly. When (other.he/she) slips, a nearby villager says the right name, quietly, without fuss. (subject) is very grateful.",
+   "src": "L194",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L194"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) walks over, smiling. \"It's (subject) now,\" (subject.he/she) says. The visitor blinks. \"Oh! Since when?\" \"A long time,\" says (subject). \"I like it better.\" The visitor nods slowly and uses the new name the rest of the visit, mostly. When (other.he/she) slips, a nearby villager says the right name, quietly, without fuss. (subject) is very grateful.",
+   "src": "L194"
+  }
+ }
+}

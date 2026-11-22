@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Treaty of Two Shores",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci06_treaty_two",
+  "source": "draft_lci",
+  "lines": [
+   78,
+   89
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L78",
+  "ledger": [
+   {
+    "src": "L79",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L85",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L85",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L89",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Two villages claim the same fishing ground: share it by season, or divide it in two.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village and the settlement across the bay both say the northern fishing ground is theirs. (subject) wants to share it by season: one village in the wet season, one in the dry. (friend) wants to divide it down the middle with a line of floats. What should the treaty say?",
+   "src": "L81",
+   "choices": [
+    {
+     "label": "Share by Season",
+     "next": "o1",
+     "src": "L83"
+    },
+    {
+     "label": "Divide It in Two",
+     "next": "o2",
+     "src": "L87"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The treaty is carved on two posts, one on each shore. The first season goes well. The second, a storm keeps the other village home for weeks, and they ask for extra time. The village agrees. The treaty bends, and holds.",
+   "src": "L85",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L85"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The floats are laid. The fish do not respect them at all. Within a month, the fishers of both villages are arguing over which side a fish was caught on. They switch to sharing by season.",
+   "src": "L89"
+  }
+ }
+}

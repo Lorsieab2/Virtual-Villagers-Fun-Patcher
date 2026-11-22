@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Patient Who Wants to Go Home",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed25_patient_wants",
+  "source": "living",
+  "lines": [
+   20531,
+   20542
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20531",
+  "ledger": [
+   {
+    "src": "L20542",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A dying villager wishes to leave the healing hut and spend their remaining time beneath the trees they planted."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dying villager wishes to leave the healing hut and spend their remaining time beneath the trees they planted.",
+   "src": "L20532",
+   "choices": [
+    {
+     "label": "Arrange comfort-focused care at home.",
+     "next": "a",
+     "src": "L20533"
+    },
+    {
+     "label": "Encourage continued treatment at the healing hut.",
+     "next": "b",
+     "src": "L20536"
+    },
+    {
+     "label": "Offer a compromise with visits from healers.",
+     "next": "c",
+     "src": "L20539"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient dies surrounded by familiar sights and loved ones.",
+   "src": "L20534",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20534"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient lives several more weeks, enjoying visits and stories.",
+   "src": "L20535"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient agrees to a short trial but asks to return home if it fails.",
+   "src": "L20537"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The patient refuses and asks the healers to respect their choice.",
+   "src": "L20538"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The patient returns home and receives help when symptoms worsen.",
+   "src": "L20540"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A healer learns that comfort and treatment need not always be opposites.",
+   "src": "L20541"
+  }
+ }
+}

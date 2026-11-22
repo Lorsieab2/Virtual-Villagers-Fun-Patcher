@@ -1,0 +1,115 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Week Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep02_week_away",
+  "source": "draft_dep",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager is invited away to learn dyeing but frets about the garden: ask a friend to tend it, or leave everything as it is.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A dyer from a village further along the coast has offered to show (subject) how they make their deep red cloth, if (subject.he/she) can come and stay for a few days. (subject) has wanted to learn this for years. (subject.He/she) is also standing in the garden looking at every single plant as though it might die the moment (subject.he/she) turns (subject.his/her) back.",
+   "src": "L23",
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L23"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Ask (friend) to Look After the Garden",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Leave Everything as It Is",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) agrees at once. (subject) then explains the garden for most of the afternoon: which plant likes the morning sun, which one sulks if you water it too early, which one must never, ever be touched. (friend) nods through all of it. When (subject) finally leaves, (friend) waters everything once a day and the garden does perfectly well.",
+   "src": "L26"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) goes. The whole first evening (subject.he/she) worries about the beans. The second evening, a little less. By the third, (subject.he/she) is up to (subject.his/her) elbows in red dye and has forgotten the beans completely. (subject.He/she) comes home with stained hands and a head full of ideas. The beans have not noticed (subject.he/she) was gone.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) goes. The whole first evening (subject.he/she) worries about the beans. The second evening, a little less. By the third, (subject.he/she) is up to (subject.his/her) elbows in red dye and has forgotten the beans completely. (subject.He/she) comes home with stained hands and a head full of ideas. The beans have not noticed (subject.he/she) was gone.",
+   "src": "L29"
+  }
+ }
+}

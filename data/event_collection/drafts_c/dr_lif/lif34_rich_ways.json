@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Rich in Strange Ways",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif34_rich_ways",
+  "source": "draft_lif",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   },
+   {
+    "src": "L398",
+    "kind": "sensitivity",
+    "before": "The young fisher gets",
+    "after": "(fisher), the young fisher, gets",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L398",
+    "kind": "sensitivity",
+    "before": "The new cook gets",
+    "after": "(cook), the new cook, gets",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who owns little realizes they know many secrets of the island: share some of it, or keep it as treasure.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "fisher",
+   "cook"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  },
+  "fisher": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "cook": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) owns very little. But (subject.he/she) has realized today that (subject.he/she) knows a huge amount that nobody else does: exactly where the best shells wash up after a north wind; which tree on the hill has the sweetest fruit; the secret way to the waterfall that avoids the mud; the name of every goat in the village and which ones bite.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Share Some of It",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Keep It as Your Treasure",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) starts telling people things. (fisher), the young fisher, gets the shell beach. The children get the secret path. (cook), the new cook, gets the sweet tree. Everyone is grateful. (subject) is surprised how much (subject.he/she) enjoys giving it away. (subject.He/she) keeps the goat information, though. Some things are power.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    },
+    {
+     "do": "mood",
+     "role": "fisher",
+     "mood": "good",
+     "src": "L398"
+    },
+    {
+     "do": "mood",
+     "role": "cook",
+     "mood": "good",
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) starts telling people things. (fisher), the young fisher, gets the shell beach. The children get the secret path. (cook), the new cook, gets the sweet tree. Everyone is grateful. (subject) is surprised how much (subject.he/she) enjoys giving it away. (subject.He/she) keeps the goat information, though. Some things are power.",
+   "src": "L398"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) decides to keep it to (subject.him/her)self, at least for now. It's (subject.his/her) treasure, gathered over a whole life. (subject.He/she) walks to the waterfall by the secret way, picks a fruit from the sweet tree, and finds three beautiful shells on the north beach on the way home. (subject.He/she) is the richest person on Isola today, and nobody knows.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) decides to keep it to (subject.him/her)self, at least for now. It's (subject.his/her) treasure, gathered over a whole life. (subject.He/she) walks to the waterfall by the secret way, picks a fruit from the sweet tree, and finds three beautiful shells on the north beach on the way home. (subject.He/she) is the richest person on Isola today, and nobody knows.",
+   "src": "L401"
+  }
+ }
+}

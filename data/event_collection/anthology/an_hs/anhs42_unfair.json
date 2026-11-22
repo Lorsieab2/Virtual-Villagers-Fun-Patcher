@@ -1,0 +1,239 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Unfair First Impression",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs42_unfair",
+  "source": "anthology",
+  "lines": [
+   30055,
+   30068
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L30055",
+  "ledger": [
+   {
+    "src": "L30056",
+    "kind": "sensitivity",
+    "before": "A newcomer",
+    "after": "(newcomer), a newcomer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30064",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30067",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A newcomer is judged as aloof because they speak little during their first village gathering.",
+  "label_case": "title",
+  "cast_only": [
+   "newcomer",
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(newcomer), a newcomer, is judged as aloof because they speak little during their first village gathering.",
+   "src": "L30056",
+   "choices": [
+    {
+     "label": "Invite Them into a Smaller Conversation",
+     "next": "a",
+     "src": "L30057"
+    },
+    {
+     "label": "Ask Whether They Are Comfortable",
+     "next": "b",
+     "src": "L30060"
+    },
+    {
+     "label": "Challenge the Label Gently",
+     "next": "c",
+     "src": "L30063"
+    },
+    {
+     "label": "Give Them Time to Settle",
+     "next": "d",
+     "src": "L30066"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They become animated discussing plants.",
+   "src": "L30058"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They remain quiet but appreciate being included.",
+   "src": "L30059"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They say silence is simply how they enjoy gatherings.",
+   "src": "L30062"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager) recognizes that quietness is not unfriendliness.",
+   "src": "L30064"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The group realizes it has mistaken unfamiliar behavior for a fixed personality.",
+   "src": "L30065"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "They continue to prefer solitude and are welcomed nonetheless.",
+   "src": "L30068"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "They admit they are tired from traveling.",
+   "src": "L30061",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "newcomer",
+     "min": -30,
+     "max": -15,
+     "src": "L30061"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "They admit they are tired from traveling.",
+   "src": "L30061"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(newcomer) makes a friend gradually.",
+   "src": "L30067",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L30067"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(newcomer) makes a friend gradually.",
+   "src": "L30067"
+  }
+ }
+}

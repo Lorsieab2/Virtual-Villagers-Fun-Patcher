@@ -1,0 +1,215 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Paired Gourds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b059_paired_gourds",
+  "source": "balance",
+  "lines": [
+   2660,
+   2702
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L2660",
+  "ledger": [
+   {
+    "src": "L2661",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L2662",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2670",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2679",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L2667",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2668",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L2671",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2680",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L2673",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2676",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2682",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2685",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L2688-2702",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The friends look at the gourds, and then at each other.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the old storehouse, (subject) and (friend) find a pair of drinking gourds tied together with a cord, carved with two faces looking at each other. The elders say they were made for two old friends who wanted to \"know each other's minds,\" and that whoever drinks from them at the same moment gets their wish, more or less.\nIt's a hot day. The friends look at the gourds, and then at each other. They could fill them from the stream and drink together, or fill just one and share it, which, the elders say, \"might be safer.\"\nWhat should they do?",
+   "choices": [
+    {
+     "label": "Drink from Both Together",
+     "next": "c1",
+     "src": "L2667"
+    },
+    {
+     "label": "Share One Gourd",
+     "next": "c2",
+     "src": "L2668"
+    }
+   ],
+   "src": "L2663-2665"
+  },
+  "c1o1": {
+   "text": "They lower the gourds and look at each other, and each sees (subject.himself/herself). \"More or less,\" the elders said. Rather more. They spend the afternoon learning to walk in each other's legs, and laughing too much to be very upset. They never swap back. They do say it's made them better friends: there's nothing like living in someone's skin.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2674",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The water is cold and good, and that's all. They look at each other, and wait, and nothing happens. \"Do you know my mind?\" (subject) asks. \"You're thinking about lunch,\" says (friend). \"That's not magic,\" says (subject). \"That's you.\"",
+   "src": "L2677"
+  },
+  "c1": {
+   "text": "They fill the gourds, count to three, and drink. The water is very cold, and tastes of the other person's favourite food...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2671",
+   "text_only": [
+    {
+     "src": "L2671",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "That night the empty gourd falls off its peg, and both of them wake up in the wrong hut, in the wrong body. \"Safer,\" says (friend) bitterly, in (subject)'s voice. \"The elders said safer.\" The elders, asked about it, say \"more or less\" again, and go back to their weaving.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L2683",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Nothing obvious happens. But over the next week, they find they know exactly what the other is good at, as if they'd learned it themselves: (subject) can suddenly do what (friend) does best, and the other way round. They work together for the rest of the season, and get twice as much done.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L2686",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "They fill one gourd and pass it back and forth, a sip each, until it's empty. The other gourd, still on its cord, seems to sway a little on its own...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L2680"
+  }
+ }
+}

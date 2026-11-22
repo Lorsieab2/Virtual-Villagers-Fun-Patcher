@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unexpected Compliment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il019_compliment",
+  "source": "da_il02",
+  "lines": [
+   145,
+   159
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L145",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L159",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager having a slightly frustrating day is told they are very good at explaining things.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been having an ordinary, slightly frustrating day. Nothing terrible has happened, but everything seems to be taking longer than it should. Then (friend) casually remarks, \"You know, you're very good at explaining things.\" (subject) is surprised. Nobody has ever said that before.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Ask What (friend) Means",
+     "next": "a",
+     "src": "L151"
+    },
+    {
+     "label": "Simply Say Thank You",
+     "next": "b",
+     "src": "L155"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"You make difficult things easier to understand,\" (friend) explains. (subject) thinks about this for the rest of the afternoon. (subject.He/She) had always assumed everyone could do that.",
+   "src": "L153"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"Thank you,\" says (subject). The conversation moves on. Later, while washing (subject.his/her) hands, (subject) remembers the compliment and smiles. The day feels a little better.",
+   "src": "L157",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L157"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"Thank you,\" says (subject). The conversation moves on. Later, while washing (subject.his/her) hands, (subject) remembers the compliment and smiles. The day feels a little better.",
+   "src": "L157"
+  }
+ }
+}

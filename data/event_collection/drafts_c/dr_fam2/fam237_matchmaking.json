@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Matchmaking Children",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam237_matchmaking",
+  "source": "draft_fam2",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults with no partners and two children aged 6-11)"
+   }
+  ],
+  "description": "Two children have arranged a surprise picnic to pair up two single villagers: enjoy it as friends, or ask the children to stop.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third",
+   "fourth"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 11
+  },
+  "fourth": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 11
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(third) and (fourth), two young villagers, have decided that (subject) and (friend) should be sweethearts. They've been leaving flowers \"from\" each of them on the other's doorstep, and making them sit together at dinner. Today they've organized a \"surprise\" picnic for two on the beach. (subject) and (friend) are standing at the picnic, looking at each other.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Sit Down and Enjoy the Picnic as Friends",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Tell the Children Kindly to Stop",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) go and find the children behind the rock. \"We know it was you,\" says (friend). \"That was kind. But we choose our own sweethearts, if we want any. We don't want to be paired up.\" The children look disappointed. Then (fourth) says, \"Can we eat the picnic, then?\" They all eat it together. It's a very good picnic.",
+   "src": "L449"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Well,\" says (subject), \"it seems a shame to waste it.\" They sit down and eat, as friends, and talk about how to stop the children. The children watch from behind a rock, thrilled. (subject) and (friend) don't become sweethearts. They do become good friends. The children consider this a partial success.",
+   "src": "L446",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L446"
+    },
+    {
+     "do": "mood",
+     "role": "fourth",
+     "mood": "good",
+     "src": "L446"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Well,\" says (subject), \"it seems a shame to waste it.\" They sit down and eat, as friends, and talk about how to stop the children. The children watch from behind a rock, thrilled. (subject) and (friend) don't become sweethearts. They do become good friends. The children consider this a partial success.",
+   "src": "L446"
+  }
+ }
+}

@@ -1,0 +1,232 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Story or the Tablet",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife21_story_tablet",
+  "source": "living",
+  "lines": [
+   20902,
+   20913
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20902",
+  "ledger": [
+   {
+    "src": "L20913",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An elder knows generations of planting wisdom but dislikes written records.",
+  "cast_only": [
+   "elder",
+   "scribe",
+   "apprentice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "scribe": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An elder knows generations of planting wisdom but dislikes written records.",
+   "src": "L20903",
+   "choices": [
+    {
+     "label": "Record the elder's words.",
+     "next": "a",
+     "src": "L20904"
+    },
+    {
+     "label": "Teach apprentices by storytelling.",
+     "next": "b",
+     "src": "L20907"
+    },
+    {
+     "label": "Use both methods.",
+     "next": "c",
+     "src": "L20910"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "dislikes written records",
+     "reason": "the elder's view of records, not a game preference",
+     "src": "L20903"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The elder corrects the record and teaches the scribe to listen more carefully.",
+   "src": "L20906",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scribe",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20906"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The lessons become memorable songs shared at harvest.",
+   "src": "L20908"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One apprentice forgets a crucial detail and damages a crop.",
+   "src": "L20909",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L20909"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentices compare the written notes with the elder's demonstrations.",
+   "src": "L20911"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The tablet preserves instructions, though the writer misses an important nuance.",
+   "src": "L20905",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20905"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The tablet preserves instructions, though the writer misses an important nuance.",
+   "src": "L20905"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The extra work slows teaching but catches a long-standing mistake.",
+   "src": "L20912",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20912"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The extra work slows teaching but catches a long-standing mistake.",
+   "src": "L20912"
+  }
+ }
+}

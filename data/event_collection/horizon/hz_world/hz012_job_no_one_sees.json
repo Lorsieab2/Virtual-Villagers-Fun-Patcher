@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Job No One Can See",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz012_job_no_one_sees",
+  "source": "horizon",
+  "lines": [
+   160,
+   170
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part2",
+  "title_src": "L160",
+  "ledger": [],
+  "description": "A fisher wonders whether distant people might spend their days doing work that produces nothing visible.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A fisher wonders whether distant people might spend their days doing work that produces no visible fish, baskets, houses, or crops.",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Imagine Knowledge Work.",
+     "next": "a",
+     "src": "L162"
+    },
+    {
+     "label": "Imagine Caring Professions.",
+     "next": "b",
+     "src": "L165"
+    },
+    {
+     "label": "Imagine Work Chosen Freely.",
+     "next": "c",
+     "src": "L168"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Researchers invent professions devoted to counting, organizing, teaching, planning, and solving disputes.",
+   "src": "L163"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A builder asks how anyone would know whether such work was done well; the group devises standards and checks.",
+   "src": "L164"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A parent proposes that listening, teaching, nursing, and supporting others are real work even when nothing tangible remains.",
+   "src": "L166"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Someone asks why care is sometimes overlooked when it is unpaid; a lively discussion follows.",
+   "src": "L167"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "An apprentice dreams of learning several crafts rather than inheriting one.",
+   "src": "L169"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A villager warns that choice may be limited by family obligations, illness, or scarcity.",
+   "src": "L170"
+  }
+ }
+}

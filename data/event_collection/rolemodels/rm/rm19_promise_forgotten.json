@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Promise Forgotten",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm19_promise_forgotten",
+  "source": "rolemodels",
+  "lines": [
+   41,
+   41
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L41",
+  "ledger": [
+   {
+    "src": "L41",
+    "kind": "structural",
+    "text": "EVENT RM-19  -  THE PROMISE FORGOTTEN SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A teenager remembers too late that they promised to help an elder carry weaving materials earlier that morning.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A teenager remembers too late that they promised to help an elder carry weaving materials earlier that morning.",
+   "src": "L41",
+   "choices": [
+    {
+     "label": "Apologize and Offer Help Now.",
+     "next": "a",
+     "src": "L41"
+    },
+    {
+     "label": "Explain Honestly Why the Promise Was Forgotten.",
+     "next": "b",
+     "src": "L41"
+    },
+    {
+     "label": "Offer to Help with Tomorrow's Work Instead.",
+     "next": "c",
+     "src": "L41"
+    },
+    {
+     "label": "Ask How to Make Amends Without Assuming Forgiveness.",
+     "next": "d",
+     "src": "L41"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The elder accepts the apology and asks for assistance with the remaining bundles.",
+   "src": "L41"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The work is already finished, and the teenager must accept that the missed help mattered.",
+   "src": "L41"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder listens but asks the teenager to plan more carefully next time.",
+   "src": "L41"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elder agrees, and the teenager makes a careful effort to remember.",
+   "src": "L41"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder declines because tomorrow's tasks require someone else.",
+   "src": "L41"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The elder suggests repairing a worn carrying strap.",
+   "src": "L41"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The elder needs time before discussing it, and the teenager respects that.",
+   "src": "L41"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "The explanation feels uncomfortable, yet the teenager is relieved to have told the truth.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "The explanation feels uncomfortable, yet the teenager is relieved to have told the truth.",
+   "src": "L41"
+  }
+ }
+}

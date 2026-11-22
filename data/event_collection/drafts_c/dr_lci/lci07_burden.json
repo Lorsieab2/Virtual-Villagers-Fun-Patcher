@@ -1,0 +1,126 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Burden of Leadership",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lci07_burden",
+  "source": "draft_lci",
+  "lines": [
+   92,
+   103
+  ],
+  "section": "dr_lci",
+  "credit": "NEW EVENTS - LIVING CULTURE IX: REPAIR, FAIRNESS AND MANY FUTURES (LCI-01..50, draft, 2026-11-18)\nFrom the owner's Volume V concepts (401-500), the 30 themes and the five deeper subjects: old wrongs and their repair, who is heard, prejudice and fairness, care for minds and bodies, animals and hard tradeoffs, inventions and bad inventions, family life, and an island that keeps choosing its own future.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lci",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L99",
+    "kind": "instruction",
+    "text": "[effect: small Research skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L103",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "The leader admits they are overwhelmed: share the duties out, or let them rest while others lead.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the gathering, the {@chief} stood up and said, quietly, that (other.he/she) is exhausted: every dispute, every storm, every hungry family comes to (other.his/her) door. (subject) is shocked. (friend) says leaders were never meant to carry everything alone. What should the village do?",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Share the Duties",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Let the {@Chief} Rest",
+     "next": "o2",
+     "src": "L101"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village chooses helpers: one for disputes, one for the stores, one for the canoes. The {@chief} keeps the hardest decisions. (other.He/she) sleeps through the night for the first time in a year, and says so at the next gathering, to cheers.",
+   "src": "L99",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L99"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village asks (friend) to lead for a moon while the {@chief} rests. The {@chief} comes back rested, and also realizes the village did well without (other.him/her). That is a relief and a strange feeling, both.",
+   "src": "L103"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

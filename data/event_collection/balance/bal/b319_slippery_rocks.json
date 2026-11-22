@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Slippery Rocks by the Waterfall",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b319_slippery_rocks",
+  "source": "balance",
+  "lines": [
+   14772,
+   14812
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14772",
+  "ledger": [
+   {
+    "src": "L14773",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14774",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14781",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14790",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14778",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14779",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14782",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14791",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14784",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14787",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14793",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14796",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14799-14812",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager is there with a net, balancing on one foot on a slick rock, reaching for a fat shrimp in a crack.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The best place for catching freshwater shrimp is at the foot of the big waterfall, where the rocks are covered in green slime and the spray makes everything wet. (Name) is there with a net, balancing on one foot on a slick rock, reaching for a fat shrimp in a crack. The rock (he/she) is standing on tips, just slightly.\nShould (name) jump for the bank, or try to keep (his/her) balance and stay still?",
+   "choices": [
+    {
+     "label": "Jump for the Bank",
+     "next": "c1",
+     "src": "L14778"
+    },
+    {
+     "label": "Stay Still",
+     "next": "c2",
+     "src": "L14779"
+    }
+   ],
+   "src": "L14775-14776"
+  },
+  "c1o1": {
+   "text": "(He/She) lands on the bank, slips on the mud, and goes down hard, cracking (his/her) head on a stone. When (he/she) comes round, (he/she) is fine, except for an egg-sized lump and the fact that (his/her) own name is simply gone. (He/She) can name every shrimp in the pool. The village calls (him/her) \"?\" for now, gently.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L14785",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(He/She) lands face-first in the soft mud of the bank with a tremendous splat. Nothing is hurt but (his/her) pride. (He/She) gets up, plastered from head to toe, and finds the shrimp (he/she) was reaching for sitting on (his/her) nose. (He/She) takes it home in triumph.",
+   "src": "L14788"
+  },
+  "c1": {
+   "text": "(Name) leaps. For a moment (he/she) is in the air over the pool, arms windmilling...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14782"
+  },
+  "c2o1": {
+   "text": "And then it rolls over, and (name) goes into the pool with it. The rock comes down on (his/her) foot underwater and pins it. By the time (name) wrenches free, the foot is badly crushed. It heals crooked, and (name) walks with a limp from then on, and won't go into any water deeper than (his/her) ankles.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -30,
+     "max": -30,
+     "role": "subject"
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L14794",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The rock holds. (Name) stays perfectly still for so long that the shrimp forget (he/she) is there, and walk right into the net, a dozen at a time. (Name) comes home with a full basket and a new respect for keeping still, which turns out to help with nearly everything (he/she) does.",
+   "effects": [
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 10,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L14797",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) freezes, arms out, perfectly still. The rock wobbles. Water roars past. Slowly, very slowly, the rock settles...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14791"
+  }
+ }
+}

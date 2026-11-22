@@ -1,0 +1,274 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Jealous of the Applause",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs22_jealous",
+  "source": "anthology",
+  "lines": [
+   29755,
+   29768
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29755",
+  "ledger": [
+   {
+    "src": "L29756",
+    "kind": "sensitivity",
+    "before": "their sibling receives",
+    "after": "their sibling, (sibling), receives",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29756",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29758",
+    "kind": "sensitivity",
+    "before": "The sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29759",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29761",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29762",
+    "kind": "sensitivity",
+    "before": "The friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29764",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29767",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager feels overshadowed when their sibling receives public praise.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "sibling",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "sibling": {
+   "kind": "villager",
+   "min_age": 14,
+   "relation": {
+    "sibling_of": "villager"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) feels overshadowed when their sibling, (sibling), receives public praise.",
+   "src": "L29756",
+   "choices": [
+    {
+     "label": "Congratulate the Sibling Honestly",
+     "next": "a",
+     "src": "L29757"
+    },
+    {
+     "label": "Share the Feeling with a Trusted Friend",
+     "next": "b",
+     "src": "L29760"
+    },
+    {
+     "label": "Seek a Different Challenge",
+     "next": "c",
+     "src": "L29763"
+    },
+    {
+     "label": "Ask for Recognition Directly",
+     "next": "d",
+     "src": "L29766"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(sibling) notices the effort and thanks them.",
+   "src": "L29758"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(villager) is happy for them but still feels a private sting.",
+   "src": "L29759"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(friend) listens without dismissing the jealousy.",
+   "src": "L29761"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(friend) helps identify a desire for recognition that had gone unspoken.",
+   "src": "L29762"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their first attempt goes poorly, but curiosity survives.",
+   "src": "L29765"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(elder) acknowledges overlooked contributions.",
+   "src": "L29767"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The request feels awkward, yet it opens a useful conversation.",
+   "src": "L29768"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers satisfaction in a skill of their own.",
+   "src": "L29764",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29764"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29764"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(villager) discovers satisfaction in a skill of their own.",
+   "src": "L29764",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29764"
+    }
+   ]
+  }
+ }
+}

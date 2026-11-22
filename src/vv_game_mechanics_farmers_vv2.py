@@ -119,9 +119,10 @@ SOURCE_RULES = (
 # bin), over the map the stock map builder 0x418660 makes from the owner's grown village (its slot 5 save: every
 # technology at level 3, the dam built, Sustainable Fishing solved): 400 back-to-back trips of an adult with Farming
 # 87 for each source (every check passes; no big catch below 88), seed 11; the big catch: 400 fishing trips with
-# Farming 100, seed 13 (38 big catches).  Over the map built from a fresh state (no buildings, no dam; crops with
+# Farming 100, seed 13 (38 big catches).  The longest crop trip is 1,755 frames, exactly 57.915 s: 57.92 to two
+# places (it was pinned 57.91 by a rounding of 57.9149...; the test's frames x 0.033 gives 57.92).  Over the map built from a fresh state (no buildings, no dam; crops with
 # the dam): coconuts 126.48 (122.96-135.96), crops 40.85 (31.91-57.91), fish 122.58 (110.88-133.91).
-TRIP_SAMPLES = {"coconut trips": (400, 127.73, 122.96, 135.99), "crop trips": (400, 40.95, 31.91, 57.91),
+TRIP_SAMPLES = {"coconut trips": (400, 127.73, 122.96, 135.99), "crop trips": (400, 40.95, 31.91, 57.92),
                 "fishing trips": (400, 121.10, 103.92, 136.92), "big catches": (38, 122.06, 109.89, 133.91)}
 SPEEDS = (3, 6, 10)
 LIVE_FOOD = {"coconut trips": {3: 8, 6: 4, 10: 2}, "crop trips": {3: 10, 6: 7, 10: 4},
@@ -191,7 +192,7 @@ TRIPS: tuple[Trip, ...] = (
         key="crop trips",
         job="Farming preference, harvesting the field (the dam built, crops on the field)",
         live_seconds=_live(40.95),
-        live_span=_span(31.91, 57.91),
+        live_span=_span(31.91, 57.92),
         live_food=dict(LIVE_FOOD["crop trips"]),
         catch_up_food=CATCH_UP_FOOD["crop trips"],
         catch_up_trips_per_turn=FARMING_CHOSEN,

@@ -1,0 +1,12 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+living_le_cel_01	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	The village leader cooks a disappointing feast.		
+living_le_cel_02	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A famous dancer discovers an apprentice dances better.		
+living_le_cel_03	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A village game ends in a disputed tie.		
+living_le_cel_04	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A child invents a festival nobody understands.		
+living_le_cel_05	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A musician refuses to play for an important guest.		
+living_le_cel_06	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	The feast's centerpiece is accidentally ruined.		
+living_le_cel_07	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A prank leaves a usually cheerful villager embarrassed.		
+living_le_cel_08	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	Two storytellers claim to have invented the same tale.		
+living_le_cel_09	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	An animal wanders into a solemn ceremony.		
+living_le_cel_10	Celebration and Play	1,2,3,4,5	1	living_le_cel	Original Isola concepts and creative direction: Lorsieab2. Modular framework and new scenario writing: ChatGPT (OpenAI).	A wedding guest arrives wearing the same outfit as the couple.		

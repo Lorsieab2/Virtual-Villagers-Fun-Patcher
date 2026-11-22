@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "One Place in the Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep18_one_place_canoe",
+  "source": "draft_dep",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers both want the last place in the fishing canoe: draw straws, or give the place away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The big fishing canoe is going out along the coast for several days, and there is room for one more paddler. Both (subject) and (friend) want to go. Both have wanted to go for years. They are standing on the beach, being extremely polite to each other in the way people are when they both want the same thing very badly.",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Draw Straws",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Give the Place Away",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) steps back. \"You go.\" (friend) protests, but not very hard. The canoe leaves, and (subject) watches it go with mixed feelings and no regrets, both at once. When (friend) gets back, (friend.he/she) talks about the trip for two days. (subject) listens to every word, and makes (friend.him/her) promise: next time, it's (subject)'s turn.",
+   "src": "L221"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They pull two grass stems from a bundle. (subject) gets the long one. (subject.He/she) can't quite hide how pleased (subject.he/she) is, and (friend) can't quite hide how disappointed (friend.he/she) is, and they both pretend not to notice either. When the canoe comes back, (subject) has brought (friend) the best shell (subject.he/she) found. It helps a little.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L218"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They pull two grass stems from a bundle. (subject) gets the long one. (subject.He/she) can't quite hide how pleased (subject.he/she) is, and (friend) can't quite hide how disappointed (friend.he/she) is, and they both pretend not to notice either. When the canoe comes back, (subject) has brought (friend) the best shell (subject.he/she) found. It helps a little.",
+   "src": "L218"
+  }
+ }
+}

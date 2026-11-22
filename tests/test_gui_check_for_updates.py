@@ -158,11 +158,13 @@ class ReleasesLinkTests(unittest.TestCase):
         own = {"vv_fun_patcher", "transparency", "vv_save_backup", "vv_save_clock", "vv3_second_faction", "vv_tribe_rename", "vv_log_tools",
                "vv_log_additions", "vv_last_names", "vv_how_to_use", "patcher_files",
                "vv_genealogy", "vv_family_tree", "vv_gdiplus", "vv_line_colours", "vv_genealogy_window", "vv_tree_editor_tools",
-               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
+               "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_long_paths", "vv_repair_copies", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
-               "vv_original_look", "vv_misfiled_records",
+               "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
+               # The Conception and Birth records the saved village never held (v1.35.97).
+               "vv_not_kept",
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
                # the patcher makes for them (v1.35.87).
                "vv_game_text", "vv_font_glyphs",
@@ -179,6 +181,10 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
                # The horizontal scroll bars every window's scrolling areas share (the owner, 2026-11-11).
                "vv_scrollbars",
+               # Village Solidarity's numbers (the owner, 2026-11-17): the GUI reads its slider's strength from it.
+               "vv_village_scores",
+               # Village Solidarity and the games' own island events (the owner, 2026-11-20): the tag table.
+               "vv_stock_event_solidarity",
                # Game Mechanics (the owner, 2026-10-22): its window, the page and each game's module,
                # found by name (importlib) and so listed here for the release zip.
                "vv_game_mechanics_window", "vv_game_mechanics", "vv_game_mechanics_vv1", "vv_game_mechanics_vv2", "vv_game_mechanics_vv3",
@@ -197,8 +203,34 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_game_mechanics_hidden_vv3", "vv_game_mechanics_hidden_vv4", "vv_game_mechanics_hidden_vv5",
                "vv_game_mechanics_nursery",
                "vv_game_mechanics_tech_time",
+               # More Island Events (the owner, 2026-11-12): the Aspiring Adventurer's text and its page entry.
+               "vv_aspiring_adventurer", "vv_game_mechanics_adventurer",
+               # ...and The Cave Explorers' (A New Home).
+               "vv_cave_explorers",
+               # ...and The Climb's (The Lost Children).
+               "vv_the_climb",
+               # ...and The Troubling Signs' (The Secret City).
+               "vv_troubling_signs",
+               # ...and Diving for Treasure's (The Secret City).
+               "vv_diving_for_treasure",
+               # ...and The Playful Dolphins' (The Tree of Life).
+               "vv_playful_dolphins",
+               # ...and The Mysterious Mask's (The Tree of Life).
+               "vv_mysterious_mask",
+               # ...and The Remembrance Ceremony's and The Rumblings' (all five games), with their page entries.
+               "vv_remembrance_ceremony", "vv_the_rumblings", "vv_game_mechanics_ceremony",
+               # Children Play Tag and Build Sandcastles (v1.35.97): its page lines.
+               "vv_game_mechanics_children_play",
+               # Isola Grand Event Collection (v1.35.97): its page entry.
+               "vv_game_mechanics_collection",
+               # No Safeguards for Island Events (v1.35.97): its page lines.
+               "vv_game_mechanics_no_safeguards",
+               # Player Events (v1.35.97): the patcher window's Player Events section.
+               "vv_player_events_ui",
                # Stew Recipes (the owner, 2026-11-10): its window and its pages.
                "vv_stew_recipes_window", "vv_stew_recipes",
+               # Custom Island Event Library (the owner, 2026-11-12): its window and the event format.
+               "vv_cie_library_window", "vv_cie_graph",
                # Picture Studio (the owner, 2026-10-31): its window, the shared image code and each game's
                # renderer, found by name (importlib) and so listed here for the release zip.
                "vv_picture_studio", "vv_unicode_font", "vv_picture_image", "vv_pictures_common", "vv_pictures_carried", "vv_pictures_vv1", "vv_pictures_vv2",
@@ -222,12 +254,12 @@ class ReleasesLinkTests(unittest.TestCase):
         for module, may_import in (
             # Its game-speed changes replay each game's own speed routine (vv_save_clock), which
             # imports nothing of the patcher's.
-            ("vv_save_backup", {"vv_save_clock", "vv3_second_faction"}),
+            ("vv_save_backup", {"vv_save_clock", "vv3_second_faction", "vv_long_paths"}),
             ("vv_save_clock", set()),
             # Copy Player Slot: Rename Tribe's slot reading and name rule, Back Up Saves, the per-save layout;
             # function-level: the villagers as Last Names reads them, the refuse-if-running helper, the
             # shared Like and Dislike Words boundaries and The Lost Children's ElderTotems.dat.
-            ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_tribe_rename", "vv_last_names",
+            ("vv_copy_slot", {"vv_save_backup", "vv_save_layout", "vv_long_paths", "vv_tribe_rename", "vv_last_names",
                               "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
                               "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
             # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
@@ -238,6 +270,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store", "vv_long_names"}),
             ("vv_log_tools", {"vv_save_backup", "vv_log_additions", "vv_last_names", "vv_genealogy",
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions",
+                              "vv_repair_copies",      # the copies kept before repairs: short names, an index
                               "vv_log_contradictions",
                               # Check Saves & Logs' NOTE for older logs' '?' names (v1.35.89).
                               "vv_legacy_names",
@@ -272,7 +305,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_answered_questions"}),
             # The always-on read-only reconciliation of records, logs and files (the owner, 2026-10-11), and
             # the pickers' background run of it.
-            ("vv_reconcile", {"vv_save_layout", "vv_log_tools", "vv_last_names", "vv_lost_titles",
+            ("vv_reconcile", {"vv_save_layout", "vv_long_paths", "vv_repair_copies", "vv_log_tools", "vv_last_names", "vv_lost_titles",
                               "vv_log_additions", "vv_genealogy", "vv_tribe_rename", "vv_log_decisions",
                               "vv1_parents_restore", "vv_titles_file",
                               "vv_save_backup",        # a backup first, when an answer settles a custom title (v1.35.71)
@@ -329,7 +362,8 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Custom Titles file, version 3 and 2 (native/shared/custom_titles.h; v1.35.70).
             ("vv_titles_file", set()),
             # Restore A New Home Parents: the copies of the parents file, the Repairs Made note.
-            ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout"}),
+            ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout", "vv_long_paths",
+                                     "vv_repair_copies"}),
             # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
             ("vv_corrupt_skills", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_tribe_rename",
                                    "vv_save_layout"}),
@@ -360,7 +394,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_answered_questions",    # "the same villager?" asked in the tree (v1.35.80 update)
                                      "vv_tool_fonts"}),          # the tool windows' fonts (the VF1 patcher's)
             # Remove a restarted tribe's villagers from the history (the owner, v1.35.73).
-            ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup"}),
+            ("vv_history_revision", {"vv_log_tools", "vv_log_additions", "vv_reconcile", "vv_save_backup", "vv_long_paths"}),
             # The Family Tree Maker's Villager Info tab (the owner, 2026-10-10).
             ("vv_villager_info", {"vv_family_tree", "vv_genealogy", "vv_last_names",
                                  "vv_save_layout", "vv_log_additions", "vv_titles_file", "vv_relationships"}),
@@ -374,15 +408,20 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_tree_editor_tools", {"vv_family_tree", "vv_gdiplus", "vv_tool_fonts"}),
             # The save folder's folder and file names, old and new (the owner, 2026-10-09).
             ("vv_save_layout", set()),
+            # Paths of any length (the owner, 2026-11-20), and the copies kept before repairs.
+            ("vv_long_paths", {"patcher_files"}),
+            ("vv_repair_copies", {"vv_long_paths", "vv_save_layout"}),
             # Game Mechanics: the slot's save named as every repair tool names it (function-level), and its window.
             ("vv_game_mechanics", {"vv_tribe_rename",
-                                   "vv_game_mechanics_tech_time",  # 2-10x Tech Cost: the multiplier read from the exe (function-level)
+                                   "vv_game_mechanics_tech_time",  # 0.1-10x Tech Cost: the multiplier read from the exe (function-level)
                                    "vv_last_names",    # the villagers, as Last Names reads them (function-level)
                                    "vv_game_mechanics_counts",  # the Village counts group (function-level)
                                    "vv_game_mechanics_chances",  # the old-age roll's exact odds (function-level)
                                    "vv_fun_patcher",  # the patcher's own applied-patch check of the exe (function-level)
                                    "patcher_files"}),  # the patch log's names, read at any path length
-            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts"}),
+            # ...and the Minimum Detail tick box's words as the chosen translation shows them (function-level).
+            ("vv_game_mechanics_window", {"vv_game_mechanics", "vv_save_backup", "vv_tribe_rename", "vv_tool_fonts",
+                                          "vv_translations"}),
             # Picture Studio: the window, the pure-Python image code (no Pillow), the save and the patcher's own
             # files as the log checker reads them (function-level), and each game's renderer.
             ("vv_picture_studio", {"vv_picture_image", "vv_pictures_common", "vv_pictures_text_tab",
@@ -418,13 +457,31 @@ class ReleasesLinkTests(unittest.TestCase):
                                             "vv_game_mechanics_farmers",
                                             # The Tree of Life: the living villagers, as Last Names reads them,
                                             # to bind the yellow fruit tree's file (function-level).
-                                            "vv_last_names"})
+                                            "vv_last_names",
+                                            # Children Play Tag and Build Sandcastles' lines.
+                                            "vv_game_mechanics_children_play",
+                                            # Village Solidarity's lines.
+                                            "vv_game_mechanics_solidarity",
+                                            # The Secret City: the Tribal Chief's Directing work (function-level).
+                                            "vv_game_mechanics_chief_vv3"})
               for n in range(1, 5)),
             # New Believers also has its God powers group in its own module.
             ("vv_game_mechanics_vv5", {"vv_game_mechanics", "vv_save_backup", "vv_game_mechanics_life",
                                        "vv_game_mechanics_death", "vv_game_mechanics_powers_vv5",
                                        "vv_game_mechanics_events", "vv_game_mechanics_faith_vv5",
-                                       "vv_game_mechanics_nursery"}),
+                                       "vv_game_mechanics_nursery",
+                                       # Children Play Tag and Build Sandcastles' lines.
+                                       "vv_game_mechanics_children_play",
+                                       # Village Solidarity's lines.
+                                       "vv_game_mechanics_solidarity"}),
+            # Children Play Tag and Build Sandcastles: the page's words only.
+            ("vv_game_mechanics_children_play", {"vv_game_mechanics"}),
+            # Village Solidarity: the page's words and the slider's numbers.
+            ("vv_game_mechanics_solidarity", {"vv_game_mechanics", "vv_village_scores", "vv_stock_event_solidarity"}),
+            # The games' own island events' tags: none of the patcher's modules.
+            ("vv_stock_event_solidarity", set()),
+            # The Secret City's Tribal Chief: the page's words, the villagers as Last Names reads them (function-level).
+            ("vv_game_mechanics_chief_vv3", {"vv_game_mechanics", "vv_last_names"}),
             # God powers: the Spirituality roll's exact odds from the shared Chances helpers.
             ("vv_game_mechanics_powers_vv5", {"vv_game_mechanics", "vv_game_mechanics_chances"}),
             # Death and graves: the graves and Deaths log as Fix grave information reads them, the villagers as
@@ -433,9 +490,36 @@ class ReleasesLinkTests(unittest.TestCase):
                                          "vv_game_mechanics_life"}),
             # The Island events catalogs: the shared renderer (the Room line's population mode, function-level),
             # and each game's events.
-            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life"}),
-            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events"})
+            ("vv_game_mechanics_events", {"vv_game_mechanics", "vv_game_mechanics_life",
+                                          "vv_game_mechanics_collection",
+                                          # No Safeguards' page lines; More Frequent Island Events' setting file
+                                          # beside its companion (function-level)
+                                          "vv_game_mechanics_no_safeguards", "patcher_files"}),
+            ("vv_game_mechanics_no_safeguards", {"vv_game_mechanics"}),
+            ("vv_game_mechanics_collection", {"vv_game_mechanics", "vv_game_mechanics_adventurer"}),
+            *((f"vv_game_mechanics_events_vv{n}", {"vv_game_mechanics", "vv_game_mechanics_events",
+                                                  # More Island Events' The Aspiring Adventurer
+                                                  "vv_game_mechanics_adventurer",
+                                                  # ...and The Remembrance Ceremony and The Rumblings
+                                                  "vv_game_mechanics_ceremony"})
               for n in (1, 2, 3, 4, 5)),
+            ("vv_game_mechanics_ceremony", {"vv_remembrance_ceremony", "vv_the_rumblings",
+                                            "vv_game_mechanics_events",
+                                            # the rare roll's words (fix/97-release-1)
+                                            "vv_game_mechanics_adventurer"}),
+            ("vv_remembrance_ceremony", set()),
+            ("vv_the_rumblings", set()),
+            ("vv_game_mechanics_adventurer", {"vv_aspiring_adventurer", "vv_cave_explorers", "vv_the_climb",
+                                              "vv_troubling_signs", "vv_diving_for_treasure",
+                                              "vv_playful_dolphins", "vv_mysterious_mask",
+                                              "vv_game_mechanics_events"}),
+            ("vv_aspiring_adventurer", set()),
+            ("vv_cave_explorers", set()),
+            ("vv_the_climb", set()),
+            ("vv_troubling_signs", set()),
+            ("vv_diving_for_treasure", set()),
+            ("vv_playful_dolphins", set()),
+            ("vv_mysterious_mask", set()),
             # The people and clocks: the villagers as Last Names reads them, the per-save files' places.
             ("vv_game_mechanics_life", {"vv_game_mechanics", "vv_last_names", "vv_save_layout",
                                         "vv_game_mechanics_farmers",
@@ -443,7 +527,10 @@ class ReleasesLinkTests(unittest.TestCase):
                                         "vv_game_mechanics_tech_time",
                                         # Each villager's skills where the saved entry keeps them (function-level;
                                         # the Cooking Pit and Hand of Bloom estimates, 2026-11-08).
-                                        "vv_corrupt_skills"}),
+                                        "vv_corrupt_skills",
+                                        # The meal companion's number beside it, in the patcher's folder
+                                        # (function-level; the Hungrier Villagers line, 2026-11-17).
+                                        "patcher_files"}),
             ("vv_game_mechanics_farmers", set()),
             *((f"vv_game_mechanics_farmers_vv{n}", {"vv_game_mechanics_farmers"}) for n in range(1, 6)),
             # The Genetics group: the villagers and their parents as Last Names reads them (function-level).
@@ -473,9 +560,12 @@ class ReleasesLinkTests(unittest.TestCase):
             with self.subTest(module=module):
                 # Every reader of the games' own text bytes reads them the one way (v1.35.87): Windows-1252,
                 # every byte kept.  vv_game_text imports only the standard library.  Any window may use the
-                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).
+                # shared horizontal scroll bars (vv_scrollbars, tkinter only; the owner, 2026-11-11).  Any tool that
+                # matches villagers may read the save's Sex Changes log (vv_sex_changes, the save layout only).
+                # Any log reader may skip the records the saved village never held (vv_not_kept, no imports).
                 self.assertEqual(imported - set(sys.stdlib_module_names) - may_import
-                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars"},
+                                 - {"vv_game_text", "vv_unicode18", "vv_scrollbars", "vv_sex_changes",
+                                    "vv_not_kept"},
                                  set())
         tree = ast.parse((ROOT / "src" / "vv_game_text.py").read_text(encoding="utf-8"))
         own_imports = {alias.name.split(".")[0] for node in ast.walk(tree) if isinstance(node, ast.Import)

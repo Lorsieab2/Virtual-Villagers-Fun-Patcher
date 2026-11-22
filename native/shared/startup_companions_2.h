@@ -57,7 +57,42 @@ static const char *const VVFP_STARTUP_COMPANIONS_2[] = {
     /* Picked Up Collectibles Stay Collected When Dropped (A New Home, The Lost Children): the award at the pick /
        right after the carry step, never again at delivery. */
     "VVFP Collectibles Stay Collected.dll",
-    /* APPEND ONLY (see above). */
+    /* Scrolling Popups (The Secret City, The Tree of Life, New Believers): scrollbars on the island-event popups
+       whose text does not fit. */
+    "VVFP Scrolling Popups.dll",
+    /* Fix Vanilla Bugs (The Lost Children, The Secret City, The Tree of Life, New Believers): a word wider than its box
+       gets a line of its own instead of hanging the game's line layout. */
+    "VVFP Long Words.dll",
+    /* The Aspiring Adventurer (all five games): the owner's new island event. */
+    "VVFP More Island Events.dll",
+    /* Empty the Stew Pot from the Science Hut Door (The Lost Children): a drop on the science hut's doorway empties
+       a ready stew. */
+    "VVFP VV2 Empty Stew.dll",
+    /* Adults Dropped on Mushrooms or Collectibles Are Confused (all five games): the game's Confused action and
+       its own message for an adult dropped on a mushroom or collectible. */
+    "VVFP Adult Confused.dll",
+    /* Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices in each
+       child's pastime pick. */
+    "VVFP Children Play.dll",
+    /* Change Sex and Gender Presentation (all five games): a villager drawn with the other sex's heads and bodies,
+       keeping the recorded sex; its row also offers Change Appearance's Change sex button. */
+    "VVFP Gender Presentation.dll",
+    /* More Frequent Island Events (all five games): the game's own island events N times as often (the patcher
+       window's slider, read from VVFP Island Frequency.txt beside it). */
+    "VVFP Island Frequency.dll",
+    /* No Safeguards for Island Events (and Additional Events too) (all five games): the game's own island events
+       without their conditions, except what an event needs (its villagers, its puzzle) and what keeps it safe. */
+    "VVFP No Safeguards.dll",
+    /* Fix Vanilla Bugs (all five games): the games' own text fixes -- the owner's approved typos, and the Food Mastery
+       tech's Level 2 line (The Tree of Life, New Believers). */
+    "VVFP Text Fixes.dll",
+    /* Fix Vanilla Bugs (The Tree of Life): after The Frog Rescue the frogs leap all along the river's blue water. */
+    "VVFP VV4 Frogs.dll",
+    /* The third word (native/shared/startup_companions_3.h): started for a build that ships any third-word
+       companion, it starts the ones the build names in VVFP More Companions.txt beside it.  The word's LAST entry
+       (bit 31; the v1.35.97 merge put Text Fixes and VV4 Frogs before it -- none of these had shipped). */
+    "VVFP More Companions.dll",
+    /* FULL (32 of 32): a new companion goes in the third word. */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_2 \
     (sizeof VVFP_STARTUP_COMPANIONS_2 / sizeof VVFP_STARTUP_COMPANIONS_2[0])

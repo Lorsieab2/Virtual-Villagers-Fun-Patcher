@@ -1,0 +1,133 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night the Stone Kept Them Warm",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo44_night_stone_kept",
+  "source": "da_lo",
+  "lines": [
+   534,
+   543
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L534",
+  "ledger": [
+   {
+    "src": "L535",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L543",
+    "kind": "instruction",
+    "text": "[effect: both villagers lose a little health]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "Two villagers caught in a storm shelter in a cave with no fire, and one has a cold, dark lavastone.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) were caught by a sudden storm far from the village and have taken shelter in a shallow cave. Night is coming. They are soaked through, and the wind is bitterly cold, and they have no way to make a fire. (subject) has a small lavastone in (subject.his/her) pocket, cold and dark.",
+   "src": "L537",
+   "choices": [
+    {
+     "label": "Hold the Stone Between You",
+     "next": "a",
+     "src": "L539"
+    },
+    {
+     "label": "Huddle and Wait",
+     "next": "b",
+     "src": "L542"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "They put the stone aside, huddle together, and wait out the night as best they can, shivering. Sometime in the small hours, (subject) notices the stone glowing faintly by itself on the cave floor, warming the air around it a little. Nobody touched it. By morning, they are cold and stiff but safe. They limp home. Neither of them can explain the glow.",
+   "src": "L543",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -10,
+     "src": "L543"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -10,
+     "src": "L543"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They sit close together with the stone cupped in their hands between them. Slowly, it begins to warm. Then to glow. By midnight it's as warm as a small fire, and they are dry, and the cave is full of soft red light. They talk until dawn. In the morning the storm is over, the stone is cold and cracked, and both of them walk home safe. Neither of them ever forgets that night.",
+   "src": "L540",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L540"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L540"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They sit close together with the stone cupped in their hands between them. Slowly, it begins to warm. Then to glow. By midnight it's as warm as a small fire, and they are dry, and the cave is full of soft red light. They talk until dawn. In the morning the storm is over, the stone is cold and cracked, and both of them walk home safe. Neither of them ever forgets that night.",
+   "src": "L540"
+  }
+ }
+}

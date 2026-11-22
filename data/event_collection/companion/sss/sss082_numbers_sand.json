@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Numbers in the Sand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss082_numbers_sand",
+  "source": "companion",
+  "lines": [
+   6915,
+   6923
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6915",
+  "ledger": [
+   {
+    "src": "L6923",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child struggles with spoken counting but invents a clever way to group shells.",
+  "cast_only": [
+   "child",
+   "instructor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "instructor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child struggles to follow spoken counting but invents an ingenious way to group shells.",
+   "src": "L6916",
+   "choices": [
+    {
+     "label": "Let them demonstrate",
+     "next": "a",
+     "src": "L6917"
+    },
+    {
+     "label": "Try tangible counters",
+     "next": "b",
+     "src": "L6919"
+    },
+    {
+     "label": "Ask what remains difficult",
+     "next": "c",
+     "src": "L6921"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The instructor sees genuine understanding.",
+   "src": "L6918"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child explains that long spoken instructions slip away.",
+   "src": "L6922"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Several students learn more easily.",
+   "src": "L6920",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6920"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Several students learn more easily.",
+   "src": "L6920"
+  }
+ }
+}

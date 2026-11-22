@@ -1,0 +1,274 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scars We Do Not Explain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp58_scars_we_do",
+  "source": "anthology",
+  "lines": [
+   32160,
+   32174
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32160",
+  "ledger": [
+   {
+    "src": "L32161",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32162",
+    "kind": "sensitivity",
+    "before": "A villager with old scars is",
+    "after": "(villager), a villager with old scars, is",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32165",
+    "kind": "sensitivity",
+    "before": "A friend",
+    "after": "(friend)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32167",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32171",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(young), a young villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32173",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager with old scars is tired of being asked how they were acquired.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "friend",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), a villager with old scars, is tired of being asked how they were acquired.",
+   "src": "L32162",
+   "choices": [
+    {
+     "label": "Respect Privacy",
+     "next": "a",
+     "src": "L32163"
+    },
+    {
+     "label": "Offer Practical Support",
+     "next": "b",
+     "src": "L32166"
+    },
+    {
+     "label": "Challenge Assumptions",
+     "next": "c",
+     "src": "L32169"
+    },
+    {
+     "label": "Share Ordinary Time",
+     "next": "d",
+     "src": "L32172"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The questions stop.",
+   "src": "L32164"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(friend) apologizes for intruding.",
+   "src": "L32165"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager) asks for help with a task.",
+   "src": "L32167"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They say no assistance is needed.",
+   "src": "L32168"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Others stop treating the scars as a complete life story.",
+   "src": "L32170"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(young), a young villager, learns not all histories are public.",
+   "src": "L32171"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(villager) joins a fishing trip.",
+   "src": "L32173",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L32173"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(villager) joins a fishing trip.",
+   "src": "L32173"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They spend the afternoon laughing about unrelated things.",
+   "src": "L32174",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L32174"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L32174"
+    },
+    {
+     "do": "mood",
+     "role": "young",
+     "mood": "good",
+     "src": "L32174"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "They spend the afternoon laughing about unrelated things.",
+   "src": "L32174"
+  }
+ }
+}

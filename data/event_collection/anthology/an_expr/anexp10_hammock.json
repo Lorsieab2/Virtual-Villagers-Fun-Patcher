@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hammock Argument",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp10_hammock",
+  "source": "anthology",
+  "lines": [
+   31392,
+   31406
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31392",
+  "ledger": [
+   {
+    "src": "L31393",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31394",
+    "kind": "sensitivity",
+    "before": "Two villagers both claim",
+    "after": "(villager1) and (villager2) both claim",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31402",
+    "kind": "sensitivity",
+    "before": "A craftsperson",
+    "after": "(crafts), a craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two villagers both claim the only hammock in a shady grove.",
+  "label_case": "title",
+  "cast_only": [
+   "villager1",
+   "villager2",
+   "crafts"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager2": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager1) and (villager2) both claim the only hammock in a shady grove.",
+   "src": "L31394",
+   "choices": [
+    {
+     "label": "Ask Who Arrived First",
+     "next": "a",
+     "src": "L31395"
+    },
+    {
+     "label": "Suggest Taking Turns",
+     "next": "b",
+     "src": "L31398"
+    },
+    {
+     "label": "Weave Another Hammock",
+     "next": "c",
+     "src": "L31401"
+    },
+    {
+     "label": "Discuss Shared Property",
+     "next": "d",
+     "src": "L31404"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "One concedes after remembering the order.",
+   "src": "L31396"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A quiet schedule settles the issue.",
+   "src": "L31399"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One villager decides to rest elsewhere.",
+   "src": "L31400"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(crafts), a craftsperson, teaches a willing apprentice.",
+   "src": "L31402"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The new hammock is reserved for someone recovering from illness.",
+   "src": "L31403"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The tribe agrees on simple rules.",
+   "src": "L31405"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "A villager asks whether personal hammocks deserve different treatment.",
+   "src": "L31406"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "Neither remembers and both laugh at their certainty.",
+   "src": "L31397",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager1",
+     "mood": "good",
+     "src": "L31397"
+    },
+    {
+     "do": "mood",
+     "role": "villager2",
+     "mood": "good",
+     "src": "L31397"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "Neither remembers and both laugh at their certainty.",
+   "src": "L31397"
+  }
+ }
+}

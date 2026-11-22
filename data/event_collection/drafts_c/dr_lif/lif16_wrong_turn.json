@@ -1,0 +1,129 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Turn",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif16_wrong_turn",
+  "source": "draft_lif",
+  "lines": [
+   182,
+   191
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L182",
+  "ledger": [
+   {
+    "src": "L183",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 30 or older)"
+   }
+  ],
+  "description": "A villager passes the wrong turn that led to a lifelong friend: take it again, or go and tell the friend.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Years ago, (name1) got lost on the way to the far gardens, took the wrong path and ended up at the stream, where (he/she) sat down, annoyed, next to someone (he/she) had never really talked to before. They're still friends. Today, walking the same path, (name1) passes that exact wrong turn and stops.",
+   "src": "L185",
+   "choices": [
+    {
+     "label": "Take the Wrong Turn Again",
+     "next": "o1",
+     "src": "L187"
+    },
+    {
+     "label": "Go Tell the Friend",
+     "next": "o2",
+     "src": "L190"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) takes it, just for old times' sake. It still leads to the stream. There's nobody sitting there today. (name1) sits down anyway. It's a lovely spot. (He/she) thinks about how much of (his/her) life came from that one mistake: the friendship, and then all the people that friend introduced (him/her) to, and everything after. (He/she) laughs. (He/she) has been grateful to a wrong turn for years without noticing.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L188"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) takes it, just for old times' sake. It still leads to the stream. There's nobody sitting there today. (name1) sits down anyway. It's a lovely spot. (He/she) thinks about how much of (his/her) life came from that one mistake: the friendship, and then all the people that friend introduced (him/her) to, and everything after. (He/she) laughs. (He/she) has been grateful to a wrong turn for years without noticing.",
+   "src": "L188"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) goes to find the friend and reminds them about that day. The friend doesn't remember it at all. \"You sat next to me? At the stream?\" \"You were eating a mango. Very messily.\" \"...That does sound like me.\" They laugh. (name1) realizes the most important day of (his/her) life is one the other person can't even remember. (He/she) finds this very funny.",
+   "src": "L191",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L191"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(name1) goes to find the friend and reminds them about that day. The friend doesn't remember it at all. \"You sat next to me? At the stream?\" \"You were eating a mango. Very messily.\" \"...That does sound like me.\" They laugh. (name1) realizes the most important day of (his/her) life is one the other person can't even remember. (He/she) finds this very funny.",
+   "src": "L191"
+  }
+ }
+}

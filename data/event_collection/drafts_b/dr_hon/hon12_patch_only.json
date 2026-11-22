@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Patch That Only Looked Finished",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon12_patch_only",
+  "source": "draft_hon",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L146",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L149",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager only half patched the storehouse roof, and the rain got in: own it, or fix it before anyone asks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) was asked to patch the leak in the storehouse roof before the rains. (subject.He/she) fixed the part you can see from the ground, very neatly, and meant to come back and do the hidden part underneath. (subject.He/she) never came back. Last night it rained. This morning (friend) has found a puddle on the grain baskets.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Own It",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Fix It Before Anyone Asks",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I didn't finish it,\" says (subject). \"I did the outside and meant to come back.\" (friend) looks at the wet baskets. \"Some of this can be dried in the sun. Some of it's spoiled.\" (subject) spends two days on that roof, inside and out. It becomes the most thoroughly patched roof on Isola. The spoiled grain is still spoiled.",
+   "src": "L146",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L146"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) climbs straight up, without a word, and does the whole job properly. (friend) watches from below. \"Didn't you do that last week?\" \"Half of it,\" admits (subject), from the roof. (friend) nods slowly and goes to spread the wet grain out in the sun.",
+   "src": "L149",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L149"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

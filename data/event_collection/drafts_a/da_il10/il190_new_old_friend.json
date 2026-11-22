@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A New Old Friend",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il190_new_old_friend",
+  "source": "da_il10",
+  "lines": [
+   110,
+   119
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L110",
+  "ledger": [
+   {
+    "src": "L111",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Two elders who have barely ever talked wait out a rain shower together and find they share a sense of humor.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) have lived in the same village their whole lives and have barely ever had a real conversation. Today, waiting out a rain shower under the same roof, (friend) makes a dry little remark about a duck, and (subject) laughs so hard (subject.he/she) has to sit down. It turns out they have exactly the same sense of humor.",
+   "src": "L113",
+   "choices": [
+    {
+     "label": "Make Up for Lost Time",
+     "next": "a",
+     "src": "L115"
+    },
+    {
+     "label": "Take It Slowly",
+     "next": "b",
+     "src": "L118"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They talk for the whole afternoon. And the next day. And the day after that. Soon they're sitting together at every meal, muttering remarks that make each other shake with laughter while everyone else wonders what's so funny. \"Why didn't we do this fifty years ago?\" says (friend) one evening. \"We were busy,\" says (subject). \"Now we're not.\"",
+   "src": "L116",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L116"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L116"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They talk for the whole afternoon. And the next day. And the day after that. Soon they're sitting together at every meal, muttering remarks that make each other shake with laughter while everyone else wonders what's so funny. \"Why didn't we do this fifty years ago?\" says (friend) one evening. \"We were busy,\" says (subject). \"Now we're not.\"",
+   "src": "L116"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They nod to each other the next day, and chat a little at dinner, and a few days later sit together by the fire. It's a slow start. Neither of them is in a hurry. But every so often, across a crowded gathering, one of them catches the other's eye at something absurd, and they both have to look away very quickly, so as not to laugh.",
+   "src": "L119",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L119"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L119"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They nod to each other the next day, and chat a little at dinner, and a few days later sit together by the fire. It's a slow start. Neither of them is in a hurry. But every so often, across a crowded gathering, one of them catches the other's eye at something absurd, and they both have to look away very quickly, so as not to laugh.",
+   "src": "L119"
+  }
+ }
+}

@@ -1,0 +1,289 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Silent Stranger at the Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my092_silent_stranger",
+  "source": "rewrites",
+  "lines": [
+   15208,
+   15263
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L15208",
+  "ledger": [
+   {
+    "src": "L15209",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L15210",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15218",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15225",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15232",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15239",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L15213",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15214",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15215",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15216",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L15219",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15226",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15233",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15240",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L15220",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15222",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15227",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15229",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15234",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15236",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15241",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15243",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L15246-15263",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Moonlight silvers the stone rim.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) cannot sleep, so (he/she) walks to the well for a drink at midnight. Moonlight silvers the stone rim. The frogs, usually so loud, have gone completely quiet. And someone is standing beside the well, waiting.\n\"Would you share water,\" the stranger asks, so softly that the words barely stir the air, \"with someone who can offer nothing in return?\" (Name) cannot see the stranger's face. (He/she) can only see two empty hands held out, palms up, in the moonlight. Should (name) share the water?",
+   "choices": [
+    {
+     "label": "Offer Water Freely",
+     "next": "c1",
+     "src": "L15213"
+    },
+    {
+     "label": "Ask Why They Need It",
+     "next": "c2",
+     "src": "L15214"
+    },
+    {
+     "label": "Call for Others",
+     "next": "c3",
+     "src": "L15215"
+    },
+    {
+     "label": "Refuse the Request",
+     "next": "c4",
+     "src": "L15216"
+    }
+   ],
+   "src": "L15211-15212"
+  },
+  "c1o1": {
+   "text": "When (he/she) has drunk enough, the stranger sets something on the rim of the well: a cup, carved from dark wood, with a band of tiny waves around the edge. \"For the next one who is thirsty,\" (he/she) says, and walks away into the dark, and the frogs start singing again. The cup stays by the well. Over the years it is dropped, kicked, knocked into the well twice and once sat on by an elder, and it never so much as chips.",
+   "src": "L15221"
+  },
+  "c1o2": {
+   "text": "The stranger drinks, then steps into the moonlight, and turns out to be a perfectly ordinary young traveler, dusty and tired, who arrived after dark and did not want to wake anyone. \"Thank you,\" (he/she) says, embarrassed. \"Sorry about the dramatic question. I've been walking for two days. I think I've gone a bit strange.\" (Name) laughs and lends (him/her) a sleeping mat. The frogs, it turns out, had just been startled.",
+   "src": "L15223"
+  },
+  "c1": {
+   "text": "\"Of course,\" (name) says at once, and lowers the bucket, and hauls it up brimming, and fills the stranger's cupped hands. The stranger drinks slowly, as though it were the finest thing (he/she) has ever tasted...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15219"
+  },
+  "c2o1": {
+   "text": "\"Because I have learned not to expect it,\" the stranger says. \"I have travelled very far, and lost everything along the way: my home, my boat, my family. I have been turned away from many wells.\" (Name) fills the bucket without another word, and the stranger drinks. Then (name) takes (him/her) home and gives (him/her) a meal, a blanket and a place to stay for as long as (he/she) needs. It turns out to be a long time, and the stranger becomes a familiar face in the village.",
+   "src": "L15228"
+  },
+  "c2o2": {
+   "text": "\"To know,\" the stranger says, \"what kind of village this is.\" And before (name) can answer, (he/she) steps back from the well, out of the moonlight, and is simply gone into the dark. (Name) stands alone by the well with the empty bucket. The frogs start up again. (He/she) is left with the uncomfortable feeling that (he/she) has just been asked a question, and has not answered it.",
+   "src": "L15230"
+  },
+  "c2": {
+   "text": "\"Why ask like that?\" (name) says carefully. \"Anyone can drink from our well. Why do you need to ask?\"...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15226"
+  },
+  "c3o1": {
+   "text": "Soon there are half a dozen sleepy villagers at the well, carrying blankets, a bowl of leftover stew, a cup and a lamp. The stranger accepts it all in silence, holding the warm bowl in both hands and not speaking for a long time. In the lamplight, (he/she) turns out to be an old traveler, thin and exhausted. \"I didn't think anyone would come,\" (he/she) finally whispers. The villagers take (him/her) in, and (he/she) stays until (he/she) is well enough to travel again.",
+   "src": "L15235"
+  },
+  "c3o2": {
+   "text": "By the time (name) comes back with the neighbours, the well is empty. The bucket sits on the rim, full to the brim with water, though nobody drew it. The neighbours grumble about being dragged out of bed for nothing and stomp back home. (Name) stays a while, looking at the full bucket. In the end, (he/she) drinks from it. It is the sweetest water (he/she) has ever tasted.",
+   "src": "L15237"
+  },
+  "c3": {
+   "text": "(Name) is not sure about this alone. \"Wait here,\" (he/she) says, and runs to wake the neighbours...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15233"
+  },
+  "c4o1": {
+   "text": "The stranger turns away without a word. Two nights later, a storm sweeps over the village, and when the rain stops, the well runs brown and muddy, choked with silt. For days, the villagers must haul water from the stream, and the cooks have to throw out food that was soaking in the bad water. The builders eventually clear the well. Some say it was just the storm. (Name) keeps quiet.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L15242",
+   "auto_text": true
+  },
+  "c4o2": {
+   "text": "The stranger nods and walks off toward the stream. The next morning, (name) learns that a tired traveler slept by the stream and left at dawn, after the fishers gave (him/her) a drink and a bit of breakfast. Nothing strange happens. No curse falls. The well stays clear and sweet. (Name) feels rather small, and not because of any magic.",
+   "src": "L15244"
+  },
+  "c4": {
+   "text": "\"I don't know you,\" (name) says, stepping back. \"Come back in daylight, and ask the elders.\" The stranger lowers (his/her) empty hands...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L15240"
+  }
+ }
+}

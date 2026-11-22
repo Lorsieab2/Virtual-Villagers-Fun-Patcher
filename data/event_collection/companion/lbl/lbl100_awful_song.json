@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Awful Song",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl100_awful_song",
+  "source": "companion",
+  "lines": [
+   5116,
+   5126
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5116",
+  "ledger": [
+   {
+    "src": "L5117",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5125",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5126",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A talentless musician insists on performing at every feast.",
+  "cast_only": [
+   "musician",
+   "teacher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "musician": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "teacher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A talentless musician insists on performing at every feast.",
+   "src": "L5118",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5119"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5120"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5121"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The village enjoys the enthusiasm more than the music.",
+   "src": "L5122"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "A patient teacher helps them improve.",
+   "src": "L5123",
+   "text_only": [
+    {
+     "what": "improve",
+     "reason": "rule 8: music is no game skill",
+     "src": "L5123"
+    }
+   ]
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "Someone politely asks for a quieter instrument.",
+   "src": "L5124"
+  }
+ }
+}

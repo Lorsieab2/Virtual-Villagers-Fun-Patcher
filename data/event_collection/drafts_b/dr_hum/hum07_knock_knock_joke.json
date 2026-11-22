@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Knock-Knock Joke",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum07_knock_knock_joke",
+  "source": "draft_hum",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-10 and an adult)"
+   }
+  ],
+  "description": "A child tells an adult a first knock-knock joke that makes no sense: laugh along, or help make it better.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) runs up to (friend) and raps on (friend.his/her) doorpost with great importance. \"Knock knock!\" \"...Who's there?\" (subject) has clearly not planned this far. \"Um. A fish.\" \"A fish who?\" (subject) thinks very hard. \"A fish who is at the DOOR!\" Then (subject.he/she) collapses on the ground laughing.",
+   "src": "L83",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L83"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Laugh Along",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Help Make It Better",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) explains that the answer should be a little surprise. They work on it together all afternoon, very seriously. The final version: \"Knock knock.\" \"Who's there?\" \"Canoe.\" \"Canoe who?\" \"Canoe let me in? It's raining!\" (subject) tells it at dinner and gets an enormous groan, which (friend) assures (subject.him/her) is the best possible result.",
+   "src": "L89"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) laughs too, really laughs, because it isn't funny at all, which somehow makes it very funny. (subject) runs off to tell everyone. By evening the whole village knows about the fish at the door, and people are making up their own. \"Knock knock.\" \"Who's there?\" \"Coconut.\" \"Coconut who?\" \"Coconut, also at the door.\" The jokes never get better. Everyone enjoys them anyway.",
+   "src": "L86",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L86"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L86"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) laughs too, really laughs, because it isn't funny at all, which somehow makes it very funny. (subject) runs off to tell everyone. By evening the whole village knows about the fish at the door, and people are making up their own. \"Knock knock.\" \"Who's there?\" \"Coconut.\" \"Coconut who?\" \"Coconut, also at the door.\" The jokes never get better. Everyone enjoys them anyway.",
+   "src": "L86"
+  }
+ }
+}

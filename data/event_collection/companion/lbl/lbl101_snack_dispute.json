@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Snack Dispute",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl101_snack_dispute",
+  "source": "companion",
+  "lines": [
+   5129,
+   5139
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5129",
+  "ledger": [
+   {
+    "src": "L5130",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5138",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5139",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "Two cooks argue over the proper way to roast breadfruit.",
+  "cast_only": [
+   "cook1",
+   "cook2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "cook2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "Two cooks argue over the proper way to roast breadfruit.",
+   "src": "L5131",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5132"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5133"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5134"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "The village holds a tasting contest.",
+   "src": "L5135",
+   "text_only": [
+    {
+     "what": "contest",
+     "reason": "rule 7: contests are told only",
+     "src": "L5135"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "They combine techniques into a new delicacy.",
+   "src": "L5136"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The judges cannot tell the difference.",
+   "src": "L5137"
+  }
+ }
+}

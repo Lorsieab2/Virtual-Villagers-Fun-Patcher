@@ -1,0 +1,150 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Old Game",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il098_old_game",
+  "source": "da_il05",
+  "lines": [
+   206,
+   215
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L206",
+  "ledger": [
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L215",
+    "kind": "casting",
+    "before": "When one of them asks",
+    "after": "When (asker), one of them, asks",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L215",
+    "kind": "casting",
+    "before": "another says",
+    "after": "another, (kid), says",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager sees children on the beach playing a game they invented as a child, with new rules.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "asker": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "kid": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) stops on the way home from work. Down on the beach, a group of children are playing a game with a coconut and three sticks in the sand. It's (subject)'s game. (subject.He/She) made it up as a child, with friends, a very long time ago. The rules have changed a lot. Someone is now allowed to shout \"SWAP!\" at any time.",
+   "src": "L209",
+   "choices": [
+    {
+     "label": "Join In",
+     "next": "a",
+     "src": "L211"
+    },
+    {
+     "label": "Watch and Remember",
+     "next": "b",
+     "src": "L214"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) asks if (subject.he/she) can play. The children explain the rules to (subject.him/her), slowly, because (subject.he/she) is a grown-up. (subject.He/She) doesn't mention that (subject.he/she) invented it. (subject.He/She) loses badly, mostly because of \"SWAP!\", and has a wonderful time.",
+   "src": "L212",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L212"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) asks if (subject.he/she) can play. The children explain the rules to (subject.him/her), slowly, because (subject.he/she) is a grown-up. (subject.He/She) doesn't mention that (subject.he/she) invented it. (subject.He/She) loses badly, mostly because of \"SWAP!\", and has a wonderful time.",
+   "src": "L212"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits on the sand and watches. The children play it faster and louder and better than (subject.he/she) ever did. When (asker), one of them, asks who made the game up, another, (kid), says, \"Nobody. It's just always been here.\" (subject) smiles and doesn't correct (kid.him/her).",
+   "src": "L215",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L215"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) sits on the sand and watches. The children play it faster and louder and better than (subject.he/she) ever did. When (asker), one of them, asks who made the game up, another, (kid), says, \"Nobody. It's just always been here.\" (subject) smiles and doesn't correct (kid.him/her).",
+   "src": "L215"
+  }
+ }
+}

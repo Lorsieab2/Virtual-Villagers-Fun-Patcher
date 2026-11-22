@@ -1,0 +1,217 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Is Order?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs14_what_order",
+  "source": "anthology",
+  "lines": [
+   29635,
+   29648
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29635",
+  "ledger": [
+   {
+    "src": "L29641",
+    "kind": "sensitivity",
+    "before": "A quiet worker",
+    "after": "(villager), a quiet worker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29642",
+    "kind": "sensitivity",
+    "before": "A musician",
+    "after": "(villager), a musician,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "After a lively festival, villagers disagree about whether the village is disorderly or simply joyful.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a lively festival, villagers disagree about whether the village is disorderly or simply joyful.",
+   "src": "L29636",
+   "choices": [
+    {
+     "label": "Define What Actually Needs Organizing",
+     "next": "a",
+     "src": "L29637"
+    },
+    {
+     "label": "Ask Who Benefits from Each Rule",
+     "next": "b",
+     "src": "L29640"
+    },
+    {
+     "label": "Let Everyone Improvise",
+     "next": "c",
+     "src": "L29643"
+    },
+    {
+     "label": "Have the {@Chief} Decide",
+     "next": "d",
+     "src": "L29646"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villagers discover their complaints concern different problems.",
+   "src": "L29639"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(villager), a quiet worker, explains why predictable routines help them.",
+   "src": "L29641"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(villager), a musician, points out that excessive restrictions would end spontaneous gatherings.",
+   "src": "L29642"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The celebration winds down peacefully.",
+   "src": "L29644",
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29644"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A minor mix-up over supplies shows that some coordination helps.",
+   "src": "L29645"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The {@chief} settles the immediate dispute fairly.",
+   "src": "L29647"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The decision works but leaves several villagers wishing they had been consulted.",
+   "src": "L29648"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Paths are cleared while music and laughter continue.",
+   "src": "L29638",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29638"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Paths are cleared while music and laughter continue.",
+   "src": "L29638"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

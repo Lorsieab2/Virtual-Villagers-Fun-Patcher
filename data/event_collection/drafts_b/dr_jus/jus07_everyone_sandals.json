@@ -1,0 +1,120 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everyone's Sandals Look the Same",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus07_everyone_sandals",
+  "source": "draft_jus",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L86",
+    "kind": "sensitivity",
+    "before": "An elder asks the village",
+    "after": "(elder), an elder, asks the village",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager is accused over sandal prints by the knocked over fish racks: compare everyone's sandals, or look at the racks again.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Something knocked over the fish-drying racks in the night, and there are sandal prints in the mud beside them. (friend) has matched the prints to (subject)'s sandals and brought (subject.him/her) before the elders. (subject) says (subject.he/she) was asleep all night and never went near the racks.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Compare Everyone's Sandals",
+     "next": "o1",
+     "src": "L85"
+    },
+    {
+     "label": "Look at the Racks Again",
+     "next": "o2",
+     "src": "L88"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(elder), an elder, asks the village to bring their sandals. About half of them are exactly like (subject)'s; the same villager made most of them. The prints prove nothing, and the elders say so, plainly, in front of everyone. (friend) apologizes to (subject), awkwardly. (subject) accepts, a little stiffly, and it takes a while before they're easy with each other again. Nobody ever finds out what knocked the racks over.",
+   "src": "L86"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks the elders to look at the racks more carefully. Among the sandal prints are pig tracks, and the marks of a fallen pole; a strong wind and a curious pig seem to have done most of it. The sandal prints could belong to anyone who came to look in the morning, (friend) included. The elders find nobody at fault. (friend) is very quiet for the rest of the day.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) asks the elders to look at the racks more carefully. Among the sandal prints are pig tracks, and the marks of a fallen pole; a strong wind and a curious pig seem to have done most of it. The sandal prints could belong to anyone who came to look in the morning, (friend) included. The elders find nobody at fault. (friend) is very quiet for the rest of the day.",
+   "src": "L89"
+  }
+ }
+}

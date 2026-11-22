@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Notes on Bark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam225_notes_bark",
+  "source": "draft_fam2",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders who are partners (where the game records it)"
+   }
+  ],
+  "description": "An elder finds a bark note from their partner in the fishing bag: write one back, or keep it close.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for most of their lives. Every so often, still, one of them leaves the other a little message scratched on a piece of bark, tucked somewhere unexpected: in a sandal, under a cup, in a basket of beans. Today (friend) finds one in (friend.his/her) fishing bag. It says: YOU STILL SNORE. I STILL DON'T MIND.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Write One Back",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Keep It Close",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) puts the bark in (friend.his/her) belt and carries it around all day, touching it now and then. (friend.He/she) doesn't write one back, not this time. That night (friend.he/she) just takes (subject)'s hand while they're falling asleep. (subject) knows exactly what it means. A lifetime is plenty of time to learn a language.",
+   "src": "L305"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) laughs out loud on the beach. That evening, (subject) finds a piece of bark in (subject.his/her) cup: YOU STILL BURN THE FISH. I STILL EAT IT. They don't say a word about the notes over dinner. They don't need to. The bark pieces go in a basket with all the others, years and years of them.",
+   "src": "L302",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L302"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) laughs out loud on the beach. That evening, (subject) finds a piece of bark in (subject.his/her) cup: YOU STILL BURN THE FISH. I STILL EAT IT. They don't say a word about the notes over dinner. They don't need to. The bark pieces go in a basket with all the others, years and years of them.",
+   "src": "L302"
+  }
+ }
+}

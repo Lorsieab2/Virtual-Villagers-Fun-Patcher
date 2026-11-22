@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Forbidden Grove",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_06_grove",
+  "source": "v28",
+  "lines": [
+   10529,
+   10535
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10529",
+  "ledger": [
+   {
+    "src": "L10530",
+    "kind": "note",
+    "why": "the cast: CHILDREN; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10535",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "Three children slip away to explore without telling their guardians.",
+  "cast_only": [
+   "kid2",
+   "kid3"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "kid1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "kid2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "kid3": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "Three children set out to explore without telling their guardians.",
+   "src": "L10531",
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 20
+    },
+    {
+     "next": "c",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They find a rare flower and return before dusk, earning a stern talk.",
+   "src": "L10532"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They lose the trail; a search party brings them home frightened.",
+   "src": "L10533"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "One child falls ill after exposure; a healer treats them and the others reconsider the dare.",
+   "src": "L10534",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "kid1",
+     "min": -60,
+     "max": -40,
+     "src": "L10534"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

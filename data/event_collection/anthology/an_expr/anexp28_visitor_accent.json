@@ -1,0 +1,277 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visitor's Accent",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp28_visitor_accent",
+  "source": "anthology",
+  "lines": [
+   31680,
+   31694
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31680",
+  "ledger": [
+   {
+    "src": "L31681",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31682",
+    "kind": "sensitivity",
+    "before": "A newcomer",
+    "after": "(newcomer), a newcomer,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31684",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31685",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31691",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31693",
+    "kind": "sensitivity",
+    "before": "The newcomer",
+    "after": "(newcomer)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31694",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A newcomer speaks differently, and several villagers imitate their unfamiliar expressions.",
+  "label_case": "title",
+  "cast_only": [
+   "newcomer",
+   "villager",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "newcomer": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(newcomer), a newcomer, speaks differently, and several villagers imitate their unfamiliar expressions.",
+   "src": "L31682",
+   "choices": [
+    {
+     "label": "Ask How It Feels",
+     "next": "a",
+     "src": "L31683"
+    },
+    {
+     "label": "Teach Each Other Words",
+     "next": "b",
+     "src": "L31686"
+    },
+    {
+     "label": "Set a Boundary",
+     "next": "c",
+     "src": "L31689"
+    },
+    {
+     "label": "Celebrate Differences Quietly",
+     "next": "d",
+     "src": "L31692"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31682"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Both groups enjoy exchanging phrases.",
+   "src": "L31687"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A word is discovered to have different meanings.",
+   "src": "L31688"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The imitation stops without an argument.",
+   "src": "L31690"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) apologizes for an unthinking joke.",
+   "src": "L31691"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(newcomer) joins ordinary work without becoming a spectacle.",
+   "src": "L31693"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) notices how quickly unfamiliar speech becomes familiar.",
+   "src": "L31694"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(newcomer) laughs at a harmless misunderstanding.",
+   "src": "L31684",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "good",
+     "src": "L31684"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(newcomer) laughs at a harmless misunderstanding.",
+   "src": "L31684"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(newcomer) explains the imitation feels hurtful.",
+   "src": "L31685",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "newcomer",
+     "mood": "bad",
+     "src": "L31685"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(newcomer) explains the imitation feels hurtful.",
+   "src": "L31685"
+  }
+ }
+}

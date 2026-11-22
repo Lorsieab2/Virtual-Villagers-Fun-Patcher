@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leaf Whistle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il095_leaf_whistle",
+  "source": "da_il05",
+  "lines": [
+   170,
+   179
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L170",
+  "ledger": [
+   {
+    "src": "L171",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L173",
+    "kind": "casting",
+    "before": "Today a child asks",
+    "after": "Today (child), a child, asks",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L176",
+    "kind": "casting",
+    "before": "The child sits",
+    "after": "(child) sits",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L176",
+    "kind": "casting",
+    "before": "The child cheers",
+    "after": "(child) cheers",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L179",
+    "kind": "casting",
+    "before": "The child takes",
+    "after": "(child) takes",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "A villager who once made a leaf whistle that scared the birds tries again for a child: a small wet noise.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "As a child, (subject) could make a leaf whistle so loud it scared the birds out of the trees. Everybody knew it. Today (child), a child, asks (subject.him/her) if (subject.he/she) can whistle with a leaf, and (subject) says, confidently, \"Of course.\" (subject.He/She) picks a leaf, holds it between (subject.his/her) thumbs, takes a deep breath, and produces a small wet noise.",
+   "src": "L173",
+   "choices": [
+    {
+     "label": "Keep Trying",
+     "next": "a",
+     "src": "L175"
+    },
+    {
+     "label": "Admit You've Forgotten",
+     "next": "b",
+     "src": "L178"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I used to be able to,\" (subject) admits. \"I think my thumbs forgot.\" (child) takes a leaf, holds it the wrong way round, and immediately makes a perfect whistle. (subject) stares. \"Show me how you held that,\" (subject.he/she) says, and the lesson goes the other way.",
+   "src": "L179"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) tries again. And again. (child) sits down to watch. On the twentieth try something clicks, and the leaf lets out a shriek so loud that a flock of birds bursts out of the trees. (child) cheers. (subject) holds the leaf up like a trophy and refuses to try again, in case it doesn't work.",
+   "src": "L176",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L176"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L176"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) tries again. And again. (child) sits down to watch. On the twentieth try something clicks, and the leaf lets out a shriek so loud that a flock of birds bursts out of the trees. (child) cheers. (subject) holds the leaf up like a trophy and refuses to try again, in case it doesn't work.",
+   "src": "L176"
+  }
+ }
+}

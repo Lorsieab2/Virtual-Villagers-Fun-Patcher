@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pearl Diver's Choice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss019_pearl_diver",
+  "source": "companion",
+  "lines": [
+   6257,
+   6265
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6257",
+  "ledger": [
+   {
+    "src": "L6265",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A diver finds a mollusk that may hold a pearl, but its kind is scarce.",
+  "cast_only": [
+   "diver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "diver": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A diver finds a large mollusk that might contain a pearl, but it is also part of a sparse breeding population.",
+   "src": "L6258",
+   "choices": [
+    {
+     "label": "Leave it untouched",
+     "next": "a",
+     "src": "L6259"
+    },
+    {
+     "label": "Collect a naturally shed shell",
+     "next": "b",
+     "src": "L6261"
+    },
+    {
+     "label": "Ask the village to debate harvesting",
+     "next": "c",
+     "src": "L6263"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "No pearl appears, but the shell becomes a prized carving.",
+   "src": "L6262"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "A tense meeting reveals how much the pearl would mean to a family; the outcome depends on consent and scarcity.",
+   "src": "L6264"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "The diver records the location and later sees young mollusks nearby.",
+   "src": "L6260",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L6260"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "The diver records the location and later sees young mollusks nearby.",
+   "src": "L6260"
+  }
+ }
+}

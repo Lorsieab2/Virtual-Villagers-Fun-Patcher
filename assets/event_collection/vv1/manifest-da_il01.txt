@@ -1,0 +1,12 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+il001_mister_pebbles	Mister Pebbles	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A child's invisible best friend, Mister Pebbles, comes to dinner: play along, ask about him, or let it be.				2270
+il002_villager_talks	The Villager Who Talks to the Fish	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager chats away to the fish while fishing alone: join the conversation, or leave them to it.				2271
+il003_quiet_hands	The Quiet Hands	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager who does not speak meets a new apprentice who talks to them slowly and loudly.				2272
+il004_what_didnt_say	What (name1) Didn't Say	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager has an idea for the harvest feast but hesitates: say it anyway, or keep it to themselves.			cooperative	2273
+il005_somewhere_else	Somewhere Else Entirely	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager sorting seeds drifts off into a daydream: snap back to work, or keep dreaming a little longer.				2274
+il006_talking	The Talking-To	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager rehearses an apology for a broken bowl, and its owner is standing right behind them.			repair	2275
+il007_big_maybe	The Big Maybe	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A young villager who wants to be a healer cannot sleep, and finds an old healer by the fire.				2276
+il008_worry_stone	The Worry Stone	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager has been worried for days and keeps turning a smooth stone: offer to listen, or find a match.				2277
+il009_night_thoughts	Night Thoughts	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A villager lies awake thinking about everything at once, until the frogs start singing.			cooperative	2278
+il010_little_voice	The Little Voice	1,2,3,4,5	1	da_il01	NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)	A child building a tall tower of shells hears a little voice that says it will fall.				2279

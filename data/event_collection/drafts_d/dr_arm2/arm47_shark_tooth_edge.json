@@ -1,0 +1,62 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shark-Tooth Edge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "arm47_shark_tooth_edge",
+  "source": "draft_arm2",
+  "lines": [
+   11,
+   11
+  ],
+  "section": "dr_arm2",
+  "credit": "NEW EVENTS — ARMOR, WEAPONS AND HEIRLOOMS, ARM-46 to ARM-95 (draft for the owner, 2026-11-15)\nFifty more events continuing \"Isola — Armor, Weapons, and Inherited Traditions\" (events 01-45, shipped as ARMOR-01..45). Same style as yours: \"NN. Title — one or two sentences\", numbered 46-95.",
+  "draw_weight": 1,
+  "series": "dr_arm2",
+  "title_src": "L11",
+  "ledger": [
+   {
+    "src": "L11",
+    "kind": "structural",
+    "text": "47. The Shark-Tooth Edge  -",
+    "why": "the event's number and title (the title) and the dash before its text"
+   },
+   {
+    "src": "L11",
+    "kind": "sensitivity",
+    "before": "A carver",
+    "after": "(Name1), a carver,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A carver sets a row of shark teeth along a wooden blade for cutting fiber and cleaning fish.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(Name1), a carver, sets a row of shark teeth along a wooden blade for cutting fiber and cleaning fish. When an apprentice asks whether it is a tool or a weapon, the carver says it depends on whose hands hold it, and why.",
+   "src": "L11"
+  }
+ }
+}

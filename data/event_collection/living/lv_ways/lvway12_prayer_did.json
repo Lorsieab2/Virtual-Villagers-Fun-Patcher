@@ -1,0 +1,234 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Prayer That Did Not Work",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway12_prayer_did",
+  "source": "living",
+  "lines": [
+   22880,
+   22894
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22880",
+  "ledger": [
+   {
+    "src": "L22894",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A family prayed for a sick child who nevertheless died.",
+  "cast_only": [
+   "parent",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A family prayed for a sick child who nevertheless died.",
+   "src": "L22881",
+   "choices": [
+    {
+     "label": "Offer a spiritual explanation cautiously.",
+     "next": "a",
+     "src": "L22882"
+    },
+    {
+     "label": "Admit that no one knows why.",
+     "next": "b",
+     "src": "L22885"
+    },
+    {
+     "label": "Review the care the child received.",
+     "next": "c",
+     "src": "L22888"
+    },
+    {
+     "label": "Sit quietly with the family.",
+     "next": "d",
+     "src": "L22891"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A parent asks that nobody explain the death for them.",
+   "src": "L22884",
+   "text_only": [
+    {
+     "what": "the death",
+     "reason": "the child's death is the premise; nobody dies now",
+     "src": "L22884"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The family appreciates the honesty.",
+   "src": "L22886"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The uncertainty leaves them distressed.",
+   "src": "L22887"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healers identify one improvement for future patients.",
+   "src": "L22889"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The review cannot explain the loss.",
+   "src": "L22890"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The family asks for solitude, and their wish is honored.",
+   "src": "L22893"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the possibility of an unseen journey.",
+   "src": "L22883",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L22883"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The family finds comfort in the possibility of an unseen journey.",
+   "src": "L22883"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "Companionship offers comfort without answers.",
+   "src": "L22892",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L22892"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "Companionship offers comfort without answers.",
+   "src": "L22892"
+  }
+ }
+}

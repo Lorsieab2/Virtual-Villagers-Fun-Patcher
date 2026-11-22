@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Sleep",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea49_long_sleep",
+  "source": "draft_hea",
+  "lines": [
+   587,
+   596
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L587",
+  "ledger": [
+   {
+    "src": "L588",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L593",
+    "kind": "instruction",
+    "text": "[effect: (name1) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An overworked villager lies down for a moment and sleeps until morning: apologize for sleeping, or ask what they missed.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been working hard for a whole season: early starts, late nights, every job that needed doing. Today (subject.he/she) lay down in the afternoon for a moment and woke up the next morning. (subject.He/she) is horrified. (subject.He/she) has missed a whole evening, a whole night, and breakfast. (friend) is sitting outside with a bowl of fruit.",
+   "src": "L590",
+   "choices": [
+    {
+     "label": "Apologize for Sleeping",
+     "next": "o1",
+     "src": "L592"
+    },
+    {
+     "label": "Ask What (subject.he/she) Missed",
+     "next": "o2",
+     "src": "L595"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm so sorry,\" says (subject). \"I don't know what happened. I've never done that before.\" (friend) hands (subject.him/her) the fruit. \"Your body did what it needed,\" (friend.he/she) says. \"There's nothing to be sorry for. We managed.\" (subject) eats the fruit slowly. (subject.He/she) feels better than (subject.he/she) has in a month. Maybe that was the point.",
+   "src": "L593",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 30,
+     "src": "L593"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"What did I miss?\" asks (subject), panicking. \"Let me think,\" says (friend). \"The goat got into the storehouse again. Someone burnt the fish. And that's it.\" (subject) sits down. \"That's it?\" \"That's it. The island went on without you for one night. It'll do it again if you need it to.\" (subject) laughs. Then (subject.he/she) goes back to bed for another hour, on purpose this time.",
+   "src": "L596",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L596"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L596"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"What did I miss?\" asks (subject), panicking. \"Let me think,\" says (friend). \"The goat got into the storehouse again. Someone burnt the fish. And that's it.\" (subject) sits down. \"That's it?\" \"That's it. The island went on without you for one night. It'll do it again if you need it to.\" (subject) laughs. Then (subject.he/she) goes back to bed for another hour, on purpose this time.",
+   "src": "L596"
+  }
+ }
+}

@@ -1,0 +1,317 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Child Who Would Not Be Held",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat17_child_would_held",
+  "source": "fathers30",
+  "lines": [
+   348,
+   366
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L348",
+  "ledger": [
+   {
+    "src": "L349",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L350",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L354",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L356",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L357",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L359",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L360",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L362",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L363",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L365",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L366",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L352",
+    "kind": "sensitivity",
+    "before": "a father",
+    "after": "(name1), a father,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Whenever a father picks up his baby, the child fusses and reaches for another caregiver.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Whenever (name1), a father, picks up his baby, the child fusses and reaches for another caregiver. He knows infants have preferences, but the rejection still stings.",
+   "src": "L352",
+   "choices": [
+    {
+     "label": "Spend Time Nearby Without Forcing Contact",
+     "next": "a",
+     "src": "L355"
+    },
+    {
+     "label": "Take Over a Familiar Routine",
+     "next": "b",
+     "src": "L358"
+    },
+    {
+     "label": "Ask the Other Caregiver for Ideas",
+     "next": "c",
+     "src": "L361"
+    },
+    {
+     "label": "Talk About His Feelings",
+     "next": "d",
+     "src": "L364"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The baby gradually becomes comfortable with his voice.",
+   "src": "L356"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child starts associating him with a soothing ritual.",
+   "src": "L359"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The routine goes badly at first, and he tries again tomorrow.",
+   "src": "L360"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Their suggestions conflict, and he experiments gently.",
+   "src": "L363"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "He learns that bonding can take time and need not look identical.",
+   "src": "L365"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "Progress is slow, and he practices patience.",
+   "src": "L357",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L357"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "Progress is slow, and he practices patience.",
+   "src": "L357"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "They discover a way to share care more smoothly.",
+   "src": "L362",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L362"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "They discover a way to share care more smoothly.",
+   "src": "L362"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "He admits how hurt he feels and finds relief in being heard.",
+   "src": "L366",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L366"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "He admits how hurt he feels and finds relief in being heard.",
+   "src": "L366"
+  }
+ }
+}

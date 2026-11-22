@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Loves Another Elder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss014_elder_loves",
+  "source": "companion",
+  "lines": [
+   6203,
+   6211
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6203",
+  "ledger": [
+   {
+    "src": "L6211",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child asks whether two elderly women who spend every evening together are best friends or sweethearts.",
+  "cast_only": [
+   "elder1",
+   "elder2",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder1": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female"
+  },
+  "elder2": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female"
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Two elderly women begin spending every evening together. A curious child asks whether they are best friends or sweethearts.",
+   "src": "L6204",
+   "choices": [
+    {
+     "label": "Answer with warmth",
+     "next": "a",
+     "src": "L6205"
+    },
+    {
+     "label": "Let the women answer",
+     "next": "b",
+     "src": "L6207"
+    },
+    {
+     "label": "Respect their privacy",
+     "next": "c",
+     "src": "L6209"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "One jokes that after sixty years she still gets nervous holding hands.",
+   "src": "L6208"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The child learns that not every relationship requires a public explanation.",
+   "src": "L6210"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "They smile and say they are both; the child decides that sounds lovely.",
+   "src": "L6206",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder1",
+     "mood": "good",
+     "src": "L6206"
+    },
+    {
+     "do": "mood",
+     "role": "elder2",
+     "mood": "good",
+     "src": "L6206"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "They smile and say they are both; the child decides that sounds lovely.",
+   "src": "L6206"
+  }
+ }
+}

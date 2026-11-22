@@ -1,0 +1,122 @@
+{
+ "about": "Fix Vanilla Bugs: the games' own typos the owner approved (2026-11-17), fixed in memory by \"VVFP Text Fixes.dll\" (native/vvfp_text_fixes) as each game's string table is filled. A fix applies only when the text the game would show is exactly `old` (so Optional Text Changes, Guardians of Isola and translations are left alone); `new` replaces it whole. Only text players see in normal play is listed (`shown`: where, static evidence from the stock executables). scripts/build_text_fixes_table.py writes native/vvfp_text_fixes/tf_fixes.inc from this file; src/vv_translations.py gives `new` as the template's English when the companion is installed. `captions`: a text the game shares between two actions, changed only at one action's own copy (`site`), when the looked-up text is exactly `old` or the caption has a translation (its own template row `key`). `formats`: a format literal in the executable (`literal`) one push (`site`) uses; that push gets `new` when the literal is exactly `old`. Its words are the game's own string rows (`words`), translated as usual; the format holds no words of its own.",
+ "fixes": [
+  {
+   "game": 1,
+   "stem": "table/383",
+   "reason": "doubled word: \"which he he rubs\"",
+   "shown": "The Suspicious Monkey (an Encounter event), \"Wait and see what it does\" result; looked up at 0x419DFA",
+   "old": "          Wait and see what it does.\n\n\n\n\n\nThe monkey steals a handful of berries.\n* tries to chase the monkey, but ^ \ntrips and scrapes = knee. The clever\nmonkey notices the crying child and\nreturns with some local leaves, which he\nhe rubs on the wound. The leaf juice has\na strong soothing effect. * has \ngained some healing skill.",
+   "new": "          Wait and see what it does.\n\n\n\n\n\nThe monkey steals a handful of berries.\n* tries to chase the monkey, but ^ \ntrips and scrapes = knee. The clever\nmonkey notices the crying child and\nreturns with some local leaves, which he\nrubs on the wound. The leaf juice has\na strong soothing effect. * has \ngained some healing skill."
+  },
+  {
+   "game": 2,
+   "stem": "table/501",
+   "reason": "stray extra \"a\": \"a new a fashion craze\"",
+   "shown": "The Ancient Gold Coin (a two-choice event), \"Use the gold coin for adornment\" result; looked up at 0x4204ED",
+   "old": "               Use the gold coin for adornment \n\n\n\n\n\n* started a new a fashion craze! \nImpressed with the aesthetic accent the\nsparkling disk provides, the other villagers\nbegin decorating their clothing and craft\nitems with shiny objects and metal bits,\nthough few are as nice as the coveted \ngolden coin. Your tribe gains level 2\nculture.\n",
+   "new": "               Use the gold coin for adornment \n\n\n\n\n\n* started a new fashion craze! \nImpressed with the aesthetic accent the\nsparkling disk provides, the other villagers\nbegin decorating their clothing and craft\nitems with shiny objects and metal bits,\nthough few are as nice as the coveted \ngolden coin. Your tribe gains level 2\nculture.\n"
+  },
+  {
+   "game": 2,
+   "stem": "table/516",
+   "reason": "\"its too late\" (it is)",
+   "shown": "The Strange Request (a two-choice event), \"Allow the strange request\" result; looked up at 0x42081B",
+   "old": "                  Allow the strange request\n\n\n\n\n\nWait! Who is \"Biggles\"? He's not even in\nthe tribe! By the time the tribe realizes\nthis, its too late and he's managed to\nsabotage the research table.\n",
+   "new": "                  Allow the strange request\n\n\n\n\n\nWait! Who is \"Biggles\"? He's not even in\nthe tribe! By the time the tribe realizes\nthis, it's too late and he's managed to\nsabotage the research table.\n"
+  },
+  {
+   "game": 3,
+   "stem": "sm/eEventDaredevilResultA2",
+   "reason": "missing space after a full stop: \"bravery.However\"",
+   "shown": "The Daredevil (event slot 15), its result step gives eEventDaredevilResultA1 + 1 (add edx, 0x327 at 0x41549A)",
+   "old": "At first, the ladies marvel and swoon at his bravery.However, just as he leaves the water, a little crab clamps down hard on his toe! {name} lets out a high pitched yelp and hops around madly, making quite a spectacle of himself. The ladies are unable to hold back their laughter.",
+   "new": "At first, the ladies marvel and swoon at his bravery. However, just as he leaves the water, a little crab clamps down hard on his toe! {name} lets out a high pitched yelp and hops around madly, making quite a spectacle of himself. The ladies are unable to hold back their laughter."
+  },
+  {
+   "game": 3,
+   "stem": "sm/eEventTheLowTideResultA2",
+   "reason": "word broken by a leftover hyphen: \"Neverthe- less\"",
+   "shown": "The Low Tide (event slot 23), its result step gives eEventTheLowTideResultA1 + 1 (add eax, 0x358 at 0x415E12)",
+   "old": "As the villagers are running about trying to pick up the slippery fish, a mighty wave rises up out of the ocean. The villagers panic and try to run back to shore, but it is much too late. The wave breaks and pounds down upon them with a tremendous crash. Being islanders, they are fantastic swimmers, and some of them manage to avoid much of the wave's impact. Neverthe- less, several of the villagers come up missing.",
+   "new": "As the villagers are running about trying to pick up the slippery fish, a mighty wave rises up out of the ocean. The villagers panic and try to run back to shore, but it is much too late. The wave breaks and pounds down upon them with a tremendous crash. Being islanders, they are fantastic swimmers, and some of them manage to avoid much of the wave's impact. Nevertheless, several of the villagers come up missing."
+  },
+  {
+   "game": 3,
+   "stem": "sm/eEventTheObsidianPhialResultA3",
+   "reason": "misspelling: \"unusal\"",
+   "shown": "The Mysterious Vial, obsidian (event slot 38), its result step returns it (mov eax, 0x3C8 at 0x4175F6)",
+   "old": "{name} tastes the strange liquid.  While the tangy flavor is pleasing and palatable, {he/she} begins to sense something unusal happening. Within moments {name} feels very different indeed! {He/She} starts having remarkable insights into certain matters and seems to have suddenly become more skilled in certain pursuits.",
+   "new": "{name} tastes the strange liquid.  While the tangy flavor is pleasing and palatable, {he/she} begins to sense something unusual happening. Within moments {name} feels very different indeed! {He/She} starts having remarkable insights into certain matters and seems to have suddenly become more skilled in certain pursuits."
+  },
+  {
+   "game": 3,
+   "stem": "sm/eSaySeesMountain",
+   "reason": "misspelling: \"mountaineous\"",
+   "shown": "a villager's message-bar line (pushed at 0x46715E, reached from 0x46712A)",
+   "old": "{name} sees mountaineous terrain.",
+   "new": "{name} sees mountainous terrain."
+  },
+  {
+   "game": 4,
+   "stem": "sm/eEventThePrettyShellDesc",
+   "reason": "missing space after a full stop: \"shell.{name}\"",
+   "shown": "The Pretty Shell (event slot 48), its description step (mov eax, 0x3E2 at 0x416AB0)",
+   "old": "Two children have been constantly fighting over a pretty, round shell.{name} is sick of the bickering and decides to intervene. The children will have to either be taught to share the shell, or they will have to decide who will keep it.",
+   "new": "Two children have been constantly fighting over a pretty, round shell. {name} is sick of the bickering and decides to intervene. The children will have to either be taught to share the shell, or they will have to decide who will keep it."
+  },
+  {
+   "game": 4,
+   "stem": "sm/eEndGamePage3Line2",
+   "reason": "words left out of the ending: \"thrive here\" and \"the ancient, mysterious tree\" (the owner, 2026-11-19)",
+   "shown": "the ending (end-game page 3, line 2), after the Tree of Life is healed",
+   "old": "As your villagers continue to grow and thrive, they are drawn to the mysterious tree.\n",
+   "new": "As your villagers continue to grow and thrive here, they are drawn to the ancient, mysterious tree.\n"
+  },
+  {
+   "game": 5,
+   "stem": "sm/eEventMysteriousStorytellerResultB",
+   "reason": "missing spaces after two full stops: \"island.Others\", \"nature.They\"",
+   "shown": "Innovation in Farming, the mysterious storyteller (event slot 55), its result step gives eEventMysteriousStorytellerResultA1 + 1 (add eax, 0x439 at 0x416FF9)",
+   "old": "The mysterious stranger gazes across his audience and announces, \"Fear not! It is only me, Biggles! Perhaps you have heard of me? Yes? No? I have an important lesson for you clever children. You know, sometimes when people make a mistake, and they admit their mistake, they may learn from it, but those who fail to see their error are doomed to repeat it. You know, there are others on this island.Others who you have not yet met. Others who, for a very long time, have denied their past mistakes. They believe that only the way of magic is important and ignore the balance that is nature.They have grand designs and must not succeed. But there is still time! Be ever watchful my children! Be ever watchful!\" With these words the man vanishes leaving only a cloud of luminous smoke.",
+   "new": "The mysterious stranger gazes across his audience and announces, \"Fear not! It is only me, Biggles! Perhaps you have heard of me? Yes? No? I have an important lesson for you clever children. You know, sometimes when people make a mistake, and they admit their mistake, they may learn from it, but those who fail to see their error are doomed to repeat it. You know, there are others on this island. Others who you have not yet met. Others who, for a very long time, have denied their past mistakes. They believe that only the way of magic is important and ignore the balance that is nature. They have grand designs and must not succeed. But there is still time! Be ever watchful my children! Be ever watchful!\" With these words the man vanishes leaving only a cloud of luminous smoke."
+  },
+  {
+   "game": 5,
+   "stem": "sm/eEventTheSealedBoxResultB",
+   "reason": "\"his honest business practices\" for a villager who may be a woman",
+   "shown": "Trick Or Trade (event slot 41): its result step gives eEventTrickOrTradeResultA + 1 (add eax, 0x3F5 at 0x416619), which is this text",
+   "old": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for his honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points.",
+   "new": "{name} arranges a barter session with an envoy from the heathen camp. Finally, they agree to trade the scrolls for 100 food. The trade goes smoothly, and {name} gains some respect from the heathens for {his/her} honest business practices. Also, one of the heathens produces a piece that was missing from the scrolls that was apparently stuck to his foot! Good thing they mentioned it! \nYour tribe gains 3000 tech points."
+  }
+ ],
+ "captions": [
+  {
+   "game": 4,
+   "site": "0x451CF6",
+   "stock_stem": "sm/eSayHarvestingBlackberries",
+   "key": "vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0",
+   "old": "Harvesting blackberries",
+   "new": "Harvesting blackberries with a cutting tool",
+   "mark": "Harvesting berries with a cutting tool",
+   "shown_site": "0x4404F3",
+   "reason": "the owner (2026-11-17): a villager harvesting blackberries with a cutting tool says so; picking keeps \"Harvesting blackberries\" (both share text 0x280, so only the harvest's own copy changes). The caption field holds 39 letters, so the harvest writes the mark (38) there and the villager panel's Action line, the field's only reader, draws the full caption (43) for it; the owner's text is never shortened and nothing is written past the field",
+   "shown": "the villager panel's Action line while harvesting with a cutting tool (action 0xBE, 0x451CE0: its copy of text 0x280 at 0x451CF6 into +0x1CE4; the Action line's set-text at 0x4404F3)"
+  }
+ ],
+ "formats": [
+  {
+   "game": 5,
+   "site": "0x443BB0",
+   "literal": "0x49A350",
+   "old": "%d%s12 %s",
+   "new": "%d%s24 %s",
+   "words": [
+    "sm/eCollectionsOf",
+    "sm/eString_LabEquipment"
+   ],
+   "reason": "the owner (2026-11-18): the ground click at place 35 says \"<n> of 12 pieces of lab equipment collected\" while n counts all 24 pieces, so players read \"13 of 12\"; the Collections screen says \"of 24\"",
+   "shown": "the message-bar line of a ground click at map place 35 (0x443AC0: map type 0x23, sprintf at 0x443BB6 of the format pushed at 0x443BB0 with strings 1183 and 1184)"
+  }
+ ]
+}

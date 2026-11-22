@@ -1,0 +1,250 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sculptor's Mistake",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp47_sculptor",
+  "source": "anthology",
+  "lines": [
+   31984,
+   31998
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L31984",
+  "ledger": [
+   {
+    "src": "L31985",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L31988",
+    "kind": "sensitivity",
+    "before": "The sculptor",
+    "after": "(sculptor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31989",
+    "kind": "sensitivity",
+    "before": "The sculptor",
+    "after": "(sculptor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31992",
+    "kind": "sensitivity",
+    "before": "A relative",
+    "after": "(relative)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31994",
+    "kind": "sensitivity",
+    "before": "A second craftsperson",
+    "after": "(crafts), a second craftsperson,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31995",
+    "kind": "sensitivity",
+    "before": "The sculptor",
+    "after": "(sculptor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31998",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(sculptor)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A stone carving meant to honor a hero looks unintentionally ridiculous.",
+  "label_case": "title",
+  "cast_only": [
+   "sculptor",
+   "relative",
+   "crafts"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "sculptor": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "relative": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "crafts": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A stone carving meant to honor a hero looks unintentionally ridiculous.",
+   "src": "L31986",
+   "choices": [
+    {
+     "label": "Tell the Artist Gently",
+     "next": "a",
+     "src": "L31987"
+    },
+    {
+     "label": "Celebrate the Oddity",
+     "next": "b",
+     "src": "L31990"
+    },
+    {
+     "label": "Offer Help",
+     "next": "c",
+     "src": "L31993"
+    },
+    {
+     "label": "Leave It Unfinished",
+     "next": "d",
+     "src": "L31996"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31986"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(sculptor) is hurt and asks for privacy.",
+   "src": "L31989"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The statue becomes a beloved joke.",
+   "src": "L31991"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(relative) asks that the honoree be treated respectfully.",
+   "src": "L31992"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(crafts), a second craftsperson, repairs the proportions.",
+   "src": "L31994"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(sculptor) chooses to finish alone.",
+   "src": "L31995"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The village preserves it as a study.",
+   "src": "L31997"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(sculptor) returns years later with new skills.",
+   "src": "L31998"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(sculptor) laughs and adjusts the nose.",
+   "src": "L31988",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "sculptor",
+     "mood": "good",
+     "src": "L31988"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(sculptor) laughs and adjusts the nose.",
+   "src": "L31988"
+  }
+ }
+}

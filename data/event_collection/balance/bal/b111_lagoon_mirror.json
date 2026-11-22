@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lagoon Mirror",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b111_lagoon_mirror",
+  "source": "balance",
+  "lines": [
+   5016,
+   5057
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L5016",
+  "ledger": [
+   {
+    "src": "L5017",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L5018",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5026",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5035",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L5023",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5024",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L5027",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5036",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L5029",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5032",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5038",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5041",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L5044-5057",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children have a game: whoever can stand still longest, without the water moving, wins.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On very still mornings, the shallow lagoon goes as flat as a sheet of polished shell, and a person standing in it sees their reflection perfectly, upside down, at their feet. The children have a game: whoever can stand still longest, without the water moving, wins. The elders tell them not to play it too long, because \"the lagoon gets ideas.\"\n(Name) has been standing perfectly still in the lagoon for longer than anyone ever has. The children have gone quiet. (Name)'s reflection has started to look back up at (him/her), very attentively.\nShould (name) step out, or keep standing?",
+   "choices": [
+    {
+     "label": "Step Out",
+     "next": "c1",
+     "src": "L5023"
+    },
+    {
+     "label": "Keep Standing",
+     "next": "c2",
+     "src": "L5024"
+    }
+   ],
+   "src": "L5019-5021"
+  },
+  "c1o1": {
+   "text": "Someone steps up out of the lagoon with (name)'s face, right way up, dripping. The lagoon had an idea, and this is it: (name)'s outside, with a whole new person inside, who loves the water and can't stand still at all. It takes the name (made1), and is soon the children's favourite.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L5030",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The reflection hesitates, and then the ripples reach it, and it breaks up into a hundred pieces of sky. (Name) wades out quickly. The children, who were holding their breath, all start talking at once. (Name) declares that (he/she) won, and that's enough of that game.",
+   "src": "L5033"
+  },
+  "c1": {
+   "text": "(Name) lifts one foot. The ripples run out from it in perfect circles. The reflection doesn't break up. It lifts its own foot, too, and steps up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5027"
+  },
+  "c2o1": {
+   "text": "At last, the reflection blinks first. Then it stands up, right way up, beside (name), and bows. It has (name)'s face. It has nothing else of (name): its own likes and dislikes, its own way of laughing. \"You win,\" it says, and wades ashore. It chooses the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L5039",
+   "text_only": [
+    {
+     "src": "L5039",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The wind picks up, and the reflection blurs, and (name) is the champion, forever. The children carry (him/her) up the beach on their shoulders, which is hard work, and the whole village turns out to cheer. They're still telling the story at the fire a month later, and it gets longer each time.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L5042",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) keeps very, very still. The reflection does too. They look at each other for a long time, and the whole lagoon seems to hold its breath...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L5036"
+  }
+ }
+}

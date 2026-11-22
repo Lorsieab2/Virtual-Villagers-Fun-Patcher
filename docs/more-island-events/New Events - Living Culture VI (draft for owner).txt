@@ -1,0 +1,758 @@
+NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)
+Lavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.
+Written in the style of the owner's own events. The owner waived the review ("I'm sure the draft events are fine"); every event passed the Isola rules and the final 15-point review, logged in the notes.
+(name1) to (name4) fill in with villagers' names; (he/she), (him/her), (his/her) follow the villager.
+All Isola rules apply. All five games unless noted. Lavastones exist only in story: where they come from and what magic is are never settled, and no school of thought is simply right. A [Solidarity: raise/lower/neutral] tag marks how an ending feels for the village (a planned counter; no effect yet).
+
+==========================================================================
+LCF-01. The Stone From the Sky
+(picks an adult and a healer)
+
+(name1) was walking back from the gardens when something hard and warm fell out of a clear sky and bounced off (his/her) head. When (he/she) stopped seeing stars, (he/she) found it in the grass: a stone the size of an egg, pulsing with an orange-pink glow, like a coal that will not go out. A lavastone. (name2), bandaging (his/her) head, says some people call them gifts and some call them curses. What should (name1) do with it?
+
+Keep It:
+
+(name1) keeps it in a woven pouch by (his/her) bed. On dark nights, the hut glows faintly orange. (He/she) dreams strange, bright dreams. Whether the stone brings luck, nobody can tell. But (name1) has never had a headache since, which (he/she) finds very suspicious. [effect: (name1) loses a little health] [Solidarity: neutral]
+
+Bury It Far Away:
+
+(name1) and (name2) carry the stone to the far end of the island and bury it under a rock. On the walk home, (name1) keeps looking back. For weeks afterwards, (he/she) wonders if it is still glowing down there in the dark. [effect: (name1) loses a little health] [Solidarity: neutral]
+
+==========================================================================
+LCF-02. The Stone on the Tideline
+(picks a child and an elder)
+
+(name1) was hunting for shells at dawn when (he/she) found it, half-buried in the wet sand: a stone that glowed orange-pink, warm in (his/her) hand, with a pulse like a heartbeat. (He/she) has heard the stories about lavastones. (He/she) is supposed to tell an elder. But it is so beautiful. What should (name1) do?
+
+Tell the Elders:
+
+(name1) brings it to (name2), who turns very serious and wraps it in cloth. (name2) explains that lavastones are powerful, and that even the wisest people do not understand them. The stone goes into the elders' keeping. (name1) is allowed to visit it, and does, every day. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+Keep It Secret:
+
+(name1) hides it in a coconut shell under (his/her) mat. For three nights, the hut glows faintly and (name1) has wonderful dreams of flying. On the fourth morning, the stone is gone, and the coconut shell is cracked in two. (name1) never tells anyone. (He/she) still dreams of flying, sometimes. [Solidarity: neutral]
+
+==========================================================================
+LCF-03. The Strengthened Stew
+(picks two healers)
+
+A fever has gripped the village, and one old fisher is not getting better. (name1) has a lavastone the elders have kept for years, and wants to crush a sliver of it into the healing stew. (name2) says nobody knows what the stone does to a body that weak, and the old remedies should be tried first. What should they do?
+
+Crush the Stone Into the Stew:
+
+(name1) grinds a sliver of the stone into the pot. The stew glows faintly. The old fisher drinks it, sleeps for a day and a night, and wakes with the fever gone and a ringing in (his/her) ears that never quite stops. (name1) cannot stop shaking for an hour after holding the stone. [effect: small Healing skill for (name1); (name1) loses a little health] [Solidarity: neutral]
+
+Ordinary Medicine First:
+
+(name2) tries every remedy the healers know. The fisher's fever breaks slowly, over a week, and (he/she) is weak for a long time afterwards. Everyone wonders if the stone would have been faster. (name2) does not regret it. [effect: small Healing skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCF-04. The Last Resort
+(picks a healer and an adult)
+
+A climber has fallen from the cliffs and the healers cannot stop (him/her) slipping away. (name2), (his/her) closest friend, has begged (name1) to do the forbidden thing: set a lavastone against the climber's heart, the way the oldest stories describe. It is said to work sometimes. It is said to cost terribly. What should (name1) do?
+
+Do the Forbidden Thing:
+
+(name1) does it. The stone flares so bright the whole hut turns orange, and (name1) is thrown backwards and does not wake until morning. The climber lives. (He/she) is never quite the same: quieter, with a faint glow in the eyes on dark nights. The elders do not speak to (name1) for a month. (name2) does not leave (his/her) friend's side. [effect: (name1) loses health] [Solidarity: neutral]
+
+Refuse:
+
+(name1) refuses, gently, and stays with the climber through the night, doing everything the healers know. By dawn, the climber has steadied, barely. Whether (he/she) will walk again, nobody knows yet. (name2) cannot forgive (name1) for not trying. Maybe one day. [effect: small Healing skill for (name1)] [Solidarity: lower]
+
+==========================================================================
+LCF-05. The Untrained Hand
+(picks an adult and a healer)
+
+(name1) could not resist. (He/she) picked up the elders' lavastone with (his/her) bare hand, just to feel it. The next thing (he/she) knew, (he/she) was on the floor, staring at the ceiling, unable to remember (his/her) own name. (name2), the healer, has been fetched. What should (name2) do?
+
+Let (name1) Rest:
+
+(name2) lays (name1) on a mat in a dark corner and lets (him/her) sleep. It takes two days before (name1) can stand without falling over, and three before (he/she) remembers (his/her) name. (He/she) never touches a lavastone again. [effect: (name1) loses health] [Solidarity: neutral]
+
+Draw the Power Out:
+
+(name2) tries an old method: cold water, salt, and holding (name1)'s hands in the sea. It might be working. It might be the cold. By evening (name1) is talking sense again, though (his/her) fingertips stay faintly orange for a week. [effect: (name1) loses a little health; small Healing skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCF-06. The Master's Burden
+(picks an elder and a young adult)
+
+(name1) has spent forty years learning to hold a lavastone without being overwhelmed. (His/her) hands shake, (his/her) back aches, and (he/she) sleeps badly. But (he/she) can heal a burn with a touch of the stone. (He/she) has offered to train (name2), who has the steadiest hands in the village. (name2) has seen what it has cost (name1). What should (name2) do?
+
+Accept the Training:
+
+(name2) accepts. The first lesson is not touching the stone at all: just breathing near it, for a month. The second is touching it for one heartbeat. (name2) faints. (name1) says that is excellent progress. It will take years. (name2) is already feeling the strain. [effect: small Healing skill for (name2); (name2) loses a little health] [Solidarity: neutral]
+
+Decline:
+
+(name2) thanks (name1) and declines. (name1) is disappointed, and also relieved. "Good," (he/she) says. "Somebody should live an easy life." (name2) visits (name1) every week anyway, and rubs (his/her) aching shoulders. [Solidarity: raise]
+
+==========================================================================
+LCF-07. The Wishing Stone
+(picks two adults)
+
+The dry season has gone on far too long. (name1) has a small lavastone and has heard that, held in both hands at dawn, it can be used as a wishing stone. (He/she) wants to wish for rain. (name2) says lavastones grant wishes in strange ways, and the village should keep it for a real emergency. What should (name1) do?
+
+Make the Wish:
+
+At dawn, (name1) holds the stone and wishes for rain. The stone grows hot, then crumbles to orange dust. By noon, it is raining. Whether the stone did it, or the season simply turned, nobody can say. (name1) has a headache for two days. [effect: (name1) loses a little health; small food gain] [Solidarity: raise]
+
+Keep It for an Emergency:
+
+(name1) puts the stone away. The rain comes ten days later, on its own. Some people say the stone was waiting for a real need. Some say stones do not wait for anything. The stone sits in its pouch, glowing quietly. [Solidarity: neutral]
+
+==========================================================================
+LCF-08. The Fertile Field
+(picks two farmers)
+
+The old garden behind the village has grown tired: the taro is small and the beans are thin. (name1) has a lavastone and an old story about burying one in the soil. (name2) says the field just needs a season of rest and a lot of fish bones, and that magic is no substitute for patience. What should they do?
+
+Bury the Stone:
+
+(name1) buries the stone in the middle of the field. The next crop is enormous: taro the size of a child's head, beans as long as an arm. Some people will not eat them. The stone is never found again, though (name1) digs for it twice. [effect: small food gain] [Solidarity: neutral]
+
+Rest the Field:
+
+The field rests for a season under fish bones and leaves. The next crop is good, not amazing. (name2) is satisfied. (name1) is not convinced, and keeps the stone in a pouch, for next time. [effect: small Farming skill for (name2)] [Solidarity: neutral]
+
+==========================================================================
+LCF-09. The Lucky Stone
+(picks two adults)
+
+Ever since (name1) found a small lavastone in a fish's belly, (his/her) catches have been the best in the village. (name1) is sure the stone is lucky. (name2) points out that (name1) also started fishing at dawn instead of midmorning, around the same time. What does the village believe?
+
+It Is the Stone:
+
+The village believes it is the stone. Everyone wants to touch it. (name1) starts keeping it hidden. Then one day (he/she) loses it in the lagoon, and the next week (his/her) catch is still excellent. (name1) is very confused. (name2) is very smug. [effect: small food gain] [Solidarity: neutral]
+
+It Is the Skill:
+
+(name2) convinces (name1) to try without the stone for a week. (name1) catches almost as much. Almost. (name1) puts the stone back in (his/her) pouch anyway, just in case. Nobody can prove it either way. [effect: small Farming skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCF-10. The Unlucky Stone
+(picks two adults)
+
+Since (name1) found a lavastone in the forest, everything has gone wrong: (his/her) roof leaked, (his/her) canoe cracked, and a crab bit (his/her) toe. (name1) is convinced the stone is cursed. (name2), who would love a lavastone, says (name1) is just having a bad season. What should (name1) do?
+
+Throw It in the Sea:
+
+(name1) throws the stone as far as (he/she) can into the waves. It glows all the way down. The next day (his/her) roof leaks again. The day after that, it stops raining, and things get better. (name1) is certain it was the stone. [Solidarity: neutral]
+
+Give It to (name2):
+
+(name1) gives the stone to (name2), who is delighted. (name1)'s luck improves. (name2)'s luck stays exactly the same as always: mostly fine, with the occasional crab. (name2) says that proves the stone was never cursed. (name1) says it proves the stone likes (name2). [Solidarity: raise]
+
+==========================================================================
+LCF-11. The Stone That Crumbled
+(picks two adults)
+
+The great lavastone that the elders have kept for three generations has begun to crack, and its glow is fading. (name1) says the village should use the last of its power while it can: to heal, to grow, to wish. (name2) says it has done enough, and should be allowed to crumble in peace. What should the village do?
+
+Use What Is Left:
+
+The elders gather the sick and the tired and let each one hold the stone for a moment. Some feel better. Some feel nothing. One feels dizzy for a day. When the last villager lets go, the stone crumbles to warm dust. The dust is scattered on the gardens. [effect: small food gain] [Solidarity: raise]
+
+Let It Crumble:
+
+The stone is laid on a flat rock above the sea, and the village sits with it through the night. By dawn it has crumbled to dust, glowing faintly, and the wind takes it out over the water. (name2) says it was like a farewell. [Solidarity: neutral]
+
+==========================================================================
+LCF-12. The Recharging Stone
+(picks two adults)
+
+The healers used the village's lavastone to treat a terrible burn last month, and since then it has been dark and cold, like an ordinary rock. (name1) says it just needs time. (name2) has heard that lavastones wake faster in sunlight, with singing. (name1) thinks that is a story somebody made up. What should they do?
+
+Wait:
+
+They wrap the stone and wait. One moon passes. Two. On the third, (name1) wakes in the night to a faint orange glow coming from the cloth. The stone is back. Nobody knows what woke it. [Solidarity: neutral]
+
+Sunlight and Song:
+
+(name2) lays the stone on a rock in the sun every morning and sings to it. The village thinks (he/she) has lost (his/her) mind. After nine days, the stone begins to glow again. (name1) says it would have anyway. (name2) says, maybe. [Solidarity: raise]
+
+==========================================================================
+LCF-13. The Stone Story Night
+(picks an elder and two adults)
+
+Around the fire, an argument has started. (name2) says lavastones are tears of the island's spirits. (name3) says they are just very strange rocks thrown up by the mountain. The children turn to (name1), the oldest person there, for the true answer. What should (name1) say?
+
+Let Each Tell Their Story:
+
+(name1) says there are many stories, and asks everyone to tell theirs. They hear about spirit tears, mountain fire, fallen stars, sleeping giants and a very old crab. The children decide all of them are true. (name1) does not disagree. [Solidarity: raise]
+
+Ask for the True Story:
+
+(name1) says (he/she) has wondered for seventy years, and does not know. Nobody does. The children are astonished that an elder does not know something. (name1) says that is the most important thing (he/she) will ever teach them. [Solidarity: neutral]
+
+==========================================================================
+LCF-14. The Channeling
+(picks two adults)
+
+(name1) has always wanted to sing well, and never could. (He/she) has heard that a lavastone, held while singing, can draw out a talent buried inside you. Some say it brings out what is already there. Some say it puts something there that was not. (name2), the village's best singer, says practice is safer. What should (name1) do?
+
+Try the Stone:
+
+(name1) holds the stone and sings. (His/her) voice comes out huge and golden, and the whole village stops to listen. Then (he/she) faints. For a week afterwards, (he/she) sings beautifully. Then it fades back to ordinary. (name1) is not sure whether to be grateful or heartbroken. [effect: (name1) loses a little health] [Solidarity: neutral]
+
+Train the Ordinary Way:
+
+(name2) teaches (name1) every evening for a season. (name1) improves from terrible to pleasant. It is not golden. It is (his/her) own. At the festival, (name1) sings a short song, and the village claps warmly. [Solidarity: raise]
+
+==========================================================================
+LCF-15. The Stone Trader
+(picks two adults)
+
+A trader from another island has a lavastone for sale, glowing brightly in a basket of moss. (He/she) wants the village's best canoe for it. (name1) says a lavastone could save lives. (name2) says nobody can prove it is not a painted rock, and the canoe feeds three families. What should the village do?
+
+Buy the Stone:
+
+The village trades the canoe for the stone. It is real: it glows, it pulses, and when the healers hold it, they feel the power. Three families have to share canoes for a season. Whether the stone will ever be worth a canoe, nobody knows yet. [effect: small food loss] [Solidarity: neutral]
+
+Refuse:
+
+The village refuses. The trader shrugs and paddles off. Some villagers are sure they missed a chance. (name2) is sure the stone was a fake. Nobody ever finds out. [Solidarity: neutral]
+
+==========================================================================
+LCF-16. The Stolen Stone
+(picks two adults)
+
+The elders' lavastone is gone from its place in the meeting hut. (name1) wants every hut searched. (name2) thinks whoever took it must have needed it badly, and wants the elders to ask, at the gathering, for it to be returned in secret, no questions asked. What should the village do?
+
+Search Every Hut:
+
+The huts are searched. It is miserable: everyone feels accused. The stone is found under the mat of a young parent whose baby has been sick. The parent weeps. The elders let the healers use the stone on the baby, and say nothing more about it. [Solidarity: lower]
+
+Ask for It Back Quietly:
+
+The elders ask. Two nights later, the stone is back in its place, wrapped in a clean cloth. Nobody ever knows who took it. A week later, a sick baby in the village is suddenly much better. Nobody says anything. [Solidarity: raise]
+
+==========================================================================
+LCF-17. The Overwhelmed Elder
+(picks an elder and a healer)
+
+Yesterday, a child was badly burned in a cooking fire, and (name1), who has some skill with lavastones, used one to heal the burn. The child is fine. (name1) collapsed, and has not woken since. (name2), the healer, is beside (him/her). Some say the stone could wake (him/her) too. What should (name2) do?
+
+Wait at (name1)'s Side:
+
+(name2) waits, and tends (name1) with water and broth. On the third day, (name1) opens (his/her) eyes and asks if the child is all right. (He/she) walks with a stick from then on. (He/she) says it was worth it. The child brings (him/her) flowers every day. [effect: (name1) loses health] [Solidarity: raise]
+
+Try the Stone Again:
+
+(name2) holds the stone to (name1)'s forehead. (name2) is thrown across the hut. (name1) does not wake for another two days. When (he/she) does, (he/she) scolds (name2) weakly for being so foolish, and holds (his/her) hand. [effect: (name1) loses health; (name2) loses a little health] [Solidarity: neutral]
+
+==========================================================================
+LCF-18. The Stone in the Pot
+(picks two cooks)
+
+(name1) was cooking the feast stew when a tiny chip of lavastone fell from the pouch on (his/her) belt into the pot. The stew is now glowing faintly orange and smells wonderful. (name2) says it might be dangerous. The feast starts in an hour, and there is nothing else to serve. What should they do?
+
+Serve It Anyway:
+
+The village eats the glowing stew. It is the best stew anyone has ever tasted. Everyone talks very fast for an hour, then sleeps very deeply. Three people have orange tongues for a day. Nobody is harmed. Everybody asks for the recipe. [effect: everyone celebrates] [Solidarity: raise]
+
+Throw It Out:
+
+(name2) pours the stew into a pit behind the cooking area. The feast is fruit and dried fish. The next morning, the plants around the pit have grown twice their size. (name1) stares at them for a long time. [effect: small food loss] [Solidarity: neutral]
+
+==========================================================================
+LCF-19. The Stone That Spoke
+(picks two adults)
+
+Since (name1) began sleeping with a lavastone under (his/her) mat, (he/she) has had the same dream every night: a voice that tells (him/her) where the fish will be. (He/she) has been right four times. (name2) is worried: the dreams are getting longer, and (name1) is getting thinner. What should (name2) do?
+
+Listen to the Dreams:
+
+(name2) goes fishing with (name1) to the places the dreams say. The catches are wonderful. But (name1) is pale and tired. Eventually, (he/she) puts the stone away for a while, and sleeps properly, and dreams of nothing. (He/she) misses the voice. [effect: small food gain; (name1) loses a little health] [Solidarity: neutral]
+
+Worry About Them:
+
+(name2) asks (name1) to sleep without the stone for a week, for (his/her) health. (name1) agrees, reluctantly. (He/she) sleeps well, eats well, and gets (his/her) color back. Whether the voice was real, neither of them can say. [Solidarity: raise]
+
+==========================================================================
+LCF-20. The Stone and the Storm
+(picks two adults)
+
+A huge storm is coming in from the sea. (name1) says the old stories tell of a master who turned a storm with a lavastone held high on the cliff. (name2) says the old stories also tell of the master being blown off the cliff. There is very little time. What should the village do?
+
+Try the Stone:
+
+(name1) climbs the cliff with the stone held high. The wind howls. The stone blazes. The storm swings away to the south and only clips the island. (name1) comes down shaking, hair standing on end. Whether it was the stone, or the wind's own mind, nobody can ever know. [effect: (name1) loses a little health] [Solidarity: neutral]
+
+Prepare the Ordinary Way:
+
+The village ties down the roofs, pulls up the canoes and shelters in the caves. The storm hits hard. Two huts lose their roofs. Everyone is safe. (name1) still wonders. [effect: small food loss] [Solidarity: raise]
+
+==========================================================================
+LCF-21. The Two Schools at the Stream
+(picks two adults)
+
+The stream behind the village has been getting smaller. (name1), who leans toward the Nature school, says the village must stop taking water from the upper pools now, before it is too late. (name2), of the Science school, says first they should measure and find out what is really happening. Both are worried. What should the village do?
+
+Study It First:
+
+(name2) spends a moon measuring: marking the water level on stones, counting the pools, watching where it goes. The answer is a fallen tree upstream, diverting half the water. The tree is moved. (name1) admits measuring was useful. (name2) admits (he/she) would never have walked that far upstream otherwise. [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Protect It at Once:
+
+The village stops taking water from the upper pools at once. It is inconvenient for everyone. The stream does not get smaller. It does not get bigger either. Nobody knows why. (name2) is still itching to measure it. [Solidarity: neutral]
+
+==========================================================================
+LCF-22. Where Does Faith Fit
+(picks two adults)
+
+(name1) studies the stars and believes only what (he/she) can observe. (name2) studies them too, and believes they are watched over by something unseen. They have been asked to teach the children about the stars together. They cannot agree on the first lesson. What should they do?
+
+Debate in Public:
+
+They hold the lesson as a debate. The children love it: back and forth, question and answer, nobody winning. Afterwards, one child says (he/she) believes both things. Another says (he/she) believes neither. Both teachers say that is fine. [Solidarity: raise]
+
+Work Together:
+
+They split the lesson: (name1) teaches how the stars move, (name2) teaches the stories people tell about them. Neither interrupts the other. Afterwards, (name1) asks (name2) about one of the stories. (name2) asks (name1) how (he/she) knows the stars move. They talk all night. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCF-23. Are People Entitled to the Land
+(picks two adults)
+
+The village is growing, and (name1) wants to clear a big piece of forest for new gardens. (name2), of the Nature school, says people are not entitled to take whatever they want, and should take only what the island readily gives: fallen trees, open ground, the edges. Children are hungry. What should the village do?
+
+Clear What Is Needed:
+
+The village clears the forest. The new gardens are rich, and nobody goes hungry that season. The birds that lived in that part of the forest are gone. (name2) plants a new grove at the far edge of the gardens. It will take fifty years to grow. [effect: small food gain] [Solidarity: neutral]
+
+Take Only What Is Spared:
+
+The village plants in the open ground and the forest edges, and the fallen trees are used for firewood. The gardens are smaller and scattered and harder to tend. Nobody goes hungry, but some go to bed less full. The forest stays. [Solidarity: neutral]
+
+==========================================================================
+LCF-24. The Spirit Watchers
+(picks two adults)
+
+(name1) believes that spirits guard the reef and keep the fish coming, and wants the village to leave a small offering of fruit on the rocks each new moon. (name2) does not believe in spirits, but does not want to dismiss (name1) either. What should (name2) do?
+
+Help Leave the Offerings:
+
+(name2) helps (name1) carry the fruit to the rocks each new moon. (He/she) does not believe. (He/she) finds it peaceful anyway. The fish keep coming. Whether because of the spirits, nobody can say, and (name2) stops wondering. [Solidarity: raise]
+
+Ask Why:
+
+(name2) asks (name1) to explain. (name1) tells the old stories, and also a night when (he/she) was lost at sea and felt something guide (him/her) home. (name2) listens to all of it. (He/she) still does not believe. (He/she) understands. [Solidarity: neutral]
+
+==========================================================================
+LCF-25. The Atheist and the Ceremony
+(picks two adults)
+
+(name1) brought in the biggest harvest this year, and by custom the best farmer leads the harvest thanks. But (name1) believes in nothing unseen, and does not want to thank spirits. (name2), who believes, says the thanks could be to the soil and the rain and the farmers instead. What should happen?
+
+Lead It Their Own Way:
+
+(name1) leads the thanks: to the soil, the rain, the farmers, the cooks, and the goats for not eating the beans. The believers add their own prayers quietly. Everyone feels thanked. It becomes the new way. [Solidarity: raise]
+
+Let a Believer Lead:
+
+(name1) asks (name2) to lead instead, and stands with the farmers. The prayers are said. (name1) does not join, and nobody asks (him/her) to. Afterwards, (name2) thanks (name1) for the harvest, personally. [Solidarity: neutral]
+
+==========================================================================
+LCF-26. The Magic Debate
+(picks three adults)
+
+(name1) says magic is something truly arcane, beyond understanding. (name2) says it is just people pushing past their natural limits. (name3) says it is talent and will, nothing more. They want to settle it once and for all. How?
+
+Hold a Public Test:
+
+They hold a test: each tries to light a fire without a spark, their own way. (name1) fails. (name2) fails. (name3) sits for an hour, and the kindling starts to smoke, and then, very slowly, catches. All three say it proves their point. [Solidarity: neutral]
+
+Leave It Open:
+
+They agree that it is unknowable, and that this is the most interesting thing about it. They argue happily every evening for a season, without anyone winning. The children start a fourth school: that magic is made of fish. [Solidarity: raise]
+
+==========================================================================
+LCF-27. The Science of Fishing
+(picks two adults)
+
+(name1) has been watching the tides for a year and has a theory: the fish come with the moon, not the wind, as the old fishers always said. (name2), who has fished for forty years, says (name1) has never caught a fish in (his/her) life. Both of them might be right. What should the village do?
+
+Test the Theory:
+
+For a moon, half the canoes go out by the moon and half by the wind. The moon canoes do slightly better. The wind canoes do better in storms. Both (name1) and (name2) were partly right. They both find this deeply annoying. [effect: small Research skill for (name1); small Farming skill for (name2)] [Solidarity: raise]
+
+Trust the Old Fishers:
+
+The village keeps fishing by the wind. (name1) keeps watching the moon on (his/her) own, writing it all down on bark. Years later, a young fisher finds the bark and tries it. It works rather well. [Solidarity: neutral]
+
+==========================================================================
+LCF-28. The Healer's Two Ways
+(picks two healers)
+
+A fisher has a fever that will not break. (name1) wants to treat it with bitter bark tea and rest. (name2) wants to hold the old healing ritual, with prayers and smoke. They have been arguing over the patient's head. The patient would like them both to be quiet. What should happen?
+
+Try Both:
+
+They do both: tea in the morning, ritual at night. The fever breaks on the fourth day. (name1) says it was the tea. (name2) says it was the ritual. The fisher says it was getting some sleep without anyone arguing over (him/her). [effect: small Healing skill for (name1)] [Solidarity: raise]
+
+Let the Patient Choose:
+
+They ask the fisher, who chooses the tea, and then quietly asks (name2) to say a prayer anyway, just once. The fever breaks slowly. Both healers learn something about listening. [effect: small Healing skill for (name2)] [Solidarity: raise]
+
+==========================================================================
+LCF-29. The Child Who Asks Everything
+(picks a child and two adults)
+
+(name1) wants to know why the sun comes up every morning. (name2) says it is the way the world turns, as far as anyone can tell. (name3) says the sun is welcomed back by the island's spirits each dawn. (name1) looks back and forth between them, frowning. What should they say next?
+
+Give Both Answers:
+
+(name2) and (name3) agree that these are two different ways of understanding the same morning. (name1) thinks about it, then says that maybe the spirits turn the world. Both adults are delighted, and a little alarmed. [Solidarity: raise]
+
+Ask the Child:
+
+They ask (name1) what (he/she) thinks. (name1) says the sun comes up because it wants to see what everyone is doing. (name2) and (name3) both agree that is an excellent theory. (name1) goes off to watch the sunrise and check. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCF-30. The Borrowed Idea
+(picks two adults)
+
+(name1), of the Nature school, has always said that measuring things is cold and unfeeling. But to save the dying coral, (he/she) has secretly started counting the fish every morning, exactly the way (name2), of the Science school, does. (name2) has noticed. What should (name1) do?
+
+Admit It:
+
+(name1) admits it, embarrassed. (name2) is delighted, and shows (him/her) a better way to count. Together they find that the coral is recovering in the sheltered spots. (name1) says it was the care. (name2) says it was the counting. They count and care together. [effect: small Research skill for (name1)] [Solidarity: raise]
+
+Keep It Quiet:
+
+(name1) denies everything. (name2) says nothing, and leaves a carved counting stick at (name1)'s door. (name1) uses it every morning and never mentions it. The coral recovers a little. [Solidarity: neutral]
+
+==========================================================================
+LCF-31. The School of None
+(picks two adults)
+
+(name1) does not lean toward any school of thought. (He/she) just likes fishing. Lately, members of all four schools have been trying to recruit (him/her), and (name2), (his/her) friend, finds this very funny. What should (name1) do?
+
+Pick a School:
+
+(name1) picks the Nature school, mostly because their meetings are held by the lagoon. (He/she) attends twice and spends both meetings fishing off the rocks. The Nature school decides that counts. [Solidarity: neutral]
+
+Stay Free:
+
+(name1) tells them all, politely, that (he/she) belongs to the school of fishing. (name2) laughs so hard (he/she) falls off a log. Before long, three more villagers say they belong to the school of fishing too. [Solidarity: raise]
+
+==========================================================================
+LCF-32. The Lavastone Lesson
+(picks an elder and a teen)
+
+(name2) is fascinated by lavastones and has asked (name1), who keeps the village's stone, to teach (him/her) everything. (name1) knows the stories. (He/she) also knows that even a moment holding a stone can leave an untrained person dazed for days. What should (name1) teach?
+
+The Stories Only:
+
+(name1) teaches (name2) every story, every warning, every name of every master. (name2) is frustrated but fascinated. When (he/she) is grown, (he/she) can decide whether to hold one. For now, (he/she) knows more about lavastones than anyone but (name1). [effect: small Research skill for (name2)] [Solidarity: raise]
+
+Hold One, Carefully:
+
+(name1) lets (name2) touch the stone with one fingertip, for one heartbeat, while (name1) holds (his/her) shoulders. (name2) gasps and sits down hard, dizzy and grinning. "That," (name1) says, "is why we wait." [effect: (name2) loses a little health] [Solidarity: neutral]
+
+==========================================================================
+LCF-33. The Lavastone Necklace
+(picks two adults)
+
+(name1) has a tiny chip of lavastone, no bigger than a fingernail, and wants to wear it on a cord around (his/her) neck. (name2) says even a chip has power, and wearing it day and night might do something strange. (name1) thinks a chip that small cannot do much. What should (name1) do?
+
+Wear It:
+
+(name1) wears it. (He/she) feels warmer, sleeps less, and becomes very good at finding lost things. (He/she) also starts humming constantly without noticing. (name2) says that is the stone. (name1) says (he/she) always hummed. [effect: small Research skill for (name1)] [Solidarity: neutral]
+
+Keep It in a Pouch:
+
+(name1) keeps it in a pouch on (his/her) belt. Nothing happens. Or perhaps nothing happens. On the night of the full moon, the pouch glows faintly. (name1) decides that is quite enough. [Solidarity: neutral]
+
+==========================================================================
+LCF-34. The Fire From the Mountain
+(picks two adults)
+
+(name1) and two others climbed the smoking mountain and came back with a story: in a crack near the top, they saw glowing orange-pink stones forming in the heat. (name2) points out that they were tired, frightened and breathing smoke. Some villagers are already calling it the true origin of lavastones. What should the village believe?
+
+Believe Them:
+
+The story spreads, and becomes the most popular origin of lavastones. Then a stone falls from a clear sky onto the beach, nowhere near the mountain, and everyone starts arguing again. (name1) says it was thrown. [Solidarity: neutral]
+
+Doubt It:
+
+(name2) organizes a second climb. The crack is still there. The stones are not. Whether they were ever there, nobody can say. The story stays one of many. (name1) still swears by it. [effect: small Research skill for (name2)] [Solidarity: neutral]
+
+==========================================================================
+LCF-35. The Gift or the Curse
+(picks two adults)
+
+After a villager was badly dazed by a lavastone last month, (name1) wants the village to ban them: bury every one found, and never use them. (name2) says the same stones saved two lives last year. The gathering is divided. What should the village decide?
+
+Ban Them:
+
+The village decides to bury every lavastone found. For a season, there are no accidents. Then a child falls very ill, and the healers have nothing strong enough. The ban is quietly lifted for the healers. (name1) understands. [Solidarity: neutral]
+
+Keep Them With Care:
+
+The village keeps its stones, but makes rules: only trained hands, only in great need, never alone. (name1) helps write the rules. The stones stay locked in the elders' hut, glowing. [Solidarity: raise]
+
+==========================================================================
+LCF-36. The Measuring of the Stars
+(picks two adults)
+
+(name1) has worked out that if the village set stones in a great circle, the sunrise would line up with different stones as the seasons change, and the farmers would know exactly when to plant. (name2) says the farmers already know when to plant: when the red flowers bloom. What should the village do?
+
+Build the Circle:
+
+The village builds the stone circle on the headland. It takes a season. The first time the sunrise lines up with the planting stone, the red flowers bloom the same week. Both (name1) and (name2) are right. The circle becomes a place for gatherings too. [effect: small Research skill for (name1); small tech gain] [Solidarity: raise]
+
+Keep the Old Signs:
+
+The village keeps the red flowers. (name1) builds a small circle by (him/her)self, out of pebbles, and writes down the sunrises. Years later, when the red flowers bloom late after a strange year, (name1)'s pebbles are right. [Solidarity: neutral]
+
+==========================================================================
+LCF-37. The Sacred Spring
+(picks two adults)
+
+Up in the hills there is a spring that (name2) and many others hold sacred: they go there to sit, think and pray. (name1) needs water for the new gardens, and the spring is the only source close enough. A channel would take half its water. What should the village do?
+
+Dig the Channel:
+
+The channel is dug, carefully, taking only from the overflow. The gardens thrive. The spring is quieter. Some people stop going there to pray. (name2) still goes, and says it is not the same, and also that the gardens are beautiful. [effect: small food gain] [Solidarity: lower]
+
+Leave It Untouched:
+
+The spring is left alone. The new gardens are watered by carrying pots from the stream, a long and tiring walk. (name1) grumbles, then joins the carriers and starts to enjoy it. The spring stays as it is. [Solidarity: raise]
+
+==========================================================================
+LCF-38. The Spirit or the Weather
+(picks two adults)
+
+The forest went completely silent this afternoon, and an hour later a storm hit. (name1) says the island's spirits were warning everyone. (name2) says the birds sense the weather and hide. Both agree the village should listen to the silence next time. Does it matter who is right?
+
+It Matters:
+
+They argue about it for a week. (name2) watches the birds; (name1) leaves offerings. The next time the forest goes quiet, they both run to warn the village at the same moment and collide in the doorway. [Solidarity: neutral]
+
+It Does Not Matter:
+
+They agree it does not matter why: what matters is that the village listens. They teach the children to notice the silence. Whether the children grow up believing in spirits or birds, they all run home when the forest goes quiet. [Solidarity: raise]
+
+==========================================================================
+LCF-39. The Stone That Healed the Garden
+(picks two farmers)
+
+A blight has been killing the taro, and in one garden, where (name1) accidentally dropped a crumbling lavastone, the taro is suddenly healthy again. (name2) wants to scrape up the glowing soil and spread it around every garden. (name1) worries it might do something else entirely. What should they do?
+
+Spread the Soil:
+
+They spread the glowing soil thinly across every garden. Most of the taro recovers. In one garden, the plants grow so fast and tall they topple over. The village eats very well, and very strangely shaped taro. [effect: small food gain] [Solidarity: raise]
+
+Leave Things Be:
+
+(name1) leaves the soil where it is. The blight is beaten the slow way, by pulling up sick plants and planting new ones. The lavastone garden thrives all season. (name2) keeps looking at it longingly. [effect: small Farming skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCF-40. The Master's Last Lesson
+(picks an elder and an adult)
+
+(name1) has worked with lavastones for fifty years, and (his/her) body can no longer bear the strain. (He/she) is ready to stop. (name2), (his/her) student of ten years, is ready to take the stone. But (name1) is not sure (he/she) wants anyone to carry what (he/she) has carried. What should (name1) do?
+
+Pass On the Stone:
+
+(name1) gives (name2) the stone, and with it one last lesson: never use it for yourself. (name2) promises. (name1) sleeps through the night for the first time in years. (name2) does not, for a long time. [effect: small Healing skill for (name2)] [Solidarity: neutral]
+
+Let It Rest:
+
+(name1) wraps the stone and buries it under the floor of (his/her) hut, and tells (name2) that the village must decide, one day, whether to dig it up. (name2) is hurt and relieved at once. The hut glows faintly at night. [Solidarity: neutral]
+
+==========================================================================
+LCF-41. The Village Without Magic
+(picks two adults)
+
+(name1) believes that whatever lavastones are, Isola should not depend on them: the village should grow, heal and build with its own hands, its own knowledge, its own patience. (name2) says turning down help when people are suffering is pride. Both have followers. What should (name1) do?
+
+Argue for It:
+
+(name1) speaks at the gathering. Many agree. Many do not. The village decides to use lavastones only when nothing else will do. It is a small change. (name1) calls it a beginning. [Solidarity: neutral]
+
+Accept the Village as It Is:
+
+(name1) keeps (his/her) beliefs and lives by them: (he/she) never uses a stone. (He/she) becomes the best ordinary healer the village has ever had. Some people say (his/her) patience is its own kind of magic. (name1) does not argue. [effect: small Healing skill for (name1)] [Solidarity: raise]
+
+==========================================================================
+LCF-42. The Stone Shard in the Foot
+(picks an adult and a healer)
+
+(name1) stepped on something sharp on the beach and found a sliver of lavastone stuck in (his/her) foot, glowing. (His/her) leg is tingling up to the knee and (he/she) feels light-headed. (name2), the healer, has never handled a lavastone. The village's master is a day's walk away. What should (name2) do?
+
+Pull It Out Now:
+
+(name2) wraps (his/her) hand in thick cloth and pulls. The shard comes out. (name2)'s arm goes numb for an hour. (name1) faints and wakes up with a foot that is perfectly healed and permanently warm. (He/she) never has cold feet again. [effect: (name1) loses a little health; (name2) loses a little health] [Solidarity: neutral]
+
+Wait for the Master:
+
+(name2) keeps (name1) still and sends a runner. The master arrives at dawn, draws the shard out with a whispered breath and a flat stone. (name1) is dizzy for two days. The master keeps the shard. [effect: (name1) loses a little health] [Solidarity: raise]
+
+==========================================================================
+LCF-43. The Debate of the Four Schools
+(picks four adults)
+
+The northern reef is sick, and the village has asked four villagers to decide what to do: (name1) of the Nature school wants to close it to fishing; (name2) of Science wants to study it first; (name3) of Spiritualism wants to hold a ceremony; and (name4) of Magic wants to set a lavastone in the coral. What should they do?
+
+Debate It Out:
+
+They debate for three days and agree on a little of everything: close the reef, count the fish, hold a ceremony, and keep the lavastone for later. The reef recovers slowly. All four say it was their part that worked. [Solidarity: raise]
+
+Each Their Own Way:
+
+Each tries their own way on a different part of the reef. After a season, all four parts are recovering, at different speeds. Nobody can agree on what that means. They decide to keep arguing about it, which they all enjoy. [Solidarity: neutral]
+
+==========================================================================
+LCF-44. The Lavastone War Story
+(picks an elder and a child)
+
+(name2) has heard a whisper that long ago, people used lavastones to fight. (He/she) asks (name1), who knows the old stories, if it is true. (name1) knows it is. (He/she) also knows the story is a sad one. What should (name1) say?
+
+Tell the Old Story:
+
+(name1) tells it gently: long ago, in the old days, some people used the stones to harm, and many were hurt, and the stones themselves seemed to grow darker. Afterwards, the people agreed never to do it again. (name2) listens with wide eyes, and asks if the promise has been kept. (name1) says, so far. [Solidarity: neutral]
+
+Not for Children Yet:
+
+(name1) says it is a story for when (name2) is older, and tells (him/her) about the stone that grew a garden instead. (name2) is suspicious, but enjoys the garden story. Some day, (name1) will tell (him/her) the other one. [Solidarity: neutral]
+
+==========================================================================
+LCF-45. The Second Sight
+(picks two adults)
+
+Since (name1) held a lavastone during a healing last year, (he/she) has started knowing things before they happen: a pot about to fall, a canoe about to tip. Not always. Not reliably. It frightens (him/her). (name2) thinks it could save lives. What should (name1) do?
+
+Use It:
+
+(name1) starts paying attention to the feelings and warning people. Sometimes (he/she) is right. Sometimes (he/she) is wrong. Once, (he/she) warns a fisher not to go out, and a storm comes. Nobody knows if it is the stone or luck. (name1) stops being frightened, mostly. [Solidarity: neutral]
+
+Try to Make It Stop:
+
+(name1) asks the healers for help. Rest, calming teas, long swims. The feelings come less often. They do not stop entirely. (name1) learns to live with them, quietly, and tells only (name2). [Solidarity: neutral]
+
+==========================================================================
+LCF-46. The Stone That Chose
+(picks two adults)
+
+The elders' newest lavastone is dark and cold for everyone except (name1), a quiet net-mender. Whenever (name1) walks past, it glows. The elders cannot explain it. (name2) says the stone has chosen (name1). (name1) does not want to be chosen for anything. What should happen?
+
+Give It to (name1):
+
+The elders give (name1) the stone. (name1) keeps it in a pouch and mends nets as before. The stone glows quietly. (name1) never uses it, and never explains why. Some people find that wise. [Solidarity: neutral]
+
+Keep It With the Elders:
+
+(name1) asks the elders to keep it. They do. Every time (he/she) walks past their hut, it glows, and (he/she) walks a little faster. Eventually, the elders move the stone to a hut (name1) never passes. [Solidarity: neutral]
+
+==========================================================================
+LCF-47. The Science Hut Argument
+(picks two adults)
+
+(name1), a researcher, has asked to study one of the elders' lavastones: weigh it, measure its glow, chip off a tiny piece. (name2), who believes lavastones are sacred, is appalled. The elders are split. What should they decide?
+
+Let the Researchers Study It:
+
+(name1) studies the stone carefully, without chipping it, and learns that it is warmer at dawn and coolest at dusk, and that it glows brighter near the sea. It does not explain anything. It makes everyone more curious. (name2) watches every measurement, suspicious. [effect: small Research skill for (name1); small tech gain] [Solidarity: neutral]
+
+Refuse:
+
+The elders refuse. (name1) is disappointed. (name2) is relieved. (name1) writes down everything people say about lavastones instead: the stories, the sightings, the healings. It becomes the most complete record on the island. [effect: small Research skill for (name1)] [Solidarity: neutral]
+
+==========================================================================
+LCF-48. The Lucky Charm Shop
+(picks two adults)
+
+(name1) has been trading little orange-painted pebbles, telling people they are lavastone chips that bring luck. (name2) has noticed the paint comes off in the rain. Some villagers are very happy with their pebbles. Some traded good fish for them. What should (name2) do?
+
+Expose It:
+
+(name2) tells (name1), privately, that (he/she) knows, and that the fish must be returned. (name1) is embarrassed, and does it, with apologies. Some of the villagers keep their pebbles anyway. They say they feel lucky. [Solidarity: raise]
+
+Let People Believe:
+
+(name2) says nothing. The pebbles keep being traded. Then it rains hard, and every pebble in the village turns grey. (name1) has a very difficult week. [Solidarity: lower]
+
+==========================================================================
+LCF-49. The Night the Stones All Glowed
+(picks two adults)
+
+In the middle of the night, every lavastone on Isola began to glow at once, so brightly that the whole village lit up orange-pink. Nobody knows why. (name1) wants to gather the village on the beach to watch. (name2) thinks it is safer to stay inside until it stops. What should the village do?
+
+Gather to Watch:
+
+The village gathers on the beach. Out on the water, things are glowing too: stones on the reef, stones on the seabed, a faint orange light far out to sea. It lasts until dawn, and then fades. Nobody ever finds out what it meant. Everyone remembers it. [effect: everyone celebrates] [Solidarity: raise]
+
+Stay Indoors:
+
+Most of the village stays inside. A few, (name1) among them, slip out to watch anyway. By dawn the glow is gone. The next day, people argue about whether it was a blessing or a warning. Nothing happens either way. [Solidarity: neutral]
+
+==========================================================================
+LCF-50. The Stone Returned to the Sea
+(picks an elder and an adult)
+
+(name1) believes the old story that every lavastone must one day be returned to where it came from, and the village's oldest stone came from the sea. (He/she) wants to give it back, at the full moon. (name2) says the healers still need it. What should the village do?
+
+Return It to the Sea:
+
+At the full moon, the village paddles out past the reef, and (name1) lowers the stone into the water. It glows all the way down, until it is a tiny spark, and then nothing. The healers will miss it. (name1) says the sea will send another, when it is needed. [Solidarity: neutral]
+
+Keep It:
+
+The village keeps the stone. (name1) is sad, and says so. A year later, the stone is found on the beach, having somehow rolled out of the elders' hut and down to the waterline. Nobody knows how. (name1) is not surprised. [Solidarity: neutral]
+
+==========================================================================
+NOTES FOR THE OWNER
+- LCF-01: The owner's lavastone lore (they fall from the sky, sometimes onto people's heads; origins ambiguous). Review: 15/15 pass (minor injury; origin never settled)
+- LCF-02: The owner's lavastone lore (washed up on the beach). A child; no harm. Review: 15/15 pass (child safe; magic ambiguous)
+- LCF-03: The owner's lavastone lore (crushed into potions and stews to make them stronger; the price). Review: 15/15 pass (no miracle; real cost; consent of the sick assumed through the family)
+- LCF-04: The owner's lavastone lore (implanting to revive someone near death: forbidden, a last resort). The injured is a stranger role; non-graphic. Review: 15/15 pass (the forbidden act weighed seriously; no graphic detail; outcome uncertain)
+- LCF-05: The owner's lavastone lore (the power overwhelms the untrained; most often dazed). Review: 15/15 pass (no blame for curiosity; harm moderate)
+- LCF-06: The owner's lavastone lore (masters spend decades preparing and carry the strain in their bodies). Review: 15/15 pass (the cost honest; declining respected)
+- LCF-07: The owner's lavastone lore (wishing stone, focus); results ambiguous. Review: 15/15 pass (outcome ambiguous; no confirmation)
+- LCF-08: The owner's lavastone lore (boost soil fertility); schools of thought (Nature vs Magic). Review: 15/15 pass (two ways of knowing; neither proven)
+- LCF-09: The owner's lavastone lore (luck good or bad, never a judgment); superstition. Review: 15/15 pass (luck ambiguous; believers and skeptics respected)
+- LCF-10: The owner's lavastone lore (some say bad luck; luck never a punishment). Review: 15/15 pass (bad luck not punishment; ambiguity)
+- LCF-11: The owner's lavastone lore (may last, crumble, or need to recharge). Review: 15/15 pass (loss accepted; no miracle)
+- LCF-12: The owner's lavastone lore (need time to recharge). Ambiguous. Review: 15/15 pass (magic ambiguous; patience)
+- LCF-13: The owner's lavastone lore (origins ambiguous: religious, spiritual or mundane; all are right). Review: 15/15 pass (origin never settled; every view respected)
+- LCF-14: The owner's lavastone lore (channel inner potential into real magic; magic's nature ambiguous). Review: 15/15 pass (magic ambiguous; cost real)
+- LCF-15: The owner's lavastone lore; trade; a stone of uncertain worth. Review: 15/15 pass (uncertainty; no outsider confirmed beyond a trader)
+- LCF-16: The owner's lavastone lore; justice rules (no humiliation, accusation is not guilt). Review: 15/15 pass (accountability without humiliation)
+- LCF-17: The owner's lavastone lore (the price; sometimes hurt or worse). No death. Review: 15/15 pass (sacrifice honored; no miracle)
+- LCF-18: The owner's lavastone lore (stews made stronger); humor. Review: 15/15 pass (mild effects; humor)
+- LCF-19: The owner's lavastone lore; magic ambiguous; inner life and beliefs respected (no mockery). Review: 15/15 pass (belief respected; never confirmed)
+- LCF-20: The owner's lavastone lore (alter fate either way). No miracle confirmed. Review: 15/15 pass (ambiguity; real preparation valued)
+- LCF-21: Schools of thought (8g): Nature and Science. Review: 15/15 pass (no school simply right)
+- LCF-22: Schools of thought (8g): Science asks where religion fits; Spiritualism asks where science fits. Review: 15/15 pass (both views respected; no winner)
+- LCF-23: Schools of thought (8g): Nature (use vs preserve; are humans entitled to the land?). Review: 15/15 pass (competing needs; no single right answer)
+- LCF-24: Schools of thought (8g): Spiritualism; the island's nature ambiguous. Review: 15/15 pass (belief respected; never confirmed)
+- LCF-25: Schools of thought (8g): Spiritualism spectrum includes atheism; freedom of belief. Review: 15/15 pass (non-belief respected; ceremony adapts)
+- LCF-26: Schools of thought (8g): Magic, its nature unsettled. Review: 15/15 pass (never settled)
+- LCF-27: Schools of thought (8g): Science; experts can be wrong; C100-XIII.1. Review: 15/15 pass (both kinds of knowledge partly right)
+- LCF-28: Schools of thought (Science and Spiritualism); equal respect for healing approaches. Review: 15/15 pass (the patient decides; no approach ranked)
+- LCF-29: Schools of thought (8g); children's curiosity. Review: 15/15 pass (beliefs not ranked; child's thinking valued)
+- LCF-30: Schools of thought (8g: schools borrow from each other). Review: 15/15 pass (humor; schools borrow)
+- LCF-31: Schools of thought (8g: a villager can lean toward one, several or none). Review: 15/15 pass (belonging needs no conformity)
+- LCF-32: The owner's lavastone lore; teens protected. Review: 15/15 pass (safety for a teen; respect)
+- LCF-33: The owner's lavastone lore (channeled passively). Review: 15/15 pass (effects ambiguous; mild)
+- LCF-34: The owner's lavastone lore (many origin stories, none confirmed). Review: 15/15 pass (origins unconfirmed)
+- LCF-35: The owner's lavastone lore (gift or curse unknown). Review: 15/15 pass (both views reasonable)
+- LCF-36: Schools of thought (Science); R50-23 (skywatchers' calendar); V3 astronomy concepts. Review: 15/15 pass (innovation alongside tradition)
+- LCF-37: Schools of thought (Nature and Spiritualism); C100-VI.3; T30-26. Review: 15/15 pass (sacred and practical both respected)
+- LCF-38: Schools of thought; the island's nature ambiguous. Review: 15/15 pass (two explanations coexist)
+- LCF-39: The owner's lavastone lore (soil fertility). Review: 15/15 pass (outcomes uncertain)
+- LCF-40: The owner's lavastone lore (masters carry the strain). Review: 15/15 pass (the elder's choice)
+- LCF-41: Schools of thought (magic as striving vs arcane). Review: 15/15 pass (both views respected)
+- LCF-42: The owner's lavastone lore (found anywhere; the price). Review: 15/15 pass (injury non-graphic)
+- LCF-43: Schools of thought (8g), all four. Review: 15/15 pass (no school simply right; partial success)
+- LCF-44: The owner's lavastone lore (power to kill); past war implied; age-appropriate. Review: 15/15 pass (past harm implied; age-appropriate)
+- LCF-45: The owner's lavastone lore (altered fate); inner life respected. Review: 15/15 pass (never confirmed; the villager's choice)
+- LCF-46: The owner's lavastone lore; ambiguity. Review: 15/15 pass (no destiny confirmed)
+- LCF-47: Schools of thought (Science vs Spiritualism) and lavastones; D5-3 (ethics of knowledge). Review: 15/15 pass (both sides respected; compromise possible)
+- LCF-48: The owner's superstition and luck rules; self-interest is not cruelty; accountability where harm. Review: 15/15 pass (accountability without humiliation)
+- LCF-49: The owner's lavastone lore; mystery left open. Review: 15/15 pass (mystery unresolved)
+- LCF-50: The owner's lavastone lore (origins ambiguous; may be lost). Review: 15/15 pass (ritual is the villagers' own; meaning open)

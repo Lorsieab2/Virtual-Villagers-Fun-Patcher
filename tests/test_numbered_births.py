@@ -184,7 +184,7 @@ class Repair(unittest.TestCase):
                          .replace(b"Birth 3\r\n", b"Birth\r\n"), before)
         [fix] = done["birth_numbers"]
         self.assertEqual(fix.count, 3)
-        copy = self.folder / DATA / "Copies Made Before Repairs" / LOGS / "Births and Conceptions" / fix.backup
+        copy = self.folder / DATA / "Copies Made Before Repairs" / fix.backup
         self.assertEqual(copy.read_bytes(), before, "the log was copied first")
         self.assertFalse(log.with_name(log.name + ".tmp").exists())
         # Recorded in the Repairs Made log as Repair Saves & Logs records every addition.

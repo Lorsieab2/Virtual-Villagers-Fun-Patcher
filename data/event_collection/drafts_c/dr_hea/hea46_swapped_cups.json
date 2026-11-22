@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Swapped Cups",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea46_swapped_cups",
+  "source": "draft_hea",
+  "lines": [
+   551,
+   560
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L551",
+  "ledger": [
+   {
+    "src": "L552",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders who live together or are partners)"
+   },
+   {
+    "src": "L557",
+    "kind": "sensitivity",
+    "before": "They hobble over to the healer together",
+    "after": "They hobble over to (healer), the healer, together",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L557",
+    "kind": "sensitivity",
+    "before": "The healer listens, sniffs",
+    "after": "(healer) listens, sniffs",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L557",
+    "kind": "sensitivity",
+    "before": "says the healer.",
+    "after": "says (healer).",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two elders drink each other's evening teas by mistake: go and ask the healer, or wait and see.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) each drink a little cup of tea every evening: (subject)'s for (subject.his/her) knees and (friend)'s for sleep. Tonight, distracted by a story, they each drank the wrong one. Neither notices until the cups are empty. They look at each other.",
+   "src": "L554",
+   "choices": [
+    {
+     "label": "Go and Ask the Healer",
+     "next": "o1",
+     "src": "L556"
+    },
+    {
+     "label": "Wait and See",
+     "next": "o2",
+     "src": "L559"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It's only tea,\" says (friend). \"We'll see what happens.\" What happens is that (subject) falls asleep in the middle of a sentence and snores until morning, and (friend) lies awake with wonderfully loose knees, wondering if (friend.he/she) should wake (subject.him/her). In the morning (subject) says, \"Best sleep I've had in years.\" They swap back anyway. Mostly.",
+   "src": "L560"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They hobble over to (healer), the healer, together, holding the cups. (healer) listens, sniffs both and laughs. \"You'll be fine. (subject) will sleep like a rock and (friend)'s knees may feel very nice indeed.\" Both of these things happen. (friend) gets up in the morning, bends right down to touch the floor, and says, \"Again tonight?\" \"Absolutely not,\" says (healer).",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L557"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 15,
+     "max": 30,
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They hobble over to (healer), the healer, together, holding the cups. (healer) listens, sniffs both and laughs. \"You'll be fine. (subject) will sleep like a rock and (friend)'s knees may feel very nice indeed.\" Both of these things happen. (friend) gets up in the morning, bends right down to touch the floor, and says, \"Again tonight?\" \"Absolutely not,\" says (healer).",
+   "src": "L557"
+  }
+ }
+}

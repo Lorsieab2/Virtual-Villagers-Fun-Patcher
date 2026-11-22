@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Translate That Exactly",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div41_translate",
+  "source": "draft_div",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a deaf adult and two other adults; in the story (name1) is deaf and (name2) interprets)"
+   },
+   {
+    "src": "L491",
+    "kind": "sensitivity",
+    "before": "having a disagreement with a neighbor about a fence",
+    "after": "having a disagreement with (neighbor), a neighbor, about a fence",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L494",
+    "kind": "sensitivity",
+    "before": "Then the neighbor bursts out laughing.",
+    "after": "Then (neighbor) bursts out laughing.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L497",
+    "kind": "sensitivity",
+    "before": "The neighbor is offended. Then the neighbor looks at the goat.",
+    "after": "(neighbor) is offended. Then (neighbor) looks at the goat.",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager interpreting for a deaf neighbor in a heated fence argument has gone quiet: translate word for word, or politely.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is deaf and is having a disagreement with (neighbor), a neighbor, about a fence. (friend), who signs well, has been asked to interpret. The disagreement is getting heated. (subject) has just signed something, quite fast and with a lot of feeling, and (friend) has gone very quiet.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Translate It Word for Word",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Translate It Politely",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says, \"(subject.He/she) disagrees strongly.\" (subject), watching (friend)'s lips, signs immediately: \"That is NOT what I said.\" (friend) sighs and translates the goat part too. (neighbor) is offended. Then (neighbor) looks at the goat. \"...Fine.\" The fence gets moved. (subject) tells (friend) never to tidy up (subject.his/her) words again.",
+   "src": "L497"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) takes a deep breath and says it out loud, exactly: \"(subject.He/she) says your fence is uglier than your goat, and your goat is the ugliest animal on Isola.\" There's a terrible silence. Then (neighbor) bursts out laughing. \"That's fair, actually. It is a very ugly goat.\" The argument goes much better after that.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "neighbor",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) takes a deep breath and says it out loud, exactly: \"(subject.He/she) says your fence is uglier than your goat, and your goat is the ugliest animal on Isola.\" There's a terrible silence. Then (neighbor) bursts out laughing. \"That's fair, actually. It is a very ugly goat.\" The argument goes much better after that.",
+   "src": "L494"
+  }
+ }
+}

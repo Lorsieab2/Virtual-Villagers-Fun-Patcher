@@ -375,6 +375,40 @@ static int c1_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42): the job's own starter picks the place (its
+   first walk step, type 3: Foraging 0x441E10 a point of the berry area, Fixing hut 0x440AD0 one of the four huts,
+   Researching 0x442C10 a point by the research rock; Healing someone 0x445580 has none: it heals where the healer
+   stands; ce_site_pick: another pick when the spot is crowded), then the stop 0x439470, that walk queued again
+   (0x4399F0, appended) and the busy starter after it, which starts the walk (0x43DEF0).  The tips the job's starter
+   may leave for the selected villager (0x43A130: the 10 slots at state +0xAD0C) are put back as they were. */
+static int c1_behave_at(int index, int job, int behaviour) {
+    unsigned char *array = VV1_ARRAY();
+    unsigned char *state = *(unsigned char **)(array + 0x3E010);
+    const ce_action *act;
+    int tips[10], w[6];
+    if (behaviour < 0 || behaviour >= (int)(sizeof C1_BEHAVIOURS / sizeof C1_BEHAVIOURS[0])) {
+        return 0;
+    }
+    act = &C1_BEHAVIOURS[behaviour];
+    if (act->kind != ACT_CALL && act->kind != ACT_CALL_ARG) {
+        return c1_behave(index, behaviour);
+    }
+    memcpy(tips, state + 0xAD0C, sizeof tips);
+    if (!ce_site_pick(&C1_ADAPTER, 1, index, job, (unsigned char *)w)) {
+        memcpy(state + 0xAD0C, tips, sizeof tips);
+        return c1_behave(index, behaviour);
+    }
+    memcpy(state + 0xAD0C, tips, sizeof tips);
+    TC1(0x439470u, array, index);
+    TC7(0x4399F0u, array, index, w[0], w[1], w[2], w[3], 0, w[5]);
+    if (act->kind == ACT_CALL) {
+        TC1(act->routine, array, index);
+    } else {
+        TC2(act->routine, array, index, act->arg);
+    }
+    return 1;
+}
+
 /* ---- Pregnancy: none, or a different number of babies ------------------ */
 
 /* "0 babies": as the delivery (0x42E900) and the Golden Child puzzle end a
@@ -875,6 +909,19 @@ static const ce_probe_field C1_PROBE[] = {
     { 0x28, 1, 1, 1 }, { 0x344, 4, 90, 90 }, { 0x358, 4, 0, 0 },
 };
 
+/* A New Home's villager tick 0x42E900 (every two seconds from 0x42A36F, and from the loading screen), on a tick
+   object made by the game's own constructor 0x42E570: [+0] the world, [+4] the villager array, [+0xC] one more of
+   the game's singletons; the tick reads only +0 and +4. */
+static void c1_catch_up(void) {
+    unsigned char tick[16];
+    memset(tick, 0, sizeof tick);
+    TC0(0x42E570u, tick);
+    TC0(0x42E900u, tick);
+}
+
+static const ce_birth_layout C1_BIRTH = { 0x348u, 0x34Cu, 0x358u, 0x344u, c1_catch_up };
+static int c1_deliver(int index, int *early);
+
 static const ce_adapter C1_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -924,8 +971,9 @@ static const ce_adapter C1_ADAPTER = {
        15 lines (the longest and tallest stock encounter texts, at its 450
        pixels) less the two the villager's picture adds under the title
        (story_c1.inc, "Two choices"); the result replaces the whole text,
-       title included; labels of 34 characters (the longest stock label). */
-    49, 13, 49, 13, 1, 34, c1_rand_below, NULL, c1_role,
+       title included; labels of up to 39 characters (the bytes kept), as wide as the screen
+   shows whole (story_label_widths.h; the owner, 2026-11-13: a label may run off its button while it is readable). */
+    49, 13, 49, 13, 1, 39, c1_rand_below, NULL, c1_role,
     C1_PROBE, (int)(sizeof C1_PROBE / sizeof C1_PROBE[0]),
     NULL,
     "Do this at your own risk: the game never makes anyone else the Golden Child. Each "
@@ -933,7 +981,9 @@ static const ce_adapter C1_ADAPTER = {
     "their own looks, sex and skills; with more than one, the Golden Child's puzzles and "
     "powers may pick any of them.",
     0,
-    c1_set_health
+    c1_set_health,
+    c1_deliver,
+    c1_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -947,7 +997,9 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
         TC2(0x428470u, event, type, magnitude);
         return;
     }
-    if (ce_deliver(1, (char *)event + 0x277F, 0x270F)) {
+    if (ce_deliver(1, su_long_text, (int)sizeof su_long_text)) {
+        /* the dialog's field holds the text's start when it is longer (Scrolling Popups draws the whole) */
+        su_put_long((char *)event + 0x277F, 0x270F);
         return;
     }
     /* A pick of an island event: the event is chosen (the case roll) and
@@ -1001,6 +1053,9 @@ static void __fastcall c1_choose(void *event, void *unused_edx, int type, int ma
 #define CHOICE_VARIANT_NONE 0x7F4B1A2D     /* past every stock jump table */
 
 static void *c1_choice_dialog;
+static const mb_client CS12_CLIENT;            /* story_c2.inc: the shared popup's client, both games */
+static void cs12_op_setup(int game, unsigned char *d, unsigned int question, unsigned int subject,
+                          unsigned int variant, void *villagers, unsigned int select);   /* story_c2.inc: one popup */
 static char c1_choice_title[CE_TITLE_BYTES];
 
 /* The asked question of `game` into a VV1 / VV2 two-choice dialog: the
@@ -1038,6 +1093,20 @@ static void choice_fill_dialog(int game, unsigned char *dialog, unsigned int que
     if (other > lines) {
         lines = other;
     }
+    {
+        /* Three or four answers (format version 4): every answer's first page, and room for the extra buttons
+           (vvfp_multi_answer_12.h). */
+        int b, n = ce_choice_answers(game);
+        for (b = 2; b < n; ++b) {
+            int more = ce_choice_tallest(game, b, tallest, sizeof tallest);
+            if (more > lines) {
+                lines = more;
+            }
+        }
+        if (n > 2) {
+            lines += mb_room_lines(game, dialog, n);
+        }
+    }
     if (featured >= 0) {
         choice_open_gap((char *)dialog + question, C1_DLG_TEXT_BYTES);
         lines += CHOICE_PICTURE_LINES;
@@ -1055,10 +1124,18 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     void *villagers = *(void **)(d + 0x50A8u);   /* the ctor's villager array (0x41A4EE) */
     int featured;
     (void)unused_edx;
-    if (!ce_choice_begin(1, (char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES)) {
+    if (!ce_choice_begin(1, su_long_text, (int)sizeof su_long_text)) {
         c1_choice_dialog = NULL;
         return (char)TC0(0x4189E0u, dialog);
     }
+    if (cg_op_begun_take(1)) {
+        /* One popup: the whole event in this dialog (story_c2.inc cs12_op_setup). */
+        d[C1_DLG_RESULT] = '\0';
+        c1_choice_dialog = NULL;
+        cs12_op_setup(1, d, C1_DLG_QUESTION, C1_DLG_SUBJECT, C1_DLG_VARIANT, villagers, 0x43A160u);
+        return 1;
+    }
+    su_put_long((char *)d + C1_DLG_QUESTION, C1_DLG_TEXT_BYTES);   /* paged: it always fits */
     featured = ce_choice_featured(1);
     choice_fill_dialog(1, d, C1_DLG_QUESTION, C1_DLG_LABEL_FIRST, C1_DLG_LABEL_SECOND, c1_choice_title,
                        featured);
@@ -1070,6 +1147,11 @@ static char __fastcall c1_choice_setup(void *dialog, void *unused_edx) {
     }
     d[C1_DLG_RESULT] = '\0';
     c1_choice_dialog = dialog;
+    if (ce_choice_answers(1) > 2) {
+        mb_attach(1, &CS12_CLIENT, dialog);   /* its third and fourth buttons at its first draw */
+    } else {
+        mb_forget(dialog);
+    }
     return 1;
 }
 
@@ -1119,4 +1201,9 @@ __declspec(naked) static void c1_title_stub(void) {
         push 0x41FD7A
         ret
     }
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c1_deliver(int index, int *early) {
+    return ce_birth_now(&C1_ADAPTER, &C1_BIRTH, index, early);
 }

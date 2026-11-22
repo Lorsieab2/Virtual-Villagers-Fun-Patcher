@@ -1,0 +1,210 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Pattern Collector",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "trd11_pattern",
+  "source": "draft_trd",
+  "lines": [
+   178,
+   192
+  ],
+  "section": "dr_trd",
+  "credit": "NEW EVENTS - ISLAND TRADERS (TRD-01..13, draft for the owner, 2026-11-18)\nA trader's canoe comes ashore with something to offer and something to ask for. Trade, haggle (it may go better or worse), or send the trader on with thanks.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_trd",
+  "title_src": "L178",
+  "ledger": [
+   {
+    "src": "L179",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L178",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L184",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 250 food]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L187",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 400 food]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L188",
+    "kind": "instruction",
+    "text": "[effect: trade 1 collectible for 150 food]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A collector offers food for a piece the village found twice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1,
+  "if": {
+   "all": [
+    {
+     "has_supply": {
+      "item": "collectible",
+      "min": 1
+     }
+    },
+    {
+     "has_supply": {
+      "item": "food",
+      "min": 0
+     }
+    }
+   ]
+  }
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "trader",
+ "nodes": {
+  "trader": {
+   "type": "branch",
+   "name": "The trader's offer",
+   "children": [
+    {
+     "next": "setup",
+     "if": {
+      "all": [
+       {
+        "has_supply": {
+         "item": "collectible",
+         "min": 1
+        }
+       },
+       {
+        "has_supply": {
+         "item": "food",
+         "min": 0
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "else": "nothing"
+  },
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A collector named Keoni arrives with a satchel of small treasures: fish scales, glass pieces, painted plaster and little flutes. He hears the village has found one piece twice and offers food for the spare. (name1) has to decide whether to let it go.",
+   "src": "L181",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L181"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Trade",
+     "next": "o1",
+     "src": "L183"
+    },
+    {
+     "label": "Haggle",
+     "next": "haggle",
+     "src": "L186"
+    },
+    {
+     "label": "Decline",
+     "next": "o3",
+     "src": "L190"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) hands over the spare piece. Keoni wraps it carefully and leaves baskets of dried fruit and roots in its place.",
+   "src": "L184",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "food",
+     "get_amount": 250,
+     "src": "L184"
+    }
+   ],
+   "auto_text": true
+  },
+  "o3": {
+   "name": "Outcome C",
+   "text": "(name1) decides the village will keep its spare. Keoni nods, a little sadly, and shows the children every piece in his satchel before he goes.",
+   "src": "L191"
+  },
+  "haggle": {
+   "type": "branch",
+   "name": "Haggle",
+   "children": [
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o2b"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Haggle, the better deal",
+   "text": "(name1) and Keoni swap stories about where each piece was found, and Keoni is so taken with the stories that he adds two more baskets to the trade.",
+   "src": "L187",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "food",
+     "get_amount": 400,
+     "src": "L187"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2b": {
+   "name": "Haggle, the worse deal",
+   "text": "(name1) haggles, and Keoni, who knows exactly what the piece is worth to him, pays less.",
+   "src": "L188",
+   "effects": [
+    {
+     "do": "trade",
+     "give": "collectible",
+     "give_amount": 1,
+     "get": "food",
+     "get_amount": 150,
+     "src": "L188"
+    }
+   ],
+   "auto_text": true
+  },
+  "nothing": {
+   "name": "Nothing to trade",
+   "text": "Keoni sees the village has no spare pieces and shows the children his satchel anyway before he goes.",
+   "src": "L192"
+  }
+ }
+}

@@ -1,0 +1,227 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fever and the River Bath",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife09_fever_river",
+  "source": "living",
+  "lines": [
+   20746,
+   20757
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20746",
+  "ledger": [
+   {
+    "src": "L20757",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Two healers disagree whether cool water, rest, or a rare herb best helps a feverish villager.",
+  "cast_only": [
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Two healers disagree whether cool water, rest, or a rare herb best helps a feverish villager.",
+   "src": "L20747",
+   "choices": [
+    {
+     "label": "Use cool cloths and fluids.",
+     "next": "a",
+     "src": "L20748"
+    },
+    {
+     "label": "Offer the carefully prepared herb.",
+     "next": "b",
+     "src": "L20751"
+    },
+    {
+     "label": "Monitor the patient closely.",
+     "next": "c",
+     "src": "L20754"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The fever worsens despite attentive care.",
+   "src": "L20750",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20750"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "occasional",
+     "weight": 10
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The herb causes stomach upset, and the healer discontinues it.",
+   "src": "L20753",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20753"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healers notice a dangerous change early.",
+   "src": "L20755"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The family worries that observation alone is not enough.",
+   "src": "L20756"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The patient becomes more comfortable while the illness runs its course.",
+   "src": "L20749",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20749"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The patient becomes more comfortable while the illness runs its course.",
+   "src": "L20749"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The patient improves, though the healers cannot tell whether the herb helped.",
+   "src": "L20752",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L20752"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The patient improves, though the healers cannot tell whether the herb helped.",
+   "src": "L20752"
+  }
+ }
+}

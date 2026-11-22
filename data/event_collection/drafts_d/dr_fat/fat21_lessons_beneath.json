@@ -1,0 +1,257 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Lessons Beneath the Breadfruit Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat21_lessons_beneath",
+  "source": "fathers30",
+  "lines": [
+   434,
+   452
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L434",
+  "ledger": [
+   {
+    "src": "L435",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L436",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L440",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L442",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L443",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L445",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L446",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L448",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L449",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L451",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L452",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L438",
+    "kind": "sensitivity",
+    "before": "A village teacher has spent",
+    "after": "(Name1), a village teacher, has spent",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A village teacher has spent the morning explaining how to count the seasons by the stars.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a village teacher, has spent the morning explaining how to count the seasons by the stars. One child understands immediately, another keeps asking questions, and a third has quietly stopped trying. He remembers how hard learning once felt to him.",
+   "src": "L438",
+   "choices": [
+    {
+     "label": "Explain the Lesson Another Way",
+     "next": "a",
+     "src": "L441"
+    },
+    {
+     "label": "Invite the Children to Teach One Another",
+     "next": "b",
+     "src": "L444"
+    },
+    {
+     "label": "Take the Class Outside to Observe the Sky",
+     "next": "c",
+     "src": "L447"
+    },
+    {
+     "label": "Ask What Makes the Lesson Difficult",
+     "next": "d",
+     "src": "L450"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "He uses pebbles and drawings, and the struggling child finally sees the pattern.",
+   "src": "L442"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "His new explanation confuses everyone, and he admits that he needs to try again tomorrow.",
+   "src": "L443"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A shy student discovers that they can explain the idea beautifully.",
+   "src": "L445"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The confident students talk too much, and he must make room for quieter voices.",
+   "src": "L446"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The children notice details no one had mentioned in the lesson.",
+   "src": "L448"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A child admits they fear looking foolish, and he reassures them that questions belong in learning.",
+   "src": "L451"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The children offer several different complaints, forcing him to reconsider his teaching.",
+   "src": "L452"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "Clouds cover the stars; they learn how to work with imperfect observations.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "Clouds cover the stars; they learn how to work with imperfect observations.",
+   "src": "L449"
+  }
+ }
+}

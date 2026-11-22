@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Walk to the Far Beach",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep46_walk_far_beach",
+  "source": "draft_dep",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L557",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An elder wants to walk to the far beach once more, though it is a long way: go with them, or offer to carry the food.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "When (subject) was young, (subject.he/she) used to walk to the far beach every season. It has been many years. (subject.His/her) legs aren't what they were, and (subject.he/she) walks slowly and steadily now. Today (subject.he/she) has told (friend) that (subject.he/she) would like to go there once more. It's a long way. (subject) knows that perfectly well.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Go with (subject.him/her)",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Offer to Carry the Food",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'll come,\" says (friend), \"and I'll carry the food. You carry yourself.\" (subject) laughs. \"Done.\" The walk is slow and hard, and halfway there (subject) has to admit (subject.he/she) needs a whole day's rest. They take it. They reach the beach a day late. Nobody minds. The sea was waiting.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L557"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They set off at dawn and walk at (subject)'s pace, which means many rests and a great deal of looking at things. It takes them two days. When they finally reach the far beach, (subject) sits on the sand with (subject.his/her) feet in the water for a whole afternoon, saying almost nothing. On the way home, (subject.he/she) says it was exactly the same, and completely different.",
+   "src": "L554",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L554"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They set off at dawn and walk at (subject)'s pace, which means many rests and a great deal of looking at things. It takes them two days. When they finally reach the far beach, (subject) sits on the sand with (subject.his/her) feet in the water for a whole afternoon, saying almost nothing. On the way home, (subject.he/she) says it was exactly the same, and completely different.",
+   "src": "L554"
+  }
+ }
+}

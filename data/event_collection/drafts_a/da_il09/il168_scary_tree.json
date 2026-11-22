@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Scary Tree",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il168_scary_tree",
+  "source": "da_il09",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L101",
+    "kind": "casting",
+    "before": "One of the others starts to tease, but another child says,",
+    "after": "One of the others, (teaser), starts to tease, but (ally), another child, says,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "The children dare each other to touch the scary old tree at the edge of the jungle, and it is one child's turn.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 12
+  },
+  "teaser": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 12
+  },
+  "ally": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "At the edge of the jungle there's an old tree with a hollow in the trunk and roots like twisted fingers. All the children agree it's scary, though none of them can say why. Today the others are daring each other to touch it. It's (subject)'s turn.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Touch the Tree",
+     "next": "a",
+     "src": "L97"
+    },
+    {
+     "label": "Say No",
+     "next": "b",
+     "src": "L100"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"I don't want to,\" says (subject). One of the others, (teaser), starts to tease, but (ally), another child, says, \"Me neither, actually,\" and suddenly nobody wants to. They decide the tree is very old and probably deserves some peace and quiet. They go and play somewhere else. The tree, for its part, doesn't seem to mind either way.",
+   "src": "L101"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) walks up to the tree very slowly. (subject.His/Her) friends are all holding their breath. (subject.He/She) reaches out and touches the bark. It's warm, and rough, and quite ordinary. A beetle crawls out of the hollow, and every single child screams and runs all the way back to the village, laughing. Even (subject).",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) walks up to the tree very slowly. (subject.His/Her) friends are all holding their breath. (subject.He/She) reaches out and touches the bark. It's warm, and rough, and quite ordinary. A beetle crawls out of the hollow, and every single child screams and runs all the way back to the village, laughing. Even (subject).",
+   "src": "L98"
+  }
+ }
+}

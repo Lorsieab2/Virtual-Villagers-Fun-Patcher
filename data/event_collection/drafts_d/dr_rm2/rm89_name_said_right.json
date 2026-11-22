@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Said Right",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm89_name_said_right",
+  "source": "draft_rm2",
+  "lines": [
+   730,
+   743
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L730",
+  "ledger": [],
+  "description": "A newcomer's name has a sound that is unfamiliar on Isola, and most villagers have been saying it wrong.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A newcomer's name has a sound that is unfamiliar on Isola, and most villagers have been saying it wrong.",
+   "src": "L731",
+   "choices": [
+    {
+     "label": "Ask How to Say It Correctly.",
+     "next": "a",
+     "src": "L732"
+    },
+    {
+     "label": "Practice It Privately Until It Is Right.",
+     "next": "b",
+     "src": "L735"
+    },
+    {
+     "label": "Encourage Others to Learn It Too.",
+     "next": "c",
+     "src": "L738"
+    },
+    {
+     "label": "Ask the Newcomer What They Like to Be Called.",
+     "next": "d",
+     "src": "L741"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The newcomer is pleased and patiently teaches the right sound.",
+   "src": "L733"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The newcomer says the close version is fine, but appreciates being asked.",
+   "src": "L734"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The next time the villager says it, the newcomer smiles warmly.",
+   "src": "L736"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The villager still struggles a little, but the effort is noticed.",
+   "src": "L737"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Soon most villagers say it properly.",
+   "src": "L739"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers forget, and the villager gently reminds them.",
+   "src": "L740"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The newcomer shares a nickname they love.",
+   "src": "L742"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The newcomer prefers the full name, said correctly, and the villager makes a point of it.",
+   "src": "L743"
+  }
+ }
+}

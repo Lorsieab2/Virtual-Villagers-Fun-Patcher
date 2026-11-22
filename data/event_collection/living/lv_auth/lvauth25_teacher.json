@@ -1,0 +1,216 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Teacher Who Changed Their Mind",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth25_teacher",
+  "source": "living",
+  "lines": [
+   23715,
+   23729
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23715",
+  "ledger": [
+   {
+    "src": "L23729",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A respected teacher discovers that a novice's explanation of a rare fish is more accurate than their own.",
+  "cast_only": [
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A respected teacher discovers that a novice's explanation of a rare fish is more accurate than their own.",
+   "src": "L23716",
+   "choices": [
+    {
+     "label": "Correct the lesson openly.",
+     "next": "a",
+     "src": "L23717"
+    },
+    {
+     "label": "Quietly amend the records.",
+     "next": "b",
+     "src": "L23720"
+    },
+    {
+     "label": "Invite the novice to teach.",
+     "next": "c",
+     "src": "L23723"
+    },
+    {
+     "label": "Keep both explanations until tested.",
+     "next": "d",
+     "src": "L23726"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Students learn that expertise includes admitting error.",
+   "src": "L23718"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The teacher feels embarrassed but later earns respect.",
+   "src": "L23719"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Future students receive the corrected information.",
+   "src": "L23721"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The novice feels their contribution was hidden.",
+   "src": "L23722"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The novice struggles before the class and asks for support.",
+   "src": "L23725"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The disagreement persists longer than necessary.",
+   "src": "L23728"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The novice gains confidence and teaches a memorable lesson.",
+   "src": "L23724",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "novice",
+     "mood": "good",
+     "src": "L23724"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The novice gains confidence and teaches a memorable lesson.",
+   "src": "L23724"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The students design a useful observation.",
+   "src": "L23727",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L23727"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The students design a useful observation.",
+   "src": "L23727"
+  }
+ }
+}

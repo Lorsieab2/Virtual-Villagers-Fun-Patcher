@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Four Hundred Freckles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div35_four_hundred",
+  "source": "draft_div",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-12 and another child)"
+   }
+  ],
+  "description": "A child with no freckles announces they will count every one of their friend's: let them count, or offer to share some.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has freckles. Lots of freckles. Freckles on (subject.his/her) nose, (subject.his/her) cheeks, (subject.his/her) shoulders, (subject.his/her) arms and, (subject.he/she) claims, the bottoms of (subject.his/her) feet. (friend) has none, and has just announced that (friend.he/she) is going to count every single one of (subject)'s.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Let (friend.him/her) Count",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Offer to Share Them",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) says (friend) can have some. (friend) is thrilled. (subject) takes a stick of charcoal and gives (friend.him/her) ten, very carefully, across the nose. (friend) looks in the water bowl and is overjoyed. Then (friend.he/she) washes (friend.his/her) face by accident at dinner and loses all of them. (subject) gives (friend.him/her) ten more the next morning. Free of charge.",
+   "src": "L425"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) sits very still. (friend) counts. It takes a long time. Around one hundred and fifty, (friend.he/she) loses count and has to start again. Around three hundred, (subject) sneezes and some of them seem to move. In the end they agree on \"about four hundred, maybe more.\" (subject) is extremely proud of this number and tells everyone for weeks.",
+   "src": "L422",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L422"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) sits very still. (friend) counts. It takes a long time. Around one hundred and fifty, (friend.he/she) loses count and has to start again. Around three hundred, (subject) sneezes and some of them seem to move. In the end they agree on \"about four hundred, maybe more.\" (subject) is extremely proud of this number and tells everyone for weeks.",
+   "src": "L422"
+  }
+ }
+}

@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Muddiest Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div49_muddiest_child",
+  "source": "draft_div",
+  "lines": [
+   584,
+   593
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L584",
+  "ledger": [
+   {
+    "src": "L585",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 5-12 and an adult; in the story (name1) gets around in a small wheeled cart)"
+   }
+  ],
+  "description": "A child in a little wheeled cart has become the muddiest in the village: join in, or call them in.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "It rained all night, and the clearing is one big puddle. The children are having a splashing contest, and (subject), in (subject.his/her) little wheeled cart, has discovered that if (subject.he/she) pushes hard and lets go at the top of the slope, (subject.he/she) can go straight through the biggest puddle and soak everybody. (subject.He/she) is now the muddiest child in the village, by a long way. (friend), who is meant to be watching the children, has just arrived.",
+   "src": "L587",
+   "choices": [
+    {
+     "label": "Join In",
+     "next": "o1",
+     "src": "L589"
+    },
+    {
+     "label": "Call (subject.him/her) In",
+     "next": "o2",
+     "src": "L592"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"(subject)! Look at you!\" (friend) calls (subject.him/her) in. (subject) rolls over, splattered from head to wheels and grinning. (friend) sighs and starts scrubbing. Halfway through, (friend.he/she) sees the other children waiting hopefully at the top of the slope. (friend.He/she) sighs again. \"One more,\" (friend.he/she) says. \"ONE.\" It is not one.",
+   "src": "L593"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) looks at the mud, looks at (subject), and gives the cart one big push. The splash reaches the drying racks. Children scream with joy. (friend) is just as muddy as (subject) within minutes. They wash in the stream together afterward, and the cart needs a wash too. (subject) declares it the best day of (subject.his/her) life.",
+   "src": "L590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L590"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) looks at the mud, looks at (subject), and gives the cart one big push. The splash reaches the drying racks. Children scream with joy. (friend) is just as muddy as (subject) within minutes. They wash in the stream together afterward, and the cart needs a wash too. (subject) declares it the best day of (subject.his/her) life.",
+   "src": "L590"
+  }
+ }
+}

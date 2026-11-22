@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Top of the Island",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm04_top_island",
+  "source": "draft_drm",
+  "lines": [
+   44,
+   53
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L44",
+  "ledger": [
+   {
+    "src": "L45",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L50",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "An elder who never climbed the highest hill decides to try, slowly, with a friend: go all the way, or go as far as feels right.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has lived on Isola (subject.his/her) whole life and has never once climbed to the very top of the highest hill. There was always something else to do. Now (subject.his/her) knees are stiff and (subject.his/her) breath is short on steep paths, and (subject.he/she) has decided that this is the season (subject.he/she) is going to do it, slowly. (subject.He/she) asks (friend) to come along.",
+   "src": "L47",
+   "choices": [
+    {
+     "label": "Go Slowly, All the Way",
+     "next": "o1",
+     "src": "L49"
+    },
+    {
+     "label": "Go as Far as Feels Right",
+     "next": "o2",
+     "src": "L52"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They set off at first light and stop whenever (subject) wants to, which is often. It takes all day. Near the top (subject) has to sit for a long while. But (subject.he/she) gets there, and stands at the very top with the whole island spread out below, and says nothing at all for a long time.",
+   "src": "L50",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L50"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They climb until (subject) says, \"This will do.\" It's a little below the top, on a rock with a wonderful view of the sea. They eat lunch there. \"We could go on,\" says (friend). \"We could,\" says (subject). \"I'd rather sit here.\" (subject.He/she) is perfectly happy with that. The top of the hill will still be there.",
+   "src": "L53",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L53"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "They climb until (subject) says, \"This will do.\" It's a little below the top, on a rock with a wonderful view of the sea. They eat lunch there. \"We could go on,\" says (friend). \"We could,\" says (subject). \"I'd rather sit here.\" (subject.He/she) is perfectly happy with that. The top of the hill will still be there.",
+   "src": "L53"
+  }
+ }
+}

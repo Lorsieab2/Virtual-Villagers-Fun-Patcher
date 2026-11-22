@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Message to No One",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz126_message_one",
+  "source": "draft_hz2",
+  "lines": [
+   558,
+   568
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L558",
+  "ledger": [
+   {
+    "src": "L559",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(Name1), a child,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A child carves a message on a piece of driftwood addressed to a child far away.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a child, carves a message on a piece of driftwood addressed to \"a child far away.\"",
+   "src": "L559",
+   "choices": [
+    {
+     "label": "Keep the Message.",
+     "next": "a",
+     "src": "L560"
+    },
+    {
+     "label": "Set It Afloat.",
+     "next": "b",
+     "src": "L563"
+    },
+    {
+     "label": "Imagine the Reply.",
+     "next": "c",
+     "src": "L566"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The child keeps it under their mat and adds a new line each year.",
+   "src": "L561"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The child reads it to a friend, who wants to write one too.",
+   "src": "L562"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The child watches it drift out past the reef, hoping someone finds it.",
+   "src": "L564"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "An elder reminds them that a reply might never come, and the child decides that is all right.",
+   "src": "L568"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "It washes back ashore the next morning, and the child laughs and tries again another day.",
+   "src": "L565",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L565"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "It washes back ashore the next morning, and the child laughs and tries again another day.",
+   "src": "L565"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child imagines a distant child carving an answer, and smiles.",
+   "src": "L567",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L567"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child imagines a distant child carving an answer, and smiles.",
+   "src": "L567"
+  }
+ }
+}

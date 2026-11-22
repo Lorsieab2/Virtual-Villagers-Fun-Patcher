@@ -132,8 +132,12 @@ class Harnesses(unittest.TestCase):
         # layout's slot folder that holds a log still appended to, numbered on, and no new folder made: 3);
         # and 19 for the parents a villager who disappears or passes away keeps in the record (the owner,
         # 2026-10-20: "make room for their parents in all 5 games"): 4 in each of The Lost Children to New
-        # Believers, 3 in A New Home, whose come only from its Show Parents companion.
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 352, result.stdout)
+        # Believers, 3 in A New Home, whose come only from its Show Parents companion; and 8 for the carrier
+        # of a delivery found by the pregnancy, whatever their sex (the owner, 2026-11-15): a look-alike not
+        # carrying is never the mother, and a male carrier's litter is read (2 in each of The Lost Children to
+        # New Believers).
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 360, result.stdout)
+        self.assertEqual(result.stdout.count("  ok   a male carrier: Born as: Twin"), 4)
         self.assertEqual(result.stdout.count("  ok   ...with the parents the game kept on the record, their heads "
                                              "and bodies"), 4)
         self.assertEqual(result.stdout.count("  ok   ...a parent the game never recorded is left out, never made up"), 4)
@@ -166,8 +170,16 @@ class Harnesses(unittest.TestCase):
         # (native/shared/per_save.h): the bad file set up in the save's own folder (1), and a graves file
         # still in the older layout's Graves\ read and written there, Start Over clearing both places (5); and 10
         # for section 12, A New Home's Golden Child: his grave marked at the burial (flag 2, version 3), "Golden
-        # Child" as its Job line with Children's Graves Say Apprentice, a child's epitaph, read back by a new session.
-        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10, result.stdout)
+        # Child" as its Job line with Children's Graves Say Apprentice, a child's epitaph, read back by a new session;
+        # and 5 for VvfpCauseKilledBy (v1.35.97): the export, the 'VCW1' file with the author's words, the Death
+        # record in those words, the words dropped once used, Start Over deleting the file; and 3 for the V28
+        # exports (cie-v6-binary.md 22): VvfpCauseDiedUnrecovered and VvfpCauseBabyLost exported, the death with no
+        # body (always "Unknown causes", no grave) and the baby lost; and 7 for long words (2026-11-17): version 2
+        # written whole twice, a version 1 words file written and still read, version 2 read by a new session with
+        # all 2,000 characters in the Death record, used up twice.
+        self.assertEqual(len(re.findall(r"^  ok ", result.stdout, re.M)), 62 + 11 + 6 + 10 + 5 + 3 + 7,
+                         result.stdout)
+        self.assertIn("  ok   the body's Death record says the author's words", result.stdout)
         self.assertIn("  ok   his grave's Job line: Golden Child", result.stdout)
         self.assertIn("  ok   version 3: the child's grave flags 0, epitaph 12; the Golden Child's flag 2, epitaph 13",
                       result.stdout)

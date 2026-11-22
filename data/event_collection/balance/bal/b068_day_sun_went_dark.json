@@ -1,0 +1,191 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day the Sun Went Dark",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b068_day_sun_went_dark",
+  "source": "balance",
+  "lines": [
+   3069,
+   3111
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3069",
+  "ledger": [
+   {
+    "src": "L3070",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3071",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3079",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3088",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3076",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3077",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3080",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3089",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3082",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3085",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3091",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3094",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3097-3111",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "In the middle of the day, the sun starts to go dark, as if something is taking a bite out of it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the middle of the day, the sun starts to go dark, as if something is taking a bite out of it. The birds stop singing. The air goes cold. The elders say this happened once before, long ago, and that during the dark \"shadows wander, and can come home to the wrong person.\"\n(subject) and (friend) are standing side by side on the beach, their shadows stretched long and thin and touching. As the last of the sun goes, the shadows seem to twitch.\nShould they stand still and wait for the light, or run in opposite directions so their shadows can't mix?",
+   "choices": [
+    {
+     "label": "Stand Still and Wait",
+     "next": "c1",
+     "src": "L3076"
+    },
+    {
+     "label": "Run Apart",
+     "next": "c2",
+     "src": "L3077"
+    }
+   ],
+   "src": "L3072-3074"
+  },
+  "c1o1": {
+   "text": "When the sun comes back, (subject) looks down and sees (friend)'s feet. The shadows came home to the wrong person, and brought everything else with them. The elders, consulted, say it will sort itself out at the next dark sun. The next dark sun is not due for a hundred years. The two of them sigh and swap huts.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L3083",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The sun slides back, bright as ever. The birds start up again. (subject) and (friend) look down: each shadow is right where it should be. They sit down on the sand and laugh with relief, and then go and tell the children it was nothing to worry about, which is a lie, but a kind one.",
+   "src": "L3086"
+  },
+  "c1": {
+   "text": "They stand frozen, hardly breathing. In the strange half-dark, their shadows ripple on the sand like water, and slide together, and apart...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3080"
+  },
+  "c2o1": {
+   "text": "At the far ends of the beach, both of them trip and fall at exactly the same moment. When they get up, each is wearing the other's body. Their shadows, stretched too far, snapped back to the wrong ends. They walk slowly back towards each other along the sand and meet in the middle. \"Well,\" says (subject), in (friend)'s voice. \"That didn't work.\"",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L3092",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The sun comes back. Their shadows are their own. But for weeks afterwards, both of them sleep with a lamp burning, and walk on the sunny side of the path, and check their shadows every time they step out of a doorway. It wears off, eventually.",
+   "src": "L3095"
+  },
+  "c2": {
+   "text": "They turn and run in opposite directions along the sand. Behind them, in the half-dark, their shadows stretch and stretch, still touching, longer than any shadow should be...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3089"
+  }
+ }
+}

@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Story Twice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il128_same_story_twice",
+  "source": "da_il07",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "da_il07",
+  "credit": "NEW EVENTS — INNER LIFE, PART VII (121-140, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il07",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A friend is telling a villager a funny story that the villager already heard this morning.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) is telling (subject) a funny story about a heron that stole (friend.his/her) lunch. It's a good story. (subject) knows it's a good story, because (friend) told it to (subject.him/her) this morning. (friend) is clearly building up to the best part.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Laugh Anyway",
+     "next": "a",
+     "src": "L97"
+    },
+    {
+     "label": "Say (subject.he/she) Has Heard It",
+     "next": "b",
+     "src": "L100"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"You told me this morning,\" says (subject), gently. (friend) groans and covers (friend.his/her) face. \"I'm sorry.\" \"Don't be, it was good. Tell me another one.\" (friend) thinks hard. (friend.He/She) tells one about a crab. (subject) has heard it before, too, but this time (subject.he/she) doesn't mention it.",
+   "src": "L101"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) laughs at the best part, and it's still funny, because (friend) does a very good heron. Later (friend) suddenly stops and says, \"Did I already tell you that?\" \"This morning,\" says (subject). \"Why did you let me tell it again?\" \"You do a very good heron.\" (friend) seems satisfied with this.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) laughs at the best part, and it's still funny, because (friend) does a very good heron. Later (friend) suddenly stops and says, \"Did I already tell you that?\" \"This morning,\" says (subject). \"Why did you let me tell it again?\" \"You do a very good heron.\" (friend) seems satisfied with this.",
+   "src": "L98"
+  }
+ }
+}

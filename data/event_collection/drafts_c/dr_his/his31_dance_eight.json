@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance for Eight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his31_dance_eight",
+  "source": "draft_his",
+  "lines": [
+   368,
+   377
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L368",
+  "ledger": [
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "The Turtle Dance has long been danced around an empty space, and a villager asks to learn that part: teach it, or keep the space.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The old Turtle Dance needs eight dancers, each with a different part: the turtle, the two waves, the moon, and four others nobody can quite agree on. For years, only seven people in the village have known it. The eighth part has been danced by an empty space, with the others carefully moving around where the eighth person should be. Today (friend) asks (subject) to teach (friend.him/her) the missing part.",
+   "src": "L371",
+   "choices": [
+    {
+     "label": "Teach (friend.him/her) What You Remember",
+     "next": "o1",
+     "src": "L373"
+    },
+    {
+     "label": "Keep Dancing Around the Space",
+     "next": "o2",
+     "src": "L376"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) teaches what (subject.he/she) remembers, which is about half. The other half, they make up together, trying to fit the shape of the other parts. At the festival, eight dancers dance the Turtle Dance for the first time in years. Some elders say the eighth part is completely wrong. Some say it's exactly right. It's beautiful either way.",
+   "src": "L374"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) doesn't know the eighth part well enough to teach it, and doesn't want to teach it wrong. (friend) is disappointed. At the festival, the seven dance around the empty place again. (friend) watches and realizes the space has become part of the dance. Everyone knows someone's missing. Maybe that's what it's about now.",
+   "src": "L377",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "bad",
+     "src": "L377"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) says (subject.he/she) doesn't know the eighth part well enough to teach it, and doesn't want to teach it wrong. (friend) is disappointed. At the festival, the seven dance around the empty place again. (friend) watches and realizes the space has become part of the dance. Everyone knows someone's missing. Maybe that's what it's about now.",
+   "src": "L377"
+  }
+ }
+}

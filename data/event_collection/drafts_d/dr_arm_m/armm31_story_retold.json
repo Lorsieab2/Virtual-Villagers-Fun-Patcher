@@ -1,0 +1,68 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Story Retold",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "armm31_story_retold",
+  "source": "openq97",
+  "lines": [
+   627,
+   629
+  ],
+  "section": "dr_arm_m",
+  "credit": "OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)\n",
+  "draw_weight": 1,
+  "series": "dr_arm_m",
+  "title_src": "L628",
+  "ledger": [
+   {
+    "src": "L627",
+    "kind": "structural",
+    "text": "[M31]",
+    "why": "the moment's number"
+   },
+   {
+    "src": "L629",
+    "kind": "structural",
+    "text": "Follow-up:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L627",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(Name1), an elder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "An elder tells a story that changes slightly with each retelling.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The moment",
+   "text": "(Name1), an elder, tells a story that changes slightly with each retelling. A listener notices the changed detail and smiles. The elder laughs softly before continuing.",
+   "src": "L627,L629"
+  }
+ }
+}

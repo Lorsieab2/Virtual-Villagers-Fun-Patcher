@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gift That Ran Away",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam241_gift_ran_away",
+  "source": "draft_fam2",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults; any sexes)"
+   }
+  ],
+  "description": "A villager courting with a crab in a basket watches it escape at the door: chase it together, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has decided to court (friend), and has been planning the perfect gift. Today (subject.he/she) arrives at (friend)'s door holding a beautifully woven basket with a live crab inside. \"It's a pet,\" (subject.he/she) explains. \"Because you like crabs.\" (friend) leans in to look. The crab, at this exact moment, escapes.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Chase the Crab Together",
+     "next": "o1",
+     "src": "L493"
+    },
+    {
+     "label": "Let the Crab Go",
+     "next": "o2",
+     "src": "L496"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "They chase the crab across the whole village, through two gardens and under a hut, laughing so hard they can barely run. Finally (friend) catches it in (friend.his/her) hands. (friend.He/she) is grinning. \"I'll keep it,\" (friend.he/she) says. \"And I'll go for a walk with you tomorrow, if you like.\" (subject) does like. Very much. The crab gets a name.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "They chase the crab across the whole village, through two gardens and under a hut, laughing so hard they can barely run. Finally (friend) catches it in (friend.his/her) hands. (friend.He/she) is grinning. \"I'll keep it,\" (friend.he/she) says. \"And I'll go for a walk with you tomorrow, if you like.\" (subject) does like. Very much. The crab gets a name.",
+   "src": "L494"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "They watch the crab scuttle off towards the sea. (subject) looks devastated. (friend) starts to laugh. \"That was the best gift anyone's ever tried to give me,\" (friend.he/she) says. \"But I'm not looking to be courted. I'm sorry.\" (subject) nods. \"That's alright.\" Then: \"Do you want to go and look for another crab? Just for fun?\" They do.",
+   "src": "L497",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L497"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "They watch the crab scuttle off towards the sea. (subject) looks devastated. (friend) starts to laugh. \"That was the best gift anyone's ever tried to give me,\" (friend.he/she) says. \"But I'm not looking to be courted. I'm sorry.\" (subject) nods. \"That's alright.\" Then: \"Do you want to go and look for another crab? Just for fun?\" They do.",
+   "src": "L497"
+  }
+ }
+}

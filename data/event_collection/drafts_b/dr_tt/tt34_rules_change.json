@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Rules That Change",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt34_rules_change",
+  "source": "draft_tt",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two children aged 7-13)"
+   }
+  ],
+  "description": "A child keeps inventing new rules whenever a friend is about to win: invent rules too, or ask for all the rules first.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 7,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are playing a game with stones. Every time (friend) is about to win, (subject) suddenly remembers a new rule. \"Oh, you can't move there if it's sunny.\" \"Blue stones go backward on the third turn.\" (friend) is beginning to notice a pattern.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Invent Rules Too",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Ask for All the Rules First",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Tell me every rule now,\" says (friend), \"before we start.\" (subject) has to make them all up at once, and they scratch them into the sand. Then they play by them. (subject) loses. (subject.He/she) stares at the sand for a long moment, and then accepts it. They play again. (subject) loses again. (friend) is gracious about it, eventually.",
+   "src": "L413"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) announces a rule that whoever has a crab nearby wins straight away, and points to a crab. (subject) invents a rule that crabs don't count on days with clouds. Soon the game is nothing but new rules, and both of them are laughing too hard to play it, which turns out to be more fun than the game was.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L410"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) announces a rule that whoever has a crab nearby wins straight away, and points to a crab. (subject) invents a rule that crabs don't count on days with clouds. Soon the game is nothing but new rules, and both of them are laughing too hard to play it, which turns out to be more fun than the game was.",
+   "src": "L410"
+  }
+ }
+}

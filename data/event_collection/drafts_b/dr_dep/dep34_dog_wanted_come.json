@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dog Who Wanted to Come",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep34_dog_wanted_come",
+  "source": "draft_dep",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "Eventually a child runs out",
+    "after": "Eventually (child), a child, runs out",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A village dog follows a villager setting off on a three-day walk: take the dog, or send it home.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is setting off on a three-day walk to gather a special kind of clay. (subject.He/she) has got as far as the edge of the gardens before noticing that one of the village dogs is trotting along behind, carrying a stick, looking extremely pleased with itself and the whole idea.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Take the Dog",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Send It Home",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) points back at the village. \"Home.\" The dog sits. (subject) walks on. The dog follows. (subject) points again. This goes on for some time. Eventually (child), a child, runs out, scoops up the dog and carries it back, still holding its stick. (subject) feels oddly guilty for the first hour of the walk.",
+   "src": "L413"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (subject). \"But you carry your own stick.\" The dog proves an excellent companion. It finds water twice, barks at a crab for an hour, and sleeps on (subject)'s feet at night. They come home three days later, muddy and happy. The dog acts for weeks afterwards as though it organized the whole trip.",
+   "src": "L410",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L410"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Fine,\" says (subject). \"But you carry your own stick.\" The dog proves an excellent companion. It finds water twice, barks at a crab for an hour, and sleeps on (subject)'s feet at night. They come home three days later, muddy and happy. The dog acts for weeks afterwards as though it organized the whole trip.",
+   "src": "L410"
+  }
+ }
+}

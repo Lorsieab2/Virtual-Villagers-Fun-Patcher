@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unsolvable Cry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_01_cry",
+  "source": "v28",
+  "lines": [
+   10489,
+   10495
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10489",
+  "ledger": [
+   {
+    "src": "L10490",
+    "kind": "note",
+    "why": "the cast: BABIES; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10495",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "A baby cries whenever the evening drums begin, and the family looks for a way to settle them."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "nursing_parent"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "A baby cries whenever the evening drums begin.",
+   "src": "L10491",
+   "children": [
+    {
+     "next": "a"
+    },
+    {
+     "next": "b"
+    },
+    {
+     "next": "c"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A parent rocks the baby away from the noise; they settle.",
+   "src": "L10492",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10492"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The baby remains unsettled; the family asks for help and takes turns resting.",
+   "src": "L10494",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L10494"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A father discovers the baby likes a slower rhythm and plays it softly.",
+   "src": "L10493",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "parent",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L10493"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A father discovers the baby likes a slower rhythm and plays it softly.",
+   "src": "L10493"
+  }
+ }
+}

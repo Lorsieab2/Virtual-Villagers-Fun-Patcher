@@ -49,6 +49,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
+import vv_repair_copies as copies
 import vv_save_backup
 import vv_save_layout as layout
 from transparency import PATCHER_VERSION
@@ -100,6 +101,7 @@ class CheckResult:
     text: str                                   # the checker's own report, as the CLI prints it
     counts: dict[str, int] = field(default_factory=dict)
     reconciliation: object | None = None        # src/vv_reconcile.py Reconciliation (the window exports it)
+    kinds: list | None = None                   # vv_log_additions.plan's kinds, made once (None: not made)
 
     @property
     def wrong(self) -> int:
@@ -143,10 +145,21 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
     # What older records lack that Repair Saves & Logs can add (src/vv_log_additions.py; the checker
     # itself reports the Sex lines).
     import vv_log_additions as additions
+    # The reconciliation is made once, here, and handed to the plan (its "reconcile" kind) and to the
+    # report below: it is the slowest read of a large village, and was made twice.
+    import vv_reconcile
+    reconciled = None
+    reconcile_error = None
     try:
-        kinds = additions.plan(Path(folder), game, slot, game_folders)
+        reconciled = vv_reconcile.reconcile(Path(folder), game, slot)
+    except (vv_reconcile.ReconcileError, OSError, ValueError, struct.error) as exc:
+        reconcile_error = exc
+    try:
+        kinds = additions.plan(Path(folder), game, slot, game_folders, rec=reconciled)
+        planned = kinds                         # Repair Saves & Logs' checklist uses these, not a second plan
     except OSError as exc:
         kinds = []
+        planned = None
         report.add(f"{LOGS} (older records)", "UNCHECKED", f"a log could not be read ({exc.strerror or exc})")
     # Wrong last names (the owner, 2026-10-07): the ones the village's rule does not give.
     import vv_genealogy
@@ -226,13 +239,9 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
     # The always-on read-only reconciliation of records, logs and files (src/vv_reconcile.py; the owner,
     # 2026-10-11: "MAKE SURE ABSOLUTELY NOTHING IS LOST. IF THERE ARE CONTRADICTIONS ASK THE PLAYER"):
     # every villager followed through every source; each contradiction an ASK line, numbered.
-    import vv_reconcile
     label = f"{LOGS}\\Save {slot} (read-only reconciliation of records, logs and files)"
-    reconciled = None
-    try:
-        reconciled = vv_reconcile.reconcile(Path(folder), game, slot)
-    except (vv_reconcile.ReconcileError, OSError, ValueError, struct.error) as exc:
-        report.add(label, "UNCHECKED", f"the reconciliation could not run ({exc})")
+    if reconciled is None:
+        report.add(label, "UNCHECKED", f"the reconciliation could not run ({reconcile_error})")
     else:
         for verdict, text in reconciled.lines():
             report.add(label, verdict, text)
@@ -280,7 +289,7 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
         report.add(f"{LOGS} ({kind.label})", "NOTE",
                    f"{kind.decided} line(s) the save, the patcher's files or the logs settle{asked}; "
                    "Repair Saves & Logs can add them")
-    return CheckResult(Path(folder), slot, game, report.render(), report.counts(), reconciled)
+    return CheckResult(Path(folder), slot, game, report.render(), report.counts(), reconciled, planned)
 
 
 # ---------------------------------------------------------------------------
@@ -693,12 +702,19 @@ class WordFix:
 
 
 def copy_before_repair(folder: Path, path: Path, suffix: str) -> Path:
-    """Where the copy of `path` (in the save folder) kept before a repair goes: "Data\\Copies Made
-    Before Repairs", at the file's own place, "<name><suffix>" (the owner, 2026-10-09: no longer
-    beside the file; native/shared/save_layout.h vv_layout_copy_path).  A file in a save's own folder
-    ("Virtual Villagers Fun Patcher\\Save <S>\\...") has its copy in that save's own "Data\\Copies Made
-    Before Repairs", at its place inside "Save <S>", so deleting the save's folder takes it too
-    (native/shared/per_save.h)."""
+    """Where a NEW copy of `path` (in the save folder) kept before a repair goes, its index line
+    written: "<short name>.bak<n>" in "Data\\Copies Made Before Repairs" -- the save's own for a file of
+    a save's own folder, so deleting the save's folder takes it too -- never a name in use, `suffix`
+    (".before-<what>[-<k>]") kept as the reason in that folder's "Copies Index.txt"
+    (src/vv_repair_copies.py; the owner, 2026-11-20: no path-too-long errors).  Every call is a new
+    place; the caller writes the copy there."""
+    return copies.new_copy(folder, path, suffix)
+
+
+def older_copy_place(folder: Path, path: Path, suffix: str) -> Path:
+    """Where an OLDER build kept its copy of `path`: "Data\\Copies Made Before Repairs", at the file's
+    own place, "<name><suffix>" (only read; native/shared/save_layout.h vv_layout_copy_path still names
+    the companions' copies so)."""
     relative = Path(path).resolve().relative_to(Path(folder).resolve())
     if layout.older_layout(folder, path) is not None:
         root = Path(folder) / relative.parts[0] / relative.parts[1]
@@ -709,11 +725,12 @@ def copy_before_repair(folder: Path, path: Path, suffix: str) -> Path:
 
 
 def copy_places(folder: Path, path: Path, suffix: str) -> list[Path]:
-    """Every place a copy of `path` kept before a repair may be, for READING (a new copy is always
-    made at copy_before_repair's place): that place, and for a file in a save's own folder also the
-    older layout's "Data\\Copies Made Before Repairs\\<its older-layout place>", where its copies made
-    before Repair Saves & Logs' "Move Files to Save Folders..." stay (src/vv_move_to_save_folders.py)."""
-    out = [copy_before_repair(folder, path, suffix)]
+    """Every place an OLDER build's copy of `path` kept before a repair may be, for READING (the new
+    copies are found by copies.kept_copies): older_copy_place, and for a file in a save's own folder
+    also the older layout's "Data\\Copies Made Before Repairs\\<its older-layout place>", where its
+    copies made before Repair Saves & Logs' "Move Files to Save Folders..." stay
+    (src/vv_move_to_save_folders.py)."""
+    out = [older_copy_place(folder, path, suffix)]
     older = layout.older_layout(folder, path)
     if older is not None:
         target = Path(folder) / layout.DATA / layout.COPIES / Path(*older.split("\\"))

@@ -232,7 +232,7 @@ class CutNames(unittest.TestCase):
         self.assertEqual(text.count(f"Name: {FULL}\r\n"), 2)
         self.assertEqual(text.count(f"Father: {FULL}\r\n"), 2)
         backup = Path(result.backup.backup_folder)
-        self.assertIn(cn.BACKUP_LABEL, backup.name)
+        self.assertIn(cn.BACKUP_LABEL, cn.vv_save_backup.backup_label(backup))
         self.assertIn(CUT.encode() + b"\0", (backup / self.save.name).read_bytes())
         self.assertEqual(cn.find_cut(self.folder, 3, 1), ([], []), "nothing is left to restore")
 

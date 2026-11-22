@@ -1,0 +1,190 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Traveling Pattern",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp60_traveling",
+  "source": "anthology",
+  "lines": [
+   32192,
+   32206
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32192",
+  "ledger": [
+   {
+    "src": "L32193",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   }
+  ],
+  "description": "A textile design appears in two tribes, each believing it originated at home.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A textile design appears in two tribes, each believing it originated at home.",
+   "src": "L32194",
+   "choices": [
+    {
+     "label": "Trace Its History",
+     "next": "a",
+     "src": "L32195"
+    },
+    {
+     "label": "Celebrate Shared Craft",
+     "next": "b",
+     "src": "L32198"
+    },
+    {
+     "label": "Make a New Pattern",
+     "next": "c",
+     "src": "L32201"
+    },
+    {
+     "label": "Keep Separate Traditions",
+     "next": "d",
+     "src": "L32204"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L32194"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "An old exchange explains the similarity.",
+   "src": "L32196"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The oldest evidence remains inconclusive.",
+   "src": "L32197"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "One family asks that a private motif not be copied.",
+   "src": "L32200"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The tribes create a joint festival cloth.",
+   "src": "L32202"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The designers disagree but remain respectful.",
+   "src": "L32203"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Each group continues its own style.",
+   "src": "L32205"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Both acknowledge influence without surrendering identity.",
+   "src": "L32206"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Weavers teach each other variations.",
+   "src": "L32199",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L32199"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Weavers teach each other variations.",
+   "src": "L32199"
+  }
+ }
+}

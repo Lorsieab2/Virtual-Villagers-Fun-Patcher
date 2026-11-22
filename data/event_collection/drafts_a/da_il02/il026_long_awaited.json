@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long-Awaited Moment",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il026_long_awaited",
+  "source": "da_il02",
+  "lines": [
+   257,
+   271
+  ],
+  "section": "da_il02",
+  "credit": "Owner review draft · November 15, 2026 · All established Isola rules apply\n\n11. The Great Inventor",
+  "draw_weight": 1,
+  "series": "da_il02",
+  "title_src": "L257",
+  "ledger": [
+   {
+    "src": "L259",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L271",
+    "kind": "structural",
+    "why": "a separator between events"
+   }
+  ],
+  "description": "A villager has spent months preparing for a difficult task.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) has spent months preparing for a difficult task. Today is finally the day. (He/She) has practiced, studied, and imagined this moment so many times that it hardly seems real. Yet now that the moment has arrived, (name1) feels strangely calm.",
+   "src": "L261",
+   "choices": [
+    {
+     "label": "Begin Immediately",
+     "next": "a",
+     "src": "L263"
+    },
+    {
+     "label": "Wait a Little Longer",
+     "next": "b",
+     "src": "L267"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) takes a deep breath and starts. The task proves challenging, but familiar. By evening (he/she) has made a respectable beginning. There is still much to do, and (name1) feels ready to continue.",
+   "src": "L265"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(name1) sits quietly for a few minutes, watching the village go about its business. Then (he/she) stands and begins. The delay changes nothing important, but (name1) is glad to have taken it.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(name1) sits quietly for a few minutes, watching the village go about its business. Then (he/she) stands and begins. The delay changes nothing important, but (name1) is glad to have taken it.",
+   "src": "L269"
+  }
+ }
+}

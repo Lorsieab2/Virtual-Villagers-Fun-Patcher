@@ -1,0 +1,211 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What We Carry Forward",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus32_what_we_carry",
+  "source": "anthology",
+  "lines": [
+   31215,
+   31229
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31215",
+  "ledger": [
+   {
+    "src": "L31216",
+    "kind": "note",
+    "why": "the volume's casting tag (ALL AGES), carried out as the roles' ages"
+   },
+   {
+    "src": "L31220",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31228",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "After a difficult season, villagers debate whether remembrance should focus on suffering, survival or ordinary life.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "After a difficult season, villagers debate whether remembrance should focus on suffering, survival, or the ordinary lives that followed.",
+   "src": "L31217",
+   "choices": [
+    {
+     "label": "Invite Children to Contribute",
+     "next": "a",
+     "src": "L31218"
+    },
+    {
+     "label": "Invite Teenagers to Question Tradition",
+     "next": "b",
+     "src": "L31221"
+    },
+    {
+     "label": "Invite Adults and Caregivers",
+     "next": "c",
+     "src": "L31224"
+    },
+    {
+     "label": "Invite Elders to Reflect",
+     "next": "d",
+     "src": "L31227"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "They weave bright ribbons for people they miss.",
+   "src": "L31219"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) asks to include a favorite silly story.",
+   "src": "L31220"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They propose a new form of remembrance.",
+   "src": "L31222"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They ask why some histories were left out.",
+   "src": "L31223"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They organize a gathering with quiet spaces.",
+   "src": "L31225"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They make room for people who do not wish to attend.",
+   "src": "L31226"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Another admits that healing never erased every scar.",
+   "src": "L31229"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "(elder) speaks about joy that returned unexpectedly.",
+   "src": "L31228",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L31228"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "(elder) speaks about joy that returned unexpectedly.",
+   "src": "L31228"
+  }
+ }
+}

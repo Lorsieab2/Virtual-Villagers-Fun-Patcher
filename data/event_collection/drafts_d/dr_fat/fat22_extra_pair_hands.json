@@ -1,0 +1,321 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Extra Pair of Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fat22_extra_pair_hands",
+  "source": "fathers30",
+  "lines": [
+   455,
+   473
+  ],
+  "section": "dr_fat",
+  "credit": "ISOLA — FATHERS, PREGNANCY & PARENTHOOD\n30 ORIGINAL READY-MADE NARRATIVE EVENT DRAFTS",
+  "draw_weight": 1,
+  "series": "dr_fat",
+  "title_src": "L455",
+  "ledger": [
+   {
+    "src": "L456",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L457",
+    "kind": "note",
+    "why": "the event's theme / casting line, carried out as the roles' casting"
+   },
+   {
+    "src": "L461",
+    "kind": "structural",
+    "why": "a structural heading"
+   },
+   {
+    "src": "L463",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L464",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L466",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L467",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L469",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L470",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L472",
+    "kind": "structural",
+    "text": "Outcome 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L473",
+    "kind": "structural",
+    "text": "Outcome 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L459",
+    "kind": "sensitivity",
+    "before": "A man volunteers",
+    "after": "(Name1) volunteers",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "The communal children's house is short of helpers.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The communal children's house is short of helpers. (Name1) volunteers for the afternoon, expecting to carry water and tidy mats. Instead, he finds himself surrounded by children who all seem to need something at once.",
+   "src": "L459",
+   "choices": [
+    {
+     "label": "Help with the Youngest Children",
+     "next": "a",
+     "src": "L462"
+    },
+    {
+     "label": "Organize a Game",
+     "next": "b",
+     "src": "L465"
+    },
+    {
+     "label": "Repair the Worn Toys",
+     "next": "c",
+     "src": "L468"
+    },
+    {
+     "label": "Return Regularly",
+     "next": "d",
+     "src": "L471"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children invent their own rules, and the afternoon passes joyfully.",
+   "src": "L466"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An argument breaks out, and he helps the children negotiate without deciding everything for them.",
+   "src": "L467"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "One child prefers the old, crooked toy and asks him not to change it.",
+   "src": "L470"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The children begin greeting him by name, and he becomes a dependable presence.",
+   "src": "L472"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "He discovers the work is tiring and arranges a sustainable schedule rather than making promises he cannot keep.",
+   "src": "L473"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "He patiently settles a fussy toddler and earns a sleepy smile.",
+   "src": "L463",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L463"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "He patiently settles a fussy toddler and earns a sleepy smile.",
+   "src": "L463"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "The toddler refuses to be comforted by him; an experienced caregiver shows him another approach.",
+   "src": "L464",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L464"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "The toddler refuses to be comforted by him; an experienced caregiver shows him another approach.",
+   "src": "L464"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "He mends several wooden figures, delighting their owners.",
+   "src": "L469",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L469"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "He mends several wooden figures, delighting their owners.",
+   "src": "L469"
+  }
+ }
+}

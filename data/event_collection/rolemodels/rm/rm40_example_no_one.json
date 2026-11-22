@@ -1,0 +1,219 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Example No One Saw",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm40_example_no_one",
+  "source": "rolemodels",
+  "lines": [
+   83,
+   83
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L83",
+  "ledger": [
+   {
+    "src": "L83",
+    "kind": "structural",
+    "text": "EVENT RM-40  -  THE EXAMPLE NO ONE SAW SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A quiet villager finds a damaged basket, scattered seeds and a loose stone beside a path after everyone has gone home.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A quiet villager finds a damaged communal basket, scattered seeds, and a loose stone beside a path after everyone else has gone home.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Repair the Basket and Return It to Storage.",
+     "next": "a",
+     "src": "L83"
+    },
+    {
+     "label": "Gather the Spilled Seeds.",
+     "next": "b",
+     "src": "L83"
+    },
+    {
+     "label": "Move the Loose Stone Away from the Walking Path.",
+     "next": "c",
+     "src": "L83"
+    },
+    {
+     "label": "Leave a Short Note Explaining What Needs Attention.",
+     "next": "d",
+     "src": "L83"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The basket is ready for use the next morning, though nobody knows who repaired it.",
+   "src": "L83"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The damage proves too extensive, so the villager leaves it safely aside for inspection.",
+   "src": "L83"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Most are recovered and returned to a clean container.",
+   "src": "L83"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The path is safer for the villagers who use it at dawn.",
+   "src": "L83"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The stone is too heavy, so the villager marks the obstruction for the morning workers.",
+   "src": "L83"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The morning workers understand the situation and finish the remaining tasks.",
+   "src": "L83"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "Some seeds are spoiled, and the villager records the loss for the keeper.",
+   "src": "L83",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L83"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "Some seeds are spoiled, and the villager records the loss for the keeper.",
+   "src": "L83"
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "The note receives no public acknowledgment, but the villager is satisfied that the problems were reported.",
+   "src": "L83",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L83"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "The note receives no public acknowledgment, but the villager is satisfied that the problems were reported.",
+   "src": "L83"
+  }
+ }
+}

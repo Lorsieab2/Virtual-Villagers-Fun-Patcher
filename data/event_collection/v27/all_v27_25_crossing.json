@@ -1,0 +1,99 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Crossing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v27_25_crossing",
+  "source": "v28",
+  "lines": [
+   10681,
+   10687
+  ],
+  "section": "v27",
+  "credit": "Creative direction and requested mechanics: Lorsieab2\nNew event prose and branch drafting: ChatGPT (OpenAI)\nOriginal V18 source and all prior sections above preserved verbatim.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L10681",
+  "ledger": [
+   {
+    "src": "L10682",
+    "kind": "note",
+    "why": "the cast: ELDERS; select gender randomly for eligible roles (the roles)"
+   },
+   {
+    "src": "L10687",
+    "kind": "note",
+    "why": "FOLLOW-UP: a designer note on saved state, never shown"
+   }
+  ],
+  "description": "An elder asks to visit the opposite shore one final time."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "name": "The setup",
+   "text": "An elder asks to visit the opposite shore one final time.",
+   "src": "L10683",
+   "children": [
+    {
+     "next": "a",
+     "weight": 20
+    },
+    {
+     "next": "b",
+     "weight": 20
+    },
+    {
+     "next": "c",
+     "weight": 5,
+     "rarity": "rare"
+    }
+   ]
+  },
+  "a": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Family members accompany them and hear an old story.",
+   "src": "L10684"
+  },
+  "b": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They decide the memory is enough and stay home.",
+   "src": "L10685"
+  },
+  "c": {
+   "name": "Outcome C",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They set off alone and go missing; the family begins a search.",
+   "src": "L10686",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "elder",
+     "src": "L10686"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

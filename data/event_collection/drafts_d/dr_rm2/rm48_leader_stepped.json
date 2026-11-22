@@ -1,0 +1,192 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leader Who Stepped Aside",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm48_leader_stepped",
+  "source": "draft_rm2",
+  "lines": [
+   114,
+   127
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L114",
+  "ledger": [
+   {
+    "src": "L115",
+    "kind": "sensitivity",
+    "before": "The village leader has",
+    "after": "(Name1), the village leader, has",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "The village leader has always planned the harvest festival but notices that a young cook has far better ideas this year.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), the village leader, has always planned the harvest festival but notices that a young cook has far better ideas this year.",
+   "src": "L115",
+   "choices": [
+    {
+     "label": "Hand Over the Planning.",
+     "next": "a",
+     "src": "L116"
+    },
+    {
+     "label": "Plan It Together.",
+     "next": "b",
+     "src": "L119"
+    },
+    {
+     "label": "Ask the Village Whom They Would Like.",
+     "next": "c",
+     "src": "L122"
+    },
+    {
+     "label": "Keep the Planning but Credit the Cook's Ideas.",
+     "next": "d",
+     "src": "L125"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The young cook feels overwhelmed, and the leader stays on as a quiet helper.",
+   "src": "L118"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The old traditions and new ideas mix into something everyone enjoys.",
+   "src": "L120"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The two disagree often, but the festival happens on time anyway.",
+   "src": "L121"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "Most villagers choose the young cook, and the leader takes the result in good spirit.",
+   "src": "L123"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The village is split, so both planners share the work.",
+   "src": "L124"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The cook is pleased to be named and offers more ideas next year.",
+   "src": "L126"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The cook would have preferred to lead, and says so plainly; the leader promises to consider it next time.",
+   "src": "L127"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The young cook organizes a festival that people talk about for months.",
+   "src": "L117",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L117"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The young cook organizes a festival that people talk about for months.",
+   "src": "L117"
+  }
+ }
+}

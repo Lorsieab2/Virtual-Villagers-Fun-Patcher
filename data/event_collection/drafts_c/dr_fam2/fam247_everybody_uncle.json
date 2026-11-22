@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everybody's Uncle, Everybody's Aunt",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam247_everybody_uncle",
+  "source": "draft_fam2",
+  "lines": [
+   554,
+   563
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L554",
+  "ledger": [
+   {
+    "src": "L555",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder with no children of (his/her) own and a child aged 4-10)"
+   }
+  ],
+  "description": "A small child asks the elder everyone calls aunt or uncle why they have no children: answer simply, or turn it into a story.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) never had children of (subject.his/her) own, and never wanted to. But over the years, nearly every child in the village has called (subject.him/her) \"Uncle\" or \"Auntie.\" (subject.He/she) tells the best stories, knows the best climbing trees and always has dried fruit in (subject.his/her) pocket. Today (friend), a very small villager, asks, \"Why don't you have any children?\"",
+   "src": "L557",
+   "choices": [
+    {
+     "label": "Answer Simply",
+     "next": "o1",
+     "src": "L559"
+    },
+    {
+     "label": "Turn It Into a Story",
+     "next": "o2",
+     "src": "L562"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Ah,\" says (subject). \"That's a story.\" (subject.He/she) tells (friend) a long, silly tale about an old villager who had no children but had a whole village of nieces and nephews, a pet crab and a hammock that could fly. (friend) listens, enthralled. At the end (friend.he/she) says, \"Was that about you?\" (subject) winks. \"Maybe. Except the hammock.\"",
+   "src": "L563"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I didn't want my own,\" says (subject). \"I've got all of you instead.\" (friend) thinks about this. \"Am I one of yours?\" \"If you want to be,\" says (subject). (friend) nods firmly. \"I want to be.\" (friend.He/she) gets a piece of dried fruit and runs off. (subject) watches (friend.him/her) go, smiling. (subject.He/she) has never felt anything missing.",
+   "src": "L560",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L560"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I didn't want my own,\" says (subject). \"I've got all of you instead.\" (friend) thinks about this. \"Am I one of yours?\" \"If you want to be,\" says (subject). (friend) nods firmly. \"I want to be.\" (friend.He/she) gets a piece of dried fruit and runs off. (subject) watches (friend.him/her) go, smiling. (subject.He/she) has never felt anything missing.",
+   "src": "L560"
+  }
+ }
+}

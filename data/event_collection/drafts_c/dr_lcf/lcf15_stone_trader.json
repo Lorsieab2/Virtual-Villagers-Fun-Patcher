@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Trader",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf15_stone_trader",
+  "source": "draft_lcf",
+  "lines": [
+   204,
+   215
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L204",
+  "ledger": [
+   {
+    "src": "L205",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L211",
+    "kind": "instruction",
+    "text": "[effect: small food loss]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L211",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L215",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A trader offers a lavastone for the village's best canoe: buy it, or refuse.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "random"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A trader from another island has a lavastone for sale, glowing brightly in a basket of moss. (other.He/she) wants the village's best canoe for it. (subject) says a lavastone could save lives. (friend) says nobody can prove it is not a painted rock, and the canoe feeds three families. What should the village do?",
+   "src": "L207",
+   "choices": [
+    {
+     "label": "Buy the Stone",
+     "next": "o1",
+     "src": "L209"
+    },
+    {
+     "label": "Refuse",
+     "next": "o2",
+     "src": "L213"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village trades the canoe for the stone. It is real: it glows, it pulses, and when the healers hold it, they feel the power. Three families have to share canoes for a season. Whether the stone will ever be worth a canoe, nobody knows yet.",
+   "src": "L211",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L211"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village refuses. The trader shrugs and paddles off. Some villagers are sure they missed a chance. (friend) is sure the stone was a fake. Nobody ever finds out.",
+   "src": "L215"
+  }
+ }
+}

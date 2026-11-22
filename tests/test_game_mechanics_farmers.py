@@ -29,13 +29,16 @@ NOW = 1_790_000_000 + 3_000_000
 HEADER = "Farmers needed, each with Farming"
 
 
-def page(name: str) -> list[gm.Fact]:
+def page(name: str, edit=None) -> list[gm.Fact]:
     number, slot = int(name[2]), int(name[-1])
     base = next(item.base for item in vv_tribe_rename.GAMES if item.number == number)
     root = Path(tempfile.mkdtemp(prefix="gmfa"))
     try:
         (root / base).mkdir()
-        (root / base / f"{base}{slot}.ldw").write_bytes(gzip.decompress((FIXTURES / f"{name}.ldw.gz").read_bytes()))
+        data = bytearray(gzip.decompress((FIXTURES / f"{name}.ldw.gz").read_bytes()))
+        if edit is not None:
+            edit(data)
+        (root / base / f"{base}{slot}.ldw").write_bytes(bytes(data))
         return gm.read(root / base, number, slot, [], now=NOW)
     finally:
         shutil.rmtree(root, True)
@@ -139,8 +142,13 @@ class Arithmetic(unittest.TestCase):
 class ThePage(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.pages = {name: page(name) for name in ("vv1-huttest-1", "vv2-huttest-1", "vv3-huttest-1",
-                                                     "vv4-huttest-1", "vv5-huttest-1")}
+        cls.pages = {name: page(name) for name in ("vv1-huttest-1", "vv2-huttest-1", "vv4-huttest-1", "vv5-huttest-1")}
+        # The Secret City's fixture has no tree, no Bee Hive and no Sharks: no farming source is open, so it is shown
+        # with The Sharks solved (the sea opens for fishing).
+        import struct
+        import vv_game_mechanics_vv3 as vv3
+        cls.pages["vv3-huttest-1"] = page("vv3-huttest-1", lambda data: struct.pack_into(
+            "<i", data, vv3.HEADER + vv3.PUZZLES + 4 + 8 * vv3.SHARKS, vv3.PUZZLE_THRESHOLDS[vv3.SHARKS]))
         cls.general = {game: gm.general(game, now=NOW) for game in range(1, 6)}
 
     def test_every_game_shows_the_farmers_needed(self) -> None:
@@ -157,8 +165,9 @@ class ThePage(unittest.TestCase):
                     self.assertRegex(text, r"\. One farmer brings [\d,.]+ food each counted age unit while "
                                            r"catching up \(\d+ job turns x ")
                     # Each source says whether it can feed the village on its own, by its regrowth.
-                    self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone|cannot feed "
-                                           r"the village alone)")
+                    # (a shortage is in the answer's own sentence, so Minimal Detail keeps it: "..., but it cannot")
+                    self.assertRegex(text, r"It (never runs out|regrows .* it can feed the village alone)|, but it "
+                                           r"cannot feed the village alone")
                 self.assertEqual(sum(f.text.startswith("All food sources together: while catching up")
                                      for f in vitals), 1)
                 self.assertEqual(sum(f.text.startswith("Difficulty: it changes what each villager eats")

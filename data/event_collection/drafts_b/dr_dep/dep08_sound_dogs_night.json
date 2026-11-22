@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sound of Dogs at Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep08_sound_dogs_night",
+  "source": "draft_dep",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager camping far from home with a friend is suddenly homesick: talk about home, or count the stars instead.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) are camped on a beach two days' walk from home, on the way to gather a special kind of reed. It is a lovely night. The stars are out, the fire is warm, and (subject) is, rather unexpectedly, homesick. Not for anything important. For the village dogs, who bark at nothing every night and whom (subject.he/she) has complained about for years.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Talk About Home",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Count the Stars Instead",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I miss the dogs,\" says (subject). (friend) stares at (subject.him/her). \"You hate the dogs.\" \"I know.\" (friend) thinks about this and admits (friend.he/she) misses the smell of the cooking fires. They spend an hour listing the small, silly things they miss. It doesn't make them less homesick. It does make them laugh.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L98"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I miss the dogs,\" says (subject). (friend) stares at (subject.him/her). \"You hate the dogs.\" \"I know.\" (friend) thinks about this and admits (friend.he/she) misses the smell of the cooking fires. They spend an hour listing the small, silly things they miss. It doesn't make them less homesick. It does make them laugh.",
+   "src": "L98"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) keeps it to (subject.him/her)self and lies back to look at the stars. Somewhere far off, very faintly, a dog barks at nothing. It probably isn't one of theirs. (subject) decides it is anyway, and falls asleep smiling.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) keeps it to (subject.him/her)self and lies back to look at the stars. Somewhere far off, very faintly, a dog barks at nothing. It probably isn't one of theirs. (subject) decides it is anyway, and falls asleep smiling.",
+   "src": "L101"
+  }
+ }
+}

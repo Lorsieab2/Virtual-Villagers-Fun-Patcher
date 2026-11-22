@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Big Maybe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il007_big_maybe",
+  "source": "da_il01",
+  "lines": [
+   83,
+   92
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L83",
+  "ledger": [
+   {
+    "src": "L84",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L89",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill, only where the game has it]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A young villager who wants to be a healer cannot sleep, and finds an old healer by the fire.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) wants to be a healer. (subject.He/She) has wanted it for as long as (subject.he/she) can remember. But healers see sickness, and sadness, and sometimes things go wrong no matter what anyone does. What if (subject.he/she) isn't strong enough? What if (subject.he/she) freezes? Tonight (subject) can't sleep, and finds (friend), an old healer, sitting by the fire.",
+   "src": "L86",
+   "choices": [
+    {
+     "label": "Ask (friend) If (friend.he/she) Was Ever Afraid",
+     "next": "a",
+     "src": "L88"
+    },
+    {
+     "label": "Just Sit by the Fire",
+     "next": "b",
+     "src": "L91"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Every single day for the first year,\" (friend) says. \"Some days still.\" (subject) stares. \"But you're the best healer we have!\" (friend) shrugs. \"Being afraid and doing it anyway are two different things. So is deciding not to. Both are fine.\" (subject) doesn't decide anything that night. But (subject.he/she) sleeps a little better.",
+   "src": "L89",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L89"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Neither of them says much. The fire crackles. Somewhere a baby is fussing. After a while (friend) says, \"You don't have to know yet.\" (subject) nods. (subject.He/She) doesn't know yet. That's alright.",
+   "src": "L92"
+  }
+ }
+}

@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Rain or No Rain",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea36_rain_rain",
+  "source": "draft_fea",
+  "lines": [
+   428,
+   437
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L428",
+  "ledger": [
+   {
+    "src": "L429",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Two villagers disagree about whether rain is coming for the thirsty gardens: hope for the best, or prepare for the worst.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The gardens badly need rain. (subject) is sure it's going to rain tomorrow: there's a ring round the moon, the birds are flying low. (friend) is sure it won't: (friend.he/she) has seen all this before and nothing came of it. They have been discussing this for some time. Neither is backing down.",
+   "src": "L431",
+   "choices": [
+    {
+     "label": "Hope for the Best",
+     "next": "o1",
+     "src": "L433"
+    },
+    {
+     "label": "Prepare for the Worst",
+     "next": "o2",
+     "src": "L436"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests carrying water from the stream, just in case. (subject) grumbles but helps. They water the whole garden by hand. That night it rains heavily. All that carrying for nothing. \"Better safe,\" says (friend). \"Better dry,\" says (subject), soaked, from the doorway.",
+   "src": "L437"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I just think it'll rain,\" says (subject). \"I need to think it'll rain.\" (friend) softens. \"Then I hope you're right.\" The next day it doesn't rain. Or the day after. On the third day, it pours. (subject) says, \"Told you.\" (friend) says, \"That's three days.\" They're both soaking wet and too happy to argue.",
+   "src": "L434",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L434"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L434"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I just think it'll rain,\" says (subject). \"I need to think it'll rain.\" (friend) softens. \"Then I hope you're right.\" The next day it doesn't rain. Or the day after. On the third day, it pours. (subject) says, \"Told you.\" (friend) says, \"That's three days.\" They're both soaking wet and too happy to argue.",
+   "src": "L434"
+  }
+ }
+}

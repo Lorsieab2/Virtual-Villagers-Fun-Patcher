@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The People Who Cannot Swim",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz094_people_cannot",
+  "source": "draft_hz2",
+  "lines": [
+   173,
+   184
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L173",
+  "ledger": [
+   {
+    "src": "L184",
+    "kind": "note",
+    "why": "Content note: the owner's per-event content note (the per-event content-notes feature shows it), never part of a page"
+   },
+   {
+    "src": "L174",
+    "kind": "sensitivity",
+    "before": "a fisher wonders",
+    "after": "(name1), a fisher, wonders",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Teaching a child to float, a fisher wonders whether there are people far away who never learn to swim.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Teaching a child to float, (name1), a fisher, wonders whether there are people far away who never learn to swim.",
+   "src": "L174",
+   "choices": [
+    {
+     "label": "Imagine Them Fearful of Water.",
+     "next": "a",
+     "src": "L175"
+    },
+    {
+     "label": "Imagine Them Skilled at Something Else.",
+     "next": "b",
+     "src": "L178"
+    },
+    {
+     "label": "Return to the Lesson.",
+     "next": "c",
+     "src": "L181"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The fisher imagines people who stay far from deep water, and understands, remembering their own first time.",
+   "src": "L176"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A child cannot imagine it and asks how anyone could not want to swim.",
+   "src": "L177"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An elder suggests they might climb mountains or run great distances instead.",
+   "src": "L179"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says everyone learns what their land requires, and nobody is less for it.",
+   "src": "L180"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The child floats for the first time, and the fisher cheers.",
+   "src": "L182"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child would rather wade today, and the fisher says that is fine.",
+   "src": "L183"
+  }
+ }
+}

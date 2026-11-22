@@ -1,0 +1,194 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clay from the Old Kiln",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b027_clay_old_kiln",
+  "source": "balance",
+  "lines": [
+   1207,
+   1248
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1207",
+  "ledger": [
+   {
+    "src": "L1208",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1209",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1217",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1226",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1214",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1215",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1218",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1227",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1220",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1223",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1229",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1232",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1235-1248",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Behind the village is the old potters' kiln, long since fallen in.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Behind the village is the old potters' kiln, long since fallen in. The potters who used it are said to have mixed something into their clay, a powder ground from a glowing stone, that made their figures \"almost breathe.\" Nobody has used the clay pit in a hundred years.\n(Name) has been digging there for fun, and has made a clay figure of (himself/herself), life-sized, lying on its back in the sun to dry. It's a good likeness. A very good likeness. It's starting to look a little too much like (him/her).\nIt's going to rain tonight. Should (name) cover the figure, or leave it out?",
+   "choices": [
+    {
+     "label": "Leave It Out in the Rain",
+     "next": "c1",
+     "src": "L1214"
+    },
+    {
+     "label": "Cover It Up",
+     "next": "c2",
+     "src": "L1215"
+    }
+   ],
+   "src": "L1210-1212"
+  },
+  "c1o1": {
+   "text": "In the morning, the clay is gone, and (name) is sitting on (his/her) own doorstep. A second (name), still a little damp, with the same scar, the same laugh, the same love of the things (name) loves. \"The old potters knew what they were doing,\" says an elder, and goes very pale. The newcomer chooses the name (made1), and spends the first week insisting it was (name) who was made of clay.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L1221",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The rain washes the figure into life, but it was only a likeness. The person who walks into the village the next morning has (name)'s face and nothing of (name)'s heart: different likes, different skills, different everything. It is friendly and curious and very interested in mud. It takes the name (made1), and becomes the village's best potter almost at once.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L1224",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "The rain comes down hard in the night, drumming on the roof. (Name) lies awake, listening, and thinks (he/she) hears something out by the kiln sit up...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1218"
+  },
+  "c2o1": {
+   "text": "It's just clay. Dry, cracked, perfectly still, and slightly cross-eyed where (name) got the nose wrong. (Name) is not sure whether (he/she) is relieved or disappointed. In the end, (he/she) stands it up by the kiln, and the children leave flowers by it, and call it \"the other (name).\"",
+   "src": "L1230"
+  },
+  "c2o2": {
+   "text": "The figure is gone. Not walked away: just gone, crumbled into the pit. But when (name) looks into a water bowl that morning, (his/her) own face is different, as if the clay and (he/she) had swapped a little of each other. Not worse. Just new. \"The clay wanted to be you,\" says the elder, \"so you had to give it something.\"",
+   "effects": [
+    {
+     "do": "appearance",
+     "head": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L1233",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) drags a big palm mat over the figure and weighs the corners down with stones. All night the rain hammers on the mat. In the morning, (name) lifts it, half afraid of what (he/she) will see...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1227"
+  }
+ }
+}

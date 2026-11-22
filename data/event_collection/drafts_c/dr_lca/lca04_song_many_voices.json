@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song of Many Voices",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca04_song_many_voices",
+  "source": "draft_lca",
+  "lines": [
+   54,
+   65
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L54",
+  "ledger": [
+   {
+    "src": "L55",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L61",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L65",
+    "kind": "instruction",
+    "text": "[effect: everyone celebrates]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L65",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Every family is adding a verse to a village song, and two of them want the same rhyme: share it, or settle it with a contest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The village is building a song together, one verse from each household, to be sung at the next full moon. (subject) and (friend) have both written a verse that ends with the same rhyme: canoe and true. Each of them says they thought of it first. Each of them is quite certain. What should they do?",
+   "src": "L57",
+   "choices": [
+    {
+     "label": "Share the Rhyme",
+     "next": "o1",
+     "src": "L59"
+    },
+    {
+     "label": "Hold a Rhyming Contest",
+     "next": "o2",
+     "src": "L63"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They sit down together and turn their two verses into one long one. It does not scan at all. (subject) sings the first half and (friend) sings the second, and at the full moon the whole village joins in on canoe and true, extremely loudly.",
+   "src": "L61"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village gathers to hear a rhyming contest. (subject) rhymes canoe with stew, glue and shoe. (friend) rhymes it with dew, blue and, after some thought, kangaroo, which nobody has heard of and (friend) refuses to explain. The judges cannot decide. Both verses go in the song.",
+   "src": "L65",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

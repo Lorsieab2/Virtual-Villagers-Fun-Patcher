@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Sudden Insight",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b075_sudden_insight",
+  "source": "companion",
+  "lines": [
+   1789,
+   1798
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1789",
+  "ledger": [
+   {
+    "src": "L1791",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1795",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1798",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A villager understands a problem only after stepping away from it.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A villager understands a problem only after stepping away from it.",
+   "src": "L1790",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1792"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1793"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1794"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They hurry to share the solution.",
+   "src": "L1796"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "text": "They smile at the simple realization.",
+   "src": "L1797",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L1797"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "text": "They smile at the simple realization.",
+   "src": "L1797"
+  }
+ }
+}

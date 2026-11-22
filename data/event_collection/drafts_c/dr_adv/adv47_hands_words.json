@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Hands, Not Words",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv47_hands_words",
+  "source": "draft_adv",
+  "lines": [
+   548,
+   557
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L548",
+  "ledger": [
+   {
+    "src": "L549",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend gives advice while a villager struggles with a huge log: ask for hands instead, or try the lever.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is trying to move a huge log off (subject.his/her) garden by (subject.him/her)self. (friend) stops to watch. \"You should roll it,\" (friend) says. \"No, lift from the other end. Actually, you need a lever. Have you tried pushing it with your feet?\" (subject) straightens up, red-faced and sweating.",
+   "src": "L551",
+   "choices": [
+    {
+     "label": "Ask for Hands",
+     "next": "o1",
+     "src": "L553"
+    },
+    {
+     "label": "Try the Lever",
+     "next": "o2",
+     "src": "L556"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Could you,\" says (subject), very patiently, \"just help me lift it?\" (friend) blinks. \"Oh! Yes. Of course.\" Together they lift it. It takes about three breaths. \"That was quicker than talking about it,\" says (friend), surprised. (subject) doesn't say anything. (subject.He/she) just looks at (friend.him/her).",
+   "src": "L554"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) is annoyed, but (subject.he/she) tries the lever. It works. The log rolls off the garden with hardly any effort. (subject) stares at it. \"Well,\" says (friend), \"there you go.\" (subject) is grateful and irritated in exactly equal amounts. (subject.He/she) thanks (friend.him/her) anyway. Both feelings are allowed.",
+   "src": "L557",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L557"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) is annoyed, but (subject.he/she) tries the lever. It works. The log rolls off the garden with hardly any effort. (subject) stares at it. \"Well,\" says (friend), \"there you go.\" (subject) is grateful and irritated in exactly equal amounts. (subject.He/she) thanks (friend.him/her) anyway. Both feelings are allowed.",
+   "src": "L557"
+  }
+ }
+}

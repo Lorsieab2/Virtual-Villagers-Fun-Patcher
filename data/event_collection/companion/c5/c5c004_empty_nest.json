@@ -1,0 +1,121 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The First Empty Nest",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5c004_empty_nest",
+  "source": "companion",
+  "lines": [
+   2079,
+   2088
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and emotional themes: Lorsieab2\nNew event prose and alternative endings: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L2079",
+  "ledger": [
+   {
+    "src": "L2082",
+    "kind": "structural",
+    "why": "no choice: one ending is drawn"
+   },
+   {
+    "src": "L2084",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L2088",
+    "kind": "note",
+    "why": "TONE: a designer note on the tone and rewards, never shown"
+   }
+  ],
+  "description": "A parent watches their grown child move into a hut of their own.",
+  "cast_only": [
+   "grown",
+   "parent"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "grown": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "parent_of": "grown"
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "name": "The scene",
+   "text": "A parent watches their grown child move into a hut of their own.",
+   "src": "L2080",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They bring a woven mat as a housewarming gift.",
+   "src": "L2085"
+  },
+  "e2": {
+   "type": "branch",
+   "name": "Ending 2",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return home proud and unexpectedly tearful.",
+   "src": "L2086",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "parent",
+     "mood": "good",
+     "src": "L2086"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Ending 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "They return home proud and unexpectedly tearful.",
+   "src": "L2086"
+  }
+ }
+}

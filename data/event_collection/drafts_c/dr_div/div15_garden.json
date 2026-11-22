@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "In the Garden",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div15_garden",
+  "source": "draft_div",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and another adult; in the story (name1) has seizures sometimes)"
+   }
+  ],
+  "description": "A villager has a seizure in the garden, and a friend knows what to do: walk them home after, or let them rest where they are.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has seizures now and then, and has done since (subject.he/she) was small. Everyone who works with (subject.him/her) knows what to do: move things out of the way, put something soft under (subject.his/her) head, stay close, don't hold (subject.him/her) down, wait. Today, in the garden, it happens. (friend) does exactly that, and it passes, as it usually does. Afterward, (subject) is very tired and a little confused, and slowly comes back to (subject.him/her)self.",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Walk (subject.him/her) Home",
+     "next": "o1",
+     "src": "L181"
+    },
+    {
+     "label": "Let (subject.him/her) Rest Where (subject.He/she) Is",
+     "next": "o2",
+     "src": "L184"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "When (subject) is ready, (friend) offers an arm, and (subject) takes it. They walk home slowly. (subject) sleeps for the rest of the afternoon. In the evening (subject.he/she) is out at the fire again, a bit quiet, eating a large dinner. \"Thanks,\" (subject.he/she) says to (friend). \"You did that well.\" (friend) shrugs, but (friend.he/she) looks pleased.",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L182"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "When (subject) is ready, (friend) offers an arm, and (subject) takes it. They walk home slowly. (subject) sleeps for the rest of the afternoon. In the evening (subject.he/she) is out at the fire again, a bit quiet, eating a large dinner. \"Thanks,\" (subject.he/she) says to (friend). \"You did that well.\" (friend) shrugs, but (friend.he/she) looks pleased.",
+   "src": "L182"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want to move yet. (friend) fetches water and a mat, puts up a palm frond for shade, and goes back to weeding nearby, close enough to hear. After a long rest, (subject) sits up. \"Did I squash the beans?\" (subject.He/she) did, a few. \"They'll grow back,\" says (friend). \"So will I,\" says (subject), and gets back to work the next day.",
+   "src": "L185",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "loss": true,
+     "scaled": true,
+     "src": "L185"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) doesn't want to move yet. (friend) fetches water and a mat, puts up a palm frond for shade, and goes back to weeding nearby, close enough to hear. After a long rest, (subject) sits up. \"Did I squash the beans?\" (subject.He/she) did, a few. \"They'll grow back,\" says (friend). \"So will I,\" says (subject), and gets back to work the next day.",
+   "src": "L185"
+  }
+ }
+}

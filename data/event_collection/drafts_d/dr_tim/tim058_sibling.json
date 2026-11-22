@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Sibling's Reassurance",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim058_sibling",
+  "source": "moments500",
+  "lines": [
+   969,
+   983
+  ],
+  "section": "dr_tim",
+  "credit": "TINY ISLAND MOMENTS — 500 NEW MOMENTS\nVirtual Villagers / Isola | Standalone creative supplement",
+  "draw_weight": 1,
+  "series": "dr_tim",
+  "title_src": "L970",
+  "ledger": [
+   {
+    "src": "L969",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L973",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L974",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L977",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L978",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L981",
+    "kind": "structural",
+    "why": "the entry's number (the four entries are one moment: the owner's Question 1, A)"
+   },
+   {
+    "src": "L982",
+    "kind": "structural",
+    "why": "the entry's title by position (the owner's Question 2, A: one title per moment, the first entry's line renamed in owner-title-changes.md)"
+   },
+   {
+    "src": "L971",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L975",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L979",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   },
+   {
+    "src": "L983",
+    "kind": "sensitivity",
+    "before": "A young villager",
+    "after": "(Name1), a young villager,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A young villager comforts a sibling nervous about a new task.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(Name1), a young villager, comforts a sibling nervous about a new task. The gesture goes unnoticed by everyone except the sibling.",
+   "src": "L975"
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Ending 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(Name1), a young villager, comforts a sibling nervous about a new task. The younger child insists on doing the final step independently.",
+   "src": "L983"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(Name1), a young villager, comforts a sibling nervous about a new task. (Name1) feels unexpectedly grown-up afterward.",
+   "src": "L971",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L971"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(Name1), a young villager, comforts a sibling nervous about a new task. (Name1) feels unexpectedly grown-up afterward.",
+   "src": "L971"
+  },
+  "e3__fx": {
+   "name": "Ending 3",
+   "text": "(Name1), a young villager, comforts a sibling nervous about a new task. They finish laughing about a mistake from earlier in the day.",
+   "src": "L979",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L979"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Ending 3",
+   "text": "(Name1), a young villager, comforts a sibling nervous about a new task. They finish laughing about a mistake from earlier in the day.",
+   "src": "L979"
+  }
+ }
+}

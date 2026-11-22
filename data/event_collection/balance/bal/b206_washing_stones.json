@@ -1,0 +1,198 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Washing Stones",
+ "games": [
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b206_washing_stones",
+  "source": "balance",
+  "lines": [
+   9569,
+   9612
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L9569",
+  "ledger": [
+   {
+    "src": "L9570",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L9571",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9579",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9588",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L9576",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9577",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L9580",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9589",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L9582",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9585",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9591",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9594",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L9597-9612",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager loves washing clothes.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "gatherer": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(subject) loves washing clothes. (subject.He/She) does everyone's, whether they ask or not, down at the flat stones in the stream, scrubbing and singing, and the whole village is the cleanest it has ever been. This morning (subject.he/she) has found something odd at the washing stones: a bundle of clothes (subject.he/she) has never seen before, beautifully woven, in colours nobody in the village can make, and soaking wet.\nThere's nobody about. The clothes are filthy with mud, and (subject)'s fingers are itching. But (gatherer), passing by, says that clothes left at water are sometimes left for the water spirits, \"and they don't like their laundry touched.\"\nShould (subject) wash the strange clothes?",
+   "choices": [
+    {
+     "label": "Wash Them",
+     "next": "c1",
+     "src": "L9576"
+    },
+    {
+     "label": "Leave Them",
+     "next": "c2",
+     "src": "L9577"
+    }
+   ],
+   "src": "L9572-9574"
+  },
+  "c1o1": {
+   "text": "When (subject) lays them out to dry and turns back, (subject.his/her) own clothes on the next stone have gone, and the bright ones are sitting there folded, (subject)'s size exactly. A thank you, or a swap. (subject) wears them. Nobody in the village can stop staring, and (subject) is very careful never to get them muddy.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L9583",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The moment the last stain comes out, the clothes slip off the stone and float away downstream, with nobody wearing them. (subject) goes home with wrinkled fingers and finds the joy has gone out of washing. It's just scrubbing now. The village goes back to being as muddy as any other village. (gatherer) says, \"I did say.\"",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "laundry",
+     "role": "subject"
+    }
+   ],
+   "src": "L9586",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) can't resist. (subject.He/She) scrubs the mud out of the strange clothes on the flat stones, and the colours come up bright as parrot feathers, brighter than anything (subject.he/she) has ever washed...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9580"
+  },
+  "c2o1": {
+   "text": "At dusk, a mist comes down the stream, and when it lifts, the clothes are gone and the stones are scrubbed clean, all of them, cleaner than (subject) has ever got them. (subject) feels a little professionally insulted.",
+   "src": "L9592"
+  },
+  "c2o2": {
+   "text": "In the morning the strange clothes are gone, and on the flat stone where they lay is a necklace of tiny shells, strung on a thread as fine as a hair. (subject) wears it every day. It never tangles, and it never gets wet, even in the stream.",
+   "effects": [
+    {
+     "do": "appearance",
+     "body": "random",
+     "role": "subject"
+    }
+   ],
+   "src": "L9595",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) sits on (subject.his/her) hands on the bank and watches the strange clothes soaking in the stream. It is the hardest thing (subject.he/she) has ever done...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L9589"
+  }
+ }
+}

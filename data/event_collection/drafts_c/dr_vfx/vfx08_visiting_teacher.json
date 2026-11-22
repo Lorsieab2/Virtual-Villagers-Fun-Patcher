@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Visiting Teacher",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx08_visiting_teacher",
+  "source": "draft_vfx",
+  "lines": [
+   92,
+   101
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L92",
+  "ledger": [
+   {
+    "src": "L93",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L98",
+    "kind": "instruction",
+    "text": "[effect: a random tech level rises by 1]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L101",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A visiting teacher: learn all she knows, or ask a few careful questions.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A wise woman from a far island has stopped in the village for a few days. She knows more about her craft than anyone on Isola, and she offers to teach. (name1) has to decide what the village should learn from her.",
+   "src": "L95",
+   "choices": [
+    {
+     "label": "Learn All She Knows",
+     "next": "o1",
+     "src": "L97"
+    },
+    {
+     "label": "Just Ask a Few Questions",
+     "next": "o2",
+     "src": "L100"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) and the others sit with her from morning to night. When she leaves, the village knows things it never knew before, and it shows in everything they do.",
+   "src": "L98",
+   "effects": [
+    {
+     "do": "village",
+     "what": "tech_level",
+     "step": 1,
+     "src": "L98"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"tech\"",
+     "reason": "technology talked about in the story; no tech points change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) asks her a few careful questions over a meal. Her answers are short and useful, and (name1) writes down every word.",
+   "src": "L101",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L101"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

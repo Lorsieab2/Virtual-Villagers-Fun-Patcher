@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shortcut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv21_shortcut",
+  "source": "draft_adv",
+  "lines": [
+   242,
+   251
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L242",
+  "ledger": [
+   {
+    "src": "L243",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend tells a villager about a shortcut through the trees: take the shortcut, or stick to the path.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is walking to the far gardens. (friend) calls out, \"Don't go round by the path! There's a shortcut through the trees. Turn left at the big rock, then right at the bent palm.\" (subject) has never heard of this shortcut, but (friend) seems very sure.",
+   "src": "L245",
+   "choices": [
+    {
+     "label": "Take the Shortcut",
+     "next": "o1",
+     "src": "L247"
+    },
+    {
+     "label": "Stick to the Path",
+     "next": "o2",
+     "src": "L250"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) turns left at the big rock. There are several bent palms. (subject.He/she) chooses one. An hour later (subject.he/she) emerges from the trees covered in leaves, somewhere (subject.he/she) has never seen. It's quite pretty, actually. (subject.He/she) gets to the gardens by lunchtime instead of breakfast. \"How was the shortcut?\" asks (friend) that evening. \"Scenic,\" says (subject).",
+   "src": "L248"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) waves, says thanks and takes the path anyway. (subject.He/she) gets there at the usual time. Later (subject.he/she) mentions the shortcut to someone else, who says, \"Oh, (friend)'s shortcut? Nobody's ever found it. Not even (friend).\" (subject) laughs all the way home.",
+   "src": "L251",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L251"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) waves, says thanks and takes the path anyway. (subject.He/she) gets there at the usual time. Later (subject.he/she) mentions the shortcut to someone else, who says, \"Oh, (friend)'s shortcut? Nobody's ever found it. Not even (friend).\" (subject) laughs all the way home.",
+   "src": "L251"
+  }
+ }
+}

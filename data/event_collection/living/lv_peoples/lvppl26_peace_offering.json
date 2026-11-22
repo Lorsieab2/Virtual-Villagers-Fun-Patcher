@@ -1,0 +1,187 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Peace Offering",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "lvppl26_peace_offering",
+  "source": "living",
+  "lines": [
+   22002,
+   22014
+  ],
+  "section": "lv_peoples",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22002",
+  "ledger": [
+   {
+    "src": "L22003",
+    "kind": "structural",
+    "text": "VV5 ONLY:",
+    "why": "the source's game tag: the event's games are [5] (VV5 only)"
+   },
+   {
+    "src": "L22013",
+    "kind": "note",
+    "why": "GUARDIANS OF ISOLA VARIANT: the designer's rule, carried out as the Guardians of Isola Rewrite forms (guardians-wording.md)"
+   },
+   {
+    "src": "L22014",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A neighboring leader sends food after a difficult season.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A neighboring leader sends food after a difficult season.",
+   "src": "L22003",
+   "choices": [
+    {
+     "label": "Accept with thanks.",
+     "next": "a",
+     "src": "L22004"
+    },
+    {
+     "label": "Accept but remain cautious.",
+     "next": "b",
+     "src": "L22007"
+    },
+    {
+     "label": "Refuse the gift.",
+     "next": "c",
+     "src": "L22010"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "sends food",
+     "reason": "the gift is given only if the village accepts it",
+     "src": "L22003"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The exchange opens a conversation about mutual aid.",
+   "src": "L22005",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L22005"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A villager worries about unspoken obligations.",
+   "src": "L22006",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L22006"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village accepts the food and clarifies that no allegiance is owed.",
+   "src": "L22008",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L22008"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The caution prevents a misunderstanding but offends the messenger.",
+   "src": "L22009",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L22009"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The messenger returns disappointed.",
+   "src": "L22011"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The refusal deepens mistrust between communities.",
+   "src": "L22012"
+  }
+ }
+}

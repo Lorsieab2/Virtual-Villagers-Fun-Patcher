@@ -478,6 +478,24 @@ static int c4_behave(int index, int behaviour) {
     return 1;
 }
 
+/* The work rush's busy state at the job's site (cie-v6-binary.md 42), as The Secret City's c3_behave_at: the job's
+   first walk step (type 3 in the 80 steps of 0x58 bytes at record +0; Harvesting blackberries 0x451C30 a point of the
+   bush area 0x20 from the map's own picker 0x46C660, Doing exercise the first point of the run, Researching a point of
+   the research area), then "Needs to sit down" queues its steps, its walk is taken out and the job's walk put first:
+   the villager sits down where the job is. */
+static int c4_behave_at(int index, int job, int behaviour) {
+    unsigned char *r = c4_record(index);
+    unsigned char w[0x58];
+    if (!ce_site_pick(&C4_ADAPTER, 4, index, job, w)) {
+        return c4_behave(index, behaviour);
+    }
+    if (!c4_behave(index, behaviour)) {
+        return 0;
+    }
+    ce_queue_at_site(r, 0x58, 80, 3, w);
+    return 1;
+}
+
 /* ---- Pregnancy: none, a different number of babies, the father --------- */
 
 /* "0 babies": the pregnancy +0x1C4C and its litter +0x1C50 cleared, then
@@ -545,8 +563,13 @@ static int c4_skeleton(const unsigned char *r) {
    bypassing that problem" -- a full village of records included). */
 static int c4_revive(int index, int health, int cure) {
     unsigned char *r = c4_record(index);
+    /* the world 0x41FE70 keeps at 0x4CB51C: read, never the getter (which would build it) */
+    unsigned char *world = *(unsigned char *volatile *)(uintptr_t)VV4_WORLD_GLOBAL;
+    if (world == NULL) {
+        return 0;
+    }
     TC2(0x46AF00u, r + 0x1C34, health, -1);
-    *(int *)(r + 0x1C38) = TC0(0x403750u, ((getter_fn)(uintptr_t)0x41FE70u)());
+    *(int *)(r + 0x1C38) = TC0(0x403750u, world);
     if (cure) {
         r[0x1C48] = 0;
     }
@@ -620,7 +643,9 @@ static int c4_refill(void) {
 
 /* The blackberries [world+0x170F8] (the game keeps them 0..1000; seen live:
    the bushes follow within a second), the cutting tools [0x4D8618] (the
-   tool object's count, 0..6 as making and using them keep it) and the bars
+   tool object's count, 0..6 as making and using them keep it, 0..99 with Up
+   to 99 Cutting Tools/Soap/Cloth, "VVFP VV4 Supply Cap.dll" -- the event
+   offers 0..99 and sets at most 6 when that companion is not loaded) and the bars
    of soap [0x4D8D98] (the soap object's count; making adds 3 with no cap,
    99 here).  Both counts are saved by their objects and redrawn every
    frame. */
@@ -629,9 +654,9 @@ static const ce_value_def C4_VALUES[] = {
       "One store for every bush; the game's own ceiling is 1000. Fishing has no store, "
       "and the fruit trees none unless Yellow Fruit Trees are No Longer Unlimited is on "
       "(Refill fills its tree)." },
-    { "Cutting tools", 0, 6,
-      "The game keeps 0-6. Whether villagers use them before The Cutting Tool is solved "
-      "was not seen in play." },
+    { "Cutting tools", 0, 99,
+      "The game keeps 0-6 (0-99 with Up to 99 Cutting Tools/Soap/Cloth; without it more than 6 is set to 6). "
+      "Whether villagers use them before The Cutting Tool is solved was not seen in play." },
     { "Bars of soap", 0, 99,
       "Making soap adds 3 at a time. Whether villagers use it before Soap Invented is "
       "solved was not seen in play." },
@@ -663,10 +688,78 @@ static int c4_value_set(int which, int amount) {
     }
     switch (which) {
     case 0: *(int *)(c4_world() + 0x170F8) = amount; return 1;
-    case 1: *(int *)(uintptr_t)0x4D8618u = amount; return 1;
+    case 1:
+        /* The game's own most: 6, or 99 with "VVFP VV4 Supply Cap.dll" (Up to 99 Cutting Tools/Soap/Cloth). */
+        if (amount > 6 && GetModuleHandleW(L"VVFP VV4 Supply Cap.dll") == NULL) {
+            amount = 6;
+        }
+        *(int *)(uintptr_t)0x4D8618u = amount;
+        return 1;
     case 2: *(int *)(uintptr_t)0x4D8D98u = amount; return 1;
     default: return 0;
     }
+}
+
+/* ---- The supplies an island event's "supply" effect changes -------------------
+
+   docs/event-collection/cie-v6-binary.md 32 (the owner, 2026-11-17): the
+   cutting tools [0x4D8618], the bars of soap [0x4D8D98] and the cloth bolts
+   [0x4D8ACC] (a "sack" in an event is a cloth bolt: the sacks are made per
+   trip).  Each count is its object's own saved dword (native/
+   vvfp_vv4_supply_cap/vvfp_vv4_supply_cap.c lists the stock code).  The
+   stock game keeps tools and cloth at 0..6 (made 3 at a time, then capped;
+   a use above 6 puts the count back to 6); with Up to 99 Cutting
+   Tools/Soap/Cloth ("VVFP VV4 Supply Cap.dll", its export
+   VvfpSupplyCapInstalled: 1 once every site is written) 0..99.  Soap has no
+   stock cap: an event keeps it at 0..99.  Each supply belongs to its puzzle
+   (The Cutting Tool, Soap Invented, Cloth Invented: C4_PUZZLE_DEFS 0, 3, 7);
+   before it is solved the event's words are story only. */
+#define C4_SUPPLY_COUNT 3
+static const char *const C4_SUPPLY_WORDS[C4_SUPPLY_COUNT] = { "cutting_tools", "soap", "cloth" };
+static const char *const C4_SUPPLY_NAMES[C4_SUPPLY_COUNT] = { "Cutting tools", "Bars of soap", "Cloth bolts" };
+static const char *const C4_SUPPLY_PUZZLES[C4_SUPPLY_COUNT] = { "The Cutting Tool", "Soap Invented",
+                                                                "Cloth Invented" };
+static const unsigned int C4_SUPPLY_AT[C4_SUPPLY_COUNT] = { 0x4D8618u, 0x4D8D98u, 0x4D8ACCu };
+#define C4_SUPPLY_STOCK_CAP 6
+#define C4_SUPPLY_BIG_CAP 99
+
+/* The supply `word` names (C4_SUPPLY_WORDS), -1 none. */
+static int c4_supply_item(const char *word) {
+    int i;
+    for (i = 0; word != NULL && i < C4_SUPPLY_COUNT; ++i) {
+        if (lstrcmpA(word, C4_SUPPLY_WORDS[i]) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+/* 1 when Up to 99 Cutting Tools/Soap/Cloth is in place (its companion loaded and every site written). */
+static int c4_supply_cap_installed(void) {
+    typedef int (__stdcall *installed_fn)(void);
+    HMODULE module = GetModuleHandleA("VVFP VV4 Supply Cap.dll");
+    installed_fn installed = module != NULL
+        ? (installed_fn)GetProcAddress(module, "VvfpSupplyCapInstalled") : NULL;
+    return installed != NULL && installed() != 0;
+}
+
+/* The most an event leaves of supply `item`: soap 99; tools and cloth 6, or 99 with the cap raised (`big`). */
+static int c4_supply_cap(int item, int big) {
+    return item == 1 || big ? C4_SUPPLY_BIG_CAP : C4_SUPPLY_STOCK_CAP;
+}
+
+/* `before` changed by `delta` within 0..cap: a gain never lowers a count already above the cap (a save made with
+   the cap raised, opened without it, keeps its count as the stock game does), a loss stops at 0. */
+static int c4_supply_after(int before, int delta, int cap) {
+    long long after = (long long)before + delta;
+    if (delta > 0) {
+        if (after > cap) {
+            after = before > cap ? before : cap;
+        }
+    } else if (after < 0) {
+        after = 0;
+    }
+    return (int)after;
 }
 
 /* ---- Puzzles ---------------------------------------------------------------
@@ -799,6 +892,15 @@ static int c4_rand_below(int n) {
     return ((c4_rand_fn)(uintptr_t)0x4036D0u)(n);
 }
 
+/* The Tree of Life's villager catch-up 0x468430 on the villager array 0x50E568 (its one caller, the update 0x420560,
+   right after the aging 0x466450). */
+static void c4_catch_up(void) {
+    TC0(0x468430u, 0x50E568u);
+}
+
+static const ce_birth_layout C4_BIRTH = { 0x1B8Cu, 0x1C3Cu, 0x1C4Cu, 0x1C40u, c4_catch_up };
+static int c4_deliver(int index, int *early);
+
 static const ce_adapter C4_ADAPTER = {
     CAP_FOOD | CAP_TECH | CAP_REFILL | CAP_SPAWN | CAP_KILL | CAP_VANISH | CAP_SICK | CAP_PREGNANT
         | CAP_PREFS | CAP_APPEARANCE | CAP_SKILLS | CAP_PARENTS | CAP_TITLE | CAP_MASK
@@ -847,10 +949,13 @@ static const ce_adapter C4_ADAPTER = {
     0, 0x1C4C,
     /* The two-choice popup (0x417790): as The Secret City's -- 48 characters,
        11 lines (the tallest stock two-choice text), the title above the
-       result, labels of 34 characters (the longest stock). */
-    48, 11, 48, 11, 0, 34, c4_rand_below, NULL, NULL,
+       result, labels of up to 39 characters, as wide as the screen shows
+   whole (story_label_widths.h). */
+    48, 11, 48, 11, 0, 39, c4_rand_below, NULL, NULL,
     C4_PROBE, (int)(sizeof C4_PROBE / sizeof C4_PROBE[0]),
-    NULL, NULL, 0, c4_set_health
+    NULL, NULL, 0, c4_set_health,
+    c4_deliver,
+    c4_behave_at
 };
 
 /* ---- Delivery ----------------------------------------------------------- */
@@ -929,4 +1034,9 @@ static const ce_adapter *c4_adapter(void) {
         ready = 1;
     }
     return &adapter;
+}
+
+/* cie-v6-binary.md 23: the babies born now by the game's own delivery (ce_birth_now). */
+static int c4_deliver(int index, int *early) {
+    return ce_birth_now(&C4_ADAPTER, &C4_BIRTH, index, early);
 }

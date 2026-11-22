@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher's Net and the Turtle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife38_fisher_net",
+  "source": "living",
+  "lines": [
+   21123,
+   21134
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21123",
+  "ledger": [
+   {
+    "src": "L21134",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Fishers disagree whether stronger nets are worth the danger to sea turtles.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fishers disagree whether stronger nets are worth the danger to sea turtles.",
+   "src": "L21124",
+   "choices": [
+    {
+     "label": "Use the strongest net.",
+     "next": "a",
+     "src": "L21125"
+    },
+    {
+     "label": "Redesign the net with escape openings.",
+     "next": "b",
+     "src": "L21128"
+    },
+    {
+     "label": "Limit fishing near turtle grounds.",
+     "next": "c",
+     "src": "L21131"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The catch improves, but a turtle becomes entangled and must be freed.",
+   "src": "L21126",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L21126"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A torn net teaches the fishers that strength alone is insufficient.",
+   "src": "L21127"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Fewer turtles become trapped, though some fish escape too.",
+   "src": "L21129"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The revised design proves effective after patient adjustments.",
+   "src": "L21130"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The nesting shore remains quiet.",
+   "src": "L21132"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The fishers must travel farther for their catch.",
+   "src": "L21133"
+  }
+ }
+}

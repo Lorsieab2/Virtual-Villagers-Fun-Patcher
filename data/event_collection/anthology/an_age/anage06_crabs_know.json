@@ -1,0 +1,220 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Crabs Know First",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage06_crabs_know",
+  "source": "anthology",
+  "lines": [
+   30205,
+   30219
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30205",
+  "ledger": [
+   {
+    "src": "L30206",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN), carried out as the roles' ages"
+   },
+   {
+    "src": "L30207",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30210",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30212",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30216",
+    "kind": "sensitivity",
+    "before": "the child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child notices small shore crabs retreating before adults notice the rising water near a play area.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) notices small shore crabs retreating before adults notice the rising water near a play area.",
+   "src": "L30207",
+   "choices": [
+    {
+     "label": "Listen and Move the Game Uphill",
+     "next": "a",
+     "src": "L30208"
+    },
+    {
+     "label": "Ask the Child to Show the Signs",
+     "next": "b",
+     "src": "L30211"
+    },
+    {
+     "label": "Check the Shoreline with an Adult",
+     "next": "c",
+     "src": "L30214"
+    },
+    {
+     "label": "Turn It into a Nature Lesson",
+     "next": "d",
+     "src": "L30217"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Everyone relocates before the lower sand becomes wet.",
+   "src": "L30209"
+  },
+  "a2": {
+   "type": "branch",
+   "name": "Outcome A2",
+   "children": [
+    {
+     "next": "a2__fx"
+    },
+    {
+     "next": "a2__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(child) points to damp sand beneath the driftwood and teaches others to notice it.",
+   "src": "L30212"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Another child spots a safer route and the group works together.",
+   "src": "L30213"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They confirm the tide is advancing and mark a temporary play boundary.",
+   "src": "L30215"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The water remains low; the adults thank (child) for speaking up anyway.",
+   "src": "L30216"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Children make a tide diary with adult help.",
+   "src": "L30218"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The group learns that different crabs respond differently, complicating their first theory.",
+   "src": "L30219"
+  },
+  "a2__fx": {
+   "name": "Outcome A2",
+   "text": "(child) is proud, but the adults explain that animal behavior is a clue, not a guaranteed forecast.",
+   "src": "L30210",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L30210"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2__text": {
+   "name": "Outcome A2",
+   "text": "(child) is proud, but the adults explain that animal behavior is a clue, not a guaranteed forecast.",
+   "src": "L30210"
+  }
+ }
+}

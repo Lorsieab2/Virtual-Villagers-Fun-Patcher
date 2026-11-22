@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "No Running, Technically",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus44_running",
+  "source": "draft_jus",
+  "lines": [
+   524,
+   533
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L524",
+  "ledger": [
+   {
+    "src": "L525",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 6-12 and an adult)"
+   }
+  ],
+  "description": "A child is hopping fast past the drying racks to get round the no running rule: ask if hopping is running, or add it to the rule.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There's a new rule: no running near the drying racks. (subject) very much wants to get past the drying racks quickly. So (subject) has started hopping. Very fast hopping, on one foot, right past the racks, where (friend) is watching with (friend.his/her) arms folded.",
+   "src": "L527",
+   "choices": [
+    {
+     "label": "Ask Whether Hopping Is Running",
+     "next": "o1",
+     "src": "L529"
+    },
+    {
+     "label": "Add Hopping to the Rule",
+     "next": "o2",
+     "src": "L532"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) announces that the rule now covers hopping. The next day (subject) is skipping. The day after that, (subject.he/she) is walking backward very fast. The rule keeps getting longer. In the end the adults give up and change it to \"Go past the racks carefully,\" which is what they meant in the first place. (subject) counts this as a victory.",
+   "src": "L533"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) calls (subject.him/her) over. \"Is hopping running?\" \"No,\" says (subject). \"It's hopping.\" (friend) considers this. \"It's fast, though. You can knock things over hopping.\" \"...I could walk.\" \"You could.\" (subject) walks past the racks, extremely slowly, in protest. It takes so long that (friend) starts laughing.",
+   "src": "L530",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L530"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) calls (subject.him/her) over. \"Is hopping running?\" \"No,\" says (subject). \"It's hopping.\" (friend) considers this. \"It's fast, though. You can knock things over hopping.\" \"...I could walk.\" \"You could.\" (subject) walks past the racks, extremely slowly, in protest. It takes so long that (friend) starts laughing.",
+   "src": "L530"
+  }
+ }
+}

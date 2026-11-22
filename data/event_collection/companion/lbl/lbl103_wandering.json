@@ -1,0 +1,170 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wandering Laundry",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl103_wandering",
+  "source": "companion",
+  "lines": [
+   5155,
+   5165
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5155",
+  "ledger": [
+   {
+    "src": "L5156",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L5164",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L5165",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "A gust scatters freshly washed clothing across the village.",
+  "cast_only": [
+   "villager2"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager1": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "villager2": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A gust scatters freshly washed clothing across the village.",
+   "src": "L5157",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L5158"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L5159"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L5160"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome 1",
+   "text": "Neighbors help retrieve everything.",
+   "src": "L5161"
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "Two villagers accidentally exchange outfits.",
+   "src": "L5162",
+   "text_only": [
+    {
+     "what": "exchange outfits",
+     "reason": "rule 9: a mix-up of washed clothes, not a lasting look",
+     "src": "L5162"
+    }
+   ]
+  },
+  "e3": {
+   "type": "branch",
+   "name": "Outcome 3",
+   "children": [
+    {
+     "next": "e3__fx"
+    },
+    {
+     "next": "e3__text"
+    }
+   ]
+  },
+  "e3__fx": {
+   "name": "Outcome 3",
+   "text": "A new clothesline design prevents a repeat.",
+   "src": "L5163",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager1",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5163"
+    },
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L5163"
+    }
+   ],
+   "auto_text": true
+  },
+  "e3__text": {
+   "name": "Outcome 3",
+   "text": "A new clothesline design prevents a repeat.",
+   "src": "L5163",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "villager1",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L5163"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

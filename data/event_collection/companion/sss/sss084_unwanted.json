@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Unwanted Thought",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss084_unwanted",
+  "source": "companion",
+  "lines": [
+   6935,
+   6943
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction: Lorsieab2 | Expansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6935",
+  "ledger": [
+   {
+    "src": "L6943",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A kind caregiver is distressed by a frightening thought they never wanted.",
+  "cast_only": [
+   "caregiver"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "caregiver": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A kind caregiver is distressed by a frightening thought they never wanted and would never act on.",
+   "src": "L6936",
+   "choices": [
+    {
+     "label": "Listen without treating thought as intent",
+     "next": "a",
+     "src": "L6937"
+    },
+    {
+     "label": "Help them speak with a trusted healer",
+     "next": "b",
+     "src": "L6939"
+    },
+    {
+     "label": "Offer a calm distraction by request",
+     "next": "c",
+     "src": "L6941"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They feel safe enough to discuss the worry.",
+   "src": "L6938"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The healer explains that unwanted thoughts can be upsetting and explores support.",
+   "src": "L6940"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They work together on a familiar task; the thought may still return.",
+   "src": "L6942"
+  }
+ }
+}

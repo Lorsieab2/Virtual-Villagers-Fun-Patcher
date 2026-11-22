@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Would I Say to Them?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm42_what_would_i_say",
+  "source": "draft_drm",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two teens aged 14-17)"
+   }
+  ],
+  "description": "A teen practices greeting imagined people from beyond the sea, and a friend overhears: ask what else they'd say, or play one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has started wondering about people who might live far beyond the sea. Nobody knows if they exist, or what they're like. But if they did, and if (subject) met one, what would (subject.he/she) say? (subject.He/she) has been practicing. (friend) overhears (subject.him/her) on the beach saying \"Hello, we have very good fruit\" to the empty horizon.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Ask What Else (subject.he/she) Would Say",
+     "next": "o1",
+     "src": "L505"
+    },
+    {
+     "label": "Pretend to Be a Far-Off Person",
+     "next": "o2",
+     "src": "L508"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) is embarrassed but explains. They spend the afternoon making a list. Hello. We have very good fruit. Do you have fruit? What do your children play? Is your sea the same color? By the end, (friend) is just as curious as (subject). Neither of them expects ever to meet anyone. That doesn't spoil the list at all.",
+   "src": "L506"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) walks up and says, in a very strange voice, \"Greetings. I come from far away.\" (subject) bursts out laughing, then plays along. They have an entire made-up conversation about fruit, fish and whether the moon looks the same. It's silly. It's also the first time (subject) has felt this dream was something other people could share.",
+   "src": "L509",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L509"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L509"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) walks up and says, in a very strange voice, \"Greetings. I come from far away.\" (subject) bursts out laughing, then plays along. They have an entire made-up conversation about fruit, fish and whether the moon looks the same. It's silly. It's also the first time (subject) has felt this dream was something other people could share.",
+   "src": "L509"
+  }
+ }
+}

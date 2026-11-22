@@ -1,0 +1,162 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hive at the Orchard",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife39_hive_orchard",
+  "source": "living",
+  "lines": [
+   21136,
+   21147
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21136",
+  "ledger": [
+   {
+    "src": "L21147",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "Fruit growers want more pollinators, but children fear the stinging insects.",
+  "cast_only": [
+   "grower",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "grower": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Fruit growers want more pollinators, but children fear the stinging insects.",
+   "src": "L21137",
+   "choices": [
+    {
+     "label": "Protect a nesting area away from paths.",
+     "next": "a",
+     "src": "L21138"
+    },
+    {
+     "label": "Drive the insects away.",
+     "next": "b",
+     "src": "L21141"
+    },
+    {
+     "label": "Study the flowers and insects first.",
+     "next": "c",
+     "src": "L21144"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The orchard receives more insect visitors.",
+   "src": "L21139"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The insects move unexpectedly, and paths are adjusted.",
+   "src": "L21140"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "b2",
+     "weight": 20
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Children feel safer, but fruit yields disappoint.",
+   "src": "L21142",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "loss": true,
+     "src": "L21142"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Other pollinators arrive, complicating the farmers' assumptions.",
+   "src": "L21143"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The villagers learn that different plants attract different visitors.",
+   "src": "L21145"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The study takes a season, and impatient farmers complain.",
+   "src": "L21146"
+  }
+ }
+}

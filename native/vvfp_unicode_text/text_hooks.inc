@@ -16,7 +16,8 @@
    goes to leaves as a short form (long_names.inc).
 
    SCREEN EDGE (vt_screen_fit).  Text the patcher or a translation puts on screen never runs past the game
-   window's edges; it may still overflow its own box. */
+   window's edges; it may still overflow its own box.  Text drawn under a clip narrower than the window is left
+   whole (the clip cuts it): a scrolled popup moves it sideways. */
 
 typedef int (__fastcall *vt_width_fn)(void *font, void *edx, const unsigned char *s, float scale);
 typedef int (__fastcall *vt_draw_fn)(void *ctx, void *edx, const unsigned char *s, int x, int y,
@@ -364,6 +365,14 @@ static const unsigned char *vt_screen_fit(void *ctx, const unsigned char *t, int
     *heap = NULL;
     if (nx >= edge) {
         return t;
+    }
+    if (ctx != NULL) {
+        /* Text drawn under a clip narrower than the window (a scrolled popup's box, "VVFP Scrolling Popups.dll") is
+           cut by that clip and scrolled sideways: it is drawn whole, never fitted to the window's edge. */
+        const int *clip = (const int *)((const unsigned char *)ctx + 0x60);
+        if (clip[2] > 0 && clip[2] <= edge && (clip[0] > 0 || clip[2] < edge)) {
+            return t;
+        }
     }
     fit.font = font;
     fit.scale = 1.0f;

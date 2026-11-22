@@ -39,8 +39,11 @@ SDK_VERSION = "10.0.26100.0"
 # written there; 9 a game for section 10 (Random last name from the list), 2 a game for section 11 (50:50
 # for twins), 8 a game for section 12 (From the mother is the mother's) and 8 a game for section 13
 # (Random from the existing Village Names, VvfpRuleLastName3's villager table).
-# ...and 6 a game for section 14 (a name seen at a birth stays ever used: the DLL adds "used" lines).
-HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8 + 5 * 6
+# ...and 6 a game for section 14 (a name seen at a birth stays ever used: the DLL adds "used" lines),
+# and 7 for section 15 (a sex change keeps the villager's own rule: VvfpVillagerSexChanged, the Sex Changes log).
+# ...and 3 a game for section 16 (a villager who arrives: a random last name of the list, or theirs kept).
+# ...and 7 for section 17 (the choose-your-founders screen: a long name in centred lines, never cut).
+HARNESS_CHECKS = 4 * 4 * 5 + 8 + 1 + 2 + 3 + 10 + 5 * 5 + 5 * 9 + 3 + 5 * 9 + 5 * 2 + 5 * 8 + 5 * 8 + 5 * 6 + 7 + 5 * 3 + 7
 NOW = datetime(2026, 10, 9, 12, 0, 0)
 RULES = (None, "father", "mother", "random", "list", "village")
 
@@ -312,8 +315,8 @@ class TheCompanionsPassTheLooks(unittest.TestCase):
         self.assertIn("vv1_only_looks(e->father_name, 1, &fh, &fb);", vv1)
         self.assertIn("rule(name, VV1_NAME_CAPACITY, e->father_name, fh, fb, e->mother_name, mh, mb, slot)", vv1)
         self.assertIn("unsigned char father_head, father_body;   /* +1; 0 = unknown */", vv1)
-        only = vv1[vv1.index("static void vv1_only_looks("):]
-        self.assertIn("if (found == 1 && h >= 0 && b >= 0) {", only[:1200])
+        only = vv1[vv1.index("static void vv1_only_looks_in("):]
+        self.assertIn("if (found == 1 && h >= 0 && b >= 0) {", only[:1600])
         definition = (NATIVE / "vvfp_last_names.def").read_text(encoding="utf-8")
         self.assertIn("VvfpRuleLastName2=_VvfpRuleLastName2@36", definition)
         self.assertNotIn("VvfpRuleLastName=", definition)

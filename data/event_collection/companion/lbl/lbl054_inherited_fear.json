@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Inherited Fear",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lbl054_inherited_fear",
+  "source": "companion",
+  "lines": [
+   4502,
+   4512
+  ],
+  "section": "lbl",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and original requested themes: Lorsieab2\nNew event writing, branches and organization: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L4502",
+  "ledger": [
+   {
+    "src": "L4503",
+    "kind": "note",
+    "why": "TRIGGER: a designer note on casting (the roles)"
+   },
+   {
+    "src": "L4511",
+    "kind": "note",
+    "why": "PERSISTENCE: memories and callbacks, never shown (rule 9)"
+   },
+   {
+    "src": "L4512",
+    "kind": "note",
+    "why": "EFFECTS: the designer's effect rule, carried out as the outcomes' effects (V28 rules)"
+   }
+  ],
+  "description": "An elder's account of a shipwreck shapes a grandchild's ambitions.",
+  "cast_only": [
+   "elder",
+   "grandchild"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "grandchild": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An elder's account of a shipwreck shapes a grandchild's ambitions.",
+   "src": "L4504",
+   "choices": [
+    {
+     "label": "Encourage a careful, compassionate approach suited to this situation.",
+     "next": "outcome",
+     "src": "L4505"
+    },
+    {
+     "label": "Let the participants decide, respecting their independence.",
+     "next": "outcome",
+     "src": "L4506"
+    },
+    {
+     "label": "Intervene, investigate, or seek help if the circumstances warrant it.",
+     "next": "outcome",
+     "src": "L4507"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Outcome 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Outcome 2",
+   "text": "The grandchild chooses a land-based profession.",
+   "src": "L4509"
+  },
+  "e3": {
+   "name": "Outcome 3",
+   "text": "The elder admits their memory may have changed over time.",
+   "src": "L4510"
+  },
+  "e1__fx": {
+   "name": "Outcome 1",
+   "text": "The grandchild trains carefully as a navigator.",
+   "src": "L4508",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "grandchild",
+     "skills": [
+      "Research"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L4508"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Outcome 1",
+   "text": "The grandchild trains carefully as a navigator.",
+   "src": "L4508"
+  }
+ }
+}

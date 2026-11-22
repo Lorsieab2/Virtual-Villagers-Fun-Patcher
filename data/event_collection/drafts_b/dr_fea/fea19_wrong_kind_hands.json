@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Kind of Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea19_wrong_kind_hands",
+  "source": "draft_fea",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   }
+  ],
+  "description": "A villager new to a job keeps dropping things while an expert watches: ask for help, or keep going quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just started new work, and everyone around (subject.him/her) seems to know what they're doing. Their hands move without thinking. (subject)'s hands feel like somebody else's: slow, clumsy, always dropping things. Today (subject.he/she) has dropped the same thing three times, and (friend), who has done this work for years, is watching.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Ask for Help",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Keep Going Quietly",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I'm doing it wrong,\" says (subject). \"Show me again?\" (friend) shows (subject.him/her), slowly. Then again. Then (friend.he/she) says, \"I dropped it about a hundred times when I started. My teacher called me Butter Fingers for a year.\" (subject) laughs. It doesn't make (subject.his/her) hands faster. It makes (subject.him/her) feel less alone in them.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I'm doing it wrong,\" says (subject). \"Show me again?\" (friend) shows (subject.him/her), slowly. Then again. Then (friend.he/she) says, \"I dropped it about a hundred times when I started. My teacher called me Butter Fingers for a year.\" (subject) laughs. It doesn't make (subject.his/her) hands faster. It makes (subject.him/her) feel less alone in them.",
+   "src": "L230"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) picks it up and keeps going. (subject.He/she) drops it again. And again. By the end of the day, (subject.he/she) has dropped it fewer times. Not none. Fewer. (subject.He/she) goes home tired and doubtful and comes back the next morning anyway. That's all there is to it, some days.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) picks it up and keeps going. (subject.He/she) drops it again. And again. By the end of the day, (subject.he/she) has dropped it fewer times. Not none. Fewer. (subject.He/she) goes home tired and doubtful and comes back the next morning anyway. That's all there is to it, some days.",
+   "src": "L233"
+  }
+ }
+}

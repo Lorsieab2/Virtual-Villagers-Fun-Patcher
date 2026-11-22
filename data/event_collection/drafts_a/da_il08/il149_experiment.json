@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Experiment That Smelled",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il149_experiment",
+  "source": "da_il08",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L110",
+    "kind": "casting",
+    "before": "One of them asks,",
+    "after": "One of them, (neighbor), asks,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L110",
+    "kind": "casting",
+    "before": "A curious child stays to watch.",
+    "after": "(child), a curious child, stays to watch.",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   },
+   {
+    "src": "L110",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager's experiment fills the whole village with an enormous smell: own up, or quietly open the windows.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been heating a mix of seaweed, fish oil and three kinds of root, to see what happens. What happens is the smell. It's not a bad smell, exactly. It's an enormous one. It rolls out of the laboratory and across the whole village, and people are starting to come out of their huts, sniffing the air.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Own Up",
+     "next": "a",
+     "src": "L109"
+    },
+    {
+     "label": "Quietly Open All the Windows",
+     "next": "b",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"It's me!\" calls (subject), waving from the doorway. \"It's science!\" The villagers look at (subject.him/her). One of them, (neighbor), asks, holding (neighbor.his/her) nose, what it's for. \"I don't know yet,\" says (subject), honestly. \"That's what I'm finding out.\" Most of them go back inside. (child), a curious child, stays to watch.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) opens every opening in the laboratory and fans the air very hard with a big leaf. The smell drifts off over the sea, where several seabirds change direction to avoid it. By evening it's mostly gone. Nobody ever finds out where it came from. (subject) writes it all down anyway, with a note: DO NOT HEAT THIS AGAIN INDOORS.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) opens every opening in the laboratory and fans the air very hard with a big leaf. The smell drifts off over the sea, where several seabirds change direction to avoid it. By evening it's mostly gone. Nobody ever finds out where it came from. (subject) writes it all down anyway, with a note: DO NOT HEAT THIS AGAIN INDOORS.",
+   "src": "L113"
+  }
+ }
+}

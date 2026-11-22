@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Race",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt28_race",
+  "source": "draft_tt",
+  "lines": [
+   332,
+   341
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L332",
+  "ledger": [
+   {
+    "src": "L333",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 6-12)"
+   }
+  ],
+  "description": "A child challenges an elder who claims to have been the fastest runner: set the rules, or run it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 6,
+   "max_age": 12
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has always claimed to have been the fastest runner in the village when (subject.he/she) was young. Today (friend) has challenged (subject.him/her) to a race: to the big palm and back. The other children have gathered to watch. (subject) is looking at the big palm, which is a good deal farther away than (subject.he/she) remembers.",
+   "src": "L335",
+   "choices": [
+    {
+     "label": "Set the Rules",
+     "next": "o1",
+     "src": "L337"
+    },
+    {
+     "label": "Run It",
+     "next": "o2",
+     "src": "L340"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Gladly,\" says (subject). \"A walking race. No running. Fastest walker wins.\" (friend) agrees, a bit suspiciously. It turns out that (subject) is a tremendously fast walker, with a long, swinging stride, and wins by three steps. The children demand a running race next time. (subject) says (subject.he/she) will consider it.",
+   "src": "L338",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L338"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Gladly,\" says (subject). \"A walking race. No running. Fastest walker wins.\" (friend) agrees, a bit suspiciously. It turns out that (subject) is a tremendously fast walker, with a long, swinging stride, and wins by three steps. The children demand a running race next time. (subject) says (subject.he/she) will consider it.",
+   "src": "L338"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) runs. (subject.He/she) is not the fastest any more: (friend) is round the palm and back while (subject) is still on the way out. (subject) arrives a while later, puffing and laughing, and lifts (friend)'s arm into the air. \"The fastest runner in the village,\" (subject.he/she) announces. \"I'm only passing it on.\"",
+   "src": "L341",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L341"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L341"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) runs. (subject.He/she) is not the fastest any more: (friend) is round the palm and back while (subject) is still on the way out. (subject) arrives a while later, puffing and laughing, and lifts (friend)'s arm into the air. \"The fastest runner in the village,\" (subject.he/she) announces. \"I'm only passing it on.\"",
+   "src": "L341"
+  }
+ }
+}

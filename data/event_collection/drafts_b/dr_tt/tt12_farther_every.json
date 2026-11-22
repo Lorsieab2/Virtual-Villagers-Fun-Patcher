@@ -1,0 +1,83 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Farther Every Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt12_farther_every",
+  "source": "draft_tt",
+  "lines": [
+   140,
+   149
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L140",
+  "ledger": [
+   {
+    "src": "L141",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a teen aged 14-17)"
+   }
+  ],
+  "description": "An elder's old swim story gets farther every year, and a teen knows the real distance: ask about the shark, or offer to swim it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every year, (subject) tells the story of the day (subject.he/she) swam from the beach to the far rocks, long ago. When (friend) first heard it, the rocks were \"quite far out.\" This year they are \"almost out of sight,\" there was a storm, and a shark circled twice. (friend), who has swum to those rocks (friend.him/her)self, knows exactly how far they are.",
+   "src": "L143",
+   "choices": [
+    {
+     "label": "Ask About the Shark",
+     "next": "o1",
+     "src": "L145"
+    },
+    {
+     "label": "Offer to Swim It Together",
+     "next": "o2",
+     "src": "L148"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) asks, very politely, what sort of shark it was. (subject) describes it in loving detail. It gets bigger as (subject.he/she) talks. (friend) listens to the whole thing with a perfectly straight face. Walking home, (friend.he/she) realizes that (friend.he/she) hopes (subject) never stops telling it.",
+   "src": "L146"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Shall we swim out there tomorrow?\" asks (friend). (subject) looks at the rocks, which are right there, really quite close. A long pause. \"Not in this weather,\" (subject.he/she) says. The weather is perfect. (friend) nods seriously. They sit and look at the rocks together instead, while (subject) tells the story again, a little shorter this time.",
+   "src": "L149"
+  }
+ }
+}

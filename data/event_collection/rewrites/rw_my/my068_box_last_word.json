@@ -1,0 +1,309 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Box of the Last Word",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "my068_box_last_word",
+  "source": "rewrites",
+  "lines": [
+   13819,
+   13874
+  ],
+  "section": "rw_my",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_my",
+  "title_src": "L13819",
+  "ledger": [
+   {
+    "src": "L13820",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L13821",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13829",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13836",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13843",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13850",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L13824",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13825",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13826",
+    "kind": "structural",
+    "text": "Choice C:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13827",
+    "kind": "structural",
+    "text": "Choice D:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L13830",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13837",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13844",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13851",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L13831",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13833",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13838",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13840",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13845",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13847",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13852",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13854",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L13857-13874",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It is carved all over with tiny open mouths, dozens of them, and its lid is sealed tight with no lock, no hinge, and no keyhole.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "While clearing out an old abandoned hut at the edge of the village, the one the elders say belonged to a puzzle-maker who loved riddles more than people, (subject) uncovers a wooden box under a pile of rotting mats. It is carved all over with tiny open mouths, dozens of them, and its lid is sealed tight with no lock, no hinge, and no keyhole. Scratched into the bottom is a single line: \"I open only for a word you have never said.\"\n(subject) shakes it. Something rattles inside. (subject.He/she) has the distinct feeling that the dozens of tiny carved mouths are all waiting to hear what (subject.he/she) will say first. What word could (subject) possibly say that (subject.he/she) has never said before?",
+   "choices": [
+    {
+     "label": "Invent a New Word",
+     "next": "c1",
+     "src": "L13824"
+    },
+    {
+     "label": "Speak a Forgotten Language",
+     "next": "c2",
+     "src": "L13825"
+    },
+    {
+     "label": "Break the Lock",
+     "next": "c3",
+     "src": "L13826"
+    },
+    {
+     "label": "Leave It Closed",
+     "next": "c4",
+     "src": "L13827"
+    }
+   ],
+   "src": "L13822-13823"
+  },
+  "c1o1": {
+   "text": "...a soft click, and the lid swings open. (subject) whoops with delight. Inside, wrapped in waxed leaves, is a small collection of old seeds of every shape and colour, some of which nobody in the village recognizes. (subject) plants them along the edge of the garden, and a surprising number of them grow, producing an odd, delicious little crop of speckled beans and squash as long as (subject)'s arm. \"Flobbamunk\" becomes a village word for good luck, and (subject) is very proud of it.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true
+    }
+   ],
+   "src": "L13832",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "...a soft click, like someone clearing their throat. But the lid stays shut. (subject) tries \"Wibberlow.\" Click. \"Snorpenfeather.\" Click. \"Gumbo-gumbo.\" Click. Each time, that patient little sound, as though the box were saying, nearly, but not quite. By sunset, half the village is gathered around it shouting nonsense words, and the children have invented a whole new language. The box never opens. Everyone agrees it was the best evening they have had in ages.",
+   "src": "L13834"
+  },
+  "c1": {
+   "text": "(subject) thinks hard, screws up (subject.his/her) face, and says the most ridiculous word (subject.he/she) can come up with: \"Flobbamunk!\" There is a pause. Then...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13830"
+  },
+  "c2o1": {
+   "text": "The lid opens with a sigh. Inside, rolled tightly in oiled cloth, is a set of instructions for making carving tools, drawn in careful little pictures: how to shape the stone, how to bind the handle, how to sharpen the edge so it holds for a season. The village carvers are overjoyed. Within a month, they have a whole new set of tools, and their work is finer than ever. (elder) smiles quietly and does not tell anyone what the word meant.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true
+    }
+   ],
+   "src": "L13839",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The box does not open. Instead, from somewhere deep inside it, the word comes back, in a hollow, distant voice, as though spoken from the bottom of a well. (elder) goes pale and sits down rather suddenly. (subject) asks what the word meant. (elder) just shakes (subject.his/her) head and asks to be taken home. The box sits on (subject)'s shelf from then on, and (subject) is very careful about what (subject.he/she) says near it.",
+   "src": "L13841"
+  },
+  "c2": {
+   "text": "(subject) fetches (elder), the oldest elder in the village, who remembers a few words of an ancient tongue (subject.his/her) own grandmother used to speak. The elder leans close to the box and whispers one of them...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13837"
+  },
+  "c3o1": {
+   "text": "The box splinters into pieces. Inside, crushed under the stone, is what is left of a fragile scroll, old paper covered in drawings and notes, now torn into a hundred dusty flakes. The researchers spend days trying to piece it back together and manage only a few scraps, enough to know that it was important and not enough to know why. They also lose a good deal of time that should have been spent on other work. (subject) feels terrible. The researchers make sure (subject.he/she) feels even worse.",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "src": "L13846",
+   "auto_text": true
+  },
+  "c3o2": {
+   "text": "The lid splits, and the box falls open. Inside is... nothing. An ordinary empty compartment, a bit dusty, with one dead beetle in the corner. The rattle, it seems, was the beetle. (subject) stares at it for a long while, feeling both cheated and relieved. (subject.He/she) burns the broken pieces on the fire that night, and swears that for a moment, the dozens of little carved mouths all seemed to be smiling.",
+   "src": "L13848"
+  },
+  "c3": {
+   "text": "\"I've had enough of this,\" (subject) mutters, and fetches a heavy stone. (subject.He/she) brings it down hard on the lid of the box. Crack!...",
+   "children": [
+    {
+     "next": "c3o1",
+     "weight": 50
+    },
+    {
+     "next": "c3o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13844"
+  },
+  "c4o1": {
+   "text": "The box sits on the shelf for many seasons. Researchers come and go, puzzle over it, try a few words, and give up. Nobody breaks it, and nobody forgets it. It becomes a sort of village challenge: every so often, someone climbs up, whispers a word, and waits for the click. Someday, everyone agrees, someone will find the right one.",
+   "src": "L13853"
+  },
+  "c4o2": {
+   "text": "A few weeks later, one of the village children wanders into the research hut while singing a nonsense song about a turtle with three hats. As the child reaches the line \"and the third hat was a fish!\", there is a loud click, and the box on the shelf swings open. Inside is a tiny wooden turtle wearing three carved hats. The child is thrilled. The researchers are speechless. The song is now sung at every festival, though nobody has ever got the box to open a second time.",
+   "src": "L13855"
+  },
+  "c4": {
+   "text": "(subject) decides that a box which opens only for a word (subject.he/she) has never said is the kind of box best left alone for now. (subject.He/she) wraps it in a cloth and puts it on a high shelf in the research hut...",
+   "children": [
+    {
+     "next": "c4o1",
+     "weight": 50
+    },
+    {
+     "next": "c4o2",
+     "weight": 50
+    }
+   ],
+   "src": "L13851"
+  }
+ }
+}

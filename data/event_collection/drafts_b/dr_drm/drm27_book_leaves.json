@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Book of Leaves",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm27_book_leaves",
+  "source": "draft_drm",
+  "lines": [
+   320,
+   329
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L326",
+    "kind": "instruction",
+    "text": "[effect: small tech gain, only where the game has tech points]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A villager pressing one leaf of every plant into a book is found drying page thirty-two: offer to bring leaves, or ask why.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has started pressing one leaf from every kind of plant on the island between sheets of bark, with a note about where (subject.he/she) found it. (subject.He/she) calls it (subject.his/her) book of leaves. It has thirty-one pages so far. (subject.He/she) suspects there are hundreds of kinds of plant. Today (friend) finds (subject.him/her) carefully drying page thirty-two.",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Offer to Bring Leaves",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Ask Why",
+     "next": "o2",
+     "src": "L328"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) starts bringing (subject.him/her) leaves. Then some of the children do. Within a moon the book has eighty pages, several of which are the same plant brought by different people, and one of which is a feather. (subject) keeps the feather. It's a very good feather.",
+   "src": "L326",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L326"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"Why do you want every leaf?\" asks (friend). (subject) has to think. \"So that someone, someday, can know what was here.\" (friend) looks at the bark pages with new eyes. The book isn't finished. It won't be in (subject)'s lifetime, probably. (subject) seems entirely fine with that.",
+   "src": "L329"
+  }
+ }
+}

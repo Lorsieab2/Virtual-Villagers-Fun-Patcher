@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Looking Busy",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il142_looking_busy",
+  "source": "da_il08",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager resting in the shade leaps up to look busy, and so does the friend who comes along.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has stopped work for a little sit in the shade. (subject.He/She) has earned it. Then (subject.he/she) hears footsteps coming, and before (subject.he/she) can think, (subject.he/she) leaps up and starts vigorously sorting a basket that didn't need sorting. The footsteps belong to (friend), who also leaps, guiltily, when (friend.he/she) sees (subject).",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Admit You Were Resting",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Keep Pretending",
+     "next": "b",
+     "src": "L28"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sorts the basket with great energy. (friend) inspects a tree with great interest. They do this for some time, both clearly waiting for the other to leave. Eventually (friend) says, \"This is a very good tree,\" and sits down under it. (subject) gives up and sits down too. Neither of them mentions the pretending.",
+   "src": "L29"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"I was resting,\" (subject) admits. \"So was I,\" says (friend). \"I was coming to rest here, actually. It's the best shade.\" They look at each other, then at the shade. They sit down together, and nobody sorts anything for quite a while. When they go back to work, they both feel a lot better for it.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 30,
+     "max": 50,
+     "src": "L26"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": 30,
+     "max": 50,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"I was resting,\" (subject) admits. \"So was I,\" says (friend). \"I was coming to rest here, actually. It's the best shade.\" They look at each other, then at the shade. They sit down together, and nobody sorts anything for quite a while. When they go back to work, they both feel a lot better for it.",
+   "src": "L26"
+  }
+ }
+}

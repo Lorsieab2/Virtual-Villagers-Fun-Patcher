@@ -1,0 +1,242 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strange Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp56_strange_dream",
+  "source": "anthology",
+  "lines": [
+   32128,
+   32142
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32128",
+  "ledger": [
+   {
+    "src": "L32129",
+    "kind": "note",
+    "why": "the volume's casting tag (TEENS 14-17 / ADULTS 18+ / ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L32130",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32132",
+    "kind": "sensitivity",
+    "before": "The dreamer",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32138",
+    "kind": "sensitivity",
+    "before": "A spiritual elder",
+    "after": "(elder), a spiritual elder,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32139",
+    "kind": "sensitivity",
+    "before": "A science-minded friend",
+    "after": "(friend), a science-minded friend,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L32141",
+    "kind": "sensitivity",
+    "before": "The villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager reports a vivid dream about a legendary animal and wonders whether it was a warning.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "elder",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager) reports a vivid dream about a legendary animal and wonders whether it was a warning.",
+   "src": "L32130",
+   "choices": [
+    {
+     "label": "Listen Without Judgment",
+     "next": "a",
+     "src": "L32131"
+    },
+    {
+     "label": "Seek Evidence",
+     "next": "b",
+     "src": "L32134"
+    },
+    {
+     "label": "Consult Different Traditions",
+     "next": "c",
+     "src": "L32137"
+    },
+    {
+     "label": "Focus on Daily Life",
+     "next": "d",
+     "src": "L32140"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) feels respected.",
+   "src": "L32132"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They admit it may reflect ordinary worries.",
+   "src": "L32133"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "Tracks reveal a common animal nearby.",
+   "src": "L32135"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "No evidence resolves the question.",
+   "src": "L32136"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(elder), a spiritual elder, offers symbolic meaning.",
+   "src": "L32138"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(friend), a science-minded friend, discusses dreams and memory.",
+   "src": "L32139"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(villager) returns to work feeling calmer.",
+   "src": "L32141"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "They turn the dream into a humorous song.",
+   "src": "L32142",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L32142"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L32142"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "They turn the dream into a humorous song.",
+   "src": "L32142"
+  }
+ }
+}

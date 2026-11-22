@@ -1,0 +1,218 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Feast for a Whole City",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz106_feast_whole_city",
+  "source": "draft_hz2",
+  "lines": [
+   318,
+   328
+  ],
+  "section": "dr_hz3",
+  "credit": "NEW EVENTS — BEYOND THE HORIZON, EVENTS 081 to 130 (draft for the owner, 2026-11-15)\nFifty more speculative branching events continuing \"Isola — Beyond the Horizon\" (001-080), in the same format: EVENT nnn — TITLE, SETUP, choices A/B/C, two mutually exclusive outcomes per choice, and an optional \"Content note:\".",
+  "draw_weight": 1,
+  "series": "dr_hz3",
+  "title_src": "L318",
+  "ledger": [
+   {
+    "src": "L319",
+    "kind": "sensitivity",
+    "before": "a cook",
+    "after": "(name1), a cook,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "Preparing a village feast, a cook wonders what it would take to feed a feast for thousands of people.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Preparing a village feast, (name1), a cook, wonders what it would take to feed a feast for thousands of people.",
+   "src": "L319",
+   "choices": [
+    {
+     "label": "Imagine Enormous Cooking.",
+     "next": "a",
+     "src": "L320"
+    },
+    {
+     "label": "Imagine Many Small Feasts.",
+     "next": "b",
+     "src": "L323"
+    },
+    {
+     "label": "Focus on This Feast.",
+     "next": "c",
+     "src": "L326"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A farmer wonders how many fields it would take.",
+   "src": "L322"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A storyteller suggests distant cities might hold thousands of family meals at once instead.",
+   "src": "L324"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A scholar says either could be true, and no one knows.",
+   "src": "L325"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The cook imagines pots as big as huts and laughs at the thought of stirring them.",
+   "src": "L321",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L321"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The cook imagines pots as big as huts and laughs at the thought of stirring them.",
+   "src": "L321"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The village enjoys its own feast, which feels exactly the right size.",
+   "src": "L327",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "all",
+     "src": "L327"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The village enjoys its own feast, which feels exactly the right size.",
+   "src": "L327"
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The cook runs out of fish and decides even this feast is too big.",
+   "src": "L328",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L328"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The cook runs out of fish and decides even this feast is too big.",
+   "src": "L328"
+  }
+ }
+}

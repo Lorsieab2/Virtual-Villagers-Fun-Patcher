@@ -1,0 +1,2018 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Lives, One Decision",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "all_v20_d1_two_lives",
+  "source": "living",
+  "lines": [
+   8957,
+   9056
+  ],
+  "section": "v20",
+  "credit": "CREATIVE CREDITS\nOriginal concepts and requested outcomes: Lorsieab2.\nAdditional event concepts, prose, choices, and outcome elaboration: ChatGPT.\nThe original contributions and credits in the preceding collection remain intact.",
+  "draw_weight": 1,
+  "series": "v20_crises",
+  "title_src": "L8957",
+  "ledger": [
+   {
+    "src": "L8958",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8992",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8962",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8962",
+    "kind": "sensitivity",
+    "before": "her child's",
+    "after": "(parent.his/her) child's",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8963",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8964",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8964",
+    "kind": "sensitivity",
+    "before": "her courage",
+    "after": "(parent.his/her) courage",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8966",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8968",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8968",
+    "kind": "sensitivity",
+    "before": "her loss",
+    "after": "(parent.his/her) loss",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8969",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8971",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8973",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8976",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8979",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8983",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8985",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8986",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8988",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8989",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8991",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8993",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8994",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8994",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8995",
+    "kind": "sensitivity",
+    "before": "Her",
+    "after": "(parent.His/Her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8995",
+    "kind": "sensitivity",
+    "before": "her decision",
+    "after": "(parent.his/her) decision",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8995",
+    "kind": "sensitivity",
+    "before": "her wishes",
+    "after": "(parent.his/her) wishes",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8997",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8997",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8998",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8999",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8999",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9000",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9000",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9001",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9001",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9002",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9003",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9003",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9004",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9005",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9006",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9006",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9007",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9007",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9008",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9009",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9009",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9010",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9010",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9011",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9011",
+    "kind": "sensitivity",
+    "before": "her condition",
+    "after": "(parent.his/her) condition",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9011",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9012",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9012",
+    "kind": "sensitivity",
+    "before": "her life",
+    "after": "(parent.his/her) life",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9012",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9012",
+    "kind": "sensitivity",
+    "before": "her.",
+    "after": "(parent.him/her).",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9013",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9014",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9014",
+    "kind": "sensitivity",
+    "before": "her family's",
+    "after": "(parent.his/her) family's",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9014",
+    "kind": "sensitivity",
+    "before": "her recovery",
+    "after": "(parent.his/her) recovery",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9014",
+    "kind": "sensitivity",
+    "before": "she mourns",
+    "after": "(parent.he/she) mourns",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9014",
+    "kind": "sensitivity",
+    "before": "she had",
+    "after": "(parent.he/she) had",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9015",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9016",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9016",
+    "kind": "sensitivity",
+    "before": "her while",
+    "after": "(parent.him/her) while",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9016",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9016",
+    "kind": "sensitivity",
+    "before": "her options",
+    "after": "(parent.his/her) options",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9017",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9017",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9017",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9018",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9018",
+    "kind": "sensitivity",
+    "before": "her baby",
+    "after": "(parent.his/her) baby",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9019",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9019",
+    "kind": "sensitivity",
+    "before": "her decision",
+    "after": "(parent.his/her) decision",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9020",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9020",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9021",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9021",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9022",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9022",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9023",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9023",
+    "kind": "sensitivity",
+    "before": "her family",
+    "after": "(parent.his/her) family",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9023",
+    "kind": "sensitivity",
+    "before": "her.",
+    "after": "(parent.him/her).",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9024",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9024",
+    "kind": "sensitivity",
+    "before": "her recovery",
+    "after": "(parent.his/her) recovery",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9024",
+    "kind": "sensitivity",
+    "before": "her.",
+    "after": "(parent.him/her).",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9025",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9026",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9026",
+    "kind": "sensitivity",
+    "before": "her",
+    "after": "(parent.his/her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9027",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9027",
+    "kind": "sensitivity",
+    "before": "mother",
+    "after": "(parent.mother/father)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9028",
+    "kind": "sensitivity",
+    "before": "She",
+    "after": "(parent.He/She)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9028",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9029",
+    "kind": "sensitivity",
+    "before": "Her",
+    "after": "(parent.His/Her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9029",
+    "kind": "sensitivity",
+    "before": "her to",
+    "after": "(parent.him/her) to",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9029",
+    "kind": "sensitivity",
+    "before": "she chooses",
+    "after": "(parent.he/she) chooses",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9029",
+    "kind": "sensitivity",
+    "before": "her wishes",
+    "after": "(parent.his/her) wishes",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9030",
+    "kind": "sensitivity",
+    "before": "Her",
+    "after": "(parent.His/Her)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9030",
+    "kind": "sensitivity",
+    "before": "her to",
+    "after": "(parent.him/her) to",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9030",
+    "kind": "sensitivity",
+    "before": "daughter",
+    "after": "(parent.son/daughter)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9030",
+    "kind": "sensitivity",
+    "before": "she",
+    "after": "(parent.he/she)",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L9030",
+    "kind": "sensitivity",
+    "before": "her decision",
+    "after": "(parent.his/her) decision",
+    "why": "the owner's rule (2026-11-15): men can carry babies, so the carrying parent is cast of either sex and the parent's words follow the cast villager's sex (sex-aware role words, the owner's sentence otherwise unchanged)"
+   },
+   {
+    "src": "L8996",
+    "kind": "structural",
+    "why": "a blank line between the original C1-C3 and the owner's added outcomes"
+   },
+   {
+    "src": "L9031-9045",
+    "kind": "note",
+    "why": "outcomes C38-C52 (the family's part in the decision): not built in this pass, which adds the owner's A6-A15, B5-B14 and C4-C37 (2026-11-15); held for the owner's decision"
+   },
+   {
+    "src": "L9047-9056",
+    "kind": "instruction",
+    "why": "D1 IMPLEMENTATION NOTES: the designer's instructions, followed (premature births: the baby is born first, younger and weaker, then any death of the parent; stillbirth, loss and the ended pregnancy: baby_lost, no living baby; frail newborns: lower health), never shown"
+   }
+  ],
+  "description": "A pregnant villager is gravely ill, and the village decides how the healers should treat her.",
+  "label_case": "title"
+ },
+ "roles": {
+  "parent": {
+   "kind": "villager",
+   "min_age": 18,
+   "special": "nursing_parent",
+   "protected": "allow"
+  }
+ },
+ "start": "intro",
+ "nodes": {
+  "intro": {
+   "type": "question",
+   "name": "The crisis",
+   "text": "A pregnant villager lies gravely ill; the healers fear for both (parent.mother/father) and unborn child. A dangerous intervention might save them both, but a gentler approach might leave too little time.",
+   "src": "L8958-8960",
+   "choices": [
+    {
+     "label": "Attempt the Dangerous Intervention.",
+     "next": "set_a",
+     "src": "L8961"
+    },
+    {
+     "label": "Choose the Gentler Treatment.",
+     "next": "set_b",
+     "src": "L8977"
+    },
+    {
+     "label": "Explain the Risks and Ask the (parent.mother/father).",
+     "next": "set_c",
+     "src": "L8992"
+    }
+   ],
+   "text_only": [
+    {
+     "src": "L8958-8960",
+     "what": "a pregnant villager and the unborn child",
+     "reason": "the pregnant villager is cast as the carrying parent (special nursing_parent, protected allow, 18 or older, of either sex: the owner's rules of 2026-11-15); the intro itself changes nothing"
+    }
+   ]
+  },
+  "a1": {
+   "text": "Both survive; the (parent.mother/father) later honors the physician in (parent.his/her) child's name.",
+   "src": "L8962"
+  },
+  "a2": {
+   "text": "The (parent.mother/father) survives but the child dies; a solemn mourning follows.",
+   "src": "L8963",
+   "text_only": [
+    {
+     "src": "L8963",
+     "what": "dies",
+     "reason": "the baby is the carrying parent's own state until the birth: baby_lost ends the pregnancy (the baby is never a villager to die); the parent lives"
+    }
+   ],
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8963"
+    }
+   ],
+   "auto_text": true
+  },
+  "a3": {
+   "text": "The child survives but the (parent.mother/father) dies; the family remembers (parent.his/her) courage.",
+   "src": "L8964",
+   "effects": [
+    {
+     "do": "birth_then_die",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L8964"
+    }
+   ],
+   "auto_text": true
+  },
+  "a4": {
+   "text": "Neither survives; the healer questions whether the decision was right.",
+   "src": "L8965",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L8965"
+    }
+   ],
+   "auto_text": true
+  },
+  "a5": {
+   "text": "Both survive, though the (parent.mother/father) requires prolonged care.",
+   "src": "L8966",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8966"
+    }
+   ],
+   "auto_text": true
+  },
+  "a6": {
+   "text": "Both survive a premature birth; the baby is small and weak but begins to recover.",
+   "src": "L8967",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "src": "L8967"
+    }
+   ],
+   "auto_text": true
+  },
+  "a7": {
+   "text": "The baby is born prematurely and survives, but the (parent.mother/father) dies; the family mourns (parent.his/her) loss.",
+   "src": "L8968",
+   "effects": [
+    {
+     "do": "birth_then_die",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L8968"
+    }
+   ],
+   "auto_text": true
+  },
+  "a8": {
+   "text": "The (parent.mother/father) survives, but the baby is born without life; the family grieves together.",
+   "src": "L8969",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8969"
+    }
+   ],
+   "auto_text": true
+  },
+  "a9": {
+   "text": "Both survive, though the premature baby is very frail and faces an uncertain recovery.",
+   "src": "L8970",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8970"
+    }
+   ],
+   "auto_text": true
+  },
+  "a10": {
+   "text": "The (parent.mother/father) survives a difficult birth, but the premature baby dies shortly afterward.",
+   "src": "L8971",
+   "text_only": [
+    {
+     "src": "L8971",
+     "what": "dies",
+     "reason": "the baby is the carrying parent's own state until the birth: baby_lost ends the pregnancy (the baby is never a villager to die); the parent lives"
+    }
+   ],
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8971"
+    }
+   ],
+   "auto_text": true
+  },
+  "a11": {
+   "text": "Both survive; the baby is born healthy despite the danger.",
+   "src": "L8972"
+  },
+  "a12": {
+   "text": "The (parent.mother/father) survives, but the pregnancy ends in loss before the baby can be born.",
+   "src": "L8973",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8973"
+    }
+   ],
+   "auto_text": true
+  },
+  "a13": {
+   "text": "Both survive, though the newborn begins life with significant health challenges and requires prolonged care.",
+   "src": "L8974",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8974"
+    }
+   ],
+   "auto_text": true
+  },
+  "a14": {
+   "text": "The baby survives with lasting health difficulties; the family welcomes the child with love.",
+   "src": "L8975",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8975"
+    }
+   ],
+   "auto_text": true
+  },
+  "a15": {
+   "text": "The (parent.mother/father) survives, but the baby is born sleeping; the village holds a quiet remembrance.",
+   "src": "L8976",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8976"
+    }
+   ],
+   "auto_text": true
+  },
+  "set_a": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "a1",
+     "weight": 20
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    },
+    {
+     "next": "a3",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a4",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a5",
+     "weight": 20
+    },
+    {
+     "next": "a6",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a7",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a8",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "a9",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "a10",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "a11",
+     "weight": 20
+    },
+    {
+     "next": "a12",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "a13",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "a14",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "a15",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "text": "The (parent.mother/father) survives but loses the baby.",
+   "src": "L8979",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8979"
+    }
+   ],
+   "auto_text": true
+  },
+  "b3": {
+   "text": "The condition worsens, demanding a desperate intervention.",
+   "src": "L8980",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8980"
+    }
+   ],
+   "auto_text": true
+  },
+  "b4": {
+   "text": "Both die; villagers disagree about whether waiting was a mistake.",
+   "src": "L8981",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L8981"
+    }
+   ],
+   "auto_text": true
+  },
+  "b5": {
+   "text": "The baby arrives earlier than expected; both survive, though the newborn is small and needs extra care.",
+   "src": "L8982",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "src": "L8982"
+    }
+   ],
+   "auto_text": true
+  },
+  "b6": {
+   "text": "The (parent.mother/father) survives, but the pregnancy ends unexpectedly in loss; the family mourns the child they had hoped to meet.",
+   "src": "L8983",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8983"
+    }
+   ],
+   "auto_text": true
+  },
+  "b7": {
+   "text": "Both survive, though the baby is born frail and struggles to regain strength.",
+   "src": "L8984",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8984"
+    }
+   ],
+   "auto_text": true
+  },
+  "b8": {
+   "text": "The baby is born prematurely and survives, but the (parent.mother/father) dies after the birth.",
+   "src": "L8985",
+   "effects": [
+    {
+     "do": "birth_then_die",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L8985"
+    }
+   ],
+   "auto_text": true
+  },
+  "b9": {
+   "text": "The (parent.mother/father) survives, but the baby is stillborn; the family gathers to grieve.",
+   "src": "L8986",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8986"
+    }
+   ],
+   "auto_text": true
+  },
+  "b10": {
+   "text": "Both survive, and the baby is born healthy despite the healers' fears.",
+   "src": "L8987"
+  },
+  "b11": {
+   "text": "The premature baby survives the birth but dies soon afterward; the (parent.mother/father) and family mourn.",
+   "src": "L8988",
+   "text_only": [
+    {
+     "src": "L8988",
+     "what": "dies",
+     "reason": "the baby is the carrying parent's own state until the birth: baby_lost ends the pregnancy (the baby is never a villager to die); the parent lives"
+    }
+   ],
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8988"
+    }
+   ],
+   "auto_text": true
+  },
+  "b12": {
+   "text": "The (parent.mother/father) survives, and the baby is born with lasting health challenges; the family embraces their newest member.",
+   "src": "L8989",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8989"
+    }
+   ],
+   "auto_text": true
+  },
+  "b13": {
+   "text": "Both survive, but the newborn's health remains dangerously low.",
+   "src": "L8990",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -50,
+     "max": -30,
+     "src": "L8990"
+    }
+   ],
+   "auto_text": true
+  },
+  "b14": {
+   "text": "The pregnancy ends in an early loss, and the (parent.mother/father) gradually recovers with the family's support.",
+   "src": "L8991",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L8991"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8991"
+    }
+   ],
+   "auto_text": true
+  },
+  "set_b": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "weight": 20
+    },
+    {
+     "next": "b3",
+     "weight": 20
+    },
+    {
+     "next": "b4",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "b5",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "b6",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "b7",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "b8",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "b9",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "b10",
+     "weight": 20
+    },
+    {
+     "next": "b11",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "b12",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "b13",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "b14",
+     "rarity": "rare",
+     "weight": 5
+    }
+   ]
+  },
+  "c1": {
+   "text": "(parent.He/She) elects intervention; both survive.",
+   "src": "L8993"
+  },
+  "c2": {
+   "text": "(parent.He/She) chooses gentler care; (parent.his/her) recovery is prolonged and uncertain.",
+   "src": "L8994",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8994"
+    }
+   ],
+   "auto_text": true
+  },
+  "c3": {
+   "text": "(parent.His/Her) relatives object to (parent.his/her) decision, but the healers honor (parent.his/her) wishes.",
+   "src": "L8995"
+  },
+  "c4": {
+   "text": "(parent.He/She) chooses intervention; (parent.his/her) premature baby survives, though both require time to recover.",
+   "src": "L8997",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "src": "L8997"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8997"
+    }
+   ],
+   "auto_text": true
+  },
+  "c5": {
+   "text": "(parent.He/She) chooses gentler care; the baby arrives early and frail but survives.",
+   "src": "L8998",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L8998"
+    }
+   ],
+   "auto_text": true
+  },
+  "c6": {
+   "text": "(parent.He/She) chooses intervention; the baby survives, but (parent.he/she) dies after the birth.",
+   "src": "L8999",
+   "effects": [
+    {
+     "do": "birth_then_die",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L8999"
+    }
+   ],
+   "auto_text": true
+  },
+  "c7": {
+   "text": "(parent.He/She) chooses gentler care; the pregnancy ends in loss, and the family honors (parent.his/her) decision.",
+   "src": "L9000",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9000"
+    }
+   ],
+   "auto_text": true
+  },
+  "c8": {
+   "text": "(parent.He/She) chooses intervention; the baby is stillborn, but (parent.he/she) survives.",
+   "src": "L9001",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9001"
+    }
+   ],
+   "auto_text": true
+  },
+  "c9": {
+   "text": "(parent.He/She) chooses gentler care; both survive, and the baby is born healthy.",
+   "src": "L9002"
+  },
+  "c10": {
+   "text": "(parent.He/She) chooses intervention; (parent.his/her) baby survives with serious health challenges and is welcomed with love.",
+   "src": "L9003",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9003"
+    }
+   ],
+   "auto_text": true
+  },
+  "c11": {
+   "text": "(parent.He/She) chooses gentler care; the premature baby survives briefly before dying, leaving the family grieving.",
+   "src": "L9004",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9004"
+    }
+   ],
+   "auto_text": true
+  },
+  "c12": {
+   "text": "(parent.He/She) chooses intervention; both survive, though the newborn begins life in fragile health.",
+   "src": "L9005",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9005"
+    }
+   ],
+   "auto_text": true
+  },
+  "c13": {
+   "text": "(parent.He/She) chooses gentler care; the baby is born prematurely and survives, but (parent.he/she) does not.",
+   "src": "L9006",
+   "effects": [
+    {
+     "do": "birth_then_die",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L9006"
+    }
+   ],
+   "auto_text": true
+  },
+  "c14": {
+   "text": "(parent.He/She) chooses intervention; the pregnancy ends in loss, but (parent.he/she) survives.",
+   "src": "L9007",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9007"
+    }
+   ],
+   "auto_text": true
+  },
+  "c15": {
+   "text": "(parent.He/She) chooses gentler care; the baby survives with lasting health difficulties, and the family celebrates the child's arrival.",
+   "src": "L9008",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9008"
+    },
+    {
+     "do": "celebrate",
+     "src": "L9008"
+    }
+   ],
+   "auto_text": true
+  },
+  "c16": {
+   "text": "The healers offer to end the pregnancy to protect (parent.his/her) life; (parent.he/she) accepts with tears, and the family mourns the child.",
+   "src": "L9009",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9009"
+    }
+   ],
+   "auto_text": true
+  },
+  "c17": {
+   "text": "(parent.He/She) refuses to end the pregnancy despite the danger; the healers respect (parent.his/her) wishes, and both survive.",
+   "src": "L9010"
+  },
+  "c18": {
+   "text": "(parent.He/She) refuses the procedure, but (parent.his/her) condition worsens; the baby survives a premature birth, while the (parent.mother/father) dies.",
+   "src": "L9011",
+   "effects": [
+    {
+     "do": "birth_then_die",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L9011"
+    }
+   ],
+   "auto_text": true
+  },
+  "c19": {
+   "text": "(parent.He/She) accepts the procedure after learning that (parent.his/her) life is in danger; (parent.he/she) survives, though the loss weighs heavily upon (parent.him/her).",
+   "src": "L9012",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9012"
+    }
+   ],
+   "auto_text": true
+  },
+  "c20": {
+   "text": "(parent.He/She) declines the procedure and chooses continued care; the pregnancy ends in miscarriage, and the family grieves.",
+   "src": "L9013",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9013"
+    }
+   ],
+   "auto_text": true
+  },
+  "c21": {
+   "text": "(parent.He/She) accepts the procedure with (parent.his/her) family's support; (parent.his/her) recovery is gradual, and (parent.he/she) mourns the pregnancy (parent.he/she) had hoped to continue.",
+   "src": "L9014",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9014"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9014"
+    }
+   ],
+   "auto_text": true
+  },
+  "c22": {
+   "text": "(parent.He/She) refuses the procedure despite the healers' concerns; both survive, though the baby is born prematurely and frail.",
+   "src": "L9015",
+   "effects": [
+    {
+     "do": "deliver_early",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9015"
+    }
+   ],
+   "auto_text": true
+  },
+  "c23": {
+   "text": "(parent.He/She) asks for more time before deciding; the healers continue caring for (parent.him/her) while (parent.he/she) considers (parent.his/her) options.",
+   "src": "L9016"
+  },
+  "c24": {
+   "text": "(parent.He/She) accepts the procedure, believing it is (parent.his/her) only chance to survive; afterward, (parent.he/she) feels both relief and profound sadness.",
+   "src": "L9017",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9017"
+    }
+   ],
+   "auto_text": true
+  },
+  "c25": {
+   "text": "(parent.He/She) refuses the procedure, hoping to save (parent.his/her) baby; neither survives, leaving the healers and family grieving.",
+   "src": "L9018",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L9018"
+    }
+   ],
+   "auto_text": true
+  },
+  "c26": {
+   "text": "(parent.He/She) accepts the procedure but later struggles with (parent.his/her) decision; the healers offer compassion rather than judgment.",
+   "src": "L9019",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9019"
+    }
+   ],
+   "auto_text": true
+  },
+  "c27": {
+   "type": "branch",
+   "name": "The 50 percent chance",
+   "children": [
+    {
+     "next": "c27__fx"
+    },
+    {
+     "next": "c27__text"
+    }
+   ]
+  },
+  "c28": {
+   "text": "(parent.He/She) agrees to end the pregnancy, but severe bleeding follows; despite the healers' efforts, (parent.he/she) dies.",
+   "src": "L9021",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L9021"
+    }
+   ],
+   "auto_text": true
+  },
+  "c29": {
+   "text": "(parent.He/She) survives the procedure, but a fever develops several days later; the healers fear (parent.his/her) condition is worsening.",
+   "src": "L9022",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9022"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9022"
+    }
+   ],
+   "auto_text": true
+  },
+  "c30": {
+   "text": "(parent.He/She) survives the procedure but remains dangerously weak; (parent.his/her) family takes turns watching over (parent.him/her).",
+   "src": "L9023",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9023"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -50,
+     "max": -30,
+     "src": "L9023"
+    }
+   ],
+   "auto_text": true
+  },
+  "c31": {
+   "text": "(parent.He/She) survives the procedure, but an infection threatens (parent.his/her) recovery; the healers struggle to save (parent.him/her).",
+   "src": "L9024",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9024"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9024"
+    }
+   ],
+   "auto_text": true
+  },
+  "c32": {
+   "text": "(parent.He/She) accepts the procedure and initially recovers, only to collapse days later; the family fears the worst.",
+   "src": "L9025",
+   "text_only": [
+    {
+     "src": "L9025",
+     "what": "collapse",
+     "reason": "the collapse is the parent's own (a health loss), not a building's"
+    }
+   ],
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9025"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -50,
+     "max": -30,
+     "src": "L9025"
+    }
+   ],
+   "auto_text": true
+  },
+  "c33": {
+   "text": "(parent.He/She) survives the procedure and its complications, though (parent.his/her) recovery is long and difficult.",
+   "src": "L9026",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9026"
+    },
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": -30,
+     "max": -10,
+     "src": "L9026"
+    }
+   ],
+   "auto_text": true
+  },
+  "c34": {
+   "text": "(parent.He/She) accepts the procedure, but the healers cannot control the bleeding; the family mourns both (parent.mother/father) and child.",
+   "src": "L9027",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "parent",
+     "cause": "unknown",
+     "src": "L9027"
+    }
+   ],
+   "auto_text": true
+  },
+  "c35": {
+   "text": "(parent.He/She) survives without serious physical complications, but grieves the pregnancy (parent.he/she) had hoped to continue.",
+   "src": "L9028",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9028"
+    }
+   ],
+   "auto_text": true
+  },
+  "c36": {
+   "text": "(parent.His/Her) partner begs (parent.him/her) to continue the pregnancy, but (parent.he/she) chooses the procedure; the healers honor (parent.his/her) wishes.",
+   "src": "L9029",
+   "effects": [
+    {
+     "do": "baby_lost",
+     "role": "parent",
+     "src": "L9029"
+    }
+   ],
+   "auto_text": true
+  },
+  "c37": {
+   "text": "(parent.His/Her) father pleads with (parent.him/her) to end the pregnancy, fearing he will lose his (parent.son/daughter); (parent.he/she) refuses, and the healers respect (parent.his/her) decision.",
+   "src": "L9030"
+  },
+  "set_c": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1",
+     "weight": 20
+    },
+    {
+     "next": "c2",
+     "weight": 20
+    },
+    {
+     "next": "c3",
+     "weight": 20
+    },
+    {
+     "next": "c4",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "c5",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c6",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c7",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c8",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c9",
+     "weight": 20
+    },
+    {
+     "next": "c10",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c11",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c12",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c13",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c14",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c15",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c16",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c17",
+     "weight": 20
+    },
+    {
+     "next": "c18",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c19",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c20",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c21",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c22",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c23",
+     "weight": 20
+    },
+    {
+     "next": "c24",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c25",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c26",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c27",
+     "weight": 20
+    },
+    {
+     "next": "c28",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c29",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c30",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c31",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c32",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c33",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c34",
+     "rarity": "very_rare",
+     "weight": 2
+    },
+    {
+     "next": "c35",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c36",
+     "rarity": "rare",
+     "weight": 5
+    },
+    {
+     "next": "c37",
+     "weight": 20
+    }
+   ]
+  },
+  "b1__fx": {
+   "text": "Both recover against expectation.",
+   "src": "L8978",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": 15,
+     "max": 30,
+     "src": "L8978"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "text": "Both recover against expectation.",
+   "src": "L8978"
+  },
+  "c27__fx": {
+   "text": "(parent.He/She) refuses the procedure, and (parent.his/her) condition unexpectedly improves; the baby is eventually born healthy.",
+   "src": "L9020",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "parent",
+     "min": 15,
+     "max": 30,
+     "src": "L9020"
+    }
+   ],
+   "auto_text": true
+  },
+  "c27__text": {
+   "text": "(parent.He/She) refuses the procedure, and (parent.his/her) condition unexpectedly improves; the baby is eventually born healthy.",
+   "src": "L9020"
+  }
+ }
+}

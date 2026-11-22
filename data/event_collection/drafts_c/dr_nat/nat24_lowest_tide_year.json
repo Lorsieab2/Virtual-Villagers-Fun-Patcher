@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lowest Tide of the Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat24_lowest_tide_year",
+  "source": "draft_nat",
+  "lines": [
+   284,
+   293
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L284",
+  "ledger": [
+   {
+    "src": "L285",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a child aged 5-13)"
+   }
+  ],
+  "description": "The lowest tide of the year has left the reef full of tide pools: explore together, or look from the rocks.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Today the tide has gone out farther than anyone has seen all year. Whole stretches of reef are lying bare in the sun, full of tide pools: little fish, starfish, sea urchins, sea slugs in every color, a small octopus pretending to be a rock. (friend) is beside (friend.him/her)self. (subject) is watching the far edge of the reef, where the water will come back.",
+   "src": "L287",
+   "choices": [
+    {
+     "label": "Explore Together",
+     "next": "o1",
+     "src": "L289"
+    },
+    {
+     "label": "Look from the Rocks",
+     "next": "o2",
+     "src": "L292"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) takes (friend) out across the reef, showing (friend.him/her) where to step and what not to touch. They find a sea slug the color of sunset, a crab with a hat of seaweed, a fish that changes color when (friend) breathes on the water. Then (subject) says, \"Time.\" (friend) protests. They walk back anyway, and the water comes in behind them, faster than (friend) would have believed, covering everything in a few breaths.",
+   "src": "L290"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) sit on the high rocks and point things out from above. It's not as exciting as going out. But they see the octopus walk from one pool to another on the tips of its arms, which nobody standing nearby would have noticed. (friend) talks about it for weeks. When the tide comes in, they're already dry and comfortable and eating fruit.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L293"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) sit on the high rocks and point things out from above. It's not as exciting as going out. But they see the octopus walk from one pool to another on the tips of its arms, which nobody standing nearby would have noticed. (friend) talks about it for weeks. When the tide comes in, they're already dry and comfortable and eating fruit.",
+   "src": "L293"
+  }
+ }
+}

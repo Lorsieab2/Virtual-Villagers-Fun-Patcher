@@ -1,0 +1,139 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Other Breakfast",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hz001_other_breakfast",
+  "source": "horizon",
+  "lines": [
+   23,
+   33
+  ],
+  "section": "hz_world",
+  "credit": "ISOLA — BEYOND THE HORIZON: THE WORLD WE IMAGINE\nA NEW, SEPARATE COMPANION EVENT ANTHOLOGY FOR VIRTUAL VILLAGERS 1–5\nVersion 1.0 | 40 original branching events",
+  "draw_weight": 1,
+  "series": "hz_part1",
+  "title_src": "L23",
+  "ledger": [],
+  "description": "While sharing roasted fruit, a child asks whether families beyond the ocean wake up hungry and argue about breakfast too.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "While sharing roasted fruit, a child asks whether families beyond the ocean wake up hungry and argue about breakfast too.",
+   "src": "L24",
+   "choices": [
+    {
+     "label": "Imagine Familiar Meals.",
+     "next": "a",
+     "src": "L25"
+    },
+    {
+     "label": "Imagine Unfamiliar Foods.",
+     "next": "b",
+     "src": "L28"
+    },
+    {
+     "label": "Ask What Meals Mean.",
+     "next": "c",
+     "src": "L31"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The children invent a distant family who burns their morning bread and laughs; the cook admits that sounds entirely plausible.",
+   "src": "L26"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An elder remembers that even neighboring households eat differently; the group sketches many possible breakfasts instead of one.",
+   "src": "L27"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A gardener describes grains, roots, and creatures they have never seen; everyone grows hungry during the discussion.",
+   "src": "L29"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The wild guesses turn into an argument over what can safely be eaten; a healer reminds them that novelty is not proof of nourishment.",
+   "src": "L30"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A parent suggests that sharing food might comfort people anywhere, whatever is on the plate.",
+   "src": "L32",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food talked about or imagined; the village's stores do not change",
+     "src": "L32"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "A solitary villager says some people may eat alone by preference or necessity; the table falls thoughtfully quiet.",
+   "src": "L33"
+  }
+ }
+}

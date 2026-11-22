@@ -1,0 +1,186 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Breath Through a Hollow Reed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife03_reed_breath",
+  "source": "living",
+  "lines": [
+   20668,
+   20679
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20668",
+  "ledger": [
+   {
+    "src": "L20679",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An apprentice discovers that sounds within the chest can be heard more clearly through a hollow tube.",
+  "cast_only": [
+   "patient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An apprentice discovers that sounds within the chest can be heard more clearly through a hollow tube.",
+   "src": "L20669",
+   "choices": [
+    {
+     "label": "Test the tube on willing villagers.",
+     "next": "a",
+     "src": "L20670"
+    },
+    {
+     "label": "Rely on familiar observation.",
+     "next": "b",
+     "src": "L20673"
+    },
+    {
+     "label": "Combine listening with other signs.",
+     "next": "c",
+     "src": "L20676"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The healer learns to distinguish several sounds but cannot yet explain them.",
+   "src": "L20671",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20671"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "A healthy villager's unusual breathing is mistaken for illness until another healer listens.",
+   "src": "L20672"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The patient is treated cautiously, though a subtle change goes unnoticed.",
+   "src": "L20674"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The healer recognizes the patient's distress without needing the new device.",
+   "src": "L20675"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The healers identify a worsening illness and begin supportive care.",
+   "src": "L20677"
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The tube's sound conflicts with other signs, and the healers record their uncertainty.",
+   "src": "L20678",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L20678"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The tube's sound conflicts with other signs, and the healers record their uncertainty.",
+   "src": "L20678"
+  }
+ }
+}

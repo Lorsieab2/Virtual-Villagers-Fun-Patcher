@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Where the Old Tree Stood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il083_where_tree_stood",
+  "source": "da_il05",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager stops where a great old tree once stood and finds a young sapling growing there now.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "There used to be a huge old tree at the edge of the village. (subject) climbed it as a child, sulked in it, hid in it, and once fell out of it. It came down in a storm years ago, and today, walking past, (subject) stops at the spot without quite meaning to. There's a young sapling growing there now, about knee high.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Tell (friend) About the Old Tree",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Water the Sapling",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) fetches a little water and pours it carefully around the sapling's roots. It doesn't look anything like the old tree. It's thin and wobbly and has about nine leaves. (subject) likes it anyway. (subject.He/She) decides to check on it now and then.",
+   "src": "L41"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) describes the old tree to (friend): the branch that was shaped like a seat, the knothole where (subject.he/she) kept treasures. (friend) looks at the little sapling. \"Maybe someone will hide treasures in this one someday.\" (subject) smiles. \"Maybe. It'll need to grow first.\"",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) describes the old tree to (friend): the branch that was shaped like a seat, the knothole where (subject.he/she) kept treasures. (friend) looks at the little sapling. \"Maybe someone will hide treasures in this one someday.\" (subject) smiles. \"Maybe. It'll need to grow first.\"",
+   "src": "L38"
+  }
+ }
+}

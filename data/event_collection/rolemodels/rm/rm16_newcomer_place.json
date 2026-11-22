@@ -1,0 +1,295 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Newcomer's Place",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm16_newcomer_place",
+  "source": "rolemodels",
+  "lines": [
+   35,
+   35
+  ],
+  "section": "rm",
+  "credit": "🌴 Role Models and Good Examples — 40 New Isola Events\n\nForty original events for your Virtual Villagers anthology, numbered RM-01 through RM-40. Each has three or four choices, with two possible outcomes per choice. The events emphasize everyday integrity, compassion, fairness, responsibility, and respect without requiring perfect outcomes.",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L35",
+  "ledger": [
+   {
+    "src": "L35",
+    "kind": "structural",
+    "text": "EVENT RM-16  -  THE NEWCOMER'S PLACE SETUP:",
+    "why": "the event's number and title (the title) and the SETUP: marker; the source puts the whole event on one line"
+   }
+  ],
+  "description": "A recently arrived villager stands apart during a communal meal, unsure where to sit.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A recently arrived villager stands apart during a communal meal, unsure where to sit.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Offer an Invitation Without Insisting.",
+     "next": "a",
+     "src": "L35"
+    },
+    {
+     "label": "Introduce the Newcomer to Someone with a Shared Interest.",
+     "next": "b",
+     "src": "L35"
+    },
+    {
+     "label": "Explain How the Meal Is Organized.",
+     "next": "c",
+     "src": "L35"
+    },
+    {
+     "label": "Sit Nearby and Begin an Ordinary Conversation.",
+     "next": "d",
+     "src": "L35"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The newcomer prefers to sit alone, and the invitation is accepted with gratitude.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The two begin discussing fishing techniques and forget their initial awkwardness.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Their interests differ, but the conversation remains friendly.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The newcomer learns where to find food and chooses a comfortable place.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food shared, counted, gathered or eaten in the story; the village's stores do not change",
+     "src": "L35"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The explanation reveals a confusing custom that the organizers decide to clarify.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The newcomer appreciates being treated as another villager rather than a curiosity.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The newcomer joins a small group and gradually relaxes.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L35"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The newcomer joins a small group and gradually relaxes.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "Conversation comes slowly, but the two share a peaceful meal.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L35"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "Conversation comes slowly, but the two share a peaceful meal.",
+   "src": "L35",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the source puts the whole event on one line: \"food\" is in another part of it (another page's words), not this page's",
+     "src": "L35"
+    }
+   ]
+  }
+ }
+}

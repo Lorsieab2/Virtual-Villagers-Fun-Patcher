@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shooting Star",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo10_shooting_star",
+  "source": "da_lo",
+  "lines": [
+   117,
+   126
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L117",
+  "ledger": [
+   {
+    "src": "L118",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager sees a shooting star and gets a wish for the first time: make one, or give it away.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 10
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Lying on the beach one night, (subject) sees a shooting star streak across the sky, bright and quick. Some people say if you see one, you get a wish. (subject) has never had a wish before. (subject.He/She) isn't sure what to do with one.",
+   "src": "L120",
+   "choices": [
+    {
+     "label": "Make a Wish",
+     "next": "a",
+     "src": "L122"
+    },
+    {
+     "label": "Save It for Someone Else",
+     "next": "b",
+     "src": "L125"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) closes (subject.his/her) eyes and wishes, very hard, for something (subject.he/she) doesn't tell anyone. The next day nothing happens. The next week nothing happens. Then, months later, a small thing happens that (subject) has wanted for a long time, and (subject.he/she) stops in the middle of the path and thinks of the shooting star. Was it the wish? (subject.He/She) will never know. (subject.He/She) is glad (subject.he/she) made it.",
+   "src": "L123",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L123"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) closes (subject.his/her) eyes and wishes, very hard, for something (subject.he/she) doesn't tell anyone. The next day nothing happens. The next week nothing happens. Then, months later, a small thing happens that (subject) has wanted for a long time, and (subject.he/she) stops in the middle of the path and thinks of the shooting star. Was it the wish? (subject.He/She) will never know. (subject.He/She) is glad (subject.he/she) made it.",
+   "src": "L123"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) thinks about it, and then gives the wish away. (subject.He/She) wishes for something for (friend), who has been having a hard time. (subject.He/She) doesn't tell (friend). Things don't suddenly get better. But a few days later, (friend) laughs properly for the first time in weeks, and (subject) decides that's more than enough.",
+   "src": "L126",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L126"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) thinks about it, and then gives the wish away. (subject.He/She) wishes for something for (friend), who has been having a hard time. (subject.He/She) doesn't tell (friend). Things don't suddenly get better. But a few days later, (friend) laughs properly for the first time in weeks, and (subject) decides that's more than enough.",
+   "src": "L126"
+  }
+ }
+}

@@ -1,0 +1,228 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Burial Cave",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b307_burial_cave",
+  "source": "balance",
+  "lines": [
+   14237,
+   14278
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L14237",
+  "ledger": [
+   {
+    "src": "L14238",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L14239",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14246",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14255",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L14243",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14244",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L14247",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14256",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L14249",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14252",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14258",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14261",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L14264-14278",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Behind the village, in the hills, there is a cave where the first people buried their dead, and nobody goes in.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Behind the village, in the hills, there is a cave where the first people buried their dead, and nobody goes in. Today a rockslide has opened a second entrance to it, a narrow crack just big enough for a person, and cold air is breathing out of it, smelling of old stone.\n(friend) is determined to go in and see the old graves. (subject) thinks it's a terrible idea. They're standing at the crack, arguing. Should (subject) go in with (friend) to keep an eye on (subject.him/her), or block the crack with stones so nobody goes in at all?",
+   "choices": [
+    {
+     "label": "Go In Together",
+     "next": "c1",
+     "src": "L14243"
+    },
+    {
+     "label": "Block the Crack",
+     "next": "c2",
+     "src": "L14244"
+    }
+   ],
+   "src": "L14240-14241"
+  },
+  "c1o1": {
+   "text": "(friend) walks towards the glow. (subject) calls after (subject.him/her) to wait, holds up the torch, and sees (friend) reach the far end of the hall, where the glow is, and step into it, and not be there. (subject) searches until the torch burns out and then feels (subject.his/her) way back to the crack in the dark. The elders block it with stones that evening. Nobody asks to go in again.",
+   "effects": [
+    {
+     "do": "vanish",
+     "role": "friend"
+    }
+   ],
+   "src": "L14250",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Halfway down the hall, the roof shifts with a long groan. (subject) shoves (friend) back towards the crack, and the rock comes down between them. (friend) gets out. (subject) does not. It takes the village two days to dig (subject.him/her) out, and when they do, they bury (subject.him/her) on the shelf where (subject.he/she) fell, among the first people, which the elders say is an honour.",
+   "effects": [
+    {
+     "do": "kill",
+     "cause": "unknown",
+     "role": "subject",
+     "line": "injuries"
+    }
+   ],
+   "src": "L14253",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They squeeze through the crack one after the other with a torch. Inside, the cave opens out into a long, low hall, lined on both sides with stone shelves. Something at the far end is glowing faintly...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14247"
+  },
+  "c2o1": {
+   "text": "By evening the crack is filled and plastered with clay. (friend) sulks for a week. The elders come up the hill to look at the work, and nod, and lay a flower on top of the stones. \"The first people sleep,\" says one of them, \"and they like the dark.\" (friend) stops sulking, eventually.",
+   "src": "L14259"
+  },
+  "c2o2": {
+   "text": "As they set the last stone, they both hear it: three slow knocks from the other side. Then nothing. They run all the way back to the village. (friend), who has always wanted to know what's in every cave and under every rock, loses all interest in finding things out after that. \"Some things,\" (subject.he/she) says, \"can stay where they are.\"",
+   "children": [
+    {
+     "next": "c2o2_c1"
+    }
+   ],
+   "src": "L14262"
+  },
+  "c2": {
+   "text": "(subject) starts piling stones in the crack. (friend) argues, and then, grumbling, starts helping. The cold air stops breathing out. The cave goes quiet...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L14256"
+  },
+  "c2o2_gx": {
+   "type": "branch"
+  },
+  "c2o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "friend",
+     "remove": true,
+     "like": "learning"
+    }
+   ]
+  },
+  "c2o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c2o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c2o2_gx"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,261 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Children, One Seat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anchd02_two_children",
+  "source": "anthology",
+  "lines": [
+   27587,
+   27600
+  ],
+  "section": "an_child",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_child",
+  "title_src": "L27587",
+  "ledger": [
+   {
+    "src": "L27588",
+    "kind": "sensitivity",
+    "before": "Two children want",
+    "after": "(child1) and (child2), two children, want",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27599",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L27600",
+    "kind": "sensitivity",
+    "before": "The adult",
+    "after": "(adult)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Two children want to sit together at a feast, but their friends tease them about being sweethearts.",
+  "label_case": "title",
+  "cast_only": [
+   "child1",
+   "child2",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "child1": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "child2": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "max_age_gap": {
+    "role": "child1",
+    "years": 2
+   }
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child1) and (child2), two children, want to sit together at a feast, but their friends tease them about being sweethearts.",
+   "src": "L27588",
+   "choices": [
+    {
+     "label": "Sit Together Anyway.",
+     "next": "a",
+     "src": "L27589"
+    },
+    {
+     "label": "Sit with Separate Friends.",
+     "next": "b",
+     "src": "L27592"
+    },
+    {
+     "label": "Ask the Friends to Stop.",
+     "next": "c",
+     "src": "L27595"
+    },
+    {
+     "label": "Ask a Trusted Adult.",
+     "next": "d",
+     "src": "L27598"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "One child feels uncomfortable and asks for more space.",
+   "src": "L27591"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They miss talking and plan a game afterward.",
+   "src": "L27594"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The friends apologize and change the subject.",
+   "src": "L27596"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The friends need a teacher's reminder about respecting boundaries.",
+   "src": "L27597"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(adult) reassures them that friendship needs no label.",
+   "src": "L27599"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(adult) helps the group make room for everyone.",
+   "src": "L27600"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The children enjoy their meal and the teasing soon fades.",
+   "src": "L27590",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child1",
+     "mood": "good",
+     "src": "L27590"
+    },
+    {
+     "do": "mood",
+     "role": "child2",
+     "mood": "good",
+     "src": "L27590"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The children enjoy their meal and the teasing soon fades.",
+   "src": "L27590"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "Both enjoy the feast without attention.",
+   "src": "L27593",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child1",
+     "mood": "good",
+     "src": "L27593"
+    },
+    {
+     "do": "mood",
+     "role": "child2",
+     "mood": "good",
+     "src": "L27593"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "Both enjoy the feast without attention.",
+   "src": "L27593"
+  }
+ }
+}

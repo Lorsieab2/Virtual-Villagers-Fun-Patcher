@@ -1,0 +1,252 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Waterfall Picnic",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy07_waterfall",
+  "source": "anthology",
+  "lines": [
+   28773,
+   28786
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28773",
+  "ledger": [
+   {
+    "src": "L28782",
+    "kind": "sensitivity",
+    "before": "An apprentice",
+    "after": "(artist), an apprentice,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28783",
+    "kind": "sensitivity",
+    "before": "The artist",
+    "after": "(artist)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Friends travel inland for a day beside a waterfall.",
+  "label_case": "title",
+  "cast_only": [
+   "artist"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "artist": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Friends travel inland for a day beside a waterfall.",
+   "src": "L28774",
+   "choices": [
+    {
+     "label": "Swim in the Calm Shallows",
+     "next": "a",
+     "src": "L28775"
+    },
+    {
+     "label": "Share Lunch on the Bank",
+     "next": "b",
+     "src": "L28778"
+    },
+    {
+     "label": "Sketch the Waterfall",
+     "next": "c",
+     "src": "L28781"
+    },
+    {
+     "label": "Sit Quietly and Listen",
+     "next": "d",
+     "src": "L28784"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The friends enjoy the cool water.",
+   "src": "L28776"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They discover the stones are slippery and stay on shore.",
+   "src": "L28777"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "An unexpected breeze scatters their napkins.",
+   "src": "L28780"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(artist) decides the rushing water is impossible to capture.",
+   "src": "L28783"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "One villager falls asleep and misses the return song.",
+   "src": "L28786"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The group enjoys fruit and conversation.",
+   "src": "L28779",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L28779"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The group enjoys fruit and conversation.",
+   "src": "L28779"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(artist), an apprentice, produces a lovely drawing.",
+   "src": "L28782",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L28782"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(artist), an apprentice, produces a lovely drawing.",
+   "src": "L28782"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The group enjoys a peaceful hour together.",
+   "src": "L28785",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "artist",
+     "mood": "good",
+     "src": "L28785"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The group enjoys a peaceful hour together.",
+   "src": "L28785"
+  }
+ }
+}

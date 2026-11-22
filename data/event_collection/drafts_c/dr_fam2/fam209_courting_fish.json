@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Courting with Fish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam209_courting_fish",
+  "source": "draft_fam2",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults; any sexes)"
+   }
+  ],
+  "description": "A villager courting with a fish on the doorstep every morning learns the one they like does not eat fish: laugh, or ask what else.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) likes (friend). A lot. So every morning for a week, (subject.he/she) has left a beautiful, freshly caught fish on (friend)'s doorstep. Today (friend) finally catches (subject.him/her) in the act. \"It's you!\" (friend.he/she) says. (subject) goes red. \"I'm sorry. I just...\" \"(subject),\" says (friend) gently. \"I don't eat fish.\"",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Laugh Together",
+     "next": "o1",
+     "src": "L109"
+    },
+    {
+     "label": "Ask If (friend) Likes Anything Else",
+     "next": "o2",
+     "src": "L112"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "There is a long silence. Then they both burst out laughing. \"I've been giving them to the neighbors,\" admits (friend). \"They think I'm wonderful.\" (subject) is mortified and delighted at once. \"What DO you like?\" (subject.he/she) asks. \"Mangoes,\" says (friend). The next morning there are mangoes on the doorstep. And (subject), this time, waits by the door.",
+   "src": "L110",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L110"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L110"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "There is a long silence. Then they both burst out laughing. \"I've been giving them to the neighbors,\" admits (friend). \"They think I'm wonderful.\" (subject) is mortified and delighted at once. \"What DO you like?\" (subject.he/she) asks. \"Mangoes,\" says (friend). The next morning there are mangoes on the doorstep. And (subject), this time, waits by the door.",
+   "src": "L110"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Oh,\" says (subject). \"Is there... anything you do like?\" (friend) looks at (subject.him/her) for a moment. \"I like that you've been doing this,\" (friend.he/she) says. \"But I'm not looking for anyone right now. I'm sorry.\" (subject) nods, disappointed but not hurt. \"That's alright.\" They stay friends. The neighbors are very sad that the fish stop coming.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "bad",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Oh,\" says (subject). \"Is there... anything you do like?\" (friend) looks at (subject.him/her) for a moment. \"I like that you've been doing this,\" (friend.he/she) says. \"But I'm not looking for anyone right now. I'm sorry.\" (subject) nods, disappointed but not hurt. \"That's alright.\" They stay friends. The neighbors are very sad that the fish stop coming.",
+   "src": "L113"
+  }
+ }
+}

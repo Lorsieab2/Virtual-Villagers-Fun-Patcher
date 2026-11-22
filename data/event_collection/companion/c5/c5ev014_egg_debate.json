@@ -1,0 +1,80 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Egg Debate",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev014_egg_debate",
+  "source": "companion",
+  "lines": [
+   3419,
+   3423
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3419",
+  "ledger": [
+   {
+    "src": "L3423",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A cook proposes using eggs from several locally known laying creatures.",
+  "cast_only": [
+   "cook",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "cook": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "text": "A cook proposes using eggs from several locally known laying creatures.",
+   "src": "L3420",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villagers establish rules for sustainable gathering.",
+   "src": "L3421"
+  },
+  "e2": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "An elder insists nesting animals should be left undisturbed.",
+   "src": "L3422"
+  }
+ }
+}

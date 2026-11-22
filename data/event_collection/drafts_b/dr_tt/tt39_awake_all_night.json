@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Awake All Night",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt39_awake_all_night",
+  "source": "draft_tt",
+  "lines": [
+   464,
+   473
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L464",
+  "ledger": [
+   {
+    "src": "L465",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager says they watched over everyone through the storm, but a neighbor heard snoring: mention the snoring, or let it go.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There was a big storm last night. This morning (subject) is telling everyone how (subject.he/she) stayed awake through the whole thing, listening to the wind and watching over the village, ready to wake everybody if anything went wrong. (friend), who lives next door, remembers hearing (subject) snoring straight through the loudest thunderclap of the night.",
+   "src": "L467",
+   "choices": [
+    {
+     "label": "Mention the Snoring",
+     "next": "o1",
+     "src": "L469"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L472"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) says nothing. (subject) gets a lot of thanks and a little extra breakfast. The next night is perfectly calm, and through the wall (friend) hears (subject) wide awake, pottering about, checking the door, the roof and the water jar all night long, as though making up for it. (friend) decides the debt has been paid.",
+   "src": "L473"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"I heard you snoring,\" says (friend), \"right through the big one.\" (subject) considers this. \"I was resting my eyes,\" (subject.he/she) explains. \"Loudly.\" The listeners laugh, and (subject) laughs too. In the end it's agreed that (subject) watched over the village, mostly in (subject.his/her) sleep.",
+   "src": "L470",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L470"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"I heard you snoring,\" says (friend), \"right through the big one.\" (subject) considers this. \"I was resting my eyes,\" (subject.he/she) explains. \"Loudly.\" The listeners laugh, and (subject) laughs too. In the end it's agreed that (subject) watched over the village, mostly in (subject.his/her) sleep.",
+   "src": "L470"
+  }
+ }
+}

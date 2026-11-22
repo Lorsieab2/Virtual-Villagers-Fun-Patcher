@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Great Fish Shortage",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvway05_fish_shortage",
+  "source": "living",
+  "lines": [
+   22768,
+   22782
+  ],
+  "section": "lv_ways",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L22768",
+  "ledger": [
+   {
+    "src": "L22782",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The lagoon provides fewer fish than before.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The lagoon provides fewer fish than before.",
+   "src": "L22769",
+   "choices": [
+    {
+     "label": "Limit catches and protect spawning grounds.",
+     "next": "a",
+     "src": "L22770"
+    },
+    {
+     "label": "Build larger nets and work harder.",
+     "next": "b",
+     "src": "L22773"
+    },
+    {
+     "label": "Ask the sea spirits for guidance.",
+     "next": "c",
+     "src": "L22776"
+    },
+    {
+     "label": "Study currents and change fishing sites.",
+     "next": "d",
+     "src": "L22779"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The immediate shortage leaves families hungry.",
+   "src": "L22772"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The village stores enough fish for the week.",
+   "src": "L22774",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L22774"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The larger nets trap unwanted creatures.",
+   "src": "L22775"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "No sign appears, and the fishers choose their own course.",
+   "src": "L22778"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The new site is dangerous in rough weather.",
+   "src": "L22781"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Young fish become more common in later seasons.",
+   "src": "L22771",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22771"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Young fish become more common in later seasons.",
+   "src": "L22771"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "A dream inspires a safer fishing route, though its meaning remains uncertain.",
+   "src": "L22777",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22777"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "A dream inspires a safer fishing route, though its meaning remains uncertain.",
+   "src": "L22777"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The fishers locate a seasonal school.",
+   "src": "L22780",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L22780"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The fishers locate a seasonal school.",
+   "src": "L22780"
+  }
+ }
+}

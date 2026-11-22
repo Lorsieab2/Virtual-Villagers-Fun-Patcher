@@ -1,0 +1,130 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Weaver and Her Sweetheart",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss007_weaver_her",
+  "source": "companion",
+  "lines": [
+   6133,
+   6141
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6133",
+  "ledger": [
+   {
+    "src": "L6141",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A woman asks another woman to the lantern festival, and an elder mistakes them for sisters.",
+  "cast_only": [
+   "weaver",
+   "sweetheart",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "weaver": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "sweetheart": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "female"
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A woman asks another woman to join her at the lantern festival. A well-meaning elder mistakes them for sisters.",
+   "src": "L6134",
+   "choices": [
+    {
+     "label": "Correct the misunderstanding gently",
+     "next": "a",
+     "src": "L6135"
+    },
+    {
+     "label": "Explain nothing until ready",
+     "next": "b",
+     "src": "L6137"
+    },
+    {
+     "label": "Invite the elder to meet her partner",
+     "next": "c",
+     "src": "L6139"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The elder blushes, apologizes, and later saves them two seats together.",
+   "src": "L6136"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The elder asks awkward questions but listens and offers a sincere blessing.",
+   "src": "L6140"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They enjoy the festival privately and decide for themselves whom to tell.",
+   "src": "L6138",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "weaver",
+     "mood": "good",
+     "src": "L6138"
+    },
+    {
+     "do": "mood",
+     "role": "sweetheart",
+     "mood": "good",
+     "src": "L6138"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They enjoy the festival privately and decide for themselves whom to tell.",
+   "src": "L6138"
+  }
+ }
+}

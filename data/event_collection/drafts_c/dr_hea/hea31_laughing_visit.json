@@ -1,0 +1,82 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Laughing Visit",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea31_laughing_visit",
+  "source": "draft_hea",
+  "lines": [
+   371,
+   380
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L371",
+  "ledger": [
+   {
+    "src": "L372",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults, one of them sick)"
+   }
+  ],
+  "description": "A friend arrives at a feverish villager's bed with jokes and a pig song: let them do the jokes, or say it is too much today.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is in bed with a fever. (friend) believes that laughter is the best medicine, and has arrived with (friend.his/her) seven best jokes, a coconut with a face drawn on it, and a song about a pig. (subject) is very, very tired.",
+   "src": "L374",
+   "choices": [
+    {
+     "label": "Let (friend) Do the Jokes",
+     "next": "o1",
+     "src": "L376"
+    },
+    {
+     "label": "Say (subject.he/she) Is Too Tired Today",
+     "next": "o2",
+     "src": "L379"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) does the jokes. (subject) smiles at two of them and laughs weakly at the pig song, which is genuinely very silly. Then (subject.he/she) falls asleep halfway through joke six. (friend) tiptoes out, leaving the coconut. The fever lasts two more days. The coconut stays on the shelf for months.",
+   "src": "L377"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I love you,\" says (subject), \"but I can't laugh right now. It hurts my head.\" (friend) puts the jokes away at once. \"Then I'll just sit here,\" (friend.he/she) says, and does, very quietly, holding the coconut. When the fever breaks, (subject) asks for the pig song. (friend) sings it so loudly the neighbors complain.",
+   "src": "L380"
+  }
+ }
+}

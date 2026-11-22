@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "da_il01",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "il001_mister_pebbles": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il002_villager_talks": {
+   "filters": [
+    "F25",
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25",
+     "F26"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il003_quiet_hands": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "traits": [
+    {
+     "role": "subject",
+     "trait": "mute"
+    }
+   ]
+  },
+  "il004_what_didnt_say": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il005_somewhere_else": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a__fx": [
+     "F04"
+    ],
+    "a__text": [
+     "F04"
+    ]
+   }
+  },
+  "il006_talking": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "il007_big_maybe": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il008_worry_stone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "il009_night_thoughts": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "il010_little_voice": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

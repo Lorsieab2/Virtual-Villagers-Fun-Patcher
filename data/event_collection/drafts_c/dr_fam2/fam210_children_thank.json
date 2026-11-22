@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "No Children, Thank You",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam210_children_thank",
+  "source": "draft_fam2",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults who are partners (where the game records it) and an elder)"
+   }
+  ],
+  "description": "An elder asks a couple who want no children when they will start a family: say we are a family, or change the subject.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been together for years and have decided they don't want children. They're very happy. Today (third), an elder, is visiting, and has asked them, for the third time this season, when they're going to \"start a family.\"",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Say \"We Are a Family\"",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Change the Subject",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"We already are a family,\" says (subject). \"The two of us. And we're not having children. That's decided.\" (third) looks surprised. \"But who will look after you when you're old?\" \"The same people who look after everyone,\" says (friend). \"Each other, and the village.\" (third) is quiet. Then (third.he/she) nods. \"I suppose so.\" (third.He/she) doesn't ask again.",
+   "src": "L122"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Have you tried the new fish stew?\" says (friend) brightly, and hands (third) a bowl. (third) is distracted for the rest of the afternoon. Later, (subject) and (friend) sit on their step and laugh about it. They don't owe anyone an explanation, and they're not going to give one. Their life is full exactly as it is.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L125"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Have you tried the new fish stew?\" says (friend) brightly, and hands (third) a bowl. (third) is distracted for the rest of the afternoon. Later, (subject) and (friend) sit on their step and laugh about it. They don't owe anyone an explanation, and they're not going to give one. Their life is full exactly as it is.",
+   "src": "L125"
+  }
+ }
+}

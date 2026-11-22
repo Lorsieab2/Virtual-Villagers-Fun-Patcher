@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Jar That Won't Open",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day35_jar_wont_open",
+  "source": "draft_day",
+  "lines": [
+   416,
+   425
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L416",
+  "ledger": [
+   {
+    "src": "L417",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager cannot get the plug out of a honey jar and it has become personal: hand it to a friend, or keep trying alone.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There is a small clay jar of honey in (subject)'s hut, sealed with a wooden plug. (subject) wants honey. The plug will not move. (subject.He/she) has twisted it, pulled it, tapped it with a stone and spoken to it sternly. It has now become personal. (friend) comes in and asks what (subject.he/she) is doing.",
+   "src": "L419",
+   "choices": [
+    {
+     "label": "Hand It to (friend)",
+     "next": "o1",
+     "src": "L421"
+    },
+    {
+     "label": "Keep Trying Alone",
+     "next": "o2",
+     "src": "L424"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) takes the jar, gives the plug a small twist, and it comes out with a pop. (subject) looks at (friend.him/her) with deep, silent betrayal. \"I loosened it,\" (subject.he/she) says. \"Of course you did,\" says (friend) kindly. They have honey. (subject) is still a little bit cross about it.",
+   "src": "L422"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) turns away and keeps at it. Twist. Pull. Tap. Nothing. (friend) sits down to watch. After a very long time the plug suddenly gives, and (subject) falls backwards onto the mat holding the open jar above (subject.his/her) head, triumphant, without spilling a drop. (friend) applauds. It's the best honey (subject) has ever tasted.",
+   "src": "L425",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L425"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) turns away and keeps at it. Twist. Pull. Tap. Nothing. (friend) sits down to watch. After a very long time the plug suddenly gives, and (subject) falls backwards onto the mat holding the open jar above (subject.his/her) head, triumphant, without spilling a drop. (friend) applauds. It's the best honey (subject) has ever tasted.",
+   "src": "L425"
+  }
+ }
+}

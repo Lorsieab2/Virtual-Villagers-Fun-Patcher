@@ -1,0 +1,171 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wrong Thing (name1) Taught",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon23_wrong_thing",
+  "source": "draft_hon",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child aged 5-10)"
+   },
+   {
+    "src": "L275",
+    "kind": "sensitivity",
+    "before": "learned from an elder that",
+    "after": "learned from (elder), an elder, that",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L280",
+    "kind": "sensitivity",
+    "before": "Ask the Elder to Explain",
+    "after": "Ask (elder) to Explain",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L281",
+    "kind": "sensitivity",
+    "before": "to the elder, who explains",
+    "after": "to (elder), who explains",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager wrongly taught a child that some red berries are dangerous: go and correct it, or ask an elder to explain.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 10
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Last week (subject) told (friend), very confidently, that the little red berries by the stream are called \"fire berries\" and must never be eaten. Today (subject) learned from (elder), an elder, that they're called sun berries, and they're perfectly good to eat. (friend) has spent the whole week warning every child in the village about the dangerous fire berries.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Go and Correct It",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Ask (elder) to Explain",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend). \"I got it wrong. They're sun berries, and you can eat them.\" (friend) stares. \"But I TOLD everyone.\" \"So now you can tell them again.\" (friend) does, very importantly, with a basket of sun berries for everyone to try. (friend.He/she) seems to enjoy being the expert twice.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L278"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) finds (friend). \"I got it wrong. They're sun berries, and you can eat them.\" (friend) stares. \"But I TOLD everyone.\" \"So now you can tell them again.\" (friend) does, very importantly, with a basket of sun berries for everyone to try. (friend.He/she) seems to enjoy being the expert twice.",
+   "src": "L278"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) takes (friend) to (elder), who explains it kindly, and adds that it was good to be careful, because there are other red berries on Isola that really aren't safe. (friend) listens very seriously. So does (subject), who now learns exactly which ones those are.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) takes (friend) to (elder), who explains it kindly, and adds that it was good to be careful, because there are other red berries on Isola that really aren't safe. (friend) listens very seriously. So does (subject), who now learns exactly which ones those are.",
+   "src": "L281"
+  }
+ }
+}

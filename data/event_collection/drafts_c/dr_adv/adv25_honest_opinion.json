@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "An Honest Opinion, Please",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv25_honest_opinion",
+  "source": "draft_adv",
+  "lines": [
+   290,
+   299
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L290",
+  "ledger": [
+   {
+    "src": "L291",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager asks a friend's honest opinion of a carving that may be a bird or a fish: the friend is honest, or kind.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has carved a figure for the doorpost of (subject.his/her) hut. It's a bird. Or possibly a fish. (subject.He/she) holds it up to (friend). \"Be honest. What do you think?\" (friend) looks at it for a long time.",
+   "src": "L293",
+   "choices": [
+    {
+     "label": "(friend) Is Honest",
+     "next": "o1",
+     "src": "L295"
+    },
+    {
+     "label": "(friend) Is Kind",
+     "next": "o2",
+     "src": "L298"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Honestly?\" says (friend). \"I'm not sure what it is. But I like the wings. Or fins.\" (subject) laughs. \"It's a bird.\" \"Then the wings are great and the face could be more birdy.\" (subject) thinks about it. Then (subject.he/she) puts it up on the doorpost exactly as it is. \"I like it fishy,\" (subject.he/she) decides. It's (subject.his/her) door.",
+   "src": "L296",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L296"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Honestly?\" says (friend). \"I'm not sure what it is. But I like the wings. Or fins.\" (subject) laughs. \"It's a bird.\" \"Then the wings are great and the face could be more birdy.\" (subject) thinks about it. Then (subject.he/she) puts it up on the doorpost exactly as it is. \"I like it fishy,\" (subject.he/she) decides. It's (subject.his/her) door.",
+   "src": "L296"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I love it,\" says (friend). (subject) narrows (subject.his/her) eyes. \"You said honest.\" \"I am being honest,\" says (friend). \"I love that you made it. I have no idea what it is.\" (subject) laughs so hard (subject.he/she) nearly drops it. It goes on the doorpost. Visitors guess something different every time. (subject) never tells.",
+   "src": "L299",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L299"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"I love it,\" says (friend). (subject) narrows (subject.his/her) eyes. \"You said honest.\" \"I am being honest,\" says (friend). \"I love that you made it. I have no idea what it is.\" (subject) laughs so hard (subject.he/she) nearly drops it. It goes on the doorpost. Visitors guess something different every time. (subject) never tells.",
+   "src": "L299"
+  }
+ }
+}

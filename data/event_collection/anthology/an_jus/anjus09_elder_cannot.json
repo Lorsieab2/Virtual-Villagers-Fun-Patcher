@@ -1,0 +1,251 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder Who Cannot Forget",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus09_elder_cannot",
+  "source": "anthology",
+  "lines": [
+   30847,
+   30861
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L30847",
+  "ledger": [
+   {
+    "src": "L30848",
+    "kind": "note",
+    "why": "the volume's casting tag (ELDERS), carried out as the roles' ages"
+   },
+   {
+    "src": "L30849",
+    "kind": "sensitivity",
+    "before": "An elder who survived violence long ago becomes",
+    "after": "(elder), an elder who survived violence long ago, becomes",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30851",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30851",
+    "kind": "sensitivity",
+    "before": "a trusted companion",
+    "after": "(companion), a trusted companion",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30858",
+    "kind": "sensitivity",
+    "before": "The elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30861",
+    "kind": "sensitivity",
+    "before": "A younger villager",
+    "after": "(young), a younger villager,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "An elder who survived violence long ago becomes unsettled by the sound of a ceremonial drum.",
+  "label_case": "title",
+  "cast_only": [
+   "elder",
+   "companion",
+   "young"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "companion": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "young": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(elder), an elder who survived violence long ago, becomes unsettled by the sound of a ceremonial drum.",
+   "src": "L30849",
+   "choices": [
+    {
+     "label": "Offer a Quiet Place",
+     "next": "a",
+     "src": "L30850"
+    },
+    {
+     "label": "Ask Whether They Wish to Speak",
+     "next": "b",
+     "src": "L30853"
+    },
+    {
+     "label": "Adapt the Celebration",
+     "next": "c",
+     "src": "L30856"
+    },
+    {
+     "label": "Honor the Life They Have Built",
+     "next": "d",
+     "src": "L30859"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"celebration\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30849"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "They choose solitude and are not followed.",
+   "src": "L30852"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "They share a small memory and stop there.",
+   "src": "L30854"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They decline to explain, and that choice is respected.",
+   "src": "L30855"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The drum is moved farther from the resting area.",
+   "src": "L30857"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(elder) chooses to return when ready.",
+   "src": "L30858"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Friends celebrate their present work and humor.",
+   "src": "L30860",
+   "text_only": [
+    {
+     "what": "\"celebrate\"",
+     "reason": "a celebration talked about or planned in the story; nobody celebrates in the game -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L30860"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(young), a younger villager, learns that survival is only one part of a person.",
+   "src": "L30861"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "(elder) rests with (companion), a trusted companion.",
+   "src": "L30851",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "elder",
+     "min": 15,
+     "max": 30,
+     "src": "L30851"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "(elder) rests with (companion), a trusted companion.",
+   "src": "L30851"
+  }
+ }
+}

@@ -1,0 +1,206 @@
+NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)
+Songs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.
+Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
+(name1)/(name2) fill in with villagers' names; (he/she), (him/her), (his/her) follow the villager.
+All Isola rules apply. Each [effect: ...] really happens where the game can do it (the villagers really sing, dance or rest; the weather really turns in The Secret City, The Tree of Life and New Believers); elsewhere the words are story only.
+
+==========================================================================
+VFX-01. The Welcoming Song
+(picks an adult)
+
+A family from the far side of the island has come to live in the village, and they are standing at the edge of the clearing with their bundles, not quite sure where to put them. (name1) remembers the welcoming song the grandparents used to sing, the one that names each hut and asks the newcomers to rest there. It has not been sung in years.
+
+Sing It Together:
+(name1) starts the first line, a little shaky, and one by one the others join in until the whole village is singing. The newcomers do not know the words, but they understand. By the last verse they are clapping along. [effect: the whole village sings]
+
+Sing It Alone:
+(name1) steps forward and sings it alone, slowly, so every word is clear. The village listens in silence. When it is over, the oldest of the newcomers puts down her bundle and bows her head in thanks. [effect: (name1) sings]
+
+==========================================================================
+VFX-02. The Voyage Chant
+(picks an adult)
+
+The fishers are about to take the canoes past the reef for the first time this season, and the water beyond it is rough. Before they push off, (name1) asks whether the village should send them with the old chant for safe voyages, the one that keeps time with the paddles.
+
+Chant Them Off:
+The whole village lines the beach and chants, low and steady, in time with the paddles. The canoes find the rhythm and slip through the gap in the reef as if the chant were pulling them. Every one of them comes home before dark. [effect: the whole village chants]
+
+A Few Quiet Words:
+(name1) wades out to the canoes and speaks to the fishers quietly, one by one, reminding each of them who is waiting at home. They push off with steady hands. [effect: (name1) gives a speech]
+
+==========================================================================
+VFX-03. The Song for Rain
+(picks an elder)
+
+The ground has been dry for weeks. The leaves curl at the edges and the stream is down to a trickle. (name1), one of the oldest in the village, says the rain has always come back when the village asks it properly, with the old rain song and nothing rushed.
+
+Sing for Rain:
+The village gathers in the clearing, and (name1) leads the song, slow and patient. Nobody can say whether the song did it, but by evening the clouds are rolling in, and the first drops land on upturned faces. [effect: rain starts; the whole village sings]
+
+Wait It Out:
+The village decides to be patient and carry water from the far spring. It is hard work. (name1) hums the rain song anyway while (he/she) carries (his/her) share.
+
+==========================================================================
+VFX-04. The Long Afternoon
+(picks an adult)
+
+The work is done early for once, the sun is warm, and nobody can remember the last time the whole village had nothing to do. (name1) suggests that, just this once, nobody does anything at all.
+
+Rest in the Shade:
+The village stretches out in the shade, one by one, until even the busiest of them is asleep in the afternoon heat. Nobody regrets it. [effect: the whole village relaxes]
+
+Everyone to the Water:
+(name1) runs for the water, and the whole village follows, splashing and shrieking. Even the elders wade in up to their knees. [effect: the whole village swims]
+
+==========================================================================
+VFX-05. Stories at Dusk
+(picks an elder)
+
+The children have been restless all day, and the parents are tired. (name1), who has more stories than anyone, offers to take them all off the parents' hands for the evening.
+
+Tell the Old Stories:
+The elders gather the children by the fire, and (name1) begins the oldest story (he/she) knows, about the first canoe that found Isola. The children listen without moving. Even the parents drift closer to hear the ending. [effect: the elders tell stories]
+
+Let Them Play:
+(name1) decides the children need to run, not sit. (He/she) sends them off to play until they drop, and they come back at dark, muddy and happy and ready for bed. [effect: the children play]
+
+==========================================================================
+VFX-06. The Spare Sail (VV4 only)
+(picks two adults)
+
+The roof of the hut the builders are working on has a hole in it, and the rainy season is coming. (name1) suggests stretching a bolt of cloth over the frame, the way the sailmakers do, so the builders can keep working dry. (name2) says cloth is too precious to put on a roof.
+
+Use the Cloth:
+They stretch the cloth tight over the frame and lash it down at the corners. The builders work through two storms underneath it without losing a day. [effect: the village loses 1 cloth bolt]
+
+Use Leaves:
+They thatch the hole with leaves instead. It leaks a little, and the builders grumble, but the cloth stays in the store for something else.
+
+==========================================================================
+VFX-07. The Builders' Push
+(picks an adult)
+
+The new hut is so close to finished that you can almost see it standing. (name1) wants to rally the whole village to help finish it before the season turns.
+
+Everyone Helps:
+Everyone who can carry a pole or tie a knot turns up. By evening the hut is almost done, and everyone is too tired to do anything but sit and admire it.
+
+Let the Builders Work:
+(name1) decides the builders know what they are doing and leaves them to it. The hut goes up at its own steady pace.
+
+==========================================================================
+VFX-08. The Visiting Teacher
+(picks an adult)
+
+A wise woman from a far island has stopped in the village for a few days. She knows more about her craft than anyone on Isola, and she offers to teach. (name1) has to decide what the village should learn from her.
+
+Learn All She Knows:
+(name1) and the others sit with her from morning to night. When she leaves, the village knows things it never knew before, and it shows in everything they do. [effect: a random tech level rises by 1]
+
+Just Ask a Few Questions:
+(name1) asks her a few careful questions over a meal. Her answers are short and useful, and (name1) writes down every word. [effect: small tech gain, only where the game has tech points]
+
+==========================================================================
+VFX-09. The Quiet Season
+(picks an adult)
+
+For days now, nothing has happened on Isola. No visitors, no storms, no surprises. (name1) says it is the island resting, and that the village should rest with it. Others are getting restless.
+
+Enjoy the Quiet:
+The village keeps the quiet days. Nobody hurries. Whatever the island has planned next, it seems content to wait a little longer. [effect: the next island event comes 6 hours later]
+
+Go Looking for News:
+(name1) sends the young ones out along the shore to look for news. They come back full of rumors, and the whole village is suddenly wide awake, waiting to see what comes next. [effect: the next island event comes 6 hours sooner]
+
+==========================================================================
+VFX-10. The Morning Mist
+(picks an adult)
+
+(name1) wakes to find the whole village wrapped in a white mist so thick (he/she) cannot see the next hut. Somewhere in it, the children are laughing.
+
+Let It Settle:
+The village moves slowly through the mist all morning, calling out to each other so nobody gets lost. It is strange and quiet and rather beautiful. [effect: fog starts]
+
+Light the Fires:
+(name1) builds up the fires until the warmth and smoke chase the mist away, and by midmorning the sky is clear and blue. [effect: clear skies start]
+
+==========================================================================
+VFX-11. The Fever
+(picks an adult)
+
+A fever is going around the village: nothing serious, just aching heads and hot foreheads. (name1), who knows a little about healing, has to decide how to deal with it.
+
+Rest and Boiled Water:
+(name1) has everyone drink boiled water and rest in the shade for a day. By morning the fever is gone, from everyone. [effect: every villager is cured]
+
+Carry On Working:
+The village decides there is too much to do to stop. The fever spreads a little further before it burns itself out. [effect: 15 in 100 villagers fall sick]
+
+==========================================================================
+VFX-12. The Dance for the Harvest
+(picks an adult)
+
+The harvest is in, the stores are full, and (name1) says it would be wrong not to thank the island for it.
+
+Dance:
+The village dances until the moon is high, in a great circle around the fire, the children weaving in and out between the grown-ups' legs. [effect: the whole village dances]
+
+A Quiet Thanks:
+The village gathers for a moment of quiet thanks instead. Nobody speaks. Then, one by one, they go back to their huts, grateful. [effect: the whole village prays]
+
+==========================================================================
+VFX-13. The Harvest Rush
+(picks an adult)
+
+Storm clouds are piling up over the sea, and the food stores are lower than anyone likes. (name1) says the farmers should get the harvest in before the rain, and everyone else should stay out of their way.
+
+Rush the Harvest:
+The farmers run for the bushes and the fields and work faster than anyone has ever seen. Everyone else carries baskets back and forth until they are too worn out to lift another one. [effect: the farming workers rush to work]
+
+Let Them Work at Their Own Pace:
+(name1) decides a tired farmer drops more than (he/she) picks. The farmers work at their usual pace, and the rain comes and goes.
+
+==========================================================================
+VFX-14. Gifts on the Tide
+(picks an adult)
+
+After a night of strange, glittering waves, (name1) walks the shore at dawn and sees that the sea has left things lying everywhere: shells, odd stones, and small treasures half buried in the sand.
+
+Send Everyone Looking:
+The whole village fans out along the shore. Here and there, something new is waiting to be found.
+
+Leave Them for Later:
+(name1) decides the treasures will keep. By the time anyone goes looking, the tide has taken most of them back.
+
+==========================================================================
+VFX-15. The Fizzing Potion (VV3 only)
+(picks an adult)
+
+Someone left a pot of half-finished potion by the alchemy table, and it is fizzing in a way nobody likes the look of. (name1) is curious enough to want a taste.
+
+Take a Sip:
+(name1) takes a sip. For the rest of the morning, every few words come out with a hiccup, and the children follow (him/her) around just to hear it.
+
+Pour It Away:
+(name1) pours it into the bushes. The bushes fizz quietly for an hour and then seem perfectly happy.
+
+==========================================================================
+VFX-16. Clean as the Tree (VV4 only)
+(picks an adult)
+
+(name1) has spent the whole day hauling sap and is covered in it from head to toe. The soapy pond is right there, and so is the shade of the great tree.
+
+Wash in the Soapy Pond:
+(name1) wades into the soapy pond and comes out sparkling clean, smelling faintly of flowers.
+
+Sit Quietly Under the Tree:
+(name1) sits under the great tree, sticky and still, and lets the quiet settle over (him/her).
+
+==========================================================================
+NOTES FOR THE OWNER
+- Songs, chants and speeches: the villagers really take part through each game's closest real action (a celebration, a dance, the Chief's Address in The Secret City, praising and honoring in New Believers). The song itself is the event's words.
+- Weather (VFX-03, VFX-10): really changes in The Secret City, The Tree of Life and New Believers. A New Home and The Lost Children have no weather, so there the words are story only. The Secret City has no sunshine weather.
+- VFX-06 uses real cloth in The Tree of Life (offered only when there is a bolt to spare); elsewhere cloth is words only.
+- VFX-06 uses a real bolt of cloth; the building itself and VFX-07's hut are words only; VFX-11's fever is real, and never reaches a nursing parent, the Golden Child or anyone the game protects (the owner's final list, 2026-11-18).
+- VFX-08: a tech level never goes above 3.
+- VFX-13: only the farming workers (Farming ticked as their job, or, with no job ticked, Farming as their best skill) really work; every other adult is kept busy with no skill (The Secret City: "Working 'til he/she drops!"; elsewhere they sit and rest); children are left as they are. VFX-14, VFX-15 and VFX-16 are words only (the owner, 2026-11-18: new things to find, potions, baths and gunk never change the game).

@@ -1,0 +1,37 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+armm01_polished	The Polished Breastplate	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An armorer polishes a ceremonial breastplate.				627
+armm02_bowyer	The Bowyer's Inspection	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A bowyer examines a newly finished bow.				628
+armm03_practice_spears	Practice Spears	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An apprentice carries a bundle of wooden practice spears.				629
+armm04_weathered	The Weathered Quiver	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A hunter inspects a weathered quiver.				630
+armm05_symbols_shield	Symbols on a Shield	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager decorates a shield with family symbols.				631
+armm06_helmets_display	Helmets on Display	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Several children admire ceremonial helmets.				632
+armm07_cracked_shield	The Cracked Shield	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A carpenter repairs a cracked wooden shield.				633
+armm08_ancestral_spear	The Ancestral Spear	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An elder recounts the history of an ancestral spear.				634
+armm09_harvesting_tool	The Harvesting Tool	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A farmer tends to a well-used harvesting implement.				635
+armm10_balancing_staff	Balancing the Staff	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager practices balancing a long wooden staff.				636
+armm11_protective	A Protective Weave	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A craftsperson weaves tough plant fibers into protective clothing.				637
+armm12_implements_hunt	Implements of the Hunt	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Villagers compare traditional hunting implements.				638
+armm13_shields	Shields in Procession	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A ceremonial procession carries decorated shields and spears.				639
+armm14_bindings_made	Bindings Made New	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An artisan replaces worn bindings on old armor.				640
+armm15_old_watchpost	The Old Watchpost	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A historian sketches the remains of a watchpost.				641
+armm16_shield_memorial	A Shield at the Memorial	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager places an ancestral shield beside a memorial.				642
+armm17_bow_put_away	The Bow Put Away	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A hunter stores a bow safely inside a hut.				643
+armm18_materials	Materials for Protection	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Two artisans discuss protective materials.				644
+armm19_rehearsing	Rehearsing the Shield Dance	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A group rehearses a traditional shield dance.			cooperative	645
+armm20_veteran	The Veteran's Equipment	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A veteran helps preserve old equipment for future generations.				646
+armm21_markings_shield	Markings on the Shield	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A grandparent shows a child the markings on a family shield.				647
+armm22_inherited_bow	The Inherited Bow	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An apprentice carefully wraps an inherited bow for storage.				648
+armm23_names_old_tools	Names of Old Tools	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An elder teaches the names of tools passed down through the family.				649
+armm24_new_family_mark	A New Family Mark	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager adds a new carving beside an ancestor's symbol.				650
+armm25_memories_spear	Memories of a Spear	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Two relatives compare memories of the same ceremonial spear.				651
+armm26_grandparent	The Grandparent's Pattern	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A young craftsperson copies a grandparent's weaving pattern.				652
+armm27_repaired	The Repaired Digging Stick	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A family repairs a well-loved digging stick rather than replacing it.				653
+armm28_helmet_history	The Helmet's History	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A keeper records the known history of a ceremonial helmet.				654
+armm29_shield_used	The Shield Not Used	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A child asks why an old shield is displayed but never used.				655
+armm30_bowyer_favorite	The Bowyer's Favorite Tool	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A bowyer passes a favorite tool to a trusted apprentice.				656
+armm31_story_retold	A Story Retold	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	An elder tells a story that changes slightly with each retelling.				657
+armm32_faded	Faded Breastplate Designs	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A villager studies faded designs on an inherited breastplate.				658
+armm33_heirloom	The Heirloom Gathering	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	Several families gather to share stories about their heirlooms.			cooperative	659
+armm34_damaged_spear	The Damaged Spear Shaft	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A craftsperson preserves a damaged spear shaft as a historical object.				660
+armm35_care_heirlooms	The Care of Heirlooms	1,2,3,4,5	1	dr_arm_m	OPEN QUESTIONS FOR THE ISOLA EVENTS (v1.35.97)	A young villager learns that inheriting an object also means caring for it.				661

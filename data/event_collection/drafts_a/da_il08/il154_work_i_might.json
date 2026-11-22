@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Work I Might Have Chosen",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il154_work_i_might",
+  "source": "da_il08",
+  "lines": [
+   158,
+   167
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L158",
+  "ledger": [
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "Mending a fishing net, a villager wonders what life would be like if they had chosen different work.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 25
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is mending a fishing net, the way (subject.he/she) has done most days for years, when a thought sneaks up on (subject.him/her): what if (subject.he/she) had picked something else? A healer, maybe. A builder. A storyteller, traveling from village to village. Would (subject.he/she) be happier? Would (subject.he/she) be the same person at all?",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Talk to (friend) About It",
+     "next": "a",
+     "src": "L163"
+    },
+    {
+     "label": "Keep Mending and Keep Wondering",
+     "next": "b",
+     "src": "L166"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) keeps mending. (subject.He/She) doesn't come to any conclusion. Some of the other lives sound wonderful. Some sound exhausting. This one is (subject.his/her) own, knots and all. It's not the only life (subject.he/she) could have had. It's the one (subject.he/she) has. (subject.He/She) ties off the last knot and decides that's alright, today at least.",
+   "src": "L167"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend), it turns out, has wondered the same thing. (friend.He/She) always thought (friend.he/she) might have been a fisher. They laugh about it, then get quieter. \"I think I'd still be me,\" says (subject), finally. \"Just with different calluses.\" (friend) holds up (friend.his/her) hands. They compare calluses. It's a strangely nice way to end the conversation.",
+   "src": "L164",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L164"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L164"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend), it turns out, has wondered the same thing. (friend.He/She) always thought (friend.he/she) might have been a fisher. They laugh about it, then get quieter. \"I think I'd still be me,\" says (subject), finally. \"Just with different calluses.\" (friend) holds up (friend.his/her) hands. They compare calluses. It's a strangely nice way to end the conversation.",
+   "src": "L164"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L167",
+   "before": "This one is (his/hers), knots and all.",
+   "after": "This one is (his/her) own, knots and all."
+  }
+ ]
+}

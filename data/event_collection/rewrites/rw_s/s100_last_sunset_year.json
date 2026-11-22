@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Sunset of the Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s100_last_sunset_year",
+  "source": "rewrites",
+  "lines": [
+   4668,
+   4710
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4668",
+  "ledger": [
+   {
+    "src": "L4669",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4670",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4678",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4687",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4675",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4676",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4679",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4688",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4681",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4684",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4690",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4693",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4696-4710",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The last sunset of the year is always the most beautiful.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The last sunset of the year is always the most beautiful. Everybody knows it. Nobody knows why. The elders say it's the sky saying goodbye to the old year properly.\nTonight, the whole village climbs to the top of the hill together to watch it. Every single one of them: the elders on sticks, helped by the young ones; the babies on their parents' backs; the children running ahead and back and ahead again. They sit down together in the long grass, shoulder to shoulder, looking out over the sea.\nThe sky turns orange. Then pink. Then a purple deep enough to swim in. The sea holds every colour, and the first star comes out over the water. Should the village watch in silence, or sing together?",
+   "choices": [
+    {
+     "label": "Watch in Silence",
+     "next": "c1",
+     "src": "L4675"
+    },
+    {
+     "label": "Sing Together",
+     "next": "c2",
+     "src": "L4676"
+    }
+   ],
+   "src": "L4671-4673"
+  },
+  "c1o1": {
+   "text": "Nobody says a single word. The sun goes down. The last red line of it slips under the water. The stars come out, one by one and then all at once, until the sky is thick with them. Somebody's baby gives a little sleepy sigh. And then, still without a word, the village gets up, and helps each other up, and walks home together down the hill in the starlight, feeling peaceful, every single one of them, all the way to their beds.",
+   "src": "L4682"
+  },
+  "c1o2": {
+   "text": "Nobody says a word. Right up until the very last sliver of sun is slipping under the sea, and a very small child, sitting on a parent's lap, looks up and asks, in a very worried little voice that carries across the whole silent hillside, \"Will it come back?\" There's a pause. Then everybody laughs, the whole village at once, warm and loud, and everyone says yes, all together, \"Yes!\", and the child is very relieved. They walk home laughing.",
+   "src": "L4685"
+  },
+  "c1": {
+   "text": "Nobody says a word. Nobody needs to. The whole village sits on the hill together, quiet, watching the colours change, while the sun slides down, slowly, into the sea...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4679"
+  },
+  "c2o1": {
+   "text": "The whole village sings the old songs, one after another, as the sun goes down and the stars come out. The songs the elders learned from their grandparents, and the ones the children made up last week, and the one about the turtle that everybody knows. Their voices roll down the hill and out over the dark sea. It goes on until the moon is high. It's a night nobody ever forgets, and years later, people still say \"Do you remember the last sunset, when we sang?\"",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L4691",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "Somebody starts singing. Badly. Very badly, completely off-key, and too loud, and getting the words wrong. A few people start to laugh. Then somebody else joins in, just as badly, on purpose. And then everybody does, the whole village, at the top of their lungs, as out of tune as they can possibly manage, howling at the purple sky. The goats in the valley start bleating along. It's terrible. It's wonderful. It's the happiest anyone has been all year, and the perfect way to end it.",
+   "src": "L4694"
+  },
+  "c2": {
+   "text": "One of the elders starts it, softly, the old song for the end of the year. Then another voice joins, and another, and another, until the whole hillside is singing...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4688"
+  }
+ }
+}

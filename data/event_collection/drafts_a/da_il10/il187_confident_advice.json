@@ -1,0 +1,122 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Confident Advice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il187_confident_advice",
+  "source": "da_il10",
+  "lines": [
+   74,
+   83
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L74",
+  "ledger": [
+   {
+    "src": "L75",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L83",
+    "kind": "casting",
+    "before": "asking another elder",
+    "after": "asking (elder), another elder,",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder gives a young villager advice about a fishing line with total confidence, and it goes very wrong.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(friend) has asked (subject) how to stop (friend.his/her) new fishing line from tangling. (subject) knows exactly what to do. (subject.He/She) has known for sixty years. \"Soak it overnight in salt water,\" (subject.he/she) says, with total confidence. (friend) does. In the morning the line is one enormous knot.",
+   "src": "L77",
+   "choices": [
+    {
+     "label": "Admit You Were Wrong",
+     "next": "a",
+     "src": "L79"
+    },
+    {
+     "label": "Insist It Must Have Been Something Else",
+     "next": "b",
+     "src": "L82"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"You must have soaked it wrong,\" says (subject). (friend) is fairly sure there is only one way to soak something. Later that week, (friend) overhears (subject), very quietly, asking (elder), another elder, whether it was salt water or fresh. (friend) decides never, ever to mention it.",
+   "src": "L83"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) stares at the knot. \"That,\" (subject.he/she) says slowly, \"is not what is supposed to happen.\" (subject.He/She) thinks hard. \"Fresh water. It's FRESH water. I've been saying salt for years.\" (friend) bursts out laughing, and after a moment, so does (subject). They spend the morning untangling the line together. It takes a very long time.",
+   "src": "L80",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L80"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L80"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) stares at the knot. \"That,\" (subject.he/she) says slowly, \"is not what is supposed to happen.\" (subject.He/She) thinks hard. \"Fresh water. It's FRESH water. I've been saying salt for years.\" (friend) bursts out laughing, and after a moment, so does (subject). They spend the morning untangling the line together. It takes a very long time.",
+   "src": "L80"
+  }
+ }
+}

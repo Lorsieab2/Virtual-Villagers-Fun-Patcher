@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Nose Flute",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm11_nose_flute",
+  "source": "draft_drm",
+  "lines": [
+   128,
+   137
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L128",
+  "ledger": [
+   {
+    "src": "L129",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder)"
+   }
+  ],
+  "description": "An elder learning the nose flute late in life practices every evening, badly: offer to learn too, or just listen.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Late in life, and for no particular reason, (subject) has decided to learn the nose flute. (subject.He/she) has had one carved, and has been practicing every evening behind (subject.his/her) hut. The sound so far has been compared, by different villagers, to a seabird in trouble, a door, and wind in a hollow log. (friend) has come to listen.",
+   "src": "L131",
+   "choices": [
+    {
+     "label": "Offer to Learn with (subject.him/her)",
+     "next": "o1",
+     "src": "L133"
+    },
+    {
+     "label": "Just Listen",
+     "next": "o2",
+     "src": "L136"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) has a flute carved too. Now there are two terrible flutes behind the hut every evening. They are terrible together for a whole season. Then, one evening, they play three notes in a row that sound almost like music, and both of them stop and stare at each other in astonishment.",
+   "src": "L134",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L134"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L134"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) has a flute carved too. Now there are two terrible flutes behind the hut every evening. They are terrible together for a whole season. Then, one evening, they play three notes in a row that sound almost like music, and both of them stop and stare at each other in astonishment.",
+   "src": "L134"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) sits and listens to the whole practice. (subject) plays a long, wobbly tune that might be a song (subject.he/she) knew as a child. It isn't good. It isn't meant to be. When it's over, (friend) claps. (subject) bows deeply. (subject.He/she) will be out here again tomorrow, whether anyone listens or not.",
+   "src": "L137",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L137"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) sits and listens to the whole practice. (subject) plays a long, wobbly tune that might be a song (subject.he/she) knew as a child. It isn't good. It isn't meant to be. When it's over, (friend) claps. (subject) bows deeply. (subject.He/she) will be out here again tomorrow, whether anyone listens or not.",
+   "src": "L137"
+  }
+ }
+}

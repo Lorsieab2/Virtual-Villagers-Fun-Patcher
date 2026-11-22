@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Challenge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lca23_elder_challenge",
+  "source": "draft_lca",
+  "lines": [
+   320,
+   331
+  ],
+  "section": "dr_lca",
+  "credit": "NEW EVENTS - LIVING CULTURE I: SONGS, CHANTS, SPEECHES AND WELCOMES (LCA-01..50, draft, 2026-11-18)\nIsola sings, chants and speaks for itself: welcoming a new leader, wishing travelers luck, greeting newcomers and newborns, rallying for hard work, standing up for each other, and arguing about who gets the next verse.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lca",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L331",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An elder says an old custom has become unfair to younger families: change the custom, or keep it for now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "By old custom, the first fish of every catch goes to the eldest household in the village. (subject) is from the eldest household, and (subject.he/she) has stood up at the gathering to say the custom should end: it made sense when the village was small, but now the young families with many children are going hungry first. (friend) is shocked. It is (friend.his/her) favorite custom. What should the village do?",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Change the Custom",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Keep It for Now",
+     "next": "o2",
+     "src": "L329"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The village agrees that the first fish should go to whichever family needs it most that day. (friend) grumbles about it for a month. Then (friend.his/her) own sister has twins, and the first fish goes to her, and (friend) never grumbles about it again.",
+   "src": "L327"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village decides to keep the custom for now and talk about it again next season. (subject) quietly gives (subject.his/her) own first fish to a different young family every day. Soon other elders start doing the same. The custom stays exactly as it was, on paper.",
+   "src": "L331"
+  }
+ }
+}

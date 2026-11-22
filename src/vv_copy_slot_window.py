@@ -29,12 +29,18 @@ def _stamp(when: datetime) -> str:
     return when.strftime("%Y-%m-%d %H-%M-%S")
 
 
+def _aside(when: datetime, slot: int) -> str:
+    """The folder in Backups the replaced files go to (vv_copy_slot.set_aside_folder: a short name, the
+    owner's 2026-11-20 "no path-too-long errors"; " 2" ... when that minute's is taken)."""
+    return f"{when:%Y-%m-%d %H%M} S{slot}"
+
+
 def replace_text(folder: Path, source: vv_tribe_rename.SlotInfo, target: int, old_name: str, new_name: str,
                  when: datetime) -> str:
     """The question for a target slot that holds a player (the patchers' shared words)."""
     return (f"Save {target} holds the {old_name} village. It will be replaced by a copy of {source.name} "
             f"(Save {source.slot}), named {new_name}. The whole save folder ({folder}) is backed up first, and "
-            f"{old_name}'s files are kept in Backups\\Replaced by copy {_stamp(when)}. Replace it?")
+            f"{old_name}'s files are kept in Backups\\{_aside(when, target)}. Replace it?")
 
 
 def empty_text(folder: Path, source: vv_tribe_rename.SlotInfo, target: int, new_name: str, when: datetime,
@@ -47,7 +53,7 @@ def empty_text(folder: Path, source: vv_tribe_rename.SlotInfo, target: int, new_
         shown = "\n".join(f"  {n}" for n in names[:SHOWN_LEFTOVERS])
         more = f"\n  ...and {len(names) - SHOWN_LEFTOVERS} more" if len(names) > SHOWN_LEFTOVERS else ""
         text += (f" Leftover files from an earlier village in Save {target} are kept in "
-                 f"Backups\\Replaced by copy {_stamp(when)}.\n\n{shown}{more}\n\n")
+                 f"Backups\\{_aside(when, target)}.\n\n{shown}{more}\n\n")
     else:
         text += " "
     return text + "Copy it?"
@@ -148,8 +154,8 @@ def open_copy_slot(app, build) -> None:
             "everything the patcher keeps for it (its logs and data). A slot is empty when the game has no "
             "save for it, whatever its slot list says. Copying over a slot that holds a player replaces "
             "that village: you are asked first. The game must be closed. The whole save folder is backed up "
-            "first, into <save folder>\\Backups\\Backup <date and time> (before copy), and the files the "
-            "copy replaces are kept in <save folder>\\Backups\\Replaced by copy <date and time>. The "
+            "first, into <save folder>\\Backups\\<date and time> (listed as \"before copy\"), and the files "
+            "the copy replaces are kept in <save folder>\\Backups\\<date and time> S<slot>. The "
             "village you copy from is not changed."
         ),
         wraplength=560, justify="left",

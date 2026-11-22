@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone Returned to the Sea",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcf50_stone_returned",
+  "source": "draft_lcf",
+  "lines": [
+   694,
+   705
+  ],
+  "section": "dr_lcf",
+  "credit": "NEW EVENTS - LIVING CULTURE VI: LAVASTONES AND THE SCHOOLS OF THOUGHT (LCF-01..50, draft, 2026-11-18)\nLavastones, the glowing orange-pink stones of Isola's lore, found on beaches and falling from the sky, and what they cost; and the island's schools of thought, Nature, Science, Spiritualism and Magic, arguing with and borrowing from each other.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcf",
+  "title_src": "L694",
+  "ledger": [
+   {
+    "src": "L695",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and an adult)"
+   },
+   {
+    "src": "L701",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L705",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An old story says lavastones must one day be returned to where they came from: return one to the sea, or keep it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) believes the old story that every lavastone must one day be returned to where it came from, and the village's oldest stone came from the sea. (subject.He/she) wants to give it back, at the full moon. (friend) says the healers still need it. What should the village do?",
+   "src": "L697",
+   "choices": [
+    {
+     "label": "Return It to the Sea",
+     "next": "o1",
+     "src": "L699"
+    },
+    {
+     "label": "Keep It",
+     "next": "o2",
+     "src": "L703"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "At the full moon, the village paddles out past the reef, and (subject) lowers the stone into the water. It glows all the way down, until it is a tiny spark, and then nothing. The healers will miss it. (subject) says the sea will send another, when it is needed.",
+   "src": "L701"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "The village keeps the stone. (subject) is sad, and says so. A year later, the stone is found on the beach, having somehow rolled out of the elders' hut and down to the waterline. Nobody knows how. (subject) is not surprised.",
+   "src": "L705"
+  }
+ }
+}

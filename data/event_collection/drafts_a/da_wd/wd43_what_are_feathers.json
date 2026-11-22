@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Are Feathers Doing All Over the Hut?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd43_what_are_feathers",
+  "source": "da_wd",
+  "lines": [
+   500,
+   509
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L500",
+  "ledger": [
+   {
+    "src": "L501",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager wakes up to small grey feathers everywhere in the hut: clean up, or find the bird.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) wakes up and finds feathers everywhere. On the floor, on the mat, in the water jar, stuck to the walls. Small grey feathers, dozens of them. The door is open a crack. There is no bird to be seen, but there are a lot of feathers, and a strong feeling that something very busy went on in here while (name1) was asleep.",
+   "src": "L503",
+   "choices": [
+    {
+     "label": "Clean Up",
+     "next": "a",
+     "src": "L505"
+    },
+    {
+     "label": "Find the Bird",
+     "next": "b",
+     "src": "L508"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) follows a trail of feathers out of the door and round the back of the hut, where a very fluffy, very ruffled grey bird is sitting in the woodpile, looking exhausted, shedding feathers in the breeze. It looks at (name1). \"Busy night?\" (name1) asks. The bird closes its eyes. (name1) decides to let it rest.",
+   "src": "L509"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) sweeps up feathers all morning. They get everywhere: in (his/her) hair, in (his/her) mouth, down the back of (his/her) shirt. By lunch (he/she) has filled a whole basket, and decides to use them to stuff a cushion. It's the softest cushion (he/she) has ever owned. (He/She) still has no idea where they came from.",
+   "src": "L506",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L506"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) sweeps up feathers all morning. They get everywhere: in (his/her) hair, in (his/her) mouth, down the back of (his/her) shirt. By lunch (he/she) has filled a whole basket, and decides to use them to stuff a cushion. It's the softest cushion (he/she) has ever owned. (He/She) still has no idea where they came from.",
+   "src": "L506"
+  }
+ }
+}

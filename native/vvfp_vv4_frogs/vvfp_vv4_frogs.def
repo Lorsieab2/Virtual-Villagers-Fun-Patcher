@@ -1,0 +1,4 @@
+LIBRARY "VVFP VV4 Frogs"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpVv4FrogsInstalled=_VvfpVv4FrogsInstalled@0

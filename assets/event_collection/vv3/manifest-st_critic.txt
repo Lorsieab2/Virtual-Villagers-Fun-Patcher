@@ -1,0 +1,8 @@
+# Isola Grand Event Collection: events of this game, read by VVFP Story Upgrades.dll.
+# id	title	games	draw weight	series	credit	description	Guardians title	Guardians description
+living_st_954adf	The Harshest Critic (1 of 6)	1,2,3,4,5	1	living_st_critic	Created by Lorsieab2, Claude and ChatGPT.	A strict mentor sets an apprentice a near impossible task: plan it, trust instinct, ask, or practice all night.		
+living_st_016c42	The Harshest Critic (2 of 6)	1,2,3,4,5	1	living_st_critic	Created by Lorsieab2, Claude and ChatGPT.	An apprentice faces a strict mentor's impossible task, then pleads, bargains or tries again in secret.		
+living_st_f36b00	The Harshest Critic (3 of 6)	1,2,3,4,5	1	living_st_critic	Created by Lorsieab2, Claude and ChatGPT.	An apprentice's examination under a strict mentor turns into a spectacular, harmless disaster.		
+living_st_6c31a1	The Harshest Critic (4 of 6)	1,2,3,4,5	1	living_st_critic	Created by Lorsieab2, Claude and ChatGPT.	An apprentice's examination for a strict mentor is undone by a bang, a smell or a badly timed noise.		
+living_st_e96949	The Harshest Critic (5 of 6)	1,2,3,4,5	1	living_st_critic	Created by Lorsieab2, Claude and ChatGPT.	An apprentice fails a strict mentor's impossible task and wins something anyway, for the wrong reason.		
+living_st_dfb315	The Harshest Critic (6 of 6)	1,2,3,4,5	1	living_st_critic	Created by Lorsieab2, Claude and ChatGPT.	Someone has sabotaged an apprentice's work before a strict mentor's impossible task. Who did it?		

@@ -1,0 +1,173 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flower Map",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anexp66_flower_map",
+  "source": "anthology",
+  "lines": [
+   32288,
+   32302
+  ],
+  "section": "an_expr",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_expr",
+  "title_src": "L32288",
+  "ledger": [
+   {
+    "src": "L32289",
+    "kind": "note",
+    "why": "the volume's casting tag (CHILDREN / TEENS 14-17), carried out as the roles' ages"
+   },
+   {
+    "src": "L32302",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Children arrange fallen flowers to map secret paths through the village.",
+  "label_case": "title",
+  "cast_only": [
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Children arrange fallen flowers to map secret paths through the village.",
+   "src": "L32290",
+   "choices": [
+    {
+     "label": "Follow the Map",
+     "next": "a",
+     "src": "L32291"
+    },
+    {
+     "label": "Ask About the Symbols",
+     "next": "b",
+     "src": "L32294"
+    },
+    {
+     "label": "Preserve the Flowers",
+     "next": "c",
+     "src": "L32297"
+    },
+    {
+     "label": "Keep Nature Safe",
+     "next": "d",
+     "src": "L32300"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "It leads to a surprise picnic.",
+   "src": "L32292"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The route ends at an invented treasure.",
+   "src": "L32293"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The children explain their private code.",
+   "src": "L32295"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A symbol means something different to each child.",
+   "src": "L32296"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A drawing records the arrangement.",
+   "src": "L32298"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The children prefer to let it fade naturally.",
+   "src": "L32299"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Only fallen flowers are used.",
+   "src": "L32301"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) learns why rare blossoms should remain growing.",
+   "src": "L32302"
+  }
+ }
+}

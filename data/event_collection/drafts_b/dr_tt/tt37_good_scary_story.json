@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Too Good a Scary Story",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt37_good_scary_story",
+  "source": "draft_tt",
+  "lines": [
+   440,
+   449
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L440",
+  "ledger": [
+   {
+    "src": "L441",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager tells a scary story so well that walking home in the dark is now hard: walk home bravely, or ask a friend to come.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has just told the children the scariest story they've ever heard: a long, dark path, soft footsteps behind you, a breath on the back of your neck. It was wonderful. The children loved it. Now it's time for (subject) to walk home along a long, dark path, and (subject.he/she) is finding (subject.him/her)self very reluctant to set off.",
+   "src": "L443",
+   "choices": [
+    {
+     "label": "Walk Home Bravely",
+     "next": "o1",
+     "src": "L445"
+    },
+    {
+     "label": "Ask (friend) to Walk with You",
+     "next": "o2",
+     "src": "L448"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) sets off alone, whistling loudly. Halfway home, there's a soft rustle behind (subject.him/her). (subject.He/she) gets home very fast. In the morning, (subject.he/she) finds the culprit: a sleepy lizard on a dry leaf beside the path, which turns round to look at (subject.him/her) with mild interest.",
+   "src": "L446"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to walk (subject.him/her) home, \"to keep you company.\" (friend) agrees solemnly. Halfway along, (friend) admits that (friend.he/she) was also too scared to walk home alone after that story, and was about to ask (subject). They walk the rest of the way arm in arm, giggling, taking turns to look behind them.",
+   "src": "L449",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L449"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L449"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) asks (friend) to walk (subject.him/her) home, \"to keep you company.\" (friend) agrees solemnly. Halfway along, (friend) admits that (friend.he/she) was also too scared to walk home alone after that story, and was about to ask (subject). They walk the rest of the way arm in arm, giggling, taking turns to look behind them.",
+   "src": "L449"
+  }
+ }
+}

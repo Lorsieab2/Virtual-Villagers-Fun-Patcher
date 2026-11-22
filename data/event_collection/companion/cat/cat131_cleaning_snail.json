@@ -1,0 +1,113 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Cleaning Snail: A Living Record",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat131_cleaning_snail",
+  "source": "companion",
+  "lines": [
+   8669,
+   8679
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": "cat_creatures",
+  "title_src": "L8669",
+  "ledger": [
+   {
+    "src": "L8679",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "An apprentice wants to add a Cleaning Snail to the creature catalogue, but its habits are little known.",
+  "cast_only": [
+   "keeper"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "keeper": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A Cleaning Snail is seen near the island's aquarium or coastal waters. An apprentice wants to add it to the creature catalogue, but its habits are not well understood.",
+   "src": "L8670",
+   "choices": [
+    {
+     "label": "Observe without disturbing it",
+     "next": "a",
+     "src": "L8671"
+    },
+    {
+     "label": "Invite an experienced keeper",
+     "next": "b",
+     "src": "L8673"
+    },
+    {
+     "label": "Collect naturally shed material if any",
+     "next": "c",
+     "src": "L8675"
+    },
+    {
+     "label": "Capture it for a permanent collection",
+     "next": "d",
+     "src": "L8677"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The apprentice sketches behavior and habitat; a later sighting may correct the drawing.",
+   "src": "L8672",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8672"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The keeper identifies care needs and cautions against assuming the animal is tame.",
+   "src": "L8674"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The record gains a physical reference only if suitable material is actually found.",
+   "src": "L8676"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The keeper challenges the plan if it risks the creature's life; rarity and welfare govern whether it proceeds.",
+   "src": "L8678"
+  }
+ }
+}

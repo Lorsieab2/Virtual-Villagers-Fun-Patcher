@@ -1,0 +1,149 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Misplaced Label",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5a004_misplaced_label",
+  "source": "companion",
+  "lines": [
+   152,
+   174
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and requested disciplines: Lorsieab2\nNew event text and branching expansions: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L157",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "structural",
+    "why": "the group heading 'POTIONMAKING'"
+   },
+   {
+    "src": "L159",
+    "kind": "note",
+    "why": "the specialty heading: who the event is about (the roles)"
+   },
+   {
+    "src": "L163",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L168",
+    "kind": "note",
+    "text": "SUCCESS:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L170",
+    "kind": "note",
+    "text": "SETBACK:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L172",
+    "kind": "note",
+    "text": "SURPRISE:",
+    "why": "designer tag on the outcome seed (L83: seeds, not results tied to choices)"
+   },
+   {
+    "src": "L174",
+    "kind": "note",
+    "why": "FOLLOW-UP HOOK: a designer note, never shown"
+   }
+  ],
+  "description": "A healer finds two nearly identical bottles: a familiar remedy and an experimental potion."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A healer finds two nearly identical bottles, one containing a familiar remedy and the other an experimental potion.",
+   "src": "L161",
+   "choices": [
+    {
+     "label": "Encourage a careful demonstration.",
+     "next": "outcome",
+     "src": "L164"
+    },
+    {
+     "label": "Request further study or improvement.",
+     "next": "outcome",
+     "src": "L165"
+    },
+    {
+     "label": "Involve the village council and apprentices.",
+     "next": "outcome",
+     "src": "L166"
+    }
+   ]
+  },
+  "outcome": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "o1"
+    },
+    {
+     "next": "o2"
+    },
+    {
+     "next": "o3"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome 1",
+   "text": "Careful testing identifies both and improves the labeling system.",
+   "src": "L168",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "healer",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L168"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome 2",
+   "text": "The uncertain bottles are discarded, to the apprentices' dismay.",
+   "src": "L170"
+  },
+  "o3": {
+   "name": "Outcome 3",
+   "text": "A hidden note reveals that neither bottle contains what the labels claim.",
+   "src": "L172"
+  }
+ }
+}

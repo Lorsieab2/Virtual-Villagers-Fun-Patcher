@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Apprentice Who Corrected the Elder",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth08_apprentice",
+  "source": "living",
+  "lines": [
+   23443,
+   23457
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23443",
+  "ledger": [
+   {
+    "src": "L23457",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A young weaver notices an error in a sacred ceremonial pattern.",
+  "cast_only": [
+   "weaver",
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "weaver": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A young weaver notices an error in a sacred ceremonial pattern.",
+   "src": "L23444",
+   "choices": [
+    {
+     "label": "Keep the elder's design unchanged.",
+     "next": "a",
+     "src": "L23445"
+    },
+    {
+     "label": "Let the apprentice correct it.",
+     "next": "b",
+     "src": "L23448"
+    },
+    {
+     "label": "Ask the elder to examine the flaw.",
+     "next": "c",
+     "src": "L23451"
+    },
+    {
+     "label": "Preserve both versions.",
+     "next": "d",
+     "src": "L23454"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The ceremony proceeds smoothly and tradition is honored.",
+   "src": "L23446"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The flaw causes the tapestry to unravel.",
+   "src": "L23447"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "type": "branch",
+   "name": "Outcome B1",
+   "children": [
+    {
+     "next": "b1__fx"
+    },
+    {
+     "next": "b1__text"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "Some relatives feel the change breaks tradition.",
+   "src": "L23450"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The elder recognizes the error and thanks the apprentice.",
+   "src": "L23452"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The elder denies the problem until the cloth is tested.",
+   "src": "L23453"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The extra weaving consumes scarce thread.",
+   "src": "L23456"
+  },
+  "b1__fx": {
+   "name": "Outcome B1",
+   "text": "The cloth holds beautifully, and the elder learns a new stitch.",
+   "src": "L23449",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "elder",
+     "skills": [
+      "Building"
+     ],
+     "min": 20,
+     "max": 40,
+     "src": "L23449"
+    }
+   ],
+   "auto_text": true
+  },
+  "b1__text": {
+   "name": "Outcome B1",
+   "text": "The cloth holds beautifully, and the elder learns a new stitch.",
+   "src": "L23449"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The village gains a record of how designs evolve.",
+   "src": "L23455",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "large",
+     "scaled": true,
+     "src": "L23455"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The village gains a record of how designs evolve.",
+   "src": "L23455"
+  }
+ }
+}

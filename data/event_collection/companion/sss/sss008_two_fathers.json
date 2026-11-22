@@ -1,0 +1,159 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Two Fathers at the Cradle",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss008_two_fathers",
+  "source": "companion",
+  "lines": [
+   6143,
+   6151
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6143",
+  "ledger": [
+   {
+    "src": "L6151",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "Two fathers disagree about a young child's bedtime while a neighbor keeps assuming roles.",
+  "cast_only": [
+   "child",
+   "neighbor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 4
+ },
+ "roles": {
+  "father1": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "father2": {
+   "kind": "villager",
+   "min_age": 18,
+   "sex": "male"
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 7
+  },
+  "neighbor": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "Two men caring for a young child disagree about bedtime. A neighbor keeps assuming one must be 'the mother.'",
+   "src": "L6144",
+   "choices": [
+    {
+     "label": "Correct the assumption",
+     "next": "a",
+     "src": "L6145"
+    },
+    {
+     "label": "Ask the child what helps",
+     "next": "b",
+     "src": "L6147"
+    },
+    {
+     "label": "Accept practical help",
+     "next": "c",
+     "src": "L6149"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The neighbor adjusts their language; the child falls asleep halfway through the discussion.",
+   "src": "L6146"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "A familiar song and routine work better than either father's elaborate plan.",
+   "src": "L6148",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "father1",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6148"
+    },
+    {
+     "do": "skill",
+     "role": "father2",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L6148"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "A trusted relative babysits so the tired fathers can rest; the neighbor learns not to assume roles.",
+   "src": "L6150",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "father1",
+     "min": 15,
+     "max": 30,
+     "src": "L6150"
+    },
+    {
+     "do": "health_change",
+     "role": "father2",
+     "min": 15,
+     "max": 30,
+     "src": "L6150"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "A trusted relative babysits so the tired fathers can rest; the neighbor learns not to assume roles.",
+   "src": "L6150"
+  }
+ }
+}

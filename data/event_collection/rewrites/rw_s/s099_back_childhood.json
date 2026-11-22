@@ -1,0 +1,188 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Back to Childhood",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "s099_back_childhood",
+  "source": "rewrites",
+  "lines": [
+   4623,
+   4665
+  ],
+  "section": "rw_s",
+  "credit": "Created by Lorsieab2; drafted with ChatGPT; rewritten with Claude to Lorsieab2's style guide.",
+  "draw_weight": 1,
+  "series": "rw_s",
+  "title_src": "L4623",
+  "ledger": [
+   {
+    "src": "L4624",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L4625",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4633",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4642",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L4630",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4631",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L4634",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4643",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L4636",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4639",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4645",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4648",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L4651-4665",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A villager has been working too hard for too long.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "(Name) has been working too hard for too long. Every day the same: up before dawn, work until dark, fall asleep, do it all again. This evening, sitting on (his/her) doorstep with aching shoulders, watching the children play tag on the beach and shriek with laughter, (he/she) sighs a long, long sigh.\n\"I wish I could be a child again,\" (he/she) says, out loud. \"Just for a little while.\"\nA passing breeze picks up the words. The elders always tell the children never to make wishes out loud on the evening breeze, because sometimes it listens. It's a warm one, coming off the beach, and it smells of sand and sugarcane and the long, golden summers of childhood. It swirls round (name), once, twice, lifting (his/her) hair. And (name) feels (his/her) feet slowly, gently, start to shrink. Should (name) enjoy being little, or wish to grow up again?",
+   "choices": [
+    {
+     "label": "Enjoy Being Little",
+     "next": "c1",
+     "src": "L4630"
+    },
+    {
+     "label": "Wish to Grow Up Again",
+     "next": "c2",
+     "src": "L4631"
+    }
+   ],
+   "src": "L4626-4628"
+  },
+  "c1o1": {
+   "text": "(Name) spends the whole of the next day as a child. (He/She) plays tag on the beach and wins. (He/She) builds a sandcastle with a moat and a tower and three bridges. (He/She) climbs trees, eats fruit until (his/her) belly hurts, and falls asleep in the shade with sand on (his/her) face. And in the evening, as the sun sets, the same warm breeze comes back, and swirls round (him/her) again, and (he/she) is (himself/herself) once more, lying on the beach with aching shoulders and a very big grin. It was exactly what (he/she) needed.",
+   "src": "L4637"
+  },
+  "c1o2": {
+   "text": "(Name) stays a child. The breeze doesn't come back. Not the next evening, or the one after that. And (name) doesn't seem to mind one bit. (He/She) plays tag every day, and builds sandcastles, and asks a thousand questions, and laughs, and laughs. (His/her) old friends are puzzled at first, then come to accept it. Everyone agrees that (name) seems happier than (he/she) has been in years. (He/She) still remembers all (his/her) old grown-up life. (He/She) just doesn't want it back yet.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "child",
+     "role": "subject"
+    }
+   ],
+   "src": "L4640",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "By the time the breeze has passed, (name) is sitting on the doorstep in a grown-up's wrap that's suddenly far too big, with small hands and small feet and a small, delighted face. (He/She) looks down at the beach, where the children are playing. Then (he/she) runs...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4634"
+  },
+  "c2o1": {
+   "text": "The breeze stops. It turns round. And it seems to sigh, a little, as if (name) has disappointed it. Then it swirls round (him/her) once more, and (his/her) hands and feet grow back to their proper size, and (he/she) is standing on the path, (himself/herself) again, out of breath. But somehow, (he/she) feels better than before. More rested. As if (he/she) had had a whole long summer holiday in that one moment, and all the tiredness had blown away with the wind.",
+   "src": "L4646"
+  },
+  "c2o2": {
+   "text": "The breeze has moved on. It's already away over the hills, and (name) can't catch it, and the more (he/she) runs, the smaller (he/she) gets, until (he/she) is tripping over (his/her) own wrap. By the time (he/she) stops, (he/she) is a little child, about six years old, standing alone on the path in the dusk, with a grown-up's memories and a very wobbly lip. (His/her) family come and find (him/her), and pick (him/her) up, and carry (him/her) home. The village helps (him/her) grow up all over again, and this time, everyone agrees, (he/she) is not to work so hard.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "child",
+     "role": "subject"
+    }
+   ],
+   "src": "L4649",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) looks down at (his/her) shrinking hands in horror. \"No, no, no! Not like that! I didn't mean it! I take it back!\" (He/She) jumps up, grown-up wrap trailing, and runs after the breeze down the path, shouting...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L4643"
+  }
+ }
+}

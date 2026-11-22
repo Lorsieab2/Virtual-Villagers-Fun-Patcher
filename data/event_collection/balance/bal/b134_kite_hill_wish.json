@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Kite Hill Wish",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b134_kite_hill_wish",
+  "source": "balance",
+  "lines": [
+   6141,
+   6185
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6141",
+  "ledger": [
+   {
+    "src": "L6142",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6143",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6151",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6160",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6148",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6149",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6152",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6161",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6154",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6157",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6163",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6166",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6169-6185",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The children have been flying kites from the top of the hill all afternoon, kites made of leaves and string and stubbornness.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 30
+  },
+  "child": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "The children have been flying kites from the top of the hill all afternoon, kites made of leaves and string and stubbornness. One of them has got loose and come down in (subject)'s garden, and the little girl it belongs to, (child), comes running after it, out of breath.\n\"You have to make a wish when you send it back up,\" she tells (subject), very seriously. \"That's the rule. The wind takes it to the sky spirits.\" She hands (subject) the string. The kite is tugging, eager to go.\n(subject) has a wish. (subject.He/She) has had it for a while. (subject.He/She) wishes (subject.he/she) felt as young as these children look. Should (subject) make the wish, or just give the kite back?",
+   "choices": [
+    {
+     "label": "Make the Wish",
+     "next": "c1",
+     "src": "L6148"
+    },
+    {
+     "label": "Just Give the Kite Back",
+     "next": "c2",
+     "src": "L6149"
+    }
+   ],
+   "src": "L6144-6146"
+  },
+  "c1o1": {
+   "text": "The sky spirits, it turns out, take wishes very literally. By sunset (subject) is twenty-five again, with the knees of a twenty-five-year-old and the face to match. (child) is not surprised at all. \"I told you it was the rule,\" she says. (subject) runs up the hill with the children the next day, and is the first to the top.",
+   "effects": [
+    {
+     "do": "change_age",
+     "to": "adult",
+     "role": "subject"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6155",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The next morning (subject)'s face is young again, smooth and bright-eyed, the face (subject.he/she) had at twenty. The rest of (subject.him/her) is exactly as old as before. \"I said look,\" (subject.he/she) remembers. \"I said I wished I felt as young as they LOOK.\" The healers think it's very funny. (subject) thinks it could have gone worse.",
+   "effects": [
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6158",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) closes (subject.his/her) eyes and whispers the wish into the leaves of the kite. Then (subject.he/she) lets go of the string. The kite jumps up into the wind as if someone has pulled it, higher than any kite has gone all day...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6152"
+  },
+  "c2o1": {
+   "text": "(child) makes the wish for (subject) instead, since (subject) wouldn't. Unfortunately she adds one of her own on the end. By morning, (subject) has a young face again, and (child) is fourteen and very confused about her long legs. Her parents are not pleased. (child) says it was worth it. \"Now I can do the big kite.\"",
+   "effects": [
+    {
+     "do": "change_age",
+     "role": "child",
+     "to": "teen"
+    },
+    {
+     "do": "young_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L6164",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject) sits in the garden and watches the kites for the rest of the afternoon. It occurs to (subject.him/her) that the children don't feel young. They just don't sit still. The next day (subject.he/she) gets up before dawn and works harder than (subject.he/she) has in years, and stops taking (subject.his/her) long nap after lunch. (subject.He/She) feels younger by the end of the week, and is better at (subject.his/her) job too.",
+   "effects": [
+    {
+     "do": "preference",
+     "like": "work",
+     "role": "subject"
+    },
+    {
+     "do": "skill",
+     "min": 10,
+     "max": 20,
+     "best": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6167",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) feels silly. Wishes are for children. (subject.He/She) hands the string back to (child), who looks a little disappointed in (subject.him/her), and runs back up the hill...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6161"
+  }
+ }
+}

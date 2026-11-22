@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Return from the Hills",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjoy16_return_hills",
+  "source": "anthology",
+  "lines": [
+   28908,
+   28921
+  ],
+  "section": "an_joy",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_joy",
+  "title_src": "L28908",
+  "ledger": [],
+  "description": "A group returns from a long inland exploration.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 0
+ },
+ "roles": {},
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A group returns from a long inland exploration.",
+   "src": "L28909",
+   "choices": [
+    {
+     "label": "Share Discoveries",
+     "next": "a",
+     "src": "L28910"
+    },
+    {
+     "label": "Prepare a Welcome Meal",
+     "next": "b",
+     "src": "L28913"
+    },
+    {
+     "label": "Compare Maps",
+     "next": "c",
+     "src": "L28916"
+    },
+    {
+     "label": "Let Them Rest",
+     "next": "d",
+     "src": "L28919"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The village enjoys stories of unfamiliar valleys.",
+   "src": "L28911"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The explorers admit some landmarks were less impressive than expected.",
+   "src": "L28912"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The tired travelers appreciate warm food.",
+   "src": "L28914",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a feast, fruit); the village's stores do not change -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L28914"
+    }
+   ]
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The travelers are too sleepy to stay for speeches.",
+   "src": "L28915"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Two maps disagree and inspire another careful survey.",
+   "src": "L28918"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The explorers recover in peace.",
+   "src": "L28920"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "Curious children wait patiently for stories the next day.",
+   "src": "L28921"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The researchers improve their understanding of the island.",
+   "src": "L28917",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L28917"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The researchers improve their understanding of the island.",
+   "src": "L28917"
+  }
+ }
+}

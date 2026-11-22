@@ -184,6 +184,8 @@ static int hl_slot_now(void) {
 }
 
 #include "head_look_store.inc"
+#include "../shared/head_look.h"           /* the looks' words (the Change Appearance window's labels) */
+#include "../shared/look_change_log.h"     /* a change written to the Births and Conceptions log */
 
 /* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names
    New Believers' Heathens with no last name right after the villager table's load, before any look here,
@@ -196,6 +198,14 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     }
     return hl_renamed(slot, count, records, old_names, LAYOUT[game].stride, LAYOUT[game].name,
                       LAYOUT[game].name_bytes);
+}
+
+/* A VILLAGER'S SEX CHANGED (native/shared/sex_change.h): the look stays theirs.  1 when carried. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    if (game < 1 || game > 5 || game != g_game || record == NULL || before == NULL) {
+        return 0;
+    }
+    return hl_sex_changed(slot, (const unsigned char *)record, (const unsigned char *)before);
 }
 
 /* ---- the draws ------------------------------------------------------------------------------------- */
@@ -430,18 +440,53 @@ int __stdcall VvfpHeadLookGet(int game, const void *record) {
     return hl_get((const unsigned char *)record);
 }
 
+/* The look's words in the logs: the Change Appearance window's own labels (native/shared/head_look.h). */
+static const char *hl_look_word(int look) {
+    return look == VVFP_HEAD_LOOK_YOUNG ? VVFP_HEAD_LOOK_LABEL_YOUNG
+           : look == VVFP_HEAD_LOOK_OLD ? VVFP_HEAD_LOOK_LABEL_OLD : VVFP_HEAD_LOOK_LABEL_AUTO;
+}
+
+/* A look kept that differs from `was`: written to the Births and Conceptions log (native/shared/look_change_log.h),
+   whoever chose it -- Change Appearance, Change Appearance for All, Original Look or a Custom Island Event's
+   young / old look (the owner, 2026-11-17: the logs keep track of everything). */
+static void hl_log_change(const unsigned char *record, int was, int look) {
+    if (record != NULL && was != look) {
+        (void)vv_look_log(g_game, record, VV_LOOK_LOG_HEAD_LOOK, hl_look_word(was), hl_look_word(look));
+    }
+}
+
 int __stdcall VvfpHeadLookSet(int game, const void *record, int look) {
+    int was;
     if (game != g_game || g_game == 0) {
         return 0;
     }
-    return hl_set((const unsigned char *)record, look);
+    was = hl_get((const unsigned char *)record);
+    if (!hl_set((const unsigned char *)record, look)) {
+        return 0;
+    }
+    hl_log_change((const unsigned char *)record, was, look);
+    return 1;
 }
 
 int __stdcall VvfpHeadLookSetMany(int game, const void *const *records, const int *looks, int count) {
+    static int was[HL_MAX];
+    int k;
     if (game != g_game || g_game == 0) {
         return 0;
     }
-    return hl_set_many((const unsigned char *const *)records, looks, count);
+    if (records == NULL || looks == NULL || count <= 0 || count > HL_MAX) {
+        return hl_set_many((const unsigned char *const *)records, looks, count);   /* its own refusal */
+    }
+    for (k = 0; k < count; ++k) {
+        was[k] = hl_get((const unsigned char *)records[k]);
+    }
+    if (!hl_set_many((const unsigned char *const *)records, looks, count)) {
+        return 0;
+    }
+    for (k = 0; k < count; ++k) {
+        hl_log_change((const unsigned char *)records[k], was[k], looks[k]);
+    }
+    return 1;
 }
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {

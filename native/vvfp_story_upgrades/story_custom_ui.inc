@@ -13,6 +13,7 @@ enum {
     IDC_CE_OTHER = 1131, IDC_CE_VALUES = 1132, IDC_CE_PUZZLES = 1133, IDC_CE_REVIVE = 1134,
     IDC_CE_OTHER_REMOVE = 1135, IDC_CE_QUEUE_NOTE = 1136, IDC_CE_CHOICE = 1137,
     IDC_CE_CHOICES = 1138, IDC_CE_TEXT_LABEL = 1139,
+    IDC_CE_LIBRARY = 1141,              /* "From the library...": a branching event (story_graph.inc) */
     IDD_CHOICES = 310,
     IDC_CC_LABEL_FIRST = 3701, IDC_CC_LIST_FIRST = 3711, IDC_CC_ADD_FIRST = 3721,
     IDC_CC_EDIT_FIRST = 3731, IDC_CC_REMOVE_FIRST = 3741, IDC_CC_CHANCE_FIRST = 3751,
@@ -2376,7 +2377,7 @@ static void ui_update_counts(HWND window) {
     const ce_adapter *a = ui.a;
     ce_layout l = ui_layout(window);
     char title[CE_TITLE_BYTES];
-    char body[CE_TEXT_BYTES];
+    static char body[CE_TEXT_STORE];
     char out[200];
     int title_chars;
     int lines;
@@ -2386,10 +2387,16 @@ static void ui_update_counts(HWND window) {
     wsprintfA(out, title_chars > a->title_width ? "%d / %d characters - too long" : "%d / %d characters",
               title_chars, a->title_width);
     SetDlgItemTextA(window, IDC_CE_TITLE_COUNT, out);
-    lines = ce_lines_used_in(&l, title, body);
-    wsprintfA(out, "%d words, %d characters - %d of %d lines used (%d characters a line)%s",
-              ce_word_count(body), ce_char_count(body), lines, l.lines, l.width,
-              lines > l.lines ? " - too long" : "");
+    if (cg_scrolls()) {
+        /* The owner (2026-11-17): with Scrolling Popups the popup scrolls, so the text is practically unlimited. */
+        wsprintfA(out, "%d words, %d characters - the popup scrolls (Scrolling Popups): no line limit",
+                  ce_word_count(body), ce_char_count(body));
+    } else {
+        lines = ce_lines_used_in(&l, title, body);
+        wsprintfA(out, "%d words, %d characters - %d of %d lines used (%d characters a line)%s",
+                  ce_word_count(body), ce_char_count(body), lines, l.lines, l.width,
+                  lines > l.lines ? " - too long without Scrolling Popups" : "");
+    }
     SetDlgItemTextA(window, IDC_CE_TEXT_NOTE, out);
 }
 
@@ -2437,11 +2444,16 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
         int i;
         SetWindowLongPtrA(window, DWLP_USER, (LONG_PTR)lparam);
         SendDlgItemMessageA(window, IDC_CE_TITLE, EM_LIMITTEXT, CE_TITLE_BYTES - 1, 0);
-        SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, CE_TEXT_BYTES - 1, 0);
+        /* Practically unlimited with Scrolling Popups, else the panel's old cap (ce_text_cap). */
+        SendDlgItemMessageA(window, IDC_CE_TEXT, EM_LIMITTEXT, (WPARAM)(ce_text_cap() - 1), 0);
         if (lparam == UI_MODE_OUTCOME) {
-            char caption[96];
-            wsprintfA(caption, "Outcome %d of the \"%s\" button", ui.outcome_index + 1,
-                      ui.choice.labels[ui.outcome_button]);
+            char caption[128];
+            char label[48];
+            lstrcpynA(label, ui.choice.labels[ui.outcome_button], sizeof label);   /* a long label's start */
+            if (lstrlenA(ui.choice.labels[ui.outcome_button]) >= (int)sizeof label) {
+                lstrcpyA(label + sizeof label - 4, "...");
+            }
+            wsprintfA(caption, "Outcome %d of the \"%s\" button", ui.outcome_index + 1, label);
             SetWindowTextA(window, caption);
             SetDlgItemTextA(window, IDOK, "OK");
             SetDlgItemTextA(window, IDC_CE_TITLE, ui.main_draft.title);
@@ -2488,6 +2500,16 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
             GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
             DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CHOICES), window, ui_choices_dialog, 0);
+            return TRUE;
+        }
+        if (id == IDC_CE_LIBRARY) {
+            /* The owner (2026-11-12): an event from the patcher's library, queued as it is; the editor stays. */
+            if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(312), window, cg_library_dialog,
+                                (LPARAM)ui.game) == IDOK) {
+                GetDlgItemTextA(window, IDC_CE_TITLE, ui.draft.title, sizeof ui.draft.title);
+                GetDlgItemTextA(window, IDC_CE_TEXT, ui.draft.text, sizeof ui.draft.text);
+                EndDialog(window, IDC_CE_LIBRARY);
+            }
             return TRUE;
         }
         if (id == IDC_CE_OMITTED) {
@@ -2784,7 +2806,7 @@ static void ui_choice_read_labels(HWND window) {
     int b;
     int featured = ui_combo_data(window, IDC_CC_FEATURED);
     for (b = 0; b < 2; ++b) {
-        GetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b], CE_BUTTON_BYTES);
+        GetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b], sizeof ui.choice.labels[b]);
     }
     /* The villager in the picture: record index + 1, 0 = a random one (its
        identity is taken again when the event is queued). */
@@ -2830,19 +2852,22 @@ static INT_PTR CALLBACK ui_choices_dialog(HWND window, UINT message, WPARAM wpar
     int b;
     (void)lparam;
     if (message == WM_INITDIALOG) {
-        char text[160];
-        int width = ce_label_width(ui.a);
-        if (width > CE_BUTTON_BYTES - 1) {
-            width = CE_BUTTON_BYTES - 1;
-        }
+        char text[320];
+        int width = ce_label_cap(ui.a);    /* practically unlimited with Scrolling Popups, else the button's */
         for (b = 0; b < 2; ++b) {
             SendDlgItemMessageA(window, IDC_CC_LABEL_FIRST + b, EM_LIMITTEXT, (WPARAM)width, 0);
             SetDlgItemTextA(window, IDC_CC_LABEL_FIRST + b, ui.choice.labels[b]);
             SendDlgItemMessageA(window, IDC_CC_CHANCE_FIRST + b, EM_LIMITTEXT, 3, 0);
             ui_choice_fill(window, b, ui.choice.outcome_count[b] > 0 ? 0 : -1);
         }
-        wsprintfA(text, "A label is up to %d characters in %s. A chance is 1-100: each outcome's "
-                        "share is its chance out of the button's total.", width, ui.a->game_name);
+        if (cg_scrolls()) {
+            wsprintfA(text, "With Scrolling Popups a label can be practically unlimited: it wraps in its own row. "
+                            "A chance is 1-100: each outcome's share is its chance out of the button's total.");
+        } else {
+            wsprintfA(text, "A label is up to %d characters in %s without the Scrolling Popups patch (with it, "
+                            "practically unlimited). A chance is 1-100: each outcome's share is its chance out of "
+                            "the button's total.", width, ui.a->game_name);
+        }
         SetDlgItemTextA(window, IDC_CC_LIMIT, text);
         ui_choice_fill_featured(window);
         return TRUE;
@@ -2979,6 +3004,9 @@ static void ce_opening_tick(int game) {
     if (!ce_wait_arm || time_skip_event_open()) {
         return;
     }
+    if (cg_holds(game)) {
+        return;                       /* a branching event whose roles the village cannot fill yet */
+    }
     ce_wait_arm = 0;
     if (!GAMES[game].island_pending()) {
         (void)GAMES[game].arm();
@@ -3015,8 +3043,8 @@ __declspec(dllexport) int __stdcall VvfpStoryCustomIslandEvent(int game, HWND ow
 static int ce_purchase_locked(int game, int *displaces) {
     int bought;
     *displaces = 0;
-    if (ce_armed) {
-        return 1;
+    if (ce_armed || cg_busy(game)) {
+        return 1;                     /* (a branching event's popups still to come: story_graph.inc) */
     }
     switch (game) {
     case 3:
@@ -3105,9 +3133,15 @@ static int story_custom_island_event(int game, HWND owner) {
         memset(&ui.choice, 0, sizeof ui.choice);
         ui.draft_game = game;
     }
-    if (DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog,
-                        UI_MODE_EVENT) != IDOK) {
-        return 0;
+    {
+        INT_PTR answer = DialogBoxParamA(module_instance, MAKEINTRESOURCEA(IDD_CUSTOM), owner, ui_main_dialog,
+                                         UI_MODE_EVENT);
+        if (answer == IDC_CE_LIBRARY) {
+            return cg_library_purchase(game, owner);   /* an event from the library (story_graph.inc) */
+        }
+        if (answer != IDOK) {
+            return 0;
+        }
     }
     char prompt[600];
     wsprintfA(prompt, vvfp_tr("vvfp.story/story_custom_ui.story_custom_island_event.s3",

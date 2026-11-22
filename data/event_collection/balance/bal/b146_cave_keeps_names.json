@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cave That Keeps Names",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b146_cave_keeps_names",
+  "source": "balance",
+  "lines": [
+   6718,
+   6760
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L6718",
+  "ledger": [
+   {
+    "src": "L6719",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L6720",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6728",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6737",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L6725",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6726",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L6729",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6738",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L6731",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6734",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6740",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6743",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L6746-6760",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "There is a cave by the sea where, the elders say, the island keeps the names of everyone who ever lived on it.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "There is a cave by the sea where, the elders say, the island keeps the names of everyone who ever lived on it. Anyone who goes in at low tide and calls out hears the cave call back the names of their ancestors, one after another, until the tide comes in.\n(Name) has always wanted to hear them. (He/She) goes in at low tide with a torch. The walls are wet and covered in tiny white shells, and (his/her) footsteps echo for a long time. At the back of the cave, the torchlight finds a pool, and in the pool, written in shells under the water, is (his/her) own name.\nThe tide is turning. Should (name) call out, or leave before the water comes back?",
+   "choices": [
+    {
+     "label": "Call Out",
+     "next": "c1",
+     "src": "L6725"
+    },
+    {
+     "label": "Leave Quietly",
+     "next": "c2",
+     "src": "L6726"
+    }
+   ],
+   "src": "L6721-6723"
+  },
+  "c1o1": {
+   "text": "The echo never comes back. Not the name, not any of the ancestors' names, nothing. Only the sound of the sea coming in. (Name) runs out as the water reaches (his/her) knees, and when (he/she) gets home, (he/she) can't remember what (he/she) is called. Nobody can. The elders think the cave was short of a name, and kept the one it was given. The village calls (him/her) \"?\".",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L6732",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The echo comes back changed. It is still (name)'s voice, but the name it calls is \"Ponui,\" over and over, an old name nobody has used in the village for a hundred years. (Name) comes out of the cave answering to it. When (he/she) tells the elders, they go through their memories and find it: (his/her) great-great-grandparent's name. \"The cave thought you should have it back,\" says the eldest.",
+   "effects": [
+    {
+     "do": "change_name",
+     "name": "Ponui",
+     "role": "subject"
+    }
+   ],
+   "src": "L6735",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) calls (his/her) own name into the dark. The cave takes it, and turns it over, and passes it back and forth between the walls, softer and softer, until (name) can hardly hear it...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6729"
+  },
+  "c2o1": {
+   "text": "It's (his/her) grandmother's name, written in shells, and beside it, the name of the little brother (his/her) grandmother lost as a child, whom nobody ever talks about. (Name) goes home and tells (his/her) family. They sit up late talking about the grandmother, and the brother, and all the things they never said. (Name) feels lighter than (he/she) has in years.",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "random",
+     "remove": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L6741",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The tide comes in faster than (name) expects. By the mouth of the cave the water is at (his/her) chest, and a wave throws (him/her) against the shell-covered wall. (He/She) comes home soaked and cut all along one arm, holding the torch, which went out long ago. The healers clean the cuts and pick out tiny white shells for an hour.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -20,
+     "role": "subject"
+    }
+   ],
+   "src": "L6744",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) backs away from the pool. Some things are better left unheard. On the way out (he/she) passes a long row of names written in shells on the wall, and stops, and touches one...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L6738"
+  }
+ }
+}

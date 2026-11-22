@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Longest Meeting About the Smallest Matter",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus34_longest_meeting",
+  "source": "draft_jus",
+  "lines": [
+   404,
+   413
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L404",
+  "ledger": [
+   {
+    "src": "L405",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "a child cleaned it this morning",
+    "after": "(child), a child, cleaned it this morning",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L413",
+    "kind": "sensitivity",
+    "before": "thanks the child",
+    "after": "thanks (child)",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "The council has argued all day over whose turn it is to clean the big drum: rule on the drum, or send for it as evidence.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The council has been meeting since breakfast to decide whose turn it is to clean the big drum after the feast. (subject) says it was (friend)'s turn last time. (friend) says (friend.he/she) cleaned it the time before that, which counts double because of the mud. Arguments have been made about the mud. The sun is going down.",
+   "src": "L407",
+   "choices": [
+    {
+     "label": "Rule on the Drum",
+     "next": "o1",
+     "src": "L409"
+    },
+    {
+     "label": "Send for the Drum as Evidence",
+     "next": "o2",
+     "src": "L412"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The council finally rules that they will both clean it, together, right now. They do. It takes a few moments, which makes it by far the shortest part of the day. The council decides that, from now on, any argument about cleaning the drum will be settled by cleaning the drum.",
+   "src": "L410"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "Someone is sent to fetch the drum, and finds it already clean: (child), a child, cleaned it this morning, because it was dirty. There is a long silence. The council thanks (child) and closes the meeting. (subject) and (friend) walk home together, not looking at each other, and then both start laughing at once.",
+   "src": "L413",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L413"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L413"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "Someone is sent to fetch the drum, and finds it already clean: (child), a child, cleaned it this morning, because it was dirty. There is a long silence. The council thanks (child) and closes the meeting. (subject) and (friend) walk home together, not looking at each other, and then both start laughing at once.",
+   "src": "L413"
+  }
+ }
+}

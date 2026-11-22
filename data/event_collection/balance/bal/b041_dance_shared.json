@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Dance of Shared Hearts",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b041_dance_shared",
+  "source": "balance",
+  "lines": [
+   1843,
+   1885
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1843",
+  "ledger": [
+   {
+    "src": "L1844",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1845",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1853",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1862",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1850",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1851",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1854",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1863",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1856",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1859",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1865",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1868",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1871-1885",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "The elders call it the dance of shared hearts.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "At the midsummer dance there's one old step that nobody does anymore: two dancers circle each other, closer and closer, palm to palm, and then spin round each other three times without letting go. The elders call it the dance of shared hearts. Their grandparents stopped doing it because, they say, \"sometimes the hearts get shared too well.\"\n(subject) and (friend) have learned it in secret from an old song, and tonight, with the drums going and the fire high, they're standing palm to palm in the middle of the circle. Everyone has gone quiet.\nShould they spin all three times, or stop at two and bow?",
+   "choices": [
+    {
+     "label": "Spin All Three Times",
+     "next": "c1",
+     "src": "L1850"
+    },
+    {
+     "label": "Stop at Two and Bow",
+     "next": "c2",
+     "src": "L1851"
+    }
+   ],
+   "src": "L1846-1848"
+  },
+  "c1o1": {
+   "text": "They stop, dizzy, and let go, and (subject) staggers backwards in (friend)'s body. The whole circle gasps. The elders nod grimly: shared too well. The two of them go home to each other's huts that night, too stunned to argue, and in the morning they're still swapped. They're good friends, so it could be worse. They do teach the step to nobody, ever.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1857",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "Nothing strange happens, except that it's beautiful. When they stop, the whole circle roars, and suddenly everyone wants to learn, and the elders, who said they'd forgotten it, are out in the middle showing people how. The dance goes on till dawn. The old step is back.",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L1860",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "One. Two. On the third spin the drums seem to stop, though the drummers are still drumming, and the fire leans towards them like a listening face...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1854"
+  },
+  "c2o1": {
+   "text": "They both dream of the third spin that night, and wake up swapped. \"Two was enough, it seems,\" says an elder. \"The dance knew what you meant.\" (friend), in (subject)'s body, spends a full morning trying to tie (subject)'s hair the way (friend.he/she) ties (friend.his/her) own, and gives up.",
+   "effects": [
+    {
+     "do": "body_swap",
+     "with": "friend",
+     "role": "subject"
+    }
+   ],
+   "src": "L1866",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The tingling fades. They go and sit by the fire with everyone else, and somebody gives them coconut, and they're a little disappointed and a lot relieved. Next year, they say, they'll do the third spin. Next year, they don't.",
+   "src": "L1869"
+  },
+  "c2": {
+   "text": "After two spins, (subject) squeezes (friend)'s hands and they let go, and bow, and the circle cheers. But the fire is still leaning towards them, and (friend)'s palm is still tingling...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1863"
+  }
+ }
+}

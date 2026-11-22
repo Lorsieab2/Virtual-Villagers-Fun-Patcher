@@ -1,0 +1,205 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Disagreement About Order",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anage18_disagreement",
+  "source": "anthology",
+  "lines": [
+   30397,
+   30411
+  ],
+  "section": "an_age",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_age",
+  "title_src": "L30397",
+  "ledger": [
+   {
+    "src": "L30398",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L30407",
+    "kind": "sensitivity",
+    "before": "A night-oriented worker",
+    "after": "(villager), a night-oriented worker,",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L30408",
+    "kind": "sensitivity",
+    "before": "A parent",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "Adults disagree about whether the village needs stricter schedules or more freedom to work at their own pace.",
+  "label_case": "title",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Adults disagree about whether the village needs stricter schedules or more freedom to work at their own pace.",
+   "src": "L30399",
+   "choices": [
+    {
+     "label": "Try a Flexible Schedule",
+     "next": "a",
+     "src": "L30400"
+    },
+    {
+     "label": "Identify Truly Necessary Rules",
+     "next": "b",
+     "src": "L30403"
+    },
+    {
+     "label": "Hear Different Working Styles",
+     "next": "c",
+     "src": "L30406"
+    },
+    {
+     "label": "Run a Short Experiment",
+     "next": "d",
+     "src": "L30409"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Essential duties are covered while villagers choose their preferred hours.",
+   "src": "L30401"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "An important handoff is missed, revealing the need for one fixed meeting time.",
+   "src": "L30402"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The group retains safety rules and relaxes several customs.",
+   "src": "L30404"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They discover that one unpopular rule protects children near the water.",
+   "src": "L30405"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "(villager), a night-oriented worker, explains why dawn assignments are difficult.",
+   "src": "L30407"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(villager) describes why unpredictable shifts create childcare problems.",
+   "src": "L30408"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "A week of structured shifts improves coordination.",
+   "src": "L30410"
+  },
+  "d2": {
+   "type": "branch",
+   "name": "Outcome D2",
+   "children": [
+    {
+     "next": "d2__fx"
+    },
+    {
+     "next": "d2__text"
+    }
+   ]
+  },
+  "d2__fx": {
+   "name": "Outcome D2",
+   "text": "A week of looser shifts improves morale but requires clearer accountability.",
+   "src": "L30411",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L30411"
+    }
+   ],
+   "auto_text": true
+  },
+  "d2__text": {
+   "name": "Outcome D2",
+   "text": "A week of looser shifts improves morale but requires clearer accountability.",
+   "src": "L30411"
+  }
+ }
+}

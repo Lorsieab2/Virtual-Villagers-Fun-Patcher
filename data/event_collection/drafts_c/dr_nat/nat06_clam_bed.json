@@ -1,0 +1,97 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clam Bed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "nat06_clam_bed",
+  "source": "draft_nat",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "dr_nat",
+  "credit": "NEW EVENTS — NATURE, ECOLOGY AND ANIMALS (NAT-01..50, draft for the owner, 2026-11-15)\nIsola's animals, plants, tides and weather: tide pools and nesting beaches, washed-up rubbish, shrinking clam beds, strange visitors, creatures doing what creatures do, and choices about the island where nobody gets a perfect answer.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_nat",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L74",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The clams are smaller and fewer every year: rest the clam bed for a season, or keep digging only the big ones.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Everyone digs clams at the mudflats below the stream mouth. They always have. But (subject) has noticed that the clams are smaller than they used to be, and there are fewer of them, and you have to dig farther out each year. (subject.He/she) brings it up at the evening fire. (friend), who loves clams more than almost anything, is not happy to hear it.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Rest the Clam Bed for a Season",
+     "next": "o1",
+     "src": "L73"
+    },
+    {
+     "label": "Keep Digging, but Only the Big Ones",
+     "next": "o2",
+     "src": "L76"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) suggests leaving the mudflats alone until the next wet season. There are groans. (friend) says, \"A whole season?\" with real pain. But they agree to try. It's a long season with no clams. When they finally dig again, the clams are bigger, and there are more. Not as many as in the old days. More than last year. (friend) eats so many that night that (friend.he/she) has to lie down.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They agree on a compromise: only clams bigger than a thumb's length, and the small ones go back in the mud. Some people follow the rule carefully. Some people's thumbs get mysteriously longer as the season goes on. The clam bed doesn't get worse. It doesn't get much better either. (subject) keeps a careful eye on it. The argument comes up again at the fire every few weeks.",
+   "src": "L77"
+  }
+ }
+}

@@ -127,7 +127,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Use Unicode Font is the alternative of Render Unicode with In-Game Fonts
                   # (the owner, 2026-11-01: off by default and in Owner's Defaults).
                   or p.endswith("_unicode_font")
-                  # 2-10x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
+                  # 0.1-10x Tech Cost (all five games; the owner, 2026-11-06: "Default OFF").
                   or p.endswith("_tech_cost_multiplier")
                   # Science Collectibles Only Count When Complete: a difficulty change too.
                   or p.endswith("_science_collectibles_complete")
@@ -137,7 +137,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Collectible Spawn Timing works like VV1-3 (the owner, 2026-11-08): a difficulty change too.
                   or p == "vv4_collectible_spawn_like_vv3"
                   or p == "vv4_harder_fishing_unlock"
-                  # 2-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
+                  # 0.1-10x Sickness and Sickness works like VV1-3 (the owner, 2026-11-08).
                   or p.endswith("_sickness_multiplier") or p.endswith("_sickness_like_vv3")
                   # Yellow Fruit Trees are No Longer Unlimited, a Classic VV Difficulty piece (the owner, 2026-11-08).
                   or p == "vv4_yellow_fruit_trees_limited"
@@ -145,6 +145,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Breadfruit Refills Partially Every Time (off in Owner's Defaults too).
                   or p == "vv3_fruit_trees_refill_to_full"
                   or p == "vv4_yellow_fruit_refills_partially"
+                  # Up to 99 Cutting Tools/Soap/Cloth (the owner, 2026-11-17: on in Owner's Defaults).
+                  or p == "vv4_up_to_99_supplies"
                   # Picked Up Collectibles Stay Collected When Dropped (the owner, 2026-11-12: on in Owner's
                   # Defaults only).
                   or p.endswith("_collectibles_stay_collected")
@@ -152,6 +154,14 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Classic VV Difficulty) and its alternative, With Stored Food and Tech Points.
                   or p.endswith("_island_events_scale_with_population")
                   or p.endswith("_island_events_scale_with_stored_amounts")
+                  # Scrolling Popups (the owner, 2026-11-12: on in Owner's Defaults only).
+                  or p.endswith("_scrolling_popups")
+                  # The Aspiring Adventurer (the owner, 2026-11-12: on in Owner's Defaults and in Classic VV
+                  # Difficulty).
+                  or p.endswith("_more_island_events")
+                  # Isola Grand Event Collection (the owner, 2026-11-14: "Default ON in Owner's Defaults, OFF
+                  # everywhere else").
+                  or p.endswith("_isola_grand_event_collection")
                   # Memorial Actions Can Also Occur at the Heathen Hovel (the owner, 2026-11-08).
                   or p == "vv5_hovel_memorial_actions"
                   # Shrine to the Ancestors (the owner, 2026-11-08): on in Owner's Defaults only.
@@ -160,7 +170,68 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # DEFAULTS ONLY").
                   or p == "vv5_heathens_keep_masks_when_converted"
                   # Respecting the Legacy of Isola: off by default, on in Owner's Defaults and Select All.
-                  or p == "vv5_respecting_the_legacy_of_isola"})
+                  or p == "vv5_respecting_the_legacy_of_isola"
+                  # Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults only).
+                  or p.endswith("_gender_presentation")
+                  # More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults only).
+                  or p.endswith("_more_frequent_island_events")
+                  # Its option The Golden Child May Be Born Female (50:50) (the owner, 2026-11-16).
+                  or p == "vv1_golden_child_born_female"
+                  # The 0.1x-10x sliders (the owner, 2026-11-17: on in Owner's Defaults only).
+                  or p.endswith("_collectible_frequency")
+                  or p.endswith("_food_gain")
+                  or p.endswith("_tech_gain")
+                  or p.endswith("_skill_success")
+                  or p.endswith("_age_speed")
+                  # One-Time Collectibles Appear Again (the owner, 2026-11-17: on in Owner's Defaults only).
+                  or p.endswith("_one_time_collectibles_again")
+                  # Every Island Event Can Happen (the owner, 2026-11-17: off by default, on in Owner's Defaults).
+                  or p.endswith("_every_island_event_can_happen")
+                  # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
+                  # Defaults only; the 28 content filters and No Safeguards for Island Events off everywhere.
+                  or p.endswith("_island_event_content_notes")
+                  or "_island_event_filter_f" in p
+                  or p.endswith("_island_events_any_time")
+                  # Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults only).
+                  or p.endswith("_village_solidarity")
+                  # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New
+                  # Believers, new 2026-11-19).
+                  or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")
+                  # Practicing Devotion Builds Faith and Divine Energy (New Believers, new 2026-11-21: off by
+                  # default, on in Owner's Defaults and Select All).
+                  or p == "vv5_devotion_builds_faith"})
+
+    def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
+        """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,
+        like A New Home to The Secret City's -- ticked by the defaults, Owner's Defaults and Select All."""
+        for game in range(1, 6):
+            patch_id = f"vv{game}_birth_control"
+            with self.subTest(patch_id):
+                self.assertIn(patch_id, fun_patch_ids())
+                self.assertTrue(default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
+                self.assertTrue(select_all_fun_patch_selection(patch_id))
+
+    def test_change_sex_and_gender_presentation_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-15): every new option is ON in Owner's Defaults and OFF everywhere else -- the normal
+        defaults and Select All leave Change Sex and Gender Presentation off in all five games."""
+        # ...and its option The Golden Child May Be Born Female (50:50) (A New Home; the owner, 2026-11-16).
+        for patch_id in [f"vv{game}_gender_presentation" for game in range(1, 6)] + ["vv1_golden_child_born_female"]:
+            with self.subTest(patch_id):
+                self.assertIn(patch_id, fun_patch_ids())
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
+
+    def test_village_solidarity_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-17): Village Solidarity is off by default and in Select All, on in Owner's Defaults."""
+        for game in range(1, 6):
+            patch_id = f"vv{game}_village_solidarity"
+            with self.subTest(patch_id):
+                self.assertIn(patch_id, fun_patch_ids())
+                self.assertFalse(default_fun_patch_selection(patch_id))
+                self.assertTrue(owners_default_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
 
     def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it
@@ -346,13 +417,34 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back = experimental | {"vv3_fruit_trees_take_turns"} | {f"vv{n}_unicode_font" for n in range(1, 6)}
         # ...and Move the "Playing in the dirt" Spot, the alternative of Puddle Play Moves to the Lake Shore.
         held_back |= {"vv5_playing_in_the_dirt_spot"}
-        # ...and 2-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
+        # ...and 0.1-10x Tech Cost (the owner, 2026-11-06: "players who want it must explicitly choose it").
         held_back |= {f"vv{n}_tech_cost_multiplier" for n in range(1, 6)}
-        # ...and Classic VV Difficulty, which would tick 2-10x Tech Cost through its dependencies.
+        # ...and Classic VV Difficulty, which would tick 0.1-10x Tech Cost through its dependencies.
         held_back |= {"vv4_classic_vv_difficulty", "vv5_classic_vv_difficulty"}
         # ...and Island Events Scale With Stored Food and Tech Points, the alternative of Island Events Scale With
         # Population (the owner, 2026-11-12).
         held_back |= {f"vv{n}_island_events_scale_with_stored_amounts" for n in (1, 4, 5)}
+        # (The Isola Grand Event Collection is ticked: the owner, 2026-11-16, Select All ticks the whole "More Island
+        # Events and Creator" row.)
+        # ...and Change Sex and Gender Presentation (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_gender_presentation" for n in range(1, 6)}
+        # ...and More Frequent Island Events (the owner, 2026-11-15: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_more_frequent_island_events" for n in range(1, 6)}
+        held_back |= {"vv1_golden_child_born_female"}     # its option (the owner, 2026-11-16)
+        # ...and the 0.1x-10x sliders (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}{s}" for n in range(1, 6) for s in ("_collectible_frequency", "_food_gain", "_tech_gain", "_skill_success", "_age_speed")}
+        # ...and One-Time Collectibles Appear Again (the owner, 2026-11-17: likewise).
+        held_back |= {"vv3_one_time_collectibles_again", "vv4_one_time_collectibles_again"}
+        # ...and the island events' content controls (the owner, 2026-11-15): Content Notes (on in Owner's Defaults
+        # only), the 28 content filters and No Safeguards for Island Events (off everywhere).
+        held_back |= {f"vv{n}_island_event_content_notes" for n in range(1, 6)}
+        held_back |= {f"vv{n}_island_event_filter_f{k:02d}" for n in range(1, 6) for k in range(1, 29)}
+        held_back |= {f"vv{n}_island_events_any_time" for n in range(1, 6)}
+        # ...and Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults, off everywhere else).
+        held_back |= {f"vv{n}_village_solidarity" for n in range(1, 6)}
+        # ...and Fog of Doom Lets Red and Orange Heathens Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
+        # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
+        held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)
@@ -364,7 +456,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
     def test_tech_cost_multiplier_is_ticked_only_by_its_own_box(self) -> None:
         """The owner (2026-11-06): "7 should be default off for everything.
         players who want it must explicitly choose it." -- the fresh-install
-        default, Default Patches and Select All leave every game's 2-10x Tech
+        default, Default Patches and Select All leave every game's 0.1-10x Tech
         Cost unticked.  Owner's Defaults ticks it (the owner, 2026-11-07:
         "sure, default them on in vv1-3 too!")."""
         from vv_fun_patcher_gui import COTICKED_FUN_PATCH_IDS, owners_default_fun_patch_selection

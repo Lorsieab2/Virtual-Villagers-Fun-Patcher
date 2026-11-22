@@ -4,3 +4,4 @@ EXPORTS
     VvfpOriginalLookGet=_VvfpOriginalLookGet@20
     VvfpVillagersRenamed=_VvfpVillagersRenamed@20
     VvfpOriginalLookConverted=_VvfpOriginalLookConverted@12
+    VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16

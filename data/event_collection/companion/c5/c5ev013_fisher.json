@@ -1,0 +1,160 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fisher's Surprise",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5ev013_fisher",
+  "source": "companion",
+  "lines": [
+   3412,
+   3416
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and concepts: User\nAdditional event prose: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L3412",
+  "ledger": [
+   {
+    "src": "L3416",
+    "kind": "note",
+    "why": "CHOICE: Optional; a designer note: the event is observational, one outcome is drawn"
+   }
+  ],
+  "description": "A catch includes reef fish, squid, octopus and an unfamiliar crustacean.",
+  "cast_only": [
+   "fisher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "fisher": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "naturalist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "The setup",
+   "children": [
+    {
+     "next": "setup__fx"
+    },
+    {
+     "next": "setup__text"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Outcome A",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A naturalist identifies the stranger.",
+   "src": "L3414",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "naturalist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L3414"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2": {
+   "name": "Outcome B",
+   "type": "branch",
+   "children": [
+    {
+     "next": "e2__fx"
+    },
+    {
+     "next": "e2__text"
+    }
+   ]
+  },
+  "e2__fx": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The catch inspires a new stew.",
+   "src": "L3415",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3415"
+    }
+   ],
+   "auto_text": true
+  },
+  "e2__text": {
+   "name": "Outcome B",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The catch inspires a new stew.",
+   "src": "L3415"
+  },
+  "setup__fx": {
+   "name": "The setup",
+   "text": "A catch includes reef fish, deepwater fish, squid, octopus and an unfamiliar crustacean.",
+   "src": "L3413",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ],
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L3413"
+    }
+   ],
+   "auto_text": true
+  },
+  "setup__text": {
+   "name": "The setup",
+   "text": "A catch includes reef fish, deepwater fish, squid, octopus and an unfamiliar crustacean.",
+   "src": "L3413",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  }
+ }
+}

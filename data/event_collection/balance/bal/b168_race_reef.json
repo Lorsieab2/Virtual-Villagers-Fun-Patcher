@@ -1,0 +1,223 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Race to the Reef",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b168_race_reef",
+  "source": "balance",
+  "lines": [
+   7766,
+   7811
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L7766",
+  "ledger": [
+   {
+    "src": "L7767",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L7768",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7776",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7785",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L7773",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7774",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L7777",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7786",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L7779",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7782",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7788",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7791",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L7794-7811",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Every year, the young people race from the beach out to the reef and back.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "friend": {
+   "kind": "villager"
+  },
+  "fisher": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Every year, the young people race from the beach out to the reef and back. Whoever wins gets to wear the shark-tooth necklace until next year. (subject) has won three years running. (friend) has come second three years running, and has been training every morning since last year.\nThis year the sea is rough. The waves are breaking white across the reef, and (fisher), the oldest fisher, has said they shouldn't race. But the whole village is on the beach, and (friend) is already standing at the water's edge, staring at (subject). \"Scared?\" (friend.he/she) says.\nShould (subject) race anyway, or say no?",
+   "choices": [
+    {
+     "label": "Race Anyway",
+     "next": "c1",
+     "src": "L7773"
+    },
+    {
+     "label": "Say No",
+     "next": "c2",
+     "src": "L7774"
+    }
+   ],
+   "src": "L7769-7771"
+  },
+  "c1o1": {
+   "text": "(subject) touches the reef and turns, and (friend) doesn't. A wave throws (friend.him/her) against the coral. (subject) and the fishers get (friend.him/her) back to the beach, but it is too late. The village buries (friend) on the hill above the bay, with the shark-tooth necklace. Nobody races that year, or the next. When they do race again, it is only on calm days, and always with a canoe beside the swimmers.",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "friend",
+     "cause": "unknown"
+    }
+   ],
+   "src": "L7780",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "A wave throws (friend) across the coral, and (subject) turns back to drag (friend.him/her) clear. They come back to the beach together, (friend) bleeding badly from one leg. The healers save the leg, but it never works properly again, and (friend) walks with a limp from then on. (subject) gives (friend) the necklace. \"You'd have won,\" (subject.he/she) says.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -30,
+     "max": -30
+    },
+    {
+     "do": "preference",
+     "dislike": "swimming",
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "src": "L7783",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "They run into the surf together, dive under the first wave and come up swimming, side by side, heads down, arms flashing. The crowd on the beach roars. At the reef, the waves are taller than they look from the shore...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7777"
+  },
+  "c2o1": {
+   "text": "A week later the sea is flat as a plate, and they race. (friend) wins, by a hand. (subject) hugs (friend.him/her) on the beach and hangs the necklace round (friend.his/her) neck. (friend) is so happy that (friend.he/she) works twice as hard at everything all year, and gets very good at it.",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "min": 10,
+     "max": 20,
+     "best": true
+    }
+   ],
+   "src": "L7789",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(friend) swims out alone, to prove (friend.he/she) can. (friend.He/She) touches the reef, and a wave knocks (friend.him/her) into the coral, and (friend.he/she) comes back slowly, bleeding from a dozen cuts. The healers patch (friend.him/her) up and say a great deal about stubbornness. (subject) keeps the necklace, and doesn't wear it.",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -40,
+     "max": -20
+    }
+   ],
+   "src": "L7792",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "\"Not today,\" says (subject), loudly, so the whole beach can hear. \"(fisher) is right. Next calm day, I'll race you, and I'll beat you.\" The crowd groans. (friend) goes very red...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L7786"
+  }
+ }
+}

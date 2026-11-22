@@ -1,0 +1,229 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Doubling Pool",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b236_doubling_pool",
+  "source": "balance",
+  "lines": [
+   10981,
+   11023
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10981",
+  "ledger": [
+   {
+    "src": "L10982",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10983",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10991",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L11000",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10988",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10989",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10992",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L11001",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10994",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10997",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11003",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11006",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L11009-11023",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "Deep in the mangroves there is a pool so still and dark that it looks like a second sky.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Deep in the mangroves there is a pool so still and dark that it looks like a second sky. The fishers avoid it, because anything that falls into it comes out twice: a dropped spear, a fish, once a whole canoe, which is why the village has two canoes with exactly the same crack in the prow. Nobody has ever fallen in.\n(Name) has been sent into the mangroves to gather crabs, and has slipped on a root, and is now hanging by one hand from a branch over the dark pool, with (his/her) feet a hand's width above the water. The branch is bending.\nShould (name) let go and drop in, or hang on and shout for help?",
+   "choices": [
+    {
+     "label": "Let Go",
+     "next": "c1",
+     "src": "L10988"
+    },
+    {
+     "label": "Hang On and Shout",
+     "next": "c2",
+     "src": "L10989"
+    }
+   ],
+   "src": "L10984-10986"
+  },
+  "c1o1": {
+   "text": "Two heads come up out of the dark pool at the same time, both gasping, both with the same weed in their hair. Two (name)s climb out onto the roots, look at each other, and laugh exactly the same laugh. The second takes the name (made1). The fishers aren't surprised. They are very glad it wasn't the {@chief}.",
+   "effects": [
+    {
+     "do": "clone",
+     "role": "subject"
+    }
+   ],
+   "src": "L10995",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "{#made:Two heads|Three heads} come up out of the pool. The pool has never done that before. {#made:Two|Three} identical (name)s sit on the mangrove roots, dripping, staring at each other, and then {#made:both|all three}, at once, say, \"Well, this is going to be complicated.\" {#made:The new one takes the name (made1), and they bring home twice the crabs|The two new ones take the names (made1) and (made2), and bring home three times the crabs}.",
+   "effects": [
+    {
+     "do": "clone",
+     "count": 2,
+     "role": "subject"
+    }
+   ],
+   "src": "L10998",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) lets go. The water is cold, and so dark (he/she) can't see (his/her) own hands. (He/She) kicks up towards the light, and feels someone else kicking beside (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10992"
+  },
+  "c2o1": {
+   "text": "The fishers come running and pull (name) back onto the roots. On the way up, one of (his/her) sandals falls off into the pool, and two sandals float to the surface, exactly alike. (Name) now has three sandals, which is one more than (he/she) needs, and keeps the spare as a reminder.",
+   "src": "L11004"
+  },
+  "c2o2": {
+   "text": "The fishers pull (name) out before (he/she) falls in, but (his/her) toes have touched the water. And out of the pool, a moment later, climbs someone with (name)'s face, (name)'s hair, and nothing else of (name) at all: different likes, different dislikes, a different laugh. \"Only the toes went in,\" the fishers say. \"So only the outside came out.\" The newcomer takes the name (made1).",
+   "effects": [
+    {
+     "do": "new_villager",
+     "copy_of": "subject"
+    }
+   ],
+   "src": "L11007",
+   "text_only": [
+    {
+     "src": "L11007",
+     "what": "\"dislikes\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) hangs on with both hands and shouts until (his/her) throat hurts. The branch bends lower, and lower, and (his/her) toes touch the black water...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L11001"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10998",
+   "before": "Three heads come up",
+   "after": "{#made:Two heads|Three heads} come up"
+  },
+  {
+   "src": "L10998",
+   "before": "Three identical (name)s sit",
+   "after": "{#made:Two|Three} identical (name)s sit"
+  },
+  {
+   "src": "L10998",
+   "before": "and then all three, at once,",
+   "after": "and then {#made:both|all three}, at once,"
+  },
+  {
+   "src": "L10998",
+   "before": "The two new ones take the names (new name) and (new name 2), and bring home three times the crabs.",
+   "after": "{#made:The new one takes the name (new name), and they bring home twice the crabs|The two new ones take the names (new name) and (new name 2), and bring home three times the crabs}."
+  }
+ ]
+}

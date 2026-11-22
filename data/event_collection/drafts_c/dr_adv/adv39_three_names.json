@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Three Names for a Canoe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv39_three_names",
+  "source": "draft_adv",
+  "lines": [
+   452,
+   461
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L452",
+  "ledger": [
+   {
+    "src": "L453",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager's first canoe has had three names in one day: pick one now, or wait for the canoe to tell them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has finished building (subject.his/her) first canoe, and it needs a name. At breakfast it was going to be \"Swift Fish.\" By midday it was \"The Wave Cutter.\" By the afternoon it was \"Little Turtle.\" It's now nearly evening, and (friend) has come to see whether it has a name yet.",
+   "src": "L455",
+   "choices": [
+    {
+     "label": "Pick One Now",
+     "next": "o1",
+     "src": "L457"
+    },
+    {
+     "label": "Don't Name It Yet",
+     "next": "o2",
+     "src": "L460"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"It can wait,\" says (subject). \"It'll tell me.\" (friend) raises an eyebrow, but leaves it. The canoe goes out unnamed for a month. Then one day it rides a wave so beautifully that (subject) shouts \"SEABIRD!\" without thinking. And that's its name. Nobody remembers the other three.",
+   "src": "L461"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Little Turtle,\" says (subject) firmly. \"Final answer.\" (subject.He/she) paints it on the side. That night (subject.he/she) lies awake thinking it should have been \"Swift Fish.\" In the morning (subject.he/she) goes down to the beach, looks at the canoe and decides (subject.he/she) loves \"Little Turtle\" after all. (subject.He/she) is going to stop thinking about it now. Mostly.",
+   "src": "L458",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L458"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Little Turtle,\" says (subject) firmly. \"Final answer.\" (subject.He/she) paints it on the side. That night (subject.he/she) lies awake thinking it should have been \"Swift Fish.\" In the morning (subject.he/she) goes down to the beach, looks at the canoe and decides (subject.he/she) loves \"Little Turtle\" after all. (subject.He/she) is going to stop thinking about it now. Mostly.",
+   "src": "L458"
+  }
+ }
+}

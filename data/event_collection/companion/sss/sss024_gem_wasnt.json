@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Gem That Wasn't",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss024_gem_wasnt",
+  "source": "companion",
+  "lines": [
+   6307,
+   6315
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6307",
+  "ledger": [
+   {
+    "src": "L6315",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A child finds a dazzling gem in a riverbed that a jeweler suspects is glass.",
+  "cast_only": [
+   "child",
+   "jeweler"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "jeweler": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child finds a dazzling 'gem' in a riverbed. An adult jeweler suspects it is ordinary glass.",
+   "src": "L6308",
+   "choices": [
+    {
+     "label": "Celebrate the find anyway",
+     "next": "a",
+     "src": "L6309"
+    },
+    {
+     "label": "Examine it together",
+     "next": "b",
+     "src": "L6311"
+    },
+    {
+     "label": "Make it into jewelry",
+     "next": "c",
+     "src": "L6313"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The child keeps it as a lucky token and begins collecting river treasures.",
+   "src": "L6310"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The supposedly worthless glass becomes the village's most talked-about pendant.",
+   "src": "L6314"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "They discover how light and fractures can mislead the eye; the child gains curiosity, not shame.",
+   "src": "L6312",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L6312"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "They discover how light and fractures can mislead the eye; the child gains curiosity, not shame.",
+   "src": "L6312"
+  }
+ }
+}

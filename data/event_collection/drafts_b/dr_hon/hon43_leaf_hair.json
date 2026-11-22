@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Leaf in (name2)'s Hair",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hon43_leaf_hair",
+  "source": "draft_hon",
+  "lines": [
+   512,
+   521
+  ],
+  "section": "dr_hon",
+  "credit": "NEW EVENTS — HONESTY AND ACCOUNTABILITY (HON-01 to HON-50, draft for the owner, 2026-11-15)\nSmall lies, kind fibs, things left unsaid, things forgotten, honest mistakes and the odd careless one. Consequences stay the size of the mistake. Privacy is not lying, truth doesn't automatically fix things, and nobody has to confess, apologize or forgive.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hon",
+  "title_src": "L512",
+  "ledger": [
+   {
+    "src": "L513",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend is saying something serious with a large leaf stuck in their hair: mention it now, or wait until they finish.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is telling (subject) something serious and important, at length, standing very straight. There is a large curly leaf stuck in the top of (friend.his/her) hair, bobbing gently with every nod. It has been there the whole time. (subject) is trying very hard to listen.",
+   "src": "L515",
+   "choices": [
+    {
+     "label": "Mention It Now",
+     "next": "o1",
+     "src": "L517"
+    },
+    {
+     "label": "Wait Until (friend.he/she) Finishes",
+     "next": "o2",
+     "src": "L520"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Sorry,\" says (subject). \"There's a leaf.\" (friend) stops mid-sentence, reaches up, pulls out the leaf, and looks at it. \"How long?\" \"The whole time.\" (friend) sighs, tucks the leaf behind (friend.his/her) ear, and starts again from the beginning, which (subject) hears much better the second time.",
+   "src": "L518"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) waits. It's a long talk. The leaf bobs. (subject) nods along, eyes fixed politely on (friend)'s face and absolutely not on the leaf. At the end (subject.he/she) says, \"That's very sensible. Also, there's a leaf in your hair.\" (friend) reaches up, finds it, and laughs. \"Through the whole thing?\" \"It was agreeing with you.\"",
+   "src": "L521",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L521"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) waits. It's a long talk. The leaf bobs. (subject) nods along, eyes fixed politely on (friend)'s face and absolutely not on the leaf. At the end (subject.he/she) says, \"That's very sensible. Also, there's a leaf in your hair.\" (friend) reaches up, finds it, and laughs. \"Through the whole thing?\" \"It was agreeing with you.\"",
+   "src": "L521"
+  }
+ }
+}

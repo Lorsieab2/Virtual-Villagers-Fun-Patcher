@@ -1,0 +1,101 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Feedback, Later",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "adv20_feedback_later",
+  "source": "draft_adv",
+  "lines": [
+   230,
+   239
+  ],
+  "section": "dr_adv",
+  "credit": "NEW EVENTS — ADVICE AND DECISIONS (ADV-01..50, draft for the owner, 2026-11-15)\nAsking for advice, giving it, ignoring it, following half of it, and deciding alone. Advice can be wrong, even from elders and experts. Following it doesn't guarantee a good outcome and ignoring it doesn't cause a bad one. Feeling heard with no decision is a perfectly good ending, and nobody ever has to admit someone else was right.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_adv",
+  "title_src": "L230",
+  "ledger": [
+   {
+    "src": "L231",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder who is a master at some work and a young adult apprentice)"
+   },
+   {
+    "src": "L239",
+    "kind": "instruction",
+    "text": "[effect: small skill gain for (name2) in the game's crafting or building skill, only where the game has one]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A master carver tells an apprentice the fish's tail is too thick: say they do not want to hear it now, or listen anyway.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) looks at (friend)'s carving and says, kindly but plainly, \"The fish is good, but the tail's too thick, and you've rushed the eye.\" (friend)'s face goes hot. (friend.He/she) worked on that carving for three days. (friend.He/she) doesn't want to hear about the tail.",
+   "src": "L233",
+   "choices": [
+    {
+     "label": "Say So",
+     "next": "o1",
+     "src": "L235"
+    },
+    {
+     "label": "Listen Anyway",
+     "next": "o2",
+     "src": "L238"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I don't want to hear it right now,\" says (friend), a little sharply. (subject) nods. \"Fair enough. It'll keep.\" (friend) goes home, puts the carving on a shelf and glares at it for a week. Then one evening (friend.he/she) picks it up, looks at the tail and thinks: too thick. And the eye. Rushed. (friend.He/she) never tells (subject). (friend.He/she) just carves the next one better.",
+   "src": "L236"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) swallows (friend.his/her) pride and listens. It's not easy. (subject) shows (friend.him/her) how to thin a tail with long, light strokes. (friend) tries it. It's a little better. (friend.He/she) still thinks (friend.his/her) original eye was fine, and says so. \"Then keep the eye,\" says (subject). \"It's your fish.\" (friend) keeps the eye.",
+   "src": "L239",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Building"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L239"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

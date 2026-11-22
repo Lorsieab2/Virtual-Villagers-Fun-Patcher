@@ -1,0 +1,114 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Song Nobody Can Sing Well",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his05_song_nobody_can",
+  "source": "draft_his",
+  "lines": [
+   56,
+   65
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L56",
+  "ledger": [
+   {
+    "src": "L57",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager must lead the long, terrible Song of the First Canoe this year: sing it exactly as written, or suggest changing it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every year at the new-moon feast, the village sings the Song of the First Canoe. It was written, so the story goes, by one of the very first villagers, and it is terrible. It's far too long, it rhymes \"fish\" with \"fish\" nine times, and the high note in the middle is impossible for any living throat. (subject) is in charge of leading it this year and is quietly dreading it.",
+   "src": "L59",
+   "choices": [
+    {
+     "label": "Sing It Exactly as Written",
+     "next": "o1",
+     "src": "L61"
+    },
+    {
+     "label": "Suggest Changing It",
+     "next": "o2",
+     "src": "L64"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) suggests, carefully, that maybe they could shorten it a little. There's an uproar. \"You can't change the Song of the First Canoe!\" \"It's TRADITION!\" \"That high note is SACRED!\" (subject) backs down. The song is sung in full, as terribly as ever. Afterward, three different elders quietly tell (subject) they've always hated it too.",
+   "src": "L65"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) leads it exactly as written, every terrible word. The high note comes out like a seabird being sat on. The whole village sings along anyway, at full volume, and by the ninth \"fish\" everyone is crying with laughter, including (subject). (friend) says it's the best it's ever been sung. That might even be true.",
+   "src": "L62",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L62"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L62"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) leads it exactly as written, every terrible word. The high note comes out like a seabird being sat on. The whole village sings along anyway, at full volume, and by the ninth \"fish\" everyone is crying with laughter, including (subject). (friend) says it's the best it's ever been sung. That might even be true.",
+   "src": "L62"
+  }
+ }
+}

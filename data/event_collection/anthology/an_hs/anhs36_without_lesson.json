@@ -1,0 +1,270 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Quiet Day Without a Lesson",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anhs36_without_lesson",
+  "source": "anthology",
+  "lines": [
+   29965,
+   29978
+  ],
+  "section": "an_hs",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_hs",
+  "title_src": "L29965",
+  "ledger": [
+   {
+    "src": "L29968",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29974",
+    "kind": "sensitivity",
+    "before": "An elder",
+    "after": "(elder)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29975",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L29978",
+    "kind": "sensitivity",
+    "before": "A villager",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A group of villagers lies in hammocks while children play nearby, and nothing urgent needs attention.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "elder",
+   "child"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A group of villagers lies in hammocks while children play nearby, and nothing urgent needs attention.",
+   "src": "L29966",
+   "choices": [
+    {
+     "label": "Enjoy the Shade",
+     "next": "a",
+     "src": "L29967"
+    },
+    {
+     "label": "Share Fruit",
+     "next": "b",
+     "src": "L29970"
+    },
+    {
+     "label": "Watch the Children Play",
+     "next": "c",
+     "src": "L29973"
+    },
+    {
+     "label": "Do Absolutely Nothing",
+     "next": "d",
+     "src": "L29976"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) falls asleep to the sound of leaves.",
+   "src": "L29968"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Someone wakes with an amusing imprint of woven fibers on their cheek.",
+   "src": "L29969"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "A lively debate begins over which fruit is best.",
+   "src": "L29971"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The group eats in companionable silence.",
+   "src": "L29972"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "(child) invents rules nobody else can follow.",
+   "src": "L29975"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "type": "branch",
+   "name": "Outcome D1",
+   "children": [
+    {
+     "next": "d1__fx"
+    },
+    {
+     "next": "d1__text"
+    }
+   ]
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(villager) declares doing nothing a skill worth mastering.",
+   "src": "L29978",
+   "text_only": [
+    {
+     "what": "\"skill\"",
+     "reason": "\"skill\" in the everyday sense, not a skill gain -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L29978"
+    }
+   ]
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "(elder) smiles at a game they once played.",
+   "src": "L29974",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29974"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "(elder) smiles at a game they once played.",
+   "src": "L29974"
+  },
+  "d1__fx": {
+   "name": "Outcome D1",
+   "text": "The afternoon passes peacefully.",
+   "src": "L29977",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "villager",
+     "mood": "good",
+     "src": "L29977"
+    },
+    {
+     "do": "mood",
+     "role": "elder",
+     "mood": "good",
+     "src": "L29977"
+    },
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L29977"
+    }
+   ],
+   "auto_text": true
+  },
+  "d1__text": {
+   "name": "Outcome D1",
+   "text": "The afternoon passes peacefully.",
+   "src": "L29977"
+  }
+ }
+}

@@ -1,0 +1,118 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Drum Heard Through the Floor",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss002_drum_heard",
+  "source": "companion",
+  "lines": [
+   6083,
+   6091
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6083",
+  "ledger": [
+   {
+    "src": "L6091",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A deaf teen loves the festival but cannot follow the drummer's shouted cues.",
+  "cast_only": [
+   "teen",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A deaf teen loves the festival but cannot follow the drummer's shouted cues. Their friends assume they would rather sit out.",
+   "src": "L6084",
+   "choices": [
+    {
+     "label": "Ask what would help",
+     "next": "a",
+     "src": "L6085"
+    },
+    {
+     "label": "Build a shared rhythm platform",
+     "next": "b",
+     "src": "L6087"
+    },
+    {
+     "label": "Invite them to lead the design",
+     "next": "c",
+     "src": "L6089"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The teen suggests visible signals and feels included without being singled out.",
+   "src": "L6086"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "They create a visual sequence everyone enjoys, though some rehearsals go hilariously wrong.",
+   "src": "L6090"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "Dancers use vibrations and hand cues; a new festival tradition begins.",
+   "src": "L6088",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L6088"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "Dancers use vibrations and hand cues; a new festival tradition begins.",
+   "src": "L6088"
+  }
+ }
+}

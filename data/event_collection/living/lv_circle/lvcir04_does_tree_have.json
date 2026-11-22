@@ -1,0 +1,175 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Does a Tree Have Rights?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvcir04_does_tree_have",
+  "source": "living",
+  "lines": [
+   21283,
+   21294
+  ],
+  "section": "lv_circle",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE CIRCLE OF LIFE, RIGHTS, AND REMEMBRANCE\n31 events · 186 individually authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21283",
+  "ledger": [
+   {
+    "src": "L21294",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A carpenter wants to fell an ancient tree, while a young villager says it should have the right to live.",
+  "cast_only": [
+   "carpenter",
+   "youngster"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "carpenter": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 1
+   }
+  },
+  "youngster": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A carpenter wants to fell an ancient tree, while a young villager says it should have the right to live.",
+   "src": "L21284",
+   "choices": [
+    {
+     "label": "Protect the tree.",
+     "next": "a",
+     "src": "L21285"
+    },
+    {
+     "label": "Harvest the tree with gratitude.",
+     "next": "b",
+     "src": "L21288"
+    },
+    {
+     "label": "Debate protections rather than ownership.",
+     "next": "c",
+     "src": "L21291"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Birds continue nesting there, but builders must seek other timber.",
+   "src": "L21286"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The tree later falls in a storm, prompting questions about protection and nature.",
+   "src": "L21287"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The wood builds homes, and the village plants saplings in remembrance.",
+   "src": "L21289"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The council agrees to protect nesting trees and review each harvest.",
+   "src": "L21292"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The debate remains unsettled, but villagers begin recording tree ages.",
+   "src": "L21293"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "A woodworker discovers the tree sheltered a rare creature and regrets the loss.",
+   "src": "L21290",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "carpenter",
+     "mood": "bad",
+     "src": "L21290"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "A woodworker discovers the tree sheltered a rare creature and regrets the loss.",
+   "src": "L21290"
+  }
+ }
+}

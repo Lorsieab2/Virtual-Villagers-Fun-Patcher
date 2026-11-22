@@ -1,0 +1,167 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Rope That Looked Fine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm83_rope_looked_fine",
+  "source": "draft_rm2",
+  "lines": [
+   640,
+   653
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L640",
+  "ledger": [
+   {
+    "src": "L641",
+    "kind": "sensitivity",
+    "before": "A builder",
+    "after": "(Name1), a builder,",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A builder is about to lift a heavy beam with an old rope that looks sound, but something about it bothers them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a builder, is about to lift a heavy beam with an old rope that looks sound, but something about it bothers them.",
+   "src": "L641",
+   "choices": [
+    {
+     "label": "Replace the Rope Before Lifting.",
+     "next": "a",
+     "src": "L642"
+    },
+    {
+     "label": "Test the Old Rope First.",
+     "next": "b",
+     "src": "L645"
+    },
+    {
+     "label": "Ask an Experienced Rope-Maker to Check It.",
+     "next": "c",
+     "src": "L648"
+    },
+    {
+     "label": "Use Extra Supports While Lifting.",
+     "next": "d",
+     "src": "L651"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The new rope holds, and the builder later finds the old one rotten inside.",
+   "src": "L643"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The replacement takes the morning, and the crew grumbles until the old rope snaps when tested.",
+   "src": "L644"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The rope frays under a light load, and they replace it.",
+   "src": "L646"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The rope holds, but the builder replaces it anyway, to be safe.",
+   "src": "L647"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The rope-maker finds hidden damage and recommends a new rope.",
+   "src": "L649"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The rope-maker says it is fine, and the builder still uses two ropes together.",
+   "src": "L650"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The beam rises safely with extra hands.",
+   "src": "L652"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The extra supports make the lift slow and clumsy, but no one is hurt.",
+   "src": "L653"
+  }
+ }
+}

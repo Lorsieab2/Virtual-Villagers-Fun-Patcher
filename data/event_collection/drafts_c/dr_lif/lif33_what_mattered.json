@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What Mattered Most",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif33_what_mattered",
+  "source": "draft_lif",
+  "lines": [
+   380,
+   389
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L380",
+  "ledger": [
+   {
+    "src": "L381",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult, 18-25)"
+   }
+  ],
+  "description": "A young villager asks an elder what mattered most in life: get a serious answer, or an unexpected one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) is young and earnest and has been asking elders a big question for days: \"Looking back, what mattered most in your life?\" (friend.He/she) has gotten answers like family, kindness, the village, the gods, hard work. Now (friend.he/she) is asking (subject), who takes (subject.his/her) time.",
+   "src": "L383",
+   "choices": [
+    {
+     "label": "Get a Serious Answer",
+     "next": "o1",
+     "src": "L385"
+    },
+    {
+     "label": "Get an Unexpected Answer",
+     "next": "o2",
+     "src": "L388"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"People,\" says (subject), at last. \"Not all of them. The ones who stayed around when it was hard. And the ones who made me laugh when it wasn't.\" (friend) nods, writing it on a leaf. Then (subject) adds, \"Also breakfast. Never skip breakfast.\" (friend) hesitates, then writes that down too.",
+   "src": "L386"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Naps,\" says (subject), immediately. (friend) waits for more. There isn't any. \"Naps?\" \"Naps,\" says (subject), very firmly. \"Everything else changes. Naps are always good.\" (friend) laughs and asks if (subject.he/she) is serious. (subject) thinks about it. \"Mostly. Ask me again tomorrow. I might say people.\" The next day (subject.he/she) says people. And naps.",
+   "src": "L389",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L389"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Naps,\" says (subject), immediately. (friend) waits for more. There isn't any. \"Naps?\" \"Naps,\" says (subject), very firmly. \"Everything else changes. Naps are always good.\" (friend) laughs and asks if (subject.he/she) is serious. (subject) thinks about it. \"Mostly. Ask me again tomorrow. I might say people.\" The next day (subject.he/she) says people. And naps.",
+   "src": "L389"
+  }
+ }
+}

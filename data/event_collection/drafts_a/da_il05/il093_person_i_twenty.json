@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Person I Was at Twenty",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il093_person_i_twenty",
+  "source": "da_il05",
+  "lines": [
+   146,
+   155
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L146",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager watching a loud, certain young adult argue on the beach sees their own younger self.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 35
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is watching (friend), a young adult, argue passionately with a group of friends about the best way to catch octopus. (friend) is loud, certain, very funny and completely wrong. (subject) can't stop watching. It's like looking at (subject.him/her)self, twenty years ago, on that exact patch of sand.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Join the Argument",
+     "next": "a",
+     "src": "L151"
+    },
+    {
+     "label": "Watch and Remember",
+     "next": "b",
+     "src": "L154"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) wanders over and joins in, and soon finds (subject.him/her)self arguing just as loudly as (subject.he/she) did at twenty, and just as certainly, and possibly just as wrongly. (friend) is delighted to have such a worthy opponent. Nobody wins. On the way home (subject) realizes (subject.he/she) hasn't enjoyed being wrong this much in years.",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L152"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L152"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) wanders over and joins in, and soon finds (subject.him/her)self arguing just as loudly as (subject.he/she) did at twenty, and just as certainly, and possibly just as wrongly. (friend) is delighted to have such a worthy opponent. Nobody wins. On the way home (subject) realizes (subject.he/she) hasn't enjoyed being wrong this much in years.",
+   "src": "L152"
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) stays where (subject.he/she) is. (subject.He/She) thinks about everything that person at twenty didn't know yet: the good things, the hard things, the people who hadn't arrived in (subject.his/her) life. (subject.He/She) wouldn't warn (subject.him/her) about any of it, (subject.he/she) decides. (subject.He/She) would just say: keep arguing about octopus. It was a good use of an afternoon. (subject.He/She) smiles and goes home.",
+   "src": "L155",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L155"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) stays where (subject.he/she) is. (subject.He/She) thinks about everything that person at twenty didn't know yet: the good things, the hard things, the people who hadn't arrived in (subject.his/her) life. (subject.He/She) wouldn't warn (subject.him/her) about any of it, (subject.he/she) decides. (subject.He/She) would just say: keep arguing about octopus. It was a good use of an afternoon. (subject.He/She) smiles and goes home.",
+   "src": "L155"
+  }
+ }
+}

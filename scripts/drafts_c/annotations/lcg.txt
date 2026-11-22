@@ -1,0 +1,261 @@
+LCG-01
+DESC: An old traveler and a researcher disagree about a coming storm: trust the traveler's signs, or the researcher's records.
+ROLES: name1=65+ name2=18+
+REVIEW: 15/15 pass (both kinds of knowledge valued; neither infallible)
+
+LCG-02
+DESC: Families are asked to give to a shared emergency store, but some have more to give than others: give equally, or give by means.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fairness debated; no shaming of the poor)
+
+LCG-03
+DESC: A traveler comes home singing the farewell song with new verses: keep the new verses, or sing it as it was.
+ROLES: name1=55+ name2=35+
+REVIEW: 15/15 pass (living tradition; both choices respectful)
+
+LCG-04
+DESC: A neighboring settlement asks to keep using the path to the village's spring in a dry season: agree, or set limits.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fair negotiation; nobody villainized)
+
+LCG-05
+DESC: Farmers want to repair the old hillside terraces and try planting three crops together: repair them, or start simpler gardens.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (innovation and tradition both)
+
+LCG-06
+DESC: A trader wants to copy a family's special weaving pattern and sell it without credit: allow it with terms, or refuse.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (the family decides; consent respected)
+
+LCG-07
+DESC: Households must share the hill forest without letting traders set the rules: make their own rules, or accept the traders' offer.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (self-government; mixed outcome)
+
+LCG-08
+DESC: A young healer wants to try an unfamiliar herb: ask the old plant gatherer first, or test it carefully alone.
+ROLES: name1=18+ name2=55+
+FIX S: 3=1
+REVIEW: 15/15 pass (care and evidence; no miracle)
+
+LCG-09
+DESC: A teen wants to carve the family histories on bark so they are not lost: record them all, or only what each family allows.
+ROLES: name1=14-17 name2=55+
+REVIEW: 15/15 pass (family consent over knowledge)
+
+LCG-10
+DESC: A young navigator notices an odd swell and wants to change course: trust them, or keep the planned route.
+ROLES: name1=55+ name2=18-25
+REVIEW: 15/15 pass (the young can be right; nobody humiliated)
+
+LCG-11
+DESC: A trader offers a fortune for a family's carved paddle: sell it, or explain that some things have no price.
+ROLES: name1=18+ name2=55+
+REL: name2=grandparent_of:name1
+FIX S: 2=1
+REVIEW: 15/15 pass (the family decides)
+
+LCG-12
+DESC: Several families built a canoe together and now argue over who uses it first: take turns by lot, or by need.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (fair sharing)
+
+LCG-13
+DESC: Children from two islands invent a game that mixes both villages' ways: let them play, or ask them to keep their own games.
+ROLES: name1=6-13 name2=6-13
+REVIEW: 15/15 pass (children's creativity; both traditions kept)
+
+LCG-14
+DESC: Visiting farmers want some of the village's rare red taro: share the seed, or keep it for the village.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (sharing vs protecting both reasonable)
+
+LCG-15
+DESC: An outsider offers riches to control the village's river and forest: refuse together, or ask to hear the offer out.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (peaceful self-determination)
+
+LCG-16
+DESC: Children and elders plant a garden with a plant from every family: let each family choose, or plant what grows best.
+ROLES: name1=6-13 name2=55+
+REVIEW: 15/15 pass (joy; continuity)
+
+LCG-17
+DESC: A tracker will teach the children to read footprints: teach them at the nesting grounds, or somewhere less fragile.
+ROLES: name1=18+ name2=6-13
+REVIEW: 15/15 pass (learning and care for wildlife)
+
+LCG-18
+DESC: Parents realize the children no longer know the old words: hold lessons, or let young musicians put the words in new songs.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (living language; both ways valid)
+
+LCG-19
+DESC: Visitors say the village would be richer if it gave up its old ways: explain why not, or take what is useful and keep the rest.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (self-determination; not anti-change)
+
+LCG-20
+DESC: Visitors left a map of Isola with all the wrong names: make a map of the village's own, or tell the island's story aloud.
+ROLES: name1=18+ name2=55+
+REVIEW: 15/15 pass (self-representation)
+
+LCG-21
+DESC: A trader says a past leader promised them the cove: demand proof, or let the families decide anew.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+REVIEW: 15/15 pass (consent of the people; no villain proven)
+
+LCG-22
+DESC: Visiting researchers want to watch the village's private naming rite: explain it is private, or invite them to part of it.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (boundaries respected; curiosity not entitlement)
+
+LCG-23
+DESC: A visitor claims a villager's fish trap design as their own: confront them publicly, or quietly prove whose it is.
+ROLES: name1=18+ name2=18+
+FIX S: 1=s
+FIX O1: 1=s
+REVIEW: 15/15 pass (recognition; no humiliation)
+
+LCG-24
+DESC: Visitors keep speaking to the wrong person and ignore the village's lead negotiator: correct them, or let her handle it.
+ROLES: name1=25+/f name2=18+
+REVIEW: 15/15 pass (respect; no humiliation)
+
+LCG-25
+DESC: The caregivers bring a list of problems the leaders missed: hear them now, or let them fix things themselves.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (care work valued)
+
+LCG-26
+DESC: The council punished a villager who turned out to be innocent: admit it publicly, or quietly make it up to them.
+ROLES: name1=55+ name2=18+
+FIX O2: 1=2
+REVIEW: 15/15 pass (accountability; redress)
+
+LCG-27
+DESC: A young woman asks to train as a canoe builder: train her, or ask her to prove herself first.
+ROLES: name1=18-25/f name2=55+
+REVIEW: 15/15 pass (opportunity; no stereotype endorsed)
+
+LCG-28
+DESC: The meeting place is up a steep slope that several villagers cannot climb: move the meetings, or build an easier path.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (access is not a favor)
+
+LCG-29
+DESC: A villager who is deaf wants to take part in the festival song: add hand signs to the song, or give them the drum.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (full participation; no pity)
+
+LCG-30
+DESC: An apprentice learns nothing from talk but everything from watching: change the teaching, or ask them to try harder.
+ROLES: name1=55+ name2=14-17
+REVIEW: 15/15 pass (different learners respected)
+
+LCG-31
+DESC: Visiting families and villagers each sing their own welcome songs: write a shared song, or keep both songs separate.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (welcome without demands)
+
+LCG-32
+DESC: A newcomer wants to stay but keep their homeland's customs: welcome them as they are, or ask them to follow Isola's ways.
+ROLES: name1=18+ name2=55+
+FIX S: 1=s 2=s 3=s 4=s 5=s
+FIX O1: 1=s
+FIX O2: 1=s 3=s
+REVIEW: 15/15 pass (belonging without assimilation)
+
+LCG-33
+DESC: Families who came from other islands cook their homeland dishes for a feast: hold a cooking contest, or just share.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (no dish declared superior)
+
+LCG-34
+DESC: A researcher counts with knots, and a weaver's patterns already count: work together, or keep separate.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (craft and science both knowledge)
+
+LCG-35
+DESC: Delegates must visit the neighboring settlements to settle a fishing dispute: travel together, or send one voice for all.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (diplomacy; mixed outcomes)
+
+LCG-36
+DESC: The rains return after months of drought: celebrate first, or prepare for the next dry season first.
+ROLES: name1=18+ name2=6-13
+REVIEW: 15/15 pass (joy and prudence)
+
+LCG-37
+DESC: A villager admits taking a neighbor's net: ask for an apology, or ask them to make it right.
+ROLES: name1=18+ name2=18+
+FIX S: 2=1
+REVIEW: 15/15 pass (restitution; no humiliation)
+
+LCG-38
+DESC: A child interviews elders about the past and finds they all remember it differently: record every version, or find the truth.
+ROLES: name1=8-13 name2=55+
+REVIEW: 15/15 pass (memory's uncertainty)
+
+LCG-39
+DESC: Children challenge the old rule that they may not swim in the lagoon at dusk: explain the rule, or rethink it.
+ROLES: name1=8-13 name2=18+
+REVIEW: 15/15 pass (rules can evolve; children heard)
+
+LCG-40
+DESC: Teens organize a gathering to protect the shrinking reef: march to the elders, or start fixing it themselves.
+ROLES: name1=14-17 name2=14-17
+REVIEW: 15/15 pass (youth agency)
+
+LCG-41
+DESC: The village wants the researchers to study its own problems: let villagers choose, or let researchers choose.
+ROLES: name1=18+ name2=6-13
+REVIEW: 15/15 pass (community-led research)
+
+LCG-42
+DESC: A family's hut burned down: the whole village rebuilds it, or the family rebuilds with a few helpers.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (mutual aid; pride respected)
+
+LCG-43
+DESC: The village is building a new gathering place: one big hut, or several small spaces for feasts, debates and quiet.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (different needs)
+
+LCG-44
+DESC: A funny song about the broken bridge demands it be fixed: rebuild it the old way, or combine new methods.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (humor turned to action)
+
+LCG-45
+DESC: The apprentice cook keeps losing the beat of the fishers' welcome chant: teach them, or give them another job.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (humor; no humiliation)
+
+LCG-46
+DESC: The leader tries a complicated dance and falls flat on their face: laugh, or pretend not to see.
+ROLES: name1=18+
+WORD: chief
+REVIEW: 15/15 pass (the leader laughs too; affectionate humor)
+
+LCG-47
+DESC: The musicians argue over a song honoring the people whose work nobody notices: let them make one song, or one verse for each.
+ROLES: name1=18+ name2=18+
+REVIEW: 15/15 pass (unnoticed work honored)
+
+LCG-48
+DESC: An elder teaches a treasured recipe, but relatives insist their version is the real one: crown one version, or keep them all.
+ROLES: name1=55+ name2=18+
+REVIEW: 15/15 pass (gentle family humor)
+
+LCG-49
+DESC: A storyteller wants to tell the founders' jokes and mistakes too: tell the whole of them, or keep to the honored stories.
+ROLES: name1=55+ name2=14-17
+REVIEW: 15/15 pass (honest, affectionate history)
+
+LCG-50
+DESC: Children invent a game where nobody can win alone: teach it to everyone, or keep it for the children.
+ROLES: name1=6-13 name2=6-13
+REVIEW: 15/15 pass (cooperative play; joy)

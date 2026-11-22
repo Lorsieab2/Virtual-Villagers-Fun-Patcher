@@ -1,0 +1,105 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Public Challenge",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lch12_elder_public",
+  "source": "draft_lch",
+  "lines": [
+   162,
+   173
+  ],
+  "section": "dr_lch",
+  "credit": "NEW EVENTS - LIVING CULTURE VIII: OUR OWN STORIES, SKILLS AND FUTURE (LCH-01..50, draft, 2026-11-18)\nFrom the owner's Volume IV concepts (301-400): telling our own stories, who owns a song or a design, research the village asks for, caregivers and builders, seeds that came home, makers and stargazers, terrible singing, newcomers who stay, and an island that belongs to its people.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lch",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder woman and an adult)"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "An old woman challenges the custom that only the leader's family may fish the best reef: support her, or ask her to wait.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55,
+   "sex": "female"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the gathering, (subject), one of the oldest women in the village, has stood up and asked why only the {@chief}'s family may fish the best reef. Nobody has asked that out loud in fifty years. The {@chief} looks uncomfortable. (friend) is sitting near her. What should happen?",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Support Her",
+     "next": "o1",
+     "src": "L167"
+    },
+    {
+     "label": "Ask Her to Wait",
+     "next": "o2",
+     "src": "L171"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) stands up beside her. Then another villager does, and another. The {@chief} agrees the custom is old and unfair, and opens the reef to every family in turn. (subject) sits down looking very satisfied.",
+   "src": "L169"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) suggests raising it at the next gathering, after the {@chief} has had time to think. (subject) agrees, sharply. At the next gathering, the {@chief} opens the reef. (subject) says she would have preferred the first time.",
+   "src": "L173"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ }
+}

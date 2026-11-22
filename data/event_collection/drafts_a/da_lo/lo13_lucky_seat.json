@@ -1,0 +1,104 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Lucky Seat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo13_lucky_seat",
+  "source": "da_lo",
+  "lines": [
+   153,
+   162
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L153",
+  "ledger": [
+   {
+    "src": "L154",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager has won six nights running from the same seat by the fire, and tonight a friend is in it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "The villagers have a game they play in the evenings with pebbles and a board drawn in the sand. For six nights in a row, (subject) has won every game. (subject.He/She) has also sat in exactly the same spot every night, on a log near the fire. Tonight, (friend) has got there first, and is sitting in (subject)'s spot.",
+   "src": "L156",
+   "choices": [
+    {
+     "label": "Ask for the Seat",
+     "next": "a",
+     "src": "L158"
+    },
+    {
+     "label": "Play from a New Seat",
+     "next": "b",
+     "src": "L161"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"That's my lucky seat,\" says (subject). (friend) grins and refuses to move. (subject) sits somewhere else, and loses every single game. Afterward, (friend) says, \"I don't believe in lucky seats.\" \"You won every game,\" says (subject). \"That's because I'm good.\" They agree to swap seats tomorrow and settle it once and for all. They never do settle it.",
+   "src": "L159"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) sits on the other side of the fire. (subject.He/She) plays carefully. (subject.He/She) wins two and loses two. It's a very ordinary night. Somehow, it's also a relief: there's no streak to protect anymore. (subject) has more fun than (subject.he/she) has had all week. (subject.He/She) still sits on the lucky log the next night, though.",
+   "src": "L162",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L162"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) sits on the other side of the fire. (subject.He/She) plays carefully. (subject.He/She) wins two and loses two. It's a very ordinary night. Somehow, it's also a relief: there's no streak to protect anymore. (subject) has more fun than (subject.he/she) has had all week. (subject.He/She) still sits on the lucky log the next night, though.",
+   "src": "L162"
+  }
+ }
+}

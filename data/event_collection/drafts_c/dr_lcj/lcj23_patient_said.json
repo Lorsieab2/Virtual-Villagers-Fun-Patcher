@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Patient Who Said No",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcj23_patient_said",
+  "source": "draft_lcj",
+  "lines": [
+   320,
+   331
+  ],
+  "section": "dr_lcj",
+  "credit": "NEW EVENTS - LIVING CULTURE X: GROWING UP, GROWING OLD AND EVERYDAY JOY (LCJ-01..50, draft, 2026-11-18)\nThe rest of the owner's 100 Living Culture ideas and the world-inspired 50: secret languages and forgotten words, coming of age, elders who will not retire, healers' oaths, failed discoveries, masks and clothes and masterpieces nobody wanted, talent shows, ridiculous hats and the day nobody worked.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcj",
+  "title_src": "L320",
+  "ledger": [
+   {
+    "src": "L321",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a healer and an adult)"
+   },
+   {
+    "src": "L327",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L331",
+    "kind": "instruction",
+    "text": "[effect: small Healing skill for (name1)]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L331",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "A villager refuses the treatment a healer recommends: respect it, or try to persuade them.",
+  "label_case": "title",
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(friend) has a wound on (friend.his/her) leg that is not healing, and (subject) wants to clean it with a burning-hot poultice. (friend) has said no: it hurts too much, and (friend.he/she) would rather wait and see. (subject) is worried. What should (subject) do?",
+   "src": "L323",
+   "choices": [
+    {
+     "label": "Respect It",
+     "next": "o1",
+     "src": "L325"
+    },
+    {
+     "label": "Try to Persuade",
+     "next": "o2",
+     "src": "L329"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) explains the risks, once, clearly, and then respects the answer. (subject.He/she) checks the leg every day. It heals slowly, on its own. (subject) is relieved and says nothing about being worried.",
+   "src": "L327"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) explains again and again. (friend) gets angry. In the end (friend) agrees to a gentler poultice instead. It works, more slowly. (subject) learns that there is often a third way.",
+   "src": "L331",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Healing"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L331"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Harvest Rush",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "vfx13_harvest_rush",
+  "source": "draft_vfx",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_vfx",
+  "credit": "NEW EVENTS - VILLAGE MOMENTS (VFX-01..12, draft for the owner, 2026-11-18)\nSongs, chants and speeches, a long lazy afternoon, rain on the way, a roof patched with cloth: small moments where the whole village does something together, and the island answers.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_vfx",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   },
+   {
+    "src": "L158",
+    "kind": "instruction",
+    "text": "[effect: the farming workers rush to work]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "A storm is coming: the farmers rush the harvest in, or work at their own pace.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Storm clouds are piling up over the sea, and the food stores are lower than anyone likes. (name1) says the farmers should get the harvest in before the rain, and everyone else should stay out of their way.",
+   "src": "L155",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L155"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Rush the Harvest",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Let Them Work at Their Own Pace",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The farmers run for the bushes and the fields and work faster than anyone has ever seen. Everyone else carries baskets back and forth until they are too worn out to lift another one.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "group",
+     "kind": "work",
+     "skill": "Farming",
+     "who": "all",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides a tired farmer drops more than (he/she) picks. The farmers work at their usual pace, and the rain comes and goes.",
+   "src": "L161"
+  }
+ }
+}

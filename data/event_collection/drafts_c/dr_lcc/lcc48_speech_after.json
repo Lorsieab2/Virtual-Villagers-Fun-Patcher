@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Speech After the Raid",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcc48_speech_after",
+  "source": "draft_lcc",
+  "lines": [
+   666,
+   677
+  ],
+  "section": "dr_lcc",
+  "credit": "NEW EVENTS - LIVING CULTURE III: DEFENSE, RAIDS AND THE FALLEN (LCC-01..50, draft, 2026-11-18)\n\"If anyone comes to raid our homeland, we'll be ready.\" Isola's people are peaceful but no pushovers: stamping dances and war chants, watch fires and plans, raids fended off or not, prisoners and bargains, and how the village honors those who defended it.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcc",
+  "title_src": "L666",
+  "ledger": [
+   {
+    "src": "L667",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and an elder)"
+   },
+   {
+    "src": "L673",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L677",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "After the raid, the village is angry and wants revenge: speak for revenge, or speak for patience.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The raid is over. The gardens are trampled, two warriors are hurt, and the village is gathered around the fire, furious. Some of the young warriors want to paddle to the raiders' island tonight and take revenge. (subject) has been asked to speak. So has (friend). What should be said?",
+   "src": "L669",
+   "choices": [
+    {
+     "label": "Speak for Revenge",
+     "next": "o1",
+     "src": "L671"
+    },
+    {
+     "label": "Speak for Patience",
+     "next": "o2",
+     "src": "L675"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) speaks for revenge, and the young warriors roar. Then (friend) stands, slowly, and asks who will look after the children if the warriors do not come back. The fire goes quiet. Nobody paddles anywhere that night. In the morning, the anger is still there, but it has cooled into something more careful.",
+   "src": "L673"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) speaks first, for patience: guard the village, heal the wounded, and let the raiders wonder what Isola will do. (subject) agrees, though (subject.his/her) hands are shaking. The village stays home. It is not satisfying. But nobody else is hurt.",
+   "src": "L677"
+  }
+ }
+}

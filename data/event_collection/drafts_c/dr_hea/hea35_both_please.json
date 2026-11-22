@@ -1,0 +1,87 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Both, Please",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hea35_both_please",
+  "source": "draft_hea",
+  "lines": [
+   419,
+   428
+  ],
+  "section": "dr_hea",
+  "credit": "NEW EVENTS — HEALING, PSYCHOLOGY AND MEDICINE (HEA-01..50, draft for the owner, 2026-11-15)\nHealers, herbs, teas, poultices, mushrooms, potions, island magic, listening, breathing, routines and rest. Care for the body and care for the mind, with every kind of healing treated with equal respect. Treatments can help, help a little, do nothing or have side effects. Nobody has to be cured, nobody is mocked, and the villager always decides.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hea",
+  "title_src": "L419",
+  "ledger": [
+   {
+    "src": "L420",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult, a healer or elder and a spiritual leader or elder)"
+   }
+  ],
+  "description": "A healer and a spiritual leader arrive at once to treat a villager's scratched hand: ask for both, or just the healer for now.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s hand was badly scratched on coral and the wound is slow to heal. (friend) the healer wants to wash it with salt water every day and cover it with a leaf poultice. (third) the spiritual leader has offered to sing over it each evening. Both of them have arrived at (subject)'s hut at the same moment, and there is a small, polite standoff in the doorway.",
+   "src": "L422",
+   "choices": [
+    {
+     "label": "Ask for Both",
+     "next": "o1",
+     "src": "L424"
+    },
+    {
+     "label": "Just the Healer for Now",
+     "next": "o2",
+     "src": "L427"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Both, please,\" says (subject). There's a pause. Then (friend) steps aside. \"Sing first,\" (friend.he/she) says. \"I'll wait.\" (third) sings. (friend) washes and wraps. The hand heals in about the usual time. Whose work it was, nobody agrees. (friend) and (third) start having tea together afterwards, and argue about it happily for years.",
+   "src": "L425"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"I'd like the poultice,\" says (subject) carefully. \"But maybe the singing another time?\" (third) nods with no offense at all. \"Whenever you like. Or never. Both are fine.\" The hand heals well. A few weeks later, on a hard night that has nothing to do with the hand, (subject) asks (third) to come and sing anyway. (third) comes.",
+   "src": "L428"
+  }
+ }
+}

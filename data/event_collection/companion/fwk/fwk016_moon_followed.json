@@ -1,0 +1,235 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Moon That Followed",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk016_moon_followed",
+  "source": "companion",
+  "lines": [
+   5582,
+   5591
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5582",
+  "ledger": [
+   {
+    "src": "L5588",
+    "kind": "note",
+    "text": "Possible resolution 1 (mundane):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5589",
+    "kind": "note",
+    "text": "Possible resolution 2 (ambiguous):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5590",
+    "kind": "note",
+    "text": "Possible resolution 3 (social):",
+    "why": "designer tag on the resolution (L5415: possible branches, not results)"
+   },
+   {
+    "src": "L5589",
+    "kind": "instruction",
+    "text": "; no school is confirmed or mocked",
+    "why": "the designer's instruction to the writer (L5408: no lens is confirmed or mocked)"
+   },
+   {
+    "src": "L5591",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A child believes the moon follows them wherever they walk.",
+  "cast_only": [
+   "child",
+   "adult"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "adult": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A child believes the moon follows them wherever they walk.",
+   "src": "L5583",
+   "choices": [
+    {
+     "label": "MAGIC-ALIGNED",
+     "next": "a",
+     "src": "L5584"
+    },
+    {
+     "label": "NATURE-ALIGNED",
+     "next": "b",
+     "src": "L5585"
+    },
+    {
+     "label": "SPIRITUAL-ALIGNED",
+     "next": "c",
+     "src": "L5586"
+    },
+    {
+     "label": "SCIENTIFIC-ALIGNED",
+     "next": "d",
+     "src": "L5587"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "They imagine that the moon responds to their attention.",
+   "src": "L5584",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "An adult demonstrates how distant objects seem to follow travelers.",
+   "src": "L5585",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "A teacher invites the child to test the idea from several viewpoints.",
+   "src": "L5587",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  },
+  "r1": {
+   "name": "Resolution 1",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "The villager discovers a plausible ordinary cause but may still value the experience for personal reasons.",
+   "src": "L5588",
+   "text_only": [
+    {
+     "what": "the experience",
+     "reason": "a memory of what happened, not a skill's experience: nothing is gained",
+     "src": "L5588"
+    }
+   ]
+  },
+  "r2": {
+   "name": "Resolution 2",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "A second witness or unexpected detail complicates the simplest explanation.",
+   "src": "L5589"
+  },
+  "r3": {
+   "name": "Resolution 3",
+   "popup": "append",
+   "join": "paragraph",
+   "text": "Another villager interprets the same evidence differently. Their exchange can deepen respect, cause a mild argument, or inspire a shared project.",
+   "src": "L5590"
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "An elder tells a comforting story about the moon watching over families.",
+   "src": "L5586",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "child",
+     "mood": "good",
+     "src": "L5586"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "An elder tells a comforting story about the moon watching over families.",
+   "src": "L5586",
+   "children": [
+    {
+     "next": "r1"
+    },
+    {
+     "next": "r2"
+    },
+    {
+     "next": "r3"
+    }
+   ]
+  }
+ }
+}

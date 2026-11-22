@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "I Saw It First",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tt25_i_saw_first",
+  "source": "draft_tt",
+  "lines": [
+   296,
+   305
+  ],
+  "section": "dr_tt",
+  "credit": "NEW EVENTS — TALL TALES AND SELF-INTEREST (TT-01 to TT-50, draft for the owner, 2026-11-15)\nBoasting, stretched stories, little vanities, wanting the credit, the best seat or the bigger half. Most of it is harmless and funny; kind people can be boastful too. Nobody is exposed for the sake of it, and nobody needs a lesson.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_tt",
+  "title_src": "L296",
+  "ledger": [
+   {
+    "src": "L297",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend saw the whale first, but a villager shouted first and wins the story: tell the story tonight, or say nothing about it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Out at sea, a great spout of water shoots into the air, and a huge dark back rolls slowly through the waves. A whale! The first villager to shout \"WHALE!\" gets to tell the story at the fire tonight; that's how it has always been. (friend) saw it first, and opened (friend.his/her) mouth. (subject) shouted first.",
+   "src": "L299",
+   "choices": [
+    {
+     "label": "Tell the Story Tonight",
+     "next": "o1",
+     "src": "L301"
+    },
+    {
+     "label": "Say Nothing About It",
+     "next": "o2",
+     "src": "L304"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) tells the story at the fire with great enthusiasm. (friend) sits listening with (friend.his/her) arms folded. Halfway through, (subject) stops. \"Actually,\" (subject.he/she) says, \"(friend) saw it first. I just shout faster.\" (friend) unfolds (friend.his/her) arms and tells the second half, and it's the best whale story the fire has heard in years.",
+   "src": "L302"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) tells the whole story and enjoys every bit of it. (friend) says nothing. The next morning there's another whale, and (friend) is already standing on the beach before dawn, with (friend.his/her) mouth open, ready. (subject), arriving late, finds (friend.him/her) there. \"Fair,\" says (subject).",
+   "src": "L305",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L305"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) tells the whole story and enjoys every bit of it. (friend) says nothing. The next morning there's another whale, and (friend) is already standing on the beach before dawn, with (friend.his/her) mouth open, ready. (subject), arriving late, finds (friend.him/her) there. \"Fair,\" says (subject).",
+   "src": "L305"
+  }
+ }
+}

@@ -1,0 +1,250 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Singing Boat",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b222_singing_boat",
+  "source": "balance",
+  "lines": [
+   10322,
+   10365
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L10322",
+  "ledger": [
+   {
+    "src": "L10323",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L10324",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10332",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10341",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L10329",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10330",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L10333",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10342",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L10335",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10338",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10344",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10347",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L10350-10365",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "A boat is coming in from the open sea, and the people in it are singing.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  },
+  "Chief": {
+   "3": "Chief",
+   "*": "Leader"
+  }
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "A boat is coming in from the open sea, and the people in it are singing. It's a big boat with a woven sail, and it's full: a whole family by the look of it, grandparents, parents, children, a dog standing on the prow barking at the waves. They are singing a song with a chorus everyone on the beach can almost follow.\n(Name) is the first one down to the water. As the boat grinds onto the sand, the singing stops, and an old man in the stern stands up and calls out in an accent nobody has heard before: \"We are looking for a place where people sing back!\"\nShould (name) sing back?",
+   "choices": [
+    {
+     "label": "Sing Back",
+     "next": "c1",
+     "src": "L10329"
+    },
+    {
+     "label": "Call for the {@Chief}",
+     "next": "c2",
+     "src": "L10330"
+    }
+   ],
+   "src": "L10325-10327"
+  },
+  "c1o1": {
+   "text": "The family climbs out of the boat laughing and crying. The grandparents decide to sail on to a cousin's island, but {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the parents, their teenage daughter and their little son stay}, and teach the whole village their songs, and learn the village's. The dog stays too, and barks at the waves every morning.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "teen"
+    },
+    {
+     "do": "new_villager",
+     "age": "child"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10336",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "The family stays a week, singing every night by the fire, and then sails on. But the old man stays behind. \"I've found it,\" he says. \"The rest of them can keep looking.\" He sits by the cooking fire every evening and teaches the children songs nobody has heard before, and they sing them back.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "elder"
+    },
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L10339",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(Name) doesn't know the words. (He/She) sings the chorus anyway, badly, as loud as (he/she) can. Behind (him/her), one by one, the whole village joins in...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10333"
+  },
+  "c2o1": {
+   "text": "\"Thank you,\" says the old man, when the {@chief} has finished. \"But we are looking for a place where people sing back.\" The family eat with the village, and rest for a night, and sail on in the morning, singing. The village stands on the beach and listens until the sound is gone, and then someone, too late, starts to hum the chorus.",
+   "src": "L10345"
+  },
+  "c2o2": {
+   "text": "At the end of the speech, the {@chief}, who is famous for having no voice at all, clears (his/her) throat and sings the chorus, terribly. The old man laughs until he has to sit down. The family sails on in the end, except for a young couple with a baby, who say any place where the {@chief} sings like that is {#made:good enough for them, though the village has room for only one of them|good enough for them, though the village has room for only two of them|good enough for them}.",
+   "effects": [
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "adult"
+    },
+    {
+     "do": "new_villager",
+     "age": "child",
+     "child_of_newest": true
+    }
+   ],
+   "src": "L10348",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(Name) runs to fetch the {@chief}, who comes down the beach and makes a long, polite speech of welcome. The family listen politely. The old man looks a little disappointed...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L10342"
+  }
+ },
+ "grammar_fixes": [
+  {
+   "src": "L10336",
+   "before": "but the parents, their teenage daughter and their little son stay",
+   "after": "but {#made:only one of them can stay, as the village has no room for more|only two of them can stay, as the village has no room for more|the parents, their teenage daughter and their little son stay}"
+  },
+  {
+   "src": "L10348",
+   "before": "good enough for them.",
+   "after": "{#made:good enough for them, though the village has room for only one of them|good enough for them, though the village has room for only two of them|good enough for them}."
+  }
+ ]
+}

@@ -1,0 +1,163 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fun One",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam203_fun_one",
+  "source": "draft_fam2",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult with no children of (his/her) own and two children aged 4-10 who are relatives (where the game records it)"
+   }
+  ],
+  "description": "A villager who never wanted children is the favorite relative of two little ones for an afternoon: an adventure, or the pelican.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "relation": {
+    "aunt_or_uncle_of": "friend"
+   }
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 10
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has no children and has never wanted any. (subject.He/she) is, however, the favorite relative of (friend) and (third), because (subject.he/she) lets them stay up late, knows the best climbing trees and can do an extremely good impression of a pelican. Today the children's parents are busy, and (subject) has the children for the whole afternoon.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Take Them on an Adventure",
+     "next": "o1",
+     "src": "L37"
+    },
+    {
+     "label": "Teach Them the Pelican",
+     "next": "o2",
+     "src": "L40"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) takes them to the tide pools. They find a starfish, an angry crab and a sea cucumber that (third) refuses to touch. They come home sandy, sunburnt and thrilled. Then (subject) hands them back, goes home to (subject.his/her) quiet, tidy hut and has a long nap. It's the best of both worlds, and (subject.he/she) knows it.",
+   "src": "L38",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L38"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L38"
+    },
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 15,
+     "max": 30,
+     "src": "L38"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) takes them to the tide pools. They find a starfish, an angry crab and a sea cucumber that (third) refuses to touch. They come home sandy, sunburnt and thrilled. Then (subject) hands them back, goes home to (subject.his/her) quiet, tidy hut and has a long nap. It's the best of both worlds, and (subject.he/she) knows it.",
+   "src": "L38"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) teaches them the pelican impression. It takes all afternoon. By the end, three pelicans are flapping round the village squawking. Several adults are not delighted. The children are. When their parents come home, the children won't stop being pelicans. (subject) waves and leaves quickly. Being the fun one has its responsibilities, and fleeing is one of them.",
+   "src": "L41",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L41"
+    },
+    {
+     "do": "mood",
+     "role": "third",
+     "mood": "good",
+     "src": "L41"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) teaches them the pelican impression. It takes all afternoon. By the end, three pelicans are flapping round the village squawking. Several adults are not delighted. The children are. When their parents come home, the children won't stop being pelicans. (subject) waves and leaves quickly. Being the fun one has its responsibilities, and fleeing is one of them.",
+   "src": "L41"
+  }
+ }
+}

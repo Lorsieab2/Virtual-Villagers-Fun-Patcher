@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Seen Crying",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea33_seen_crying",
+  "source": "draft_fea",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A friend comes upon a villager crying alone behind the storehouse: ask them to stay, or ask for some privacy.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has had a hard day, and has gone behind the storehouse to cry where nobody will see. (subject.He/she) doesn't like crying in front of people. It feels like showing them something private. And now (friend) has come round the corner, carrying a basket, and stopped dead.",
+   "src": "L395",
+   "choices": [
+    {
+     "label": "Ask (friend) to Stay",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Ask for Some Privacy",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"Don't go,\" says (subject), surprising (subject.him/her)self. (friend) puts down the basket and sits beside (subject.him/her). (friend.He/she) doesn't ask what's wrong. (friend.He/she) just stays. After a while (subject) stops crying. \"Thanks,\" (subject.he/she) says. \"Anytime,\" says (friend), and means it, and never mentions it to anyone.",
+   "src": "L398"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"Could you give me a minute?\" says (subject). (friend) nods and goes, without a word. Later, at dinner, there's an extra piece of fruit next to (subject)'s bowl. (friend) doesn't look up. (subject) eats the fruit and is very grateful for the minute, and the fruit, and the not looking up.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"Could you give me a minute?\" says (subject). (friend) nods and goes, without a word. Later, at dinner, there's an extra piece of fruit next to (subject)'s bowl. (friend) doesn't look up. (subject) eats the fruit and is very grateful for the minute, and the fruit, and the not looking up.",
+   "src": "L401"
+  }
+ }
+}

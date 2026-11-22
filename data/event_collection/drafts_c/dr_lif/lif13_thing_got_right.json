@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The One Thing (name1) Got Right",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lif13_thing_got_right",
+  "source": "draft_lif",
+  "lines": [
+   146,
+   155
+  ],
+  "section": "dr_lif",
+  "credit": "NEW EVENTS — PONDERING HOW LIFE HAS GONE (LIF-01..50, draft for the owner, 2026-11-15)\nAdults of every age looking at their own lives so far: roads not taken, quiet satisfaction, small regrets, unexpected pride, things left unfinished, luck, gratitude and plenty of amusement. Nobody has to reach a verdict.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_lif",
+  "title_src": "L146",
+  "ledger": [
+   {
+    "src": "L147",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult aged 40 or older)"
+   }
+  ],
+  "description": "A villager remembers the one choice that turned out right, a fruit tree by the path: go and look at it, or stay in the hammock.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 40
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has made plenty of mistakes in (his/her) life. (He/she) has planted beans in the wrong season, built a wall that fell down twice, and once tried to cook an entire meal using only seawater. But lying in the hammock today, (he/she) remembers one small choice, years ago, that turned out exactly right: (he/she) planted a fruit tree by the path where everyone walks. Every day, people stop and pick from it.",
+   "src": "L149",
+   "choices": [
+    {
+     "label": "Go and Look at the Tree",
+     "next": "o1",
+     "src": "L151"
+    },
+    {
+     "label": "Stay in the Hammock",
+     "next": "o2",
+     "src": "L154"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) gets out of the hammock and walks down to the tree. A child is up in the branches, eating. An elder is resting in the shade. A goat is trying to reach the low fruit. (name1) stands there and watches, enormously pleased with (him/her)self, until the goat gets the fruit. (He/she) decides one good thing done well is quite a lot.",
+   "src": "L152",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L152"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) gets out of the hammock and walks down to the tree. A child is up in the branches, eating. An elder is resting in the shade. A goat is trying to reach the low fruit. (name1) stands there and watches, enormously pleased with (him/her)self, until the goat gets the fruit. (He/she) decides one good thing done well is quite a lot.",
+   "src": "L152"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(name1) stays in the hammock and lists the other mistakes, just to keep (him/her)self humble. It's a long list. Then (he/she) thinks of the tree again and smiles. It's not a fair trade, a whole list of mistakes for one tree. But (he/she) likes the tree better than (he/she) dislikes the mistakes. (He/she) falls asleep content.",
+   "src": "L155",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the draft's notes: everything but the marked effects is story only",
+     "src": "L155"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L155"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(name1) stays in the hammock and lists the other mistakes, just to keep (him/her)self humble. It's a long list. Then (he/she) thinks of the tree again and smiles. It's not a fair trade, a whole list of mistakes for one tree. But (he/she) likes the tree better than (he/she) dislikes the mistakes. (He/she) falls asleep content.",
+   "src": "L155",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment, not a lasting dislike -- the draft's notes: everything but the marked effects is story only",
+     "src": "L155"
+    }
+   ]
+  }
+ }
+}

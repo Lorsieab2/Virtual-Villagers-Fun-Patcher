@@ -1,0 +1,203 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Healer Who Asked a Child",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth16_healer_asked",
+  "source": "living",
+  "lines": [
+   23571,
+   23585
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23571",
+  "ledger": [
+   {
+    "src": "L23585",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "An ill child notices a strange taste in the village water, but adults have dismissed it.",
+  "cast_only": [
+   "child",
+   "novice"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "novice": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "An ill child notices a strange taste in the village water, but adults have dismissed it.",
+   "src": "L23572",
+   "choices": [
+    {
+     "label": "Listen to the child.",
+     "next": "a",
+     "src": "L23573"
+    },
+    {
+     "label": "Ask the {@chief} to investigate.",
+     "next": "b",
+     "src": "L23576"
+    },
+    {
+     "label": "Let a novice test water from different places.",
+     "next": "c",
+     "src": "L23579"
+    },
+    {
+     "label": "Replace the water supply temporarily.",
+     "next": "d",
+     "src": "L23582"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The taste proves harmless, but the child appreciates being heard.",
+   "src": "L23575"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The {@chief} organizes a thorough inspection.",
+   "src": "L23577"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The {@chief} overlooks the child's specific observation.",
+   "src": "L23578"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The samples reveal a pattern worth investigating.",
+   "src": "L23580"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The novice confuses the samples and must begin again.",
+   "src": "L23581"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Several villagers feel better after the change.",
+   "src": "L23583"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The village runs short of clean water.",
+   "src": "L23584"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "The healers find a spoiled storage vessel.",
+   "src": "L23574",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "loss": true,
+     "scaled": true,
+     "src": "L23574"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "The healers find a spoiled storage vessel.",
+   "src": "L23574"
+  }
+ },
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

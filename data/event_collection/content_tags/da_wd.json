@@ -1,0 +1,441 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "da_wd",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "wd01_what_penguin": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "wd02_what_seal_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd03_what_crab_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "wd04_what_coconut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "child",
+    "elder",
+    "friend"
+   ]
+  },
+  "wd05_what_fish_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd06_what_starfish": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "child"
+   ]
+  },
+  "wd07_what_pelican": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "wd08_what_frog_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd09_what_sandal_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd10_what_flower_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd11_what_crab_wearing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "wd12_what_bat_doing": {
+   "filters": [
+    "F06"
+   ],
+   "notes": [
+    "Serious injury"
+   ],
+   "nodes": {
+    "a__fx": [
+     "F06"
+    ]
+   },
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "wd13_what_owl_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd14_what_melon_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd15_what_heron": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd16_what_are_birds": {
+   "filters": [
+    "F16"
+   ],
+   "notes": [],
+   "nodes": {
+    "b": [
+     "F16"
+    ]
+   }
+  },
+  "wd17_what_spoon_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd18_what_pig_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend",
+    "subject"
+   ]
+  },
+  "wd19_what_lizard_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd20_what_chicken": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd21_what_duck_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd22_what_seaweed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd23_what_leaf_big": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "wd24_what_mushroom": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "b": [
+     "F04"
+    ]
+   }
+  },
+  "wd25_what_egg_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "wd26_wrote_hello_beach": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "wd27_what_bowl_fruit": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd28_what_fishing_net": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "wd29_what_crab_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "wd30_what_are_pebbles": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject"
+   ]
+  },
+  "wd31_what_kite_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd32_what_ice_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "elder"
+   ]
+  },
+  "wd33_what_fish_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd34_what_shrimp_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd35_what_bird_doing": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd36_what_moth_size": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd37_what_growing_seed": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd38_what_walking_roof": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd39_what_seashell": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd40_what_walking": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "b__fx": [
+     "F25"
+    ],
+    "b__text": [
+     "F25"
+    ]
+   }
+  },
+  "wd41_what_coconut": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd42_what_butterfly": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "wd43_what_are_feathers": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd44_what_making_music": {
+   "filters": [
+    "F13"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F13"
+    ]
+   }
+  },
+  "wd45_what_crab_doing": {
+   "filters": [
+    "F04"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "setup": [
+     "F04"
+    ]
+   },
+   "speaks": [
+    "subject",
+    "friend"
+   ]
+  },
+  "wd46_what_bright_fish": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "wd47_what_seahorse": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "wd48_what_chirping": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "wd49_what_are_ants": {
+   "filters": [
+    "F04",
+    "F19",
+    "F26"
+   ],
+   "notes": [
+    "Disappearance"
+   ],
+   "nodes": {
+    "a": [
+     "F04",
+     "F26"
+    ],
+    "b": [
+     "F19",
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "wd50_what_seabird": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "a__fx": [
+     "F20"
+    ]
+   }
+  }
+ }
+}

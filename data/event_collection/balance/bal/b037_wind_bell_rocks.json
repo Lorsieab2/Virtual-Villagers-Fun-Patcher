@@ -1,0 +1,221 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Wind from the Bell Rocks",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b037_wind_bell_rocks",
+  "source": "balance",
+  "lines": [
+   1662,
+   1703
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L1662",
+  "ledger": [
+   {
+    "src": "L1663",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L1664",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1672",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1681",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L1669",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1670",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L1673",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1682",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L1675",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1678",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1684",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1687",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L1690-1703",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "On the mountain there's a pass where the rocks are hollow, and when the wind blows through them they ring like bells.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "On the mountain there's a pass where the rocks are hollow, and when the wind blows through them they ring like bells. The elders say that long ago a healer hung chimes there to \"ring away bad memories\" for people who couldn't bear them, and that the wind still carries memories off the mountain, good ones and bad ones, and doesn't much mind which.\n(Name) is crossing the pass when the wind picks up, and the rocks start to ring all around (him/her), so loud (he/she) can feel it in (his/her) teeth. (He/She) feels something loosen in (his/her) head, like a knot slipping.\nShould (name) run for the far side, or crouch down and cover (his/her) ears?",
+   "choices": [
+    {
+     "label": "Run for the Far Side",
+     "next": "c1",
+     "src": "L1669"
+    },
+    {
+     "label": "Crouch Down and Cover the Ears",
+     "next": "c2",
+     "src": "L1670"
+    }
+   ],
+   "src": "L1665-1667"
+  },
+  "c1o1": {
+   "text": "(Name) gets home safely, and knows everything and everyone. But (his/her) own name is gone, rung right out of (his/her) head. Friends say it to (him/her), over and over, and it means nothing, like a word in another language. The elders shake their heads. \"The bell rocks,\" they say. The village calls (him/her) \"?\" from then on, and (he/she) gets used to it faster than anyone expected.",
+   "effects": [
+    {
+     "do": "lose_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1676",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(Name) gets home, and for a while nothing seems different. Then the rain comes, and (he/she) goes out to stand in it with (his/her) face turned up, the way (he/she) always loved to, and finds that (he/she) can't remember why (he/she) ever loved it. The memory of loving it has gone off on the wind. (He/She) tries it a few more times, like testing a sore tooth. Nothing. In the end (he/she) shrugs, and finds a new thing.",
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L1679"
+  },
+  "c1": {
+   "text": "(Name) runs, stumbling on the loose stones, the bells ringing louder and louder until (he/she) is through and out and the sound drops away behind (him/her)...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1673"
+  },
+  "c2o1": {
+   "text": "When the wind drops, (name) climbs out of the hollow and realises (he/she) can't remember (his/her) name. Everything else is there. But this time the bells have left something behind as well: a new name, clear as a bell, ringing in (his/her) head. (He/She) walks home and tells everyone (his/her) name, the new one, and it fits so well that within a few days nobody can remember the old one either.",
+   "effects": [
+    {
+     "do": "change_name",
+     "role": "subject"
+    }
+   ],
+   "src": "L1685",
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "The bells stop. (Name) climbs out and checks: name, home, friends, all there. (He/She) is deaf as a stone for a whole day afterwards, and spends it shouting at everyone cheerfully, and then it passes. (He/She) takes the long way round the mountain from then on.",
+   "src": "L1688"
+  },
+  "c2": {
+   "text": "(Name) drops into a hollow and presses (his/her) hands over (his/her) ears and waits, eyes squeezed shut, while the bells ring and ring and the wind howls overhead...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L1682"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "remove": true,
+     "like": "rain",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

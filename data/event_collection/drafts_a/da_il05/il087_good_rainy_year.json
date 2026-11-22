@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Good Old Rainy Year",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il087_good_rainy_year",
+  "source": "da_il05",
+  "lines": [
+   80,
+   89
+  ],
+  "section": "da_il05",
+  "credit": "NEW EVENTS — INNER LIFE, PART V (81-100, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il05",
+  "title_src": "L80",
+  "ledger": [
+   {
+    "src": "L81",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager fondly remembers the year it rained every day, though a friend remembers the complaining.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "\"Remember the year it rained every single day?\" (subject) says dreamily. \"That was a wonderful year.\" (friend) stares at (subject.him/her). (friend) remembers that year very clearly. (friend.He/She) remembers (subject) complaining about it every single day.",
+   "src": "L83",
+   "choices": [
+    {
+     "label": "Remind (subject.him/her)",
+     "next": "a",
+     "src": "L85"
+    },
+    {
+     "label": "Let (subject.him/her) Have the Memory",
+     "next": "b",
+     "src": "L88"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"You hated it,\" says (friend). \"You said the mud was trying to eat you.\" (subject) thinks about this. \"I did say that,\" (subject.he/she) admits. \"But we all sat inside and told stories, and the roof sang when the rain hit it.\" (friend) has to admit the roof did sing. Maybe both things are true.",
+   "src": "L86"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) just nods. \"It was quite a year.\" (subject) goes on about the stories, the singing roof and the smell of wet leaves. (friend) quietly decides that if (subject) can be this fond of a year (subject.he/she) complained about, there's hope for the current one.",
+   "src": "L89"
+  }
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Day of Returning Seeds",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb08_returning_seeds",
+  "source": "draft_lcb",
+  "lines": [
+   106,
+   117
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L106",
+  "ledger": [
+   {
+    "src": "L107",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L113",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L117",
+    "kind": "note",
+    "text": "[Solidarity: lower]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "Families trade seeds once a year, and one family wants to keep its special beans to itself: let them, or ask them to share.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once a year, every family brings seeds to swap, so that no garden grows only one kind of plant. (subject)'s family grows a speckled red bean that nobody else has ever managed to grow, and (subject) has decided not to bring any this year. (friend) thinks that goes against the whole point of the day. What should happen?",
+   "src": "L109",
+   "choices": [
+    {
+     "label": "Respect (subject)'s Choice",
+     "next": "o1",
+     "src": "L111"
+    },
+    {
+     "label": "Ask (subject) to Share",
+     "next": "o2",
+     "src": "L115"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) lets it go. The swap goes ahead without the red beans. Later in the season, (subject) shows up at (friend)'s hut with a handful of the beans and a long list of instructions on how to grow them, in exactly the right order. It is a gift, not a swap. (friend) understands the difference.",
+   "src": "L113"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) asks, in front of everyone, why the red beans are missing. (subject) goes red and says they are (subject.his/her) family's, and that is that. The day is awkward from then on. The red beans stay with (subject)'s family.",
+   "src": "L117"
+  }
+ }
+}

@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Five-Minute Job",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il146_five_minute_job",
+  "source": "da_il08",
+  "lines": [
+   68,
+   77
+  ],
+  "section": "da_il08",
+  "credit": "NEW EVENTS — INNER LIFE, PART VIII (141-160, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il08",
+  "title_src": "L68",
+  "ledger": [
+   {
+    "src": "L69",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A job a villager has put off for weeks turns out to take about five minutes.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "For weeks, the handle on (subject)'s water jar has been loose. Every day (subject.he/she) looks at it and thinks, \"I really must fix that.\" Every day (subject.he/she) doesn't. It has become a Big Job in (subject.his/her) mind, something for a whole free afternoon. Today, while waiting for the fire to catch, (subject.he/she) picks up the jar, winds some cord round the handle and ties it off. It takes about five minutes.",
+   "src": "L71",
+   "choices": [
+    {
+     "label": "Tell (friend) About It",
+     "next": "a",
+     "src": "L73"
+    },
+    {
+     "label": "Keep It to (subject.him/her)self",
+     "next": "b",
+     "src": "L76"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) sets the jar down and looks at it. Five minutes. (subject.He/She) feels triumphant and a little silly at the same time. (subject.He/She) glances round the hut at all the other little jobs waiting quietly in corners. Then (subject.he/she) decides one five-minute job is plenty for one day, and goes to sit by the fire.",
+   "src": "L77"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Five minutes,\" (subject) tells (friend), still slightly stunned. \"I've been dreading that for WEEKS.\" (friend) nods slowly, then says, \"My roof has had a hole in it since the last full moon.\" They look at each other. They go and fix the hole. It takes ten minutes. They spend the rest of the evening fixing every little thing either of them has been putting off, and feel tremendously pleased with themselves.",
+   "src": "L74",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L74"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L74"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Five minutes,\" (subject) tells (friend), still slightly stunned. \"I've been dreading that for WEEKS.\" (friend) nods slowly, then says, \"My roof has had a hole in it since the last full moon.\" They look at each other. They go and fix the hole. It takes ten minutes. They spend the rest of the evening fixing every little thing either of them has been putting off, and feel tremendously pleased with themselves.",
+   "src": "L74"
+  }
+ }
+}

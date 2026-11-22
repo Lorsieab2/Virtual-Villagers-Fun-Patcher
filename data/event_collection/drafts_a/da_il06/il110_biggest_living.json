@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Biggest Living Thing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il110_biggest_living",
+  "source": "da_il06",
+  "lines": [
+   110,
+   119
+  ],
+  "section": "da_il06",
+  "credit": "NEW EVENTS — INNER LIFE, PART VI (101-120, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il06",
+  "title_src": "L110",
+  "ledger": [
+   {
+    "src": "L111",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A teen argues all day about the biggest living thing on Isola: a whale, a tree, or the reef?",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has been arguing with (subject.him/her)self all day about what the biggest living thing on Isola is. A whale? (subject.He/She) has seen one from the shore, and it was enormous. But the old trees on the hill are taller. And the reef stretches for ages, and (friend) once said the reef is alive. Is a reef one thing or lots of things?",
+   "src": "L113",
+   "choices": [
+    {
+     "label": "Ask (friend) to Settle It",
+     "next": "a",
+     "src": "L115"
+    },
+    {
+     "label": "Make a List",
+     "next": "b",
+     "src": "L118"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) scratches a list in the sand: whale, tree, reef, that really big turtle, the moss on the north rocks. (subject.He/She) keeps adding to it until the tide comes in and washes it all away. (subject.He/She) decides that was probably the sea's way of saying \"it's me.\"",
+   "src": "L119"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(friend) thinks it's the reef. (subject) thinks the reef is cheating. They argue cheerfully all the way to dinner. Then (friend) suggests the biggest living thing might be something nobody has noticed yet, because it's too big to see. (subject) is quiet for the rest of the evening.",
+   "src": "L116",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L116"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L116"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(friend) thinks it's the reef. (subject) thinks the reef is cheating. They argue cheerfully all the way to dinner. Then (friend) suggests the biggest living thing might be something nobody has noticed yet, because it's too big to see. (subject) is quiet for the rest of the evening.",
+   "src": "L116"
+  }
+ }
+}

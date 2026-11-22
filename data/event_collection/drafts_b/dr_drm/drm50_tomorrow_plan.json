@@ -1,0 +1,54 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Tomorrow's Plan",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm50_tomorrow_plan",
+  "source": "draft_drm",
+  "lines": [
+   596,
+   599
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L596",
+  "ledger": [
+   {
+    "src": "L597",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult; a single popup, no choice)"
+   }
+  ],
+  "description": "A villager plans to eat a whole ripe mango tomorrow without getting a single drop of juice on their chin.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "It's late, and (name1) is lying on (his/her) sleeping mat making a plan for tomorrow. It isn't a big plan. Tomorrow, (name1) is going to eat a mango, a whole ripe one, without getting a single drop of juice on (his/her) chin. (He/she) has never once managed it. (He/she) has thought it through: a knife, small pieces, a bowl, leaning forward. (He/she) falls asleep feeling quietly confident. The next day, at lunch, (he/she) cuts the mango into small pieces, leans forward over the bowl, takes the first bite with great care, and immediately gets juice on (his/her) chin, (his/her) nose and, somehow, (his/her) left ear. (He/she) sits there, dripping, and starts to laugh. There's always tomorrow. There are a lot of mangoes.",
+   "src": "L599"
+  }
+ }
+}

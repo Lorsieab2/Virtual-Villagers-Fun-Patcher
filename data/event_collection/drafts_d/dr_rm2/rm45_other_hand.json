@@ -1,0 +1,193 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Other Hand",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "rm45_other_hand",
+  "source": "draft_rm2",
+  "lines": [
+   69,
+   82
+  ],
+  "section": "dr_rm2",
+  "credit": "NEW EVENTS — ROLE MODELS AND GOOD EXAMPLES, RM-41 to RM-90 (draft for the owner, 2026-11-15)\nFifty more events continuing your \"Role Models and Good Examples — 40 Events\". Same shape as yours: a SETUP, choices A-D (a few have three), and two possible outcomes per choice; the game picks one outcome from the chosen choice.",
+  "draw_weight": 1,
+  "series": "dr_rm2",
+  "title_src": "L69",
+  "ledger": [
+   {
+    "src": "L70",
+    "kind": "sensitivity",
+    "before": "A weaving teacher notices",
+    "after": "(Name1), a weaving teacher, notices",
+    "why": "the owner (2026-11-15): the person the event is about is a cast villager shown by name, the role word kept as flavor (the villager need not have that job)"
+   }
+  ],
+  "description": "A weaving teacher notices that one child keeps reaching for the fibers with the left hand.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(Name1), a weaving teacher, notices that one child keeps reaching for the fibers with the left hand, and the child's pattern keeps coming out backward.",
+   "src": "L70",
+   "choices": [
+    {
+     "label": "Teach the Pattern Mirrored.",
+     "next": "a",
+     "src": "L71"
+    },
+    {
+     "label": "Ask Another Left-Handed Weaver to Help.",
+     "next": "b",
+     "src": "L74"
+    },
+    {
+     "label": "Let the Child Find Their Own Way.",
+     "next": "c",
+     "src": "L77"
+    },
+    {
+     "label": "Ask What Feels Natural to the Child.",
+     "next": "d",
+     "src": "L80"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The teacher works facing the child, and the pattern finally makes sense.",
+   "src": "L72"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The mirrored lesson confuses the teacher more than the child, but they work it out together.",
+   "src": "L73"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "An older left-handed weaver shows the child a few tricks nobody else knew.",
+   "src": "L75"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The older weaver learned the right-handed way long ago and is curious to try the other way too.",
+   "src": "L76"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "type": "branch",
+   "name": "Outcome C1",
+   "children": [
+    {
+     "next": "c1__fx"
+    },
+    {
+     "next": "c1__text"
+    }
+   ]
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The child's method is slow at first, but the teacher praises the steady progress.",
+   "src": "L79"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The child explains which steps feel awkward, and the teacher changes only those.",
+   "src": "L81"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The child does not know how to explain it, so they simply try several ways until one feels right.",
+   "src": "L82"
+  },
+  "c1__fx": {
+   "name": "Outcome C1",
+   "text": "The child invents a slightly different method that works perfectly well.",
+   "src": "L78",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "small",
+     "scaled": true,
+     "src": "L78"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1__text": {
+   "name": "Outcome C1",
+   "text": "The child invents a slightly different method that works perfectly well.",
+   "src": "L78"
+  }
+ }
+}

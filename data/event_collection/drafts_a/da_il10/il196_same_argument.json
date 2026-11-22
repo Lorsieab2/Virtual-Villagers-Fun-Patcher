@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Same Argument for Forty Years",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il196_same_argument",
+  "source": "da_il10",
+  "lines": [
+   176,
+   185
+  ],
+  "section": "da_il10",
+  "credit": "NEW EVENTS — INNER LIFE, PART X (181-200, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il10",
+  "title_src": "L176",
+  "ledger": [
+   {
+    "src": "L177",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); an elder couple as the game records them (spouse_of); text kept as written"
+   },
+   {
+    "src": "L179",
+    "kind": "casting",
+    "before": "Today a visiting child watches",
+    "after": "Today (child), a visiting child, watches",
+    "why": "the owner's naming rule (2026-11-15): a person the draft names by role is a cast villager, named at the first mention"
+   }
+  ],
+  "description": "An elder couple have argued for years about how to fold the sleeping blanket, and a child asks why.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55,
+   "relation": {
+    "spouse_of": "subject"
+   }
+  },
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) and (friend) have been together for many years, and for all of them they have argued about how to fold the sleeping blanket. (subject) folds it in half, then in half again. (friend) folds it in thirds. Each of them refolds it, quietly, after the other has done it. Today (child), a visiting child, watches them do this twice in one morning and asks, \"Why don't you just fold it the same way?\"",
+   "src": "L179",
+   "choices": [
+    {
+     "label": "Explain",
+     "next": "a",
+     "src": "L181"
+    },
+    {
+     "label": "Try Folding It the Other's Way, Just Once",
+     "next": "b",
+     "src": "L184"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "That evening, without a word, (subject) folds the blanket in thirds. (friend) stares at it for a long moment. Then (friend.he/she) goes and sits down, unusually quiet. The next morning, (friend) folds it in halves. They look at each other. Neither of them likes it. By the next day, they're both back to their own way, and both refolding. All is right with the world.",
+   "src": "L185"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "\"Because thirds is wrong,\" says (subject). \"Because halves is wrong,\" says (friend), at exactly the same moment. The child looks from one to the other. \"But you're married,\" (child.he/she) says, as if that should settle it. (subject) and (friend) both laugh. \"That's how we know it's wrong,\" says (friend).",
+   "src": "L182",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L182"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L182"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "\"Because thirds is wrong,\" says (subject). \"Because halves is wrong,\" says (friend), at exactly the same moment. The child looks from one to the other. \"But you're married,\" (child.he/she) says, as if that should settle it. (subject) and (friend) both laugh. \"That's how we know it's wrong,\" says (friend).",
+   "src": "L182"
+  }
+ }
+}

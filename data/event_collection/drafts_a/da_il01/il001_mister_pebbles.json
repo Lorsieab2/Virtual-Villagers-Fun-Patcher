@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Mister Pebbles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il001_mister_pebbles",
+  "source": "da_il01",
+  "lines": [
+   8,
+   20
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L8",
+  "ledger": [
+   {
+    "src": "L9",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L14",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A child's invisible best friend, Mister Pebbles, comes to dinner: play along, ask about him, or let it be.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) has a new best friend. (subject.His/Her) name is Mister Pebbles, he is very tall, he only eats the blue part of the sky, and nobody but (subject) can see him. At dinner, (subject) sets out an extra leaf plate. \"Mister Pebbles says the fish is too salty,\" (subject.he/she) announces.",
+   "src": "L11",
+   "choices": [
+    {
+     "label": "Play Along",
+     "next": "a",
+     "src": "L13"
+    },
+    {
+     "label": "Ask About Mister Pebbles",
+     "next": "b",
+     "src": "L16"
+    },
+    {
+     "label": "Let It Be",
+     "next": "c",
+     "src": "L19"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Well, tell Mister Pebbles the cook did (friend.his/her) best,\" says (friend), passing the plate. (subject) giggles and whispers something to the empty seat. For the rest of the evening the whole family is very careful not to sit on Mister Pebbles. (subject) is delighted.",
+   "src": "L14",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L14"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(friend) asks what Mister Pebbles likes to do. (subject) talks for a very long time. Mister Pebbles, it turns out, can swim faster than a dolphin, knows every star's name, and is afraid of crabs. \"Just like you,\" (friend) says. (subject) thinks about this. \"Mister Pebbles is braver than me,\" (subject.he/she) says. \"But I'm getting there.\"",
+   "src": "L17"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "Nobody makes a fuss. (subject) and Mister Pebbles spend the afternoon building a very important fort out of palm fronds. By sunset Mister Pebbles has gone home, wherever that is. He'll probably be back tomorrow.",
+   "src": "L20"
+  }
+ }
+}

@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Snort",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "drm23_snort",
+  "source": "draft_drm",
+  "lines": [
+   272,
+   281
+  ],
+  "section": "dr_drm",
+  "credit": "NEW EVENTS — DREAMS AND AMBITIONS (DRM-01..50, draft for the owner, 2026-11-15)\nBig dreams, small dreams, secret dreams and silly ones: things villagers hope for, work toward, give up on, change their minds about, or simply enjoy imagining. Ambition is optional, and a dream that never comes true is not a sad ending.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_drm",
+  "title_src": "L272",
+  "ledger": [
+   {
+    "src": "L273",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager's secret goal is to make a hard-to-amuse friend laugh until they snort: go through with the plan, or abandon it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject)'s secret ambition, which (subject.he/she) has never told anyone, is to make (friend) laugh so hard that (friend.he/she) snorts. (friend) is famously hard to make laugh. (subject) has been working on it for a year. Tonight, at dinner, (subject) has a plan involving a fish, a hat and a very silly voice.",
+   "src": "L275",
+   "choices": [
+    {
+     "label": "Go Through with the Plan",
+     "next": "o1",
+     "src": "L277"
+    },
+    {
+     "label": "Abandon the Plan",
+     "next": "o2",
+     "src": "L280"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) puts on the hat, holds up the fish, and does the voice. (friend) stares. (subject)'s confidence wobbles. Then (friend)'s mouth twitches, and twitches again, and suddenly (friend.he/she) is laughing helplessly, and somewhere in the middle of it comes a loud, unmistakable snort. (subject) keeps a perfectly straight face, and privately decides this is the best day of the year.",
+   "src": "L278",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L278"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L278"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) puts on the hat, holds up the fish, and does the voice. (friend) stares. (subject)'s confidence wobbles. Then (friend)'s mouth twitches, and twitches again, and suddenly (friend.he/she) is laughing helplessly, and somewhere in the middle of it comes a loud, unmistakable snort. (subject) keeps a perfectly straight face, and privately decides this is the best day of the year.",
+   "src": "L278"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) chickens out at the last moment and just eats (subject.his/her) fish. Halfway through the meal, (subject.he/she) chokes on a piece of it, recovers, and says in a very small voice, \"That went down the wrong way.\" For some reason (friend) finds this so funny that (friend.he/she) snorts. (subject) doesn't know whether that counts.",
+   "src": "L281",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L281"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) chickens out at the last moment and just eats (subject.his/her) fish. Halfway through the meal, (subject.he/she) chokes on a piece of it, recovers, and says in a very small voice, \"That went down the wrong way.\" For some reason (friend) finds this so funny that (friend.he/she) snorts. (subject) doesn't know whether that counts.",
+   "src": "L281"
+  }
+ }
+}

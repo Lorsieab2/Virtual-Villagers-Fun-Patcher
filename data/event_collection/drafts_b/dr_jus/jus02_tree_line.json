@@ -1,0 +1,134 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Tree on the Line",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "jus02_tree_line",
+  "source": "draft_jus",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_jus",
+  "credit": "NEW EVENTS — JUSTICE AND CONSEQUENCES (JUS-01 to JUS-50, draft for the owner, 2026-11-15)\nEveryday rules, disputes between neighbors, the elders and the council, making things right, losing a role, a night to cool down, wrongful suspicion and evidence that doesn't add up. Consequences are proportionate and never cruel; children get guidance; nobody goes without food, water or shelter; an accusation is not guilt.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_jus",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A mango tree drops its fruit over a garden boundary, and the council must rule: it belongs to the tree, or where it falls.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A mango tree grows in (subject)'s garden, right beside the row of stones that marks where (friend)'s garden begins. Most of its branches hang over (friend)'s side, and most of its fruit falls there. (friend) has been eating it. (subject) thinks (friend.he/she) shouldn't. They've brought it to the council.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Rule That the Fruit Belongs to the Tree",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Rule That the Fruit Belongs Where It Falls",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "The council rules that the fruit is (subject)'s, but that (subject) must pick it from (friend)'s side without trampling anything, and that (friend) may keep whatever has already fallen. (subject) spends the season climbing carefully over to pick. (friend) spends it sitting under the tree, catching anything that drops. Neither of them is entirely happy. The mangoes are excellent.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "The council rules that the fruit is (subject)'s, but that (subject) must pick it from (friend)'s side without trampling anything, and that (friend) may keep whatever has already fallen. (subject) spends the season climbing carefully over to pick. (friend) spends it sitting under the tree, catching anything that drops. Neither of them is entirely happy. The mangoes are excellent.",
+   "src": "L26"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "The council rules that fruit falling on (friend)'s side is (friend)'s, and that (subject) may trim the branches if (subject.he/she) likes. (subject) considers cutting back every branch that hangs over, then looks at the shade they give both gardens, and doesn't. Instead (subject.he/she) starts leaving a basket by the boundary stones. It fills up with mangoes and, every so often, a few beans from (friend)'s garden.",
+   "src": "L29",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L29"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "The council rules that fruit falling on (friend)'s side is (friend)'s, and that (subject) may trim the branches if (subject.he/she) likes. (subject) considers cutting back every branch that hangs over, then looks at the shade they give both gardens, and doesn't. Instead (subject.he/she) starts leaving a basket by the boundary stones. It fills up with mangoes and, every so often, a few beans from (friend)'s garden.",
+   "src": "L29"
+  }
+ }
+}

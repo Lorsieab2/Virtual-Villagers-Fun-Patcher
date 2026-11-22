@@ -1,0 +1,86 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Canoe With No Flag",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss029_canoe_flag",
+  "source": "companion",
+  "lines": [
+   6361,
+   6369
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6361",
+  "ledger": [
+   {
+    "src": "L6369",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "An unfamiliar canoe appears offshore, its passengers waving an object nobody recognizes.",
+  "cast_only": [
+   "villager"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "An unfamiliar canoe appears offshore. Its passengers wave an object nobody recognizes.",
+   "src": "L6362",
+   "choices": [
+    {
+     "label": "Signal from a safe distance",
+     "next": "a",
+     "src": "L6363"
+    },
+    {
+     "label": "Prepare food and a landing place",
+     "next": "b",
+     "src": "L6365"
+    },
+    {
+     "label": "Observe without approaching",
+     "next": "c",
+     "src": "L6367"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The visitors answer with gestures, opening cautious contact.",
+   "src": "L6364"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The strangers may accept hospitality or remain wary.",
+   "src": "L6366"
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The canoe departs; villagers later argue whether caution cost them an opportunity.",
+   "src": "L6368"
+  }
+ }
+}

@@ -1,0 +1,207 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Chief's Sacred Dream",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvauth04_chief_sacred",
+  "source": "living",
+  "lines": [
+   23379,
+   23393
+  ],
+  "section": "lv_auth",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L23379",
+  "ledger": [
+   {
+    "src": "L23393",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "The leader claims a dream revealed where to dig a well.",
+  "cast_only": [
+   "elder"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "elder": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "scientist": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 25,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The {@chief} claims a dream revealed where to dig a well.",
+   "src": "L23380",
+   "choices": [
+    {
+     "label": "Dig where the {@chief} dreamed.",
+     "next": "a",
+     "src": "L23381"
+    },
+    {
+     "label": "Consult a spiritual elder.",
+     "next": "b",
+     "src": "L23384"
+    },
+    {
+     "label": "Let a young scientist test the soil.",
+     "next": "c",
+     "src": "L23387"
+    },
+    {
+     "label": "Combine the dream with observation.",
+     "next": "d",
+     "src": "L23390"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "Fresh water is found, deepening the {@chief}'s confidence.",
+   "src": "L23382"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The villagers find only dry stone and begin to doubt.",
+   "src": "L23383"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The elder offers comfort and suggests a different place.",
+   "src": "L23385"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The elder agrees with the {@chief}, but the ground remains dry.",
+   "src": "L23386"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentice identifies damp ground nearby.",
+   "src": "L23388",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "scientist",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L23388"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The tests are inconclusive, and the village remains thirsty.",
+   "src": "L23389"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "The villagers find a promising site without proving the dream's meaning.",
+   "src": "L23391"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The work is delayed by disagreement over whose guidance mattered.",
+   "src": "L23392"
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "game": [
+     1,
+     2,
+     4,
+     5
+    ]
+   },
+   "title": "The Leader's Sacred Dream"
+  }
+ ],
+ "words": {
+  "chief": {
+   "3": "chief",
+   "*": "leader"
+  }
+ }
+}

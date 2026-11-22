@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Passing Season",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b067_passing_season",
+  "source": "companion",
+  "lines": [
+   1719,
+   1728
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1719",
+  "ledger": [
+   {
+    "src": "L1721",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1725",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1728",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "A farmer notices the days growing subtly shorter.",
+  "cast_only": [
+   "farmer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "farmer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "A farmer notices the days growing subtly shorter.",
+   "src": "L1720",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1722"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1723"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1724"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "name": "Ending 1",
+   "text": "They begin preparing for the next season.",
+   "src": "L1726"
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "They linger to appreciate the afternoon light.",
+   "src": "L1727"
+  }
+ }
+}

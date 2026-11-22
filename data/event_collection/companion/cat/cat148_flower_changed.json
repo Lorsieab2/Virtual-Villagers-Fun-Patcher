@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Flower That Changed Its Name",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "cat148_flower_changed",
+  "source": "companion",
+  "lines": [
+   8873,
+   8883
+  ],
+  "section": "cat",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nStandalone companion anthology | Original creative direction and taxonomy: Lorsieab2 | New event prose: ChatGPT",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L8873",
+  "ledger": [
+   {
+    "src": "L8883",
+    "kind": "note",
+    "why": "Context / follow-up: the designer's catalogue and cross-reference notes, never shown"
+   }
+  ],
+  "description": "A more experienced botanist says a Painted Tigerfern was named wrongly."
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "botanist": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Farming"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A Painted Tigerfern is later identified as a different combination by a more experienced botanist.",
+   "src": "L8874",
+   "choices": [
+    {
+     "label": "Amend the record",
+     "next": "a",
+     "src": "L8875"
+    },
+    {
+     "label": "Grow comparison specimens",
+     "next": "b",
+     "src": "L8877"
+    },
+    {
+     "label": "Keep both names provisionally",
+     "next": "c",
+     "src": "L8879"
+    },
+    {
+     "label": "Argue over seniority",
+     "next": "d",
+     "src": "L8881"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The original collector is credited and the correction explained.",
+   "src": "L8876"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "Differences emerge slowly and require patience.",
+   "src": "L8878",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "botanist",
+     "skills": [
+      "Farming"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L8878"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "name": "Answer C",
+   "text": "The archive marks the classification uncertain.",
+   "src": "L8880"
+  },
+  "d": {
+   "name": "Answer D",
+   "text": "The disagreement damages friendship before either scholar reconsiders.",
+   "src": "L8882"
+  }
+ }
+}

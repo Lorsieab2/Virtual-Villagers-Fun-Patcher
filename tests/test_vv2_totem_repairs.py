@@ -311,9 +311,9 @@ class GiveTotems(unittest.TestCase):
         self.assertIn("  Totem given: Azizi Kalama (head 27, body 16), a living Esteemed Elder: a totem (", text)
         self.assertIn(", record 9\r\n", text)
         backup = Path(result.backup.backup_folder)
-        self.assertIn(vt.BACKUP_GIVE, backup.name)
+        self.assertIn(vt.BACKUP_GIVE, vt.vv_save_backup.backup_label(backup))
         self.assertEqual((backup / v.save.name).read_bytes(), before)
-        copy = v.folder / DATA / "Copies Made Before Repairs" / (v.save.name + vt.COPY_GIVE)
+        [copy] = vt.tools.copies.kept_copies(v.folder, v.save, vt.COPY_GIVE)
         self.assertEqual(copy.read_bytes(), before)
 
     def test_the_colour_is_random(self):
@@ -411,7 +411,7 @@ class FixTotemVillagers(unittest.TestCase):
         self.assertEqual(vt.survey(v.folder, 1).villagers, [])
         text = v.repairs()
         self.assertIn("  Reverted to a villager (certain): Kele Wambui (record 5, head 9, body 9): alive", text)
-        copy = v.folder / DATA / "Copies Made Before Repairs" / (v.save.name + vt.COPY_FIX)
+        [copy] = vt.tools.copies.kept_copies(v.folder, v.save, vt.COPY_FIX)
         self.assertEqual(copy.read_bytes(), before)
 
     def test_an_asked_one_changes_only_when_the_player_says_so(self):

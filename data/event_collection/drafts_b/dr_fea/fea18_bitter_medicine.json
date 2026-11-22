@@ -1,0 +1,117 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bitter Medicine",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fea18_bitter_medicine",
+  "source": "draft_fea",
+  "lines": [
+   212,
+   221
+  ],
+  "section": "dr_fea",
+  "credit": "NEW EVENTS — FEARS AND DOUBTS (FEA-01..50, draft for the owner, 2026-11-15)\nFears big and small, sensible and not, self-doubt, feeling like a fraud, dread with no reason, wanting and fearing the same thing, and courage that is still frightened. Nobody has to be brave, nobody is mocked, and a fear does not have to be conquered by the end.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fea",
+  "title_src": "L212",
+  "ledger": [
+   {
+    "src": "L213",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a child aged 4-9 and an adult)"
+   },
+   {
+    "src": "L215",
+    "kind": "sensitivity",
+    "before": "the healer has made a tea",
+    "after": "(healer), the healer, has made a tea",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   },
+   {
+    "src": "L218",
+    "kind": "instruction",
+    "text": "[effect: (name1) gains health]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L221",
+    "kind": "sensitivity",
+    "before": "asks the healer, who says",
+    "after": "asks (healer), who says",
+    "why": "the owner (2026-11-15): a person named by a role word is a cast villager and shows the name (flavor only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child with a cough refuses a bitter healing tea: drink some yourself first, or ask what would help.",
+  "label_case": "title",
+  "cast_only": [
+   "friend",
+   "healer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 4,
+   "max_age": 9
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "healer": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has a cough, and (healer), the healer, has made a tea for it. The tea is dark green. It smells like a swamp. (subject) is sitting with the cup in both hands, absolutely refusing, with (subject.his/her) mouth shut tight. (friend) is sitting across from (subject.him/her).",
+   "src": "L215",
+   "choices": [
+    {
+     "label": "Drink Some Yourself",
+     "next": "o1",
+     "src": "L217"
+    },
+    {
+     "label": "Ask (subject.him/her) What Would Help",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'll have a sip first,\" says (friend), and does. (friend.His/her) face does something remarkable. \"Oh,\" (friend.he/she) says. \"Oh, that's horrible.\" (subject) starts giggling. Then, still giggling, (subject.he/she) takes a sip too, and makes exactly the same face. They finish the cup between them, one awful sip each.",
+   "src": "L218",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": 10,
+     "max": 30,
+     "src": "L218"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"What would make it easier?\" asks (friend). (subject) thinks. \"Honey. Lots.\" (friend) asks (healer), who says a little honey is fine. With honey it's merely terrible. (subject) drinks it in tiny sips, with tremendous suffering, and complains loudly the whole time. The cough is better the next day. Maybe it was the tea. Maybe not.",
+   "src": "L221"
+  }
+ }
+}

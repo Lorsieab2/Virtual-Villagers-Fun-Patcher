@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "As the Old Fisher Used to Say",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his02_fisher_used_say",
+  "source": "draft_his",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an elder and a young adult, 18-25)"
+   }
+  ],
+  "description": "An elder quotes the Old Fisher for everything, though half the sayings contradict each other: point it out, or make up a new one.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "max_age": 25
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Long ago, so the story goes, there was an old fisher on Isola who said a great many wise things, and people still quote them. \"Never trust a calm sea.\" \"A full net is a heavy net.\" \"The fish you don't catch are the biggest.\" Today (friend) has noticed that (subject) quotes the Old Fisher for everything, and that half the sayings contradict each other.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Point Out the Contradiction",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Make Up a New One",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) decides to test something. At dinner (friend.he/she) says, solemnly, \"As the Old Fisher used to say: never eat a crab on a windy day.\" Several people nod wisely. (subject) chokes on (subject.his/her) food. By the end of the month (friend) hears the saying repeated twice by people who have no idea where it came from. (friend.He/she) wonders how many of the Old Fisher's sayings started exactly this way.",
+   "src": "L29",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a catch, fruit); the village's stores do not change -- the draft's notes: everything but the marked effects is story only",
+     "src": "L29"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"You said yesterday the Old Fisher said 'Go out early, the fish are hungry,' and today you said 'Go out late, the fish are lazy,'\" says (friend). (subject) thinks about this for a long time. \"The Old Fisher,\" (subject.he/she) says at last, \"was a very complicated person.\" (friend) laughs. They spend the evening trying to sort the sayings into ones that make sense and ones that don't. The second pile is much bigger.",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"You said yesterday the Old Fisher said 'Go out early, the fish are hungry,' and today you said 'Go out late, the fish are lazy,'\" says (friend). (subject) thinks about this for a long time. \"The Old Fisher,\" (subject.he/she) says at last, \"was a very complicated person.\" (friend) laughs. They spend the evening trying to sort the sayings into ones that make sense and ones that don't. The second pile is much bigger.",
+   "src": "L26"
+  }
+ }
+}

@@ -1,0 +1,202 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Cure in the Rare Blossom",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife44_cure_rare",
+  "source": "living",
+  "lines": [
+   21201,
+   21212
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21201",
+  "ledger": [
+   {
+    "src": "L21212",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A nearly extinct flower contains a substance that seems to ease severe pain better than common remedies.",
+  "cast_only": [
+   "healer",
+   "patient"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "healer": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A nearly extinct flower contains a substance that seems to ease severe pain better than common remedies.",
+   "src": "L21202",
+   "choices": [
+    {
+     "label": "Harvest the last blossoms for patients.",
+     "next": "a",
+     "src": "L21203"
+    },
+    {
+     "label": "Protect the plants and try other methods.",
+     "next": "b",
+     "src": "L21206"
+    },
+    {
+     "label": "Attempt careful cultivation before harvesting.",
+     "next": "c",
+     "src": "L21209"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "type": "branch",
+   "name": "Outcome A1",
+   "children": [
+    {
+     "next": "a1__fx"
+    },
+    {
+     "next": "a1__text"
+    }
+   ]
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The effect proves inconsistent, and the healers regret the loss.",
+   "src": "L21205"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The species survives, while some patients continue to suffer.",
+   "src": "L21207"
+  },
+  "b2": {
+   "type": "branch",
+   "name": "Outcome B2",
+   "children": [
+    {
+     "next": "b2__fx"
+    },
+    {
+     "next": "b2__text"
+    }
+   ]
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "A few new plants grow, allowing cautious future study.",
+   "src": "L21210"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The cuttings fail, and the healer must rethink the plan.",
+   "src": "L21211"
+  },
+  "a1__fx": {
+   "name": "Outcome A1",
+   "text": "Several patients find relief, but no seeds remain for next season.",
+   "src": "L21204",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L21204"
+    }
+   ],
+   "auto_text": true
+  },
+  "a1__text": {
+   "name": "Outcome A1",
+   "text": "Several patients find relief, but no seeds remain for next season.",
+   "src": "L21204"
+  },
+  "b2__fx": {
+   "name": "Outcome B2",
+   "text": "A common remedy provides enough comfort for one patient.",
+   "src": "L21208",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 15,
+     "max": 30,
+     "src": "L21208"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2__text": {
+   "name": "Outcome B2",
+   "text": "A common remedy provides enough comfort for one patient.",
+   "src": "L21208"
+  }
+ }
+}

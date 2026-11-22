@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Words at the Table",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anfam04_words_table",
+  "source": "anthology",
+  "lines": [
+   28345,
+   28358
+  ],
+  "section": "an_fam",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_fam",
+  "title_src": "L28345",
+  "ledger": [
+   {
+    "src": "L28346",
+    "kind": "sensitivity",
+    "before": "A child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28346",
+    "kind": "sensitivity",
+    "before": "a sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28348",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28349",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28351",
+    "kind": "sensitivity",
+    "before": "The sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28352",
+    "kind": "sensitivity",
+    "before": "The sibling",
+    "after": "(sibling)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28357",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L28358",
+    "kind": "sensitivity",
+    "before": "The child",
+    "after": "(child)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A child makes a rude comment about a sibling during dinner.",
+  "label_case": "title",
+  "cast_only": [
+   "child",
+   "sibling"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "child": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13
+  },
+  "sibling": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 17,
+   "relation": {
+    "sibling_of": "child"
+   }
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(child) makes a rude comment about (sibling) during dinner.",
+   "src": "L28346",
+   "choices": [
+    {
+     "label": "Ask the Child to Reconsider the Words",
+     "next": "a",
+     "src": "L28347"
+    },
+    {
+     "label": "Let the Sibling Describe the Impact",
+     "next": "b",
+     "src": "L28350"
+    },
+    {
+     "label": "Pause the Conversation Until Everyone Is Calmer",
+     "next": "c",
+     "src": "L28353"
+    },
+    {
+     "label": "Model a Respectful Apology",
+     "next": "d",
+     "src": "L28356"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(child) rephrases the complaint more kindly.",
+   "src": "L28348"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "(child) struggles to explain their anger and needs time.",
+   "src": "L28349"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "(sibling) feels understood after being heard.",
+   "src": "L28351"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "(sibling) admits they had also been teasing earlier.",
+   "src": "L28352"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The family resumes dinner peacefully after a short break.",
+   "src": "L28354"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "The disagreement continues later but without shouting.",
+   "src": "L28355"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "(child) apologizes in their own words.",
+   "src": "L28357"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "(child) is not ready to apologize yet, but stops the remarks.",
+   "src": "L28358"
+  }
+ }
+}

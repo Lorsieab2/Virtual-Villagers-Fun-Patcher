@@ -1,0 +1,110 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Butterfly Doing on (name1)'s Nose?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd42_what_butterfly",
+  "source": "da_wd",
+  "lines": [
+   488,
+   497
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L488",
+  "ledger": [
+   {
+    "src": "L489",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A large blue butterfly lands on the end of a villager's nose: stay perfectly still, or ask a friend for help.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is sitting quietly in the sun when a large blue butterfly lands right on the end of (subject.his/her) nose. It folds its wings. It unfolds them. It shows no sign of leaving. (subject) can see it, slightly blurry, if (subject.he/she) crosses (subject.his/her) eyes. (friend) has just noticed and is trying very hard not to laugh.",
+   "src": "L491",
+   "choices": [
+    {
+     "label": "Stay Perfectly Still",
+     "next": "a",
+     "src": "L493"
+    },
+    {
+     "label": "Ask (friend) for Help",
+     "next": "b",
+     "src": "L496"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "\"Is it still there?\" (subject) whispers, without moving (subject.his/her) lips. \"Yes,\" says (friend). \"What do I do?\" \"Nothing. It looks lovely.\" (subject) sits there for a long time, being lovely, with a butterfly on (subject.his/her) nose. When it finally flies away, (subject.he/she) feels oddly as though (subject.he/she) has been chosen for something.",
+   "src": "L497"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(subject) doesn't move a muscle. The butterfly stays. (friend) gets the giggles. (subject) gets the giggles. (subject)'s nose starts to twitch. The butterfly stays. At last (subject) sneezes, enormously, and the butterfly lifts off and drifts away on the breeze, apparently not at all bothered. (subject) has butterfly dust on (subject.his/her) nose for the rest of the day.",
+   "src": "L494",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L494"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L494"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(subject) doesn't move a muscle. The butterfly stays. (friend) gets the giggles. (subject) gets the giggles. (subject)'s nose starts to twitch. The butterfly stays. At last (subject) sneezes, enormously, and the butterfly lifts off and drifts away on the breeze, apparently not at all bothered. (subject) has butterfly dust on (subject.his/her) nose for the rest of the day.",
+   "src": "L494"
+  }
+ }
+}

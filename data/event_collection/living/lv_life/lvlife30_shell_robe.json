@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell-stitched Robe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvlife30_shell_robe",
+  "source": "living",
+  "lines": [
+   21019,
+   21030
+  ],
+  "section": "lv_life",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nNEW COMPANION VOLUME — THE HEALER'S HANDS, THE FARMER'S FIELDS,\nAND THE WEAVER'S DREAMS\n45 fully branched events · 270 authored outcomes",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L21019",
+  "ledger": [
+   {
+    "src": "L21030",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A craftsperson wants to decorate a ceremonial robe with rare shells.",
+  "cast_only": [
+   "craftsperson"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "craftsperson": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A craftsperson wants to decorate a ceremonial robe with rare shells.",
+   "src": "L21020",
+   "choices": [
+    {
+     "label": "Use shells gathered empty from the shore.",
+     "next": "a",
+     "src": "L21021"
+    },
+    {
+     "label": "Harvest living shellfish for the robe.",
+     "next": "b",
+     "src": "L21024"
+    },
+    {
+     "label": "Use carved wooden imitations.",
+     "next": "c",
+     "src": "L21027"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The robe gleams softly and leaves living creatures undisturbed.",
+   "src": "L21022"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The shells are too few, and the design must change.",
+   "src": "L21023"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The robe is finished, but gatherers worry about declining numbers.",
+   "src": "L21025"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "A damaged reef prompts the council to restrict further collection.",
+   "src": "L21026"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The robe gains a distinctive pattern.",
+   "src": "L21028"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "Some villagers prefer the natural shimmer of real shell.",
+   "src": "L21029"
+  }
+ }
+}

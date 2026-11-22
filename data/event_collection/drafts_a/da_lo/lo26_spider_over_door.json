@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Spider Over the Door",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo26_spider_over_door",
+  "source": "da_lo",
+  "lines": [
+   309,
+   318
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L309",
+  "ledger": [
+   {
+    "src": "L310",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A small spider builds a web across a villager's doorway, and some neighbors say it is very lucky.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "A small spider has built a web right across the top of (name1)'s doorway. (name1)'s neighbors say that's very lucky: a spider at the door keeps bad things out. Other neighbors say it's just a spider. (name1) has to duck under it every time (he/she) goes in or out.",
+   "src": "L312",
+   "choices": [
+    {
+     "label": "Leave the Web",
+     "next": "a",
+     "src": "L314"
+    },
+    {
+     "label": "Move the Spider Somewhere Better",
+     "next": "b",
+     "src": "L317"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) gently scoops the spider onto a leaf and carries it to a bush by the door, where it can catch flies without being ducked under all day. The spider builds a new web there the next morning. (name1) decides that counts: it's still guarding the door, just from a little further away.",
+   "src": "L318"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) leaves it, ducking carefully each time. The web catches dew in the mornings and shines like a little silver net. (name1) starts to look forward to seeing it. Whether it keeps anything out, (he/she) can't say. It certainly keeps the flies out. That's something.",
+   "src": "L315",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L315"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) leaves it, ducking carefully each time. The web catches dew in the mornings and shines like a little silver net. (name1) starts to look forward to seeing it. Whether it keeps anything out, (he/she) can't say. It certainly keeps the flies out. That's something.",
+   "src": "L315"
+  }
+ }
+}

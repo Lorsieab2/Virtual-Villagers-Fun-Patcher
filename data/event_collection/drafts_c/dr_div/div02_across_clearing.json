@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Across the Clearing",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div02_across_clearing",
+  "source": "draft_div",
+  "lines": [
+   20,
+   29
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L20",
+  "ledger": [
+   {
+    "src": "L21",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and another villager; in the story (name1) is deaf and reads lips)"
+   }
+  ],
+  "description": "A deaf villager who reads lips is following a whispered argument across the clearing: ask what is funny, or pretend not to notice.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is deaf, and reads lips very well, which means that from the far side of a busy clearing (subject.he/she) can follow any conversation that's facing (subject.him/her). Right now two villagers over by the drying racks are having a long, whispered argument about whose turn it is to clean the fish. (subject) is following every word. (friend), sitting next to (subject.him/her), notices (subject) grinning.",
+   "src": "L23",
+   "choices": [
+    {
+     "label": "Ask What's So Funny",
+     "next": "o1",
+     "src": "L25"
+    },
+    {
+     "label": "Pretend Not to Notice",
+     "next": "o2",
+     "src": "L28"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) leaves it. A few minutes later the two arguers walk past, and (subject) says, perfectly pleasantly, \"It was your turn, by the way. Three weeks ago, the sandal.\" Both of them stop dead. One turns very red. The other bursts out laughing. They never whisper near (subject) again. Well, they whisper. They just turn their backs first.",
+   "src": "L29"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) signs a question. (subject) signs back the whole argument, with faces. It turns out to be about a fish, a sandal and a promise made three weeks ago. (friend) is crying with laughter. \"You can't tell anyone,\" (friend.he/she) says. (subject) raises an eyebrow. \"I'M not the one shouting about fish in the middle of the village.\"",
+   "src": "L26",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L26"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) signs a question. (subject) signs back the whole argument, with faces. It turns out to be about a fish, a sandal and a promise made three weeks ago. (friend) is crying with laughter. \"You can't tell anyone,\" (friend.he/she) says. (subject) raises an eyebrow. \"I'M not the one shouting about fish in the middle of the village.\"",
+   "src": "L26"
+  }
+ }
+}

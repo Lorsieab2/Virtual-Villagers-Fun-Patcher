@@ -1,0 +1,108 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Promised Prank",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "hum10_promised_prank",
+  "source": "draft_hum",
+  "lines": [
+   116,
+   125
+  ],
+  "section": "dr_hum",
+  "credit": "NEW EVENTS — HUMOR AND ABSURDITY (HUM-01 to HUM-50, draft for the owner, 2026-11-15)\nSlapstick, silly noises, puns, pranks with permission, ridiculous coincidences, a little funny magic and animals being absurd. Nobody is the butt of the joke: everyone keeps their dignity, and the comedy needs no victim.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_hum",
+  "title_src": "L116",
+  "ledger": [
+   {
+    "src": "L117",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "A villager has been promised a harmless prank sometime this month and is waiting: ask for a hint, or stop worrying about it.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) asks (friend), very politely, whether (subject.he/she) may play one small, harmless prank on (friend.him/her) at some point in the next month. (friend), flattered to be asked, says yes. This turns out to be a mistake. Ever since, (friend) has checked every basket before reaching into it, sniffed every cup and opened every door very slowly. Nothing has happened. It is driving (friend.him/her) gently mad.",
+   "src": "L119",
+   "choices": [
+    {
+     "label": "Ask for a Hint",
+     "next": "o1",
+     "src": "L121"
+    },
+    {
+     "label": "Stop Worrying About It",
+     "next": "o2",
+     "src": "L124"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) smiles and says, \"It might already have happened.\" (friend) spends the whole evening searching (friend.his/her) hut. Nothing has changed. Or has it? Was the water jar always on that side? At the end of the month (subject) reveals the prank: there never was a prank. There was only the waiting. (friend) admits that this was very good, and immediately asks permission to play one of (friend.his/her) own.",
+   "src": "L122"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(friend) decides not to think about it any more. The month nearly ends. On the very last morning, (friend.he/she) slips on (friend.his/her) sandals and finds a small flower tucked into each one. That's it. That's the whole prank. (friend) wears the flowers all day, a little disappointed and very touched.",
+   "src": "L125",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L125"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(friend) decides not to think about it any more. The month nearly ends. On the very last morning, (friend.he/she) slips on (friend.his/her) sandals and finds a small flower tucked into each one. That's it. That's the whole prank. (friend) wears the flowers all day, a little disappointed and very touched.",
+   "src": "L125"
+  }
+ }
+}

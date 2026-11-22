@@ -1,0 +1,133 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Thankful Apprentice",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "c5b087_thankful",
+  "source": "companion",
+  "lines": [
+   1894,
+   1903
+  ],
+  "section": "c5",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nOriginal concepts and creative direction: Lorsieab2\nAdditional event concepts, wording, and branches: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L1894",
+  "ledger": [
+   {
+    "src": "L1896",
+    "kind": "structural",
+    "why": "the choices' heading"
+   },
+   {
+    "src": "L1900",
+    "kind": "structural",
+    "why": "the endings' heading: one is drawn"
+   },
+   {
+    "src": "L1903",
+    "kind": "note",
+    "why": "OPTIONAL CONTINUITY: a designer note on memory and callbacks, never shown (rule 9)"
+   }
+  ],
+  "description": "An apprentice brings their mentor a handmade gift.",
+  "cast_only": [
+   "apprentice",
+   "mentor"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "mentor": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "scene",
+ "nodes": {
+  "scene": {
+   "type": "question",
+   "name": "The scene",
+   "text": "An apprentice brings their mentor a handmade gift.",
+   "src": "L1895",
+   "choices": [
+    {
+     "label": "Offer gentle encouragement.",
+     "next": "ending",
+     "src": "L1897"
+    },
+    {
+     "label": "Ask a thoughtful question.",
+     "next": "ending",
+     "src": "L1898"
+    },
+    {
+     "label": "Give the villager some space.",
+     "next": "ending",
+     "src": "L1899"
+    }
+   ]
+  },
+  "ending": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "The mentor admits the apprentice has taught them too.",
+   "src": "L1902"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "The mentor is delighted.",
+   "src": "L1901",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "mentor",
+     "mood": "good",
+     "src": "L1901"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "The mentor is delighted.",
+   "src": "L1901"
+  }
+ }
+}

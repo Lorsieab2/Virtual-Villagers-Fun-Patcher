@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Points to Water",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo41_stone_points",
+  "source": "da_lo",
+  "lines": [
+   494,
+   503
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L494",
+  "ledger": [
+   {
+    "src": "L495",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L500",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "In a dry spell, a villager notices a lavastone grows warmer near the low ground by the cliffs.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "It has been dry for weeks, and the stream is low. (subject) has noticed something about the small lavastone (subject.he/she) carries: when (subject.he/she) walks toward the low ground by the cliffs, it grows warmer. When (subject.he/she) walks away, it cools. (friend) thinks (subject) is imagining it.",
+   "src": "L497",
+   "choices": [
+    {
+     "label": "Follow It",
+     "next": "a",
+     "src": "L499"
+    },
+    {
+     "label": "Wait for Rain Instead",
+     "next": "b",
+     "src": "L502"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) follows the warmth, step by step, with (friend) trailing behind and muttering. At the foot of the cliffs, the stone is hot enough to sting. They dig. A little way down, the earth turns damp, then wet, then there's a trickle of clear water. The village has a new spring by evening. (friend) stops muttering.",
+   "src": "L500",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L500"
+    }
+   ],
+   "auto_text": true
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(subject) decides not to go digging about on the say-so of a stone. The dry spell lasts another week, and then the rain comes, heavy and welcome. (subject) never finds out what the stone was pointing at. Sometimes, though, walking past the cliffs, (subject.he/she) feels it warm in (subject.his/her) pocket, and wonders.",
+   "src": "L503"
+  }
+ }
+}

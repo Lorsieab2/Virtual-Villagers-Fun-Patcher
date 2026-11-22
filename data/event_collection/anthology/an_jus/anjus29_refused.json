@@ -1,0 +1,212 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Refused Forgiveness",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "anjus29_refused",
+  "source": "anthology",
+  "lines": [
+   31167,
+   31181
+  ],
+  "section": "an_jus",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": "an_jus",
+  "title_src": "L31167",
+  "ledger": [
+   {
+    "src": "L31168",
+    "kind": "note",
+    "why": "the volume's casting tag (ADULTS 18+), carried out as the roles' ages"
+   },
+   {
+    "src": "L31169",
+    "kind": "sensitivity",
+    "before": "A villager who caused lasting harm years ago asks",
+    "after": "(villager), who caused lasting harm years ago, asks",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31169",
+    "kind": "sensitivity",
+    "before": "the injured person",
+    "after": "(injured)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31171",
+    "kind": "sensitivity",
+    "before": "The requester",
+    "after": "(villager)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   },
+   {
+    "src": "L31172",
+    "kind": "sensitivity",
+    "before": "the injured villager",
+    "after": "(injured)",
+    "why": "the owner (2026-11-15): names instead of vague roles -- the person the role word names is a cast villager shown by name (flavour only: the villager need not have that job)"
+   }
+  ],
+  "description": "A villager who caused lasting harm years ago asks to be forgiven, but the injured person does not wish to reconnect.",
+  "label_case": "title",
+  "cast_only": [
+   "villager",
+   "injured"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "villager": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "injured": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(villager), who caused lasting harm years ago, asks to be forgiven, but (injured) does not wish to reconnect.",
+   "src": "L31169",
+   "choices": [
+    {
+     "label": "Respect the Refusal",
+     "next": "a",
+     "src": "L31170"
+    },
+    {
+     "label": "Require Accountability Independent of Forgiveness",
+     "next": "b",
+     "src": "L31173"
+    },
+    {
+     "label": "Support the Injured Person's Life Now",
+     "next": "c",
+     "src": "L31176"
+    },
+    {
+     "label": "Keep Community Safety Central",
+     "next": "d",
+     "src": "L31179"
+    }
+   ],
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31169"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1"
+    },
+    {
+     "next": "a2"
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "(villager) accepts a firm boundary.",
+   "src": "L31171"
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "Friends stop pressuring (injured) to reconcile.",
+   "src": "L31172",
+   "text_only": [
+    {
+     "what": "\"injured\"",
+     "reason": "health or an injury in the story (the event's premise or a word in passing); nobody's health changes -- the volume's outcomes are story text unless an effect is marked",
+     "src": "L31172"
+    }
+   ]
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1"
+    },
+    {
+     "next": "b2"
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The person makes practical amends where possible.",
+   "src": "L31174"
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "They continue changing behavior without expecting praise.",
+   "src": "L31175"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "They pursue a new craft and friendships.",
+   "src": "L31177"
+  },
+  "c2": {
+   "name": "Outcome C2",
+   "text": "They acknowledge lingering pain without being defined by it.",
+   "src": "L31178"
+  },
+  "d": {
+   "type": "branch",
+   "name": "Answer D",
+   "children": [
+    {
+     "next": "d1"
+    },
+    {
+     "next": "d2"
+    }
+   ]
+  },
+  "d1": {
+   "name": "Outcome D1",
+   "text": "Clear limits prevent repeated harm.",
+   "src": "L31180"
+  },
+  "d2": {
+   "name": "Outcome D2",
+   "text": "The council refuses to confuse remorse with automatic restored trust.",
+   "src": "L31181"
+  }
+ }
+}

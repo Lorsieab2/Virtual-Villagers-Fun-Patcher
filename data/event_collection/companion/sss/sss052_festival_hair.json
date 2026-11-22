@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Festival Hair Catastrophe",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "sss052_festival_hair",
+  "source": "companion",
+  "lines": [
+   6595,
+   6607
+  ],
+  "section": "sss",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nCreative direction and premises: Lorsieab2 | New event writing and expansion: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L6599",
+  "ledger": [
+   {
+    "src": "L6596",
+    "kind": "structural",
+    "why": "the group heading '05  -  ORDINARY DAYS, TERRIBLE IDEAS, AND LONG MEMORIES'"
+   },
+   {
+    "src": "L6607",
+    "kind": "note",
+    "why": "Context and callbacks: the designer's tags and notes, never shown"
+   }
+  ],
+  "description": "A teen's berry dye turns friends' hair a startling shade of green.",
+  "cast_only": [
+   "teen"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "teen": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A teenager volunteers to dye friends' hair with berry pigment. The color turns a startling shade of green.",
+   "src": "L6600",
+   "choices": [
+    {
+     "label": "Wear it proudly",
+     "next": "a",
+     "src": "L6601"
+    },
+    {
+     "label": "Try to wash it out",
+     "next": "b",
+     "src": "L6603"
+    },
+    {
+     "label": "Cut or restyle the hair",
+     "next": "c",
+     "src": "L6605"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "The hairstyle becomes a brief fashion trend.",
+   "src": "L6602",
+   "text_only": [
+    {
+     "what": "the hairstyle",
+     "reason": "rule 9: no head is green, and the trend is brief",
+     "src": "L6602"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The dye fades unevenly; everyone laughs except the very particular apprentice.",
+   "src": "L6604"
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c__fx"
+    },
+    {
+     "next": "c__text"
+    }
+   ]
+  },
+  "c__fx": {
+   "name": "Answer C",
+   "text": "A new look sticks, and the teen discovers an unexpected talent for hairdressing.",
+   "src": "L6606",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random",
+     "src": "L6606"
+    },
+    {
+     "do": "mood",
+     "role": "teen",
+     "mood": "good",
+     "src": "L6606"
+    }
+   ],
+   "auto_text": true
+  },
+  "c__text": {
+   "name": "Answer C",
+   "text": "A new look sticks, and the teen discovers an unexpected talent for hairdressing.",
+   "src": "L6606",
+   "effects": [
+    {
+     "do": "appearance",
+     "role": "friend",
+     "head": "random",
+     "src": "L6606"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

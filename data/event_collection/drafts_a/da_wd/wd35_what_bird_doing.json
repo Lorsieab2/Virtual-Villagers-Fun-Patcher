@@ -1,0 +1,100 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "What's a Bird Doing in the Spare Pot?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "wd35_what_bird_doing",
+  "source": "da_wd",
+  "lines": [
+   410,
+   419
+  ],
+  "section": "da_wd",
+  "credit": "NEW EVENTS — WHAT'S THAT DOING HERE? (WD-01 to WD-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_wd",
+  "title_src": "L410",
+  "ledger": [
+   {
+    "src": "L411",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager tips over the old feast pot to clean it and finds a bird's nest with three tiny eggs underneath.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) has a big cooking pot that (he/she) only uses for feasts. It's been sitting outside the hut, upside down, for weeks. Today (he/she) tips it over to clean it and finds a small bird has built a nest underneath, right inside, out of grass and feathers and one of (name1)'s old sandal straps. There are three tiny eggs in it.",
+   "src": "L413",
+   "choices": [
+    {
+     "label": "Put the Pot Back",
+     "next": "a",
+     "src": "L415"
+    },
+    {
+     "label": "Tell Everyone to Leave It Alone",
+     "next": "b",
+     "src": "L418"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a__fx"
+    },
+    {
+     "next": "a__text"
+    }
+   ]
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) tips the pot back and tells everyone in the village that the feast pot is out of use until further notice. \"Why?\" \"There's a bird in it.\" People seem to accept this as a perfectly good reason. When the chicks finally fly, (name1) gets the pot back, with a lovely nest in it, which (he/she) decides to leave there for next year.",
+   "src": "L419"
+  },
+  "a__fx": {
+   "name": "Answer A",
+   "text": "(name1) gently tips the pot back over, exactly as it was. The bird, which has been hopping about anxiously nearby, darts back underneath. (name1) uses a different pot for the next feast. A few weeks later, (he/she) hears tiny cheeping from under the pot, and grins every time (he/she) walks past.",
+   "src": "L416",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L416"
+    }
+   ],
+   "auto_text": true
+  },
+  "a__text": {
+   "name": "Answer A",
+   "text": "(name1) gently tips the pot back over, exactly as it was. The bird, which has been hopping about anxiously nearby, darts back underneath. (name1) uses a different pot for the next feast. A few weeks later, (he/she) hears tiny cheeping from under the pot, and grins every time (he/she) walks past.",
+   "src": "L416"
+  }
+ }
+}

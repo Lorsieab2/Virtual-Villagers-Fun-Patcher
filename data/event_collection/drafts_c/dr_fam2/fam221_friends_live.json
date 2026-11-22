@@ -1,0 +1,140 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Friends Who Live Together",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fam221_friends_live",
+  "source": "draft_fam2",
+  "lines": [
+   248,
+   257
+  ],
+  "section": "dr_fam2",
+  "credit": "NEW EVENTS — RELATIONSHIPS, SINGLEHOOD AND FAMILY (FAM2-01..50, draft for the owner, 2026-11-15)\nCouples of every kind, courting, quarrels, separations without blame, widowhood and second loves, happily single and childfree villagers, single parents, grandparents, siblings, chosen and extended families, and affection that isn't romantic. Nobody has to love, marry or have children, everyone may say no to affection, and a player's choice never obliges a villager to anything.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_fam2",
+  "title_src": "L248",
+  "ledger": [
+   {
+    "src": "L249",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two elders who are not partners; any sexes)"
+   }
+  ],
+  "description": "Two elder friends, both lonely, wonder about sharing one hut as friends: say yes, or say no but visit every day.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 55
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) have been friends for fifty years. Both of them live alone, both of their huts are drafty and both of them are lonely in the evenings. Today, over tea, (friend) says, \"What if I moved in with you? Just as friends. We could share the cooking.\"",
+   "src": "L251",
+   "choices": [
+    {
+     "label": "Say Yes",
+     "next": "o1",
+     "src": "L253"
+    },
+    {
+     "label": "Say No, but Visit Every Day",
+     "next": "o2",
+     "src": "L256"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(subject) thinks about it, then grins. \"Only if you don't snore.\" \"I absolutely snore,\" says (friend). \"Fine,\" says (subject). They move in together. They argue about everything: how to cook fish, who left the door open, whether it's going to rain. They have never been happier. People ask if they're a couple. \"No,\" says (subject). \"We're worse. We're friends.\"",
+   "src": "L254",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L254"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L254"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(subject) thinks about it, then grins. \"Only if you don't snore.\" \"I absolutely snore,\" says (friend). \"Fine,\" says (subject). They move in together. They argue about everything: how to cook fish, who left the door open, whether it's going to rain. They have never been happier. People ask if they're a couple. \"No,\" says (subject). \"We're worse. We're friends.\"",
+   "src": "L254"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "\"I love you,\" says (subject). \"But I like my own hut. Even if it's drafty.\" (friend) laughs. \"Fair enough.\" So instead, they visit each other every evening, taking turns. One cooks, the other complains. It works perfectly. They agree they'd have driven each other mad living together. They're probably right.",
+   "src": "L257",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L257"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "\"I love you,\" says (subject). \"But I like my own hut. Even if it's drafty.\" (friend) laughs. \"Fair enough.\" So instead, they visit each other every evening, taking turns. One cooks, the other complains. It works perfectly. They agree they'd have driven each other mad living together. They're probably right.",
+   "src": "L257"
+  }
+ }
+}

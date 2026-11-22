@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Night of the Turtles",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il169_night_turtles",
+  "source": "da_il09",
+  "lines": [
+   104,
+   113
+  ],
+  "section": "da_il09",
+  "credit": "NEW EVENTS — INNER LIFE, PART IX (161-180, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il09",
+  "title_src": "L104",
+  "ledger": [
+   {
+    "src": "L105",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "The baby turtles might hatch on the beach tonight, and a teen asks to stay up and watch.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "max_age": 17
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "Word has gone round that the baby turtles might hatch on the beach tonight. All the teens want to stay up and watch. (subject) asks (friend) if (subject.he/she) can go. (subject.He/She) has clearly practiced the request, with reasons, in order.",
+   "src": "L107",
+   "choices": [
+    {
+     "label": "Say Yes, with One Rule",
+     "next": "a",
+     "src": "L109"
+    },
+    {
+     "label": "Go with (subject.him/her)",
+     "next": "b",
+     "src": "L112"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"Yes,\" says (friend). \"If you come back at first light, and you stay away from the water.\" (subject) agrees so fast (subject.he/she) nearly trips over (subject.his/her) own words. The turtles take ages. Most of the teens fall asleep in the sand. But (subject) stays awake, and just before dawn (subject.he/she) sees the first tiny turtle crawl out and start for the sea. (subject.He/She) talks about it for days.",
+   "src": "L110"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "\"I'll come too,\" says (friend). (subject) looks dismayed. \"Everyone else is going on their own.\" (friend) thinks about it. \"I'll sit at the other end of the beach. You won't even see me.\" And (friend.he/she) does. (subject) doesn't see (friend.him/her) all night, except once, when the first turtle appears and (subject) turns round to share it, and finds (friend) already watching, beaming.",
+   "src": "L113",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L113"
+    },
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L113"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "\"I'll come too,\" says (friend). (subject) looks dismayed. \"Everyone else is going on their own.\" (friend) thinks about it. \"I'll sit at the other end of the beach. You won't even see me.\" And (friend.he/she) does. (subject) doesn't see (friend.him/her) all night, except once, when the first turtle appears and (subject) turns round to share it, and finds (friend) already watching, beaming.",
+   "src": "L113"
+  }
+ }
+}

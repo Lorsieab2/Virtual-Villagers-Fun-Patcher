@@ -1,0 +1,138 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Coconut Water at Noon",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "tim134_coconut_water",
+  "source": "draft_tim2",
+  "lines": [
+   65,
+   70
+  ],
+  "section": "dr_tim2",
+  "credit": "NEW EVENTS — TINY ISLAND MOMENTS, T126 to T175 (draft for the owner, 2026-11-15)\nFifty more tiny moments continuing T001-T125 (your 500 Tiny Island Moments, played as 125 openings with 4 endings each).",
+  "draw_weight": 1,
+  "series": "dr_tim2",
+  "title_src": "L65",
+  "ledger": [
+   {
+    "src": "L66",
+    "kind": "structural",
+    "text": "Opening:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L67",
+    "kind": "structural",
+    "text": "Ending 1:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L68",
+    "kind": "structural",
+    "text": "Ending 2:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L69",
+    "kind": "structural",
+    "text": "Ending 3:",
+    "why": "a structural marker"
+   },
+   {
+    "src": "L70",
+    "kind": "structural",
+    "text": "Ending 4:",
+    "why": "a structural marker"
+   }
+  ],
+  "description": "A villager drinks cool water straight from a freshly opened coconut.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "branch",
+   "name": "One of the endings",
+   "children": [
+    {
+     "next": "e1"
+    },
+    {
+     "next": "e2"
+    },
+    {
+     "next": "e3"
+    },
+    {
+     "next": "e4"
+    }
+   ]
+  },
+  "e1": {
+   "type": "branch",
+   "name": "Ending 1",
+   "children": [
+    {
+     "next": "e1__fx"
+    },
+    {
+     "next": "e1__text"
+    }
+   ]
+  },
+  "e2": {
+   "name": "Ending 2",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. Some of it runs down (name1)'s chin, and nobody minds.",
+   "src": "L66,L68"
+  },
+  "e3": {
+   "name": "Ending 3",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. (name1) scrapes out the soft flesh and shares it with a friend.",
+   "src": "L66,L69"
+  },
+  "e4": {
+   "name": "Ending 4",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. A curious goat watches hopefully until (name1) gives it the empty shell.",
+   "src": "L66,L70"
+  },
+  "e1__fx": {
+   "name": "Ending 1",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. It is exactly what (name1) needed on such a hot day.",
+   "src": "L66,L67",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L66,L67"
+    }
+   ],
+   "auto_text": true
+  },
+  "e1__text": {
+   "name": "Ending 1",
+   "text": "(name1) drinks cool water straight from a freshly opened coconut. It is exactly what (name1) needed on such a hot day.",
+   "src": "L66,L67"
+  }
+ }
+}

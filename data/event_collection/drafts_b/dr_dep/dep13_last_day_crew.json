@@ -1,0 +1,103 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Last Day with the Crew",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "dep13_last_day_crew",
+  "source": "draft_dep",
+  "lines": [
+   152,
+   161
+  ],
+  "section": "dr_dep",
+  "credit": "NEW EVENTS — DEPARTURES AND EXILE (DEP-01..50, draft for the owner, 2026-11-15)\nLeaving and being left: moving huts, short journeys, visitors going home, goodbyes done well and badly, homesickness, and the rare person who sails away for good. Choosing to leave is never a rejection of one's people, and choosing to stay is never a failure.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_dep",
+  "title_src": "L152",
+  "ledger": [
+   {
+    "src": "L153",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult who is working)"
+   }
+  ],
+  "description": "A villager spends a last afternoon with a work crew before changing jobs: share a last lunch, or slip away quietly.",
+  "label_case": "title",
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has worked with the same crew for years, and starting tomorrow (he/she) is doing different work. Nobody is upset. It was (his/her) own choice, and (he/she) is looking forward to it. But this is the last afternoon with these people, and they keep doing small things the way they always have, and (name1) keeps noticing every one of them.",
+   "src": "L155",
+   "choices": [
+    {
+     "label": "Have a Last Lunch with the Crew",
+     "next": "o1",
+     "src": "L157"
+    },
+    {
+     "label": "Slip Away Quietly",
+     "next": "o2",
+     "src": "L160"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) isn't one for fuss. At the end of the day (he/she) puts (his/her) tools away neatly, nods to everyone as usual, and walks off. The next morning (he/she) finds a small bundle outside (his/her) hut: (his/her) favorite old tool, which (he/she) had left behind, wrapped up with a bit of string and a note that just says, \"Forgot this.\"",
+   "src": "L161"
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(name1) brings fruit and fish for everyone at midday. They eat together in the shade and tell the old stories: the day the ladder broke, the day somebody fell asleep standing up. \"You'll come and visit,\" someone says. \"I'll be right over there,\" says (name1), pointing. Everybody laughs, but they all mean it.",
+   "src": "L158",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L158"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(name1) brings fruit and fish for everyone at midday. They eat together in the shade and tell the old stories: the day the ladder broke, the day somebody fell asleep standing up. \"You'll come and visit,\" someone says. \"I'll be right over there,\" says (name1), pointing. Everybody laughs, but they all mean it.",
+   "src": "L158"
+  }
+ }
+}

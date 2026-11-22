@@ -1,0 +1,78 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Have I Done This Before?",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il043_have_i_done_this",
+  "source": "da_il03",
+  "lines": [
+   32,
+   41
+  ],
+  "section": "da_il03",
+  "credit": "NEW EVENTS — INNER LIFE, PART III (41-60, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il03",
+  "title_src": "L32",
+  "ledger": [
+   {
+    "src": "L33",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   }
+  ],
+  "description": "A villager handing over a bowl of fruit is suddenly certain this exact moment has happened before.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) is handing a bowl of fruit to (friend) when everything goes strange for a moment. The breeze, the light, the exact way (friend) is smiling: (subject) is completely certain (subject.he/she) has lived this exact moment before. Every bit of it.",
+   "src": "L35",
+   "choices": [
+    {
+     "label": "Tell (friend)",
+     "next": "a",
+     "src": "L37"
+    },
+    {
+     "label": "Say Nothing",
+     "next": "b",
+     "src": "L40"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "\"I've done this before,\" (subject) says. \"This exact thing.\" (friend) looks at the bowl. \"Handed me fruit? You do that most days.\" \"No, THIS exact thing.\" (friend) considers it seriously, then takes a mango. \"Well, I hope it went well last time.\" It did, as far as (subject) can tell.",
+   "src": "L38"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "The feeling fades as quickly as it came. (friend) is just (friend), the fruit is just fruit, and the breeze has moved on. (subject) spends the rest of the afternoon half-waiting for it to happen again. It doesn't. Probably.",
+   "src": "L41"
+  }
+ }
+}

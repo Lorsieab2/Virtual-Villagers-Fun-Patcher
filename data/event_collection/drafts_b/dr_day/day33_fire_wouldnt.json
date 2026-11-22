@@ -1,0 +1,141 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Fire That Wouldn't Light",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day33_fire_wouldnt",
+  "source": "draft_day",
+  "lines": [
+   392,
+   401
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L392",
+  "ledger": [
+   {
+    "src": "L393",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult)"
+   }
+  ],
+  "description": "A villager cannot get the cooking fire to light while everyone waits for dinner: ask for help, or keep trying.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been trying to light the cooking fire for what feels like forever. The wood is a little damp. The kindling is a little damp. (subject)'s patience is a little damp. Sparks catch and die. Smoke rises and gives up. Everyone is waiting for dinner. (friend) wanders over, eating a piece of fruit.",
+   "src": "L395",
+   "text_only": [
+    {
+     "what": "\"die\"",
+     "reason": "a death only talked about (or the word's everyday sense); nobody dies -- the draft's notes: everything but the marked effects is story only",
+     "src": "L395"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Ask for Help",
+     "next": "o1",
+     "src": "L397"
+    },
+    {
+     "label": "Keep Trying",
+     "next": "o2",
+     "src": "L400"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "\"Help,\" says (subject). (friend) looks at the fire, rearranges three sticks, blows once, and the fire roars into life. (subject) stares. \"How did you do that?\" (friend) shrugs. \"Your fire was nearly there. I just finished it.\" (subject) is not sure (subject.he/she) believes this. (subject.He/she) is very grateful.",
+   "src": "L398",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L398"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "\"Help,\" says (subject). (friend) looks at the fire, rearranges three sticks, blows once, and the fire roars into life. (subject) stares. \"How did you do that?\" (friend) shrugs. \"Your fire was nearly there. I just finished it.\" (subject) is not sure (subject.he/she) believes this. (subject.He/she) is very grateful.",
+   "src": "L398"
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) keeps trying. (friend) sits down to watch, which doesn't help. (subject) changes the kindling, blows, fans, mutters, and, just as the sun goes down, a flame catches and holds. (subject) jumps up and cheers, alone, for a fire. Nobody else knows how hard won it was. (subject) does.",
+   "src": "L401",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L401"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) keeps trying. (friend) sits down to watch, which doesn't help. (subject) changes the kindling, blows, fans, mutters, and, just as the sun goes down, a flame catches and holds. (subject) jumps up and cheers, alone, for a fire. Nobody else knows how hard won it was. (subject) does.",
+   "src": "L401"
+  }
+ }
+}

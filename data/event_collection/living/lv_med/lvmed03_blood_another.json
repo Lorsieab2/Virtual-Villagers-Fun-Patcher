@@ -1,0 +1,226 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Blood of Another",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lvmed03_blood_another",
+  "source": "living",
+  "lines": [
+   20245,
+   20256
+  ],
+  "section": "lv_med",
+  "credit": "ISOLA — ALL-IN-ONE GRAND + COMPANION ANTHOLOGIES\nOriginal creative direction and user-authored text: Lorsieab2. Additional expansion: ChatGPT (OpenAI).\nAUTHORSHIP: Original Isola project by Lorsieab2; new event expansion by ChatGPT (OpenAI).",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L20245",
+  "ledger": [
+   {
+    "src": "L20256",
+    "kind": "note",
+    "why": "CALLBACKS: the designer's callback tags, never shown"
+   }
+  ],
+  "description": "A wounded patient is losing strength, and an apprentice proposes transferring blood from a healthy volunteer.",
+  "cast_only": [
+   "volunteer"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "apprentice": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Healing"
+    ],
+    "min": 1
+   }
+  },
+  "patient": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "volunteer": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A wounded patient is losing strength; an apprentice proposes transferring blood from a healthy volunteer, having seen a crude experiment with animals.",
+   "src": "L20246",
+   "choices": [
+    {
+     "label": "Attempt the unfamiliar transfer with informed consent.",
+     "next": "a",
+     "src": "L20247"
+    },
+    {
+     "label": "Use established measures to control bleeding and provide care.",
+     "next": "b",
+     "src": "L20250"
+    },
+    {
+     "label": "Test the idea further without risking this patient.",
+     "next": "c",
+     "src": "L20253"
+    }
+   ]
+  },
+  "a": {
+   "type": "branch",
+   "name": "Answer A",
+   "children": [
+    {
+     "next": "a1",
+     "rarity": "occasional",
+     "weight": 10
+    },
+    {
+     "next": "a2",
+     "weight": 20
+    }
+   ]
+  },
+  "a1": {
+   "name": "Outcome A1",
+   "text": "The patient briefly rallies, then becomes feverish; the healers fear a harmful reaction.",
+   "src": "L20248",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": -30,
+     "max": -10,
+     "src": "L20248"
+    }
+   ],
+   "auto_text": true
+  },
+  "a2": {
+   "name": "Outcome A2",
+   "text": "The patient survives, but the healers cannot tell whether the transfer helped.",
+   "src": "L20249"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b1",
+     "weight": 20
+    },
+    {
+     "next": "b2",
+     "rarity": "very_rare",
+     "weight": 2
+    }
+   ]
+  },
+  "b1": {
+   "name": "Outcome B1",
+   "text": "The bleeding slows, and the patient gradually recovers.",
+   "src": "L20251",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "patient",
+     "min": 10,
+     "max": 30,
+     "src": "L20251"
+    }
+   ],
+   "auto_text": true
+  },
+  "b2": {
+   "name": "Outcome B2",
+   "text": "The wound proves too severe, and the patient dies despite careful treatment.",
+   "src": "L20252",
+   "effects": [
+    {
+     "do": "kill",
+     "role": "patient",
+     "cause": "unknown",
+     "src": "L20252",
+     "line": "injuries"
+    }
+   ],
+   "auto_text": true
+  },
+  "c": {
+   "type": "branch",
+   "name": "Answer C",
+   "children": [
+    {
+     "next": "c1"
+    },
+    {
+     "next": "c2"
+    }
+   ]
+  },
+  "c1": {
+   "name": "Outcome C1",
+   "text": "The apprentice discovers that blood from different animals does not behave alike.",
+   "src": "L20254",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "apprentice",
+     "skills": [
+      "Research"
+     ],
+     "min": 5,
+     "max": 10,
+     "src": "L20254"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2": {
+   "type": "branch",
+   "name": "Outcome C2",
+   "children": [
+    {
+     "next": "c2__fx"
+    },
+    {
+     "next": "c2__text"
+    }
+   ]
+  },
+  "c2__fx": {
+   "name": "Outcome C2",
+   "text": "The healer records the proposal as too uncertain for immediate use.",
+   "src": "L20255",
+   "effects": [
+    {
+     "do": "tech",
+     "size": "normal",
+     "scaled": true,
+     "src": "L20255"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2__text": {
+   "name": "Outcome C2",
+   "text": "The healer records the proposal as too uncertain for immediate use.",
+   "src": "L20255"
+  }
+ }
+}

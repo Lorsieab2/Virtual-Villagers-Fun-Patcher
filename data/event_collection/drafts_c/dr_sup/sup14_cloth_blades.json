@@ -1,0 +1,106 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Cloth for Blades",
+ "games": [
+  4
+ ],
+ "collection": {
+  "id": "sup14_cloth_blades",
+  "source": "draft_sup",
+  "lines": [
+   164,
+   173
+  ],
+  "section": "dr_sup",
+  "credit": "NEW EVENTS - TREE OF LIFE SUPPLIES (SUP-01..14, draft for the owner, 2026-11-17)\nCutting tools, bars of soap and bolts of cloth in The Tree of Life: blades made, lost and found, soap that slips away or smells of flowers, and sacks for the yellow fruit. Funny, practical and warm.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_sup",
+  "title_src": "L164",
+  "ledger": [
+   {
+    "src": "L165",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L164",
+    "kind": "note",
+    "why": "the heading's \"(VV4 only)\": the event is The Tree of Life only"
+   },
+   {
+    "src": "L170",
+    "kind": "instruction",
+    "text": "[effect: the village loses 1 cloth bolt; the village gains 2 cutting tools]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "The weavers have too much cloth and the pickers too few cutting tools: make a trade, or keep things as they are.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "The weavers have more cloth than they can store, and the blackberry pickers have hardly any cutting tools left. (subject), who weaves, and (friend), who picks, have been glaring at each other's piles for a week. (friend) finally suggests a trade: one bolt of cloth for a morning of sharpening.",
+   "src": "L167",
+   "choices": [
+    {
+     "label": "Make the Trade",
+     "next": "o1",
+     "src": "L169"
+    },
+    {
+     "label": "Keep Things as They Are",
+     "next": "o2",
+     "src": "L172"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) hands over a bolt, and (friend) spends the morning at the sharpening stone. By midday the pickers have new blades and the weavers have a little more room to move. Both of them pretend they got the better deal. Both of them are a little bit right.",
+   "src": "L170",
+   "effects": [
+    {
+     "do": "supply",
+     "item": "cloth",
+     "min": -1,
+     "max": -1,
+     "src": "L170"
+    },
+    {
+     "do": "supply",
+     "item": "cutting_tools",
+     "min": 2,
+     "max": 2,
+     "src": "L170"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They decide everything is fine as it is. The weavers keep tripping over cloth. The pickers keep sharing one blade between three. Every evening (subject) and (friend) look at each other's piles across the fire, and every evening neither of them says anything.",
+   "src": "L173"
+  }
+ }
+}

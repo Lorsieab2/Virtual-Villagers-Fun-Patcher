@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Names We Remember",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lcb12_names_we",
+  "source": "draft_lcb",
+  "lines": [
+   162,
+   173
+  ],
+  "section": "dr_lcb",
+  "credit": "NEW EVENTS - LIVING CULTURE II: THE LAND, MEMORY AND NEW TRADITIONS (LCB-01..50, draft, 2026-11-18)\nIsola's ceremonies for the land and sea, its ways of remembering and mourning, and the new traditions its people make, question and change: rain songs, reef promises, memory gardens, funerals, forgotten melodies and festivals nobody planned.\nWritten in the style of the owner's own events. The owner waived the review (\"I'm sure the draft events are fine\"); every event passed the Isola rules and the final 15-point review, logged in the notes.",
+  "draw_weight": 1,
+  "series": "dr_lcb",
+  "title_src": "L162",
+  "ledger": [
+   {
+    "src": "L163",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks an adult and a child)"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "text": "[Solidarity: neutral]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   },
+   {
+    "src": "L173",
+    "kind": "note",
+    "text": "[Solidarity: raise]",
+    "why": "the ending's Solidarity tag (planned village counter; never shown, no effect yet)"
+   }
+  ],
+  "description": "At the remembrance gathering everyone speaks a name, and a child does not want to: let them stay silent, or help them find words.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 5,
+   "max_age": 13
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the remembrance gathering, each villager stands and speaks the name of someone they miss. When it comes to (friend)'s turn, (friend.he/she) stands up, opens (friend.his/her) mouth, and nothing comes out. (friend.His/her) grandmother died last season. (subject) is sitting next to (friend.him/her). What should (subject) do?",
+   "src": "L165",
+   "choices": [
+    {
+     "label": "Let (friend) Stay Silent",
+     "next": "o1",
+     "src": "L167"
+    },
+    {
+     "label": "Help (friend) Find Words",
+     "next": "o2",
+     "src": "L171"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) quietly squeezes (friend)'s hand and nods to the next person. (friend) sits down. Nobody stares. At the very end of the gathering, when everyone is leaving, (friend) whispers (friend.his/her) grandmother's name to (subject). That is enough.",
+   "src": "L169"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) stands up beside (friend) and says, \"Shall we say it together?\" They say the grandmother's name together, and (subject) adds that she made the best fish stew on the island. Several people laugh through their tears and agree. (friend) sits down looking a little lighter.",
+   "src": "L173"
+  }
+ }
+}

@@ -1,0 +1,292 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hailstones",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b085_hailstones",
+  "source": "balance",
+  "lines": [
+   3838,
+   3880
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L3838",
+  "ledger": [
+   {
+    "src": "L3839",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L3840",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3848",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3857",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L3845",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3846",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L3849",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3858",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L3851",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3854",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3860",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3863",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L3866-3880",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   },
+   {
+    "src": "L3864",
+    "kind": "instruction",
+    "text": "Your village loses (award) food.",
+    "why": "a loss of (award): the game's own automatic line says it (\"The village loses food.\")"
+   }
+  ],
+  "description": "Ice is falling from the sky.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14
+  },
+  "builder": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "Ice is falling from the sky. Nobody in the village has ever seen it before: white stones of it, the size of quail eggs, bouncing off the paths and punching holes in the thatch. The children are delighted and terrified at once. The elders are just terrified.\n(subject) is outside when it starts. (builder) is shouting for help covering the food store, whose roof is already tearing. But (subject)'s own hut, with (subject.his/her) things in it, is right there, its roof full of holes.\nShould (subject) help with the food store, or save (subject.his/her) own hut?",
+   "choices": [
+    {
+     "label": "Help with the Food Store",
+     "next": "c1",
+     "src": "L3845"
+    },
+    {
+     "label": "Save the Hut",
+     "next": "c2",
+     "src": "L3846"
+    }
+   ],
+   "src": "L3841-3843",
+   "text_only": [
+    {
+     "src": "L3842",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    },
+    {
+     "src": "L3843",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c1o1": {
+   "text": "They drag every spare mat in the village onto the food store roof and hold them there until the ice stops. The food is saved. Then the whole village goes round together, patching holes in every roof, the children collecting the last of the ice in bowls to see it melt. By nightfall every hut is dry.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L3852",
+   "text_only": [
+    {
+     "src": "L3852",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(subject) climbs onto the store roof to hold a mat in place, and a gust tears the mat away, and (subject.he/she) slips and falls to the ground hard. The food is saved, but (subject)'s hip never heals right. (subject.He/She) walks with a stick ever after, and won't climb anything higher than a doorstep. (builder) builds (subject.him/her) a seat by the food store, and (subject) keeps the store's count from there, better than anyone ever has.",
+   "effects": [
+    {
+     "do": "health_change",
+     "min": -40,
+     "max": -40,
+     "role": "subject"
+    },
+    {
+     "do": "old_look",
+     "role": "subject"
+    }
+   ],
+   "children": [
+    {
+     "next": "c1o2_c1"
+    }
+   ],
+   "src": "L3855",
+   "text_only": [
+    {
+     "src": "L3855",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) runs for the food store with a sleeping mat over (subject.his/her) head, and the ice drums on it like a hundred fists...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3849",
+   "text_only": [
+    {
+     "src": "L3849",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ]
+  },
+  "c2o1": {
+   "text": "The ice stops as suddenly as it started. (subject)'s things are safe and dry. The food store has a few soggy baskets, but no more. When (subject) goes out, (builder) hands (subject.him/her) a bundle of thatch without a word, and they patch roofs together until dark, and that's the end of it.",
+   "effects": [
+    {
+     "do": "repair",
+     "structures": "any"
+    }
+   ],
+   "src": "L3861",
+   "text_only": [
+    {
+     "src": "L3861",
+     "what": "\"food\"",
+     "reason": "the word in the owner's story; what changes in the game is the ending's own EFFECT line (the ledger), so this word alone changes nothing"
+    }
+   ],
+   "auto_text": true
+  },
+  "c2o2": {
+   "text": "(subject)'s things are saved. The food store isn't. The roof gives way under the ice, and by the time it stops, half the baskets are full of icy water. (builder) doesn't say anything. (subject.He/She) doesn't need to. (subject) helps dry what's left, and feels it for a long time.",
+   "effects": [
+    {
+     "do": "food",
+     "size": "normal",
+     "scaled": true,
+     "loss": true
+    }
+   ],
+   "auto_text": true,
+   "src": "L3864"
+  },
+  "c2": {
+   "text": "(subject) dives into (subject.his/her) own hut and starts stuffing (subject.his/her) things under the sleeping shelf, out of the ice and the leaks...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L3858"
+  },
+  "c1o2_gx": {
+   "type": "branch"
+  },
+  "c1o2_g1": {
+   "type": "branch",
+   "effects": [
+    {
+     "do": "preference",
+     "dislike": "heights",
+     "role": "subject"
+    }
+   ]
+  },
+  "c1o2_c1": {
+   "type": "branch",
+   "children": [
+    {
+     "next": "c1o2_g1",
+     "if": {
+      "game": [
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "else": "c1o2_gx"
+    }
+   ]
+  }
+ }
+}

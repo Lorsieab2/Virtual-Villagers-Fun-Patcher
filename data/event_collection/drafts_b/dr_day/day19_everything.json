@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Everything Ripened at Once",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "day19_everything",
+  "source": "draft_day",
+  "lines": [
+   224,
+   233
+  ],
+  "section": "dr_day",
+  "credit": "NEW EVENTS — GOOD, BAD AND ORDINARY DAYS (DAY-01..50, draft for the owner, 2026-11-15)\nWonderful days, rotten days, mixed days and days when nothing much happens at all. Moods come without reasons, small things matter more than they should, and nobody has to end the day happier, wiser or more productive than they started it.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_day",
+  "title_src": "L224",
+  "ledger": [
+   {
+    "src": "L225",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   },
+   {
+    "src": "L230",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   },
+   {
+    "src": "L233",
+    "kind": "instruction",
+    "text": "[effect: small food gain]",
+    "why": "the draft's effect, never shown: the outcome's effect"
+   }
+  ],
+  "description": "Overnight every fruit near a villager's hut has ripened at once: give them away, or make something with them.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "All season, the fruit trees near (subject)'s hut have been green and stubborn. Then, overnight, every single fruit on every single tree ripened at once. There are fruits on the branches, fruits on the ground, fruits rolling down the path. (subject) has filled every basket (subject.he/she) owns and there are still more. (friend) is standing in the middle of it all, astonished.",
+   "src": "L227",
+   "choices": [
+    {
+     "label": "Give Them Away",
+     "next": "o1",
+     "src": "L229"
+    },
+    {
+     "label": "Make Something with Them",
+     "next": "o2",
+     "src": "L232"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They fill baskets and walk round the village handing out fruit. Everyone gets some. Then everyone gets more. By evening the whole village smells of fruit, children are sticky to the elbows, and there is still some left. (subject) has never been so popular.",
+   "src": "L230",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L230"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) spend the whole day cutting, drying, squashing and cooking fruit. The hut fills with sweet steam. By the end there are jars of fruit paste, strings of dried fruit and a pot of something sticky neither of them can identify. It will last for weeks. Their hands will be sticky for longer.",
+   "src": "L233",
+   "effects": [
+    {
+     "do": "food",
+     "size": "small",
+     "scaled": true,
+     "src": "L233"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

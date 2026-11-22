@@ -1,0 +1,109 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Eat More, (name1)!",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "div22_eat_more",
+  "source": "draft_div",
+  "lines": [
+   260,
+   269
+  ],
+  "section": "dr_div",
+  "credit": "NEW EVENTS — DISABILITY AND HUMAN DIVERSITY (DIV-01..50, draft for the owner, 2026-11-15)\nDisabled villagers, chronic illness and every kind of body, skin, hair and face: wheelchairs with real wheels, crutches, canes, ear trumpets, signs and lenses made from island materials; good days and hard days; competence, humor and opinions. Sometimes the difference is the story. Often it's just part of the scenery.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_div",
+  "title_src": "L260",
+  "ledger": [
+   {
+    "src": "L261",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks a thin adult and an elder; in the story (name1) is very thin)"
+   }
+  ],
+  "description": "An elder keeps filling a healthy, very thin villager's bowl: tell them no, kindly, or eat it and suffer.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 55
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) is thin, very thin, and always has been. (subject.He/she) eats well, sleeps well, and is perfectly healthy. Every elder in the village seems to think otherwise. Today, (friend) has filled (subject)'s bowl for the third time and is standing over (subject.him/her), arms crossed, watching (subject.him/her) eat.",
+   "src": "L263",
+   "choices": [
+    {
+     "label": "Tell (friend.him/her) No, Kindly",
+     "next": "o1",
+     "src": "L265"
+    },
+    {
+     "label": "Eat It and Suffer",
+     "next": "o2",
+     "src": "L268"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"I'm full,\" says (subject). \"Truly. I'm just made like this. I always have been.\" (friend) looks doubtful. \"You look like a stick.\" \"A healthy stick,\" says (subject), \"who will be sick if (subject.he/she) eats this.\" (friend) takes the bowl back, grumbling, and eats it (friend.him/her)self. (friend.He/she) still sneaks extra fish onto (subject)'s plate sometimes. (subject) has stopped fighting about the fish.",
+   "src": "L266"
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) eats it, to be polite. Then (subject.he/she) lies on the mat groaning for an hour. (friend) is alarmed. (subject) explains. (friend) is quiet for a while. \"I just worry,\" (friend.he/she) says at last. \"I know,\" says (subject), \"but please believe me when I say I'm full.\" (friend) promises. It lasts about a week, but it's a good week.",
+   "src": "L269",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -30,
+     "max": -15,
+     "src": "L269"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) eats it, to be polite. Then (subject.he/she) lies on the mat groaning for an hour. (friend) is alarmed. (subject) explains. (friend) is quiet for a while. \"I just worry,\" (friend.he/she) says at last. \"I know,\" says (subject), \"but please believe me when I say I'm full.\" (friend) promises. It lasts about a week, but it's a good week.",
+   "src": "L269"
+  }
+ }
+}

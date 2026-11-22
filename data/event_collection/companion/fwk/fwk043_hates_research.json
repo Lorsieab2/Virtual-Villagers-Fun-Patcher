@@ -1,0 +1,93 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Researcher Who Hates Research",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "fwk043_hates_research",
+  "source": "companion",
+  "lines": [
+   5878,
+   5885
+  ],
+  "section": "fwk",
+  "credit": "Creative direction, original concepts and user-authored material: Lorsieab2.\nAdditional expansion and event prose: ChatGPT (OpenAI).\nConcept and creative direction: Lorsieab2\nExpansion writing: ChatGPT (OpenAI)",
+  "draw_weight": 1,
+  "series": null,
+  "title_src": "L5878",
+  "ledger": [
+   {
+    "src": "L5884",
+    "kind": "note",
+    "text": "Possible outcomes:",
+    "why": "designer tag on the ending (the four choices have no outcome of their own)"
+   },
+   {
+    "src": "L5885",
+    "kind": "note",
+    "why": "Contextual consequences: a designer note, never shown"
+   }
+  ],
+  "description": "A talented researcher dreads each morning at the laboratory.",
+  "cast_only": [
+   "researcher"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "researcher": {
+   "kind": "villager",
+   "min_age": 14,
+   "skill": {
+    "names": [
+     "Research"
+    ],
+    "min": 1
+   }
+  }
+ },
+ "start": "premise",
+ "nodes": {
+  "premise": {
+   "type": "question",
+   "name": "The premise",
+   "text": "A talented researcher realizes they dread each morning at the laboratory.",
+   "src": "L5879",
+   "choices": [
+    {
+     "label": "Change profession after a difficult conversation.",
+     "next": "outcome",
+     "src": "L5880"
+    },
+    {
+     "label": "Try a different specialty.",
+     "next": "outcome",
+     "src": "L5881"
+    },
+    {
+     "label": "Stay for prestige and grow resentful.",
+     "next": "outcome",
+     "src": "L5882"
+    },
+    {
+     "label": "Find renewed purpose by mentoring.",
+     "next": "outcome",
+     "src": "L5883"
+    }
+   ]
+  },
+  "outcome": {
+   "name": "Ending",
+   "text": "The decision may restore confidence, create a new apprenticeship, change profession or duties, or expose a preventable error. An honest admission can still bring accountability; concealment may appear to work initially but create a delayed callback.",
+   "src": "L5884"
+  }
+ }
+}

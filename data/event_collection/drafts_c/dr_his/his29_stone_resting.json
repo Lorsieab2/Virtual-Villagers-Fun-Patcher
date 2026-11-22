@@ -1,0 +1,154 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Stone That Is Resting",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "his29_stone_resting",
+  "source": "draft_his",
+  "lines": [
+   344,
+   353
+  ],
+  "section": "dr_his",
+  "credit": "NEW EVENTS — HISTORY AND COLLECTIVE MEMORY (HIS-01..50, draft for the owner, 2026-11-15)\nOld stories, ruins and abandoned places, heirlooms, disputed records, festivals that changed, names on carvings, customs nobody can explain, and the things a people remembers together: some of it painful and handled gently, some of it gloriously silly.\nWritten in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.",
+  "draw_weight": 1,
+  "series": "dr_his",
+  "title_src": "L344",
+  "ledger": [
+   {
+    "src": "L345",
+    "kind": "note",
+    "why": "the casting line, carried out as the roles' ages (picks two adults)"
+   }
+  ],
+  "description": "Lunching on the huge carved stone the ancestors left resting halfway up the hill: try to finish the job, or leave it to rest.",
+  "label_case": "title",
+  "cast_only": [
+   "subject",
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Halfway up the hill, beside the path, sits an enormous carved stone, far too big for anyone to move. The old story says the ancestors were dragging it to the top of the hill for a monument, got this far, and decided it was \"resting.\" It's been resting for many generations. Today (subject) and (friend) are sitting on it, eating lunch, and (friend) has a suggestion.",
+   "src": "L347",
+   "choices": [
+    {
+     "label": "Try to Finish the Job",
+     "next": "o1",
+     "src": "L349"
+    },
+    {
+     "label": "Leave It to Rest",
+     "next": "o2",
+     "src": "L352"
+    }
+   ]
+  },
+  "o1": {
+   "type": "branch",
+   "name": "Outcome A",
+   "children": [
+    {
+     "next": "o1__fx"
+    },
+    {
+     "next": "o1__text"
+    }
+   ]
+  },
+  "o2": {
+   "type": "branch",
+   "name": "Outcome B",
+   "children": [
+    {
+     "next": "o2__fx"
+    },
+    {
+     "next": "o2__text"
+    }
+   ]
+  },
+  "o1__fx": {
+   "name": "Outcome A",
+   "text": "(friend) gathers twenty villagers, a great deal of rope and some log rollers. They heave. They push. They sing. The stone moves the width of one hand, and then sits down again. Everybody collapses on the grass, laughing and exhausted. \"It's still resting,\" says (subject). \"I think I understand the ancestors better now,\" says (friend), lying flat on (friend.his/her) back.",
+   "src": "L350",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L350"
+    }
+   ],
+   "effects": [
+    {
+     "do": "mood",
+     "role": "subject",
+     "mood": "good",
+     "src": "L350"
+    },
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L350"
+    }
+   ],
+   "auto_text": true
+  },
+  "o1__text": {
+   "name": "Outcome A",
+   "text": "(friend) gathers twenty villagers, a great deal of rope and some log rollers. They heave. They push. They sing. The stone moves the width of one hand, and then sits down again. Everybody collapses on the grass, laughing and exhausted. \"It's still resting,\" says (subject). \"I think I understand the ancestors better now,\" says (friend), lying flat on (friend.his/her) back.",
+   "src": "L350",
+   "text_only": [
+    {
+     "what": "\"collapses\"",
+     "reason": "a small thing breaks in the story; no building is damaged -- the draft's notes: everything but the marked effects is story only",
+     "src": "L350"
+    }
+   ]
+  },
+  "o2__fx": {
+   "name": "Outcome B",
+   "text": "(subject) says that if it was good enough for the ancestors, it's good enough for them. They finish lunch. Then (subject) carves a small new mark on the stone, beside the old ones: a little picture of two people eating lunch. (friend) laughs. Somebody, generations from now, will find that mark and wonder about it.",
+   "src": "L353",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L353"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2__text": {
+   "name": "Outcome B",
+   "text": "(subject) says that if it was good enough for the ancestors, it's good enough for them. They finish lunch. Then (subject) carves a small new mark on the stone, beside the old ones: a little picture of two people eating lunch. (friend) laughs. Somebody, generations from now, will find that mark and wonder about it.",
+   "src": "L353"
+  }
+ }
+}

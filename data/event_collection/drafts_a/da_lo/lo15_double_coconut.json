@@ -1,0 +1,88 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Double Coconut",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "lo15_double_coconut",
+  "source": "da_lo",
+  "lines": [
+   177,
+   186
+  ],
+  "section": "da_lo",
+  "credit": "NEW EVENTS — LUCK, OMENS AND LAVASTONES (LO-01 to LO-50, draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_lo",
+  "title_src": "L177",
+  "ledger": [
+   {
+    "src": "L178",
+    "kind": "note",
+    "why": "the casting line (the roles carry it)"
+   },
+   {
+    "src": "L186",
+    "kind": "instruction",
+    "text": "[effect: (name1) celebrates]",
+    "why": "the draft's effect note, never shown: the page's effect"
+   }
+  ],
+  "description": "A villager finds a rare double coconut: keep it whole for luck, or crack it open and share it.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(name1) has found a coconut with two shells grown together, like twins. It's very rare. Some people say it means great good fortune, and should be kept. Some people say it should be shared, or the luck goes sour. Some people say it's just a funny coconut. (name1) is turning it over and over in (his/her) hands.",
+   "src": "L180",
+   "choices": [
+    {
+     "label": "Keep It Whole",
+     "next": "a",
+     "src": "L182"
+    },
+    {
+     "label": "Crack It and Share It",
+     "next": "b",
+     "src": "L185"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(name1) puts the double coconut on a shelf in (his/her) hut, where everyone who visits admires it. (He/She) has a perfectly normal year: some good things, some bad things, nothing remarkable. (name1) decides that's probably what good luck looks like, most of the time.",
+   "src": "L183"
+  },
+  "b": {
+   "name": "Answer B",
+   "text": "(name1) cracks it open at dinner and shares it round the fire, a tiny piece each. It tastes exactly like a normal coconut. Everyone agrees they feel very lucky. Whether they are or not, they spend the evening laughing, and that seems like good fortune enough.",
+   "src": "L186",
+   "effects": [
+    {
+     "do": "celebrate",
+     "who": "subject",
+     "src": "L186"
+    }
+   ],
+   "auto_text": true
+  }
+ }
+}

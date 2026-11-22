@@ -1,0 +1,111 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Hands",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "il003_quiet_hands",
+  "source": "da_il01",
+  "lines": [
+   35,
+   44
+  ],
+  "section": "da_il01",
+  "credit": "NEW EVENTS — INNER LIFE (draft for the owner, 2026-11-15)",
+  "draw_weight": 1,
+  "series": "da_il01",
+  "title_src": "L35",
+  "ledger": [
+   {
+    "src": "L36",
+    "kind": "note",
+    "why": "the casting line (the roles carry it); TODO story trait mute: pending engine (the draft: in the story (name1) is mute; nothing about the villager changes in the game)"
+   }
+  ],
+  "description": "A villager who does not speak meets a new apprentice who talks to them slowly and loudly.",
+  "label_case": "title"
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The setup",
+   "type": "question",
+   "text": "(subject) doesn't speak. (subject.He/She) hasn't for years, and (subject.he/she) is perfectly happy that way, thank you. Most of the village has learned (subject.his/her) hand signs: \"food,\" \"come here,\" \"that's very funny,\" and a rather rude one for when the builders are too loud. Today a new apprentice, (friend), keeps talking to (subject) slowly and loudly, as though (subject.he/she) can't hear.",
+   "src": "L38",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "food in the story (a meal, a snack, a basket of fruit); the village's stores do not change",
+     "src": "L38"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Teach (friend) the Signs",
+     "next": "a",
+     "src": "L40"
+    },
+    {
+     "label": "Let (subject) Handle It (subject.his/her) Own Way",
+     "next": "b",
+     "src": "L43"
+    }
+   ]
+  },
+  "a": {
+   "name": "Answer A",
+   "text": "(subject) sits (friend) down and starts with the basics. \"Hello.\" \"Thank you.\" \"I can hear you perfectly well.\" (friend) turns very red, then very curious. By evening the two of them are having a whole conversation, mostly about the builders being too loud.",
+   "src": "L41"
+  },
+  "b": {
+   "type": "branch",
+   "name": "Answer B",
+   "children": [
+    {
+     "next": "b__fx"
+    },
+    {
+     "next": "b__text"
+    }
+   ]
+  },
+  "b__fx": {
+   "name": "Answer B",
+   "text": "(subject) picks up a stick and draws in the sand: I HEAR YOU. YOU CAN TALK NORMALLY. Then, underneath, a little drawing of (friend) with a very big mouth. (friend) laughs so hard (friend.he/she) has to sit down. \"Sorry,\" (friend.he/she) says, at a perfectly normal volume. (subject) signs: \"You're forgiven.\"",
+   "src": "L44",
+   "effects": [
+    {
+     "do": "mood",
+     "role": "friend",
+     "mood": "good",
+     "src": "L44"
+    }
+   ],
+   "auto_text": true
+  },
+  "b__text": {
+   "name": "Answer B",
+   "text": "(subject) picks up a stick and draws in the sand: I HEAR YOU. YOU CAN TALK NORMALLY. Then, underneath, a little drawing of (friend) with a very big mouth. (friend) laughs so hard (friend.he/she) has to sit down. \"Sorry,\" (friend.he/she) says, at a perfectly normal volume. (subject) signs: \"You're forgiven.\"",
+   "src": "L44"
+  }
+ }
+}

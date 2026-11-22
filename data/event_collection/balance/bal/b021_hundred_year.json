@@ -1,0 +1,201 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Hundred-Year Lotus",
+ "games": [
+  1,
+  2,
+  3,
+  4,
+  5
+ ],
+ "collection": {
+  "id": "b021_hundred_year",
+  "source": "balance",
+  "lines": [
+   934,
+   976
+  ],
+  "section": "bal",
+  "credit": "Written by Claude to Lorsieab2's style guide and direction.",
+  "draw_weight": 1,
+  "series": "bal",
+  "title_src": "L934",
+  "ledger": [
+   {
+    "src": "L935",
+    "kind": "note",
+    "why": "WHO: the event's casting, carried out as its roles (ages, sex, the head fisher or healer is flavor)"
+   },
+   {
+    "src": "L936",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L944",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L953",
+    "kind": "structural",
+    "why": "a structural heading (EVENT TEXT, or a choice's own section heading)"
+   },
+   {
+    "src": "L941",
+    "kind": "structural",
+    "text": "Choice A:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L942",
+    "kind": "structural",
+    "text": "Choice B:",
+    "why": "the choice's letter"
+   },
+   {
+    "src": "L945",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L954",
+    "kind": "structural",
+    "text": "First popup:",
+    "why": "the choice's own popup"
+   },
+   {
+    "src": "L947",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L950",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L956",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L959",
+    "kind": "instruction",
+    "why": "the ending's name, chance and EFFECT: its branch weight and the page's effects"
+   },
+   {
+    "src": "L962-976",
+    "kind": "note",
+    "why": "the MIXER SEED: built as procedural pieces (data/procedural_pieces/go_seeds.json)"
+   }
+  ],
+  "description": "It's as big as a canoe, pink at the edges and white in the middle, and the whole pond smells of honey.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18
+  },
+  "friend": {
+   "kind": "villager"
+  }
+ },
+ "start": "ask",
+ "nodes": {
+  "ask": {
+   "type": "question",
+   "text": "In the middle of the lily pond there's a lotus that the first villagers planted when they came to the island, and it has never once flowered. The elders say it blooms once every hundred years, and that when it does, it \"gives the village something it needs.\"\nThis morning it has bloomed. It's as big as a canoe, pink at the edges and white in the middle, and the whole pond smells of honey. (subject) wades out to look, and finds a baby curled up asleep in the heart of the flower, wrapped in a petal like a blanket.\nThe baby yawns. Should (subject) lift the baby out, or fetch the elders first?",
+   "choices": [
+    {
+     "label": "Lift the Baby Out",
+     "next": "c1",
+     "src": "L941"
+    },
+    {
+     "label": "Fetch the Elders",
+     "next": "c2",
+     "src": "L942"
+    }
+   ],
+   "src": "L937-939"
+  },
+  "c1o1": {
+   "text": "\"It gives the village something it needs,\" says the oldest elder, looking at the baby, and then at (subject), who hasn't put the baby down once. \"And it seems it chose who to give it to.\" (subject) wraps the baby in the petal again and carries the baby home, and nobody would dream of arguing. The petal dries, and turns hard, and hangs over the cradle for years, still faintly sweet.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L948",
+   "auto_text": true
+  },
+  "c1o2": {
+   "text": "(friend) comes running when (subject.he/she) hears, and stops dead at the edge of the pond. Then (friend.he/she) wades straight in, clothes and all, and takes the baby's other foot in (friend.his/her) hand, and that's that. They carry the baby home between them. The lotus closes behind them, and the pond goes back to smelling of mud.",
+   "effects": [
+    {
+     "do": "nursing",
+     "any_birth_sex": true,
+     "role": "subject"
+    }
+   ],
+   "src": "L951",
+   "auto_text": true
+  },
+  "c1": {
+   "text": "(subject) slides (subject.his/her) hands under the petal and lifts. The baby is warm and smells of honey too. As soon as it is out of the flower, the great lotus begins, very slowly, to close...",
+   "children": [
+    {
+     "next": "c1o1",
+     "weight": 50
+    },
+    {
+     "next": "c1o2",
+     "weight": 50
+    }
+   ],
+   "src": "L945"
+  },
+  "c2o1": {
+   "text": "They're too late. The flower closes into a tight bud, and sinks below the water, and when they wade out to feel for it, there's nothing there but roots and mud. The elders are quiet for a long time. \"Another hundred years,\" says one of them at last. (subject) goes back to the pond every evening for a month, and then less often, and then only once a year, on the day it bloomed.",
+   "src": "L957"
+  },
+  "c2o2": {
+   "text": "As the flower closes, it breathes out one great sigh of honey-scented air that rolls over the whole crowd. The baby is gone with it, back into the bud. But for days afterwards, everyone in the village is gentle with everyone else, and the children don't fight, and even the dogs stop barking. \"It gave us what we needed,\" says the elder. \"Just not the way we expected.\"",
+   "effects": [
+    {
+     "do": "mood",
+     "mood": "good",
+     "target": {
+      "all": true
+     }
+    }
+   ],
+   "src": "L960",
+   "auto_text": true
+  },
+  "c2": {
+   "text": "(subject) wades back and runs for the elders. By the time they arrive, half the village is standing round the pond, and the lotus has begun to close, petal by petal, around the sleeping baby...",
+   "children": [
+    {
+     "next": "c2o1",
+     "weight": 50
+    },
+    {
+     "next": "c2o2",
+     "weight": 50
+    }
+   ],
+   "src": "L954"
+  }
+ }
+}
