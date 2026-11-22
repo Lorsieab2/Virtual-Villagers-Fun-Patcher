@@ -318,12 +318,15 @@ class Village:
             p.stub(0x40C9B0, self._log("close", 0))
         elif game == 2:
             self.world = p.alloc(0x40000)
-            self.base = p.alloc(0x30 + 0xE48C * 256)
+            self.base = p.alloc(0xE48C * 256)
             p.put32(0x4997BC, self.world)
             p.put32(0x499F24, self.base)
             p.put32(self.world + 0x305A4, self.base)          # the pool the game's population count reads
             p.put32(self.world + 0x2E51C, 5)
-            self.stride, self.first = 0xE48C, 0x30
+            # Record i at pool + i * 0xE48C, its fields from the record's start (present +0x30, name +0x564): the
+            # game's own layout (VV2_LAYOUT_ROW, every other companion's).  v1.35.97's fixture put the records 0x30
+            # further on, matching the companion's own mistake, so the live game showed empty names.
+            self.stride, self.first = 0xE48C, 0
             self.rand = 0x4031A0
             p.stub(0x44B2D0, self._log("select"))
             p.stub(0x40B560, self._log("add"))
@@ -855,6 +858,45 @@ class Effects(unittest.TestCase):
                 seen = " ".join(v.play(rolls(game=game, survive=False, end=2, stranger=0), 1))
                 self.assertIn("a strange man brandishing a knife with a wide grin on his face", seen)
                 self.assertIn("lay her to rest", seen)
+
+
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
+class TheLostChildrensRecords(unittest.TestCase):
+    """v1.35.97, seen live (Pick Island Event in The Lost Children): every name in the popup was empty and a girl was
+    "he".  The companion read record i at pool + 0x30 + i * 0xE48C and then its fields (present +0x30, name +0x564,
+    sex +0x538) from there: every field 0x30 too far on.  The emulated village had made the same mistake, so the
+    tests passed.  Here the village's records are where the game's own code reads them, and the popup names them."""
+
+    def test_the_fixture_is_the_games_own_layout(self) -> None:
+        v = Village(2)
+        self.assertEqual(v.first, 0)
+        v.villager(0, "Ana", woman=True)
+        v.villager(1, "Ben")
+        v.villager(2, "Cal", years=5)
+        # The game's own population count (0x425860, thiscall on the world: pool [world+0x305A4], record i at
+        # pool + i * 0xE48C, present +0x30, health +0x52C) counts the three.
+        self.assertEqual(v.p.call(0x425860, [], ecx=v.world), 3)
+
+    def test_the_companion_reads_the_same_records(self) -> None:
+        source = (ROOT / "native" / "vvfp_more_island_events" / "adv_vv2.inc").read_text(encoding="utf-8")
+        self.assertRegex(source, r"#define VV2_FIRST 0u\b")
+        for other in ("vvfp_cause_of_death/vvfp_cause_of_death.c", "statistics_export/statistics_export.c"):
+            # every other companion: the pool, then record 0 at +0 (first 0), present +0x30, name +0x564
+            text = (ROOT / "native" / other).read_text(encoding="utf-8")
+            self.assertRegex(text, r"0x4?99F24u,\s*1,\s*0u?,\s*0xE48Cu?,\s*256u?,\s*0x30u?", other)
+
+    def test_the_popup_names_the_adventurer_and_her_pronouns(self) -> None:
+        v = Village(2)
+        v.villager(0, "Ana", woman=True)
+        v.villager(1, "Ben")
+        self.assertEqual(v.eligible(0), 1)
+        self.assertEqual(v.p.export("VvfpAdventurerEligible", v.rec(0) + 0x30), 0, "the old, shifted record")
+        seen = " ".join(v.play(rolls(game=2, survive=False, end=2, stranger=0), 1))          # A4
+        self.assertIn("Ana is an aspiring adventurer. Every morning she goes off", seen)
+        self.assertIn("Although Ana has an eye for treasure", seen)
+        self.assertIn("Ana has managed to escape", seen)
+        self.assertNotIn(" is an aspiring", seen.replace("Ana is an aspiring", ""))
+        self.assertEqual(v.state()[2], 1, "a woman")
 
 
 @unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")

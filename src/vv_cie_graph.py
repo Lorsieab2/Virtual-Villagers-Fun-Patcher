@@ -3637,6 +3637,14 @@ def widest_auto_line(lg: dict, e: dict, game: "Game", award: tuple | None) -> st
     return best
 
 
+def says_award(text: str | None) -> bool:
+    """Whether a node's own words say the award's amount ("(award)", any case): its pay_award then has no automatic
+    line -- the text states the amount paid, so the line would say it twice (The Cooking Contest, v1.35.97: "Your
+    village gains 590 food." then "The village gains 590 food.").  The engine's own test: story_graph.inc
+    cg_says_award."""
+    return "(award)" in (text or "").lower()
+
+
 def with_auto_lines(text: str, lines: Iterable[str]) -> str:
     """A node's text followed by its automatic lines, each after a line break (none: the text as it is)."""
     lines = [x for x in lines if x]
@@ -3743,7 +3751,9 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         text = node_text(node, ctx, path) if node["type"] != "branch" else ""
         if v6 and node.get("auto_text"):
             # 25: each effect's line at its widest (the engine's lines are never longer).
-            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for e in node["effects"]])
+            # A pay_award whose amount the text says ("(award)") has none (says_award).
+            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for e in node["effects"]
+                                          if not (e["do"] == "pay_award" and says_award(text))])
         if node["type"] == "question":
             if nid != g["start"] and not v2:
                 say(f"node {nid}: a question can only be the start node in a version 1 event (version 2 asks "
@@ -5663,7 +5673,8 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             if e["do"] in ("food", "tech") and e["defer"]:
                 paying = (e["do"], fx[k][0])
             who = bindings.get(aliases.get(e.get("role"), e.get("role"))) if e["do"] == "sex_change" else None
-            lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
+            if not (e["do"] == "pay_award" and says_award(path_texts[at])):   # the text says it (says_award)
+                lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
             k += 1
         if n.get("auto_text"):
             path_texts[at] = with_auto_lines(path_texts[at], lines)
