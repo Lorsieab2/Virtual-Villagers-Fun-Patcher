@@ -45,6 +45,16 @@ def pages(effects_per_page: list[list[dict]], game: str) -> dict:
             "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0", "nodes": nodes}
 
 
+def award_graph(game: int) -> dict:
+    """A page paying an award its own words state ("(award)"), then one paying an award they do not."""
+    fx = [{"do": "food", "amount": 150, "defer": True}, {"do": "pay_award"}]
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Exact Amounts", "games": [game],
+            "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0",
+            "nodes": {"p0": {"text": "(Subject) wins the contest. Your village gains (award) food.",
+                             "effects": copy.deepcopy(fx), "auto_text": True, "children": [{"next": "p1"}]},
+                      "p1": {"text": "A second prize.", "effects": copy.deepcopy(fx), "auto_text": True}}}
+
+
 def one_line(shown) -> str:
     return " ".join(" ".join(t for _kind, t, _labels in shown).split())
 
@@ -69,6 +79,24 @@ class PatcherSide(unittest.TestCase):
                          ["The village gains 2 tech points."])
         self.assertEqual(cg.good_words("cutting_tools", 1), "cutting tool")
         self.assertEqual(cg.good_words("collectible", 3), "collectibles")
+
+    def test_an_award_the_text_states_is_said_once(self):
+        """The Cooking Contest (v1.35.97, live): "...Your village gains 590 food.\\nThe village gains 590 food." --
+        the author's "(award)" and the pay_award's automatic line said the same gain twice.  The text keeps its words;
+        the automatic line goes, and only on a node whose own words say "(award)"."""
+        self.assertTrue(cg.says_award("Your village gains (award) food."))
+        self.assertTrue(cg.says_award("(Award) food is theirs."))
+        self.assertFalse(cg.says_award("The (award_unit) are counted."))
+        self.assertFalse(cg.says_award(""))
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                out = cg.simulate(cg.load(copy.deepcopy(award_graph(game))), game, [0] * 8,
+                                  {"subject": cg.Binding("Adam", "m")})
+                text = " ".join(out["popups"])
+                self.assertEqual(text.count("150 food"), 2, text)
+                self.assertIn("Your village gains 150 food.", text)
+                self.assertNotIn("Your village gains 150 food.\nThe village gains 150 food.", text)
+                self.assertIn("A second prize.\nThe village gains 150 food.", text, "no (award): the line stays")
 
     def test_a_groups_line_is_counted_for_the_fit(self):
         e = {"do": "skill", "skills": ["Farming"], "min": 5, "max": 5, "target": {"all": True}}
@@ -135,6 +163,20 @@ class GameSideAmounts(unittest.TestCase):
                 self.assertIn("Page 2. The village loses 15 food.", one_line(shown))
                 self.assertNotIn("loses 40 food", one_line(shown))
                 self.assertEqual(self.side.food_tech(r), (0, 3))
+
+    def test_an_award_the_text_states_is_said_once(self):
+        """The engine: the page whose words say "(award)" states the gain once (its own words, the amount paid); a
+        page whose words do not still has the automatic line.  Both awards are paid."""
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self.run_graph(game, award_graph(int(game[2])),
+                                          lambda r: self.side.set_food_tech(r, 500, 0))
+                text = "\n".join(t for _kind, t, _labels in shown)
+                flat = one_line(shown)
+                self.assertIn("Your village gains 150 food.", flat)
+                self.assertEqual(flat.count("150 food"), 2, text)
+                self.assertIn("A second prize. The village gains 150 food.", flat, "no (award): the line stays")
+                self.assertEqual(self.side.food_tech(r), (800, 0), "both awards paid")
 
     def test_skill_gain_loss_and_cap(self):
         for game in self.games():

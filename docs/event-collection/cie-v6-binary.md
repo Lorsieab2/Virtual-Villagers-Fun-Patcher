@@ -833,9 +833,11 @@ smallest change of a group's range); the full table is `CG_AUTO_LINES` (`story_g
 Lines with no amount keep their words: `R dies.`, `R celebrates.` (a good mood), `R shakes P head.` (a bad mood),
 `R's head changes.`, `R looks older.`, `R is cured.` and the rest of the table.
 
-No line: `action`; a deferred food or tech (its `pay_award` gives it); a change that changes nothing (an amount of
-0, or one the limits take wholly away); a skill the game does not have (roll -1); a random preference with no
-candidate. Identical lines are all kept.
+No line: `action`; a deferred food or tech (its `pay_award` gives it); a `pay_award` on a node whose own words say
+`(award)` (any case: the text already states the amount paid, filled in as it is really given -- the line would say
+it twice; `cg_says_award` / `says_award`); a change that changes nothing (an amount of 0, or one the limits take
+wholly away); a skill the game does not have (roll -1); a random preference with no candidate. Identical lines are
+all kept.
 
 - **The words are those the walk chose**, so the engine's pages (section 6.6: laid out once the walk is done) hold
   the real skill and word. A line whose change is then refused (the villager protected or gone since) is taken back
