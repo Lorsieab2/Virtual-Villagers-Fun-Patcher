@@ -300,7 +300,7 @@ class CopyTests(Base):
                 self.assertEqual([b.path.name for b in backup.list_backups(folder)],
                                  ["2026-10-31 1200"])
                 import vv3_second_faction as faction
-                self.assertFalse(any(aside in p.parents for p in faction._candidates(
+                self.assertFalse(any(aside in p.parents for p, _beside in faction._candidates(
                     folder, 2, game.save_path(folder, 2).name[:-len("2.ldw")])))
                 self.assertFalse([r for r in backup.files_to_back_up(folder) if "Replaced by copy" in str(r)])
                 self.assertIn(game.save_path(folder, 2), cs.slot_files(game, folder, 2))

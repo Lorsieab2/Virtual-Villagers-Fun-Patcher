@@ -9,12 +9,14 @@ Nothing a player already has is renamed, moved or deleted."""
 from __future__ import annotations
 
 import builtins
+import errno
+import gzip
 import io
 import os
 import sys
 import tempfile
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from unittest import mock
 
@@ -23,7 +25,11 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "tests"))
 
 import vv1_parents_restore as parents  # noqa: E402
+import vv3_second_faction as faction  # noqa: E402
+import vv_backup_details  # noqa: E402
 import vv_log_tools as tools  # noqa: E402
+import vv_tribe_rename as rename  # noqa: E402
+import test_backup_keeps_second_faction as sf  # noqa: E402
 import vv_long_paths as lp  # noqa: E402
 import vv_reconcile as rc  # noqa: E402
 import vv_repair_copies as copies  # noqa: E402
@@ -76,8 +82,10 @@ class MaxPath:
                     self.refused.append(os.fsdecode(os.fspath(value)))
                     if answer is not None:
                         return answer
-                    raise FileNotFoundError(3, "The system cannot find the path specified (MAX_PATH)",
-                                            os.fsdecode(os.fspath(value)))
+                    # As Windows raises it: ERROR_PATH_NOT_FOUND (3), errno ENOENT -- the error every
+                    # Python's pathlib treats as "not there" (GitHub CI's Python re-raised errno 3).
+                    raise FileNotFoundError(errno.ENOENT, "The system cannot find the path specified (MAX_PATH)",
+                                            os.fsdecode(os.fspath(value)), 3)
             return function(*args, **kwargs)
         return guarded
 
@@ -142,6 +150,19 @@ class LongSaveFolder(tl.FolderTest):
             self.assertFalse(path.is_file())
             self.assertEqual(lp.read_bytes(path), b"older copy 0")
         self.assertTrue(limit.refused)
+
+    def test_a_long_junction_is_never_entered(self) -> None:
+        """GitHub CI on #769: the link check read a long path plainly, so a junction past 259 characters went
+        unseen (and an older Python raised).  It is seen at any length, and the backup never enters it."""
+        import _winapi
+        place = next(iter(self.old.values())).parent / ("junction " + "j" * 100)
+        self.assertTrue(lp.too_long(place))
+        _winapi.CreateJunction(str(Path(self._tmp.name)), os.fspath(lp.extended(place)))
+        self.addCleanup(lambda: os.rmdir(lp.extended(place)) if lp.exists(place) else None)
+        with MaxPath():
+            self.assertTrue(backup._is_link(place))
+            self.assertFalse(backup._is_link(next(iter(self.old.values()))))
+            self.assertFalse([r for r in backup.files_to_back_up(self.folder) if place.name in str(r)])
 
     def test_back_up_list_restore_and_delete(self) -> None:
         with MaxPath():
@@ -325,6 +346,151 @@ class Budget(unittest.TestCase):
             self.assertTrue(index.startswith("# "))
             self.assertIn("Village History 1.txt.bak1\tVirtual Villagers Fun Patcher\\Save 2\\Logs\\Tribe History\\"
                           "Village History 1.txt\tbefore-history-revision\t", index)
+
+
+def deep_save_folder(tmp: str, title: str, save_name: str, live_length: int = 250) -> Path:
+    """A recognised Modded save folder so deep that its slot save is `live_length` characters long: fine for
+    the game, but past 259 at its place in a backup ("Backups\\<yyyy-mm-dd hhmm>\\" adds 25 or more)."""
+    base = Path(tmp) / "Homes" / "Documents" / "LDW"
+    name = f"{title} - Modded"
+    pad = live_length - len(str(base)) - len(name) - len(save_name) - 3      # three more backslashes
+    if not 1 <= pad <= 200:
+        raise unittest.SkipTest(f"the temporary folder is {len(str(base))} characters deep")
+    folder = base / ("p" * pad) / name
+    lp.makedirs(folder)
+    return folder
+
+
+@unittest.skipUnless(WINDOWS, "Windows paths")
+class DeepSlotSaves(unittest.TestCase):
+    """Codex review on #769: a recognised Modded save folder whose live slot save is 250 characters long.  Its
+    slot saves (and logs) are kept in the backup's Long Paths folder, and everything that reads a backup reads
+    them there: the pause, its hash and file times, the list, Restore Saves' slot of a legacy log, the details,
+    Repair's unpaused backups and the backup's game speed."""
+
+    LOG = f"{LOGS}\\Births and Conceptions\\Virtual Villagers 1 Births and Conceptions Log 1.txt"
+    LIVE = 250                          # the live slot save's length
+
+    def setUp(self) -> None:
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(lambda: lp.rmtree(holder.name))
+        self.game = rename.GAMES[0]
+        self.folder = deep_save_folder(holder.name, self.game.title, self.game.save_path(Path(), 1).name,
+                                       self.LIVE)
+        self.save = self.game.save_path(self.folder, 1)
+        self.assertEqual(len(str(self.save)), self.LIVE)
+        put(self.save, tl.fixture("vv1-huttest-1"))
+        put(self.game.index_path(self.folder), tl.fixture("vv1-huttest-0"))
+        self.assertIsNotNone(backup.pause_save_bytes(1, lp.read_bytes(self.save)), "the fixture is not paused")
+        # A legacy log known by its header alone: no "Save N" in its name or its folders.
+        self.log = put(self.folder / self.LOG, b"Village: Hut (Save 1)\r\n\r\nfirst\r\n")
+        self.assertEqual(backup.file_slot(Path(self.LOG), self.folder), 1)
+        self.village = backup.read_village_name(1, self.save)
+        self.assertTrue(self.village)
+
+    def test_the_backup_pauses_the_long_slot_save(self) -> None:
+        live = lp.read_bytes(self.save)
+        with MaxPath():
+            made = backup.copy_save_folder(self.folder, NOW)
+            self.assertFalse(made.backup_folder.name.endswith(backup.INCOMPLETE))
+            contents = backup.backup_contents(made.backup_folder)
+            relative = Path(self.save.name)
+            stored = contents[relative]
+            self.assertEqual(stored.parent.name, backup.LONG_PATHS, "kept in the Long Paths folder")
+            self.assertTrue(lp.too_long(made.backup_folder / relative))
+            # Paused where it is, its hash and its file times those of the paused copy.
+            copy = lp.read_bytes(stored)
+            self.assertIsNone(backup.pause_save_bytes(1, copy), "the backup's copy is Paused")
+            self.assertEqual(made.paused_slots, [self.save.name])
+            self.assertEqual(made.unpaused_bytes[relative], live)
+            record = next(c for c in made.files if c.relative == relative)
+            self.assertEqual(record.size, len(copy))
+            self.assertEqual((record.size, record.sha256), backup._hash_file(stored))
+            self.assertEqual(lp.stat(stored).st_mtime_ns, lp.stat(self.save).st_mtime_ns)
+            self.assertEqual(lp.read_bytes(self.save), live, "the live save is untouched")
+            # The list names the village; Repair finds nothing left to pause; the details read the slot.
+            [info] = backup.list_backups(self.folder)
+            self.assertEqual(info.villages, {1: self.village})
+            self.assertEqual(backup.unpaused_backup_saves(self.folder), [])
+            details = vv_backup_details.read_backup(1, info, now=NOW.timestamp())
+            self.assertEqual([(s.slot, s.tribe, s.speed) for s in details.slots], [(1, self.village, "Paused")])
+            # The backup's game speed is set where the save is, and Repair then finds it unpaused.
+            outcome = backup.set_backup_speed(self.folder, made.backup_folder, "normal")
+            self.assertEqual([name for name, _old, _new in outcome.changed], [self.save.name], outcome.skipped)
+            self.assertIsNotNone(backup.pause_save_bytes(1, lp.read_bytes(stored)))
+            self.assertEqual(backup.unpaused_backup_saves(self.folder), [stored])
+            paused = backup.pause_saves([stored], tl.FakeProcesses())
+            self.assertEqual(paused.paused, [stored], paused.skipped)
+
+    def test_a_one_slot_restore_reads_the_long_logs_header_in_the_backup(self) -> None:
+        with MaxPath():
+            made = backup.copy_save_folder(self.folder, NOW)
+            contents = backup.backup_contents(made.backup_folder)
+            self.assertEqual(contents[Path(self.LOG)].parent.name, backup.LONG_PATHS)
+            self.assertEqual(backup.file_slot(Path(self.LOG), made.backup_folder, contents[Path(self.LOG)]), 1)
+            lp.extended(self.log).write_bytes(b"Village: Hut (Save 1)\r\n\r\nfirst\r\nsecond\r\n")
+            plan = backup.plan_restore(self.folder, made.backup_folder, 1)
+            self.assertEqual(set(plan.replace), {Path(self.LOG), Path(self.save.name)})   # the save: paused
+            result = backup.restore_backup(self.folder, made.backup_folder, 1, tl.FakeProcesses(),
+                                           NOW + timedelta(minutes=1))
+            self.assertEqual(set(result.plan.replace), {Path(self.LOG), Path(self.save.name)})
+            self.assertEqual(lp.read_bytes(self.log), b"Village: Hut (Save 1)\r\n\r\nfirst\r\n")
+
+
+class DeepLogsOnly(DeepSlotSaves):
+    """Codex review on #769, the log alone: a shallower folder (a 200-character live save), whose slot saves fit
+    at their own places in the backup but whose legacy log is kept in its Long Paths folder.  The backup's
+    copy of the log is read there for its "Village: ... (Save 1)" header, so a one-slot restore is not refused."""
+
+    LIVE = 200
+
+    def test_the_backup_pauses_the_long_slot_save(self) -> None:
+        with MaxPath():
+            made = backup.copy_save_folder(self.folder, NOW)
+            contents = backup.backup_contents(made.backup_folder)
+            self.assertEqual(contents[Path(self.save.name)], made.backup_folder / self.save.name, "at its place")
+            self.assertIsNone(backup.pause_save_bytes(1, lp.read_bytes(contents[Path(self.save.name)])))
+            self.assertEqual(made.paused_slots, [self.save.name])
+
+
+@unittest.skipUnless(WINDOWS, "Windows paths")
+class DeepSecondFaction(unittest.TestCase):
+    """The Secret City in a save folder that deep: the faction file is in the backup's Long Paths folder too,
+    and the paused copy keeps its second faction there; an old backup's is linked again there."""
+
+    def setUp(self) -> None:
+        holder = tempfile.TemporaryDirectory()
+        self.addCleanup(lambda: lp.rmtree(holder.name))
+        self.base = sf.BASE
+        self.folder = deep_save_folder(holder.name, sf.BASE, f"{sf.BASE}1.ldw")
+        self.save = gzip.open(sf.SAVE).read()
+        put(self.folder / f"{self.base}1.ldw", self.save)
+        self.dat = put(faction.faction_file(self.folder, 1), sf.faction_bytes(1, [faction.fingerprint(self.save)]))
+
+    def test_the_backup_keeps_the_second_faction_in_the_long_paths_folder(self) -> None:
+        with MaxPath():
+            made = backup.copy_save_folder(self.folder, NOW)
+            contents = backup.backup_contents(made.backup_folder)
+            save = contents[Path(f"{self.base}1.ldw")]
+            dat = contents[self.dat.relative_to(self.folder)]
+            self.assertEqual({save.parent.name, dat.parent.name}, {backup.LONG_PATHS})
+            copy = lp.read_bytes(save)
+            self.assertNotEqual(copy, self.save, "the backup's copy is paused")
+            self.assertIsNotNone(faction.entry_for(lp.extended(dat), faction.fingerprint(copy)), "and keeps its faction")
+            record = next(c for c in made.files if c.relative == self.dat.relative_to(self.folder))
+            self.assertEqual((record.size, record.sha256), backup._hash_file(dat))
+
+    def test_an_old_backup_is_linked_again_in_the_long_paths_folder(self) -> None:
+        with MaxPath():
+            made = backup.copy_save_folder(self.folder, NOW)
+            contents = backup.backup_contents(made.backup_folder)
+            dat = contents[self.dat.relative_to(self.folder)]
+            lp.extended(dat).write_bytes(lp.read_bytes(self.dat))          # as a backup made before the fix
+            put(self.folder / f"{self.base}21.ldw", self.save)               # the game's own copy
+            relinked = backup.relink_backups(self.folder)
+            self.assertEqual(relinked, {made.backup_folder.name: {1: True}})
+            copy = lp.read_bytes(contents[Path(f"{self.base}1.ldw")])
+            self.assertIsNotNone(faction.entry_for(lp.extended(dat), faction.fingerprint(copy)))
 
 
 if __name__ == "__main__":

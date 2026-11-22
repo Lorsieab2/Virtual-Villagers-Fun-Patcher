@@ -6651,7 +6651,8 @@ class App(tk.Tk):
                                  next(k for k, v in vv_genealogy.NUMBER_ORDERS.items() if v == number_order_var.get())
                                  if number_var.get() and not restore else None,
                                  restore,
-                                 ([p for p in unpaused if Path(p).parent not in speed_set_backups]
+                                 # Each save's backup (a long one is in that backup's Long Paths folder).
+                                 ([p for p in unpaused if vv_save_backup._backup_holding(Path(p)) not in speed_set_backups]
                                   if pause_backups_var.get() else []) + list(picked_saves),
                                  next((k for k, v in vv_save_backup.SPEED_CHOICES.items() if v == speed_var.get()), None),
                                  grave_state if graves_var.get() else None)

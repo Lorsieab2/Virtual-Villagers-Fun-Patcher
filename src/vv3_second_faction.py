@@ -114,21 +114,26 @@ def add_entry(path: Path, fp: int, source: bytes) -> bool:
     return True
 
 
-def relink(folder: Path, slot: int, before: bytes, after: bytes) -> bool:
+def relink(folder: Path, slot: int, before: bytes, after: bytes, path: Path | None = None) -> bool:
     """After a tool rewrote slot ``slot``'s save in ``folder`` from ``before`` to ``after``: give ``after`` the
-    entry ``before`` had.  False when ``before`` had none (no second faction) or nothing changed."""
+    entry ``before`` had.  False when ``before`` had none (no second faction) or nothing changed.  ``path``:
+    the faction file's own place when it is not at faction_file(folder) (a backup's Long Paths folder)."""
     old, new = fingerprint(before), fingerprint(after)
     if old is None or new is None or old == new:
         return False
-    path = faction_file(folder, slot)
+    path = faction_file(folder, slot) if path is None else path
     source = entry_for(path, old)
     return source is not None and add_entry(path, new, source)
 
 
-def _candidates(save_folder: Path, slot: int, base: str) -> list[Path]:
+def _candidates(save_folder: Path, slot: int, base: str) -> list[tuple[Path, Path]]:
     """Every copy the game wrote of this slot ("<base><slot>.ldw" and its older generations <slot+20> and
-    <slot+40>), in the save folder and in each of its backups, newest backup first."""
-    folders = [save_folder]
+    <slot+40>), in the save folder and in each of its backups, newest backup first: (the copy, the faction
+    file beside it).  A backup's file kept under a short name in its Long Paths folder is found there
+    (vv_save_backup.long_places)."""
+    names = [f"{base}{number}.ldw" for number in (slot, slot + 20, slot + 40)]
+    found_pairs = [(save_folder / name, faction_file(save_folder, slot)) for name in names
+                   if (save_folder / name).is_file()]
     backups = save_folder / "Backups"
     if backups.is_dir():
         # Only the backups (an older build's "Backup <date>...", this build's named in the Backups index):
@@ -140,25 +145,37 @@ def _candidates(save_folder: Path, slot: int, base: str) -> list[Path]:
             entry = backup._backup_entry(index, p.name) if p.is_dir() else None
             if entry is not None:
                 found.append((entry[0], entry[1], p))
-        folders += [p for _when, _order, p in sorted(found, reverse=True)]
-    return [folder / f"{base}{number}.ldw" for folder in folders for number in (slot, slot + 20, slot + 40)
-            if (folder / f"{base}{number}.ldw").is_file()]
+        readable = backup.lp.readable                      # any length (vv_long_paths)
+        for _when, _order, folder in sorted(found, reverse=True):
+            try:
+                long = backup.long_places(folder)
+            except OSError:
+                continue
+            faction = faction_file(Path(), slot)
+            faction = readable(long.get(faction, folder / faction))
+            places = [readable(long.get(Path(name), folder / name)) for name in names]
+            found_pairs += [(place, faction) for place in places if place.is_file()]
+    return found_pairs
 
 
 def recognise(save_folder: Path, slot: int, save_name: str,
-              pause: Callable[[bytes], bytes | None], folder: Path | None = None) -> bool | None:
+              pause: Callable[[bytes], bytes | None], folder: Path | None = None,
+              save_path: Path | None = None, faction: Path | None = None) -> bool | None:
     """Link slot ``slot``'s save in ``folder`` (the save folder itself, or one of its backups) to its second
     faction when it has lost it to a pause; the game's copies are looked for in ``save_folder`` and all its
     backups.
 
     None: nothing to do (no faction file, not a save, or it already has its entry).  True: linked.  False: it
-    has no entry and no copy the game wrote pauses to exactly these bytes with an entry of its own."""
+    has no entry and no copy the game wrote pauses to exactly these bytes with an entry of its own.
+    ``save_path`` and ``faction``: the save's and its faction file's own places when they are not in
+    ``folder`` itself (a backup's file kept under a short name in its Long Paths folder)."""
     folder = save_folder if folder is None else folder
-    target = faction_file(folder, slot)
+    target = faction_file(folder, slot) if faction is None else faction
     if _read(target) is None:
         return None
+    here = folder / save_name if save_path is None else save_path
     try:
-        save = (folder / save_name).read_bytes()
+        save = here.read_bytes()
     except OSError:
         return None
     fp = fingerprint(save)
@@ -167,8 +184,8 @@ def recognise(save_folder: Path, slot: int, save_name: str,
     suffix = f"{slot}.ldw"
     if not save_name.endswith(suffix):
         return None
-    for candidate in _candidates(save_folder, slot, save_name[:-len(suffix)]):
-        if candidate == folder / save_name:
+    for candidate, beside in _candidates(save_folder, slot, save_name[:-len(suffix)]):
+        if candidate == here:
             continue
         try:
             data = candidate.read_bytes()
@@ -177,7 +194,7 @@ def recognise(save_folder: Path, slot: int, save_name: str,
         cfp = fingerprint(data)
         if cfp is None:
             continue
-        source = entry_for(target, cfp) or entry_for(faction_file(candidate.parent, slot), cfp)
+        source = entry_for(target, cfp) or entry_for(beside, cfp)
         if source is None:
             continue
         try:

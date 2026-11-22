@@ -30,6 +30,12 @@ def too_long(path: os.PathLike | str) -> bool:
     return len(os.path.abspath(os.fspath(plain(path)))) > LIMIT
 
 
+def readable(path: os.PathLike | str) -> Path:
+    """`path` as it is when Windows takes it, else its extended-length form: for code that reads or writes it
+    with the plain file APIs (a backup's Long Paths folder can itself run past 259 characters)."""
+    return extended(path) if too_long(path) else Path(path)
+
+
 def exists(path: os.PathLike | str) -> bool:
     return extended(path).exists()
 

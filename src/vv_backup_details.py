@@ -73,15 +73,18 @@ def _plausible(moment: float | None, now: float) -> float | None:
     return float(moment)
 
 
-def read_slot(game: int, folder: Path, slot: int, now: float | None = None) -> SlotDetails:
-    """One slot save's vital statistics, read from ``folder`` (a backup, or any save folder).  Reads only."""
+def read_slot(game: int, folder: Path, slot: int, now: float | None = None,
+              path: Path | None = None) -> SlotDetails:
+    """One slot save's vital statistics, read from ``folder`` (a backup, or any save folder).  Reads only.
+    ``path``: the save itself when it is not in ``folder`` (a backup's long file kept in its Long Paths
+    folder, vv_save_backup.backup_contents)."""
     import vv_game_mechanics_counts as counts
     import vv_game_mechanics_life as life
     import vv_game_mechanics_tech_time as tech_time
 
     now = time.time() if now is None else now
     saves = next(item for item in vv_tribe_rename.GAMES if item.number == game)
-    path = saves.save_path(Path(folder), slot)
+    path = saves.save_path(Path(folder), slot) if path is None else path
     out = SlotDetails(slot, path)
     try:
         out.saved = path.stat().st_mtime
@@ -141,8 +144,18 @@ def slot_numbers(game: int, folder: Path) -> list[int]:
 
 
 def read_backup(game: int, info: vv_save_backup.BackupInfo, now: float | None = None) -> BackupDetails:
-    """Every slot save in one backup (vv_save_backup.list_backups' BackupInfo)."""
-    return BackupDetails(info, [read_slot(game, info.path, slot, now) for slot in slot_numbers(game, info.path)])
+    """Every slot save in one backup (vv_save_backup.list_backups' BackupInfo), each read where it is in the
+    backup (a long one kept under a short name in its Long Paths folder, vv_save_backup.backup_contents)."""
+    saves = next(item for item in vv_tribe_rename.GAMES if item.number == game)
+    try:
+        contents = vv_save_backup.backup_contents(Path(info.path))
+    except OSError:
+        contents = {}
+    places = {slot: contents.get(saves.save_path(Path(), slot)) for slot in SLOTS}
+    slots = [slot for slot in SLOTS if places[slot] is not None or saves.save_path(Path(info.path), slot).is_file()]
+    return BackupDetails(info, [read_slot(game, info.path, slot, now,
+                                          vv_save_backup.lp.readable(places[slot]) if places[slot] else None)
+                                for slot in slots])
 
 
 # ---------------------------------------------------------------------------
