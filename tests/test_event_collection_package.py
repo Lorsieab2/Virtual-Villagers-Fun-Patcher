@@ -17,6 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -165,6 +166,30 @@ class TheRows(unittest.TestCase):
 
 
 class TheCredits(unittest.TestCase):
+    def test_every_pinned_source_checks_out_byte_for_byte(self) -> None:
+        """Each source file data/event_collection/*.sha256 pins carries `-text` (or `eol=lf`) in .gitattributes.
+        Without it a Windows checkout with core.autocrlf=true -- GitHub's windows runner -- writes an LF file with
+        CRLF, its SHA-256 changes, and the build refuses it (Island Traders on PR #769), while a local
+        autocrlf=false clone passes."""
+        targets = set()
+        for record in (ROOT / "data" / "event_collection").rglob("*.sha256"):
+            for line in record.read_text(encoding="utf-8-sig").splitlines():
+                if "  " in line:
+                    targets.add(line.split("  ", 1)[1].strip())
+        self.assertTrue(targets)
+        try:
+            out = subprocess.run(["git", "-C", str(ROOT), "check-attr", "-z", "text", "eol", "--", *sorted(targets)],
+                                 capture_output=True, check=True).stdout.decode("utf-8").split("\0")
+        except (OSError, subprocess.CalledProcessError) as exc:
+            self.skipTest(f"git check-attr is not available here: {exc}")
+        attrs: dict[str, dict[str, str]] = {}
+        for i in range(0, len(out) - 2, 3):
+            attrs.setdefault(out[i], {})[out[i + 1]] = out[i + 2]
+        loose = sorted(t for t in targets
+                       if attrs.get(t, {}).get("text") != "unset" and attrs.get(t, {}).get("eol") != "lf")
+        self.assertEqual(loose, [], "pinned by SHA-256 but free to change line endings on checkout; add `-text` "
+                                    "for each to .gitattributes")
+
     def test_the_source_is_the_frozen_one(self) -> None:
         raw = build.SOURCE.read_bytes()
         self.assertEqual(hashlib.sha256(raw).hexdigest().upper(), build.SOURCE_SHA256)
