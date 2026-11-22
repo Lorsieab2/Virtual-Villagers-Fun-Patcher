@@ -3294,6 +3294,11 @@ def _resolved_children(node: dict, ctx: Context, visited: tuple[str, ...]) -> li
 # subject: "what <H> does best" -- never <P> there, live v1.35.97: "in what his does best"; a group's line says "what
 # they do best"), <S> the skill's name and <W> the preference word as the
 # game lists them.  The keys and lines are pinned equal to story_graph.inc CG_AUTO_LINES (tests/test_cie_graph_v6.py).
+#
+# New Believers with Guardians of Isola Rewrite: these lines say "an Isolan" for "a Heathen" (story_graph.inc
+# cg_auto_guardians, CG_GUARDIANS_BECOMES; docs/event-collection/guardians-wording.md, "The branching engine's own
+# words").  Pinned by tests/test_guardians_wording_switches.py.
+GUARDIANS_AUTO_LINES = {"status": "<R> becomes an Isolan.", "apostasy": "<R> becomes an Isolan."}
 
 AUTO_LINES = {
     "food+": "The village gains <N> food.",
