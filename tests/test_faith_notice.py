@@ -244,6 +244,63 @@ class FaithNoticeCompanion(unittest.TestCase):
                 self.assertIsNone(v.pending(0), "it waits for the quiet")
                 self.assertEqual(v.pending(gen_quiet()), (1, only(reasons)))
 
+    def with_faith_loss_deciding(self, v: "Village", cause: int) -> list:
+        """"VVFP Faith Loss.dll" stood in for: its VvfpFaithLossDecided says `cause` for the drift's record."""
+        p = v.proc
+        handle, export = 0x7A000000, p.alloc(16)
+        p.write(export, b"\xC3")
+        asked = []
+
+        def decided(q):
+            asked.append(q.arg(1))
+            return (cause if q.arg(0) == 5 and q.arg(1) == v.record else 0), 8
+        p.stub(export, decided)
+        p.api_handlers["GetModuleHandleA"] = lambda q: (
+            handle if q.cstring(q.arg(0)) == "VVFP Faith Loss.dll" else 0, 4)
+        p.api_handlers["GetProcAddress"] = lambda q: (
+            export if q.arg(0) == handle and q.cstring(q.arg(1)) == "VvfpFaithLossDecided" else 0, 8)
+        return asked
+
+    def test_the_reason_is_the_cause_faith_loss_decided(self):
+        """A believer held at Faith 1 for sickness is turned by too few believers' once-a-crisis roll, though the
+        sickness roll hit first: the popup must say too few believers (the owner's "5 converted from sickness").
+        Faith Loss says which cause decided (VvfpFaithLossDecided); without it, the first loss roll that hit."""
+        exe = rendered((FAITH_LOSS,))
+        for cause, reason in ((8, BELIEVERS), (4, SICKNESS), (2, HUNGER), (1, STARVATION)):
+            with self.subTest(cause=cause):
+                v = Village(exe)
+                asked = self.with_faith_loss_deciding(v, cause)
+                v.drift(faith=1, food=1000, sick=1, believers=4, rolls=[0, 0, 0])   # sick and too few both hit
+                self.assertTrue(v.heathen())
+                self.assertEqual(asked, [v.record])
+                self.assertEqual(v.pending(gen_quiet()), (1, only(reason)))
+        v = Village(exe)
+        self.with_faith_loss_deciding(v, 0)                 # Faith Loss decided nothing: the first roll that hit
+        v.drift(faith=1, food=1000, sick=1, believers=4, rolls=[0, 0, 0])
+        self.assertEqual(v.pending(gen_quiet()), (1, only(SICKNESS)))
+
+    def test_who_left_is_kept_for_the_log(self):
+        """The Island Events log's entry for the popup lists who left (the one-entry words: "  <name>: Heathen no ->
+        yes", "  <name>: Faith <old> -> <new>"), asked by VVFP Story Upgrades.dll as it arms the popup; a branching
+        event's conversion is counted but named in its own entry."""
+        v = Village(rendered(()))
+        p = v.proc
+        out = p.alloc(0x1000)
+        self.assertEqual(p.export("VvfpFaithNoticeLeftLines", 5, out, 0x1000), 0)
+        p.write(v.record + 0x1B9C, b"Hope Powaka\0")
+        after_hope = v.drift(faith=1, food=100, rolls=[0])
+        p.write(v.record + 0x1B9C, b"Yapili Tawonga\0")
+        after_yapili = v.drift(faith=1, sick=1, food=1000, rolls=[0])
+        p.export("VvfpFaithNoticeCount", 5, 4)
+        n = p.export("VvfpFaithNoticeLeftLines", 5, out, 0x1000)
+        text = p.cstring(out)
+        self.assertEqual(text, f"  Hope Powaka: Heathen no -> yes\n  Hope Powaka: Faith 1 -> {after_hope}\n"
+                               f"  Yapili Tawonga: Heathen no -> yes\n  Yapili Tawonga: Faith 1 -> {after_yapili}\n")
+        self.assertEqual(n, len(text))
+        self.assertEqual(p.export("VvfpFaithNoticeLeftLines", 4, out, 0x1000), 0, "only New Believers")
+        p.export("VvfpFaithNoticeTaken", 5)
+        self.assertEqual(p.export("VvfpFaithNoticeLeftLines", 5, out, 0x1000), 0, "taken: the next batch's own")
+
     def test_island_event_conversions_are_never_counted(self):
         """Only the Faith drift's conversions bring the popup.  The Spa and The Cracked Mask call the setter with -10
         themselves (0x415D02, 0x416C51), the Custom Island Event's "Becomes a Heathen" calls 0x4669E0 itself
@@ -437,11 +494,14 @@ class WaitingPopupFile(unittest.TestCase):
             return None
         (path, data), = found
         self.assertIn(f"\\virtual villagers fun patcher\\save {slot}\\data\\faith notice\\", path)
-        self.assertEqual(len(data), 40)
-        words = struct.unpack("<10I", data)
-        self.assertEqual(words[:4], (FN_MAGIC, 1, 5, slot))
-        self.assertEqual(sum(words[5:]), words[4])
-        return words[4], words[5:]
+        words = struct.unpack_from("<11I", data)
+        self.assertEqual(words[:4], (FN_MAGIC, 2, 5, slot))
+        self.assertEqual(sum(words[5:10]), words[4])
+        self.assertLessEqual(words[10], words[4])
+        self.assertEqual(len(data), 44 + 36 * words[10])
+        self.left = [(e[0].split(b"\0")[0].decode("latin-1"), e[1], e[2])
+                     for e in struct.iter_unpack("<28sii", data[44:])]
+        return words[4], words[5:10]
 
     def test_a_quit_before_the_popup_keeps_it_and_it_shows_once_after_the_reload(self):
         files = self.files()
@@ -466,6 +526,31 @@ class WaitingPopupFile(unittest.TestCase):
         self.assertIsNone(again.pending(100 + 10 * quiet), "once")
         third = self.session(files)
         self.assertIsNone(third.pending(100 + 10 * quiet), "never again after another reload")
+
+    def test_who_left_survives_a_quit_and_a_version_1_file_is_read(self):
+        files = self.files()
+        v = self.session(files)
+        self.keep(v, 900)
+        v.proc.tick = 1000
+        v.proc.write(v.record + 0x1B9C, b"Nono Bahati\0")
+        after = v.drift(faith=1, food=100, rolls=[0])
+        self.keep(v, 1100)
+        self.assertEqual(self.sidecar(files), (1, only(HUNGER)))
+        self.assertEqual(self.left, [("Nono Bahati", 1, after)])
+        again = self.session(files)                         # quit before the popup: the same save
+        self.keep(again, 50)
+        out = again.proc.alloc(0x1000)
+        again.pending(50 + gen_quiet())
+        again.proc.export("VvfpFaithNoticeLeftLines", 5, out, 0x1000)
+        self.assertEqual(again.proc.cstring(out),
+                         f"  Nono Bahati: Heathen no -> yes\n  Nono Bahati: Faith 1 -> {after}\n")
+        # A version 1 file (the counts alone, before who left was kept): read, with no one named.
+        key = next(k for k in files.files if k.endswith(FILE_NAME.format(1)))
+        files.files[key] = struct.pack("<10I", FN_MAGIC, 1, 5, 1, 2, 0, 2, 0, 0, 0)
+        third = self.session(files)
+        self.keep(third, 50)
+        self.assertEqual(third.pending(50 + gen_quiet()), (2, only(HUNGER, HUNGER)))
+        self.assertEqual(third.proc.export("VvfpFaithNoticeLeftLines", 5, out, 0x1000), 0)
 
     def test_the_owners_long_256_folder_keeps_the_waiting_popup(self):
         """The owner's "Virtual Villagers - New Believers - Modded 256" under OneDrive\\Documents: a fixed guess of
@@ -707,6 +792,41 @@ class Popup(unittest.TestCase):
                 self.assertEqual(p.export("VvfpStoryProbeFaithNoticeTaken"), 1)
                 tick(story, 200)
                 self.assertEqual(p.export("VvfpStoryProbeFaithNoticeTaken"), 1, "once")
+
+    def test_the_island_events_log_lists_who_left_not_changes_none(self):
+        """The owner's log (2026-11-22): three "Event: The Breaking Point / Changes: none" while seven villagers left.
+        The conversions happen in the drift, before the popup, so the log's comparison around the popup saw nothing.
+        As the popup is armed, Faith Notice's lines for who left are taken, and when the Island Events companion
+        compares the popup (VvfpStoryGraphLogged) the entry is handed over with them, once, in place of its own; a
+        batch with no one named is left to the comparison."""
+        lines = ("  Hope Powaka: Heathen no -> yes\n  Hope Powaka: Faith 1 -> -45\n"
+                 "  Yapili Tawonga: Heathen no -> yes\n  Yapili Tawonga: Faith 1 -> -52\n")
+        story, scratch, tick = self.story()
+        p = story.proc
+        p.write(scratch + 0x1000, lines.encode() + b"\0")
+        p.export("VvfpStoryProbeFaithNoticeLines", scratch + 0x1000)
+        self.counts(story, scratch, (0, 0, 1, 1, 0))
+        tick(story, 100)
+        self.assertEqual(self.armed(story, scratch)[0], TITLE)
+        title = p.alloc(64)
+        p.write(title, b"Some Other Event\0")
+        self.assertEqual(p.export("VvfpStoryGraphLogged", 5, title), 0, "another popup is not the Breaking Point")
+        p.write(title, TITLE.encode() + b"\0")
+        self.assertEqual(p.export("VvfpStoryGraphLogged", 5, title), 1, "the Breaking Point's entry is the Story's")
+        out = p.alloc(0x2000)
+        self.assertEqual(p.export("VvfpStoryProbeFaithNoticeLog", out, 0x2000), 1)
+        self.assertEqual(p.cstring(out), f"  Event: {TITLE}\n" + lines)
+        self.assertEqual(p.export("VvfpStoryGraphLogged", 5, title), 0, "once")
+        # No one named (only a branching event's conversions, in that event's own entry): the comparison's as before.
+        story, scratch, tick = self.story()
+        p = story.proc
+        p.write(scratch + 0x1000, b"\0")
+        p.export("VvfpStoryProbeFaithNoticeLines", scratch + 0x1000)
+        self.counts(story, scratch, (0, 0, 0, 0, 1))
+        tick(story, 100)
+        title = p.alloc(64)
+        p.write(title, TITLE.encode() + b"\0")
+        self.assertEqual(p.export("VvfpStoryGraphLogged", 5, title), 0)
 
     def test_the_title_is_one_constant_with_its_own_key(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_faith_notice.inc").read_text(encoding="utf-8")

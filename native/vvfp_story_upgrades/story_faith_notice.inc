@@ -295,6 +295,81 @@ static void faith_notice_compose(ce_event *e, const int *info) {
     }
 }
 
+/* THE ISLAND EVENTS LOG.  The conversions happen in the drift, before the popup, so the Island Events companion's
+   own comparison around the popup saw nothing change and wrote "Changes: none" (the owner's 2026-11-22 log: three
+   Breaking Points, "Changes: none", seven villagers gone).  As the popup is armed, Faith Notice's lines for who left
+   are taken ("  <name>: Heathen no -> yes", "  <name>: Faith <old> -> <new>": the one-entry words of a branching
+   event's), and when that companion compares the popup (VvfpStoryGraphLogged asks faith_notice_logged) the entry
+   "  Event: <title>" with them is handed to its log (VvfpIslandEventsGraphWrite, final) in place of its own.  A
+   batch with no one named (only a branching event's conversions, whose own entry has them) is left to the
+   comparison as before. */
+#define FAITH_LOG_BYTES 12288
+typedef int (__stdcall *faith_lines_fn)(int game, char *out, int cap);
+typedef int (__stdcall *faith_log_write_fn)(int game, int key, const char *text, int disk, int final);
+static char faith_notice_log[FAITH_LOG_BYTES];
+static int faith_notice_log_armed;
+
+#ifdef VVFP_TEST
+static char test_faith_lines[2048];
+static char test_faith_log_entry[FAITH_LOG_BYTES];
+static int test_faith_log_count;
+#endif
+
+/* The popup was armed (`e` its title and text): the entry for it, with who left, waits for its showing. */
+static void faith_notice_log_take(const ce_event *e) {
+    static char lines[FAITH_LOG_BYTES - 256];
+    faith_lines_fn get = NULL;
+    HMODULE module;
+    faith_notice_log_armed = 0;
+    lines[0] = '\0';
+#ifdef VVFP_TEST
+    if (test_faith_waiting) {
+        lstrcpynA(lines, test_faith_lines, (int)sizeof lines);
+    } else
+#endif
+    {
+        module = GetModuleHandleA("VVFP Faith Notice.dll");
+        get = module != NULL ? (faith_lines_fn)(void *)GetProcAddress(module, "VvfpFaithNoticeLeftLines") : NULL;
+        if (get == NULL || get(FAITH_NOTICE_GAME, lines, (int)sizeof lines) <= 0) {
+            lines[0] = '\0';
+        }
+    }
+    if (lines[0] == '\0') {
+        return;
+    }
+    lstrcpyA(faith_notice_log, "  Event: ");
+    lstrcatA(faith_notice_log, e->title);
+    lstrcatA(faith_notice_log, "\n");
+    lstrcatA(faith_notice_log, lines);
+    faith_notice_log_armed = 1;
+}
+
+/* Asked by VvfpStoryGraphLogged as "VVFP Island Events.dll" compares a popup the game just showed: 1 (once) when it
+   is the armed Breaking Point with who left -- its entry is handed to the log here, never "Changes: none". */
+static int faith_notice_logged(int game, const char *title) {
+    if (!faith_notice_log_armed || game != FAITH_NOTICE_GAME
+        || (title != NULL && title[0] != '\0' && lstrcmpA(title, faith_notice_event.title) != 0)) {
+        return 0;
+    }
+    faith_notice_log_armed = 0;
+#ifdef VVFP_TEST
+    lstrcpynA(test_faith_log_entry, faith_notice_log, (int)sizeof test_faith_log_entry);
+    ++test_faith_log_count;
+    return 1;
+#else
+    {
+        HMODULE module = GetModuleHandleA("VVFP Island Events.dll");
+        faith_log_write_fn write = module != NULL
+            ? (faith_log_write_fn)(void *)GetProcAddress(module, "VvfpIslandEventsGraphWrite") : NULL;
+        if (write == NULL) {
+            return 0;
+        }
+        (void)write(game, (int)(GetTickCount() & 0x7FFFFFFFu) | 1, faith_notice_log, -1, 1);
+        return 1;
+    }
+#endif
+}
+
 /* Called every frame (VvfpStoryInstall), after the time skip's own tick. */
 static void faith_notice_tick(int game) {
     int info[1 + FAITH_REASONS];
@@ -310,6 +385,7 @@ static void faith_notice_tick(int game) {
     }
     faith_notice_compose(&faith_notice_event, info);
     if (story_notice_arm(game, &faith_notice_event)) {
+        faith_notice_log_take(&faith_notice_event);   /* who left, for the log's entry (before the batch goes) */
         faith_notice_taken();          /* armed: the game's own trigger shows it */
     }
 }
@@ -326,6 +402,7 @@ static void faith_notice_village_reset(int game) {
     if (game != FAITH_NOTICE_GAME) {
         return;
     }
+    faith_notice_log_armed = 0;        /* the armed popup goes with the village, and its entry */
     module = GetModuleHandleA("VVFP Faith Notice.dll");
     reset = module != NULL ? (reset_fn)(void *)GetProcAddress(module, "VvfpFaithNoticeVillageReset") : NULL;
     if (reset != NULL) {
@@ -349,6 +426,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeFaithNotice(const int *counts
         test_faith_counts[i] = counts[i];
         test_faith_waiting |= counts[i] > 0;
     }
+}
+
+/* Stands in for "VVFP Faith Notice.dll"'s VvfpFaithNoticeLeftLines: the lines for who left. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeFaithNoticeLines(const char *lines) {
+    lstrcpynA(test_faith_lines, lines, (int)sizeof test_faith_lines);
+}
+
+/* Stands in for the Island Events log: the last Breaking Point entry handed to it (into `out`, `cap` bytes); how
+   many were. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeFaithNoticeLog(char *out, int cap) {
+    if (out != NULL && cap > 0) {
+        lstrcpynA(out, test_faith_log_entry, cap);
+    }
+    return test_faith_log_count;
 }
 
 /* How many times the count was taken (the popup armed). */

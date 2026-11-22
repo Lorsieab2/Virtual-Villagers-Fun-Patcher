@@ -10,6 +10,9 @@
    CAUSE per crisis, with "too few believers" a crisis too.  Four causes: starvation (food under 10), hunger (food
    10 to 250), sickness, too few believers (fewer than 12, carried babies counted).
 
+   The owner (2026-11-22, after 5 believers left in one catch-up): each cause its own chance -- starvation 1 in 20,
+   sickness 1 in 25, hunger 1 in 50, too few believers 1 in 50 (FL_ODDS_*).
+
    THE RULE.  The row's exe bytes say in ebp which losses the drift 0x468040 made (bit 0 a food loss, bit 1 the
    sickness loss; too few believers' loss, the last, complements ebp: scripts/build_apprentice_faith_puddles_
    features.py FAITH_LOSS_MARKS) and send its final FAITH_ADD through a cave that first calls a rule (the call at
@@ -21,7 +24,8 @@
        one in the drift's order (the food loss -- starvation or hunger by the food now -- sickness, too few
        believers).  The loss that would take the last Faith is its cause's: a cause the believer is marked for
        holds them at Faith 1 (that loss is not made); an unmarked one is decided now, once -- rand(N) < 1 (the
-       game's own rand, 0x403660; N the cause's FL_ODDS_*, 10 for each today) the drift's own sum is made and the believer becomes a Heathen as before;
+       game's own rand, 0x403660; N the cause's FL_ODDS_*) the drift's own sum is made and the believer becomes
+       a Heathen as before;
        otherwise the believer is marked for that cause and held at Faith 1.  A later loss of another cause in
        the same drift is decided the same way;
      * anything else is the drift's own sum: rises and falls that leave Faith above 0.
@@ -73,11 +77,11 @@
 #define FL_CRISIS_FOOD 250              /* food above this: no food roll applies */
 #define FL_STARVING 10                  /* food under this: starvation (the drift's own boundary, 0x468044) */
 /* Each cause's odds of a Heathen when it is decided: 1 in FL_ODDS_<cause>, as rand(N) < 1 (the game's own rand).
-   The owner picks these (2026-11-22: all 1 in 10 until then). */
-#define FL_ODDS_STARVATION 10
-#define FL_ODDS_HUNGER 10
-#define FL_ODDS_SICKNESS 10
-#define FL_ODDS_TOO_FEW 10
+   The owner's (2026-11-22; all 1 in 10 before). */
+#define FL_ODDS_STARVATION 20
+#define FL_ODDS_HUNGER 50
+#define FL_ODDS_SICKNESS 25
+#define FL_ODDS_TOO_FEW 50
 #define FL_FEW 12                       /* fewer believers than this: too few (0x468174) */
 #define FL_BELIEVERS 0x4713F0u          /* the game's believer count (thiscall on the villager manager) */
 #define FL_BELIEVERS_MANAGER 0x46815Fu  /* the drift's `mov ecx, <manager>` immediate */
@@ -504,8 +508,16 @@ static int odds_of(unsigned int cause) {
     }
 }
 
+/* The record of the drift last ruled on and the cause whose decision made them a Heathen there (0: none) -- what
+   VVFP Faith Notice.dll asks (VvfpFaithLossDecided), so its popup names the cause that decided, not the first loss
+   roll that hit. */
+static const unsigned char *g_decided_record;
+static unsigned int g_decided_cause;
+
 static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
     int result = sum;
+    g_decided_record = rec;
+    g_decided_cause = 0;
     __try {
         unsigned int order[3], held, made_marks = 0;
         int at, faith, index, losses = 0, level, i, too_few;
@@ -554,7 +566,8 @@ static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
                 --level;                           /* not the last Faith: the loss is made */
             } else if ((held & order[i]) == 0) {
                 if (((rand_fn)(UINT_PTR)FL_RAND)(odds_of(order[i])) < 1) {
-                    return sum;                    /* 1 in N: a Heathen, as before (no mark needed) */
+                    g_decided_cause = order[i];
+                    return sum;                   /* 1 in N: a Heathen, as before (no mark needed) */
                 }
                 held |= order[i];                  /* otherwise: marked for this cause, held at Faith 1 */
                 made_marks |= order[i];
@@ -608,6 +621,15 @@ void __stdcall VvfpFaithLossVillageReset(int game) {
     if (game == FL_GAME) {
         forget_marks();
     }
+}
+
+/* The cause (1 starvation, 2 hunger, 4 sickness, 8 too few believers) whose decision made `record` a Heathen in the
+   drift just ruled on for it; 0 when that drift decided no conversion, or was another record's. */
+int __stdcall VvfpFaithLossDecided(int game, const void *record) {
+    if (game != FL_GAME || record == NULL || record != (const void *)g_decided_record) {
+        return 0;
+    }
+    return (int)g_decided_cause;
 }
 
 /* How many believers are marked to stay, for the save slot now. */
