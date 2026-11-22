@@ -7800,13 +7800,41 @@ static void cg_auto_one(int game, const cg_history *h, const unsigned char *e, i
     }
 }
 
+/* Whether a node's own words `text` say the award's amount: "(award)" in any case (cg_parse_ph_in's word). */
+static int cg_says_award(const char *text) {
+    static const char WORD[] = "(award)";
+    int i, k;
+    for (i = 0; text != NULL && text[i] != '\0'; ++i) {
+        for (k = 0; WORD[k] != '\0'; ++k) {
+            char c = text[i + k];
+            if (c >= 'A' && c <= 'Z') {
+                c = (char)(c - 'A' + 'a');
+            }
+            if (c != WORD[k]) {
+                break;
+            }
+        }
+        if (WORD[k] == '\0') {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* Node `n`'s automatic lines after `out` (its text, the award filled in): one for each effect that has one, from the
-   walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options). */
+   walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options).  A
+   pay_award on a node whose own words say "(award)" has no line: the author's text already states the amount paid
+   (filled in as it is really given), so the line would only say it twice ("Your village gains 590 food.\nThe village
+   gains 590 food.", The Cooking Contest, v1.35.97).  `says_award`: cg_says_award of the node's words. */
 static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n, int fx, int award_kind, int award,
-                          char *out, int cap) {
+                          int says_award, char *out, int cap) {
     int k;
     for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
-        cg_auto_one(game, h, cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k), fx, award_kind, award, out, cap);
+        const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+        if (says_award && e[0] == CGE_PAY) {
+            continue;
+        }
+        cg_auto_one(game, h, e, fx, award_kind, award, out, cap);
     }
 }
 
@@ -7968,9 +7996,10 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_popup *p = NULL;
             int start = 0;
             unsigned short nt = cg_node_title(node);
+            int says_award = cg_says_award(cg_node_text(node, game));
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
             if (n[3] & CG_NODE_AUTO_TEXT) {
-                cg_auto_lines(game, h, n, fx0, award_kind, shown, text, sizeof text);   /* 25 */
+                cg_auto_lines(game, h, n, fx0, award_kind, shown, says_award, text, sizeof text);   /* 25 */
             }
             if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
                 && !(n[3] & CG_NODE_NEW_PAGE)) {

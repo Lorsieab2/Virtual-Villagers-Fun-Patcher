@@ -45,7 +45,12 @@
 #define VV2_WORLD() (*(unsigned char **)(uintptr_t)0x4997BCu)
 #define VV2_POOL() (*(unsigned char **)(uintptr_t)0x499F24u)
 #define VV2_STRIDE 0xE48Cu
-#define VV2_FIRST 0x30u
+/* Record i is at pool + i * 0xE48C, and every field below is counted from the record's start: present +0x30, health
+   +0x52C, name +0x564 (the layout every other companion reads: vvfp_cause_of_death.c, population_export.c,
+   statistics_export.c).  v1.35.97 also added 0x30 to the record's start, so every field was read 0x30 too far on:
+   the name came out empty, the sex was read from the name's bytes ("he" for everyone) and the eligibility test and
+   the effects (health, skills, likes) used the wrong fields, while the popup's portrait showed the right villager. */
+#define VV2_FIRST 0u
 #define VV2_RECORDS 256
 #define VV2_DLG_QUESTION 0x7Cu
 #define VV2_DLG_RESULT 0x278Bu
