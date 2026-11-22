@@ -65,17 +65,20 @@ def rendered(ids: tuple, mode: str = "collection_progression") -> bytes:
 class Files:
     """The Windows file calls the companion makes (sidecar_io.h), over a dict of path -> bytes."""
 
-    def __init__(self):
+    def __init__(self, docs: bytes = b"C:\\Docs", exe: bytes | None = None):
         self.files: dict[str, bytes] = {}
         self.handles: dict[int, list] = {}
         self.next = 0x100
         self.error = 0
+        self.docs, self.exe = docs, exe
 
     def install(self, p: "Process") -> None:
         h = p.api_handlers
+        if self.exe is not None:
+            p.exe_path = self.exe
 
         def special(q):
-            q.write(q.arg(1), b"C:\\Docs\0")
+            q.write(q.arg(1), self.docs + b"\0")
             return 1, 16
         h["SHGetSpecialFolderPathA"] = special
         h["CreateDirectoryA"] = lambda q: (1, 8)
@@ -547,6 +550,46 @@ class OnceACrisis(unittest.TestCase):
         g.forced = [0, 99, 0]
         g.drift(dead)                                       # no second roll
         self.assertEqual((g.decisions, g.heathen(dead)), (before, False))
+
+    def test_the_owners_long_256_folder_keeps_the_marks_through_a_restart(self):
+        """The owner (2026-11-22): "i had 5 convert instead of die" from sickness, in "Virtual Villagers - New
+        Believers - Modded 256" under OneDrive\\Documents.  Its marks file was never written: the path check guessed
+        160 characters for everything after the Documents folder and the executable's name (33 + 46 + 160 = 239,
+        over MAX_PATH less the set-aside name's 27), though the real path is 165.  The marks lived only in memory,
+        so every game start (and its load-time catch-up) decided every held believer again.  A sick believer
+        decided once stays decided through any number of restarts; a path really too long is still refused."""
+        docs = b"C:\\Users\\Owner\\OneDrive\\Documents"
+        exe_name = b"Virtual Villagers - New Believers - Modded 256"
+        exe = (b"C:\\Users\\Owner\\OneDrive\\Desktop\\LDW Desktop Games!! And Other Stuff\\Current Modded LDW "
+               b"Games\\Modded Games\\" + exe_name + b"\\" + exe_name + b".exe")
+        files = Files(docs, exe)
+        build = rendered((FAITH_LOSS, POP256))
+        g = Game(build, files, n=1)
+        (rec,) = g.records
+        g.food = 1000
+        g.p.put32(rec + FAITH, 1)
+        g.forced = [0, 99, 5]                          # sickness takes the last Faith: decided, stays
+        g.drift(rec, sick=1)
+        self.assertEqual((g.heathen(rec), g.decisions), (False, 1))
+        (path,) = files.files
+        self.assertEqual(path, (docs + b"\\LDW\\" + exe_name + b"\\Virtual Villagers Fun Patcher\\Save 1\\Data\\"
+                                b"Faith Loss\\Believers Kept - Save 1.dat").decode().lower())
+        self.assertEqual(files.causes(), [SICKNESS])
+        for restart in range(5):                       # the same illness, the game quit and started again
+            again = Game(build, files, n=1)
+            again.food = 1000
+            again.p.put32(again.records[0] + FAITH, 1)
+            again.forced = [0, 99, 0]                  # a roll now would make a Heathen
+            again.drift(again.records[0], sick=1)
+            self.assertEqual((again.heathen(again.records[0]), again.decisions), (False, 0), restart)
+        # A Documents folder long enough that the whole path would not fit: refused, nothing written, no fault.
+        long_files = Files(b"C:\\" + b"D" * 100, exe)  # 235 characters: with the set-aside name, over 259
+        far = Game(build, long_files, n=1)
+        far.food = 1000
+        far.p.put32(far.records[0] + FAITH, 1)
+        far.forced = [0, 99, 5]
+        far.drift(far.records[0], sick=1)
+        self.assertEqual((far.heathen(far.records[0]), far.decisions, long_files.files), (False, 1, {}))
 
     def test_another_slot_has_its_own_marks(self):
         files = Files()

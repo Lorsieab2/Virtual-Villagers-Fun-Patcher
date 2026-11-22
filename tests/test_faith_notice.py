@@ -467,6 +467,23 @@ class WaitingPopupFile(unittest.TestCase):
         third = self.session(files)
         self.assertIsNone(third.pending(100 + 10 * quiet), "never again after another reload")
 
+    def test_the_owners_long_256_folder_keeps_the_waiting_popup(self):
+        """The owner's "Virtual Villagers - New Believers - Modded 256" under OneDrive\\Documents: a fixed guess of
+        160 characters for the rest of the path refused it (33 + 46 + 160 over MAX_PATH less the set-aside name),
+        though the path is 170 -- the waiting popup was never kept there.  The whole path's own length decides now."""
+        from test_faith_loss_marks import Files
+        name = b"Virtual Villagers - New Believers - Modded 256"
+        files = Files(b"C:\\Users\\Owner\\OneDrive\\Documents",
+                      b"C:\\Users\\Owner\\OneDrive\\Desktop\\Games\\" + name + b"\\" + name + b".exe")
+        v = self.session(files)
+        self.keep(v, 900)
+        v.proc.tick = 1000
+        v.drift(faith=1, sick=1, food=1000, rolls=[0])
+        self.keep(v, 1100)
+        self.assertEqual(self.sidecar(files), (1, only(SICKNESS)))
+        (path,) = files.files
+        self.assertTrue(path.startswith("c:\\users\\owner\\onedrive\\documents\\ldw\\" + name.decode().lower() + "\\"))
+
     def test_armed_then_quit_only_the_story_queue_brings_it_back(self):
         """Never double-shown: the companion's file goes the moment the popup is armed, and the Story queue's own
         file (restored on load) is the only copy -- one popup after the reload, from the queue."""

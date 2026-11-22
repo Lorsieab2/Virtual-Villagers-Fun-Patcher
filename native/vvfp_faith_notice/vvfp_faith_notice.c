@@ -147,10 +147,10 @@ static int notice_path(int slot, char *out, int make) {
     static const char *const LEVELS[4] = {
         "\\Virtual Villagers Fun Patcher", "\\Save %d", "\\Data", "\\Faith Notice"
     };
-    char docs[MAX_PATH], exe[MAX_PATH], part[64];
+    char docs[MAX_PATH], exe[MAX_PATH], part[64], level[64];
     char *base = exe, *p, *dot = NULL;
     DWORD n;
-    int i;
+    int i, length;
     if (slot < 1 || slot > 5 || !SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
         return 0;
     }
@@ -169,18 +169,25 @@ static int notice_path(int slot, char *out, int make) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if (base[0] == '\0' || lstrlenA(docs) + lstrlenA(base) + 160 >= MAX_PATH - FN_RESERVE) {
+    /* The whole path's own length, with room for sidecar_io.h's set-aside name (a fixed guess of 160 for the rest
+       refused "Virtual Villagers - New Believers - Modded 256" under OneDrive\Documents: no waiting popup was ever
+       kept there). */
+    wsprintfA(part, "\\Waiting Popup - Save %d.dat", slot);
+    length = lstrlenA(docs) + 5 + lstrlenA(base) + lstrlenA(part);
+    for (i = 0; i < 4; ++i) {
+        length += lstrlenA(LEVELS[i]);     /* "%d" is 2 wide, the slot's digit 1: never short */
+    }
+    if (base[0] == '\0' || length >= MAX_PATH - FN_RESERVE) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     for (i = 0; i < 4; ++i) {
-        wsprintfA(part, LEVELS[i], slot);
-        lstrcatA(out, part);
+        wsprintfA(level, LEVELS[i], slot);
+        lstrcatA(out, level);
         if (make) {
             CreateDirectoryA(out, NULL);
         }
     }
-    wsprintfA(part, "\\Waiting Popup - Save %d.dat", slot);
     lstrcatA(out, part);
     return 1;
 }

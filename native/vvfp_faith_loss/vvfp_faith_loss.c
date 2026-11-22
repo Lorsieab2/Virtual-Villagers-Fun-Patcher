@@ -20,8 +20,8 @@
      * a fall (the sum esi < 0) that takes Faith to 0 or less: the gains are taken first, then the losses one by
        one in the drift's order (the food loss -- starvation or hunger by the food now -- sickness, too few
        believers).  The loss that would take the last Faith is its cause's: a cause the believer is marked for
-       holds them at Faith 1 (that loss is not made); an unmarked one is decided now, once -- rand(10) < 1 (the
-       game's own rand, 0x403660) the drift's own sum is made and the believer becomes a Heathen as before;
+       holds them at Faith 1 (that loss is not made); an unmarked one is decided now, once -- rand(N) < 1 (the
+       game's own rand, 0x403660; N the cause's FL_ODDS_*, 10 for each today) the drift's own sum is made and the believer becomes a Heathen as before;
        otherwise the believer is marked for that cause and held at Faith 1.  A later loss of another cause in
        the same drift is decided the same way;
      * anything else is the drift's own sum: rises and falls that leave Faith above 0.
@@ -39,7 +39,8 @@
    then takes the new identity), so a renamed or re-liked villager keeps it, and a newborn or newcomer put in a
    dead villager's record (younger, or neither part the same) never inherits it.  The marks are kept per save in
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Faith Loss\Believers Kept - Save <S>.dat
-   (sidecar_io.h: atomic writes, an unreadable file never replaced, an invalid one set aside).  It is read when the
+   (sidecar_io.h: atomic writes, an unreadable file never replaced, an invalid one set aside; refused only when the
+   whole path, with the set-aside name's room, would not fit in MAX_PATH).  It is read when the
    game's save slot (the save manager's own field, set before the slot's village is created or loaded:
    native/shared/game_save_slot.h) is first seen, so the load-time catch-up already has them; it is written each
    time a mark is made or cleared, with only the marks of villagers who are living believers then (matched as
@@ -71,8 +72,12 @@
 #define FL_FOOD 0x51D34Cu
 #define FL_CRISIS_FOOD 250              /* food above this: no food roll applies */
 #define FL_STARVING 10                  /* food under this: starvation (the drift's own boundary, 0x468044) */
-#define FL_DECIDE 10                    /* rand(10) < 1: the believer becomes a Heathen */
-#define FL_CONVERTS 1
+/* Each cause's odds of a Heathen when it is decided: 1 in FL_ODDS_<cause>, as rand(N) < 1 (the game's own rand).
+   The owner picks these (2026-11-22: all 1 in 10 until then). */
+#define FL_ODDS_STARVATION 10
+#define FL_ODDS_HUNGER 10
+#define FL_ODDS_SICKNESS 10
+#define FL_ODDS_TOO_FEW 10
 #define FL_FEW 12                       /* fewer believers than this: too few (0x468174) */
 #define FL_BELIEVERS 0x4713F0u          /* the game's believer count (thiscall on the villager manager) */
 #define FL_BELIEVERS_MANAGER 0x46815Fu  /* the drift's `mov ecx, <manager>` immediate */
@@ -201,10 +206,10 @@ static int marks_path(int slot, char *out, int make) {
     static const char *const LEVELS[4] = {
         "\\Virtual Villagers Fun Patcher", "\\Save %d", "\\Data", "\\Faith Loss"
     };
-    char docs[MAX_PATH], exe[MAX_PATH], part[64];
+    char docs[MAX_PATH], exe[MAX_PATH], part[64], level[64];
     char *base = exe, *p, *dot = NULL;
     DWORD n;
-    int i;
+    int i, length;
     if (slot < 1 || slot > 5 || !SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
         return 0;
     }
@@ -223,18 +228,26 @@ static int marks_path(int slot, char *out, int make) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if (base[0] == '\0' || lstrlenA(docs) + lstrlenA(base) + 160 >= MAX_PATH - FL_RESERVE) {
+    /* The whole path's own length, with room for sidecar_io.h's set-aside name.  It was a fixed guess (160 for
+       the rest) that refused a long executable name -- "Virtual Villagers - New Believers - Modded 256" under
+       OneDrive\Documents -- though the path is far under MAX_PATH: no mark was ever read or written there, so
+       every game start rolled every held believer again. */
+    wsprintfA(part, "\\Believers Kept - Save %d.dat", slot);
+    length = lstrlenA(docs) + 5 + lstrlenA(base) + lstrlenA(part);
+    for (i = 0; i < 4; ++i) {
+        length += lstrlenA(LEVELS[i]);             /* "%d" is 2 wide, the slot's digit 1: never short */
+    }
+    if (base[0] == '\0' || length >= MAX_PATH - FL_RESERVE) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     for (i = 0; i < 4; ++i) {
-        wsprintfA(part, LEVELS[i], slot);
-        lstrcatA(out, part);
+        wsprintfA(level, LEVELS[i], slot);
+        lstrcatA(out, level);
         if (make) {
             CreateDirectoryA(out, NULL);
         }
     }
-    wsprintfA(part, "\\Believers Kept - Save %d.dat", slot);
     lstrcatA(out, part);
     return 1;
 }
@@ -477,6 +490,20 @@ static unsigned int crises_over(int at, const unsigned char *rec) {
     return causes & over;
 }
 
+/* The odds of cause `cause` (one FL_ cause bit): the N of its 1 in N. */
+static int odds_of(unsigned int cause) {
+    switch (cause) {
+    case FL_STARVATION:
+        return FL_ODDS_STARVATION;
+    case FL_HUNGER:
+        return FL_ODDS_HUNGER;
+    case FL_SICKNESS:
+        return FL_ODDS_SICKNESS;
+    default:
+        return FL_ODDS_TOO_FEW;
+    }
+}
+
 static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
     int result = sum;
     __try {
@@ -526,10 +553,10 @@ static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
             if (level > 1) {
                 --level;                           /* not the last Faith: the loss is made */
             } else if ((held & order[i]) == 0) {
-                if (((rand_fn)(UINT_PTR)FL_RAND)(FL_DECIDE) < FL_CONVERTS) {
-                    return sum;                    /* 1 in 10: a Heathen, as before (no mark needed) */
+                if (((rand_fn)(UINT_PTR)FL_RAND)(odds_of(order[i])) < 1) {
+                    return sum;                    /* 1 in N: a Heathen, as before (no mark needed) */
                 }
-                held |= order[i];                  /* 9 in 10: marked for this cause, held at Faith 1 */
+                held |= order[i];                  /* otherwise: marked for this cause, held at Faith 1 */
                 made_marks |= order[i];
             }
         }
