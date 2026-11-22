@@ -2018,8 +2018,9 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
 
     A converted Heathen (is_converted_newcomer; the owner, 2026-11-21) goes in the generation the tribe was on
     when they converted: the newest generation among the believers the snapshot of their conversion lists
-    (conversion_snapshot; the snapshot they first appear in when none shows the change), and never generation
-    I, the founders' -- a conversion while only the founders lived puts them in generation II."""
+    (conversion_snapshot; the snapshot they first appear in when none shows the change).  A conversion while
+    only the founders lived puts them in generation I (the owner, 2026-11-21: "heathens can share the founders
+    row"); they are still never called founders (heathen_not_founder)."""
     people = village.people
     dates = sorted(snapshots)
     first = dates[0] if dates else None
