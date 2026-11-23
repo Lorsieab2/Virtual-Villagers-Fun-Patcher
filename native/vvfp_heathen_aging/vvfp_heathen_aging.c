@@ -263,7 +263,11 @@ static int puzzle_done(int puzzle) {
 
 #define HA_MAGIC 0x31414856u     /* 'VHA1' */
 #define HA_VERSION 2u          /* 2: magic, version, game, count, slot (v1 never shipped) */
-#define HA_MAX 1024
+/* Room for every live entry with room to spare: at most 256 records' born / former / expecting entries (768),
+   500 Heathen graves (the Roster of the Dead) and the owed replacements (at most one a record, 256): 1,524.
+   Entries of villagers no longer in the village are pruned when the list is full (known_prune), never a
+   living villager's, a grave or an owed replacement. */
+#define HA_MAX 2048
 #define HA_HEADER 20u
 #define KIND_BORN 0u             /* born a Heathen (a baby this companion delivered) */
 #define KIND_FORMER 1u           /* a believer who turned Heathen */
@@ -364,13 +368,46 @@ static void known_drop(unsigned int who, unsigned int kind) {
     }
 }
 
+static unsigned int identity(const unsigned char *record);
+static unsigned char *rec_at(int index);
+
+/* A full list: the born, former and expecting entries of identities no record of the village holds now (dead and
+   gone, buried, left) are dropped.  Graves and owed replacements always stay. */
+static void known_prune(void) {
+    static unsigned int present[256];
+    unsigned int i;
+    int n = 0, k;
+    for (i = 0; i < g_slots && i < 256u; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r[R_PRESENT] != 0) {
+            present[n++] = identity(r);
+        }
+    }
+    for (k = g_known_count; k-- > 0;) {
+        int j, alive = 0;
+        if (g_known[k].kind == KIND_GRAVE || g_known[k].kind == KIND_OWED) {
+            continue;
+        }
+        for (j = 0; j < n && !alive; ++j) {
+            alive = present[j] == g_known[k].identity;
+        }
+        if (!alive) {
+            memmove(&g_known[k], &g_known[k + 1], sizeof g_known[0] * (size_t)(g_known_count - k - 1));
+            --g_known_count;
+            g_dirty = 1;
+        }
+    }
+}
+
 static void known_put(unsigned int who, unsigned int kind) {
     if (known_find(who, kind) >= 0) {
         return;
     }
     if (g_known_count >= HA_MAX) {
-        memmove(&g_known[0], &g_known[1], sizeof g_known[0] * (HA_MAX - 1));   /* the oldest goes */
-        g_known_count = HA_MAX - 1;
+        known_prune();
+    }
+    if (g_known_count >= HA_MAX) {
+        return;                            /* (cannot happen: see HA_MAX) -- never a live entry evicted */
     }
     g_known[g_known_count].identity = who;
     g_known[g_known_count].kind = kind;
@@ -965,8 +1002,8 @@ static void deliver(unsigned char *mother) {
     } else if (litter > 3) {
         litter = 3;
     }
-    if (free_records() < litter) {
-        return;                                                /* waits for room */
+    if (free_records() < litter + HA_ROOM_KEPT) {
+        return;                     /* waits until the village's own births keep their HA_ROOM_KEPT records */
     }
     for (i = 0; i < litter; ++i) {
         int fh = i32(mother, R_BABY_FATHER_HEAD), mh = i32(mother, R_HEAD);
