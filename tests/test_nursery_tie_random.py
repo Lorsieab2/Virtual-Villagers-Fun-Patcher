@@ -103,9 +103,13 @@ class Manifest(unittest.TestCase):
             row = next(p for p in load_fun_patches() if p.id == f"{game}_fix_vanilla_bugs").raw
             pinned = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                       for p in row["patches"]]
-            if game == "vv5":                   # the statue polish fix, then the Nursery foundation caption, come after it
+            if game == "vv5":                   # the statue polish fix, the Nursery foundation caption, then the
+                from test_vv5_clothing_hut_click import clothing_hut_click_fixes      # Clothing Hut click come after it
                 from test_vv5_nursery_foundation_caption import foundation_caption_fixes
                 from test_vv5_statue_polish_energy import FIXES as STATUE_FIXES
+                click = list(clothing_hut_click_fixes())
+                self.assertEqual(pinned[-len(click):], click)
+                pinned = pinned[:-len(click)]
                 caption = list(foundation_caption_fixes())
                 self.assertEqual(pinned[-len(caption):], caption)
                 pinned = pinned[:-len(caption)]
