@@ -30,6 +30,13 @@ DLL_NAME = "VVFP Heathens Keep Masks.dll"
 DLL = ROOT / "assets" / "heathens_keep_masks" / DLL_NAME
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
 ORIGINS = "vv5_enable_origins_exclusive_features"
+# The Former Heathens file ("VVFP Cause of Death.dll", VvfpCauseFormerKind) is what remembers a purple convert's
+# mask for when they go back (the kind bytes keep orange and red, the Retired Chief's role 13 the Chief's).  Said in bold, not required:
+# the Respecting the Legacy of Isola bundle ticks exactly its five pieces (Codex, #843).
+CAUSE_SENTENCE = ("**A former Master's or Heathen Doctor's purple mask is remembered for going back only with Log "
+                  "Every Death, Disappearance and Unaccounted Villager on (it is on by default): its Former Heathens "
+                  "file keeps it; without it they go back in the blue mask. Blue, orange, red and the Chief's mask are "
+                  "always known.**")
 
 # (site VA, stock bytes, what the site is)
 SITES = (
@@ -80,7 +87,7 @@ def description() -> str:
         "If a villager who was once a Heathen later loses their faith and goes back to the Heathens, they wear "
         "their own mask again -- the one they wore as a Heathen before, blue, orange, red, purple or the Chief's "
         "-- but act exactly like an ordinary Heathen in a blue mask: you can talk to them, they listen, and they "
-        "can be converted again like any blue one (never a Master or the Chief again). "
+        "can be converted again like any blue one (never a Master or the Chief again). " + CAUSE_SENTENCE + " "
         "**Heathens who "
         "joined the tribe before this patch keep the look they have now.** **Works the same with every other "
         "patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the "

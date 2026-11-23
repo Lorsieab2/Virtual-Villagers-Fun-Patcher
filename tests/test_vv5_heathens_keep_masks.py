@@ -225,6 +225,10 @@ class TheRow(unittest.TestCase):
         self.assertEqual(row["name"], "Heathens Keep Their Masks When Converted")
         self.assertEqual(row["game_id"], "vv5")
         self.assertEqual(row["dependencies"], ["vv5_enable_origins_exclusive_features"])
+        # The Former Heathens file (Log Every Death) remembers a purple convert's mask for going back: said in bold,
+        # not required (the Respecting the Legacy of Isola bundle ticks exactly its five pieces; Codex, #843).
+        self.assertIn("**A former Master's or Heathen Doctor's purple mask is remembered for going back only with Log "
+                      "Every Death, Disappearance and Unaccounted Villager on", row["description"])
         self.assertEqual(row["patches"], [])
         from origins_base_text import ORIGINS_BASE_SENTENCE
         self.assertTrue(row["description"].startswith(ORIGINS_BASE_SENTENCE), "the dependency comes first, in bold")

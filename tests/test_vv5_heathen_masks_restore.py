@@ -186,6 +186,35 @@ class RestoreHeathenMasks(unittest.TestCase):
                       "they wear); the save's red Heathen behaviour cleared", text)
         self.assertIn("Virtual Villagers - New Believers1.ldw -- copy kept:", text)
 
+    def test_a_former_blue_heathen_with_a_believers_mask_goes_back_to_blue(self):
+        """Codex (#843): Udu was a blue Heathen (the Former Heathens file), took a Change Appearance mask as a
+        believer and went back under an older build: the file still holds that mask (the companion would draw it).
+        He wore blue as a Heathen, so his entry is set to blue; nothing else changes."""
+        data = self.save.read_bytes()
+        at = ln._entries(5, data)
+        f = ln.FIELDS[5]
+        titles = [ln._title_identity(data, p, f) for p in at]
+        former = tools.layout.route(self.folder, f"{DATA}\\Former Heathens\\Former Heathens - Save 1.dat")
+        former.write_bytes(former_file([(titles[1], 3), (titles[6], 1), (titles[0], 2), (titles[7], 0)]))
+        raw = bytearray(self.masks.read_bytes())
+        raw[4 + 600 + 3] = (raw[4 + 600 + 3] & 0x0F) | (4 << 4)    # record 7: the Purple Mask he chose
+        self.masks.write_bytes(bytes(raw))
+        work = hm.survey(self.folder, 1)
+        udu = [x for x in work.restore if x.name == "Udu"]
+        self.assertEqual([(x.mask, x.nibble, x.kind_byte) for x in udu], [(1, True, 0)])
+        self.assertIn("Udu (head 11, body 11): Blue Mask (from the Former Heathens file)", work.lines())
+        hm.restore(self.folder, 1, processes=NoGame(), now=NOW)
+        self.assertEqual(self.nibble(7), 1)
+        self.assertEqual(self.save.read_bytes(), data, "the save is not written for it")
+
+    def test_a_former_blue_heathen_already_blue_needs_nothing(self):
+        data = self.save.read_bytes()
+        at = ln._entries(5, data)
+        titles = [ln._title_identity(data, p, ln.FIELDS[5]) for p in at]
+        former = tools.layout.route(self.folder, f"{DATA}\\Former Heathens\\Former Heathens - Save 1.dat")
+        former.write_bytes(former_file([(titles[7], 0)]))
+        self.assertNotIn("Udu", [x.name for x in hm.survey(self.folder, 1).restore])
+
     def test_a_heathen_the_game_made_keeps_its_colour(self):
         """Poi carries the orange byte and nothing shows she was ever a believer: never touched."""
         save = self.save.read_bytes()

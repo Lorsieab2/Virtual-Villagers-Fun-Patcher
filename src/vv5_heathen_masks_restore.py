@@ -33,7 +33,9 @@ WHO.  A Heathen now (the save's faction byte, entry name - 0x1F), of no puzzle r
     the tribe: became a Heathen"): for one still carrying a kind byte, that colour (the byte is what they wore and
     wear); with no kind byte, nothing says which mask: listed as "mask unknown" and skipped, never guessed.
 A Heathen never shown to have been a believer is never touched, whatever their bytes (the game made them so).  A
-mask of blue with no kind byte needs nothing (the game draws the one blue).
+mask of blue needs nothing (the game draws the one blue) -- unless the Village Masks file still holds an orange,
+red, purple or Chief's mask chosen for them as a believer, which the companion would draw: that entry is set to
+blue.
 
 WHAT IS WRITTEN.  Their nibble in the slot's Village Masks file, when the file is one the game reads (VM06 or
 VM26: identities) and names them at their record -- the companion's own rule: an entry is theirs only when the
@@ -226,19 +228,19 @@ def survey(folder: Path, slot: int) -> Survey:
             out.listed.append(found)
             continue
         ident = checker._villager(data, at, checker.LAYOUTS[GAME], index, GAME).ident
-        if masks is not None and not masks.weak and index < len(masks.values) and masks.stored[index] == ident \
-                and masks.values[index] == mask:
-            found.nibble = False                    # already theirs in the file
-        if mask == 1 and not kind_byte:
-            continue                                # blue: the game's own blue is theirs
-        if found.nibble and mask != 1:
-            if masks is None:
-                found.note = ("there is no Village Masks file the game reads yet (play the village with Heathens "
-                              "Keep Their Masks When Converted and save once)")
-            elif masks.weak or index >= len(masks.values) or masks.stored[index] != ident:
-                found.note = "the Village Masks file does not name them at their record yet (play and save once)"
+        named = masks is not None and not masks.weak and index < len(masks.values) and masks.stored[index] == ident
+        current = masks.values[index] if named else 0
         if mask == 1:
-            found.nibble = False                    # blue needs no nibble: clearing the byte draws it
+            # Blue: the game's own blue is theirs -- unless the file holds a mask chosen for them as a believer
+            # (Change Appearance, 2..5), which the companion would draw on them now (Codex, #843): set to blue.
+            found.nibble = 2 <= current <= 5
+        elif named and current == mask:
+            found.nibble = False                    # already theirs in the file
+        elif masks is None:
+            found.note = ("there is no Village Masks file the game reads yet (play the village with Heathens "
+                          "Keep Their Masks When Converted and save once)")
+        elif not named:
+            found.note = "the Village Masks file does not name them at their record yet (play and save once)"
         if not found.nibble and not kind_byte:
             continue                                # already theirs
         if found.note:
