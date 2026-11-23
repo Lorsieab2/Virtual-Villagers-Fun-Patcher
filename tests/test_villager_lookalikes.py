@@ -89,7 +89,7 @@ class EveryListUsesIt(unittest.TestCase):
         # A live record's custom title, for both exporters (the present test the rule counts by).
         "native/shared/custom_title_shown.h": 1,
         "native/statistics_export/statistics_export.c": 1,   # the Village Roster
-        "native/statistics_export/village_elders.c": 1,      # the Village Elders
+        "native/statistics_export/village_elders.c": 2,      # the Village Elders, and The Lost Children's seed
         "native/vvfp_cause_of_death/vvfp_cause_of_death.c": 1,
     }
 
