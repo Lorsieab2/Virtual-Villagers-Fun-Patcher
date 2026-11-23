@@ -161,7 +161,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_long_paths", "vv_repair_copies", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
-               "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
+               "vv_corrupt_skills", "vv_golden_child_revive", "vv5_heathen_ages", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # The Conception and Birth records the saved village never held (v1.35.97).
                "vv_not_kept",

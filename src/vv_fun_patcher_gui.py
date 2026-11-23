@@ -30,6 +30,7 @@ import vv_cut_names
 import vv_legacy_names
 import vv_corrupt_skills
 import vv_golden_child_revive
+import vv5_heathen_ages
 import vv_graves
 import vv_history_revision
 import vv_lost_titles
@@ -5702,6 +5703,14 @@ class App(tk.Tk):
                     skills["golden"] = vv_golden_child_revive.survey(folder, info.slot)
                 except (vv_golden_child_revive.ReviveError, ValueError, OSError, struct.error):
                     skills["golden"] = None
+            # New Believers' Heathens, whose age the game never moves (src/vv5_heathen_ages.py; the owner, 2026-11-22).
+            if number == vv5_heathen_ages.GAME:
+                try:
+                    skills["heathen_ages"] = vv5_heathen_ages.survey(folder, info.slot)
+                except (vv5_heathen_ages.HeathenAgesError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                        ValueError, OSError, struct.error) as exc:
+                    skills["heathen_ages_note"] = (f"{vv5_heathen_ages.LABEL}: not checked, a file could not be read "
+                                                   f"({exc}).")
             # The Lost Children's Esteemed Elders' totems (src/vv_vv2_totems.py), for the checklist's rows.
             if number == vv_vv2_totems.GAME:
                 try:
@@ -5814,6 +5823,9 @@ class App(tk.Tk):
             grave_lines += self._reset_corrupt_skills(parent, folder, number, info)
         if skills.get("revive_golden"):
             grave_lines += self._revive_golden_child(parent, folder, info)
+        # New Believers' Heathen ages (src/vv5_heathen_ages.py), before any rename: matched by the save's names now.
+        if skills.get("catch_up_heathens"):
+            grave_lines += self._catch_up_heathen_ages(parent, folder, info)
         # Old "?" names back to the real names (src/vv_legacy_names.py): the logs only, in place.
         if skills.get("rewrite_legacy"):
             try:
@@ -6419,6 +6431,40 @@ class App(tk.Tk):
                 golden_tick.state(["disabled"])
             ttk.Label(frame, text=golden.describe(), wraplength=600, justify="left",
                       foreground="#555555").pack(anchor="w", padx=(20, 0))
+        # New Believers' Catch up Heathen ages (src/vv5_heathen_ages.py; the owner, 2026-11-22): never ticked for the
+        # player; Repair shows the whole list (old age -> new age, who goes past old age) to confirm first.
+        heathen_ages = skills.get("heathen_ages")
+        heathen_var = tk.BooleanVar(value=False)
+        if heathen_ages is not None:
+            heathen_row = ttk.Frame(frame)
+            heathen_row.pack(anchor="w", pady=(4, 0))
+            heathen_tick = ttk.Checkbutton(
+                heathen_row, variable=heathen_var,
+                text=f"{vv5_heathen_ages.LABEL}: {heathen_ages.summary()} (the time each spent frozen among the "
+                     "Heathens is added to their age)")
+            heathen_tick.pack(side="left")
+            if not heathen_ages.changes:
+                heathen_tick.state(["disabled"])
+            if heathen_ages.changes or heathen_ages.unknown:
+                ttk.Button(heathen_row, text="Show the list…",
+                           command=lambda: self._heathen_ages_dialog(window, heathen_ages, ask=False)
+                           ).pack(side="left", padx=(8, 0))
+            for c in heathen_ages.changes[:6]:
+                ttk.Label(frame, text=c.describe(), wraplength=600, justify="left",
+                          foreground="#555555").pack(anchor="w", padx=(20, 0))
+            if len(heathen_ages.changes) > 6:
+                ttk.Label(frame, text=f"... and {len(heathen_ages.changes) - 6} more (Show the list…)",
+                          foreground="#555555").pack(anchor="w", padx=(20, 0))
+            if heathen_ages.past_old_age:
+                ttk.Label(frame, wraplength=600, justify="left", foreground="#8a4b00",
+                          text=f"Past old age after the catch-up, may die soon after loading: "
+                               f"{len(heathen_ages.past_old_age)} ("
+                               + ", ".join(c.name for c in heathen_ages.past_old_age[:8])
+                               + (", ..." if len(heathen_ages.past_old_age) > 8 else "") + ")."
+                          ).pack(anchor="w", padx=(20, 0))
+        if skills.get("heathen_ages_note"):
+            ttk.Label(frame, text=skills["heathen_ages_note"], wraplength=600, justify="left",
+                      foreground="#555555").pack(anchor="w", padx=(20, 0))
         # The Lost Children's Esteemed Elders' totems (src/vv_vv2_totems.py; the owner, 2026-10-19): each
         # row ticked only when the save has something for it; what is unsure is asked after Repair.
         totems = totems if totems is not None else {"survey": None, "note": None, "give": False, "fix": False}
@@ -6648,6 +6694,7 @@ class App(tk.Tk):
             numbers["auto"] = number_auto_var.get()
             skills["reset"] = bool(skills["found"]) and skills_var.get()
             skills["revive_golden"] = golden is not None and golden.revivable and golden_var.get()
+            skills["catch_up_heathens"] = bool(heathen_ages is not None and heathen_ages.changes) and heathen_var.get()
             skills["rewrite_legacy"] = bool(legacy is not None and legacy.found) and legacy_var.get()
             totems["give"] = totem_survey is not None and give_var.get()
             totems["fix"] = totem_survey is not None and fix_var.get()
@@ -7823,6 +7870,75 @@ class App(tk.Tk):
         return [f"The Golden Child {result.survey.name} is back (health {vv_golden_child_revive.REVIVED_HEALTH}, "
                 f"five years old); a \"{vv_golden_child_revive.HEADING}\" record was added. "
                 f"Backup: {result.backup.backup_folder}"]
+
+    def _catch_up_heathen_ages(self, parent, folder: Path, info) -> list[str]:
+        """Repair Saves & Logs' "Catch up Heathen ages" (src/vv5_heathen_ages.py), ticked in the checklist: surveyed
+        again, the whole list shown to confirm (Cancel is the default), then done with the game closed.  Returns the
+        summary lines."""
+        try:
+            found = self._run_with_wait("Reading the Heathens' ages…\n\nNothing is changed.",
+                                        lambda: vv5_heathen_ages.survey(folder, info.slot))
+        except (vv5_heathen_ages.HeathenAgesError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                ValueError, OSError, struct.error) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"No age was caught up. {exc}", parent=parent)
+            return []
+        if not found.changes:
+            return [f"{vv5_heathen_ages.LABEL}: nothing to catch up now."]
+        if not self._heathen_ages_dialog(parent, found, ask=True):
+            return [f"{vv5_heathen_ages.LABEL}: cancelled, nothing changed."]
+        try:
+            result = self._run_with_wait(
+                "Catching up the Heathens' ages…\n\nThe save folder is backed up first.",
+                lambda: vv5_heathen_ages.catch_up(folder, info.slot, expected=found))
+        except (vv5_heathen_ages.HeathenAgesError, vv_last_names.LastNamesError, vv_log_tools.LogToolError,
+                vv_save_backup.BackupError, OSError) as exc:
+            messagebox.showerror("Repair Saves & Logs", f"No age was caught up. {exc}", parent=parent)
+            return []
+        return [f"{vv5_heathen_ages.LABEL}: {len(result.survey.changes)} villager(s) aged on, "
+                f"{len(result.survey.past_old_age)} of them past old age; {len(result.survey.unknown)} not known, left "
+                f"as they are (each is listed in the Repairs Made log). Backup: {result.backup.backup_folder}"]
+
+    def _heathen_ages_dialog(self, parent, found, ask: bool) -> bool:
+        """Catch up Heathen ages' list (src/vv5_heathen_ages.py Survey.describe): each villager's old age -> new age,
+        who goes past old age, and who is not known.  With `ask`, True only on "Catch up"; Cancel is the default."""
+        window = tk.Toplevel(parent)
+        window.title(f"Repair Saves & Logs: {vv5_heathen_ages.LABEL.lower()}")
+        window.transient(parent)
+        frame = ttk.Frame(window, padding=12)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, wraplength=760, justify="left",
+                  text="New Believers never ages a Heathen. Each villager below gets the time they spent frozen among "
+                       "the Heathens added to their age, where the logs make it certain. The save folder is backed up "
+                       "first and each change is listed in the Repairs Made log.").pack(anchor="w", pady=(0, 8))
+        body = ttk.Frame(frame)
+        body.pack(fill="both", expand=True)
+        text = vv_tool_fonts.tool_text(body, wrap="word", width=110, height=30)
+        scrollbar = ttk.Scrollbar(body, orient="vertical", command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        text.pack(side="left", fill="both", expand=True)
+        text.insert("1.0", found.describe())
+        text.configure(state="disabled")
+        outcome = {"yes": False}
+
+        def yes() -> None:
+            outcome["yes"] = True
+            window.destroy()
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(anchor="w", pady=(8, 0))
+        if ask:
+            ttk.Button(buttons, text=f"Catch up {len(found.changes)} villager(s)", command=yes).pack(side="left")
+            cancel = ttk.Button(buttons, text="Cancel", command=window.destroy)
+            cancel.pack(side="left", padx=(8, 0))
+            cancel.focus_set()
+        else:
+            ttk.Button(buttons, text="Close", command=window.destroy).pack(side="left")
+        window.protocol("WM_DELETE_WINDOW", window.destroy)
+        window.grab_set()
+        parent.wait_window(window)
+        _regrab(parent)
+        return outcome["yes"]
 
     def _reset_corrupt_skills(self, parent, folder: Path, number: int, info) -> list[str]:
         """Repair Saves & Logs' "Reset corrupted skill values" (src/vv_corrupt_skills.py), ticked in the
