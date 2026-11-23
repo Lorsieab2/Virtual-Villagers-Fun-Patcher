@@ -2511,11 +2511,13 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
               aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
               pronoun_names: bool = False, label: bool = False, counts: dict[str, int] | None = None,
-              award2: int | None = None) -> str:
+              award2: int | None = None, pick_awards: dict | None = None) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
     the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
     ({@tribe}; None: "the village"); `award2` the (award2) amount (None: nothing -- simulate fills each node's
-    own before its text joins a popup, fill_award2).  The glyph fallback is applied last."""
+    own before its text joins a popup, fill_award2); `pick_awards` maps a drawn (pool, instance) to the (award,
+    award2 amount) of the node that shows it, filled into its item first (story_graph.inc inlines a node's items in
+    its award pass).  The glyph fallback is applied last."""
     picks = picks or {}
     aliases = aliases or {}
     out = []
@@ -2561,7 +2563,7 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             if tok[0] == "count":
                 out.append(expand_v6(count_option(tok[2], (counts or {}).get(tok[1], 1)), g, bindings, picks, award,
                                      game, True, aliases, _depth + 1, tribe, label=label, counts=counts,
-                                     award2=award2))
+                                     award2=award2, pick_awards=pick_awards))
                 continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 # G5: the save's tribe name, filled at run time.
@@ -2572,8 +2574,15 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             idx = picks.get((name, k))
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
-            item = expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                             aliases, _depth + 1, tribe, label=label, counts=counts, award2=award2)
+            raw_item = g["pools"][name]["items"][idx]["text"]
+            if pick_awards and (name, k) in pick_awards:
+                at_award, at_award2 = pick_awards[(name, k)]
+                raw_item = fill_award(raw_item, at_award)
+                if at_award2 is not None:
+                    raw_item = fill_award2(raw_item, at_award2)
+            item = expand_v6(raw_item, g, bindings, picks, award, game, True,
+                             aliases, _depth + 1, tribe, label=label, counts=counts, award2=award2,
+                             pick_awards=pick_awards)
             out.append(item)
             drop_dot = item.endswith(ITEM_END_MARKS)
     text = "".join(out)
@@ -5730,12 +5739,35 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     # each node's text with CG_EXPAND_AWARD as its effects leave the award): fill_award, before the texts join.
     k = 0
     paying = None
+    early = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
+    pick_awards: dict[tuple[str, int], tuple] = {}
+
+    def note_pools(text: str, ctx: tuple, depth: int = 0) -> None:
+        # the node's drawn pool items take its award and own change (story_graph.inc inlines them in the award pass)
+        for key in pool_refs(text):
+            idx = early.get(key)
+            if idx is None or key in pick_awards or depth >= MAX_POOL_DEPTH or key[0] not in lg["pools"]:
+                continue
+            pick_awards[key] = ctx
+            note_pools(lg["pools"][key[0]]["items"][idx]["text"], ctx, depth + 1)
+
+    def drawn_words(text: str, depth: int = 0) -> str:
+        # the node's words with its drawn pool items' (what the engine's award pass inlines): what says_award reads
+        out = [text]
+        for key in pool_refs(text):
+            idx = early.get(key)
+            if idx is not None and depth < MAX_POOL_DEPTH and key[0] in lg["pools"]:
+                out.append(drawn_words(lg["pools"][key[0]]["items"][idx]["text"], depth + 1))
+        return "\n".join(out)
+
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         if n["type"] == "question":
+            note_pools(path_texts[at], (paying, None))
             path_texts[at] = fill_award(path_texts[at], paying)
             continue
         lines = []
+        said = drawn_words(path_texts[at])
         a2, amount2 = award2_effect(n["effects"]), None
         for i, e in enumerate(n["effects"]):
             if e["do"] in ("food", "tech") and e["defer"]:
@@ -5744,10 +5776,10 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 amount2 = fx[k][0]
             who = bindings.get(aliases.get(e.get("role"), e.get("role"))) if e["do"] == "sex_change" else None
             # the text says it: the award (says_award), or this node's own change (says_award2)
-            if not (e["do"] == "pay_award" and says_award(path_texts[at])) and \
-                    not (i == a2 and says_award2(path_texts[at])):
+            if not (e["do"] == "pay_award" and says_award(said)) and not (i == a2 and says_award2(said)):
                 lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
             k += 1
+        note_pools(path_texts[at], (paying, amount2))                  # its pool items: the same
         path_texts[at] = fill_award(path_texts[at], paying)            # (award): the award as it stands here
         if amount2 is not None:
             path_texts[at] = fill_award2(path_texts[at], amount2)      # (award2): this node's own change
@@ -5798,7 +5830,8 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
     counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
               if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}
-    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts)
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts,
+                        pick_awards=pick_awards)
               for t in texts]
 
     def choice_shown(label: str) -> str:

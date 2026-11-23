@@ -4548,6 +4548,7 @@ static int cg_award2_amount;
 static int cg_award_fx = -1;
 static int cg_award2_fx = -1;
 static int cg_mark_off;
+static int cg_award_probe;          /* (award) / (award2) kept as written: what a node's words say, its pool items in */
 #define CG_MARK_ON '\x03'
 #define CG_MARK_MID '\x05'
 #define CG_MARK_OFF '\x04'
@@ -4754,7 +4755,9 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             s = e + 1;
             continue;
         }
-        if (ph.what == CG_PH_AWARD) {
+        if (cg_award_probe && (ph.what == CG_PH_AWARD || ph.what == CG_PH_AWARD2)) {
+            put = ph.what == CG_PH_AWARD ? "(award)" : "(award2)";
+        } else if (ph.what == CG_PH_AWARD) {
             if (award_kind >= 0) {
                 cg_amount_word(word, cg_award_fx, award);
                 put = word;
@@ -8132,8 +8135,13 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_popup *p = NULL;
             int start = 0;
             unsigned short nt = cg_node_title(node);
-            int says_award = cg_says_word(cg_node_text(node, game), "(award)");
-            int award2 = cg_award2_effect(n);
+            static char said[CG_RAW_BYTES];
+            int says_award, award2 = cg_award2_effect(n);
+            /* what the node's words say, its drawn pool items in (the award pass inlines them): Codex, #842 */
+            cg_award_probe = 1;
+            cg_expand(cg_node_text(node, game), said, sizeof said, CG_EXPAND_AWARD, 0, -1, 0);
+            cg_award_probe = 0;
+            says_award = cg_says_word(said, "(award)");
             /* (award2): the node's own change as the page states it and then makes it (cg_applied_fx) */
             cg_award2_on = award2 >= 0;
             cg_award2_amount = 0;
@@ -8147,7 +8155,7 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
             cg_award2_on = 0;
             cg_award_fx = cg_award2_fx = -1;
-            if (award2 >= 0 && !cg_says_word(cg_node_text(node, game), "(award2)")) {
+            if (award2 >= 0 && !cg_says_word(said, "(award2)")) {
                 award2 = -1;           /* the words do not state it: its line stays */
             }
             if (n[3] & CG_NODE_AUTO_TEXT) {

@@ -845,7 +845,7 @@ Lines with no amount keep their words: `R dies.`, `R celebrates.` (a good mood),
 No line: `action`; a deferred food or tech (its `pay_award` gives it); a `pay_award` on a node whose own words say
 `(award)` (any case: the text already states the amount paid, filled in as it is really given -- the line would say
 it twice; `cg_says_word` / `says_award`); the node's own food or tech change on a node whose own words say
-`(award2)` (section 5: the text states its amount; `says_award2`) -- only these same-amount food / tech lines are
+`(award2)` (section 5: the text states its amount; `says_award2`) -- a node's words include the pool items it draws (the award pass inlines them, and their `(award)` / `(award2)` are that node's: Python `simulate` fills each drawn item with the node's amounts) -- only these same-amount food / tech lines are
 hidden, every other effect's line stays (the owner); a change that changes nothing (an amount of 0, or one the limits take
 wholly away); a skill the game does not have (roll -1); a random preference with no candidate. Identical lines are
 all kept.

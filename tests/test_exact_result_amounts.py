@@ -92,6 +92,17 @@ def count_awards_graph(game: int) -> dict:
                                          {"do": "pay_award"}], "auto_text": True}}}
 
 
+def pool_awards_graph(game: int) -> dict:
+    """Codex (#842): (award2) and (award) inside a drawn pool item take the amounts of the node that shows it."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Exact Amounts", "games": [game],
+            "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0",
+            "pools": {"LOSS": {"items": ["your village loses (award2) food"]},
+                      "GAIN": {"items": ["(award) (award_unit)"]}},
+            "nodes": {"p0": {"text": "Sadly, {LOSS}. Your villagers gain {GAIN}.",
+                             "effects": [{"do": "food", "amount": -40}, {"do": "tech", "amount": 7, "defer": True},
+                                         {"do": "pay_award"}], "auto_text": True}}}
+
+
 def moving_graph(game: int, award: bool) -> dict:
     """Page 1, then a page whose words state its amounts: (award2) a food loss and (award) a tech award, or (`award`)
     the award alone."""
@@ -203,6 +214,15 @@ class PatcherSide(unittest.TestCase):
                 self.assertIn("The cooks share 25 food. Prize: 7 tech points.", text)
                 self.assertNotIn("(award", text.lower())
                 self.assertNotIn("The village gains 25 food", text, "(award2) states it")
+
+    def test_award_placeholders_in_pool_items(self):
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                out = cg.simulate(cg.load(copy.deepcopy(pool_awards_graph(game))), game, [0] * 8,
+                                  {"subject": cg.Binding("Adam", "m")})
+                text = "\n".join(out["popups"])
+                self.assertIn("Sadly, your village loses 40 food. Your villagers gain 7 tech points.", text)
+                self.assertNotIn("The village", text, "(award2) / (award) state them")
 
     def test_award2_is_checked_and_measured(self):
         g = two_kinds_graph(3)
@@ -395,6 +415,17 @@ class GameSideAmounts(unittest.TestCase):
                 self.assertNotIn("(award", flat.lower())
                 self.assertNotIn("The village gains 25 food", flat)
                 self.assertEqual(self.side.food_tech(r), (525, 17), "both paid")
+
+    def test_award_placeholders_in_pool_items(self):
+        """The engine inlines a node's drawn pool items in its award pass: their (award2) / (award) are the node's."""
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self.run_graph(game, pool_awards_graph(int(game[2])),
+                                          lambda r: self.side.set_food_tech(r, 500, 10))
+                flat = one_line(shown)
+                self.assertIn("Sadly, your village loses 40 food. Your villagers gain 7 tech points.", flat)
+                self.assertNotIn("The village", flat)
+                self.assertEqual(self.side.food_tech(r), (460, 17))
 
     def _moving(self, game, graph, food, tech, then):
         def setup(r):
