@@ -69,6 +69,45 @@ def two_kinds_graph(game: int, extra: list[dict] | None = None) -> dict:
                              "auto_text": True}}}
 
 
+def two_awards_graph(game: int) -> dict:
+    """One run that defers two different awards: each page's (award) / (award_unit) is the award as it stands there
+    (the engine's per-node fill), never the run's last."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Exact Amounts", "games": [game],
+            "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0",
+            "nodes": {"p0": {"text": "First prize: (award) (award_unit).",
+                             "effects": [{"do": "food", "amount": 150, "defer": True}, {"do": "pay_award"}],
+                             "children": [{"next": "p1"}]},
+                      "p1": {"text": "Second prize: (award) (AWARD_UNIT).",
+                             "effects": [{"do": "tech", "amount": 9, "defer": True}, {"do": "pay_award"}]}}}
+
+
+def count_awards_graph(game: int) -> dict:
+    """Codex (#842): (award2) and (award) inside a count token's options are filled with the rest of the node's
+    words, never shown as "(award2)"."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Exact Amounts", "games": [game],
+            "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0",
+            "nodes": {"p0": {"text": "The cooks share {#made:(award2) food|(award2) food each}. Prize: "
+                                     "{#made:(award) (award_unit)|(award) (award_unit) each}.",
+                             "effects": [{"do": "food", "amount": 25}, {"do": "tech", "amount": 7, "defer": True},
+                                         {"do": "pay_award"}], "auto_text": True}}}
+
+
+def moving_graph(game: int, award: bool) -> dict:
+    """Page 1, then a page whose words state its amounts: (award2) a food loss and (award) a tech award, or (`award`)
+    the award alone."""
+    if award:
+        text, fx = "Your villagers gain (award) tech points.", [{"do": "tech", "amount": 7, "defer": True},
+                                                                {"do": "pay_award"}]
+    else:
+        text = "Your village loses (award2) food. Your villagers gain (award) tech points."
+        fx = [{"do": "food", "amount": -40}, {"do": "tech", "amount": 7, "defer": True}, {"do": "pay_award"}]
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Exact Amounts", "games": [game],
+            "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0",
+            "nodes": {"p0": {"text": "Page 1.", "effects": [{"do": "tech", "amount": 3}], "auto_text": True,
+                             "children": [{"next": "p1"}]},
+                      "p1": {"text": text, "effects": fx, "auto_text": True}}}
+
+
 # The three nodes that tell two kinds (the owner's decision, 2026-11-22): event file, node, the award's kind.
 TWO_KIND_EVENTS = (("s061_soft_yams", "c2o1", "tech"), ("s064_stranger_recipe", "c2o1", "tech"),
                    ("s095_lucky_harvest", "c2o2", "food"))
@@ -141,6 +180,29 @@ class PatcherSide(unittest.TestCase):
                 self.assertIn("A second page.\nThe village gains 25 food.\nThe village gains 3 tech points.", text,
                               "no (award) / (award2): both lines stay")
                 self.assertEqual(out["fx"][0][0], -40, "the food loss is still made")
+
+    def test_two_awards_in_one_run_each_as_it_stands(self):
+        """A fix along the way (2026-11-22): simulate filled every (award) of a run with the LAST award deferred, so
+        a first page paying 150 food read "9 tech points"; the engine fills each node's text as its own effects
+        leave the award (cg_group).  Now the mirror does too."""
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                out = cg.simulate(cg.load(copy.deepcopy(two_awards_graph(game))), game, [0] * 8,
+                                  {"subject": cg.Binding("Adam", "m")})
+                text = "\n".join(out["popups"])
+                self.assertIn("First prize: 150 food.", text)
+                self.assertIn("Second prize: 9 TECH POINTS.", text)
+        self.assertEqual(cg.fill_award("(award) (Award_unit) \\(award\\)", None), "  \\(award\\)")
+
+    def test_award_placeholders_in_count_options(self):
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                out = cg.simulate(cg.load(copy.deepcopy(count_awards_graph(game))), game, [0] * 8,
+                                  {"subject": cg.Binding("Adam", "m")})
+                text = "\n".join(out["popups"])
+                self.assertIn("The cooks share 25 food. Prize: 7 tech points.", text)
+                self.assertNotIn("(award", text.lower())
+                self.assertNotIn("The village gains 25 food", text, "(award2) states it")
 
     def test_award2_is_checked_and_measured(self):
         g = two_kinds_graph(3)
@@ -309,6 +371,69 @@ class GameSideAmounts(unittest.TestCase):
                     self.assertIn("A second page. The village gains 25 food. The village gains 3 tech points.", flat,
                                   "no (award) / (award2): both lines stay")
                     self.assertEqual(self.side.food_tech(r), (after, 20), "all four changes made")
+
+    def test_two_awards_in_one_run_each_as_it_stands(self):
+        """The engine (what the Python mirror now copies): each page's (award) is the award as it stands there."""
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self.run_graph(game, two_awards_graph(int(game[2])),
+                                          lambda r: self.side.set_food_tech(r, 500, 10))
+                flat = one_line(shown)
+                self.assertIn("First prize: 150 food.", flat)
+                self.assertIn("Second prize: 9 TECH POINTS.", flat)
+                self.assertEqual(self.side.food_tech(r), (650, 19), "both awards paid")
+
+    def test_award_placeholders_in_count_options(self):
+        """Codex (#842): a count option's (award2) / (award) was shown as written; now filled like the rest."""
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self.run_graph(game, count_awards_graph(int(game[2])),
+                                          lambda r: self.side.set_food_tech(r, 500, 10))
+                flat = one_line(shown)
+                self.assertIn("The cooks share 25 food", flat)          # either option (the count kept from earlier)
+                self.assertIn("Prize: 7 tech points", flat)
+                self.assertNotIn("(award", flat.lower())
+                self.assertNotIn("The village gains 25 food", flat)
+                self.assertEqual(self.side.food_tech(r), (525, 20))
+
+    def _moving(self, game, graph, food, tech, then):
+        def setup(r):
+            self.side.set_food_tech(r, food, tech)
+            state = {"n": 0}
+
+            def watch():
+                state["n"] += 1
+                if state["n"] == 1:
+                    then(r)
+            r.watch = watch
+        return self.run_graph(game, graph, setup)
+
+    def test_award2_put_right_when_the_village_moves(self):
+        """Codex (#842): laid out with 100 food (the page to lose 40), 15 left once page 1 is shown: the page's own
+        words say 15 -- never the 40 it was laid out with -- and no extra line contradicts them."""
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self._moving(game, moving_graph(int(game[2]), False), 100, 0,
+                                        lambda r: self.side.set_food_tech(r, 15, self.side.food_tech(r)[1]))
+                flat = one_line(shown)
+                self.assertIn("Your village loses 15 food. Your villagers gain 7 tech points.", flat)
+                self.assertNotIn("40 food", flat)
+                self.assertNotIn("The village loses", flat)
+                self.assertNotIn("\x03", "".join(t for _k, t, _l in shown))
+                self.assertEqual(self.side.food_tech(r), (0, 10))
+
+    def test_award_put_right_when_the_village_moves(self):
+        """The same for (award): a tech store that fills to the game's limit after page 1 takes only 2 of the 7."""
+        top = 0x7FFFFFFF - 1000000                      # story_custom.h CE_MAX_AMOUNT
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self._moving(game, moving_graph(int(game[2]), True), 100, 0,
+                                        lambda r: self.side.set_food_tech(r, self.side.food_tech(r)[0], top - 2))
+                flat = one_line(shown)
+                self.assertIn("Your villagers gain 2 tech points.", flat)
+                self.assertNotIn("7 tech points", flat)
+                self.assertNotIn("The village gains 2", flat)
+                self.assertEqual(self.side.food_tech(r), (100, top))
 
     def test_skill_gain_loss_and_cap(self):
         for game in self.games():

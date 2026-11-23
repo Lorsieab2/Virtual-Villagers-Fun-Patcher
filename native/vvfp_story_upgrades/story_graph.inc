@@ -4541,6 +4541,26 @@ static unsigned int cg_late_roles(void) {
 static int cg_award2_on;
 static int cg_award2_amount;
 
+/* The effect (fx index, -1 none) whose amount the node's (award) / (award2) states, as cg_group fills its text: the
+   number is written marked -- \3 fx \5 digits \4 -- so the page can put it right when the village moved between
+   the layout and the showing (cg_amounts_fill, as cg_fix_lines does a line).  (award) is marked only on the node
+   that pays it; a count option's amounts are never marked (its token is read again as the page is shown). */
+static int cg_award_fx = -1;
+static int cg_award2_fx = -1;
+static int cg_mark_off;
+#define CG_MARK_ON '\x03'
+#define CG_MARK_MID '\x05'
+#define CG_MARK_OFF '\x04'
+
+/* An amount (`amount`, never signed for (award2)) into `word`, marked with effect `fx` when it may be put right. */
+static void cg_amount_word(char *word, int fx, int amount) {
+    if (fx >= 0 && !cg_mark_off) {
+        wsprintfA(word, "%c%d%c%d%c", CG_MARK_ON, fx, CG_MARK_MID, amount, CG_MARK_OFF);
+    } else {
+        wsprintfA(word, "%d", amount);
+    }
+}
+
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
     static char cased[CG_POOL_DEPTH + 2][CG_RAW_BYTES];
@@ -4560,6 +4580,18 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         int repeat = 0, role;
         cg_ph ph;
         const char *e;
+        if (mode == CG_EXPAND_WORST && (*s == CG_MARK_ON || *s == CG_MARK_OFF)) {
+            /* a marked amount (cg_amount_word): measured as its digits */
+            if (*s == CG_MARK_ON) {
+                while (*s != '\0' && *s != CG_MARK_MID) {
+                    ++s;
+                }
+            }
+            if (*s != '\0') {
+                ++s;
+            }
+            continue;
+        }
         if (cg_g.version >= 6 && *s == '\\' && (s[1] == '(' || s[1] == ')')) {
             /* A literal parenthesis: kept escaped until the text is filled for the screen. */
             if (mode == CG_EXPAND_AWARD) {
@@ -4599,6 +4631,26 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                     }
                     for (i = 0; wide[i] != '\0' && o < cap - 1; ++i) {
                         out[o++] = wide[i];
+                    }
+                } else if (mode == CG_EXPAND_AWARD && depth >= 0 && depth < CG_POOL_DEPTH + 2) {
+                    /* the award pass fills the options' (award) / (award_unit) / (award2) now, as the rest of the
+                       node's words (its award and own change are known only here); the rest kept for the page's
+                       pass (Codex, #842) */
+                    static char opt[CG_POOL_DEPTH + 2][CG_PAGE_BYTES], filled[CG_POOL_DEPTH + 2][CG_PAGE_BYTES];
+                    int c, len, was = cg_mark_off, head = (int)(opts - s);
+                    lstrcpynA(opt[depth], opts, olen + 1 < (int)sizeof opt[depth] ? olen + 1 : (int)sizeof opt[depth]);
+                    cg_mark_off = 1;
+                    len = cg_expand_in(opt[depth], filled[depth], (int)sizeof filled[depth], mode, name_room,
+                                       award_kind, award, depth + 1);
+                    cg_mark_off = was;
+                    for (c = 0; c < head && o < cap - 1; ++c) {
+                        out[o++] = s[c];
+                    }
+                    for (c = 0; c < len && o < cap - 1; ++c) {
+                        out[o++] = filled[depth][c];
+                    }
+                    for (c = head + olen; c < n && o < cap - 1; ++c) {
+                        out[o++] = s[c];
                     }
                 } else {
                     int c;
@@ -4704,12 +4756,12 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         }
         if (ph.what == CG_PH_AWARD) {
             if (award_kind >= 0) {
-                wsprintfA(word, "%d", award);
+                cg_amount_word(word, cg_award_fx, award);
                 put = word;
             }
         } else if (ph.what == CG_PH_AWARD2) {
             if (cg_award2_on) {
-                wsprintfA(word, "%d", cg_award2_amount);
+                cg_amount_word(word, cg_award2_fx, cg_award2_amount);
                 put = word;
             }
         } else if (ph.what == CG_PH_UNIT) {
@@ -5216,6 +5268,8 @@ static void cg_join(char *out, int cap, const char *a, const char *b, const char
 }
 static char cg_title_rest[CE_LONG_LINE_BYTES * 4];
 
+static const char *cg_amounts_fill(const char *text, int k);
+
 static const char *cg_display(int k) {
     static char wrapped[CG_PAGE_BYTES + CE_LONG_LINE_BYTES * 4 + 2];
     char title[CE_LONG_LINE_BYTES * 4];
@@ -5223,7 +5277,7 @@ static const char *cg_display(int k) {
     if (k < 0 || k >= cg.display_count) {
         return "";
     }
-    text = cg_count_fill(cg_late_fill(cg_renames_fill(cg.displays + cg.display_off[k], k), k));
+    text = cg_count_fill(cg_late_fill(cg_renames_fill(cg_amounts_fill(cg.displays + cg.display_off[k], k), k), k));
     cg_display_title(k, title, (int)sizeof title);
     if (cg_title_rest[0] == '\0') {
         return text;
@@ -5519,6 +5573,7 @@ static int cg_fx_now = -1;                  /* the effect being made (cg_make_ef
 static struct {
     const unsigned char *e;
     int fx, kind, actual;
+    int in_text;                            /* stated in the page's own words (cg_amounts_fill): no line */
 } cg_fixes[CG_FIXES];                       /* the display's lines to put right (cg_show) */
 static int cg_fix_count;
 #define CG_FAITH_OFF5 0x1CF0u               /* New Believers' Faith, -100..100 (src/vv_game_mechanics_faith_vv5.py) */
@@ -5563,9 +5618,62 @@ static void cg_told(const unsigned char *e, int kind, int actual) {
     cg_fixes[k].fx = cg_fx_now;
     cg_fixes[k].kind = kind;
     cg_fixes[k].actual = actual;
+    cg_fixes[k].in_text = 0;
     if (k == cg_fix_count) {
         ++cg_fix_count;
     }
+}
+
+/* Display `k`'s text with each marked amount (cg_amount_word: an (award) / (award2) the page's words state) as
+   digits: the amount really made when the village moved between the layout and the showing of the display whose
+   effects are being made (its fix, cg_told: never signed; that fix then needs no line, cg_fix_lines), else the
+   amount stated.  Codex, #842: "Your village loses 40 food." when 15 were lost. */
+static const char *cg_amounts_fill(const char *text, int k) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int o = 0;
+    for (s = text; *s != '\0' && *s != CG_MARK_ON; ++s) {
+    }
+    if (*s == '\0') {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        int fx = 0, f;
+        const char *digits;
+        char word[16];
+        if (*s != CG_MARK_ON) {
+            out[o++] = *s++;
+            continue;
+        }
+        for (++s; *s >= '0' && *s <= '9'; ++s) {
+            fx = fx * 10 + (*s - '0');
+        }
+        if (*s == CG_MARK_MID) {
+            ++s;
+        }
+        digits = s;
+        while (*s != '\0' && *s != CG_MARK_OFF) {
+            ++s;
+        }
+        for (f = 0; k == cg_display_now && f < cg_fix_count && cg_fixes[f].fx != fx; ++f) {
+        }
+        if (k == cg_display_now && f < cg_fix_count) {
+            wsprintfA(word, "%d", cg_fixes[f].actual < 0 ? -cg_fixes[f].actual : cg_fixes[f].actual);
+            cg_fixes[f].in_text = 1;
+            for (f = 0; word[f] != '\0' && o < (int)sizeof out - 1; ++f) {
+                out[o++] = word[f];
+            }
+        } else {
+            for (; digits < s && o < (int)sizeof out - 1; ++digits) {
+                out[o++] = *digits;
+            }
+        }
+        if (*s == CG_MARK_OFF) {
+            ++s;
+        }
+    }
+    out[o] = '\0';
+    return out;
 }
 
 /* Food (`food` 1) or tech changed by `amount` (the one the page states), and what really changed told (cg_told). */
@@ -7968,7 +8076,7 @@ static void cg_group(int game, const cg_history *h, int from) {
     for (i = from; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
-        int villager = 0, fx0 = fx, paid = 0, paid_here = 0, shown;
+        int villager = 0, fx0 = fx, paid = 0, paid_here = 0, shown, pay_fx = -1;
         cg_visit(node);
         for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
@@ -7984,6 +8092,7 @@ static void cg_group(int game, const cg_history *h, int from) {
                 paid = va = ad != NULL && !(ad->caps & (award_kind == 0 ? CAP_FOOD : CAP_TECH)) ? 0
                             : cg_applied(&store[award_kind], award);
                 paid_here = 1;
+                pay_fx = fx < CG_MAX_FX ? fx : -1;
             } else if (e[0] == CGE_SKILL || e[0] == CGE_HEALTH_CHANGE || e[0] == CGE_FAITH) {
                 va = cg_predicted(ad, game, e, va, fx < CG_MAX_FX ? h->fx_b[fx] : 0);
             } else if (e[0] == CGE_DAMAGE) {
@@ -8017,8 +8126,12 @@ static void cg_group(int game, const cg_history *h, int from) {
                 cg_award2_amount = cg_applied_fx[fx0 + award2] < 0 ? -cg_applied_fx[fx0 + award2]
                                                                    : cg_applied_fx[fx0 + award2];
             }
+            /* the amounts the page states, marked so they can be put right as it is shown (cg_amounts_fill) */
+            cg_award_fx = paid_here ? pay_fx : -1;
+            cg_award2_fx = award2 >= 0 && fx0 + award2 < CG_MAX_FX ? fx0 + award2 : -1;
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
             cg_award2_on = 0;
+            cg_award_fx = cg_award2_fx = -1;
             if (award2 >= 0 && !cg_says_word(cg_node_text(node, game), "(award2)")) {
                 award2 = -1;           /* the words do not state it: its line stays */
             }
@@ -8467,6 +8580,9 @@ static void cg_fix_lines(const ce_adapter *a, int game, char *text, int cap) {
     int f;
     for (f = 0; f < cg_fix_count; ++f) {
         int fx = cg_fixes[f].fx, stated = cg_applied_fx[fx], n, len = lstrlenA(text), at = -1, i;
+        if (cg_fixes[f].in_text) {
+            continue;                  /* the page's own words state it, put right already (cg_amounts_fill) */
+        }
         raw[0] = '\0';
         cg_auto_one(game, &cg.path, cg_fixes[f].e, fx, cg_fixes[f].kind, stated, raw, (int)sizeof raw);
         cg_expand(raw, was, (int)sizeof was, CG_EXPAND_REAL, a->name_room, -1, 0);

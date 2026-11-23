@@ -3677,6 +3677,18 @@ def award2_width(e: dict, game: "Game") -> int:
     return AWARD_WIDEST if e.get("scaled") else len(str(widest))
 
 
+def fill_award(text: str, award: tuple[str, int] | None) -> str:
+    """`text` with each (award) and (award_unit) (any case) filled with `award` = (kind, amount), the award as it
+    stands at the node (None: none deferred yet -- both nothing) -- story_graph.inc cg_group's CG_EXPAND_AWARD pass
+    over each node's own words, before the text joins its popup.  (AWARD_UNIT) in capitals: the unit in capitals."""
+    def one(m: re.Match) -> str:
+        if m.group(1).lower() == "award":
+            return str(award[1]) if award else ""
+        unit = UNITS[award[0]] if award else ""
+        return unit.upper() if not any(c.islower() for c in m.group(1)) else unit
+    return re.sub(r"(?<!\\)\((award|award_unit)\)", one, text, flags=re.IGNORECASE)
+
+
 def fill_award2(text: str, amount: int) -> str:
     """`text` with each (award2) (any case) filled with `amount`, never signed -- story_graph.inc cg_expand's
     CG_PH_AWARD2 with the node's own change, before the text joins its popup."""
@@ -5709,11 +5721,14 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 award = (e["do"], fx[k][0])
             k += 1
     # 25: each auto_text node's lines after its text, from the rolls (the award its pay_award pays as it stands).
+    # Each node's own (award) / (award_unit) is the award as it stands at that node (story_graph.inc cg_group fills
+    # each node's text with CG_EXPAND_AWARD as its effects leave the award): fill_award, before the texts join.
     k = 0
     paying = None
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         if n["type"] == "question":
+            path_texts[at] = fill_award(path_texts[at], paying)
             continue
         lines = []
         a2, amount2 = award2_effect(n["effects"]), None
@@ -5728,6 +5743,7 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                     not (i == a2 and says_award2(path_texts[at])):
                 lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
             k += 1
+        path_texts[at] = fill_award(path_texts[at], paying)            # (award): the award as it stands here
         if amount2 is not None:
             path_texts[at] = fill_award2(path_texts[at], amount2)      # (award2): this node's own change
         if n.get("auto_text"):
