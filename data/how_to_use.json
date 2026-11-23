@@ -1164,7 +1164,7 @@
     {
       "ids": ["vv5_former_villagers_keep_aging"],
       "guide": [
-        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
         "A villager who leaves your tribe and becomes a Heathen keeps growing older among the Heathens, as believers do:",
         "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
         "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
@@ -1177,7 +1177,7 @@
     {
       "ids": ["vv5_heathen_tribe_ages"],
       "guide": [
-        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
+        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
         "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
         "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
         "A camp Heathen who dies is replaced at once; a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
