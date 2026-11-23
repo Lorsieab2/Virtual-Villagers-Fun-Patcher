@@ -1252,7 +1252,7 @@ static int tr_sex_of_name(const unsigned char *name, unsigned int len) {
         }
         memcpy(&value, r + g->rec_sex, 4);
         if (g_game <= 2) {
-            sex = value == 1 ? 'm' : (value == 0 ? 'f' : 'o');
+            sex = value == 1 ? 'm' : (value == 2 ? 'f' : 'o');      /* A New Home / The Lost Children: 1 man, 2 woman */
         } else {
             sex = value == 0 ? 'm' : (value == 1 ? 'f' : 'o');
         }

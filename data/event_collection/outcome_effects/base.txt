@@ -1515,7 +1515,6 @@ drafts_c/dr_adv/adv25_honest_opinion.json | o2 | HAPPIER (subject) (50%) | "(sub
 drafts_c/dr_adv/adv27_rain_decides.json | o1 | FOOD GAIN normal (50%) | "(He/she) catches four fish" | {"do":"food","size":"normal","scaled":true}
 drafts_c/dr_adv/adv27_rain_decides.json | o1 | HAPPIER (subject) (50%) | "happier than (he/she) has been all week" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_adv/adv27_rain_decides.json | o2 | HAPPIER (subject) (50%) | "It's a lovely quiet day" | {"do":"mood","role":"subject","mood":"good"}
-drafts_c/dr_adv/adv29_elder_asks_young.json | o1 | HAPPIER (friend) (50%) | "(friend) goes very pink" | {"do":"mood","role":"friend","mood":"good"}
 drafts_c/dr_adv/adv29_elder_asks_young.json | o2 | HAPPIER (subject) (50%) | "enjoys every one of them" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_adv/adv31_list_leaf.json | o2 | HAPPIER (subject) (50%) | "Then (he/she) laughs" | {"do":"mood","role":"subject","mood":"good"}
 drafts_c/dr_adv/adv32_mine_decide.json | o2 | HAPPIER (subject) (50%) | "It's a wonderful trip" | {"do":"mood","role":"subject","mood":"good"}

@@ -463,6 +463,13 @@ BABIES_NAMES = {v: k for k, v in BABIES_FLAGS.items()}
 # ("partner_may_carry": true); a reason-based one (any_birth_sex) and one with no partner never do.
 PARTNER_MAY_CARRY_FLAG = 8
 SKILL_BEST_FLAG = 32          # codes 9 / 15: flags bit 32, the villager's best skill (string "best")
+HEALTH_RESTORE_FLAG = 1       # code 14: flags bit 0, "restore": a..b percent of the villager's earlier loss (25a)
+
+
+def restored(lost: int, percent: int) -> int:
+    """What a health_change "restore" gives back: `percent` of the health `lost` (rounded; story_graph.inc
+    cg_restored)."""
+    return (max(lost, 0) * percent + 50) // 100
 EFFECT_CAPS.update({"celebrate": CAP_BEHAVIOUR, "action": CAP_BEHAVIOUR, "mood": CAP_BEHAVIOUR, "health_change": 0,
                     "skill_set": CAP_SKILLS, "damage": 0, "appearance": CAP_APPEARANCE, "die_unrecovered": CAP_VANISH,
                     "baby_lost": CAP_CANCEL, "birth_then_die": CAP_KILL,
@@ -1254,11 +1261,20 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
                 problems.append(f"{where}: mood is good or bad")
             out["mood"] = e.get("mood")
         elif do == "health_change":
-            known |= {"min", "max"}
+            known |= {"min", "max", "restore"}
             lo, hi = e.get("min"), e.get("max")
-            if not (_int_in(lo, -99, 99) and _int_in(hi, -99, 99) and lo <= hi) or lo == hi == 0:
-                problems.append(f"{where}: health_change is -99..99, min <= max, not 0")
-            out.update(min=lo, max=hi)
+            if e.get("restore") is not None:
+                # 14 "restore" (cie-v6-binary.md 25a): a gain of min..max PERCENT of what this villager's earlier
+                # health_change on the run really took (clamped at 1); none taken, no gain.  One cast villager.
+                if e["restore"] is not True or not (_int_in(lo, 1, 100) and _int_in(hi, 1, 100) and lo <= hi):
+                    problems.append(f"{where}: health_change \"restore\": true takes min..max percent, 1..100")
+                elif e.get("target") is not None or e.get("role") in NEW_ROLES:
+                    problems.append(f"{where}: health_change \"restore\" is for one cast villager (a role)")
+                out.update(min=lo, max=hi, restore=True)
+            else:
+                if not (_int_in(lo, -99, 99) and _int_in(hi, -99, 99) and lo <= hi) or lo == hi == 0:
+                    problems.append(f"{where}: health_change is -99..99, min <= max, not 0")
+                out.update(min=lo, max=hi)
         elif do == "deliver_early":
             # Section 30: the newborn's health loss beyond the early birth's own deficit (both left out: none).
             known |= {"min", "max"}
@@ -4503,6 +4519,26 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
             _check_text(f"node {nid}", n["text"], problems, g["version"], g)
             for i, v in enumerate(n["variants"]):
                 _check_text(f"node {nid} variant {i + 1}", v["text"], problems, g["version"], g)
+        # 25a: a restore shares in its villager's loss made earlier on its OWN node (the engine keeps nothing longer),
+        # with no other health_change that may reach that villager in between: a group's (it may include them -- the
+        # engine then keeps the group's loss, cg_effect_on) or another one of theirs (the engine keeps the latest)
+        losses: set = set()
+        for e in n.get("effects") or ():
+            if e.get("do") != "health_change":
+                continue
+            r = effect_role(e)
+            if e.get("target") is not None or r is None or r in NEW_ROLES:
+                losses.clear()                 # a group's change: any villager's loss before it no longer counts
+                continue
+            if e.get("restore"):
+                if r not in losses:
+                    problems.append(f"node {nid}: a health_change \"restore\" needs a health loss of {r} right before "
+                                    "it on the same node (no group health_change between them)")
+                losses.discard(r)
+            elif e.get("min", 0) < 0:
+                losses.add(r)
+            else:
+                losses.discard(r)              # a gain: the engine keeps no loss for them
     if v6:
         _validate_v6(g, problems)
     if problems:
@@ -4791,6 +4827,8 @@ def _compile_v6(g: dict) -> bytes:
                 a = STATUS_CODES[e["status"]]
             elif do in ("health", "health_change", "damage"):
                 a, b = e["min"], e["max"]
+                if do == "health_change" and e.get("restore"):
+                    flags = HEALTH_RESTORE_FLAG
                 if do == "damage":
                     st = s(DAMAGE_ANY if e["structures"] == DAMAGE_ANY else ",".join(e["structures"]))
             elif do == "supply":
@@ -5101,6 +5139,8 @@ def _decompile_v6(data: bytes) -> dict:
                     e["status"] = code_status[a]
                 elif do in ("health", "health_change"):
                     e.update(min=a, max=b)
+                    if do == "health_change" and flags & HEALTH_RESTORE_FLAG:
+                        e["restore"] = True
                 elif do == "preference":
                     e.update(list="dislikes" if flags & 4 else "likes",
                              preference=PREF_RANDOM if flags & PREF_RANDOM_FLAG else s(st))
@@ -5765,15 +5805,27 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
         lines = []
         said = drawn_words(path_texts[at])
         a2, amount2 = award2_effect(n["effects"]), None
+        # 25a: each role's health its last health_change on THIS node took (the roll: no clamp here); the engine
+        # keeps nothing from an earlier node (cg_make_effects resets cg_lost for each node)
+        lost: dict[str, int] = {}
         for i, e in enumerate(n["effects"]):
             if e["do"] in ("food", "tech") and e["defer"]:
                 paying = (e["do"], fx[k][0])
             if i == a2:
                 amount2 = fx[k][0]
             who = bindings.get(aliases.get(e.get("role"), e.get("role"))) if e["do"] == "sex_change" else None
+            roll = fx[k]
+            if e["do"] == "health_change" and roll:
+                r = aliases.get(e.get("role"), e.get("role"))
+                if e.get("target") is not None or effect_role(e) is None or effect_role(e) in NEW_ROLES:
+                    lost.clear()               # a group's change may reach anyone: the engine keeps ITS loss then
+                elif e.get("restore"):
+                    roll = [restored(lost.pop(r, 0), roll[0])] + list(roll[1:])
+                else:
+                    lost[r] = -roll[0] if roll[0] < 0 else 0
             # the text says it: the award (says_award), or this node's own change (says_award2)
             if not (e["do"] == "pay_award" and says_award(said)) and not (i == a2 and says_award2(said)):
-                lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
+                lines += auto_line_options(e, game, paying, roll, who.sex if who is not None else None)
             k += 1
         note_pools(path_texts[at], (paying, amount2))                  # its pool items: the same
         path_texts[at] = fill_award(path_texts[at], paying)            # (award): the award as it stands here

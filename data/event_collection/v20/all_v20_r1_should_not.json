@@ -439,12 +439,6 @@
      "src": "L9219-9220"
     },
     {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L9219-9220"
-    },
-    {
      "do": "mood",
      "role": "finder",
      "mood": "good",
@@ -533,12 +527,6 @@
      ],
      "min": 5,
      "max": 10,
-     "src": "L9223-9224"
-    },
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
      "src": "L9223-9224"
     },
     {

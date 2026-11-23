@@ -68,6 +68,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "../shared/install_sites.h"
+#include "../shared/vv3_villager_table.h"
 
 #define VV3_GAME 3
 
@@ -75,7 +76,6 @@
 #define CURE_FAILED 0x457431u     /* the stock failure branch's target */
 #define CURE_CONTINUES 0x4573A2u  /* push 4: the cure goes on after a passed roll */
 #define CHIEF_ROLL 0x45FC60u      /* stdcall (site): the chief's supervision roll */
-#define VILLAGE 0x59E110u         /* the village (population manager) */
 #define HOSPITAL_SITE 9           /* the Healing site: the hospital's task code */
 
 #define SITE_INDEX 0x458D90u      /* the chief site switch: last table entry + site 9's index byte */
@@ -97,6 +97,10 @@ static const unsigned char GAIN_STOCK[9] = { 0x50, 0x6A, 0x02, 0x8D, 0x8E, 0xAC,
 typedef unsigned char *(__fastcall *get_chief_fn)(void *village, void *unused);
 
 static int installed;
+/* The village (population manager) the running executable uses: 0x59E110 stock, 0x800000 with 256 Villagers
+   (Experimental) -- read from the executable itself (native/shared/vv3_villager_table.h).  The stock address is
+   a dead object in a 256 build, and the roll and the chief search walk 256 records from it. */
+static unsigned int g_village = 0x59E110u;
 
 /* Entered by the jump at CURE_SITE with the Healing roll's result in al and
    the stack and registers exactly as the stock test sees them.  A passed
@@ -110,7 +114,7 @@ static __declspec(naked) void chief_cure_stub(void) {
         test al, al
         jne continues
         push 9
-        mov ecx, 0x59E110
+        mov ecx, dword ptr [g_village]
         mov eax, 0x45FC60
         call eax
         test al, al
@@ -154,7 +158,7 @@ static __declspec(naked) void direct_switch_stub(void) {
    Healing site and doing action 0x81 (the same tests as the supervision
    roll 0x45FC60, plus the action). */
 static int chief_directs_hospital(void) {
-    unsigned char *chief = ((get_chief_fn)(uintptr_t)GET_CHIEF)((void *)(uintptr_t)VILLAGE, 0);
+    unsigned char *chief = ((get_chief_fn)(uintptr_t)GET_CHIEF)((void *)(uintptr_t)g_village, 0);
     if (chief == 0) {
         return 0;
     }
@@ -208,6 +212,7 @@ static __declspec(naked) void study_gain_stub(void) {
 static void install(void) {
     static const unsigned char take_hospital = 0x0B;
     vvfp_site_write w[4];
+    unsigned int manager_rva, slots;
     if (installed
         || !vvfp_site_holds(CURE_SITE, CURE_STOCK, sizeof CURE_STOCK)
         || !vvfp_site_holds(SITE_INDEX, INDEX_STOCK, sizeof INDEX_STOCK)
@@ -215,6 +220,8 @@ static void install(void) {
         || !vvfp_site_holds(STUDY_GAIN, GAIN_STOCK, sizeof GAIN_STOCK)) {
         return;
     }
+    vv3_villager_table((const unsigned char *)(UINT_PTR)0x400000u, &manager_rva, &slots);
+    g_village = 0x400000u + manager_rva;      /* the game image (no relocations) */
     vvfp_site_branch(&w[0], CURE_SITE, sizeof CURE_STOCK, CURE_STOCK, 0xE9, (const void *)chief_cure_stub);
     vvfp_site_branch(&w[1], DIRECT_SWITCH, sizeof SWITCH_STOCK, SWITCH_STOCK, 0xE9,
                      (const void *)direct_switch_stub);

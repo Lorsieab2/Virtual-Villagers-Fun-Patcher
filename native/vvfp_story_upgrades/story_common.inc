@@ -102,10 +102,13 @@ typedef int (__cdecl *ce_finder_fn)(void);
 
 /* The supplied value for `act` (1), or 0 when there is none now.  `self`
    is the villager's own index; `record`, `listed` and `skeleton` are the
-   game adapter's own. */
+   game adapter's own.  A CALL whose `this` is the stock villager manager
+   (`stock_manager`, 0 for none) runs on `manager`, the running table's:
+   256 Villagers (Experimental) moves the manager, and the stock address is
+   then a dead object the game's widened loops would read 256 records past. */
 static int ce_supply_value(const ce_action *act, int self, unsigned char *(*record)(int),
                            int (*listed)(const unsigned char *), int (*skeleton)(const unsigned char *),
-                           int *value) {
+                           unsigned int stock_manager, unsigned int manager, int *value) {
     const ce_supply *s = act->supply;
     int v = 0;
     int i;
@@ -130,7 +133,8 @@ static int ce_supply_value(const ce_action *act, int self, unsigned char *(*reco
     } else if (s->what == CE_SUPPLY_GLOBAL) {
         v = *(const int *)(uintptr_t)s->va;
     } else if (s->what == CE_SUPPLY_CALL) {
-        v = s->self != 0 ? TC0(s->va, s->self) : ((ce_finder_fn)(uintptr_t)s->va)();
+        unsigned int this_ = s->self != 0 && s->self == stock_manager ? manager : s->self;
+        v = this_ != 0 ? TC0(s->va, this_) : ((ce_finder_fn)(uintptr_t)s->va)();
     } else {
         return 0;
     }

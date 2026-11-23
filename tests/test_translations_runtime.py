@@ -293,6 +293,35 @@ class TranslationsRuntimeTests(unittest.TestCase):
             # a plain "%" of the translation is handed to printf as "%%", so it shows one "%"
             self.assertTrue(text.endswith(b"sur 50 %"), text)
 
+    def test_person_select_by_name_reads_the_vv1_vv2_sex(self):
+        """A New Home / The Lost Children: a villager's sex is 1 (man) or 2 (woman) -- never 0 -- so a
+        {%N} person select over a name picks m for 1, f for 2 (tr_sex_of_name), and o for a name two
+        villagers of different sexes share."""
+        stem, english = "vvfp.story/story_found.x.s0", "%s found %d apples"
+        tr = "{%1: m=Il | f=Elle | o=Iel} (%s) a %d pommes"
+        notes = "%1 = villager (person); %2 = number (number)"
+        for game in (1, 2):
+            rec = RECORDS[game]
+            tf = template(game, [row("vvfp.story", "story_found.x.s0", english, tr, notes)])
+            for values, expect in (((1,), b"Il (Lin) a 3 pommes"), ((2,), b"Elle (Lin) a 3 pommes"),
+                                   ((1, 2), b"Iel (Lin) a 3 pommes")):
+                with self.subTest(game=game, values=values):
+                    g = Game(game, self.exes[game], file_bytes(tf))
+                    records = g.p.alloc(rec["stride"] * 256)
+                    g.p.put32(rec["pool"], records)
+                    for i, value in enumerate(values):
+                        r = records + i * rec["stride"]
+                        g.p.write(r + rec["present"], b"\x01")
+                        g.p.write(r + rec["name"], b"Lin\0")
+                        g.p.put32(r + rec["sex"], value)
+                    g.start()
+                    self.assertTrue(g.active())
+                    out = g.p.alloc(256)
+                    got = g.p.export("VvfpTranslateKeyText", self._cstr(g, stem.encode()),
+                                     self._cstr(g, english.encode()), self._cstr(g, b"Lin found 3 apples"), out, 256)
+                    self.assertEqual(got, 1)
+                    self.assertEqual(g.raw(out), expect)
+
     def _sprintf(self, game: int) -> int:
         return {3: 0x46EFCD, 4: 0x4716DB, 5: 0x47C046}[game]
 
@@ -338,7 +367,7 @@ class TranslationsRuntimeTests(unittest.TestCase):
         g.p.put32(dialog + idx_off, 0)
         g.p.put32(dialog + base_off, records)
         g.p.write(records + rec["present"], b"\x01")
-        g.p.put32(records + rec["sex"], 0 if g.game <= 2 else 1)      # female
+        g.p.put32(records + rec["sex"], 2 if g.game <= 2 else 1)      # female (VV1/VV2: 1 man, 2 woman)
         g.p.write(records + rec["name"], b"Mia\0")
         out = g.p.alloc(0x3000)
         srcbuf = g.p.alloc(len(src) + 1)

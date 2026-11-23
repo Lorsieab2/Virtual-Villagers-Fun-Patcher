@@ -48,6 +48,7 @@ AWARDS = {"award", "large award", "huge award"}
 GRAMMAR = [
     (718, "(fisherman/fisherwoman)", "fisher(man/woman)", "The Playful Dolphins",
      "the engine has no (fisherman/fisherwoman) word: fisher(man/woman) reads the same"),
+    (322, "spelunking.  \"We'll", "spelunking. \"We'll", "The Cave Explorers", "a double space: one space"),
 ]
 
 
