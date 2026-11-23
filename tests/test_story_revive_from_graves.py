@@ -503,6 +503,63 @@ class ExportedSkillNamesTests(unittest.TestCase):
 
 
 @emulated
+class LongTextTests(unittest.TestCase):
+    """Codex (#851): The Lost Children keeps 62 likes and 62 dislikes, a Custom Island Event can fill them, and its
+    own cause words run to 4,095 characters.  The details never write past a buffer and show every word: nothing is
+    dropped for length (the window's text box wraps and scrolls).  wsprintfA is answered as Windows answers it, at
+    most 1,024 bytes, so a list ever formatted through it would come back cut."""
+
+    @staticmethod
+    def _vv2_words():
+        import re
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_c2.inc").read_text(encoding="utf-8")
+        body = source[source.index('"The Lost Children",'):]
+        body = body[body.index("62, 62,") + len("62, 62,"):]
+        literal = re.match(r'\s*((?:"[^"]*"\s*)+),', body).group(1)
+        return "".join(re.findall(r'"([^"]*)"', literal)).split(",")
+
+    def test_62_likes_and_dislikes_and_the_longest_texts_are_shown_whole(self):
+        if not have_stock("vv2"):
+            self.skipTest("no stock executable")
+        r = Revive("vv2")
+        p = r.p
+        plain = p._api_wsprintfA
+
+        def windows_wsprintf(q):
+            value, pop = plain()
+            out = q.arg(0)
+            text = q.cstring(out)
+            if len(text) > 1023:                 # Windows' wsprintfA writes at most 1,024 bytes, NUL included
+                q.write(out + 1023, b"\0")
+                value = 1023
+            return value, pop
+        p.api_handlers["wsprintfA"] = windows_wsprintf
+        words = self._vv2_words()
+        self.assertEqual(len(words), 62)
+        name = "Abcdefghij Klmnopqrstuv"                  # 23 characters, the most VV2 holds
+        title = "T" * 31
+        epitaph = "E" * 64
+        cause = ("A long cause in the event's own words. " * 105)[:4095]
+        text = (f"Death 1\n  Name: {name}\n  Custom title: {title}\n  Age at death: 1300\n  Sex: Female\n"
+                f"  Cause of death: {cause}\n  Grave: Master Farmer\n  Epitaph: {epitaph}\n  Head: 5\n  Body: 6\n"
+                f"  Likes: {', '.join(words)}\n  Dislikes: {', '.join(words)}\n" + PARENTS + "\n")
+        self.assertEqual(r.load(text), 1)
+        line, details = p.alloc(0x2000), p.alloc(0x8000)
+        self.assertEqual(p.export("VvfpStoryProbeReviveRow", 0, line, details, 0x8000), 0)
+        shown = p.cstring(details)
+        self.assertIn(f"Name: {name}\r\n", shown)
+        self.assertIn(f"Custom title: {title}\r\n", shown)
+        self.assertIn(f"Epitaph: {epitaph}\r\n", shown)
+        self.assertIn(f"Cause of death: {cause}\r\n", shown)
+        self.assertIn("Likes: " + ", ".join(words) + "\r\n", shown)
+        self.assertIn("Dislikes: " + ", ".join(words) + "\r\n", shown)
+        answer, made = r.buy(0)
+        self.assertEqual(answer, 1)
+        self.assertEqual(sorted(r.v.prefs(made, "likes")), list(range(62)))
+        self.assertEqual(sorted(r.v.prefs(made, "dislikes")), list(range(62)))
+        self.assertEqual(r.v.name(made), name)
+
+@emulated
 class GraveyardTests(unittest.TestCase):
     def test_the_later_games_keep_their_graves_in_one_unbroken_run(self):
         for game in ("vv3", "vv4", "vv5"):

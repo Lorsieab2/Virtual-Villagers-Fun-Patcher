@@ -193,7 +193,10 @@ class ArrivedRecordSource(unittest.TestCase):
 
     def test_the_custom_island_event_names_its_villagers(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
-        self.assertIn('arrived(game, index, "Custom Island Event");', source)
+        # The How is the Custom Island Event's unless Revive Buried/Disappeared Villagers names its own (story_revive.inc).
+        self.assertIn('#define CE_ARRIVAL_HOW "Custom Island Event"', source)
+        self.assertIn('static const char *ce_arrival_how = CE_ARRIVAL_HOW;', source)
+        self.assertIn('arrived(game, index, ce_arrival_how);', source)
         spawn = source[source.index("int index = a->spawn(s);"):]
         self.assertLess(spawn.index("ce_tell_arrival(e->game, index, s);"), spawn.index("titles_set"))
 

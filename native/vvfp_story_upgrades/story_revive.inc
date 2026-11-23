@@ -109,9 +109,9 @@ typedef struct {
     int age;                          /* at death, age units; -1 unknown */
     int sex;                          /* STORY_SEX_*; 0 unknown */
     int head, body;                   /* -1 unknown */
-    char cause[120];                  /* Cause of death / What happened */
+    char *cause;                      /* Cause of death / What happened, whole (process heap; NULL unknown) */
     char grave_line[48];              /* the Death record's "Grave:" */
-    char epitaph[72];
+    char epitaph[96];                 /* the longest a grave or the epitaphs file keeps: 80 (grave_backfill.h) */
     char title[32];                   /* Custom title */
     char special[48];                 /* Special villager */
     int mask;                         /* 0 none, 1..5 (story_common.inc STORY_MASK_NAMES) */
@@ -133,6 +133,13 @@ static int rv_people_cap;
 static int *rv_order;                 /* the list's rows: listed people, the newest first (rv_people_cap) */
 static int rv_count;
 
+/* Every buffer wsprintfA writes here holds RV_LINE bytes: wsprintfA never writes more than 1,024, so no format
+   (a translation included, each at most a few hundred bytes with its values) can overflow it (Codex, #851).  A
+   list that can be longer -- a villager's likes or dislikes: The Lost Children keeps 62 of each -- is never
+   formatted: its words are appended (rv_add_s), whole. */
+#define RV_LINE 1100
+#define RV_DETAILS 16384             /* a whole details text: 2 x 62 words and every other line, with room */
+
 /* What a revival costs in `game` now: RV_PRICE with "cost Tech Points" ticked, else 0. */
 static int rv_price(int game) {
     return game >= 1 && game <= 5 && charges[game] ? RV_PRICE : 0;
@@ -152,6 +159,33 @@ static const char *rv_price_text(int game) {
 
 /* Room for one more person: the arrays grown (doubling, up to RV_MAX); at RV_MAX the oldest record goes, so the
    newest deaths are always listed (Codex, #851).  The new person's place, or NULL with no memory at all. */
+/* `p`'s cause given back to the heap. */
+static void rv_forget(rv_person *p) {
+    if (p->cause != NULL) {
+        HeapFree(GetProcessHeap(), 0, p->cause);
+        p->cause = NULL;
+    }
+}
+
+/* Everyone forgotten (a new list). */
+static void rv_clear(void) {
+    int i;
+    for (i = 0; i < rv_count; ++i) {
+        rv_forget(&rv_people[i]);
+    }
+    rv_count = 0;
+}
+
+/* A copy of `text` on the process heap, whole (NULL with no memory). */
+static char *rv_dup(const char *text) {
+    int n = lstrlenA(text);
+    char *copy = (char *)HeapAlloc(GetProcessHeap(), 0, (SIZE_T)n + 1);
+    if (copy != NULL) {
+        memcpy(copy, text, (size_t)n + 1);
+    }
+    return copy;
+}
+
 static rv_person *rv_room(void) {
     if (rv_count >= rv_people_cap && rv_people_cap < RV_MAX) {
         int cap = rv_people_cap > 0 ? rv_people_cap * 2 : 64;
@@ -176,6 +210,7 @@ static rv_person *rv_room(void) {
         return NULL;
     }
     if (rv_count >= rv_people_cap) {
+        rv_forget(&rv_people[0]);
         memmove(rv_people, rv_people + 1, (size_t)(rv_count - 1) * sizeof(rv_person));
         --rv_count;
     }
@@ -312,6 +347,7 @@ static void rv_close(rv_person *p, int prefs_known) {
     p->prefs_known = prefs_known;
     for (i = 0; i < rv_count - 1; ++i) {
         if (rv_same_person(&rv_people[i], p)) {
+            rv_forget(&rv_people[i]);
             memmove(&rv_people[i], &rv_people[i + 1], (size_t)(rv_count - 1 - i) * sizeof(rv_person));
             --rv_count;
             return;
@@ -322,7 +358,7 @@ static void rv_close(rv_person *p, int prefs_known) {
 /* Every Death and Disappeared record of `text` (a whole log file, NUL-terminated), appended in order. */
 static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
     const char *cursor = text, *end = text + length;
-    char line[600];
+    static char line[8192];          /* a Custom Island Event's cause is up to 4,095 characters */
     rv_person *p = NULL;
     int parent = 0;                   /* 1 father, 2 mother: the "Head:" / "Body:" under it */
     int likes_seen = 0, dislikes_seen = 0, likes_ok = 1;
@@ -361,7 +397,8 @@ static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
         } else if ((v = rv_field(line, "  Sex: ")) != NULL) {
             p->sex = lstrcmpA(v, "Male") == 0 ? STORY_SEX_MALE : lstrcmpA(v, "Female") == 0 ? STORY_SEX_FEMALE : 0;
         } else if ((v = rv_field(line, "  Cause of death: ")) != NULL || (v = rv_field(line, "  What happened: ")) != NULL) {
-            rv_copy(p->cause, (int)sizeof p->cause, v);
+            rv_forget(p);
+            p->cause = rv_dup(v);
         } else if ((v = rv_field(line, "  Grave: ")) != NULL) {
             rv_copy(p->grave_line, (int)sizeof p->grave_line, v);
         } else if ((v = rv_field(line, "  Epitaph: ")) != NULL) {
@@ -808,7 +845,7 @@ static void rv_settle(int game, const ce_adapter *a) {
             p->refusal = RV_WHY[RV_WHY_GOLDEN][1];
         } else if (game == 5 && strncmp(p->special, "Heathen ", 8) == 0) {
             p->refusal = RV_WHY[RV_WHY_PUZZLE_HEATHEN][1];
-        } else if (game == 5 && p->kind == RV_GONE && strstr(p->cause, "became a Heathen") != NULL) {
+        } else if (game == 5 && p->kind == RV_GONE && p->cause != NULL && strstr(p->cause, "became a Heathen") != NULL) {
             p->refusal = RV_WHY[RV_WHY_HEATHEN][1];
         }
     }
@@ -940,7 +977,7 @@ static int rv_slot(int game) {
 static void rv_load(int game) {
     const ce_adapter *a = ce_adapter_for(game);
     int slot = rv_slot(game);
-    rv_count = 0;
+    rv_clear();
     rv_game = game;
     if (a == NULL || slot <= 0) {
         return;
@@ -1113,7 +1150,7 @@ static void rv_years(int age, char *out) {
 
 /* The row of person `i` in the list. */
 static void rv_row_text(const rv_person *p, char *out, int size) {
-    char years[48], row[300];
+    char years[128], row[RV_LINE];
     wsprintfA(years, "%d", p->age >= 0 ? p->age / 20 : 0);
     wsprintfA(row, "%s, %s, %s %s%s",
                 p->name[0] ? p->name : vvfp_tr("vvfp.story/story_revive.rv_row_text.s0", "(no name)", 60),
@@ -1133,6 +1170,46 @@ static void rv_add(char *out, int size, const char *text) {
     int n = lstrlenA(out);
     if (n < size - 1) {
         lstrcpynA(out + n, text, size - n);
+    }
+}
+
+/* `fmt` (a row's English or translation with one %s) with `arg` in its place, appended to `out` whole: no
+   formatting, so a list of any length is never cut or written past a buffer. */
+static void rv_add_s(char *out, int size, const char *fmt, const char *arg) {
+    const char *at = strstr(fmt, "%s");
+    int n = lstrlenA(out);
+    if (at == NULL) {
+        rv_add(out, size, fmt);
+        return;
+    }
+    if (n < size - 1) {
+        int k = (int)(at - fmt);
+        if (k > size - 1 - n) {
+            k = size - 1 - n;
+        }
+        memcpy(out + n, fmt, (size_t)k);
+        out[n + k] = '\0';
+    }
+    rv_add(out, size, arg);
+    rv_add(out, size, at + 2);
+}
+
+/* The same with one %d before the %s (formatted: a number and a row's words fit RV_LINE). */
+static void rv_add_ds(char *out, int size, const char *fmt, int number, const char *arg) {
+    char head[RV_LINE];
+    const char *at = strstr(fmt, "%s");
+    int k = at != NULL ? (int)(at - fmt) : lstrlenA(fmt);
+    char line[RV_LINE];
+    if (k > RV_LINE - 1) {
+        k = RV_LINE - 1;
+    }
+    memcpy(head, fmt, (size_t)k);
+    head[k] = '\0';
+    wsprintfA(line, head, number);
+    rv_add(out, size, line);
+    if (at != NULL) {
+        rv_add(out, size, arg);
+        rv_add(out, size, at + 2);
     }
 }
 
@@ -1162,7 +1239,7 @@ static void rv_pref_words(const ce_adapter *a, const unsigned char *values, int 
 
 /* Everything known about person `p`, as the dialog shows it (CRLF lines). */
 static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *out, int size) {
-    char line[400], words[600], years[64];
+    char line[RV_LINE], words[RV_DETAILS / 4], years[128];
     int k;
     out[0] = '\0';
     wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s0", "Name: %s\r\nSex: %s\r\n", 400), p->name[0] ? p->name : "unknown",
@@ -1174,13 +1251,12 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
                 years);
     rv_add(out, size, line);
     if (p->kind == RV_DEATH) {
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s3", "Death record: Death %d\r\nCause of death: %s\r\n", 400), p->number,
-                    p->cause[0] ? p->cause : "unknown");
+        rv_add_ds(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s3", "Death record: Death %d\r\nCause of death: %s\r\n", 400), p->number,
+                  p->cause != NULL && p->cause[0] ? p->cause : "unknown");
     } else {
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s4", "Record: Disappeared\r\nWhat happened: %s\r\n", 400),
-                    p->cause[0] ? p->cause : "unknown");
+        rv_add_s(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s4", "Record: Disappeared\r\nWhat happened: %s\r\n", 400),
+                 p->cause != NULL && p->cause[0] ? p->cause : "unknown");
     }
-    rv_add(out, size, line);
     if (p->kind == RV_DEATH) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s5", "Grave: %s\r\nEpitaph: %s\r\nWhere: %s\r\n", 400),
                     p->grave_line[0] ? p->grave_line : "unknown", p->epitaph[0] ? p->epitaph : "(none)",
@@ -1212,11 +1288,9 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     rv_add(out, size, line);
     if (p->prefs_known) {
         rv_pref_words(a, p->likes, p->like_count, words, (int)sizeof words);
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s15", "Likes: %s\r\n", 400), words);
-        rv_add(out, size, line);
+        rv_add_s(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s15", "Likes: %s\r\n", 400), words);
         rv_pref_words(a, p->dislikes, p->dislike_count, words, (int)sizeof words);
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s16", "Dislikes: %s\r\n", 400), words);
-        rv_add(out, size, line);
+        rv_add_s(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s16", "Dislikes: %s\r\n", 400), words);
     } else {
         rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s17", "Likes and dislikes: unknown\r\n", 400));
     }
@@ -1263,7 +1337,7 @@ static int rv_rows;
 static int rv_chosen;
 
 static void rv_fill_details(HWND window) {
-    static char text[4096];
+    static char text[RV_DETAILS];
     const ce_adapter *a = ce_adapter_for(rv_game);
     int sel = (int)SendDlgItemMessageA(window, IDC_RG_LIST, LB_GETCURSEL, 0, 0);
     text[0] = '\0';
@@ -1279,7 +1353,7 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
         return handled;
     }
     if (message == WM_INITDIALOG) {
-        char row[200], intro[400];
+        char row[RV_LINE], intro[RV_LINE];
         const ce_adapter *a = ce_adapter_for(rv_game);
         int i, widest = 0;
         HDC dc = GetDC(window);
@@ -1301,7 +1375,7 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
         wsprintfA(intro, vvfp_tr("vvfp.story/story_revive.rv_dialog.s4", "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).", 600), rv_price_text(rv_game),
                   a != NULL ? a->tech() : 0);
         {
-            char button[200];
+            char button[RV_LINE];
             wsprintfA(button, vvfp_tr("vvfp.story/story_revive.rv_dialog.s5", "Revive (%s tech points)", 120),
                       rv_price_text(rv_game));
             SetDlgItemTextA(window, IDOK, button);
@@ -1333,7 +1407,7 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
                 return TRUE;
             }
             if (rv_people[rv_order[sel]].refusal != NULL) {
-                char text[300];
+                char text[RV_LINE];
                 wsprintfA(text, vvfp_tr("vvfp.story/story_revive.rv_dialog.s3", "%s can not be brought back: %s.", 200),
                           rv_people[rv_order[sel]].name, rv_why(rv_people[rv_order[sel]].refusal));
                 MessageBoxA(window, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
@@ -1381,7 +1455,7 @@ static int rv_offered(int game) {
 
 static int story_revive_from_graves(int game, HWND owner) {
     const ce_adapter *a = ce_adapter_for(game);
-    char text[600];
+    char text[RV_LINE];
     int why, made;
     if (!rv_offered(game) || a == NULL) {
         return 0;
@@ -1443,7 +1517,7 @@ __declspec(dllexport) int __stdcall VvfpStoryRevivePrice(int game) {
    instead of the files.  The rows listed. */
 __declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoad(int game, const char *deaths, const char *history) {
     const ce_adapter *a = ce_adapter_for(game);
-    rv_count = 0;
+    rv_clear();
     rv_game = game;
     if (a == NULL) {
         return -1;

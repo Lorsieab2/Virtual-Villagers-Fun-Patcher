@@ -443,8 +443,8 @@ static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
    (VvfpStoryReviveOffered: Story / Cheat Upgrades in place and that file there), what it costs
    (VvfpStoryRevivePrice: always 100,000) and runs the purchase (VvfpStoryReviveFromGraves).  A Story DLL older than
    the upgrade has none of the three: no button.  Not an island event, so not under the Island Event row's lock.
-   Each Origins companion adds the button LAST, after its own story buttons (The Lost Children's Pick Gong of
-   Wonder Outcome, The Secret City's Recharge Chief Powers), so its place is found among all of them. */
+   Each Origins companion adds the button LAST, after its own story buttons (The Lost Children's and The Secret
+   City's), so its place is found among all of them. */
 #define VVFP_STORY_REVIVE_ID 4095
 
 static vvfp_story_pick_fn vvfp_story_revive_fn(void) {
