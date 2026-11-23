@@ -264,6 +264,48 @@ class ConvertsNeverPushEachOtherDown(unittest.TestCase):
             if parents:
                 self.assertEqual(p.generation, 1 + max(parents), p.name)
 
+    def test_when_only_converts_families_are_left_the_newest_generation_listed_places_them(self) -> None:
+        """Review, #846: founders F1 and F2, their K1; convert A and K1's CA, CA's GA; then the founders and K1
+        are dead, and convert C and a barrel's X come in a snapshot of A, CA and GA alone.  Nobody of the tribe's
+        own lines is left to measure by: the newest generation listed (GA's, IV), never generation I."""
+        P = gen.Person
+        T4 = "2026-11-23 09:00:00"
+        people = {1: P(1, "F1", 1, 1, sex="Male", gone="died", first_seen=T1, arrived=True, how="Founder",
+                       founder_record=True),
+                  2: P(2, "F2", 2, 2, sex="Female", gone="died", first_seen=T1, arrived=True, how="Founder",
+                       founder_record=True),
+                  3: P(3, "K1", 3, 3, sex="Female", gone="died", first_seen=T1, father=1, mother=2),
+                  4: P(4, "A", 4, 4, sex="Male", alive=True, first_seen=T1, converted=True, arrived=True,
+                       how=gen.CONVERTED_HOW, factions=[(T1, "Heathen"), (T2, "Believer")]),
+                  5: P(5, "CA", 5, 5, sex="Male", alive=True, first_seen=T3, father=4, mother=3),
+                  6: P(6, "GA", 6, 6, sex="Female", alive=True, first_seen=T3, father=5),
+                  7: P(7, "C", 7, 7, sex="Male", alive=True, first_seen=T1, converted=True, arrived=True,
+                       how=gen.CONVERTED_HOW, factions=[(T1, "Heathen"), (T3, "Heathen"), (T4, "Believer")]),
+                  8: P(8, "X", 8, 8, sex="Female", alive=True, first_seen=T4, arrived=True, how="Barrel of Babies")}
+        v = gen.Village(5, 1, "Test Tribe", people)
+        gen._generations(v, {T1: {1, 2, 3, 4, 7}, T2: {1, 2, 3, 4, 7}, T3: {3, 4, 5, 6, 7}, T4: {4, 5, 6, 7, 8}})
+        gens = {p.name: p.generation for p in v.people.values()}
+        self.assertEqual(gens, {"F1": 1, "F2": 1, "K1": 2, "A": 2, "CA": 3, "GA": 4, "C": 4, "X": 4})
+
+    def test_an_arrival_never_rests_on_one_who_came_later(self) -> None:
+        """Two island-event arrivals, each with a child the other's arrival snapshot lists (the snapshots and the
+        records do not always come in order): X rests on the founders' families only, Y on X's -- not round
+        after round on each other."""
+        P = gen.Person
+        people = {1: P(1, "F1", 1, 1, sex="Male", alive=True, first_seen=T1, arrived=True, how="Founder",
+                       founder_record=True),
+                  2: P(2, "F2", 2, 2, sex="Female", alive=True, first_seen=T1, arrived=True, how="Founder",
+                       founder_record=True),
+                  3: P(3, "K1", 3, 3, sex="Female", alive=True, first_seen=T1, father=1, mother=2),
+                  4: P(4, "X", 4, 4, sex="Male", alive=True, first_seen=T2, arrived=True, how="Barrel of Babies"),
+                  5: P(5, "Y", 5, 5, sex="Male", alive=True, first_seen=T3, arrived=True, how="Old Friends"),
+                  6: P(6, "KY", 6, 6, sex="Female", alive=True, first_seen=T2, father=5, mother=2),
+                  7: P(7, "KX", 7, 7, sex="Female", alive=True, first_seen=T3, father=4, mother=3)}
+        v = gen.Village(5, 1, "Test Tribe", people)
+        gen._generations(v, {T1: {1, 2, 3}, T2: {1, 2, 3, 4, 6}, T3: {1, 2, 3, 4, 5, 6, 7}})
+        gens = {p.name: p.generation for p in v.people.values()}
+        self.assertEqual(gens, {"F1": 1, "F2": 1, "K1": 2, "X": 2, "Y": 3, "KX": 3, "KY": 4})
+
 
 class HeathenEvidence(unittest.TestCase):
     def test_what_says_they_were_of_the_tribe_first(self) -> None:

@@ -2144,13 +2144,15 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
     # Heathen father's believer child) used to push each other one generation down every round, to generation
     # XLI and on in the owner's 256 village (2026-11-22, "WHY ARE THERE 41 GENERATIONS").
     # ONLY REAL FAMILIES (the owner, 2026-11-22: "Only real families: I-VI"): the tribe's own family lines
-    # place them -- never a convert nor a convert's descendant -- so converts do not stack generation on
-    # generation (each wave in the newest row, their children starting the next: I-XI in the owner's village).
+    # place them -- never a convert nor a convert's descendant (a child with one convert parent too: counting
+    # them stacks the converts generation on generation again, I-X in the owner's village) -- so converts do
+    # not stack.  When the snapshot holds nobody of the tribe's own lines (they all died, and only converts'
+    # families are left), the newest generation it lists is taken instead: never generation I by default.
     own = {pid: descendants(pid) for pid in arrivals}
-    convert_lines = set().union(*(own[q] | {q} for q in converts))
-    later = {pid: convert_lines.union(*(own[q] | {q} for q in arrivals
-                                        if q == pid or (same_time[q] is not None and same_time[pid] is not None
-                                                        and same_time[q] >= same_time[pid])))
+    not_tribe = set().union(*(own[q] | {q} for q in converts))
+    later ={pid: set().union(*(own[q] | {q} for q in arrivals
+                                if q == pid or (same_time[q] is not None and same_time[pid] is not None
+                                                and same_time[q] >= same_time[pid])))
              for pid in arrivals}
     gens = compute()
     for _round in range(len(arrivals) + 1):
@@ -2163,6 +2165,7 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
             present = snapshots[snap] - joined - later[pid]
             if pid in converts:         # the tribe then: not the Heathens that snapshot lists
                 present = {q for q in present if (snap, "Heathen") not in people[q].factions}
+            present = (present - not_tribe) or present
             value = max(max((gens[q] for q in present), default=1), floor[pid])
             if base[pid] != value:
                 base[pid] = value
