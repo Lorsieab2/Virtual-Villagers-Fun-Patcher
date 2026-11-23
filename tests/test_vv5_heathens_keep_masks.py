@@ -720,6 +720,8 @@ class Disk:
         self.files: dict[str, bytes] = {}
         self.open: dict[int, list] = {}
         self.next = 0x400
+        self.blocked = False                 # the Masks Worn file held by another program (OneDrive, an antivirus)
+        self.error = 2
 
     def install(self, p) -> None:
         h = p.api_handlers
@@ -729,6 +731,10 @@ class Disk:
 
         def create(q):
             name, access, disposition = path_a(q), q.arg(1), q.arg(4)
+            if self.blocked and "masks worn" in name:
+                self.error = 32                                          # ERROR_SHARING_VIOLATION
+                return 0xFFFFFFFF, 28
+            self.error = 2
             if disposition == 3 and name not in self.files:            # OPEN_EXISTING
                 return 0xFFFFFFFF, 28
             if access & 0x40000000:                                      # GENERIC_WRITE: CREATE_ALWAYS
@@ -784,7 +790,7 @@ class Disk:
                   "CreateDirectoryW": lambda q: (1, 8), "CreateDirectoryA": lambda q: (1, 8),
                   "GetFileAttributesExW": lambda q: (0, 12), "FindFirstFileW": lambda q: (0xFFFFFFFF, 8),
                   "WideCharToMultiByte": wide_to_multi, "SetLastError": lambda q: (0, 4),
-                  "GetLastError": lambda q: (2, 0)})
+                  "GetLastError": lambda q: (self.error, 0)})
 
 
 class Remembering(GoingBack):
@@ -909,6 +915,51 @@ class TheCompanionRemembersTheMaskItself(unittest.TestCase):
         v.export("VvfpHeathensKeepMasksVillageReset", 5, 2)
         v.go_back(record, WAYS[0])
         self.assertEqual(v.mask_row(record), ROW_PURPLE)
+
+    def test_a_file_held_a_moment_keeps_it_waiting(self):
+        """Codex (#843): the Masks Worn file held by another program at the conversion -- the mask waits, by the
+        villager, is theirs while it waits, and is written once the file can be."""
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        v.mask_row(v.heathen(9, 0, 0, 0))          # the companion has the village
+        disk.blocked = True
+        record = v.believer(4, 14, 0, 0, filed=False)
+        self.assertIsNone(self.worn_file(disk), "nothing written while the file is held")
+        disk.blocked = False
+        v.mask_row(v.record(9))                     # a draw: the store looks again, the waiting mask is kept
+        worn = self.worn_file(disk)
+        self.assertIsNotNone(worn)
+        count = struct.unpack_from("<I", worn, 8)[0]
+        self.assertEqual(worn[12 + 8 * count + 4], 4, "his purple (4) is in the file, at his record")
+        w = self.village(disk, [(0, "Kai"), (4, "Heathen4"), (9, "Heathen9")])   # a new process: from the file
+        w.write(w.record(9) + FACTION, b"\x01")
+        w.go_back(w.record(4), WAYS[0])
+        self.assertEqual(w.mask_row(w.record(4)), ROW_PURPLE)
+
+    def test_the_patchers_offline_identity_is_the_companions(self):
+        """src/vv_last_names.py carries this file in an offline rename by _store_identity: the same identity the
+        companion writes (name, sex, parents), checked against the file the companion itself wrote."""
+        import vv_last_names as ln
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        record = v.heathen(4, 14, 0, 0)
+        v.write(record + 0x1BC0, b"Mako\0")         # a father and a mother, so the parents count
+        v.write(record + 0x1BD9, b"Lani\0")
+        v.write(record + 0x1B90, struct.pack("<i", 1))
+        v.convert(record)
+        worn = self.worn_file(disk)
+        count = struct.unpack_from("<I", worn, 8)[0]
+        stored = struct.unpack_from(f"<{count}I", worn, 12 + 4 * count)
+        raw = v.read(record, STRIDE)
+        self.assertIn(ln._store_identity(5, raw, NAME, ln.FIELDS[5]), stored[:16])
+
+    def test_going_back_while_the_file_is_still_held(self):
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        disk.blocked = True
+        record = v.believer(4, 14, 0, 0, filed=False)
+        v.go_back(record, WAYS[0])                  # the file still held: the waiting mask is theirs
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (4, ROW_PURPLE))
 
     def test_a_reused_record_never_inherits_it(self):
         disk = Disk()

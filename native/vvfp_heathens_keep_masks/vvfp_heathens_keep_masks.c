@@ -239,20 +239,122 @@ static int hl_slot_now(void) {
 #define HL_FILE_SLOT_AT (sizeof "Masks Worn - Save " - 1)
 #include "../vvfp_head_look/head_look_store.inc"
 
+/* MASKS WORN THAT WAIT (Codex, #843).  The file can be held a moment by another program (OneDrive, an antivirus):
+   then the store keeps nothing (hl_set answers 0), and the conversion goes on and clears the role -- the mask would
+   be lost.  So it waits here, by the villager's identity and slot, the way the Origins companion's masks wait
+   (VvfpMaskKeep), and is kept as soon as the store takes it (hk_worn_retry: every Heathen draw, every keep and
+   every look).  While it waits it is the mask worn (hk_worn_get).  A rename while it waits is followed: the same
+   record, the same stable part, the old identity held by nobody.  64 at most (the oldest gives way). */
+#define HK_WAIT_MAX 64
+static struct {
+    int slot;
+    unsigned int id;
+    unsigned int stable;
+    int index;
+    int kind;
+} g_hk_wait[HK_WAIT_MAX];
+static int g_hk_wait_count;
+
+/* How many living records carry `id` (`*where` the last). */
+static int hk_holders(unsigned int id, int *where) {
+    int i, n = 0, slots = hl_slots();
+    for (i = 0; i < slots; ++i) {
+        const unsigned char *r = hl_record(i);
+        if (r != NULL && hl_present(r) && hl_identity(r) == id) {
+            ++n;
+            if (where != NULL) {
+                *where = i;
+            }
+        }
+    }
+    return n;
+}
+
+/* The waiting entry of the villager in `record` (its identity, or a rename of its record), or -1. */
+static int hk_wait_find(const unsigned char *record) {
+    unsigned int id = hl_identity(record);
+    int k, slot = hl_slot_now(), index = hl_index(record);
+    for (k = 0; k < g_hk_wait_count; ++k) {
+        if (g_hk_wait[k].slot != slot) {
+            continue;
+        }
+        if (g_hk_wait[k].id == id) {
+            return k;
+        }
+        if (g_hk_wait[k].index == index && g_hk_wait[k].stable == hl_stable(record)
+            && hk_holders(g_hk_wait[k].id, NULL) == 0) {
+            g_hk_wait[k].id = id;                       /* renamed while it waited */
+            return k;
+        }
+    }
+    return -1;
+}
+
+/* Keep what waits for the slot on screen, each on the one living villager of its identity. */
+static void hk_worn_retry(void) {
+    int k, kept = 0, slot;
+    if (g_hk_wait_count == 0) {
+        return;
+    }
+    slot = hl_slot_now();
+    for (k = 0; k < g_hk_wait_count; ++k) {
+        int at = -1;
+        const unsigned char *r;
+        if (g_hk_wait[k].slot == slot && hk_holders(g_hk_wait[k].id, &at) == 1
+            && (r = hl_record(at)) != NULL && hl_set(r, g_hk_wait[k].kind + 1)) {
+            continue;                                   /* kept: no longer waits */
+        }
+        g_hk_wait[kept++] = g_hk_wait[k];
+    }
+    g_hk_wait_count = kept;
+}
+
 /* The mask the villager in `record` wore as a Heathen, as this companion kept it (VV_FORMER_*), or -1.  The
    village is looked at now, not a moment ago. */
 static int hk_worn_get(const unsigned char *record) {
-    int v;
+    int v, k;
+    hk_worn_retry();
+    k = hk_wait_find(record);
+    if (k >= 0) {
+        return g_hk_wait[k].kind;                       /* still waiting for the file: it is theirs */
+    }
     g_sync_tick = GetTickCount() - HL_SYNC_MS;
     v = hl_get(record);
     return v >= 1 && v <= HL_LOOK_MAX ? v - 1 : -1;
 }
 
-/* Keep `kind` (VV_FORMER_*) as the mask the villager in `record` wore as a Heathen. */
+/* Keep `kind` (VV_FORMER_*) as the mask the villager in `record` wore as a Heathen; when the file cannot take it
+   now, it waits. */
 static void hk_worn_set(const unsigned char *record, int kind) {
-    if (kind >= VV_FORMER_BLUE && kind <= VV_FORMER_CHIEF) {
-        (void)hl_set(record, kind + 1);
+    int k, slot;
+    if (kind < VV_FORMER_BLUE || kind > VV_FORMER_CHIEF) {
+        return;
     }
+    hk_worn_retry();
+    if (hl_set(record, kind + 1)) {
+        k = hk_wait_find(record);
+        if (k >= 0) {                                   /* an older wait for them is done with */
+            g_hk_wait[k] = g_hk_wait[--g_hk_wait_count];
+        }
+        return;
+    }
+    slot = hl_slot_now();
+    if (slot <= 0 || hl_index(record) < 0) {
+        return;                                         /* no village slot: nothing to keep it for */
+    }
+    k = hk_wait_find(record);
+    if (k < 0) {
+        if (g_hk_wait_count == HK_WAIT_MAX) {
+            memmove(&g_hk_wait[0], &g_hk_wait[1], sizeof g_hk_wait[0] * (HK_WAIT_MAX - 1));
+            --g_hk_wait_count;
+        }
+        k = g_hk_wait_count++;
+    }
+    g_hk_wait[k].slot = slot;
+    g_hk_wait[k].id = hl_identity(record);
+    g_hk_wait[k].stable = hl_stable(record);
+    g_hk_wait[k].index = hl_index(record);
+    g_hk_wait[k].kind = kind;
 }
 
 /* Villagers renamed as the village loaded ("VVFP Last Names.dll" names Heathens with no last name): their masks
@@ -269,7 +371,17 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
    is deleted): the masks worn held for that slot are dropped, so nothing of the erased village is written into the
    new one; the next look reads the slot's file afresh (gone: nobody has one). */
 void __stdcall VvfpHeathensKeepMasksVillageReset(int game, int slot) {
-    if (game != HK_GAME || slot < 1 || slot > 5 || (g_slot != 0 && g_slot != slot)) {
+    int k, kept = 0;
+    if (game != HK_GAME || slot < 1 || slot > 5) {
+        return;
+    }
+    for (k = 0; k < g_hk_wait_count; ++k) {
+        if (g_hk_wait[k].slot != slot) {
+            g_hk_wait[kept++] = g_hk_wait[k];       /* another village's: still waits */
+        }
+    }
+    g_hk_wait_count = kept;
+    if (g_slot != 0 && g_slot != slot) {
         return;
     }
     memset(g_look, 0, sizeof g_look);
@@ -443,7 +555,12 @@ static void __stdcall hk_returning(unsigned char *record) {
 /* The render's kind tests: 1 when the orange (red) mask is drawn on `record`. */
 static int __stdcall hk_drawn_orange(const unsigned char *record) {
     __try {
+        static DWORD retried;
         (void)hl_sync();                /* the masks worn follow the village (throttled, HL_SYNC_MS) */
+        if (g_hk_wait_count > 0 && (DWORD)(GetTickCount() - retried) >= HL_SYNC_MS) {
+            retried = GetTickCount();
+            hk_worn_retry();            /* ...and a mask that waited for the file is kept (as often) */
+        }
         return record[VV5_ORANGE] != 0 || hk_look(record) == VV_FORMER_ORANGE;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return 0;

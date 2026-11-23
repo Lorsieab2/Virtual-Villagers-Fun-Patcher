@@ -1424,8 +1424,9 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     title_map: dict[int, int] = {}
     mask_map: dict[int, int] = {}
     before_ids = {v.at: (_title_identity(original, v.at, f), _mask_identities(game, original, v.at)) for v in people}
-    # New Believers' Masks Worn file (Heathens Keep Their Masks When Converted): kept by name, sex and parents.
-    before_worn = {v.at: _worn_identity(original, v.at, f) for v in people} if game == 5 else {}
+    # The per-villager stores of the Head Looks' shape (Head Looks, Gender Presentation, New Believers' Masks
+    # Worn): kept by name, sex and parents (A New Home: name, sex and family).
+    before_worn = {v.at: _store_identity(game, original, v.at, f) for v in people}
     for v in people:
         new = renames.get(v.identity)
         if new:
@@ -1484,13 +1485,12 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
         for old_id, new_id in zip(old_masks, new_masks):
             if old_id and new_id and old_id != new_id:
                 mask_map[old_id] = new_id
-        if game == 5:
-            old_worn, new_worn = before_worn[v.at], _worn_identity(after, v.at, f)
-            seen = worn_owner.setdefault(old_worn, (new_worn, v.name))
-            if seen[0] != new_worn:
-                worn_conflicts[old_worn] = f"{seen[1]} and {v.name}"
-            if old_worn != new_worn:
-                worn_map[old_worn] = new_worn
+        old_worn, new_worn = before_worn[v.at], _store_identity(game, after, v.at, f)
+        seen = worn_owner.setdefault(old_worn, (new_worn, v.name))
+        if seen[0] != new_worn:
+            worn_conflicts[old_worn] = f"{seen[1]} and {v.name}"
+        if old_worn != new_worn:
+            worn_map[old_worn] = new_worn
     title_split: dict[int, list[tuple]] = {}
     title_conflicts: dict[int, str] = {}
     for old_title, held in holders.items():
@@ -1516,8 +1516,12 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     if game == 5:
         _plan_u32_file(result, _data_file(folder, "Former Heathens", f"Former Heathens - Save {slot}.dat"),
                        b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", title_conflicts)
-        _plan_masks_worn(result, _data_file(folder, "Heathens Keep Masks", f"Masks Worn - Save {slot}.dat"),
-                         worn_map, worn_conflicts)
+        _plan_look_store(result, _data_file(folder, "Heathens Keep Masks", f"Masks Worn - Save {slot}.dat"),
+                         (b"VKM1",), game, worn_map, worn_conflicts, "the masks worn")
+    _plan_look_store(result, _data_file(folder, "Head Looks", f"Head Looks - Save {slot}.dat"), (b"VHL2", b"VHL1"),
+                     game, worn_map, worn_conflicts, "the head looks")
+    _plan_look_store(result, _data_file(folder, "Gender Presentation", f"Gender Presentation - Save {slot}.dat"),
+                     (b"VGP1",), game, worn_map, worn_conflicts, "the gender presentations")
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,
@@ -1676,39 +1680,51 @@ def _plan_masks(result: Plan, game: int, slot: int, data_dir: Path, mask_map: di
             result.changes.append(Change(path, original, bytes(buf), "the masks"))
 
 
-def _worn_identity(data, at: int, f: Fields) -> int:
-    """New Believers' Masks Worn identity of the villager whose name is at `at` (native/vvfp_heathens_keep_masks:
-    hl_identity, the Head Looks' store): the name, 0xFF, then the stable part -- the sex dword, the father's name,
-    0xFE, the mother's name, 0xFD -- folded in as one dword."""
+def _store_identity(game: int, data, at: int, f: Fields) -> int:
+    """The identity the Head Looks' store keeps a villager by, whose name is at `at` (native/vvfp_head_look
+    hl_identity, as Gender Presentation and New Believers' Masks Worn use it): the name, 0xFF, then the stable part
+    -- the sex dword, then the father's name, 0xFE, the mother's name, 0xFD (A New Home: the family dword) --
+    folded in as one dword."""
     def text(h: int, raw: bytes, cap: int) -> int:
         return _fnv(h, bytes(raw[:cap]).split(b"\0", 1)[0])
     stable = _fnv(FNV_BASIS, bytes(data[at + f.sex:at + f.sex + 4]))
-    stable = _fnv(text(stable, data[at + f.father:], f.parent_cap), b"\xfe")
-    stable = _fnv(text(stable, data[at + f.mother:], f.parent_cap), b"\xfd")
+    if game == 1:
+        stable = _fnv(stable, bytes(data[at + f.family:at + f.family + 4]))
+    else:
+        stable = _fnv(text(stable, data[at + f.father:], 0x19), b"\xfe")
+        stable = _fnv(text(stable, data[at + f.mother:], 0x19), b"\xfd")
     stable = stable or 1
     h = _fnv(text(FNV_BASIS, data[at:], f.name_cap), b"\xff")
     h = ((h ^ stable) * 16777619) & 0xFFFFFFFF
     return h or 1
 
 
-def _plan_masks_worn(result: Plan, path: Path, mapping: dict[int, int], conflicts: dict[int, str]) -> None:
-    """The Masks Worn file ('VKM1': u32 magic, game 5, count; u32 roster[count], u32 id[count], u8 mask[count]):
-    every identity renamed carried in the roster and the ids, every other byte as it was.  A file that is not
-    exactly that is left as it is."""
+def _worn_identity(data, at: int, f: Fields) -> int:
+    """New Believers' Masks Worn identity (native/vvfp_heathens_keep_masks: the Head Looks' store's)."""
+    return _store_identity(5, data, at, f)
+
+
+def _plan_look_store(result: Plan, path: Path, magics: tuple[bytes, ...], game: int, mapping: dict[int, int],
+                     conflicts: dict[int, str], what: str) -> None:
+    """A per-villager file of the Head Looks' store (native/vvfp_head_look/head_look_store.inc: u32 magic, game,
+    count; u32 roster[count], u32 id[count], u8 value[count]; or its first layout 'VHL1': the roster and the
+    values): every identity renamed carried in the roster and the ids, every other byte as it was.  A file that is
+    not exactly its own format of this game is left as it is."""
     if not path.is_file() or not mapping:
         return
     original = path.read_bytes()
-    if len(original) < 12 or original[:4] != b"VKM1" or struct.unpack_from("<I", original, 4)[0] != 5:
-        result.notes.append(f"{path.name} is not a Masks Worn file this patcher writes; left as it is.")
+    if len(original) < 12 or original[:4] not in magics or struct.unpack_from("<I", original, 4)[0] != game:
+        result.notes.append(f"{path.name} is not a file of {what} this patcher writes; left as it is.")
         return
     count = struct.unpack_from("<I", original, 8)[0]
-    if count not in (150, 256) or len(original) != 12 + count * 9:
+    ids = 1 if original[:4] == b"VHL1" else 2              # the first layout keeps the roster alone
+    if count not in (150, 256) or len(original) != 12 + count * (4 * ids + 1):
         result.notes.append(f"{path.name} is damaged (its length does not match its count); left as it is.")
         return
-    used = {struct.unpack_from("<I", original, 12 + 4 * k)[0] for k in range(2 * count)}
+    used = {struct.unpack_from("<I", original, 12 + 4 * k)[0] for k in range(ids * count)}
     buf = bytearray(original)
-    if _replace_u32s(buf, 12, 2 * count, 4, mapping, {k: v for k, v in conflicts.items() if k in used}):
-        result.changes.append(Change(path, original, bytes(buf), "the masks worn"))
+    if _replace_u32s(buf, 12, ids * count, 4, mapping, {k: v for k, v in conflicts.items() if k in used}):
+        result.changes.append(Change(path, original, bytes(buf), what))
 
 
 def _split_titles_resolver(game: int, save: bytes, split: dict[int, list[tuple]], names: dict[int, str],
