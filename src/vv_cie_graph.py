@@ -4445,6 +4445,18 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
             _check_text(f"node {nid}", n["text"], problems, g["version"], g)
             for i, v in enumerate(n["variants"]):
                 _check_text(f"node {nid} variant {i + 1}", v["text"], problems, g["version"], g)
+        # 25a: a restore shares in its villager's loss made earlier on its OWN node (the engine keeps nothing longer)
+        losses: set = set()
+        for e in n.get("effects") or ():
+            if e.get("do") != "health_change":
+                continue
+            r = effect_role(e)
+            if e.get("restore"):
+                if r not in losses:
+                    problems.append(f"node {nid}: a health_change \"restore\" needs a health loss of {r} before it "
+                                    "on the same node")
+            elif e.get("min", 0) < 0:
+                losses.add(r)
     if v6:
         _validate_v6(g, problems)
     if problems:
@@ -5684,12 +5696,14 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     # 25: each auto_text node's lines after its text, from the rolls (the award its pay_award pays as it stands).
     k = 0
     paying = None
-    lost: dict[str, int] = {}          # 25a: each role's health its last health_change took (the roll: no clamp here)
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         if n["type"] == "question":
             continue
         lines = []
+        # 25a: each role's health its last health_change on THIS node took (the roll: no clamp here); the engine
+        # keeps nothing from an earlier node (cg_make_effects resets cg_lost for each node)
+        lost: dict[str, int] = {}
         for e in n["effects"]:
             if e["do"] in ("food", "tech") and e["defer"]:
                 paying = (e["do"], fx[k][0])

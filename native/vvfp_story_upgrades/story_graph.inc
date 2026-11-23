@@ -6859,35 +6859,21 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
     cg_group_line(a, e, va);
 }
 
-/* 25a: what each villager's last health_change on the page really took (record index, health; as cg_predicted's
-   per-villager cg_sim), so a restore shares in its own villager's loss whatever came between.  Reset per page. */
-#define CG_LOST 24
-static struct {
-    int index, health;
-} cg_lost[CG_LOST];
-static int cg_lost_n;
+/* 25a: what each villager's last health_change on the node really took, by record index (every slot a game has:
+   a group's change to any number of villagers never crowds one out), so a restore shares in its own villager's loss
+   whatever came between.  Reset for each node (cg_make_effects); the patcher refuses a restore with no loss of its
+   villager before it on its node (src/vv_cie_graph.py). */
+#define CG_LOST 256
+static int cg_lost[CG_LOST];
 
 static int cg_lost_of(int index) {
-    int i;
-    for (i = 0; i < cg_lost_n; ++i) {
-        if (cg_lost[i].index == index) {
-            return cg_lost[i].health;
-        }
-    }
-    return 0;
+    return index >= 0 && index < CG_LOST ? cg_lost[index] : 0;
 }
 
 static void cg_lost_set(int index, int health) {
-    int i;
-    for (i = 0; i < cg_lost_n && cg_lost[i].index != index; ++i) {
+    if (index >= 0 && index < CG_LOST) {
+        cg_lost[index] = health;
     }
-    if (i == cg_lost_n) {
-        if (cg_lost_n == CG_LOST) {
-            return;                    /* a page of more villagers than that: their restores give nothing */
-        }
-        cg_lost[cg_lost_n++].index = index;
-    }
-    cg_lost[i].health = health;
 }
 
 /* What a health_change "restore" gives back: `percent` of the health `lost` (rounded; src/vv_cie_graph.py
@@ -8548,7 +8534,6 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg_after[0] = '\0';
     cg_fix_count = 0;
-    cg_lost_n = 0;                     /* 25a: a "restore" shares in a loss made with it, never an older one */
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     {
@@ -8563,6 +8548,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
         int award_kind, award, fx, e;
         fx = cg_award_before(h, i, &award_kind, &award);
         cg_after_on = (n[3] & CG_NODE_AUTO_TEXT) != 0;    /* this page's lines after its effects (village.inc) */
+        memset(cg_lost, 0, sizeof cg_lost);   /* 25a: a restore shares in a loss of its own node, never an older one */
         for (e = 0; e < cg_fx_count(n); ++e, ++fx) {
             const unsigned char *eff = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + e);
             int va = fx < CG_MAX_FX ? h->fx_a[fx] : 0, vb = fx < CG_MAX_FX ? h->fx_b[fx] : 0;

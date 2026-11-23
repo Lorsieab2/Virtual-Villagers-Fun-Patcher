@@ -856,9 +856,9 @@ all kept.
 
 "Lose health, then restore some" (The Hospital's Most Difficult Patient, B2): the gain is always smaller than the
 loss.  A `health_change` with `"restore": true` (flags bit 0) and `min`..`max` 1..100 is a gain of that PERCENT,
-rolled as any health_change's, of what the same cast villager's last `health_change` on the page really took (after
+rolled as any health_change's, of what the same cast villager's last `health_change` earlier on the SAME NODE really took (after
 the clamp at 1): `(lost x percent + 50) / 100` (story_graph.inc cg_restored, src/vv_cie_graph.py restored).  No
-loss before it: nothing.  One cast villager only (never a group, a target or the newest).  Its line is the
+loss before it: nothing -- and the patcher refuses a restore with no loss of its villager before it on its node (the engine keeps each villager's loss, by record index, for one node).  One cast villager only (never a group, a target or the newest).  Its line is the
 ordinary `R gains N health.` with the amount given back, so both lines show and the villager always ends below
 where they began (25-75% of 10-20 lost: 3-15 back).
 
