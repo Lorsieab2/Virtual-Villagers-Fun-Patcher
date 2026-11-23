@@ -63,6 +63,10 @@ class AutoLinePronouns(unittest.TestCase):
                     text = render(key, who)
                     self.assertNotRegex(text, WRONG, f"{who}: {text!r}")
                     self.assertNotIn("<", text)
+                    if key.startswith("hv_"):
+                        # cie-v6-binary.md 45: the owner's literal "(no effect)" ends every Heathens' village line
+                        self.assertTrue(text.endswith(" (no effect)"), text)
+                        text = text[:-len(" (no effect)")]
                     self.assertNotIn("(", text)
 
     def test_the_best_skill_lines(self):
