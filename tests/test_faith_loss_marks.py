@@ -560,15 +560,16 @@ class OnceACrisis(unittest.TestCase):
 
     def test_the_owners_long_256_folder_keeps_the_marks_through_a_restart(self):
         """The owner (2026-11-22): "i had 5 convert instead of die" from sickness, in "Virtual Villagers - New
-        Believers - Modded 256" under OneDrive\\Documents.  Its marks file was never written: the path check guessed
-        160 characters for everything after the Documents folder and the executable's name (33 + 46 + 160 = 239,
-        over MAX_PATH less the set-aside name's 27), though the real path is 165.  The marks lived only in memory,
-        so every game start (and its load-time catch-up) decided every held believer again.  A sick believer
-        decided once stays decided through any number of restarts; a path really too long is still refused."""
-        docs = b"C:\\Users\\Owner\\OneDrive\\Documents"
+        Believers - Modded 256" under a 33-character Documents folder.  Its marks file was never written: the path
+        check guessed 160 characters for everything after the Documents folder and the executable's name (33 + 46 +
+        160 = 239, over MAX_PATH less the set-aside name's 27), though the real path is 165.  The marks lived only in
+        memory, so every game start (and its load-time catch-up) decided every held believer again.  A sick believer
+        decided once stays decided through any number of restarts; a path really too long is still refused.  (A
+        made-up Documents folder of the same length stands in for the player's.)"""
+        docs = b"D:\\Profiles\\Player\\SavedDocuments"
+        self.assertEqual(len(docs), 33)
         exe_name = b"Virtual Villagers - New Believers - Modded 256"
-        exe = (b"C:\\Users\\Owner\\OneDrive\\Desktop\\LDW Desktop Games!! And Other Stuff\\Current Modded LDW "
-               b"Games\\Modded Games\\" + exe_name + b"\\" + exe_name + b".exe")
+        exe = b"D:\\Games\\Modded Games\\" + exe_name + b"\\" + exe_name + b".exe"
         files = Files(docs, exe)
         build = rendered((FAITH_LOSS, POP256))
         g = Game(build, files, n=1)

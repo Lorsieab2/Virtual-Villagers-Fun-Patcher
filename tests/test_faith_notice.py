@@ -553,13 +553,15 @@ class WaitingPopupFile(unittest.TestCase):
         self.assertEqual(third.proc.export("VvfpFaithNoticeLeftLines", 5, out, 0x1000), 0)
 
     def test_the_owners_long_256_folder_keeps_the_waiting_popup(self):
-        """The owner's "Virtual Villagers - New Believers - Modded 256" under OneDrive\\Documents: a fixed guess of
-        160 characters for the rest of the path refused it (33 + 46 + 160 over MAX_PATH less the set-aside name),
-        though the path is 170 -- the waiting popup was never kept there.  The whole path's own length decides now."""
+        """The owner's "Virtual Villagers - New Believers - Modded 256" under a 33-character Documents folder: a fixed
+        guess of 160 characters for the rest of the path refused it (33 + 46 + 160 over MAX_PATH less the set-aside
+        name), though the path is 170 -- the waiting popup was never kept there.  The whole path's own length decides
+        now.  (A made-up Documents folder of the same length stands in for the player's.)"""
         from test_faith_loss_marks import Files
         name = b"Virtual Villagers - New Believers - Modded 256"
-        files = Files(b"C:\\Users\\Owner\\OneDrive\\Documents",
-                      b"C:\\Users\\Owner\\OneDrive\\Desktop\\Games\\" + name + b"\\" + name + b".exe")
+        docs = b"D:\\Profiles\\Player\\SavedDocuments"
+        self.assertEqual(len(docs), 33)
+        files = Files(docs, b"D:\\Games\\" + name + b"\\" + name + b".exe")
         v = self.session(files)
         self.keep(v, 900)
         v.proc.tick = 1000
@@ -567,7 +569,7 @@ class WaitingPopupFile(unittest.TestCase):
         self.keep(v, 1100)
         self.assertEqual(self.sidecar(files), (1, only(SICKNESS)))
         (path,) = files.files
-        self.assertTrue(path.startswith("c:\\users\\owner\\onedrive\\documents\\ldw\\" + name.decode().lower() + "\\"))
+        self.assertTrue(path.startswith("d:\\profiles\\player\\saveddocuments\\ldw\\" + name.decode().lower() + "\\"))
 
     def test_armed_then_quit_only_the_story_queue_brings_it_back(self):
         """Never double-shown: the companion's file goes the moment the popup is armed, and the Story queue's own
@@ -827,6 +829,66 @@ class Popup(unittest.TestCase):
         title = p.alloc(64)
         p.write(title, TITLE.encode() + b"\0")
         self.assertEqual(p.export("VvfpStoryGraphLogged", 5, title), 0)
+
+    def queued(self):
+        try:
+            import test_story_queued_purchases as q
+            from test_story_time_skip import island_ready
+        except ImportError:  # pragma: no cover
+            raise unittest.SkipTest("the story harness is not importable")
+        story_harness()                                     # skips without the test build or the stock game
+        return q, island_ready
+
+    def test_a_quit_between_arm_and_show_keeps_who_left_in_the_log(self):
+        """Codex (#836): The Breaking Point armed, then a save and quit before it shows: the Story queue's file puts
+        the popup back, and now its log entry too (version 3), so the next process's log names who left."""
+        q, island_ready = self.queued()
+        lines = "  Hope Powaka: Heathen no -> yes\n  Hope Powaka: Faith 1 -> -45\n"
+        story = q.fresh("vv5")
+        island_ready(story)
+        p = story.proc
+        scratch = p.alloc(0x2000)
+        p.write(scratch + 0x1000, lines.encode() + b"\0")
+        p.export("VvfpStoryProbeFaithNoticeLines", scratch + 0x1000)
+        self.counts(story, scratch, (0, 0, 1, 0, 0))
+        q.tick(story)
+        q.tick(story)
+        data = q.queue_file(story)
+        self.assertTrue(data, "the armed popup is in the queue's file")
+        self.assertEqual(struct.unpack_from("<I", data, 4)[0], 3)
+        p.export("VvfpStoryProbeQueueSaved")                # the quit's save
+        again = q.fresh("vv5")                              # a new process: nothing of the last one's memory
+        island_ready(again)
+        q.session(again, data, q.LATE)
+        q.tick(again)
+        self.assertEqual(q.state(again)["custom"], 1, "the popup is put back")
+        title = again.proc.alloc(64)
+        again.proc.write(title, TITLE.encode() + b"\0")
+        self.assertEqual(again.proc.export("VvfpStoryGraphLogged", 5, title), 1, "its entry is the Story's again")
+        out = again.proc.alloc(0x2000)
+        self.assertEqual(again.proc.export("VvfpStoryProbeFaithNoticeLog", out, 0x2000), 1)
+        self.assertEqual(again.proc.cstring(out), f"  Event: {TITLE}\n" + lines)
+
+    def test_a_version_2_queue_file_is_still_read(self):
+        """Files written before version 3 (by the version 2 test build itself: tests/story_queue_v2_files.json): the
+        armed Breaking Point and a Custom Island Event come back; the Breaking Point has no entry of its own, so the
+        log's comparison writes it as before."""
+        import base64
+        import zlib
+        q, island_ready = self.queued()
+        files = json.loads((ROOT / "tests" / "story_queue_v2_files.json").read_text(encoding="utf-8"))
+        for name in ("vv5_breaking_point", "vv5_plain"):
+            with self.subTest(name=name):
+                data = zlib.decompress(base64.b64decode(files[name]))
+                self.assertEqual(struct.unpack_from("<I", data, 4)[0], 2, "a version 2 file")
+                again = q.fresh("vv5")
+                island_ready(again)
+                q.session(again, data, q.LATE)
+                q.tick(again)
+                self.assertEqual(q.state(again)["custom"], 1, "put back")
+                title = again.proc.alloc(64)
+                again.proc.write(title, TITLE.encode() + b"\0")
+                self.assertEqual(again.proc.export("VvfpStoryGraphLogged", 5, title), 0)
 
     def test_the_title_is_one_constant_with_its_own_key(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_faith_notice.inc").read_text(encoding="utf-8")
