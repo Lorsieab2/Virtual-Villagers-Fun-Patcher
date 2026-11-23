@@ -49,6 +49,15 @@ struct elders_layout {
     const unsigned int *fp_was;
     const unsigned int *fp_now;
     unsigned int fp_slots;
+    /* The Lost Children (Esteemed Elders in Every Game): a villager whose u8 at `elder_flag` is set is an elder
+       whatever the skills (the game's own Esteemed Elder, +0x7FC); one whose u8 at `skip_flag` is set never is
+       (a totem statue, +0x558).  0 = none.  `seed`: on a NEW file, the game's own lifetime count of elders it
+       flagged (+0x2E514); the ones of them not alive in the village now -- every flagged elder alive is a line
+       of its own -- are kept as "G" lines with no name, so the file starts from what the game proves.  -1 =
+       none (0, the default, for every other game). */
+    unsigned int elder_flag;
+    unsigned int skip_flag;
+    int seed;
 };
 
 /* Update the save's Village Elders .dat and return the number of elders,

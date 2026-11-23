@@ -44,6 +44,10 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* Practicing Devotion Builds Faith and Divine Energy (New Believers): each Devotion skill check of a believer gives
        a 1 in 10 chance of Faith +1 and a separate 1 in 10 chance of Divine Energy +1 (the owner, 2026-11-21). */
     "VVFP Devotion Faith.dll",
+    /* Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): three or more mastered skills
+       give the Esteemed Elder title on the villager panel and the grave, as The Secret City and New Believers do
+       (the owner, 2026-11-22). */
+    "VVFP Esteemed Elders.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

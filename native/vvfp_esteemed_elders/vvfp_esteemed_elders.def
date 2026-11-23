@@ -1,0 +1,5 @@
+LIBRARY "VVFP Esteemed Elders"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpEsteemedEldersInstalled=_VvfpEsteemedEldersInstalled@0
+    VvfpEsteemedEldersGiven=_VvfpEsteemedEldersGiven@4

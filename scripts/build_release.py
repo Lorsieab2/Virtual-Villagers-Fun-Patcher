@@ -158,6 +158,8 @@ FILES = [
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
     "assets/devotion_faith/VVFP Devotion Faith.dll",
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): the companion.
+    "assets/esteemed_elders/VVFP Esteemed Elders.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -359,6 +361,11 @@ FILES = [
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers).
     "data/vv5_devotion_builds_faith_feature.json",
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life).
+    "data/vv1_esteemed_elders_feature.json",
+    "data/vv2_esteemed_elders_feature.json",
+    "data/vv4_esteemed_elders_feature.json",
+    "data/vv5_esteemed_elders_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

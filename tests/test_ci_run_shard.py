@@ -141,5 +141,18 @@ class TheShardRunner(unittest.TestCase):
         self.assertEqual(len([c for c in root.iter("testcase") if c.find("failure") is not None]), 1)
 
 
+class FaulthandlerWatchdog(unittest.TestCase):
+    """#839: the 10-minute stack dump crashed the process while test_event_collection_files.py's one ~22-minute test
+    was deep in vv_cie_graph's recursion; that file's watchdog is past its length, every other file keeps 10 minutes."""
+
+    def test_the_long_file_has_a_longer_watchdog(self):
+        with mock.patch.object(ci_run_shard.subprocess, "call", return_value=0) as call:
+            ci_run_shard.run_file("tests/test_event_collection_files.py", Path("r.xml"))
+            ci_run_shard.run_file("tests/test_other.py", Path("r.xml"))
+        first, second = (c.args[0] for c in call.call_args_list)
+        self.assertIn("faulthandler_timeout=3600", first)
+        self.assertIn("faulthandler_timeout=600", second)
+        self.assertEqual(ci_run_shard.faulthandler_timeout("tests\\test_event_collection_files.py"), 3600)
+
 if __name__ == "__main__":
     unittest.main()

@@ -769,6 +769,12 @@ Gives A New Home the grey hair of the later games. In the original game a villag
 
 - Patch ID: `vv1_grey_hair`
 
+**Esteemed Elders in Every Game**
+
+A villager who has mastered three or more skills (90 or more, the level the Villager Details screen calls "Master") gets the title "Esteemed Elder" on the Villager Details screen, as in The Secret City and New Believers. The Golden Child keeps his own title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too. When such a villager dies, their grave's epitaph is "Esteemed Elder". **The epitaph needs "Show Cause of Death and Epitaphs on Graves, and Log Every Death"** (A New Home's graves have an epitaph only with it). **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv1_esteemed_elders`
+
 **Sort by Age/Skill/Health in Details Screen**
 
 Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL, and the base's arrow hooks ask it which villager comes next.
@@ -1379,6 +1385,12 @@ In the stock game each Esteemed Elder's totem statue takes one of the village's 
 
 - Patch ID: `vv2_totems_out_of_entries`
 
+**Esteemed Elders in Every Game**
+
+A villager who has mastered three or more skills (88 or more) gets the title "Esteemed Elder" on the Villager Details screen even when the game has not made them an Esteemed Elder (the normal game stops making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their totems, are unchanged; this patch makes no totem. A totem statue never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too, and when such a villager dies as an adult their grave gets the game's own "Esteemed Elder" epitaph. The Village Statistics' "Village Elders" then counts every Esteemed Elder the village ever had, kept in the save's Village Elders file (a new file starts from the game's own count). **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv2_esteemed_elders`
+
 **VV1 Mushroom/Collectible Duplication Cheat**
 
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
@@ -1750,6 +1762,12 @@ Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A
 
 - Patch ID: `vv4_difficulty_settings`
 
+**Esteemed Elders in Every Game**
+
+A villager who has mastered three or four skills (88 or more) gets the title "Esteemed Elder" on the Villager Details screen, as in The Secret City and New Believers. Mastering all five is still the game's own "Scholar", which wins. A ghost never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too, and when such a villager dies as an adult their grave's epitaph is "Esteemed Elder". **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv4_esteemed_elders`
+
 ### Virtual Villagers - New Believers
 
 **Clickable Tips**
@@ -1910,6 +1928,12 @@ Meant to make VV5 harder and push players to take care of their tribe. When New 
 Each time a believer practises Devotion, there is a 1 in 10 chance their Faith rises by 1, and a separate 1 in 10 chance the village gains 1 Divine Energy: small amounts that add up over time. Practising Devotion is the game's Devotion skill check. It comes on 1 Honoring in 8 (half go to the statue, and 1 in 4 of those end in the check) and on every sermon to a Heathen, while playing and while catching up. The rolls come whether the check passes or fails; the Devotion skill, its odds and its gain stay the normal game's. **Honoring as a job needs the statue at its first stage or The Tribute Statue solved, as in the normal game.** **Faith never goes above 100 and Divine Energy never above the village's cap** (the game's own limits). **Believers only:** Heathens never practise Devotion, and the Heathen Doctor, the Heathen Chief (and the Retired Chief), the three Masters and the Heathen Mommy never get these rolls. **With "Faith Loss is Doubled/Gains Halved" also ticked, the Faith chance is halved to 1 in 20; the Divine Energy chance stays 1 in 10.** **Spirituality and Learning change how often the Devotion check passes, not these rolls.** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Devotion Faith.dll"; it never writes a save or a file.
 
 - Patch ID: `vv5_devotion_builds_faith`
+
+**Esteemed Elders in Every Game**
+
+A current Heathen is never titled "Esteemed Elder": in the normal game a Heathen with three mastered skills (88 or more) and no Heathen role title of their own is shown as one on the Villager Details screen. A believer -- a Former Heathen too, once they join the tribe -- still gets the title with three mastered skills, as in the normal game, and the Heathen roles (Doctor, Chief, the three Masters, Mommy) keep their own titles. The logs' "Special villager" line never says it for a Heathen either; a Former Heathen's line keeps their Former Heathen title. Heathens never count as Village Elders and are never buried. **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv5_esteemed_elders`
 
 **Statue Drops: Normal Action or Honoring**
 
