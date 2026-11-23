@@ -278,10 +278,13 @@ class ListTests(unittest.TestCase):
         for game, r in self._each():
             if game != "vv5":
                 continue
-            text = gone("Nobu Helaku", 266, "Male", 26, 26, what="Left the tribe: became a Heathen")
-            self.assertEqual(r.load(text), 1)
-            self.assertIn("they did not die: they live among the Heathens", r.row(0)[2])
-            self.assertEqual(r.buy(0)[0], -3)
+            # either wording the logs use: "a Heathen", or "an Isolan" with Guardians of Isola (Codex, #851)
+            for word in ("a Heathen", "an Isolan"):
+                with self.subTest(left_as=word):
+                    text = gone("Nobu Helaku", 266, "Male", 26, 26, what=f"Left the tribe: became {word}")
+                    self.assertEqual(r.load(text), 1)
+                    self.assertIn("they did not die: they live among the Heathens", r.row(0)[2])
+                    self.assertEqual(r.buy(0)[0], -3)
 
     def test_special_villagers_who_come_back_as_ordinary_villagers(self):
         cases = {"vv2": "Esteemed Elder", "vv3": "Tribal Chief", "vv4": "Scholar", "vv5": "Former Heathen (blue mask)"}

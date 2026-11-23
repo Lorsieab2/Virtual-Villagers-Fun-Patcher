@@ -27,7 +27,7 @@
    refused, with the reason: a record whose sex or looks the log does not
    hold, A New Home's Golden Child (only his puzzle makes one: the creator's
    family 0xC7), New Believers' puzzle Heathens (their role is the puzzle's),
-   and New Believers' believers who "Left the tribe: became a Heathen" (they
+   and New Believers' believers who "Left the tribe: became a Heathen" (or "an Isolan") (they
    are alive, among the Heathens).
 
    SKILLS.  A Death or Disappeared record has no skills; the Village History
@@ -802,6 +802,15 @@ static const char *rv_why(const char *refusal) {
     return refusal;
 }
 
+/* New Believers: a believer's Disappeared record for leaving the tribe for the Heathens, in either wording
+   the logs use (src/vv_log_additions.py LEFT_RECORDS): "Left the tribe: became a Heathen", or "... became an
+   Isolan" with Guardians of Isola (Codex, #851).  They are alive among the Heathens: never listed as one who
+   can come back, whatever their record says now. */
+static int rv_left_for_the_heathens(const char *what) {
+    return what != NULL && (strstr(what, "Left the tribe: became a Heathen") != NULL
+                            || strstr(what, "Left the tribe: became an Isolan") != NULL);
+}
+
 /* After the logs are read: the graves matched, the refusals and who is shown. */
 static void rv_settle(int game, const ce_adapter *a) {
     rv_yard y;
@@ -845,7 +854,7 @@ static void rv_settle(int game, const ce_adapter *a) {
             p->refusal = RV_WHY[RV_WHY_GOLDEN][1];
         } else if (game == 5 && strncmp(p->special, "Heathen ", 8) == 0) {
             p->refusal = RV_WHY[RV_WHY_PUZZLE_HEATHEN][1];
-        } else if (game == 5 && p->kind == RV_GONE && p->cause != NULL && strstr(p->cause, "became a Heathen") != NULL) {
+        } else if (game == 5 && p->kind == RV_GONE && rv_left_for_the_heathens(p->cause)) {
             p->refusal = RV_WHY[RV_WHY_HEATHEN][1];
         }
     }

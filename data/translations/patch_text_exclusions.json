@@ -202,7 +202,7 @@
   {
    "reason": "Revive Buried/Disappeared Villagers (story_revive.inc): the words it reads in the Deaths and Disappearances log and the Village History (their own English field names, \"no grave\", \"became a Heathen\", a \"Heathen ...\" special title), the log folders it opens, its flag file's name and the Arrived record's \"How: Returned from the dead\" (a log word, written to the log file only). The words it shows are in the template and looked up by key.",
    "files": ["native/vvfp_story_upgrades/story_revive.inc"],
-   "functions": ["rv_parse_deaths", "rv_parse_history", "rv_load", "rv_buy", "rv_settle", "rv_mask_value", "rv_prefs", "rv_each_slot_log", "rv_each_file", "rv_offered"]
+   "functions": ["rv_parse_deaths", "rv_parse_history", "rv_load", "rv_buy", "rv_settle", "rv_mask_value", "rv_prefs", "rv_each_slot_log", "rv_each_file", "rv_offered", "rv_left_for_the_heathens"]
   }
  ]
 }
