@@ -90,7 +90,7 @@
 #include "sex_change.h"       /* a sex change is the same villager (cod_roster.inc, VvfpVillagerSexChanged) */
 #include "identity_in_place.h"  /* a former Heathen whose likes change stays one (cod_former.inc) */
 #include "mask_line.h"         /* the mask a roster snapshot keeps */
-#include "heathen_word.h"      /* New Believers' "Faction: Heathen" / "Isolan" */
+#include "heathen_word.h"      /* New Believers' "Faction:" word (Heathen, or the Guardians of Isola one) */
 #include "save_folder.h"
 #include "patcher_files.h"
 #include "grave_backfill.h"

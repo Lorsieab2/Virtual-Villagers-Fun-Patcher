@@ -8003,8 +8003,7 @@ class App(tk.Tk):
         window = tk.Toplevel(parent)
         window.title(f"Repair Saves & Logs: {vv5_heathen_ages.LABEL.lower()}")
         window.transient(parent)
-        frame = ttk.Frame(window, padding=12)
-        frame.pack(fill="both", expand=True)
+        frame = scrollable_frame(window, padding=12)
         ttk.Label(frame, wraplength=760, justify="left",
                   text="New Believers never ages a Heathen. Each villager below gets the time they spent frozen among "
                        "the Heathens added to their age, where the logs make it certain. The save folder is backed up "
