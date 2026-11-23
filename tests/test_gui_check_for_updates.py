@@ -302,7 +302,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
                                   "vv_answered_questions",     # answered questions held back (v1.35.80)
                                   "vv_number_names",           # numbers a looks change gave (v1.35.80 update)
-                                  "vv_misfiled_records"}),     # records moved to their own save's log (2026-10-31)
+                                  "vv_misfiled_records",       # records moved to their own save's log (2026-10-31)
+                                  # the rejoined villagers' masks, listed in Repair's checklist (v1.35.98)
+                                  "vv5_rejoined_masks"}),
             # Records written into another save's log (2026-10-31): the logs and every slot's village as Repair
             # reads them (function-level imports).
             ("vv_misfiled_records", {"vv_log_additions", "vv_save_layout", "vv_reconcile",

@@ -640,14 +640,17 @@ def approve_repair(
             ValueError, KeyError, IndexError, struct.error) as exc:
         originals = vv_original_look.Result(vv_original_look.path(folder, slot), False,
                                             note=f"the original looks were not added ({exc})")
-    # New Believers: the mask a villager wore when they rejoined the tribe from the Heathens, given back when
-    # they have none now and the logs prove it (src/vv5_rejoined_masks.py; the owner, 2026-11-22).  Never
-    # stops a Repair.
+    # New Believers: the mask a villager wore when they rejoined the tribe from the Heathens, given back once
+    # when they have none now and the logs prove it -- only when the player ticked the checklist's row, only
+    # those it listed, and only in a game with Heathens Keep Their Masks When Converted
+    # (src/vv5_rejoined_masks.py; the owner, 2026-11-22).  Never stops a Repair.
     rejoined = None
-    if game == 5:
-        import vv5_rejoined_masks
+    import vv5_rejoined_masks
+    planned = next((k for k in kinds if getattr(k, "id", None) == vv5_rejoined_masks.KIND_ID), None)
+    if game == 5 and planned is not None and planned.id in chosen and planned.context.get("restore"):
         try:
-            rejoined = vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)
+            rejoined = vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now, game_folders,
+                                                  only=set(planned.context["restore"]))
         except (vv_reconcile.ReconcileError, vv_last_names.LastNamesError, OSError, ValueError, KeyError,
                 IndexError, struct.error) as exc:
             rejoined = vv5_rejoined_masks.Result(note=f"the rejoined villagers' masks were not given back ({exc})")

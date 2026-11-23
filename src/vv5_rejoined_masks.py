@@ -46,6 +46,8 @@ class Found:
     index: int                      # their record
     mask: int | None                # 1..5 to give back; None: not proven
     why: str = ""
+    head: int | None = None         # their looks now (the decision that it was given back is kept by them)
+    body: int | None = None
 
     def line(self) -> str:
         if self.mask is None:
@@ -59,6 +61,23 @@ class Survey:
     original: bytes | None
     restore: list[Found] = field(default_factory=list)
     listed: list[Found] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)          # why nobody is looked at (no Keep Masks...)
+
+
+# Heathens Keep Their Masks When Converted: the row whose companion keeps a convert's mask.  Without it in the
+# game's exe nothing is given back -- that game never kept a convert's mask.
+KEEP_MASKS_ROW = "vv5_heathens_keep_masks_when_converted"
+# The once-only record: a mask given back is kept as a Log Decisions entry (src/vv_log_decisions.py), so a
+# later Repair never gives it again -- whatever the player did with it since.
+DECISION_KIND = "rejoined_mask"
+DECISION_VERDICT = "given back"
+
+
+def keep_masks_in_game(folder: Path, game_folders: list[Path] | None) -> bool | None:
+    """Whether the exe that saves into `folder` has Heathens Keep Their Masks When Converted (the patcher's log
+    of the run that made it, else the exe's own bytes: src/vv_game_mechanics.py patch_source).  None: unknown."""
+    import vv_log_additions as additions
+    return additions._row_in_game(additions._patch_source(Path(folder), GAME, game_folders), GAME, KEEP_MASKS_ROW)
 
 
 @dataclass
@@ -98,6 +117,12 @@ def _lives(folder: Path, slot: int) -> _Lives:
                 if child and child["Name"]:
                     out.events.setdefault((child["Name"], _sex(child.get("Sex"))), []).append(
                         (order, "late" if ol._late(b.lines) else "own", None))
+            elif b.heading == "Appearance changed" and b.value("Name") and b.value("New mask") is not None \
+                    and (b.value("New mask") or "").strip().lower() == "none" \
+                    and (b.value("Old mask") or "none").strip().lower() != "none":
+                # A mask taken off (Reset to original, Change Appearance): never given back after it.
+                for x in ("male", "female"):
+                    out.events.setdefault((b.value("Name"), x), []).append((order, "off", None))
             elif b.heading.startswith("Arrived") and b.value("Name"):
                 key = (b.value("Name"), _sex(b.value("Sex")))
                 if ol._converted(b.value("How")):
@@ -149,15 +174,28 @@ def _rejoined_title(lives: _Lives, name: str, sex: str, others: set[str] = froze
         return None, "the logs know more than one villager of their name"
     if timed and timed[0] > convs[-1]:
         return None, "their own record comes after the conversion: it was another villager's"
+    if any(e[1] == "off" for e in events[convs[-1] + 1:]):
+        return None, "a logged change took the mask off after they rejoined: left as the player chose"
     return events[convs[-1]][2] or "", ""
 
 
-def survey(folder: Path, slot: int) -> Survey:
-    """Who gets their mask back, and who cannot (and why).  Reads only."""
+def survey(folder: Path, slot: int, game_folders: list[Path] | None = None, keep: bool | None = None) -> Survey:
+    """Who gets their mask back, and who cannot (and why).  Reads only.  `keep`: whether the game has Heathens
+    Keep Their Masks When Converted (looked up in `game_folders` when not given); nothing is given back unless
+    it certainly has."""
     import vv_last_names as ln
+    import vv_log_decisions as decisions
     import vv_log_tools as tools
     import vv_reconcile as rc
     folder = Path(folder)
+    if keep is None:
+        keep = keep_masks_in_game(folder, game_folders)
+    if keep is not True:
+        return Survey(None, None, notes=[
+            "Masks of villagers who rejoined the tribe: not given back -- "
+            + ("this game does not have Heathens Keep Their Masks When Converted, so it never kept one."
+               if keep is False else "whether this game has Heathens Keep Their Masks When Converted could not be "
+               "told (no game folder holding its exe was found, or its patches could not be read).")])
     checker = tools.load_checker()
     save = ln.save_path(folder, GAME, slot)
     data = save.read_bytes()
@@ -169,6 +207,7 @@ def survey(folder: Path, slot: int) -> Survey:
     names = [a.name for a in alive]
     lives = _lives(folder, slot)
     import vv_original_look as ol
+    given = {who[0] for who in decisions.decided(folder, GAME, slot, DECISION_KIND, DECISION_VERDICT)}
     for a in alive:
         others: set[str] = set()
         for o in alive:
@@ -203,6 +242,9 @@ def survey(folder: Path, slot: int) -> Survey:
         if names.count(a.name) != 1:
             out.listed.append(Found(a.name, index, None, "another living villager has their name"))
             continue
+        if ol._names(a.name, lives.renames) & given:
+            out.listed.append(Found(a.name, index, None, "Repair gave it back once already; never again"))
+            continue
         if title is None:
             out.listed.append(Found(a.name, index, None, why))
             continue
@@ -210,7 +252,7 @@ def survey(folder: Path, slot: int) -> Survey:
         if mask is None:
             out.listed.append(Found(a.name, index, None, "their last conversion record does not name a mask"))
             continue
-        out.restore.append(Found(a.name, index, mask))
+        out.restore.append(Found(a.name, index, mask, head=a.head, body=a.body))
     return out
 
 
@@ -241,17 +283,24 @@ class Result:
     note: str = ""
 
 
-def restore(folder: Path, slot: int, backup_name: str | None = None, now: datetime | None = None) -> Result:
-    """Give back every proven mask (approve_repair: the game closed, the save folder backed up)."""
+def restore(folder: Path, slot: int, backup_name: str | None = None, now: datetime | None = None,
+            game_folders: list[Path] | None = None, keep: bool | None = None,
+            only: set[tuple[str, int]] | None = None) -> Result:
+    """Give back every proven mask (approve_repair, when the player ticked it: the game closed, the save folder
+    backed up).  The survey is made again; `only`: the (name, mask) pairs the player was shown, so nothing
+    the checklist did not list is written.  Each one given back is kept as a decision, never given again."""
     import vv_last_names as ln
+    import vv_log_decisions as decisions
     import vv_log_tools as tools
     folder = Path(folder)
     try:
-        work = survey(folder, slot)
+        work = survey(folder, slot, game_folders, keep)
     except (struct.error, ValueError, OSError, ln.LastNamesError) as exc:
         return Result(note=f"the rejoined villagers' masks were not checked ({exc})")
+    if only is not None:
+        work.restore = [f for f in work.restore if (f.name, f.mask) in only]
     if not work.restore:
-        return Result([], work.listed)
+        return Result([], work.listed, " ".join(work.notes))
     path, original = work.path, work.original
     target = tools.copy_before_repair(folder, path, COPY_SUFFIX)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -260,6 +309,9 @@ def restore(folder: Path, slot: int, backup_name: str | None = None, now: dateti
     if path.read_bytes() != original:
         return Result([], work.listed, f"{path.name} changed while it was read; nothing was changed")
     ln._write(path, updated(original, work.restore))
+    decisions.record(folder, GAME, slot, [{"kind": DECISION_KIND, "village": None, "name": f.name, "head": f.head,
+                                           "body": f.body, "verdict": DECISION_VERDICT,
+                                           "edited": MASK_NAMES[f.mask]} for f in work.restore], now)
     try:
         _note(folder, slot, work.restore, path, target.name, backup_name, now)
     except OSError:
@@ -287,3 +339,27 @@ def _note(folder: Path, slot: int, restored: list[Found], path: Path, copy: str,
     text += "\r\n"
     with open(log, "ab") as handle:
         handle.write(text.encode(GAME_TEXT, "replace"))
+
+
+KIND_ID = "rejoined_masks"
+KIND_LABEL = "Masks of villagers who rejoined the tribe"
+
+
+def plan_kind(folder: Path, slot: int, game_folders: list[Path] | None = None):
+    """Repair Saves & Logs' checklist row (src/vv_log_additions.py plan): who is given which mask back
+    (context "restore": the (name, mask) pairs; "lines": each as the checklist says it) and, in the notes,
+    every villager who rejoined and is not, with why.  Reads only."""
+    import vv_last_names as ln
+    import vv_log_additions as additions
+    kind = additions.Kind(KIND_ID, KIND_LABEL)
+    try:
+        work = survey(folder, slot, game_folders)
+    except (struct.error, ValueError, OSError, ln.LastNamesError) as exc:
+        kind.notes.append(f"not checked: a file could not be read ({exc}).")
+        return kind
+    kind.notes.extend(work.notes)
+    kind.notes.extend(f.line() for f in work.listed)
+    if work.restore:
+        kind.context["restore"] = [(f.name, f.mask) for f in work.restore]
+        kind.context["lines"] = [f.line() for f in work.restore]
+    return kind

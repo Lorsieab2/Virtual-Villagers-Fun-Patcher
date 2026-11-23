@@ -71,13 +71,13 @@ class RejoinedMasks(unittest.TestCase):
             + converted(5, c.name, c.sex, (c.head, c.body), None)
             # d never left the tribe: not theirs to change.
             + arrived(6, d.name, d.sex, (d.head, d.body)))
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 1)])
         self.assertEqual(sorted(f.name for f in survey.listed), sorted([b.name, c.name]),
                          "every villager who rejoined and is not given a mask is listed with why")
         self.assertTrue(all(f.why for f in survey.listed))
         before = path.read_bytes()
-        result = rm.restore(self.v.folder, 1, "Backup test", datetime(2026, 11, 22, 21, 0))
+        result = rm.restore(self.v.folder, 1, "Backup test", datetime(2026, 11, 22, 21, 0), keep=True)
         self.assertEqual([f.name for f in result.restored], [a.name])
         self.assertEqual(self.nibble(path, a.record), 1, "the blue mask they rejoined with is theirs again")
         self.assertEqual(self.nibble(path, b.record), 3)
@@ -89,7 +89,7 @@ class RejoinedMasks(unittest.TestCase):
         self.assertTrue(repairs and a.name in repairs[0].read_text(encoding="cp1252"))
         copies = [q for q in self.v.folder.rglob("*") if q.is_file() and q.read_bytes() == before]
         self.assertTrue(copies, "a copy of the file is kept before the repair")
-        self.assertEqual(rm.restore(self.v.folder, 1).restored, [], "running it again changes nothing")
+        self.assertEqual(rm.restore(self.v.folder, 1, keep=True).restored, [], "running it again changes nothing")
 
     def test_a_heathen_now_or_a_file_that_does_not_name_them_is_left_alone(self):
         a = self.p[0]
@@ -98,13 +98,13 @@ class RejoinedMasks(unittest.TestCase):
         data = bytearray(self.save.read_bytes())
         data[a.at + rm.FACTION] = 1
         self.save.write_bytes(bytes(data))
-        self.assertEqual(rm.survey(self.v.folder, 1).restore, [], "a Heathen now: not this repair's")
+        self.assertEqual(rm.survey(self.v.folder, 1, keep=True).restore, [], "a Heathen now: not this repair's")
         data[a.at + rm.FACTION] = 0
         self.save.write_bytes(bytes(data))
         raw = bytearray(path.read_bytes())
         struct.pack_into("<I", raw, 4 + a.record * 4, 0x1234)
         path.write_bytes(bytes(raw))
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual(survey.restore, [])
         self.assertEqual([f.name for f in survey.listed], [a.name])
 
@@ -121,7 +121,7 @@ class RejoinedMasks(unittest.TestCase):
             + converted(3, b.name, b.sex, (b.head, b.body), "Former Heathen (red mask)"))
         self.v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
                    f"Died\n  Name: {b.name}\n  Sex: {b.sex}\n  What happened: Old age\n\n")
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual(survey.restore, [])
         self.assertEqual(sorted(f.name for f in survey.listed), sorted([a.name, b.name]))
 
@@ -135,14 +135,14 @@ class RejoinedMasks(unittest.TestCase):
                  f"  Body: {a.body}\n\n"
         self.v.births(arrived(1, "Oldname", a.sex, (a.head, a.body))
                       + converted(2, "Oldname", a.sex, (a.head, a.body), "Former Heathen (red mask)") + rename)
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 3)])
         # Now b once had that old name too: whose conversion it was cannot be told.
         self.v.births(arrived(1, "Oldname", a.sex, (a.head, a.body))
                       + converted(2, "Oldname", a.sex, (a.head, a.body), "Former Heathen (red mask)") + rename
                       + f"Name changed\n  Name: {b.name}\n  Old name: Oldname\n  Sex: {b.sex}\n  Head: {b.head}\n"
                         f"  Body: {b.body}\n\n")
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual(survey.restore, [])
         self.assertIn(a.name, [f.name for f in survey.listed])
 
@@ -161,7 +161,7 @@ class RejoinedMasks(unittest.TestCase):
                       + sex_change(str(a.sex), other)
                       + converted(3, a.name, other, (a.head, a.body), "Former Heathen (red mask)")
                       + sex_change(other, str(a.sex)))
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 3)])
 
     def test_a_birth_the_saved_village_never_held_is_no_namesake(self):
@@ -174,7 +174,7 @@ class RejoinedMasks(unittest.TestCase):
         discarded = birth(7, a.name, a.sex, (1, 1)).replace("\n\n", f"\n{NOT_KEPT_LINE}\n\n")
         self.v.births(arrived(1, a.name, a.sex, (a.head, a.body))
                       + converted(2, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)") + discarded)
-        survey = rm.survey(self.v.folder, 1)
+        survey = rm.survey(self.v.folder, 1, keep=True)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 1)])
 
     def test_leaving_for_the_heathens_in_either_wording_is_not_gone(self):
@@ -188,7 +188,7 @@ class RejoinedMasks(unittest.TestCase):
             with self.subTest(what=what):
                 self.v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
                            f"Disappeared\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: {what}\n\n")
-                self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1).restore], [(a.name, 1)])
+                self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1, keep=True).restore], [(a.name, 1)])
 
     def test_a_record_written_afterwards_is_never_placed_after_the_conversion(self):
         """Codex, #841: a backfilled Arrived record ("Note: Recorded afterwards") is written where the backfill
@@ -198,12 +198,73 @@ class RejoinedMasks(unittest.TestCase):
         self.v.births(converted(1, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)")
                       + arrived(2, a.name, a.sex, (a.head, a.body)).replace(
                           "\n\n", "\n  Note: Recorded afterwards (arrived before this log existed)\n\n"))
-        self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1).restore], [(a.name, 1)])
+        self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1, keep=True).restore], [(a.name, 1)])
 
-    def test_repair_saves_and_logs_runs_it(self):
-        source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
-        self.assertIn("vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)", source)
-        self.assertIn('"src/vv5_rejoined_masks.py"', (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8"))
+    def caia(self) -> tuple:
+        a = self.p[0]
+        path = self.masks_file({})
+        self.v.births(arrived(1, a.name, a.sex, (a.head, a.body))
+                      + converted(2, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)"))
+        return a, path
+
+    def test_only_in_a_game_with_keep_masks(self):
+        a, path = self.caia()
+        for keep in (False, None):
+            with self.subTest(keep=keep):
+                survey = rm.survey(self.v.folder, 1, keep=keep)
+                self.assertEqual(survey.restore, [])
+                self.assertTrue(survey.notes and "Heathens Keep Their Masks When Converted" in survey.notes[0])
+                self.assertEqual(rm.restore(self.v.folder, 1, keep=keep).restored, [])
+        self.assertEqual(self.nibble(path, a.record), 0)
+
+    def test_given_back_once_never_again(self):
+        """The player takes the mask off again after Repair gave it back: the next Repair leaves it off."""
+        a, path = self.caia()
+        self.assertEqual([f.name for f in rm.restore(self.v.folder, 1, keep=True).restored], [a.name])
+        raw = bytearray(path.read_bytes())
+        at = 4 + 150 * 4 + (a.record >> 1)
+        raw[at] &= 0x0F if a.record & 1 else 0xF0      # taken off again (Reset to original, Change Appearance)
+        path.write_bytes(bytes(raw))
+        survey = rm.survey(self.v.folder, 1, keep=True)
+        self.assertEqual(survey.restore, [])
+        self.assertIn("once already", next(f.why for f in survey.listed if f.name == a.name))
+        self.assertEqual(rm.restore(self.v.folder, 1, keep=True).restored, [])
+        self.assertEqual(self.nibble(path, a.record), 0)
+
+    def test_a_mask_taken_off_after_they_rejoined_stays_off(self):
+        a, _path = self.caia()
+        self.v.births(arrived(1, a.name, a.sex, (a.head, a.body))
+                      + converted(2, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)")
+                      + change(a.name, (a.head, a.body), (a.head, a.body), ("Blue Mask", "none")))
+        survey = rm.survey(self.v.folder, 1, keep=True)
+        self.assertEqual(survey.restore, [])
+        self.assertIn("took the mask off", next(f.why for f in survey.listed if f.name == a.name))
+
+    def test_repair_saves_and_logs_runs_it_only_when_ticked(self):
+        """Behaviour, end to end: Repair Saves & Logs lists the restore in its checklist, gives the mask back
+        only when that row is ticked, and says so in its result."""
+        class NoGame:
+            def find(self, exe_name):
+                return []
+
+        a, path = self.caia()
+        real = rm.keep_masks_in_game
+        rm.keep_masks_in_game = lambda folder, game_folders: True
+        try:
+            import vv_log_additions as additions
+            kinds = additions.plan(self.v.folder, 5, 1)
+            row = next(k for k in kinds if k.id == rm.KIND_ID)
+            self.assertEqual(row.context.get("restore"), [(a.name, 1)])
+            self.assertTrue(any(a.name in line for line in row.context.get("lines")))
+            result = tools.approve_repair(self.v.folder, 5, 1, NoGame(), chosen=set(), kinds=kinds)
+            self.assertIsNone(result.rejoined)
+            self.assertEqual(self.nibble(path, a.record), 0, "not ticked: nothing given back")
+            result = tools.approve_repair(self.v.folder, 5, 1, NoGame(), chosen={rm.KIND_ID}, kinds=kinds)
+            self.assertEqual([f.name for f in result.rejoined.restored], [a.name])
+            self.assertEqual(self.nibble(path, a.record), 1)
+            self.assertIsNotNone(result.backup, "the save folder was backed up first")
+        finally:
+            rm.keep_masks_in_game = real
 
 
 if __name__ == "__main__":
