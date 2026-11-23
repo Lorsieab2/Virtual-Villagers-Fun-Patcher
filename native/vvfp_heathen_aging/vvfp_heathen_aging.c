@@ -206,8 +206,14 @@ static unsigned int g_seen[256];
 
 /* Replacements still owed (a full table): the kind, and the role / masks. */
 #define OWED_MAX 32
-static struct { int role; unsigned char orange, red; } g_owed[OWED_MAX];
-static int g_owed_count;
+/* Kept per save slot (0: the slot not known yet), so a replacement owed in one village is never made in another
+   after a Change Tribe; the current village's queue is OWED / OWED_COUNT (g_file_slot, below). */
+static struct { int role; unsigned char orange, red; } g_owed_by_slot[6][OWED_MAX];
+static int g_owed_counts[6];
+#define OWED g_owed_by_slot[g_file_slot]
+#define OWED_COUNT g_owed_counts[g_file_slot]
+static int g_body_count;                   /* the Heathen bodies watched (watch_graves, below) */
+static void pay_owed(void);
 
 /* ---- the game, called ------------------------------------------------------------------------------------- */
 
@@ -433,9 +439,18 @@ static void keep_known(void) {
         return;
     }
     if (slot != g_file_slot) {
+        if (g_file_slot == 0) {
+            int i;
+            for (i = 0; i < g_owed_counts[0] && g_owed_counts[slot] < OWED_MAX; ++i) {
+                g_owed_by_slot[slot][g_owed_counts[slot]++] = g_owed_by_slot[0][i];
+            }
+            g_owed_counts[0] = 0;
+        }
         g_known_count = 0;
         g_dirty = 0;
         g_file_slot = slot;
+        g_body_count = 0;                  /* another village's bodies and believers */
+        memset(g_seen, 0, sizeof g_seen);
         read_known(slot);
     } else if (g_load_blocked && !vv_sidecar_gate_throttled(&g_gate)) {
         read_known(slot);
@@ -561,6 +576,9 @@ static int __cdecl credit(unsigned char *record, int units) {
             g_kept_at = GetTickCount();
             keep_known();
             watch_graves();
+            if (OWED_COUNT > 0) {
+                pay_owed();
+            }
         }
         if (record[R_FACTION] == 0) {
             if (index >= 0) {
@@ -692,19 +710,19 @@ static int replace(int role, unsigned char orange, unsigned char red) {
 }
 
 static void owe(int role, unsigned char orange, unsigned char red) {
-    if (g_owed_count < OWED_MAX) {
-        g_owed[g_owed_count].role = role;
-        g_owed[g_owed_count].orange = orange;
-        g_owed[g_owed_count].red = red;
-        ++g_owed_count;
+    if (OWED_COUNT < OWED_MAX) {
+        OWED[OWED_COUNT].role = role;
+        OWED[OWED_COUNT].orange = orange;
+        OWED[OWED_COUNT].red = red;
+        ++OWED_COUNT;
     }
 }
 
 static void pay_owed(void) {
-    while (g_owed_count > 0 && free_records() > 0) {
-        --g_owed_count;
-        if (!replace(g_owed[g_owed_count].role, g_owed[g_owed_count].orange, g_owed[g_owed_count].red)) {
-            ++g_owed_count;
+    while (OWED_COUNT > 0 && free_records() > 0) {
+        --OWED_COUNT;
+        if (!replace(OWED[OWED_COUNT].role, OWED[OWED_COUNT].orange, OWED[OWED_COUNT].red)) {
+            ++OWED_COUNT;
             return;
         }
     }
@@ -876,7 +894,7 @@ static int __cdecl unit(unsigned char *record) {
         if (!ages(record) || i32(record, R_PROCESSED) >= i32(record, R_AGE)) {
             return 0;
         }
-        if (g_owed_count > 0) {
+        if (OWED_COUNT > 0) {
             pay_owed();
         }
         processed = i32(record, R_PROCESSED);
@@ -1006,13 +1024,17 @@ int __stdcall VvfpHeathenAgingGrave(int game, int entry) {
    replacements and watched bodies with them, and the slot's file is read afresh when next seen (gone with the
    folder), so none of it is written back into the new village.  Another slot's village is left alone. */
 void __stdcall VvfpHeathenAgingVillageReset(int game, int slot) {
-    if (game != HA_GAME || (g_file_slot != 0 && slot != g_file_slot)) {
+    if (game != HA_GAME || slot < 1 || slot > 5) {
         return;
     }
+    g_owed_counts[slot] = 0;               /* that village's owed replacements, loaded or not */
+    if (g_file_slot != 0 && slot != g_file_slot) {
+        return;
+    }
+    g_owed_counts[0] = 0;
     g_known_count = 0;
     g_dirty = 0;
     g_file_slot = 0;
-    g_owed_count = 0;
     g_body_count = 0;
     memset(g_seen, 0, sizeof g_seen);
 }

@@ -628,6 +628,60 @@ class GravesAndStartOver(unittest.TestCase):
         self.assertEqual(v.i32(r, AGE), 603, "forgotten at Start Over: the new village's Heathen never was ours")
         v.export("VvfpHeathenAgingVillageReset", 4, 1)  # another game: nothing
 
+SAVE_MANAGER_WORD, SLOT_FIELD = 0x4DACE0, 0x17D80
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class OwedReplacements(unittest.TestCase):
+    """A replacement owed while the table is full (Codex, #850): made as soon as there is room, whether or not any
+    Heathen ages then, and only in the village it is owed to (kept per save slot across a Change Tribe)."""
+
+    def _full_with_one_former(self, v: Village) -> int:
+        for i in range(150):
+            v.villager(i, heathen=True)                 # camp Heathens: with the former row alone, none ages
+        former = v.villager(7, heathen=True, parents=True, name="Tane")
+        _due_to_die(v, former)
+        v.life_tick()
+        self.assertEqual(v.i32(former, HEALTH), 0, "a skeleton keeps the table full")
+        self.assertEqual(v.created, [], "owed: no room")
+        return former
+
+    def _slot(self, v: Village, slot: int) -> None:
+        if not getattr(v, "save_manager", 0):
+            v.save_manager = v.alloc(SLOT_FIELD + 0x10)
+            v.put32(SAVE_MANAGER_WORD, v.save_manager)
+        v.put32(v.save_manager + SLOT_FIELD, slot)
+
+    def test_paid_when_room_comes_though_no_heathen_ages(self):
+        v = Village((FORMER, BONES_ALL))
+        self._full_with_one_former(v)
+        v.write(v.record(40) + PRESENT, b"\x00")        # room at last
+        v.credit(v.record(41), 1)                        # a camp Heathen's age credit: it does not age
+        self.assertEqual([i for i, _ in v.created], [40])
+
+    def test_a_change_of_tribe_never_takes_the_owed_replacement_along(self):
+        v = Village((FORMER, BONES_ALL))
+        self._slot(v, 1)
+        v.credit(v.record(0), 0)                         # village 1 is the one in play
+        self._full_with_one_former(v)
+        self._slot(v, 2)                                 # Change Tribe: village 2, with room
+        v.write(v.record(40) + PRESENT, b"\x00")
+        v.credit(v.record(41), 1)
+        self.assertEqual(v.created, [], "village 1's replacement is never made in village 2")
+        self._slot(v, 1)                                 # back to village 1
+        v.credit(v.record(41), 1)
+        self.assertEqual([i for i, _ in v.created], [40], "...and still owed there")
+
+    def test_start_over_drops_that_villages_owed_replacement(self):
+        v = Village((FORMER, BONES_ALL))
+        self._slot(v, 3)
+        v.credit(v.record(0), 0)
+        self._full_with_one_former(v)
+        v.export("VvfpHeathenAgingVillageReset", 5, 3)
+        v.write(v.record(40) + PRESENT, b"\x00")
+        v.credit(v.record(41), 1)
+        self.assertEqual(v.created, [])
+
 ROWS = {
     "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
     "vv5_heathen_tribe_ages": ("Heathen Tribe Ages, Dies and Has Children", TRIBE, True),
