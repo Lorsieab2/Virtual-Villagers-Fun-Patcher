@@ -28,6 +28,7 @@ try {
         /I (Join-Path $sdkRoot "Include\$sdkVersion\shared") `
         /I (Join-Path $sdkRoot "Include\$sdkVersion\ucrt") `
         (Join-Path $nativeRoot "vvfp_heathens_keep_masks.c") `
+        (Join-Path $projectRoot "native\shared\save_folder.c") `
         /link `
         /Brepro `
         ("/DEF:" + (Join-Path $nativeRoot "vvfp_heathens_keep_masks.def")) `
@@ -36,7 +37,8 @@ try {
         ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
         ("/OUT:" + (Join-Path $work "VVFP Heathens Keep Masks.dll")) `
         /RELEASE `
-        kernel32.lib
+        kernel32.lib `
+        shell32.lib
     $built = $LASTEXITCODE
     if ($built -eq 0) {
         Copy-Item -LiteralPath (Join-Path $work "VVFP Heathens Keep Masks.dll") -Destination (Join-Path $outputRoot "VVFP Heathens Keep Masks.dll") -Force

@@ -6,7 +6,9 @@
 
      - New Believers' own Heathen masks: a current Heathen (faction byte
        +0x1CEC) wears the one the game's mask draw picks (0x4728C6,
-       native/shared/former_heathens.h vv_former_kind_of);
+       native/shared/former_heathens.h vv_former_kind_of) -- or, for one who
+       went back to the Heathens, their own earlier mask "Heathens Keep Their
+       Masks When Converted" draws on them (vv_former_drawn_kind);
      - the patcher's cosmetic Heathen masks (Change Appearance, the Custom
        Island Event), kept by each game's Origins companion and answered by
        its VvfpMaskOf export (native/shared/story_bridge.h).  The companion
@@ -42,7 +44,7 @@ static int vv_mask_value(int game, const unsigned char *record) {
         return 0;
     }
     if (game == 5 && record[VV5_FACTION] != 0) {
-        return FROM_KIND[vv_former_kind_of(record)];
+        return FROM_KIND[vv_former_drawn_kind(record)];   /* the mask drawn on them */
     }
     origins = GetModuleHandleA(VV_MASK_ORIGINS[game]);
     if (origins == NULL) {

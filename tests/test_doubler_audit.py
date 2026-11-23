@@ -405,7 +405,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # when the integration rebuilt the companions its merges touched (181a51614).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "36E41EFA79725C8D0FBE4587C8DAC7E723314608CFE37BA24B665DCA69FCB9DD",
+            "6C81C2BA37051DCBC793C4D8C5C8BF6E13DAAB61168A6AEC563459CC3D63DD75",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

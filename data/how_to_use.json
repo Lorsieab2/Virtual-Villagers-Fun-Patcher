@@ -1079,6 +1079,7 @@
         "Nothing to click in the patcher: on by default.",
         "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
         "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "With Heathens Keep Their Masks When Converted, a former Heathen wears the mask they wore then (still acts as a blue-mask Heathen).",
         "Needs no other patch."
       ]
     },
@@ -1101,6 +1102,7 @@
         "A Heathen who joins the tribe keeps the mask they wore: blue, orange, red, purple or the Chief's.",
         "It is their Change Appearance mask: change it there or choose No Mask whenever you like. Nothing is charged.",
         "Reset to original gives it back: a convert's original look is the one they had, with the mask they wore.",
+        "One who goes back to the Heathens wears their own Heathen mask again but acts like an ordinary blue-masked Heathen.",
         "Heathens who joined before this patch keep the look they have now.",
         "Needs Origins (ticked with it). Not yet seen in a running game."
       ]
