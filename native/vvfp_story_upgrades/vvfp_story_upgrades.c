@@ -957,6 +957,12 @@ int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, con
     return carried;
 }
 
+/* New Believers: Heathens in the game's own island events (story_heathen_stock.inc, below). */
+static unsigned int hv_scope_target(unsigned int va, const unsigned int *regs);
+static void __cdecl hv_apply_begin(void *object);
+static void __cdecl hv_apply_end(void *object);
+static void hv_stock_install(void);
+
 #include "story_outcomes.inc"
 
 /* ---- The per-game table ---------------------------------------------------- */
@@ -1122,6 +1128,10 @@ __declspec(dllexport) int __stdcall VvfpStoryArm(int game) {
         if (install_state[game] == 1 && game == 2) {
             /* Restore Missing Island Events' lore pages, when that row is ticked. */
             vv2_install_page_roll();
+        }
+        if (install_state[game] == 1 && game == 5) {
+            /* Heathens in the game's own island events, when that row is installed (story_heathen_stock.inc). */
+            hv_stock_install();
         }
     }
     return install_state[game] == 1;
@@ -1508,6 +1518,7 @@ static int lv_test_has_pack(void);
 #include "story_traits.inc"     /* the new island events' story traits (v1.35.97) */
 #include "story_procedural.inc" /* procedural island events composed from pieces-<group>.pcb (v1.35.97) */
 #include "story_structures.inc" /* the structures a village has finished, for the repair effect (v1.35.97) */
+#include "story_heathen_stock.inc" /* New Believers: Heathens in the game's own island events (v1.35.98) */
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;

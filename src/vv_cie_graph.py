@@ -421,9 +421,15 @@ ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Iso
 # (heathens_in_island_events).  A villager role's "heathens": "allowed" -- with the row an ordinary Heathen may take
 # it as well as a believer -- or "only" -- with the row only an ordinary Heathen, without it nobody (the event is not
 # offered).  Default (no key, or "never"): a believer's.  Never a puzzle's Heathen (roles 12-17).
+# "kin" (the owner, 2026-11-23, the audit's SAME-FACTION): as "allowed", but a Heathen only beside Heathen family --
+# the role its kinship relation names, or its pregnancy's other parent -- and a believer only beside believers (bit 3
+# with bit 5; story_graph.inc cg_gap_ok).
 ROLE_HEATHEN_MAY = 0x20
 ROLE_HEATHEN_ONLY = 0x10
-HEATHENS_MODES = {"never": 0, "allowed": ROLE_HEATHEN_MAY, "only": ROLE_HEATHEN_ONLY}
+ROLE_HEATHEN_KIN = 0x08
+HEATHENS_MODES = {"never": 0, "allowed": ROLE_HEATHEN_MAY, "only": ROLE_HEATHEN_ONLY,
+                  "kin": ROLE_HEATHEN_MAY | ROLE_HEATHEN_KIN}
+HEATHENS_BITS = ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY | ROLE_HEATHEN_KIN
 HEATHENS_ROW = "heathens_in_island_events"
 # What never happens to a Heathen cast through the row (story_graph.inc cg_heathen_never_effect): a birth that kills
 # its parent, a lost baby, a baby born early, a copy or a double, becoming a Heathen.  A death, a disappearance, a
@@ -1620,9 +1626,9 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                           "heathens"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
                 if r.get("heathens") is not None:
-                    # 45: the row's Heathens ("allowed" / "only"; "never" is the default and is dropped)
+                    # 45: the row's Heathens ("allowed" / "kin" / "only"; "never" is the default and is dropped)
                     if not isinstance(r["heathens"], str) or r["heathens"] not in HEATHENS_MODES:
-                        problems.append(f"{where}: heathens is never, allowed or only")
+                        problems.append(f"{where}: heathens is never, allowed, kin or only")
                     elif r.get("heathen_ok"):
                         problems.append(f"{where}: give heathens or heathen_ok, not both")
                     elif r["heathens"] != "never":
@@ -3507,6 +3513,10 @@ AUTO_LINES = {
     "hv_level": "The Heathens' village's technology changes. (no effect)",
     "hv_group": "The Heathens' village gathers together. (no effect)",
     "hv_celebrate_all": "Everyone in the Heathens' village celebrates. (no effect)",
+    # 45 (the owner, 2026-11-23): "Puzzle heathens are EXEMPT from any actual effects AT ALL TIMES" -- a puzzle's
+    # Heathen (roles 12-17) cast with the row: the page may tell anything of them, nothing is made, and this line says
+    # so once (story_graph.inc cg_puzzle_effect).
+    "pz_flavor": "Nothing really happens to <W>. (no effect)",
 }
 GUARDIANS_AUTO_LINES.update({k: v.replace("Heathens'", "Isolans'") for k, v in AUTO_LINES.items()
                              if k.startswith("hv_")})
@@ -5083,8 +5093,8 @@ def _decompile_v6(data: bytes) -> dict:
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
         speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
-        heathens = {v: k for k, v in HEATHENS_MODES.items()}.get(pick & (ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY), "never")
-        pick &= ~(ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY)
+        heathens = {v: k for k, v in HEATHENS_MODES.items()}.get(pick & HEATHENS_BITS, "never")
+        pick &= ~HEATHENS_BITS
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:

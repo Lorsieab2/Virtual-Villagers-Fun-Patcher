@@ -963,6 +963,13 @@ static unsigned int oc_scope_enter(const unsigned int *regs) {
             if (s->kind == OC_SCOPE_BREED && game == 2) {
                 oc_breed_enter(i);
             }
+            if (game == 5) {
+                /* New Believers: a stock event's believer part may draw a Heathen (story_heathen_stock.inc) */
+                unsigned int heathens = hv_scope_target(s->va, regs);
+                if (heathens != 0) {
+                    return heathens;
+                }
+            }
             return oc_scope_target(s);
         }
     }
@@ -1220,7 +1227,8 @@ __declspec(naked) static void oc_vv4_simple_stub(void) {
     }
 }
 
-/* New Believers 0x418749: the same shape as The Tree of Life's. */
+/* New Believers 0x418749: the same shape as The Tree of Life's (and a drawn Heathen's Faith part kept around the
+   apply: story_heathen_stock.inc hv_apply_begin / hv_apply_end). */
 __declspec(naked) static void oc_vv5_choice_stub(void) {
     __asm {
         pushad
@@ -1229,12 +1237,18 @@ __declspec(naked) static void oc_vv5_choice_stub(void) {
         call oc_apply_begin
         add esp, 8
         popad
+        pushad
+        push ecx
+        call hv_apply_begin
+        add esp, 4
+        popad
         push ecx
         mov eax, dword ptr [ecx]
         mov edx, dword ptr [esi + 0x830]
         mov eax, dword ptr [eax + 0x2C]
         push edx
         call eax
+        call hv_apply_end
         call oc_apply_end
         add esp, 4
         mov ecx, esi
@@ -1251,10 +1265,16 @@ __declspec(naked) static void oc_vv5_simple_stub(void) {
         call oc_apply_begin
         add esp, 8
         popad
+        pushad
+        push ecx
+        call hv_apply_begin
+        add esp, 4
+        popad
         push ecx
         mov edx, dword ptr [ecx]
         mov eax, dword ptr [edx + 0x30]
         call eax
+        call hv_apply_end
         call oc_apply_end
         add esp, 4
         mov ecx, esi

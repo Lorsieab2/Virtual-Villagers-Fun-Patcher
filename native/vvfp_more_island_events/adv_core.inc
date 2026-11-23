@@ -199,6 +199,9 @@ static const adv_heathen_role ADV_HEATHEN_ROLES[] = {
        Heathens' own rules ("VVFP Heathen Aging.dll", adv_heathen_gone); the find, when nobody else shares it, is the
        Heathens' own (no effect). */
     { "aspiring_adventurer", ADV_ROLE_ADVENTURER, ADV_HEATHEN_ALLOWED },
+    /* The owner's approved audit (2026-11-23, part 2: "The Aspiring Adventurer | the hero, the friend | YES"): the
+       friend is named in the words only (no outcome of theirs), so an ordinary Heathen may be the friend too. */
+    { "aspiring_adventurer", ADV_ROLE_FRIEND, ADV_HEATHEN_ALLOWED },
     { "", -1, ADV_HEATHEN_NEVER }                     /* (the audit's further rows go above this one) */
 };
 static const char *adv_event_now = "aspiring_adventurer";   /* the event and role being cast */
