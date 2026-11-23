@@ -271,8 +271,9 @@ class TheRow(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathensKeepMasksInstalled", "VvfpHeathensKeepMasksKept",
-                                 "VvfpHeathensKeepMasksLook", "VvfpHeathensKeepMasksReturned", "VvfpStartup"])
+        self.assertEqual(names, ["VvfpHeathensKeepMasksFaction", "VvfpHeathensKeepMasksInstalled",
+                                 "VvfpHeathensKeepMasksKept", "VvfpHeathensKeepMasksLook",
+                                 "VvfpHeathensKeepMasksReturned", "VvfpStartup"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA",
                                     "OutputDebugStringW", "MessageBoxA", "MessageBoxW", "CreateFileA",
@@ -592,6 +593,28 @@ class GoingBackToTheHeathens(unittest.TestCase):
                     self.assertEqual(v.told[-1], (5, record, mask), "Original Look is told their mask")
                     self.assertEqual(v.read(record + ORANGE, 2), bytes([orange, red]),
                                      "an orange or red kind byte is back, as the stock conversion leaves it")
+
+    def test_a_companion_calling_the_setter_itself_tells_the_companion_first(self):
+        """The Custom Island Event's "Becomes a Heathen" / "Becomes a believer" call the setter 0x466880 directly
+        when their SetFaith did not convert (story_graph.inc cg_keep_masks_faction): VvfpHeathensKeepMasksFaction
+        first does what the splices do at the game's own calls."""
+        for worn, ((role, orange, red), mask, _slot, row) in WORN.items():
+            with self.subTest(worn=worn):
+                v = self.village()
+                record = v.believer(4, role, orange, red)
+                self.assertEqual(v.export("VvfpHeathensKeepMasksFaction", record, 1), 1)
+                v.call(0x466880, [1], ecx=record)                  # the Story DLL's own setter call
+                self.assertEqual((v.read(record + ORANGE, 2), v.u32(record + ROLE)), (b"\0\0", 0))
+                self.assertEqual((v.mask_get(record), v.mask_row(record)), (mask, row))
+                self.assertTrue(v.listens(record))
+                self.assertEqual(v.export("VvfpHeathensKeepMasksFaction", record, 0), 1)
+                v.call(0x466880, [0], ecx=record)
+                self.assertEqual((v.read(record + FACTION, 1), v.mask_get(record)), (b"\0", mask),
+                                 "joining again the same way keeps their mask")
+        v = self.village(start=False)
+        record = v.believer(4, 0, 1, 0)
+        self.assertEqual(v.export("VvfpHeathensKeepMasksFaction", record, 1), 0, "not installed: nothing")
+        self.assertEqual(v.read(record + ORANGE, 1), b"\x01")
 
     def test_a_camp_job_later_keeps_their_mask(self):
         """The Heathens' own jobs are roles 1-11 (the owner's saves hold them): a Heathen who went back and is

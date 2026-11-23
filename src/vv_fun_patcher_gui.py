@@ -5525,10 +5525,12 @@ class App(tk.Tk):
         if not messagebox.askyesno(
                 title,
                 f"{folder.name}, Save {info.slot}: these Heathens joined the tribe once and went back. Each gets "
-                "back the mask they wore as a Heathen before; they still act as ordinary blue-masked Heathens. "
-                "Only the patcher's Village Masks file changes, never the save; the mask shows with \"Heathens "
-                "Keep Their Masks When Converted\".\n\n" + "\n".join(lines)
-                + "\n\nThe save folder is backed up first, and the file is copied into Copies Made Before "
+                "back the mask they wore as a Heathen before and acts as an ordinary blue-masked Heathen. "
+                + ("The patcher's Village Masks file changes, and the save too: the orange or red Heathen "
+                   "behaviour an older build left is cleared. " if work.writes_save else
+                   "Only the patcher's Village Masks file changes, never the save. ")
+                + "The mask shows with \"Heathens Keep Their Masks When Converted\".\n\n" + "\n".join(lines)
+                + "\n\nThe save folder is backed up first, and each changed file is copied into Copies Made Before "
                 "Repairs. Restore them now?", parent=parent):
             return
         try:

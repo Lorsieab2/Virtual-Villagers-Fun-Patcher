@@ -473,6 +473,24 @@ unsigned int __stdcall VvfpHeathensKeepMasksReturned(void) {
     return g_returned;
 }
 
+/* int __stdcall VvfpHeathensKeepMasksFaction(void *record, int faction): a companion is about to call the faction
+   setter 0x466880 itself with `faction` -- the Story / Cheat Upgrades' Custom Island Event "Becomes a Heathen"
+   (1) and "Becomes a believer" (0) after their SetFaith, which convert through the spliced routines unless the
+   villager's Faith was already past 0 (story_graph.inc cg_keep_masks_faction).  Does what the splices do at the
+   game's own calls: 1, a believer going back, gets their own mask and an ordinary blue Heathen's bytes and role;
+   0, a Heathen joining, keeps their mask.  1 when installed (done, or nothing to do), 0 when not. */
+int __stdcall VvfpHeathensKeepMasksFaction(void *record, int faction) {
+    if (!g_installed) {
+        return 0;
+    }
+    if (faction != 0) {
+        hk_returning((unsigned char *)record);
+    } else {
+        hk_converting((unsigned char *)record);
+    }
+    return 1;
+}
+
 /* int __stdcall VvfpHeathensKeepMasksLook(const void *record): the mask this companion draws on a Heathen who
    went back to the Heathens -- VV_FORMER_ORANGE (1), VV_FORMER_RED (2), VV_FORMER_MASTER (3, purple) or
    VV_FORMER_CHIEF (4) -- or -1 (not installed, not such a Heathen: the game's own mask choice stands).  For

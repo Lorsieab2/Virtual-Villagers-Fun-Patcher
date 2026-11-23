@@ -1078,6 +1078,7 @@
         "Nothing to click in the patcher: on by default.",
         "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
         "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "With Heathens Keep Their Masks When Converted, a former Heathen wears the mask they wore then (still acts as a blue-mask Heathen).",
         "Needs no other patch."
       ]
     },

@@ -150,6 +150,65 @@ class RestoreHeathenMasks(unittest.TestCase):
         self.assertEqual([f.name for f in work.restore], ["Nobu"])
         self.assertIn(("Tama", None), [(f.name, f.mask) for f in work.listed])
 
+    def still_coloured(self) -> tuple[list[int], bytes]:
+        """Poi is a former orange Heathen (the Former Heathens file) and Udu went back wearing red (the logs: he
+        joined and left; The Spa left his red kind byte): both still behave orange / red in the save."""
+        data = bytearray(self.save.read_bytes())
+        at = ln._entries(5, bytes(data))
+        data[at[7] + hm.RED] = 1
+        self.save.write_bytes(bytes(data))
+        f = ln.FIELDS[5]
+        titles = [ln._title_identity(bytes(data), p, f) for p in at]
+        former = tools.layout.route(self.folder, f"{DATA}\\Former Heathens\\Former Heathens - Save 1.dat")
+        former.write_bytes(former_file([(titles[1], 3), (titles[6], 1), (titles[0], 2), (titles[3], 1)]))
+        self.log("Births and Conceptions/Virtual Villagers 5 Births and Conceptions Log 2.txt",
+                 f"{VILLAGE}\nArrived 2\n  Name: Udu\n  Head: 11\n  Body: 11\n  How: Converted from the Heathens\n\n")
+        self.log("Deaths/Virtual Villagers 5 Deaths Log 2.txt",
+                 f"{VILLAGE}\nDisappeared 2\n  Name: Udu\n  Head: 11\n  Body: 11\n"
+                 "  What happened: Left the tribe: became a Heathen\n\n")
+        return at, bytes(data)
+
+    def test_one_still_orange_or_red_in_the_save_behaves_as_blue_after(self):
+        at, save = self.still_coloured()
+        work = hm.survey(self.folder, 1)
+        self.assertEqual([(f.name, f.mask, f.kind_byte) for f in work.restore],
+                         [("Nobu", 4, 0), ("Tama", 3, 0), ("Poi", 2, 2), ("Udu", 3, 3)])
+        self.assertTrue(any(line.startswith("Poi (head 7, body 7): Orange Mask (from the Former Heathens file); the "
+                                            "save's orange Heathen behaviour cleared") for line in work.lines()))
+        result = hm.restore(self.folder, 1, processes=NoGame(), now=NOW)
+        self.assertEqual(len(result.copies), 2, "the masks file and the save, each copied first")
+        after = self.save.read_bytes()
+        changed = [i for i in range(len(save)) if save[i] != after[i]]
+        self.assertEqual(changed, [at[3] + hm.ORANGE, at[7] + hm.RED], "only the two kind bytes")
+        self.assertEqual([self.nibble(i) for i in (3, 7)], [2, 3], "drawn in their own colour")
+        text = sorted(self.folder.rglob("Virtual Villagers 5 Repairs Log *.txt"))[0].read_bytes().decode("latin-1")
+        self.assertIn("Udu (head 11, body 11): Red Mask (from the logs (joined the tribe and went back) and the mask "
+                      "they wear); the save's red Heathen behaviour cleared", text)
+        self.assertIn("Virtual Villagers - New Believers1.ldw -- copy kept:", text)
+
+    def test_a_heathen_the_game_made_keeps_its_colour(self):
+        """Poi carries the orange byte and nothing shows she was ever a believer: never touched."""
+        save = self.save.read_bytes()
+        work = hm.survey(self.folder, 1)
+        self.assertNotIn("Poi", [f.name for f in work.restore + work.listed])
+        hm.restore(self.folder, 1, processes=NoGame(), now=NOW)
+        self.assertEqual(self.save.read_bytes(), save)
+
+    def test_a_failed_save_write_puts_every_file_back(self):
+        _at, save = self.still_coloured()
+        masks = self.masks.read_bytes()
+        real = ln._write
+
+        def failing(path, data):
+            if path.suffix == ".ldw":
+                raise OSError("disk full")
+            real(path, data)
+        with mock.patch.object(ln, "_write", side_effect=failing):
+            with self.assertRaises(hm.HeathenMasksError) as raised:
+                hm.restore(self.folder, 1, processes=NoGame(), now=NOW)
+        self.assertIn("every file was put back", str(raised.exception))
+        self.assertEqual((self.save.read_bytes(), self.masks.read_bytes()), (save, masks))
+
     def test_no_masks_file_writes_nothing(self):
         self.masks.unlink()
         work = hm.survey(self.folder, 1)

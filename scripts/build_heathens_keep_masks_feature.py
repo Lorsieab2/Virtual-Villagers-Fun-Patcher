@@ -149,6 +149,14 @@ def row(dll_sha: str) -> dict:
             "vv_former_drawn_kind, from the companion's VvfpHeathensKeepMasksLook): VVFP Cause of Death.dll, VVFP "
             "Parentage Export.dll, VVFP Population Export.dll and VVFP Island Events.dll read it. The Heathen "
             "Doctor (cured) and the Heathen Mommy (her puzzle) can join and go back too: the same, their own mask.",
+            "The Story / Cheat Upgrades' Custom Island Event \"Becomes a Heathen\" and \"Becomes a believer\" call the "
+            "faction setter 0x466880 themselves when their SetFaith did not convert (the Faith already past 0): VVFP "
+            "Story Upgrades.dll first calls this companion's VvfpHeathensKeepMasksFaction (story_graph.inc "
+            "cg_keep_masks_faction), which does what the splices do at the game's own calls.",
+            "Repair Saves & Logs > Restore Heathen Masks... (src/vv5_heathen_masks_restore.py) gives villagers who "
+            "went back before this their own mask in the Village Masks file, and clears an orange or red kind byte "
+            "an older build left in the save (backed up first, the save written last), only for villagers the "
+            "Former Heathens file or the logs prove were believers.",
         ],
         "explicit_non_changes": [
             "No executable byte is patched: the companion splices the ten sites at run time, only after verifying "

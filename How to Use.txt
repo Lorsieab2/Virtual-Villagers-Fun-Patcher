@@ -1447,7 +1447,9 @@ just below it, so one preaching brings them straight back. With this patch
 they become an ordinary blue-mask Heathen (never orange, red or a special
 Heathen) with a random Faith from -38 to -67, drawn the way the game draws
 its own new village's blue Heathens, so you win them back by preaching like
-any other Heathen. This covers the Faith drift with or without Faith Loss is
+any other Heathen. With Heathens Keep Their Masks When Converted, one who was
+a Heathen before wears the mask they wore then (still treated as an ordinary
+blue-mask Heathen). This covers the Faith drift with or without Faith Loss is
 Doubled/Gains Halved; island events (The Spa, The Cracked Mask) keep their
 own -10. Needs no other patch.
 

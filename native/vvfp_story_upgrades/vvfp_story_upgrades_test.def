@@ -173,6 +173,7 @@ EXPORTS
     VvfpStoryProbeProceduralFile=_VvfpStoryProbeProceduralFile@8
     VvfpStoryProbePartnerCarries=_VvfpStoryProbePartnerCarries@4
     VvfpStoryProbeProceduralHarmful=_VvfpStoryProbeProceduralHarmful@4
+    VvfpStoryProbeFaithEffect=_VvfpStoryProbeFaithEffect@12
     VvfpStoryProbeProceduralCompose=_VvfpStoryProbeProceduralCompose@24
     VvfpStoryProbeCollectionTick=_VvfpStoryProbeCollectionTick@4
     VvfpStoryProbeCollectionState=_VvfpStoryProbeCollectionState@4

@@ -1944,6 +1944,23 @@ static int cg_heathen(int game, const unsigned char *r) {
     return game == 5 && r[0x1CEC] != 0;
 }
 
+/* "Heathens Keep Their Masks When Converted" (New Believers; the owner, 2026-11-22: a villager who goes back to
+   the Heathens gets back the mask they wore as a Heathen and behaves as an ordinary blue Heathen; a Heathen who
+   joins keeps theirs).  The game's own conversions are spliced by "VVFP Heathens Keep Masks.dll"; the faction
+   setter 0x466880 that "Becomes a Heathen" / "Becomes a believer" call here directly -- when their SetFaith did
+   not convert, the Faith already past 0 -- is not, so the companion is told first (VvfpHeathensKeepMasksFaction).
+   Not loaded (the row is off): nothing, as before. */
+typedef int (__stdcall *cg_keep_masks_fn)(void *record, int faction);
+
+static void cg_keep_masks_faction(unsigned char *record, int faction) {
+    HMODULE keep = GetModuleHandleA("VVFP Heathens Keep Masks.dll");
+    cg_keep_masks_fn told = keep != NULL ? (cg_keep_masks_fn)GetProcAddress(keep, "VvfpHeathensKeepMasksFaction")
+                                         : NULL;
+    if (told != NULL) {
+        (void)told(record, faction);
+    }
+}
+
 /* The special villagers a role leaves out unless it allows them (the shipped Aspiring Adventurer's). */
 /* No Safeguards for Island Events (and Additional Events too), island_events_any_time in the installed patches'
    list (the owner, 2026-11-15, "for masochists"): no villager is protected from a new event -- nursing parents, the
@@ -7026,9 +7043,11 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                 TC1(0x468020u, record, amount);
             } else if (e[0] == CGE_JOIN) {
                 TC2(0x467F90u, record, 20, 1);
+                cg_keep_masks_faction(record, 0);
                 TC1(0x466880u, record, 0);
             } else {
                 TC2(0x467F90u, record, -10, 1);
+                cg_keep_masks_faction(record, 1);
                 TC1(0x466880u, record, 1);
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -10954,5 +10973,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSession(const void *file
     test_graph_structures = -1;
     test_graph_unicode = -1;
     test_graph_nurse = -1;
+}
+#endif
+
+#ifdef VVFP_TEST
+/* Test probe: one New Believers Faith effect (38 faith, 39 join, 40 apostasy; mount its stated amount) made on
+   the villager in ecord as an event's effect makes it (cg_effect_on).  Returns how many changes were refused. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeFaithEffect(unsigned char *record, int code, int amount) {
+    unsigned char e[32];
+    ce_result r;
+    memset(e, 0, sizeof e);
+    memset(&r, 0, sizeof r);
+    e[0] = (unsigned char)code;
+    memcpy(e + 4, &amount, 4);
+    cg_effect_on(ce_adapter_for(5), 5, e, 0, 0, &r, -1, record, 0, "");
+    return r.refused;
 }
 #endif
