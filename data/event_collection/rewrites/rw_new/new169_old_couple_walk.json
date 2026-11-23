@@ -167,7 +167,7 @@
    "src": "L8200"
   },
   "c1o2": {
-   "text": "(friend) admits (subject.he/she) would rather walk a shorter way now. (subject) grumbles, a little, but accepts it. They start turning back at a nearer rock, and immediately begin arguing about whether THAT is the new halfway rock. Nobody is surprised.",
+   "text": "(friend) admits (friend.he/she) would rather walk a shorter way now. (subject) grumbles, a little, but accepts it. They start turning back at a nearer rock, and immediately begin arguing about whether THAT is the new halfway rock. Nobody is surprised.",
    "src": "L8202"
   },
   "c1": {
@@ -207,7 +207,7 @@
    "src": "L8205"
   },
   "c3o1": {
-   "text": "(grandchild) listens to them both very seriously, and does not tell them what to do. Instead, (subject.he/she) asks to come with them on the walk the next evening. And the next. The walk slows down even more, because (grandchild) stops to look at every crab. Nobody minds at all.",
+   "text": "(grandchild) listens to them both very seriously, and does not tell them what to do. Instead, (grandchild.he/she) asks to come with them on the walk the next evening. And the next. The walk slows down even more, because (grandchild) stops to look at every crab. Nobody minds at all.",
    "src": "L8214"
   },
   "c3o2": {

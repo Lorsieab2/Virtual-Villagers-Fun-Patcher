@@ -136,7 +136,7 @@
    "src": "L14150-14151"
   },
   "c1o1": {
-   "text": "The baby warms up and stops crying, and then won't let go of the head healer's finger. (healer) has delivered half the village's children and never had one of (subject.his/her) own. \"Well,\" (subject.he/she) says, looking down at the tiny hand. \"I suppose I'd better.\" The coconut cradle hangs over the healers' doorway after that.",
+   "text": "The baby warms up and stops crying, and then won't let go of the head healer's finger. (healer) has delivered half the village's children and never had one of (healer.his/her) own. \"Well,\" (healer.he/she) says, looking down at the tiny hand. \"I suppose I'd better.\" The coconut cradle hangs over the healers' doorway after that.",
    "src": "L14160",
    "effects": [
     {

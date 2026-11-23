@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(keeper), the village's spell-keeper, has been working on a new spell for a month. It is supposed to make a conch shell that answers back in the voice of whoever blows it. (subject.He/She) has finally finished, and is looking for someone to test it. (subject) happens to be walking past with an armful of yams.\n\"Blow it,\" (keeper) says, holding it out. \"Just once. Gently. Very gently. I mean it.\"\n(subject) puts down the yams. Should (subject.he/she) blow gently, as (keeper) says, or give it a proper blast, the way conches are meant to be blown?",
+   "text": "(keeper), the village's spell-keeper, has been working on a new spell for a month. It is supposed to make a conch shell that answers back in the voice of whoever blows it. (keeper.He/She) has finally finished, and is looking for someone to test it. (subject) happens to be walking past with an armful of yams.\n\"Blow it,\" (keeper) says, holding it out. \"Just once. Gently. Very gently. I mean it.\"\n(subject) puts down the yams. Should (subject.he/she) blow gently, as (keeper) says, or give it a proper blast, the way conches are meant to be blown?",
    "choices": [
     {
      "label": "Blow Gently",
@@ -176,11 +176,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The conch cracks right down the middle with a bang, and the roar stops dead. (keeper) gets up, dusts (subject.himself/herself) off, and looks sadly at the two halves. \"A month,\" (subject.he/she) says. \"A whole month.\" (subject) feels terrible about it and helps (keeper) look for a new shell every day for a week.",
+   "text": "The conch cracks right down the middle with a bang, and the roar stops dead. (keeper) gets up, dusts (keeper.himself/herself) off, and looks sadly at the two halves. \"A month,\" (keeper.he/she) says. \"A whole month.\" (subject) feels terrible about it and helps (keeper) look for a new shell every day for a week.",
    "src": "L12289"
   },
   "c2": {
-   "text": "(subject) fills (subject.his/her) lungs and blows as hard as (subject.he/she) can. The conch roars like a storm. (keeper) throws (subject.himself/herself) flat on the ground...",
+   "text": "(subject) fills (subject.his/her) lungs and blows as hard as (subject.he/she) can. The conch roars like a storm. (keeper) throws (keeper.himself/herself) flat on the ground...",
    "children": [
     {
      "next": "c2o1",

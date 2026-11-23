@@ -206,7 +206,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Halfway through the night, (friend) sits up, grabs (subject.his/her) mat, and walks out. \"I'm not risking it.\" A moment later (subject) follows, going the other way. Neither of them sleeps a wink, but both wake up in their own bodies, and the village lets the dream stay a dream.",
+   "text": "Halfway through the night, (friend) sits up, grabs (friend.his/her) mat, and walks out. \"I'm not risking it.\" A moment later (subject) follows, going the other way. Neither of them sleeps a wink, but both wake up in their own bodies, and the village lets the dream stay a dream.",
    "src": "L5171"
   },
   "c2": {
@@ -240,7 +240,7 @@
    "auto_text": true
   },
   "c3": {
-   "text": "(elder), who reads dreams for anyone who brings (subject.him/her) a fish, listens to both of them very gravely, chewing on the fish...",
+   "text": "(elder), who reads dreams for anyone who brings (elder.him/her) a fish, listens to both of them very gravely, chewing on the fish...",
    "children": [
     {
      "next": "c3o1",

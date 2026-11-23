@@ -133,7 +133,7 @@
    "src": "L10278-10280"
   },
   "c1o1": {
-   "text": "For once, the Teacher gives what was asked. (subject) wakes up knowing a dozen small tricks for (subject.his/her) own work that nobody in the village has thought of, and is better at it by the end of the day than (subject.he/she) has ever been. (researcher) is astonished. \"It never does that,\" (subject.he/she) says. \"It must like you.\"",
+   "text": "For once, the Teacher gives what was asked. (subject) wakes up knowing a dozen small tricks for (subject.his/her) own work that nobody in the village has thought of, and is better at it by the end of the day than (subject.he/she) has ever been. (researcher) is astonished. \"It never does that,\" (researcher.he/she) says. \"It must like you.\"",
    "effects": [
     {
      "do": "skill",
@@ -181,7 +181,7 @@
    "src": "L10286"
   },
   "c2o1": {
-   "text": "(subject) wakes up knowing exactly how many ripples a stone makes if it is thrown into the lagoon at noon on a still day. It is not useful. It is, however, correct, as (subject) proves to the whole village that afternoon. (researcher) writes it down anyway. \"Everything is worth knowing,\" (subject.he/she) says.",
+   "text": "(subject) wakes up knowing exactly how many ripples a stone makes if it is thrown into the lagoon at noon on a still day. It is not useful. It is, however, correct, as (subject) proves to the whole village that afternoon. (researcher) writes it down anyway. \"Everything is worth knowing,\" (researcher.he/she) says.",
    "src": "L10298"
   },
   "c2o2": {

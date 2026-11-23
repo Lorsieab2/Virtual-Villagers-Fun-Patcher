@@ -190,7 +190,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "On the fifth night, the fever climbs higher than (healer) has ever seen, and (subject) stops muttering. (healer) sits with (subject.him/her) until dawn, holding (subject.his/her) hand. The village buries (subject) the next day. (healer) does not speak for a week, and when (subject.he/she) does, it is to ask the elders to teach (subject.him/her) everything they know about the white fever.",
+   "text": "On the fifth night, the fever climbs higher than (healer) has ever seen, and (subject) stops muttering. (healer) sits with (subject.him/her) until dawn, holding (subject.his/her) hand. The village buries (subject) the next day. (healer) does not speak for a week, and when (healer.he/she) does, it is to ask the elders to teach (healer.him/her) everything they know about the white fever.",
    "effects": [
     {
      "do": "kill",

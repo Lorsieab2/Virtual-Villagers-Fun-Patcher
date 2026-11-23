@@ -211,7 +211,7 @@
    "src": "L4885"
   },
   "c2": {
-   "text": "(friend) volunteers. \"What's the worst that happens? I forget to do the dishes?\" (subject.He/She) ties the charm around (subject.his/her) wrist and goes to bed, while (subject.his/her) family watches (subject.him/her) a little too closely...",
+   "text": "(friend) volunteers. \"What's the worst that happens? I forget to do the dishes?\" (friend.He/She) ties the charm around (friend.his/her) wrist and goes to bed, while (friend.his/her) family watches (friend.him/her) a little too closely...",
    "children": [
     {
      "next": "c2o1",
@@ -241,7 +241,7 @@
    "auto_text": true
   },
   "c3": {
-   "text": "(elder) turns the charm over in (subject.his/her) knobbly fingers, frowning at the carved bead. \"Hmm. The old charm makers... they made things that sometimes got ideas.\"",
+   "text": "(elder) turns the charm over in (elder.his/her) knobbly fingers, frowning at the carved bead. \"Hmm. The old charm makers... they made things that sometimes got ideas.\"",
    "children": [
     {
      "next": "c3o1",

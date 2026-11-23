@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A little whirlwind has been wandering round the village all morning. It is no taller than a child, and it picks up leaves and dust and feathers and spins them round and round, and it seems to be looking at things. It went into the cooking hut and came out with a spoon. It has been round every hut, poking at the thatch.\n(elder) says it's a wind spirit, a young one, and that it's looking for a home. \"If we make it welcome, it will look after the roofs,\" (subject.he/she) says. \"If we make it cross, it will take them.\" (subject) is standing in its path, and it has stopped in front of (subject.him/her), spinning.\nShould (subject) welcome it, or chase it out of the village?",
+   "text": "A little whirlwind has been wandering round the village all morning. It is no taller than a child, and it picks up leaves and dust and feathers and spins them round and round, and it seems to be looking at things. It went into the cooking hut and came out with a spoon. It has been round every hut, poking at the thatch.\n(elder) says it's a wind spirit, a young one, and that it's looking for a home. \"If we make it welcome, it will look after the roofs,\" (elder.he/she) says. \"If we make it cross, it will take them.\" (subject) is standing in its path, and it has stopped in front of (subject.him/her), spinning.\nShould (subject) welcome it, or chase it out of the village?",
    "choices": [
     {
      "label": "Welcome It",

@@ -179,7 +179,7 @@
    "src": "L7203"
   },
   "c2o1": {
-   "text": "The ladder reaches. Just. (builder) climbs down, and comes back up with an armful of very indignant goat. (child) is so happy (subject.he/she) cries all over again. The village covers the well properly, with planks and stones, and has a little feast for the goat, who eats everyone's flowers.",
+   "text": "The ladder reaches. Just. (builder) climbs down, and comes back up with an armful of very indignant goat. (child) is so happy (child.he/she) cries all over again. The village covers the well properly, with planks and stones, and has a little feast for the goat, who eats everyone's flowers.",
    "effects": [
     {
      "do": "mood",

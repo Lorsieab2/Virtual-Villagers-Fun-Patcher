@@ -263,7 +263,7 @@
    "src": "L13730"
   },
   "c3o2": {
-   "text": "The figure turns around, blinks, and lets out a startled yelp. It is (neighbour), one of the neighbours, wrapped head to toe in a fishing net that (subject.he/she) seems to be wearing as a cloak, and very much asleep until a moment ago. \"Wh... where am I? Why am I wearing the net?\" The doors, it turns out, were (subject.his/her) doing; (subject.he/she) had been wandering from door to door, apparently looking for (subject.his/her) own. (neighbour) is mortified for weeks. Everyone else is delighted.",
+   "text": "The figure turns around, blinks, and lets out a startled yelp. It is (neighbour), one of the neighbours, wrapped head to toe in a fishing net that (neighbour.he/she) seems to be wearing as a cloak, and very much asleep until a moment ago. \"Wh... where am I? Why am I wearing the net?\" The doors, it turns out, were (neighbour.his/her) doing; (neighbour.he/she) had been wandering from door to door, apparently looking for (neighbour.his/her) own. (neighbour) is mortified for weeks. Everyone else is delighted.",
    "src": "L13732"
   },
   "c3": {

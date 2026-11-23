@@ -54,3 +54,4 @@ EXPORTS
     VvfpCauseDiedUnrecovered=_VvfpCauseDiedUnrecovered@12
     VvfpCauseBabyLost=_VvfpCauseBabyLost@12
     VvfpCauseDelivered=_VvfpCauseDelivered@8
+    VvfpCauseFormerKind=_VvfpCauseFormerKind@4

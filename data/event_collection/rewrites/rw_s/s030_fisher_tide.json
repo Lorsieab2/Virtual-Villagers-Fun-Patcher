@@ -151,8 +151,7 @@
     {
      "do": "kill",
      "cause": "unknown",
-     "role": "subject",
-     "line": "injuries"
+     "role": "subject"
     }
    ],
    "src": "L1415",

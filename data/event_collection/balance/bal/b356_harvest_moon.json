@@ -169,7 +169,7 @@
    "src": "L16431"
   },
   "c2o1": {
-   "text": "They won, after all. Before the next harvest, (subject) is pregnant. \"It's the winning, not the dawn,\" the eldest says, which is not what (subject.he/she) said last year. (friend) is so happy that (subject.he/she) dances alone around the fire the night the baby is born, until (subject.his/her) feet give out again.",
+   "text": "They won, after all. Before the next harvest, (subject) is pregnant. \"It's the winning, not the dawn,\" the eldest says, which is not what (subject.he/she) said last year. (friend) is so happy that (friend.he/she) dances alone around the fire the night the baby is born, until (friend.his/her) feet give out again.",
    "effects": [
     {
      "do": "pregnant",

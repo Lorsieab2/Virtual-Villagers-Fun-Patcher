@@ -143,7 +143,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "Later in the season, (subject) is pregnant, and the healers, listening carefully, announce {#babies:a single strong heartbeat|twins|triplets}. (friend) goes pale, then very pleased, then pale again. \"I'll need more fibre,\" (subject.he/she) says, and goes off to weave {#babies:a tiny hammock|two tiny hammocks|three tiny hammocks} for underneath the big one.",
+   "text": "Later in the season, (subject) is pregnant, and the healers, listening carefully, announce {#babies:a single strong heartbeat|twins|triplets}. (friend) goes pale, then very pleased, then pale again. \"I'll need more fibre,\" (friend.he/she) says, and goes off to weave {#babies:a tiny hammock|two tiny hammocks|three tiny hammocks} for underneath the big one.",
    "effects": [
     {
      "do": "pregnant",
@@ -171,7 +171,7 @@
    "src": "L12771"
   },
   "c2o1": {
-   "text": "(subject) sits down beside (subject.him/her) and they retie it together, properly this time, with the knot (subject)'s mother taught her. It takes all afternoon, and it's the best afternoon they've spent together in months. (friend) has always hated the fiddly side of building, the knots and the lashings that never sit right. With (subject) beside (subject.him/her), they stop being fiddly and start being satisfying.",
+   "text": "(subject) sits down beside (friend.him/her) and they retie it together, properly this time, with the knot (subject)'s mother taught her. It takes all afternoon, and it's the best afternoon they've spent together in months. (friend) has always hated the fiddly side of building, the knots and the lashings that never sit right. With (subject) beside (friend.him/her), they stop being fiddly and start being satisfying.",
    "effects": [
     {
      "do": "skill",

@@ -190,11 +190,11 @@
     {
      "do": "preference",
      "dislike": "swimming",
-     "role": "subject"
+     "role": "friend"
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "friend"
     }
    ],
    "src": "L9216",

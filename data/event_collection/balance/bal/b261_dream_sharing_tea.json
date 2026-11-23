@@ -118,7 +118,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(healer) has been experimenting with a tea made from the purple flowers that grow on the cliffs. The old healers used it, (subject.he/she) says, so that two people could share a dream and talk things over while they slept. (subject.He/She) needs two volunteers to try it.\n(subject) and (friend) have just had a falling-out about a broken fishing spear, and (healer) thinks they would make perfect volunteers. \"It'll help,\" (subject.he/she) says. \"Probably.\"\nThey both look at the steaming cups. Should they drink it together, or hand it back?",
+   "text": "(healer) has been experimenting with a tea made from the purple flowers that grow on the cliffs. The old healers used it, (healer.he/she) says, so that two people could share a dream and talk things over while they slept. (healer.He/She) needs two volunteers to try it.\n(subject) and (friend) have just had a falling-out about a broken fishing spear, and (healer) thinks they would make perfect volunteers. \"It'll help,\" (subject.he/she) says. \"Probably.\"\nThey both look at the steaming cups. Should they drink it together, or hand it back?",
    "choices": [
     {
      "label": "Drink It Together",
@@ -195,7 +195,7 @@
    "src": "L12197"
   },
   "c2": {
-   "text": "\"I'm not drinking anything purple,\" says (subject). (friend) agrees for once. (healer) sighs, looks at the cups, and before anyone can stop (subject.him/her), drinks one (subject.himself/herself), and hands the other to (subject.his/her) assistant, (assistant)...",
+   "text": "\"I'm not drinking anything purple,\" says (subject). (friend) agrees for once. (healer) sighs, looks at the cups, and before anyone can stop (healer.him/her), drinks one (healer.himself/herself), and hands the other to (healer.his/her) assistant, (assistant)...",
    "children": [
     {
      "next": "c2o1",

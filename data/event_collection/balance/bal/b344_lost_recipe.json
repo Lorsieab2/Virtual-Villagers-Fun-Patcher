@@ -136,7 +136,7 @@
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "skill",
@@ -154,7 +154,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "The paste smells wonderful and does nothing at all. By the time (subject) gives up on it, the sickness has gone too deep. It passes in the end, but it leaves (sick)'s hands with a tremor that never goes away, and (subject.his/her) patience with the healers is gone for good.",
+   "text": "The paste smells wonderful and does nothing at all. By the time (subject) gives up on it, the sickness has gone too deep. It passes in the end, but it leaves (sick)'s hands with a tremor that never goes away, and (sick.his/her) patience with the healers is gone for good.",
    "effects": [
     {
      "do": "health_change",
@@ -165,11 +165,11 @@
     {
      "do": "preference",
      "dislike": "medicine",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "sick"
     }
    ],
    "src": "L15900",
@@ -190,11 +190,11 @@
    "src": "L15894"
   },
   "c2o1": {
-   "text": "It works. The trembling eases within a day and is gone within three. The oldest healer is so pleased to have remembered that (subject.he/she) sets to work recalling every other lost recipe, and over the next season remembers eleven more. (subject) writes them all down.",
+   "text": "It works. The trembling eases within a day and is gone within three. The oldest healer is so pleased to have remembered that (oldest_healer.he/she) sets to work recalling every other lost recipe, and over the next season remembers eleven more. (subject) writes them all down.",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "skill",
@@ -208,11 +208,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The trumpet flower cures the shaking, but one petal was too many: (sick) sleeps for two days and wakes up weak and confused, and it takes a month to get (subject.his/her) strength back. The old healer is mortified. The recipe gets written down, with a note in large letters: ONE PETAL LESS.",
+   "text": "The trumpet flower cures the shaking, but one petal was too many: (sick) sleeps for two days and wakes up weak and confused, and it takes a month to get (sick.his/her) strength back. The old healer is mortified. The recipe gets written down, with a note in large letters: ONE PETAL LESS.",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "health_change",

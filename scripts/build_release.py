@@ -770,6 +770,10 @@ FILES = [
     # Copy Player Slot and its window; the GUI imports the window.
     "src/vv_copy_slot.py",
     "src/vv_copy_slot_window.py",
+    # Move Player Slot (the Copy Player Slot window's Move choice).
+    "src/vv_move_slot.py",
+    # Delete Player Slot (the Copy Player Slot window's Delete choice).
+    "src/vv_delete_slot.py",
     # Backups (Tools tab, Restore Saves' Details..., Repair Saves & Logs): each backup's vital statistics, read-only.
     "src/vv_backup_details.py",
     "src/vv_backup_details_window.py",
@@ -979,6 +983,8 @@ FILES = [
     "src/vv_history_revision.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
     "src/vv1_parents_restore.py",
+    # Repair Saves & Logs' Restore Heathen Masks (New Believers; the GUI imports it).
+    "src/vv5_heathen_masks_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
     # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
     "src/vv_save_layout.py",

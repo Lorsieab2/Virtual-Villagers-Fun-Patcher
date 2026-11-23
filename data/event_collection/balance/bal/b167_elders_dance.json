@@ -122,7 +122,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "There is an old dance that only the elders know, slow and stamping, with clapping in odd places. It is called the Turning-Back Dance, and the story is that when it is danced right, by someone young leading the old ones, it turns back the years a little, for one night. Nobody has danced it right in a lifetime. The last person who knew the steps properly was (subject)'s great-grandmother.\nTonight is the full moon festival, and the elders have asked (subject) to lead it. (subject.He/She) has spent all week learning the steps from (elder), who remembers most of them, and argues with (subject.himself/herself) about the rest.\nShould (subject) follow (elder)'s steps exactly, or dance it the way (subject.he/she) feels it?",
+   "text": "There is an old dance that only the elders know, slow and stamping, with clapping in odd places. It is called the Turning-Back Dance, and the story is that when it is danced right, by someone young leading the old ones, it turns back the years a little, for one night. Nobody has danced it right in a lifetime. The last person who knew the steps properly was (subject)'s great-grandmother.\nTonight is the full moon festival, and the elders have asked (subject) to lead it. (subject.He/She) has spent all week learning the steps from (elder), who remembers most of them, and argues with (elder.himself/herself) about the rest.\nShould (subject) follow (elder)'s steps exactly, or dance it the way (subject.he/she) feels it?",
    "choices": [
     {
      "label": "Follow the Steps Exactly",
@@ -186,7 +186,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Nothing turns back. But the elders dance until midnight, and the children join in, and then everyone does, round and round the fire. In the morning a lot of people can't walk properly, and nobody minds. (elder) says the old steps were better. Then (subject.he/she) asks (subject) to show (subject.him/her) the new ones again, slowly.",
+   "text": "Nothing turns back. But the elders dance until midnight, and the children join in, and then everyone does, round and round the fire. In the morning a lot of people can't walk properly, and nobody minds. (elder) says the old steps were better. Then (elder.he/she) asks (subject) to show (elder.him/her) the new ones again, slowly.",
    "src": "L7744"
   },
   "c2": {

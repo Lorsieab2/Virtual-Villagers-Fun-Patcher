@@ -149,7 +149,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Should the village build a new fishing canoe, or a second cooking hut?\nThe argument has gone on all evening. The fishers have made speeches. The cooks have made speeches. One fisher made a speech so long that a cook fell asleep in the middle of it and had to be poked.\nFinally, the hands go up. (leader) counts. Then counts again.\nExactly half and half.\nThe only villager who has not voted is (elder), who slept peacefully through the entire evening and is still snoring gently by the fire, with a small lizard sitting on (subject.his/her) knee. How should (leader) break the tie?",
+   "text": "Should the village build a new fishing canoe, or a second cooking hut?\nThe argument has gone on all evening. The fishers have made speeches. The cooks have made speeches. One fisher made a speech so long that a cook fell asleep in the middle of it and had to be poked.\nFinally, the hands go up. (leader) counts. Then counts again.\nExactly half and half.\nThe only villager who has not voted is (elder), who slept peacefully through the entire evening and is still snoring gently by the fire, with a small lizard sitting on (elder.his/her) knee. How should (leader) break the tie?",
    "choices": [
     {
      "label": "Ask Who Each Choice Helps",
@@ -222,7 +222,7 @@
    "src": "L5641"
   },
   "c3o1": {
-   "text": "They explain everything, which takes a while because (elder) keeps asking questions about the fisher's very long speech. Finally (subject.he/she) votes, for the canoe, \"because I like fish more than I like waiting for fish.\" The losing side grumbles, but they understand why. The cooks are promised the next big project.",
+   "text": "They explain everything, which takes a while because (elder) keeps asking questions about the fisher's very long speech. Finally (elder.he/she) votes, for the canoe, \"because I like fish more than I like waiting for fish.\" The losing side grumbles, but they understand why. The cooks are promised the next big project.",
    "src": "L5650"
   },
   "c3o2": {
@@ -230,7 +230,7 @@
    "src": "L5652"
   },
   "c3": {
-   "text": "(leader) gently shakes (elder) awake. The lizard leaves in a huff. (elder) blinks around at the whole silent village staring at (subject.him/her). \"What? What did I miss?\"...",
+   "text": "(leader) gently shakes (elder) awake. The lizard leaves in a huff. (elder) blinks around at the whole silent village staring at (elder.him/her). \"What? What did I miss?\"...",
    "children": [
     {
      "next": "c3o1",

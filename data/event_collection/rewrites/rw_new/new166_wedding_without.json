@@ -168,7 +168,7 @@
    "src": "L8056"
   },
   "c1o2": {
-   "text": "Halfway through, (friend) stops, and confesses that, actually, secretly, (subject.he/she) wants the feast after all. The drums. The dancers. Maybe even the fish. (subject) stares at (subject.him/her), then accepts it with a laugh. \"Fine. But I'm not wearing forty garlands.\"",
+   "text": "Halfway through, (friend) stops, and confesses that, actually, secretly, (friend.he/she) wants the feast after all. The drums. The dancers. Maybe even the fish. (subject) stares at (friend.him/her), then accepts it with a laugh. \"Fine. But I'm not wearing forty garlands.\"",
    "src": "L8058"
   },
   "c1": {
@@ -208,7 +208,7 @@
    "src": "L8061"
   },
   "c3o1": {
-   "text": "(Name3) listens to them both, and leaves the choice to them. \"The wedding is one day,\" (subject.he/she) says. \"The marriage is the rest. Choose the day that starts it right for you.\" The couple decide, that evening, on a sunrise wedding. And then a feast. A small one.",
+   "text": "(Name3) listens to them both, and leaves the choice to them. \"The wedding is one day,\" (name3.he/she) says. \"The marriage is the rest. Choose the day that starts it right for you.\" The couple decide, that evening, on a sunrise wedding. And then a feast. A small one.",
    "src": "L8070"
   },
   "c3o2": {
