@@ -105,6 +105,8 @@ THE JSON FORMAT  ("format": "vvfp-cie-graph", "version": 2; version 1 is still r
     (name1) (Name1) / (name2) (Name2)      the subject / the role "friend"
     (he/she) (He/She) (his/her) (His/Her) (him/her) (Him/Her) (man/woman) (Man/Woman)   by that role's sex
     (award) (award_unit)                   the award's amount actually given, and "food" / "tech points"
+    (award2)                               version 6: the amount of the node's own food / tech change -- its
+                                           first food or tech effect that is not the award (award2_effect)
   Text is the Custom Island Event's character set: letters, digits, space and . , ! ? : - ' -- and, in version 2, the
   double quote " (every game's font draws it: src/vv_font_glyphs.py) -- so a parenthesis is only ever a placeholder.
 
@@ -592,7 +594,7 @@ MAX_PICKS = 256               # pool instances a run holds (CG_MAX_PICKS)
 DAMAGE_ANY = "any"
 POOL_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_]{0,31}$")    # an author's pool name ("_" and "@" are the compiler's)
 COLLECTION_ID_RE = re.compile(r"^[a-z0-9_]{1,64}$")
-KEYWORDS = ("name", "name1", "name2", "award", "award_unit")
+KEYWORDS = ("name", "name1", "name2", "award", "award_unit", "award2")
 # Engine 5ee2b3dc0: (made1) / (made2), the newest / the one before of the villagers the event made (new_villager,
 # clone), body text only (never a label or a title); measured as a full name.
 MADE_PLACEHOLDERS = {"made1": "$newest", "made2": "$previous",
@@ -2476,7 +2478,7 @@ def parse_placeholder_v6(token: str, roles: dict) -> Placeholder | None:
     upper = sum(c.isalpha() for c in token) >= 2 and not any(c.islower() for c in token)
     if upper and role and role not in roles:
         role = next((r for r in roles if r.lower() == role.lower()), role)
-    if low in ("award", "award_unit"):
+    if low in ("award", "award_unit", "award2"):
         return None if role else Placeholder(None, low, False, upper)
     if low in MADE_PLACEHOLDERS:
         return None if role else Placeholder(None, low, word[0].isupper(), upper)
@@ -2508,10 +2510,15 @@ ITEM_END_MARKS = ("!", "?")
 def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tuple[str, int], int] | None = None,
               award: tuple[str, int] | None = None, game: int | None = None, unicode: bool = False,
               aliases: dict[str, str] | None = None, _depth: int = 0, tribe: str | None = None,
-              pronoun_names: bool = False, label: bool = False, counts: dict[str, int] | None = None) -> str:
+              pronoun_names: bool = False, label: bool = False, counts: dict[str, int] | None = None,
+              award2: int | None = None, occurrences: list | None = None, _ctx: tuple | None = None) -> str:
     """Version 6 text as the player reads it.  `g` is a lowered graph (lower()); `picks` maps (pool, instance) to
     the item drawn; `aliases` maps an alias (or other) role to the member drawn; `tribe` is the save's tribe name
-    ({@tribe}; None: "the village").  The glyph fallback is applied last."""
+    ({@tribe}; None: "the village"); `award2` the (award2) amount (None: nothing -- simulate fills each node's
+    own before its text joins a popup, fill_award2); `occurrences` (consumed in order) holds, for each pool / game
+    word token of the text, the (award, award2 amount) of the node that shows it, filled into a copy of its drawn
+    item (story_graph.inc inlines each node's items in its award pass, so one item shown by two nodes takes each
+    node's own amounts; `_ctx` is the token's, for the item's own tokens).  The glyph fallback is applied last."""
     picks = picks or {}
     aliases = aliases or {}
     out = []
@@ -2531,6 +2538,9 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
                 raise KeyError(f"not a placeholder: {raw}")
             if p.what == "award":
                 out.append(str(award[1]) if award else "")
+                continue
+            if p.what == "award2":
+                out.append(str(award2) if award2 is not None else "")
                 continue
             if p.what == "award_unit":
                 unit = UNITS[award[0]] if award else ""
@@ -2553,8 +2563,11 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             tok = parse_brace(raw[1:-1])
             if tok[0] == "count":
                 out.append(expand_v6(count_option(tok[2], (counts or {}).get(tok[1], 1)), g, bindings, picks, award,
-                                     game, True, aliases, _depth + 1, tribe, label=label, counts=counts))
+                                     game, True, aliases, _depth + 1, tribe, label=label, counts=counts,
+                                     award2=award2, _ctx=_ctx))
                 continue
+            # this token's node amounts (pool_refs counts exactly these tokens: game words and pools)
+            ctx = (occurrences.pop(0) if occurrences else None) if _depth == 0 else _ctx
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 # G5: the save's tribe name, filled at run time.
                 name = tribe if tribe else NO_TRIBE[tok[1]]
@@ -2564,8 +2577,13 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
             idx = picks.get((name, k))
             if idx is None or _depth >= MAX_POOL_DEPTH:
                 continue
-            item = expand_v6(g["pools"][name]["items"][idx]["text"], g, bindings, picks, award, game, True,
-                             aliases, _depth + 1, tribe, label=label, counts=counts)
+            raw_item = g["pools"][name]["items"][idx]["text"]
+            if ctx is not None:
+                raw_item = fill_award(raw_item, ctx[0])          # a copy: the node's own amounts
+                if ctx[1] is not None:
+                    raw_item = fill_award2(raw_item, ctx[1])
+            item = expand_v6(raw_item, g, bindings, picks, award, game, True,
+                             aliases, _depth + 1, tribe, label=label, counts=counts, award2=award2, _ctx=ctx)
             out.append(item)
             drop_dot = item.endswith(ITEM_END_MARKS)
     text = "".join(out)
@@ -2573,10 +2591,11 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
 
 
 def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _depth: int = 0,
-             pronoun_names: bool = False, label: bool = False) -> str:
+             pronoun_names: bool = False, label: bool = False, award2: int = 0) -> str:
     """Version 6 text at its widest in `game` (`g` lowered): the longest names, the longer pronouns, the widest
-    award, each pool instance as its longest eligible item (after its own worst case; the first on a tie), then
-    the glyph fallback (VV1/VV2).  `holds(cond)` says whether an item's condition can hold (default: always)."""
+    award (and `award2` digits for (award2): award2_width), each pool instance as its longest eligible item (after
+    its own worst case; the first on a tie), then the glyph fallback (VV1/VV2).  `holds(cond)` says whether an
+    item's condition can hold (default: always)."""
     out = []
     text = sentence_case(text, item=_depth > 0, label=label)   # section 20
     tokens = list(text_tokens(text))
@@ -2597,6 +2616,8 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
                 if award is not None:
                     widest = max(abs(x) for x in award[1]) if isinstance(award[1], tuple) else abs(award[1])
                     out.append("9" * (AWARD_WIDEST if award[2] else len(str(widest))))
+            elif p.what == "award2":
+                out.append("9" * award2)
             elif p.what == "award_unit":
                 unit = UNITS[award[0]] if award else UNITS["tech"]
                 out.append(unit.upper() if p.upper else unit)
@@ -2617,8 +2638,8 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             tok = parse_brace(raw[1:-1])
             if tok[0] == "count":
                 # 33: measured by its widest option, placeholders at their widest (5ee2b3dc0)
-                out.append(max((worst_v6(o, g, game, award, holds, _depth + 1, label=label) for o in tok[2]),
-                               key=len))
+                out.append(max((worst_v6(o, g, game, award, holds, _depth + 1, label=label, award2=award2)
+                                for o in tok[2]), key=len))
                 continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
@@ -2634,7 +2655,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             for it in pool["items"]:
                 if holds is not None and not holds(it["if"]):
                     continue
-                w = worst_v6(it["text"], g, game, award, holds, _depth + 1, label=label)
+                w = worst_v6(it["text"], g, game, award, holds, _depth + 1, label=label, award2=award2)
                 size = len(w) + (1 if dot and not w.endswith(ITEM_END_MARKS) else 0)
                 if size > best_len:
                     best, best_len = w, size
@@ -3650,6 +3671,45 @@ def says_award(text: str | None) -> bool:
     return "(award)" in (text or "").lower()
 
 
+def says_award2(text: str | None) -> bool:
+    """Whether a node's own words say "(award2)" (any case): the amount of its own food / tech change (award2_effect),
+    which then has no automatic line -- the text states it (the owner, 2026-11-22: a node that tells two kinds, "Your
+    village loses (award2) food. Your villagers gain (award) tech points.").  The engine's: cg_says_word."""
+    return "(award2)" in (text or "").lower()
+
+
+def award2_effect(effects: list[dict]) -> int | None:
+    """The index in a node's effects of the change its (award2) states: its first food or tech effect that is not
+    the award (no "defer"); None when it has none.  story_graph.inc cg_award2_effect."""
+    return next((k for k, e in enumerate(effects) if e["do"] in ("food", "tech") and not e.get("defer")), None)
+
+
+def award2_width(e: dict, game: "Game") -> int:
+    """(award2)'s widest amount in digits for effect `e` (never signed: the author's verb says which way), as
+    (award)'s: AWARD_WIDEST for a scaled amount."""
+    amount = effect_amount(e, game.number)
+    widest = max(abs(x) for x in amount) if isinstance(amount, tuple) else abs(amount)
+    return AWARD_WIDEST if e.get("scaled") else len(str(widest))
+
+
+def fill_award(text: str, award: tuple[str, int] | None) -> str:
+    """`text` with each (award) and (award_unit) (any case) filled with `award` = (kind, amount), the award as it
+    stands at the node (None: none deferred yet -- both nothing) -- story_graph.inc cg_group's CG_EXPAND_AWARD pass
+    over each node's own words, before the text joins its popup.  (AWARD_UNIT) in capitals: the unit in capitals."""
+    def one(m: re.Match) -> str:
+        if m.group(1).lower() == "award":
+            return str(award[1]) if award else ""
+        unit = UNITS[award[0]] if award else ""
+        return unit.upper() if not any(c.islower() for c in m.group(1)) else unit
+    return re.sub(r"(?<!\\)\((award|award_unit)\)", one, text, flags=re.IGNORECASE)
+
+
+def fill_award2(text: str, amount: int) -> str:
+    """`text` with each (award2) (any case) filled with `amount`, never signed -- story_graph.inc cg_expand's
+    CG_PH_AWARD2 with the node's own change, before the text joins its popup."""
+    return re.sub(r"\(award2\)", str(abs(amount)), text, flags=re.IGNORECASE)
+
+
 def with_auto_lines(text: str, lines: Iterable[str]) -> str:
     """A node's text followed by its automatic lines, each after a line break (none: the text as it is)."""
     lines = [x for x in lines if x]
@@ -3754,11 +3814,14 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         asked, paged, changed = seg
         changed = changed or bool(node["effects"])
         text = node_text(node, ctx, path) if node["type"] != "branch" else ""
+        a2 = award2_effect(node["effects"])
         if v6 and node.get("auto_text"):
             # 25: each effect's line at its widest (the engine's lines are never longer).
-            # A pay_award whose amount the text says ("(award)") has none (says_award).
-            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for e in node["effects"]
-                                          if not (e["do"] == "pay_award" and says_award(text))])
+            # A pay_award whose amount the text says ("(award)") has none (says_award); nor has the change the
+            # text's (award2) states (says_award2).
+            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for k, e in enumerate(node["effects"])
+                                          if not (e["do"] == "pay_award" and says_award(text))
+                                          and not (k == a2 and says_award2(text))])
         if node["type"] == "question":
             if nid != g["start"] and not v2:
                 say(f"node {nid}: a question can only be the start node in a version 1 event (version 2 asks "
@@ -3833,8 +3896,11 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             popups[-1].effects = True
         if node["type"] != "branch" and popups:
             if v6:
+                # (award2): the widest of the popup's nodes' own changes (each node's text states its own)
+                wide2 = max([award2_width(nodes[x]["effects"][award2_effect(nodes[x]["effects"])], game)
+                             for x in popups[-1].nodes if award2_effect(nodes[x]["effects"]) is not None] or [0])
                 popups[-1].worst = worst_v6(popups[-1].text, lg, game, award,
-                                            lambda c, _p=path: cond_holds(c, ctx, _p))
+                                            lambda c, _p=path: cond_holds(c, ctx, _p), award2=wide2)
             else:
                 popups[-1].worst = worst_case(popups[-1].text, game, award)
 
@@ -3924,6 +3990,9 @@ def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, awar
                     say(f"node {nid}: {raw}: a stranger has no name")
                 elif p.role not in ctx.roles:
                     say(f"node {nid} ({where}): {raw} is shown while {p.role} may not be bound")
+            elif p.what == "award2":
+                if award2_effect(lg["nodes"][nid]["effects"]) is None:
+                    say(f"node {nid}: {raw} is shown, but the node has no food or tech change of its own")
             elif p.what not in MADE_PLACEHOLDERS and award is None:
                 say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
         for name, _inst in pool_refs(t):
@@ -4513,7 +4582,7 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
                 problems.append(f"node {nid}: a label is one line")
             phs = placeholders_v6(c["label"], g["roles"]) if v6 else placeholders(c["label"])
             for raw, p in phs:
-                if p is None or p.what in ("award", "award_unit") or p.what in MADE_PLACEHOLDERS or \
+                if p is None or p.what in ("award", "award_unit", "award2") or p.what in MADE_PLACEHOLDERS or \
                         (p.role and p.role not in g["roles"]):
                     problems.append(f"node {nid}: the label's {raw} is not a placeholder a label can show")
                 elif g["roles"][p.role].get("optional"):
@@ -5667,20 +5736,49 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 award = (e["do"], fx[k][0])
             k += 1
     # 25: each auto_text node's lines after its text, from the rolls (the award its pay_award pays as it stands).
+    # Each node's own (award) / (award_unit) is the award as it stands at that node (story_graph.inc cg_group fills
+    # each node's text with CG_EXPAND_AWARD as its effects leave the award): fill_award, before the texts join.
     k = 0
     paying = None
+    early = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
+    occurrences: list[tuple] = []      # each pool token of the joined texts, in order: its node's amounts
+
+    def note_pools(text: str, ctx: tuple) -> None:
+        # the node's drawn pool items take its award and own change (story_graph.inc inlines them per node)
+        occurrences.extend(ctx for _key in pool_refs(text))
+
+    def drawn_words(text: str, depth: int = 0) -> str:
+        # the node's words with its drawn pool items' (what the engine's award pass inlines): what says_award reads
+        out = [text]
+        for key in pool_refs(text):
+            idx = early.get(key)
+            if idx is not None and depth < MAX_POOL_DEPTH and key[0] in lg["pools"]:
+                out.append(drawn_words(lg["pools"][key[0]]["items"][idx]["text"], depth + 1))
+        return "\n".join(out)
+
     for at, nid in enumerate(path):
         n = lg["nodes"][nid]
         if n["type"] == "question":
+            note_pools(path_texts[at], (paying, None))
+            path_texts[at] = fill_award(path_texts[at], paying)
             continue
         lines = []
-        for e in n["effects"]:
+        said = drawn_words(path_texts[at])
+        a2, amount2 = award2_effect(n["effects"]), None
+        for i, e in enumerate(n["effects"]):
             if e["do"] in ("food", "tech") and e["defer"]:
                 paying = (e["do"], fx[k][0])
+            if i == a2:
+                amount2 = fx[k][0]
             who = bindings.get(aliases.get(e.get("role"), e.get("role"))) if e["do"] == "sex_change" else None
-            if not (e["do"] == "pay_award" and says_award(path_texts[at])):   # the text says it (says_award)
+            # the text says it: the award (says_award), or this node's own change (says_award2)
+            if not (e["do"] == "pay_award" and says_award(said)) and not (i == a2 and says_award2(said)):
                 lines += auto_line_options(e, game, paying, fx[k], who.sex if who is not None else None)
             k += 1
+        note_pools(path_texts[at], (paying, amount2))                  # its pool items: the same
+        path_texts[at] = fill_award(path_texts[at], paying)            # (award): the award as it stands here
+        if amount2 is not None:
+            path_texts[at] = fill_award2(path_texts[at], amount2)      # (award2): this node's own change
         if n.get("auto_text"):
             path_texts[at] = with_auto_lines(path_texts[at], lines)
     texts: list[str] = []
@@ -5728,7 +5826,8 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
     # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
     counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
               if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}
-    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts)
+    popups = [expand_v6(t, lg, bindings, pick_map, award, game, unicode, aliases, tribe=tribe, counts=counts,
+                        occurrences=occurrences)
               for t in texts]
 
     def choice_shown(label: str) -> str:

@@ -626,7 +626,7 @@ def title_case_graph_label(label: str, graph: dict) -> str:
             new = None
             if p is not None and p.what == "name" and p.upper:
                 new = "(" + word.lower().capitalize() + ")"                       # (NAME1) -> (Name1)
-            elif p is not None and p.what not in ("name", "award", "award_unit") and (p.upper or not p.capital):
+            elif p is not None and p.what not in ("name", "award", "award_unit", "award2") and (p.upper or not p.capital):
                 new = "(" + (p.role + dot if dot else "") + "/".join(a[:1].upper() + a[1:].lower()
                                                                     for a in word.split("/")) + ")"
             if new is not None:

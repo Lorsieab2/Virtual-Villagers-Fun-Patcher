@@ -76,18 +76,34 @@ def rand_calls(code: bytes, va: int) -> list[int]:
 
 
 def decide_rand() -> int:
+    """The one rand(100) of the memorial-and-chance check (both actions roll there)."""
     code_a, _, at = gen.caves()
     calls = rand_calls(code_a, gen.CAVE_A[0])
-    mine = [c for c in calls if at["decide"] < c < at["reflect"]]
+    ends = [a for a in at.values() if a > at["decide"]]
+    mine = [c for c in calls if at["decide"] < c < min(ends)]
     assert len(mine) == 1
     return mine[0]
 
 
-def village(fe, *, memorial: bool, patched: bool, hovel: bool | None = None, seed: int = 5):
+def shrine_patches() -> list[dict]:
+    """The memorial graphics patch, "Shrine to the Ancestors" (vv5_respectful_hovel_cover), as data/builds.json has it."""
+    builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+    row = next(p for p in builds["fun_patches"] if p["id"] == gen.SHRINE_ID)
+    return row["patches"]
+
+
+def village(fe, *, memorial: bool, patched: bool, hovel: bool | None = None, seed: int = 5, shrine: bool = False,
+            roll: int | None = None):
     """A village (The Last Heathen solved or not), the manifest poked in and the behaviour table registered again
-    from the patched bytes, as the game does at start-up; `hovel` forces the wrapper's rand(100) (True: < 25)."""
+    from the patched bytes, as the game does at start-up; `hovel` forces the wrapper's rand(100) (True: < 25);
+    `shrine` pokes in the memorial graphics patch too."""
     projects = (fe.GRANARY, fe.HUNGRY_TOTEM, fe.HYDRO_FARM, fe.LAKE) + ((gen.LAST_HEATHEN,) if memorial else ())
     v = fe.Village(seed=seed, projects=projects)
+    if shrine:
+        for p in shrine_patches():
+            at, data = int(p["offset"], 16) + 0x400000, bytes.fromhex(p["after"])
+            v.uc.mem_write(at, data)
+            v.uc.ctl_remove_cache(at, at + len(data))
     if patched:
         for p in manifest()["patches"]:
             at, data = int(p["offset"], 16) + 0x400000, bytes.fromhex(p["after"])
@@ -96,6 +112,8 @@ def village(fe, *, memorial: bool, patched: bool, hovel: bool | None = None, see
         v.call(REGISTER, DISPATCHER)
     if hovel is not None:
         v.by_caller[decide_rand()] = 10 if hovel else 90
+    if roll is not None:
+        v.by_caller[decide_rand()] = roll
     v.villager(age=400, health=90)
     return v
 
@@ -209,6 +227,40 @@ class Emulated(unittest.TestCase):
                 rec.close()
                 self.assertTrue(in_box(rec.targets, HOVEL_BOX if at_hovel else REFLECT_BOX), (roll, rec.targets))
 
+    def test_honoring_goes_to_the_shrine_half_the_time(self):
+        """The owner (2026-11-22): the everyday "Honoring the dead" goes to the encampment 50% of the time when the
+        memorial graphics patch (Shrine to the Ancestors) is installed and the encampment is fully renovated (the
+        mud hut fixed: The Last Heathen, project 25, done); otherwise the 25% stays."""
+        fe = emulation()
+        self.assertEqual((gen.CHANCE, gen.SHRINE_CHANCE), (25, 50))
+        for shrine, memorial, roll, at_hovel in (
+                (False, True, 0, True), (False, True, 24, True), (False, True, 25, False), (False, True, 49, False),
+                (True, True, 0, True), (True, True, 24, True), (True, True, 25, True), (True, True, 49, True),
+                (True, True, 50, False), (True, True, 99, False),
+                (True, False, 0, False), (True, False, 49, False)):
+            with self.subTest(shrine=shrine, memorial=memorial, roll=roll):
+                v, rec = self.honor_from_chooser(fe, memorial=memorial, patched=True, shrine=shrine, roll=roll)
+                if at_hovel:
+                    self.assertEqual(rec.areas, [0x7A], "the flowers first, as stock")
+                    self.assertEqual(len(rec.targets), 3)
+                    self.assertTrue(in_box(rec.targets, HOVEL_BOX), rec.targets)
+                else:
+                    self.assertEqual((rec.areas, rec.targets), ([0x7A, 0x7B, 0x7B, 0x7B], []))
+
+    def test_reflecting_stays_a_quarter_with_the_shrine(self):
+        """Only the everyday Honoring the dead gets 50%: Reflecting stays 25% with the shrine too."""
+        fe = emulation()
+        for roll, at_hovel in ((24, True), (25, False), (49, False)):
+            with self.subTest(roll=roll):
+                v, rec = self.reflect(fe, memorial=True, patched=True, shrine=True, roll=roll)
+                self.assertTrue(in_box(rec.targets, HOVEL_BOX if at_hovel else REFLECT_BOX), (roll, rec.targets))
+
+    def test_the_shrine_alone_changes_no_walk(self):
+        """The memorial graphics patch without this row: Honoring the dead walks to the graves as stock."""
+        fe = emulation()
+        v, rec = self.honor_from_chooser(fe, memorial=True, patched=False, shrine=True, roll=0)
+        self.assertEqual((rec.areas, rec.targets), ([0x7A, 0x7B, 0x7B, 0x7B], []))
+
     def test_honoring_the_dead_another_way_never_uses_the_hovel(self):
         """The owner (2026-11-08): the Custom Island Event's "Honoring the dead (another way)" (behaviour 46,
         0x4567C0) must not use the hovel: its one go-to stays in its own strip, 1454..1839 by 1705..1742."""
@@ -238,9 +290,9 @@ class Emulated(unittest.TestCase):
         rec.close()
         self.assertTrue(in_box(rec.targets, HOVEL_BOX))
         at = gen.caves()[2]
-        self.assertEqual(v.call(at["decide"]) & 0xFF, 1)
+        self.assertEqual(v.call(at["decide"], 0, gen.CHANCE) & 0xFF, 1)
         fresh = village(fe, memorial=False, patched=True, hovel=True)
-        self.assertEqual(fresh.call(at["decide"]) & 0xFF, 0)
+        self.assertEqual(fresh.call(at["decide"], 0, gen.CHANCE) & 0xFF, 0)
 
     def test_the_day_of_honor_and_other_starts_stay_stock(self):
         """The Day of Honor island event starts behaviour 17 for everyone (0x414DDA -> 0x470C60); like the Custom
@@ -309,6 +361,30 @@ class Manifest(unittest.TestCase):
         self.assertEqual(data[off:off + 2], b"\x6A\x11")
         # The memorial check: project 25 on the project table (0x4370E0, the hovel cover, asks the same).
         self.assertEqual(data[0x370E3:0x370EF], bytes.fromhex("6A19B908E05100") + call(0x4370EA, gen.PROJECT_DONE))
+
+    def test_the_remembrance_ceremony_knows_these_bytes(self):
+        """The Remembrance Ceremony (ceremony_games.inc) recognises this row by its exact bytes and starts the two
+        actions past their rolls: its copy and its two ways in must be the generator's."""
+        import re
+        inc = (ROOT / "native" / "vvfp_more_island_events" / "ceremony_games.inc").read_text(encoding="utf-8")
+
+        def array(name):
+            body = re.search(r"static const unsigned char " + name + r"\[(\d+)\] = \{(.*?)\};", inc, re.S)
+            data = bytes(int(x, 16) for x in re.findall(r"0x([0-9A-F]{2})", body.group(2)))
+            self.assertEqual(int(body.group(1)), len(data))
+            return data
+        by = {int(p["offset"], 16) + 0x400000: bytes.fromhex(p["after"]) for p in manifest()["patches"]}
+        self.assertEqual(array("CR_HOVEL_REGISTRATION"), by[gen.REFLECTING_REGISTRATION])
+        self.assertEqual(array("CR_HOVEL_CHOOSER"), by[gen.HONORING_CHOOSER_START])
+        self.assertEqual(array("CR_HOVEL_CAVE_A"), by[gen.CAVE_A[0]])
+        self.assertEqual(array("CR_HOVEL_CAVE_B"), by[gen.CAVE_B[0]])
+        code_a, code_b, at = gen.caves()
+        honor, reflect = gen.ceremony_entries(at)
+        self.assertIn(f"#define CR_HOVEL_HONOR 0x{honor:X}u", inc)
+        self.assertIn(f"#define CR_HOVEL_REFLECT 0x{reflect:X}u", inc)
+        # Each way in is its wrapper's "hovel:" label: the pushes of the start's arguments, past the roll.
+        self.assertEqual(code_a[honor - gen.CAVE_A[0]:][:8], bytes.fromhex("FF742408FF742408"))
+        self.assertEqual(code_b[reflect - gen.CAVE_B[0]:][:4], bytes.fromhex("FF742404"))
 
     def test_selection_and_text(self):
         pid = gen.ID
