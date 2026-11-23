@@ -30,7 +30,7 @@ pregnancy lines (owner rule: the History is descent only).
 | Custom title | yes | yes | yes | yes | yes |
 | Special villager | yes (Golden Child) | yes (Esteemed Elder) | yes (Tribal Chief, Esteemed Elder) | yes (Scholar) | yes (Heathen roles, Former Heathen, Retired Heathen Chief, Esteemed Elder) |
 | Mask | yes | yes | yes | yes | yes |
-| Faction | n/a (feature: Heathens are VV5 only) | n/a | n/a | n/a | yes |
+| Faction ("Heathen", "Isolan" with Guardians of Isola, or "Believer") | n/a (feature: Heathens are VV5 only) | n/a | n/a | n/a | yes |
 | Nursing / Babies nursing (Population only) | yes | yes | yes | yes | yes |
 | Father of the child she carries, head, body (Population only) | yes (Show Parents sidecar) | yes (record) | yes | yes | yes |
 | Likes, Dislikes (every filled slot, ", " between, as the Details panel lists them; the game's own list) | yes (47; 4 slots) | yes (62; 62 slots) | yes (79, alchemy/potions; 3 slots) | yes (79; 3 slots) | yes (79; 3 slots) |
@@ -70,6 +70,7 @@ companion's lines.
 | Recorded afterwards (grave backfill) | yes | yes | yes | yes | yes |
 | Disappeared: Age, Sex, What happened, Nursing | yes | yes | yes | yes | yes (and "Left the tribe: became a Heathen") |
 | Epitaph changed | yes | yes | yes | yes | yes |
+| Faction: Heathen / Isolan on a Heathen's Death and Disappeared (never on "Left the tribe") | n/a (feature) | n/a | n/a | n/a | yes |
 | Parents (name, head, body) on Death and Disappeared, read before the record is freed (v1.35.79) | yes (from the Show Parents companion's file) | yes (record) | yes (record) | yes (record) | yes (record) |
 | Numbering beside an older build's "Deaths" folder | was BUG (all five) -- fixed | was BUG -- fixed | was BUG -- fixed | was BUG -- fixed | was BUG -- fixed |
 
@@ -81,7 +82,7 @@ holds it; VV3-VV5 keep it on the record and in the Roster of the Dead.
 | Line | VV1 | VV2 | VV3 | VV4 | VV5 |
 |---|---|---|---|---|---|
 | What, Age, Sex, Health, Nursing, Mask | yes | yes | yes | yes | yes |
-| Faction | n/a (feature) | n/a | n/a | n/a | yes |
+| Faction (Unaccounted: every villager; Arrived, Birth, Conception, Appearance / Name changed: a Heathen's, "Heathen" or "Isolan") | n/a (feature) | n/a | n/a | n/a | yes |
 | Head, Body, Likes, Dislikes, Skills | yes | yes | yes | yes | yes |
 | Parents: Father, Mother (Unaccounted) | was GAP -- fixed | yes | yes | yes | yes |
 | Parents: Father, Mother (Arrived, when known) | was GAP -- fixed | yes | yes | yes | yes |

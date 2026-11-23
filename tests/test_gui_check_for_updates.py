@@ -163,7 +163,7 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                # Restore Heathen Masks (New Believers, the owner, 2026-11-22).
                "vv5_heathen_masks_restore",
-               "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
+               "vv_corrupt_skills", "vv_golden_child_revive", "vv5_heathen_ages", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # The mask a Former Heathen rejoined with, given back by Repair (v1.35.98).
                "vv5_rejoined_masks",

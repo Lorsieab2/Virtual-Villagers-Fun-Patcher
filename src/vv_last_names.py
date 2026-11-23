@@ -1518,6 +1518,10 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
                        b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", title_conflicts)
         _plan_look_store(result, _data_file(folder, "Heathens Keep Masks", f"Masks Worn - Save {slot}.dat"),
                          (b"VKM1",), game, worn_map, worn_conflicts, "the masks worn")
+        # New Believers' Heathen Aging file (native/vvfp_heathen_aging): former villagers, born Heathens and expecting
+        # mothers by the same identity; version 2, the count at +12, 8-byte entries after a 20-byte header.
+        _plan_u32_file(result, _data_file(folder, "Heathen Aging", f"Heathen Aging - Save {slot}.dat"),
+                       b"VHA1", {2: 8}, game, 20, 0, title_map, "Heathen Aging", title_conflicts)
     _plan_look_store(result, _data_file(folder, "Head Looks", f"Head Looks - Save {slot}.dat"), (b"VHL2", b"VHL1"),
                      game, worn_map, worn_conflicts, "the head looks")
     _plan_look_store(result, _data_file(folder, "Gender Presentation", f"Gender Presentation - Save {slot}.dat"),

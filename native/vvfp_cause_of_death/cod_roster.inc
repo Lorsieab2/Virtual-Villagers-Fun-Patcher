@@ -414,7 +414,12 @@ static void roster_log(const unsigned char *record, int live, int index, const c
                   litter > 1 ? "babies" : "baby");
     }
     if (REC[g_game].heathen != 0u) {
-        lstrcatA(extra, record[REC[g_game].heathen] ? "  Faction: Heathen\n" : "  Faction: Believer\n");
+        /* "Isolan" for "Heathen" with Guardians of Isola (native/shared/heathen_word.h). */
+        lstrcatA(extra, record[REC[g_game].heathen] ? "  Faction: " : "  Faction: Believer\n");
+        if (record[REC[g_game].heathen]) {
+            lstrcatA(extra, vv5_heathen_word());
+            lstrcatA(extra, "\n");
+        }
     }
     /* A live record's mask the exporter asks for itself; a departed villager's is the one
        the snapshot kept (New Believers' own Heathen mask is read from the copy by the
