@@ -1541,8 +1541,12 @@ villagers and life happens to them too."
   Aging Events.txt" (it then splices its two sites even with no aging row ticked): `kill`, `vanish`,
   `die_unrecovered` go to `VvfpHeathenAgingEventGone(5, index, how, cause)` -- a body only with a skeleton row (then
   told as any villager's death; the statistics' death counter put back), else nothing left and a Death record
-  ("no grave"), a disappearance's record the event's own; then a camp Heathen is replaced as for an old-age death
-  (never a former villager, nobody once The Last Heathen is solved, never from nothing). `pregnant` / `nursing` go to
+  ("no grave") whose cause is the author's own words when the effect has them (kept first through Cause of Death's
+  `VvfpCauseWordsFor`), else "Died in a custom island event" or, for "unknown", "Unknown causes" -- as a villager's;
+  a disappearance's record the event's own; then a camp Heathen is replaced as for an old-age death (never a former
+  villager, nobody once The Last Heathen is solved, never from nothing). A replacement owed while the table is full
+  keeps how the one replaced was lost (its file entry's bit 16), so its Arrived record says "Replaced a Heathen lost
+  in an island event", never "died of old age". `pregnant` / `nursing` go to
   `VvfpHeathenAgingEventPregnancy(5, mother, father, litter, now)` -- two Heathens only (never a Heathen and a
   believer: a pregnancy whose other role has no Heathen bit keeps Heathens out of this one's; a believer partner is
   refused), the game's conception, the mother kept as expecting and aging until the companion's Heathen birth 40

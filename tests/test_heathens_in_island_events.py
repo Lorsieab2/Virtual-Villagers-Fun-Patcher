@@ -180,6 +180,20 @@ class Engine(unittest.TestCase):
                 self.assertEqual(r.p.read(r.v.record(0) + r.v.L["active"], 1), b"\0", "taken: nothing left")
                 self.assertEqual(r.p.u32(0x51D3A0), deaths, "never counted")
 
+    def test_the_authors_cause_words_are_kept_for_a_heathens_death_record(self):
+        """#852 (logs must be correct): a death with the author's own words hands them to Cause of Death
+        (VvfpCauseWordsFor) before the Heathen Aging companion takes the Heathen, so the Death record says them;
+        "unknown" and "custom" keep the companion's own words."""
+        for cause, told in (("Crushed by a falling coconut", True), ("unknown", False), ("custom", False)):
+            with self.subTest(cause=cause):
+                r = self.run_with(self.ONE, heathens=(0,))
+                fx = [{"do": "kill", "role": "isolan", "cause": cause}]
+                self.assertIsNone(r.queue6(compiled(graph("only", fx))))
+                r.walk_through()
+                words = [w for kind, _i, w in r.told() if kind == 6]
+                self.assertEqual(words, [cause] if told else [])
+                self.assertEqual(self.calls(r)[3], -1 if cause == "unknown" else 5)
+
     def test_a_heathen_couples_baby_and_never_with_a_believer(self):
         roles = {"isolan": {"kind": "villager", "min_age": 18, "sex": "female", "heathens": "only"},
                  "mate": {"kind": "villager", "min_age": 18, "sex": "male", "heathens": "only"}}
@@ -194,6 +208,19 @@ class Engine(unittest.TestCase):
         r = self.run_with(people, heathens=(0,))
         self.assertIsNotNone(r.queue6(compiled(graph("only", fx, roles=roles)), strict=True))
         self.assertEqual(self.calls(r)[16], 0)
+
+    def test_a_partner_alias_of_a_heathen_role_still_lets_a_heathen_carry(self):
+        """Codex on #852: the pairing check reads what an alias's members may be, not the alias's own byte 13 (it has
+        no Heathen bit) -- a Heathens-only carrier paired with a (single-member) alias of a Heathens-only role is cast."""
+        roles = {"isolan": {"kind": "villager", "min_age": 18, "sex": "female", "heathens": "only"},
+                 "mate": {"kind": "villager", "min_age": 18, "sex": "male", "heathens": "only"},
+                 "someone": {"kind": "alias", "of": ["mate"]}}
+        fx = [{"do": "pregnant", "role": "isolan", "partner": "someone"}]
+        people = [(0, "f", 28, "Lani", 0, False), (1, "m", 30, "Tama", 0, False)]
+        r = self.run_with(people, heathens=(0, 1))
+        self.assertIsNone(r.queue6(compiled(graph("only", fx, roles=roles)), strict=True))
+        r.walk_through()
+        self.assertEqual(self.calls(r)[16:19], [1, 0, 1], "the Heathen mother, the Heathen father drawn by the alias")
 
     def test_the_heathens_own_cast_moves_no_solidarity(self):
         from test_village_solidarity import fake_solidarity

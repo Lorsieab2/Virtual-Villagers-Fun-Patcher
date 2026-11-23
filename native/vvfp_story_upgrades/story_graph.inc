@@ -1180,11 +1180,26 @@ static FARPROC cg_heathen_aging_export(const char *name) {
 /* A Heathen's death (`how` 0, the effect's cause words) or disappearance (1) through "VVFP Heathen Aging.dll": 2 a
    body was made (the event tells its cause as for any villager), 1 taken with nothing left, 0 not made.  The Death
    record of a death with nothing left is the companion's: "Unknown causes" for the stock events' "unknown", else
-   Cause of Death's "Died in a custom island event" (5; the author's own words need a body to be kept). */
+   Cause of Death's custom-event cause (5): the author's own words, kept for the record first, else "Died in a
+   custom island event" -- exactly what a villager's Death record would say. */
+static void cg_tell_words(const char *export_name, int game, int index, const char *words, int fallback);
+#ifdef VVFP_TEST
+static void cg_test_tell(int kind, int index, const char *words);
+#endif
+
 static int cg_heathen_aging_gone(int game, int index, int how, const char *cause) {
     cg_ha_gone_fn gone = (cg_ha_gone_fn)(void *)cg_heathen_aging_export("VvfpHeathenAgingEventGone");
     if (gone == NULL) {
         return 0;
+    }
+    if (how == 0 && cause != NULL && cause[0] != '\0' && lstrcmpA(cause, "unknown") != 0
+        && lstrcmpA(cause, "custom") != 0) {
+        /* the author's own cause words, kept for the record first (Cause of Death's VvfpCauseWordsFor), so a Death
+           record with nothing left says them, as a villager's would (the coordinator, #852: logs must be correct) */
+#ifdef VVFP_TEST
+        cg_test_tell(6, index, cause);
+#endif
+        cg_tell_words("VvfpCauseWordsFor", game, index, cause, 0);
     }
     return gone(game, index, how, cause != NULL && lstrcmpA(cause, "unknown") == 0 ? -1 : 5);
 }
@@ -2337,6 +2352,20 @@ static unsigned int cg_role_reach(int role) {
     return 1u << role;
 }
 
+/* Whether role `role` can stand for a Heathen: a villager role with a Heathen bit, or an alias or "other" one of whose
+   villager members has one (Codex on #852: an alias carries no Heathen bit of its own, a single-member alias too). */
+static int cg_role_may_be_heathen(int role) {
+    unsigned int reach = cg_role_reach(role);
+    int k;
+    for (k = 0; k < cg_g.n_role; ++k) {
+        const unsigned char *spec = cg_role_at(&cg_g, k);
+        if (((reach >> k) & 1u) && spec[0] == CG_ROLE_VILLAGER && (spec[13] & (CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN))) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* cie-v6-binary.md 45: the roles a Heathen cast through the row never takes -- those an effect that can not yet happen
    to a Heathen names (cg_heathen_barred_effect), a pregnancy's partner too, with the members of an alias or "other"
    that stands for them. */
@@ -2362,10 +2391,10 @@ static unsigned int cg_heathen_barred_roles(void) {
             || partner >= cg_g.n_role) {
             continue;
         }
-        if (!(cg_role_at(&cg_g, partner)[13] & (CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN))) {
+        if (!cg_role_may_be_heathen(partner)) {
             mask |= cg_role_reach(carrier);
         }
-        if (!(cg_role_at(&cg_g, carrier)[13] & (CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN))) {
+        if (!cg_role_may_be_heathen(carrier)) {
             mask |= cg_role_reach(partner);
         }
     }

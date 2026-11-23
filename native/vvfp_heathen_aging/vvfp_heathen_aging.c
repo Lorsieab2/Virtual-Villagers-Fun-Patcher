@@ -782,6 +782,8 @@ static int create_role(int role) {
    than the stock game's; any other gets -38 - rand(30). */
 static int g_replace_faith;
 static const char *g_replace_words;   /* the Arrived record's words (NULL: old age) */
+static const char *const REPLACED_OLD_AGE = "Replaced a Heathen who died of old age";
+static const char *const REPLACED_EVENT = "Replaced a Heathen lost in an island event";
 
 static int create_ordinary(int role, int orange, int red) {
     int faith = g_replace_faith;
@@ -800,15 +802,20 @@ static int replace(int role, unsigned char orange, unsigned char red) {
     if (index < 0) {
         return 0;
     }
-    tell_arrived(index, g_replace_words != NULL ? g_replace_words : "Replaced a Heathen who died of old age");
+    tell_arrived(index, g_replace_words != NULL ? g_replace_words : REPLACED_OLD_AGE);
     return 1;
 }
 
 /* An owed replacement, packed into a file entry: bit 31 set, a number 0..255 (bits 20-27) keeping two alike
-   apart, the Faith kept (its negation, bits 8-15; 0: the camp's -38 - rand(30)), red (7), orange (6), the role (0-5). */
+   apart, how the one replaced was lost (bit 16: an island event, else old age -- its Arrived record says the real
+   cause when it is paid), the Faith kept (its negation, bits 8-15; 0: the camp's -38 - rand(30)), red (7), orange
+   (6), the role (0-5). */
+#define OWED_EVENT 0x10000u
+
 static unsigned int owed_pack(int role, int orange, int red, int faith, int number) {
     return 0x80000000u | ((unsigned int)(number & 0xFF) << 20) | ((unsigned int)(-faith & 0xFF) << 8)
-        | ((unsigned int)(red != 0) << 7) | ((unsigned int)(orange != 0) << 6) | (unsigned int)(role & 0x3F);
+        | ((unsigned int)(red != 0) << 7) | ((unsigned int)(orange != 0) << 6) | (unsigned int)(role & 0x3F)
+        | (g_replace_words == REPLACED_EVENT ? OWED_EVENT : 0u);
 }
 
 static int owed_count(void) {
@@ -851,11 +858,14 @@ static void pay_owed(void) {
         if (g_known[i].kind == KIND_OWED) {
             unsigned int packed = g_known[i].identity;
             g_replace_faith = -(int)((packed >> 8) & 0xFF);
+            g_replace_words = (packed & OWED_EVENT) ? REPLACED_EVENT : REPLACED_OLD_AGE;   /* the real cause */
             if (!replace((int)(packed & 0x3F), (unsigned char)((packed >> 6) & 1), (unsigned char)((packed >> 7) & 1))) {
                 g_replace_faith = 0;
+                g_replace_words = NULL;
                 return;
             }
             g_replace_faith = 0;
+            g_replace_words = NULL;
             known_drop(packed, KIND_OWED);
             i = g_known_count;             /* the list moved */
         }
@@ -921,7 +931,10 @@ static int gone(unsigned char *record, int how, int cause) {
     }
     g_replace_faith = !former && (faith == -5 || faith == -9 || faith == -16 || faith == -23 || faith == -30)
         ? faith : 0;
-    if (!replace(role, orange, red)) {
+    if (how == HA_TAKEN || !replace(role, orange, red)) {
+        /* An island event's disappearance (Codex on #852): its record is the caller's to log next, and the Cause of
+           Death companion needs it as it was left -- the presence byte cleared -- so the replacement is owed, made
+           at the next look (pay_owed), never in the record before the Disappeared record is written. */
         owe(role, orange, red, g_replace_faith);
     }
     g_replace_faith = 0;
@@ -1174,7 +1187,7 @@ int __stdcall VvfpHeathenAgingEventGone(int game, int index, int how, int cause)
         return 0;
     }
     __try {
-        g_replace_words = "Replaced a Heathen lost in an island event";
+        g_replace_words = REPLACED_EVENT;
         answer = gone(record, how == 1 ? HA_TAKEN : HA_DIED, cause);
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         answer = 0;

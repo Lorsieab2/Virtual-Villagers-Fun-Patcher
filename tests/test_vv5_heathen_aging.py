@@ -1178,7 +1178,12 @@ class IslandEvents(unittest.TestCase):
         self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 1, 5), 1)
         self.assertEqual(v.read(camp + PRESENT, 1), b"\x00", "taken with no body, skeleton row or not")
         self.assertEqual(v.died, [], "the event writes the Disappeared record")
+        # Codex on #852: the record stays as it was left (the presence byte cleared) until the event has logged the
+        # disappearance -- the replacement is owed, never made into that record at once
+        self.assertEqual(v.created, [])
+        v.credit(v.record(9), 1)                           # the next look pays it
         self.assertEqual(len(v.created), 1)
+        self.assertEqual(v.arrived[-1][1], "Replaced a Heathen lost in an island event")
 
     def test_never_a_replacement_for_a_former_villager_after_the_last_heathen_or_from_nothing(self):
         for case in ("former", "last", "nothing"):
@@ -1226,6 +1231,27 @@ class IslandEvents(unittest.TestCase):
         before = v.i32(woman, AGE)
         v.credit(woman, 5)
         self.assertEqual(v.i32(woman, AGE), before, "born: she stops aging again")
+
+    def test_an_owed_replacement_says_the_real_cause_when_it_is_paid(self):
+        """#852 (logs must be correct): a replacement owed while the table was full keeps how the one replaced was
+        lost, so its Arrived record says the island event, never "died of old age" -- and an old age's still says so."""
+        for how, words in ((0, "Replaced a Heathen lost in an island event"),
+                           (None, "Replaced a Heathen who died of old age")):
+            with self.subTest(how=how):
+                v = Village((TRIBE, EVENTS, BONES_ALL))
+                for i in range(150):
+                    v.villager(i, heathen=True)
+                if how is None:
+                    _due_to_die(v, v.record(7))
+                    v.life_tick()
+                else:
+                    self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 7, how, 5), 2)
+                self.assertEqual(v.created, [], "a full table: owed")
+                v.write(v.record(40) + PRESENT, b"\x00")
+                v.put32(v.record(8) + AGE, 601)
+                v.life_tick()
+                self.assertEqual([i for i, _ in v.created], [40])
+                self.assertEqual(v.arrived[-1], (40, words))
 
     def test_a_nursing_baby_is_born_at_once_and_none_after_the_last_heathen(self):
         v = Village((EVENTS,))
