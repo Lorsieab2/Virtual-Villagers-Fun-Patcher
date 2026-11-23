@@ -1,0 +1,44 @@
+{
+  "id": "vv4_esteemed_elders",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv4",
+  "name": "Esteemed Elders in Every Game",
+  "description": "A villager who has mastered three or four skills (88 or more) gets the title \"Esteemed Elder\" on the Villager Details screen, as in The Secret City and New Believers. Mastering all five is still the game's own \"Scholar\", which wins. A ghost never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' \"Special villager\" line says it too, and when such a villager dies as an adult their grave's epitaph is \"Esteemed Elder\". **Villagers and graves from before: Repair Saves & Logs > \"Give the Esteemed Elder title retroactively\".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Esteemed Elders.dll\"; it never writes a save or a file.",
+  "output_tag": "Esteemed Elders",
+  "dependencies": [],
+  "behavior_changes": [
+    "The Villager Details screen's title: \"Scholar\" for all five skills at 88.0 or more, as before; \"Esteemed Elder\" for three or four (never a ghost, +0x1CC7).",
+    "The Roster of the Dead: an adult's grave (age 360 or more), not a Scholar's, whose villager is an Esteemed Elder gets the epitaph \"Esteemed Elder\" in place of the job's; the grave's job, value and Scholar byte are the game's own. The logs' \"Special villager: Esteemed Elder\" line follows the same rule while the companion is installed."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were.",
+    "No skill, flag, totem, job or save field is changed; the rule only reads the villager's record.",
+    "The Secret City is left as the stock game makes it (its own Esteemed Elder rule)."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/esteemed_elders/VVFP Esteemed Elders.dll",
+      "destination": "VVFP Esteemed Elders.dll",
+      "sha256": "14DFAC15F1D1F8A0EC2B971C50CBE8F758A77644A72F6A7C1F244A058132F24C"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x440314",
+      "stock_bytes": "E857A9020084C07418",
+      "written_bytes": "E9XXXXXXXX90909090",
+      "routine": "the villager panel's Scholar test (`call 0x46AC70 / test al, al / je 0x440335`, ecx the record's skills, [esp+0x10] the record): the Scholar (all five) still takes string 0xDA (0x44031D); otherwise three or four of the five float skills +0x1C5C..+0x1C6C at 88.0 or more (never a ghost, +0x1CC7) gets \"Esteemed Elder\" (pushed and copied by 0x4716DB at 0x4404D1, as the Scholar's string is); otherwise the rank at 0x440335",
+      "installed_by": "VVFP Esteemed Elders.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x45D611",
+      "stock_bytes": "8B4424148B4C2420",
+      "written_bytes": "E9XXXXXXXX909090",
+      "routine": "the Roster of the Dead writer 0x45D470 right after its epitaph copy (0x45D60C): for a grave of age 360 or more whose Scholar byte +0x31 is 0, when the record (the writer's first argument) is an Esteemed Elder by the same rule, the epitaph +0x38 (char[0x20]) becomes \"Esteemed Elder\"; then the two loads re-run and the writer goes on at 0x45D619",
+      "installed_by": "VVFP Esteemed Elders.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

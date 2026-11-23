@@ -1127,6 +1127,17 @@
       ]
     },
     {
+      "ids": ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"],
+      "guide": [
+        "Off by default; on in Owner's Defaults; Select All does not tick it. Nothing to click: it works on its own.",
+        "Three or more mastered skills (90 in A New Home, 88 in the others) give the title \"Esteemed Elder\" on the Details screen.",
+        "Never the Golden Child, a totem statue or a ghost; The Tree of Life's Scholar (all five) still wins; a custom title wins.",
+        "The logs' Special villager line says it, and a new adult's grave gets the epitaph \"Esteemed Elder\".",
+        "For older villagers and graves: Repair Saves & Logs, \"Give the Esteemed Elder title retroactively\".",
+        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running."
+      ]
+    },
+    {
       "ids": ["vv5_devotion_builds_faith"],
       "guide": [
         "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
@@ -1470,7 +1481,7 @@
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
-        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions,",
+        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Esteemed Elders in Every Game,",
         "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
@@ -1484,8 +1495,8 @@
         "More Frequent Island Events, Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
-        "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
-        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy."
+        "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
+        "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game."
       ]
     },
     "owners_defaults": {

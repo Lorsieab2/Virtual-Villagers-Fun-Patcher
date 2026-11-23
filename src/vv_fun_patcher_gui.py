@@ -292,6 +292,8 @@ FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
 # Practicing Devotion Builds Faith and Divine Energy (New Believers).
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
+# Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; the owner, 2026-11-22).
+ESTEEMED_ELDERS_IDS = ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -437,6 +439,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
     + [DEVOTION_FAITH_ID]
+    # Esteemed Elders in Every Game (the owner, 2026-11-22: "ON in Owner's Defaults, off otherwise"): off here and
+    # in Select All.
+    + ESTEEMED_ELDERS_IDS
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
@@ -515,6 +520,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions: on in Owner's
     # Defaults only (the owner, 2026-11-19 and 2026-11-20).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
+    # Esteemed Elders in Every Game: on in Owner's Defaults only (the owner, 2026-11-22).
+    + ESTEEMED_ELDERS_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -5979,6 +5986,12 @@ class App(tk.Tk):
         if getattr(result, "kept_answers", None):
             lines.append(f"Answers kept, changed or cleared: {len(result.kept_answers)} (an answer is not asked again; "
                          "see Answered questions in Repair Saves & Logs; listed in the Repairs log).")
+        rejoined = getattr(result, "rejoined", None)
+        if rejoined is not None and rejoined.restored:
+            lines.append("Masks given back to villagers who rejoined the tribe (once; a later Repair never gives them "
+                         "again): " + "; ".join(f.line() for f in rejoined.restored) + ".")
+        elif rejoined is not None and rejoined.note:
+            lines.append(f"Masks of villagers who rejoined the tribe: {rejoined.note}")
         for (old, head, body), new in getattr(result, "renamed", {}).items():
             lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
                          "patcher's files.")
@@ -6237,14 +6250,20 @@ class App(tk.Tk):
             unnumber = kind.id == vv_number_names.UNNUMBER_KIND and bool(kind.questions)
             preferred = kind.context.get("graves") if kind.id == "apprentice" else None
             preferred = preferred if preferred is not None and preferred.in_save else None
+            # New Believers' rejoined villagers' masks (src/vv5_rejoined_masks.py): each one listed, by name.
+            rejoined = kind.context.get("lines") if kind.id == "rejoined_masks" else None
+            # The Esteemed Elder title, retroactively (src/vv_log_additions.py plan_esteemed): its graves in the save.
+            elders = kind.context.get("graves") if kind.id == "esteemed" else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber and not preferred:
+                    and not unnumber and not preferred and not elders and not rejoined:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
-            text = (f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
+            text = (f"Give back the mask {len(rejoined)} villager(s) wore when they rejoined the tribe (once)"
+                    if rejoined
+                    else f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
                     # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
                     else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if kind.id == "misfiled"
@@ -6255,9 +6274,22 @@ class App(tk.Tk):
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
                     else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if getattr(kind, "removes", None) else f"Add {kind.label.lower()}: {kind.decided} decided")
+            if kind.id == "esteemed":
+                text = (f"{kind.label}: {kind.decided} record line(s)"
+                        + (f", {len(elders.in_save)} grave epitaph(s)" if elders else "") + " found")
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
+            if rejoined:
+                for line in list(rejoined) + list(kind.notes):
+                    ttk.Label(frame, text=f"    {line}", wraplength=600, justify="left",
+                              foreground="#555555").pack(anchor="w", pady=(1, 0))
+            if kind.id == "esteemed":
+                # Who it gives the title to, before anything is written (the owner: a list first), and who is
+                # left as they are and why.
+                for shown in ["Given to: " + "; ".join(kind.context.get("preview") or [])] + list(kind.notes):
+                    ttk.Label(frame, text=shown, wraplength=600, justify="left",
+                              foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Names the Villager Details screen cut short: restored first, ticked by default.
         cuts_var = tk.BooleanVar(value=bool(cuts))
         if cuts:
@@ -7732,7 +7764,8 @@ class App(tk.Tk):
                 now = now or "(no title)"
                 var.set(now)
                 ttk.Combobox(frame, textvariable=var, state="readonly", width=40,
-                             values=["(no title)", "Esteemed Elder"] + (["Tribal Chief"] if number == 3 else [])
+                             # what the grave can keep (The Tree of Life's byte is the Scholar's)
+                             values=["(no title)"] + [t for t in vv_graves.grave_titles(number) if t]
                              ).grid(row=row, column=1, sticky="w")
             else:
                 ttk.Entry(frame, textvariable=var, width=42).grid(row=row, column=1, sticky="w")

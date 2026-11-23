@@ -477,6 +477,11 @@ CASES = [
     Case("Devotion Faith", "assets/devotion_faith/VVFP Devotion Faith.dll", (5,),
          lambda g: [f"vv{g}_devotion_builds_faith"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpDevotionFaithInstalled"))[1]),
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life, New Believers): the panel's title,
+    # the burial's epitaph.
+    Case("Esteemed Elders", "assets/esteemed_elders/VVFP Esteemed Elders.dll", (1, 2, 4, 5),
+         lambda g: [f"vv{g}_esteemed_elders"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpEsteemedEldersInstalled"))[1]),
     # More Frequent Island Events (all five games): the trigger's draws of the next wait (two in New Believers).
     Case("Island Frequency", "assets/island_frequency/VVFP Island Frequency.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_frequent_island_events"],

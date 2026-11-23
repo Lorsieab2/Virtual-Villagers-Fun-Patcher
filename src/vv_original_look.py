@@ -37,6 +37,9 @@ THE RULES (never guess):
     (Island Events logs older than that record); or a record of their (unique) name changed a look that is
     not on their chain; or one record is on two living villagers' chains.
   * No record and no sign of a change: nothing -- the DLL's first sight is right for them.
+  * CORRECTED (2026-11-22): a first sight the DLL kept that the logs prove was not the villager's -- a
+    rejected founder candidate's look kept for The Tree of Life's or New Believers' founder before the DLL
+    stopped looking at "Select 5 villagers" -- is corrected to the look of their own record (correction()).
   * Two living villagers of one identity: nothing for either.
 Running it again changes nothing (the same logs give the same part, and an unchanged file is not written).
 """
@@ -64,7 +67,9 @@ COUNTS = (150, 256)
 # "not known", kept on the villager's record so it follows them through a rename in play (Codex, PR #653).
 # Every record entry is kept here byte for byte, whatever its source.
 FIRST_RUN, SEEN, LOGS, NOT_KNOWN = 1, 2, 3, 4
-KNOWN, UNKNOWN = 1, 2
+# A logged entry's kind.  CORRECTED (2026-11-22): the original is proven AND the one the DLL kept is proven
+# wrong, so it takes over even a SEEN original (see correction()); a DLL before it reads it as nothing.
+KNOWN, UNKNOWN, CORRECTED = 1, 2, 3
 MASKS = {"none": 0, "": 0, "blue mask": 1, "orange mask": 2, "red mask": 3, "purple mask": 4,
          "tribal chief mask": 5}
 # The record fields the identity is made of, relative to the name in a saved entry (src/vv_last_names.py
@@ -274,6 +279,16 @@ class Evidence:
     # The masks those records name on a "Mask:" line of their own (a record without one names none here):
     # (name, mask; None when the line names no mask this side knows).
     own_masks: list[tuple[str, int | None]] = field(default_factory=list)
+    # The "How:" line of each of those records, in the same order (None: none, a Birth, an island event's
+    # newcomer): New Believers logs a Heathen's conversion as an Arrived record of a villager already known.
+    own_hows: list[str | None] = field(default_factory=list)
+    # Whether each of those records was written afterwards ("Note: Recorded afterwards ...": the arrival and birth
+    # backfills, native/shared/arrival_backfill.h): its looks are the villager's when it was written, never proof
+    # of their original (Codex, #841).
+    own_late: list[bool] = field(default_factory=list)
+    # Every name a Deaths / Unaccounted record gives a villager who is gone for good (died, disappeared, lost) --
+    # not one who left for the Heathens: a namesake there may be whoever a record of that name was about.
+    gone: set[str] = field(default_factory=set)
     names: set[str] = field(default_factory=set)                   # every villager name the logs know
     sex_changed: set[str] = field(default_factory=set)             # names whose sex changed (vv_sex_changes)
 
@@ -359,6 +374,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                 if child and child["Name"] and not child["Name"].startswith("("):
                     out.own.append((child["Name"], child.get("Sex"), (_int(child.get("Head")), _int(child.get("Body"))),
                                     _mask(child.get("Mask"))))
+                    out.own_hows.append(None)
+                    out.own_late.append(_late(b.lines))
                     if child.get("Mask") is not None:
                         out.own_masks.append((child["Name"], _mask(child.get("Mask"))))
                     out.names.add(child["Name"])
@@ -367,6 +384,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                 if name:
                     out.own.append((name, b.value("Sex"), (b.int_value("Head"), b.int_value("Body")),
                                     _mask(b.value("Mask"))))
+                    out.own_hows.append(b.value("How"))
+                    out.own_late.append(_late(b.lines))
                     if b.value("Mask") is not None:
                         out.own_masks.append((name, _mask(b.value("Mask"))))
                     out.names.add(name)
@@ -384,6 +403,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
             out.names.add(name)
             if (b.value("New villager") or "").lower().startswith("yes"):
                 out.own.append((name, b.value("Sex"), (b.int_value("Head"), b.int_value("Body")), _mask(b.value("Mask"))))
+                out.own_hows.append(None)
+                out.own_late.append(_late(b.lines))
                 if b.value("Mask") is not None:
                     out.own_masks.append((name, _mask(b.value("Mask"))))
             for line in b.lines[1:]:
@@ -396,6 +417,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
         for b in additions.blocks(p):
             if b.of(slot, game, villages) and b.value("Name"):
                 out.names.add(b.value("Name"))
+                if (b.value("What happened") or "").strip() not in additions.LEFT_RECORDS:   # Heathen / Isolan
+                    out.gone.add(b.value("Name"))
     # The renames the patcher itself made (Last Names, Number Duplicate Names, a name given back...).
     for d in decisions.load(folder, game, slot):
         if d.get("kind") == decisions.ALIAS_KIND and isinstance(d.get("name"), str) \
@@ -428,9 +451,13 @@ class Found:
     chain: tuple = ()                      # the indices of the Appearance changed records followed
 
 
-def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0) -> Found:
+def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0,
+         others_ever: set[str] | None = None) -> Found:
     """The original look the logs prove for one villager (see THE RULES); `others` are the names of the
-    other living villagers."""
+    other living villagers, `others_ever` every name they have had (by the recorded renames; `others` when
+    not given), which the believer-founder rule never shares."""
+    if others_ever is None:
+        others_ever = set(others)
     s = v.seen
     names = _names(s.name, ev.renames)
     # The game's own change is kept (the owner, 2026-10-28): a Secret City chief's robe was given by the game
@@ -470,6 +497,13 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     masks = [m for m in ev.masks if m[0] in names]
     if not chain and not masks:
         return Found(None)
+    # A MASK GOT AS A HEATHEN IS NEVER THE ORIGINAL (the owner, 2026-11-22: Caia's original is her founder
+    # look, no mask).  A New Believers villager who joined the tribe from the Heathens since their own Birth or
+    # Arrived record: their original is that record's look with no mask -- never the mask an "Appearance
+    # changed" record's Old mask names once they had been a Heathen (or had rejoined wearing it).
+    believer_first = _believer_record(ev, names, s) if game == 5 and not names & set(others_ever) else None
+    if believer_first is not None and believer_first[1] == 0 and same(believer_first[0], state):
+        return Found(KNOWN, state[0], state[1], 0, chain=tuple(chain))
     if not chain or ev.changes[chain[0]].old_mask is not None:
         # EVERY piece of mask evidence, in time order (Codex, PR #653): the island events' mask steps, the
         # Appearance changed records' Old / New mask lines, and their own record's Mask line.  The original
@@ -551,6 +585,95 @@ def _mask_origin(steps_c: list[tuple], steps_e: list[tuple], birth: int | None) 
     return mask, by_ca, ""
 
 
+def _late(lines: list[str]) -> bool:
+    """A record written afterwards ("Note: Recorded afterwards ..."): native/shared/arrival_backfill.h."""
+    return any(line.strip().startswith("Note: Recorded afterwards") for line in lines)
+
+
+def _is_late(ev: Evidence, k: int) -> bool:
+    return k < len(ev.own_late) and ev.own_late[k]
+
+
+def _converted(how: str | None) -> bool:
+    """A New Believers Heathen's conversion, logged as an Arrived record of a villager already known."""
+    return (how or "").strip().lower().startswith("converted")
+
+
+def _believer_record(ev: Evidence, names: set[str], s) -> tuple[tuple, int] | None:
+    """(looks, mask) of a villager's own first record when they were a believer then and have joined the tribe
+    from the Heathens since: exactly one record of their own that is not a conversion, it is their first, it
+    is of their sex, and a conversion record follows it -- and no villager of one of their names is gone for
+    good (a dead namesake's records cannot be told from theirs: Codex, #841).  None otherwise."""
+    if names & ev.gone:
+        return None
+    mine = [k for k, o in enumerate(ev.own) if o[0] in names]
+    hows = [ev.own_hows[k] if k < len(ev.own_hows) else None for k in mine]
+    first = [k for k, how in zip(mine, hows) if not _converted(how)]
+    if len(first) != 1 or first[0] != mine[0] or not any(_converted(h) for h in hows) or _is_late(ev, first[0]):
+        return None
+    name, sex, looks, mask = ev.own[first[0]]
+    if None in looks or mask is None or (sex is not None and s.sex is not None
+                                         and sex.strip().lower() != str(s.sex).strip().lower()
+                                         and name not in ev.sex_changed):
+        return None
+    return looks, mask
+
+
+def correction(v: Living, kept: Entry, ev: Evidence, f: Found, others: set[str] = frozenset(),
+               game: int = 0) -> Found | None:
+    """A WRONG ORIGINAL THE DLL KEPT (the owner, 2026-11-22: "it reset some of my villagers to the wrong
+    appearance").  The Tree of Life's and New Believers' "Select 5 villagers" screen shows each candidate in a
+    real record, and a Reject makes the next candidate there; the DLL took that for a rename of the record and
+    kept the rejected candidate's look as the founder's original (fixed in original_look_store.inc: THE
+    FOUNDER SCREEN IS NO VILLAGE).  An original so kept is corrected -- CORRECTED, which the DLL puts even over
+    a SEEN original -- only when every one of these holds, else None (nothing is guessed):
+      * the kept original is a first sight (FIRST RUN or SEEN), the game never set its body since (the robe, a
+        bought outfit) and its mask is not one kept at a conversion;
+      * the villager has exactly one record of their own that is not a conversion (Birth, Arrived, an island
+        event's newcomer) under any of their names, it is the first of their own records, of their sex, and
+        no other living villager has one of their names;
+      * the logs lead back from the look they have now to that record's look (the "Appearance changed" chain,
+        or no change at all and that look now), and its mask (none in New Believers, where a mask there may
+        be a Heathen's own) is the kept one;
+      * the kept head or body is not that look.
+    A SEEN original is corrected with CORRECTED; a FIRST RUN one -- which the DLL already gives up for the
+    logs' KNOWN -- with KNOWN, and only when the logs had nothing to say of it (no change)."""
+    s = v.seen
+    if kept.source not in (FIRST_RUN, SEEN) or kept.game_body or kept.believer & 2 or v.robed:
+        return None
+    if f.kind not in (KNOWN, None):
+        return None
+    names = _names(s.name, ev.renames)
+    if names & set(others) or names & ev.gone:
+        return None                             # a namesake, living or gone, could be whom a record was about
+    mine = [k for k, o in enumerate(ev.own) if o[0] in names]
+    first = [k for k in mine if not _converted(ev.own_hows[k] if k < len(ev.own_hows) else None)]
+    if len(first) != 1 or first[0] != mine[0] or _is_late(ev, first[0]):
+        return None                             # a record written afterwards holds a later look, no proof
+    name, sex, looks, mask = ev.own[first[0]]
+    if None in looks or (sex is not None and s.sex is not None and sex.strip().lower() != str(s.sex).strip().lower()
+                         and name not in ev.sex_changed):
+        return None
+    if mask is None or (game == 5 and mask != 0) or mask != kept.mask:
+        return None
+    if f.kind == KNOWN:
+        proven = (f.head, f.body) == looks
+    else:
+        proven = (s.head, s.body) == looks
+    if not proven or (kept.head, kept.body) == looks:
+        return None
+    if kept.source == FIRST_RUN:
+        # The DLL already takes the logs' KNOWN over a first-run snapshot: one with a logged way back has it.
+        if f.kind == KNOWN:
+            return None
+        return Found(KNOWN, looks[0], looks[1], mask,
+                     why=f"the original kept ({kept.head}, {kept.body}) is not their own record's "
+                         f"({looks[0]}, {looks[1]})")
+    return Found(CORRECTED, looks[0], looks[1], mask,
+                 why=f"the original kept ({kept.head}, {kept.body}) is not their own record's ({looks[0]}, {looks[1]})",
+                 chain=f.chain)
+
+
 def _shared_name(ev: Evidence, names: set[str]) -> bool:
     """Whether the logs know another villager of one of these names: more than one Birth / Arrived /
     newcomer record of it."""
@@ -564,6 +687,7 @@ class Result:
     known: int = 0
     unknown: int = 0
     note: str = ""
+    corrected: int = 0                     # of the known: a wrong original the DLL kept, corrected
 
 
 def same_village(file_roster: list[int], live: list[int]) -> bool:
@@ -619,7 +743,12 @@ def backfill(folder: Path, game: int, slot: int) -> Result:
     holders: dict[int, int] = {}
     for v in people:
         holders[v.id] = holders.get(v.id, 0) + 1
-    found = {v.id: find(v, ev, {o.seen.name for o in people if o is not v}, game)
+    ever = {id(v): _names(v.seen.name, ev.renames) for v in people}
+
+    def ever_of_others(v: Living) -> set[str]:
+        """Every name the other living villagers have had (Codex, #841: an old name is a namesake too)."""
+        return set().union(*(ever[id(o)] for o in people if o is not v))
+    found = {v.id: find(v, ev, {o.seen.name for o in people if o is not v}, game, ever_of_others(v))
              for v in people if holders[v.id] == 1}
     claims: dict[int, list[int]] = {}
     for ident, f in found.items():
@@ -629,9 +758,22 @@ def backfill(folder: Path, game: int, slot: int) -> Result:
         if len(ks) > 1:
             for ident in ks:
                 found[ident] = Found(UNKNOWN, why="one record is on two villagers' way")
+    # A wrong original the DLL kept (correction): only in this village's own file, on the one entry kept for
+    # the villager.
+    corrected = 0
+    if looks is not None and same_village([e.roster for e in looks.entries],
+                                          [v.id for v in people if v.seen.record is not None]):
+        for v in people:
+            entries = [e for e in looks.entries if e.source and e.id == v.id]
+            if v.id not in found or len(entries) != 1:
+                continue
+            fixed = correction(v, entries[0], ev, found[v.id], ever_of_others(v), game)
+            if fixed is not None:
+                found[v.id] = fixed
+                corrected += 1
     logged = [Logged(ident, f.head, f.body, f.mask, f.kind) for ident, f in found.items() if f.kind is not None]
     logged = logged[:LOGGED_MAX]
-    known = sum(1 for e in logged if e.kind == KNOWN)
+    known = sum(1 for e in logged if e.kind in (KNOWN, CORRECTED))
     # A file another village left in the slot (a save copied or restored into it): the DLL would refuse it
     # whole (ol_same_village), so the logs' originals added to it would never apply (Codex, PR #653).  It is
     # set aside intact, as the DLL sets aside another village's file, and this village's file is started.
@@ -651,6 +793,6 @@ def backfill(folder: Path, game: int, slot: int) -> Result:
     looks.logged = logged
     after = build(looks)
     if target.is_file() and after == before:
-        return Result(target, False, known, len(logged) - known, "already up to date")
+        return Result(target, False, known, len(logged) - known, "already up to date", corrected)
     _write(target, after)
-    return Result(target, True, known, len(logged) - known)
+    return Result(target, True, known, len(logged) - known, corrected=corrected)

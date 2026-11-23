@@ -163,6 +163,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
+               # The mask a Former Heathen rejoined with, given back by Repair (v1.35.98).
+               "vv5_rejoined_masks",
                # The Conception and Birth records the saved village never held (v1.35.97).
                "vv_not_kept",
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
@@ -296,6 +298,8 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_number_names",       # numbers a looks change gave, taken off (v1.35.80 update)
                               # Repair's original looks proved by the logs (function-level, v1.35.85).
                               "vv_original_look",
+                              # Repair gives back the mask a Former Heathen rejoined with (v1.35.98).
+                              "vv5_rejoined_masks",
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The original looks behind Change Appearance's Reset to original (v1.35.85): the per-save
@@ -313,7 +317,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                   "vv_log_contradictions", "vv_save_layout", "vv_reconcile",
                                   "vv_answered_questions",     # answered questions held back (v1.35.80)
                                   "vv_number_names",           # numbers a looks change gave (v1.35.80 update)
-                                  "vv_misfiled_records"}),     # records moved to their own save's log (2026-10-31)
+                                  "vv_misfiled_records",       # records moved to their own save's log (2026-10-31)
+                                  # the rejoined villagers' masks, listed in Repair's checklist (v1.35.98)
+                                  "vv5_rejoined_masks"}),
             # Records written into another save's log (2026-10-31): the logs and every slot's village as Repair
             # reads them (function-level imports).
             ("vv_misfiled_records", {"vv_log_additions", "vv_save_layout", "vv_reconcile",
