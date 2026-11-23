@@ -1064,7 +1064,7 @@
     {
       "source": "assets/event_collection/vv2/living-st_draft_ad.pak",
       "destination": "Events/st_draft_ad.pak",
-      "sha256": "D29B90CDB65071355015D6BD74A9AEC1302F90E5BB610CB933DF6466480BFAE7"
+      "sha256": "D0C22CD81A6AC4276A80F78A35FF4AAFA148F4A527046375727E5EBC18EE3B84"
     },
     {
       "source": "assets/event_collection/vv2/living-st_draft_ar.pak",
@@ -1264,7 +1264,7 @@
     {
       "source": "assets/event_collection/vv2/living-st_v28.pak",
       "destination": "Events/st_v28.pak",
-      "sha256": "1E0BB2D629EADF9DC3CE31F19CB938E184332DF7BC200072B2D726D108D03F5E"
+      "sha256": "C7F8AB2E31703D7D882EFCB841AAC5D7E8F319DB3A1C7D1DF05BC35273E09712"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1409,7 +1409,7 @@
     {
       "source": "assets/event_collection/adv29_elder_asks_young.cieg",
       "destination": "Events/29.cieg",
-      "sha256": "EFDBFC16C0B54B9E37AD97F56D0FFD1B318181E80B3F13B8C39B03EFBAC5E2F7"
+      "sha256": "68C45668CDBA88B5C6FC8B483ED1F17AE4BECEBA085C1AA70FB5434C5846D8A8"
     },
     {
       "source": "assets/event_collection/adv30_dream_gave.cieg",
@@ -22509,7 +22509,7 @@
     {
       "source": "assets/event_collection/vv2_hospitals_most_difficult.cieg",
       "destination": "Events/4361.cieg",
-      "sha256": "0170F44CA70FE0B36F1B92A3617419F1A5557114CB28162C1AB68121B500D063"
+      "sha256": "E654D98F73323D6587983FA00B2EA7DBE2C592ADC14EA979641F42AEA7F38538"
     },
     {
       "source": "assets/event_collection/vv2_hut_sharing_negotiation.cieg",

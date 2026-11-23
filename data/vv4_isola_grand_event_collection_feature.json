@@ -1070,7 +1070,7 @@
     {
       "source": "assets/event_collection/vv4/living-st_draft_ad.pak",
       "destination": "Events/st_draft_ad.pak",
-      "sha256": "04AEAC3034D03BDE06A6EFD575782F73A9256A40E0A1C710874B2BDD2DA2719D"
+      "sha256": "16A428C0B971A6890F2F1A484C72FA29696C9E6E656445068F7068DE08E2F7A9"
     },
     {
       "source": "assets/event_collection/vv4/living-st_draft_ar.pak",
@@ -1420,7 +1420,7 @@
     {
       "source": "assets/event_collection/adv29_elder_asks_young.cieg",
       "destination": "Events/29.cieg",
-      "sha256": "EFDBFC16C0B54B9E37AD97F56D0FFD1B318181E80B3F13B8C39B03EFBAC5E2F7"
+      "sha256": "68C45668CDBA88B5C6FC8B483ED1F17AE4BECEBA085C1AA70FB5434C5846D8A8"
     },
     {
       "source": "assets/event_collection/adv30_dream_gave.cieg",
