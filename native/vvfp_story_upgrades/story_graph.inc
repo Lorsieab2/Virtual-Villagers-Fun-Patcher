@@ -8132,6 +8132,10 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
             tail = t[1] == 'R' || t[1] == 'Q' ? ".Name)" : t[1] == 'P' ? ".his/her)" : t[1] == 'H' ? ".he/she)" : "";
         }
         if (put == NULL) {
+            if (cg_g.version >= 6 && (*t == '(' || *t == ')') && n < (int)sizeof line - 2) {
+                line[n++] = '\\';      /* 45: the words' own parenthesis ("(no effect)"), never a placeholder: kept
+                                           escaped until the page is filled (cg_expand), as version 6 words are */
+            }
             line[n++] = *t;
             continue;
         }

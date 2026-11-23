@@ -2463,6 +2463,8 @@ def expand(text: str, bindings: dict[str, Binding], award: tuple[str, int] | Non
     def one(m: re.Match) -> str:
         p = parse_placeholder(m.group(1))
         if p is None:
+            if m.group(0) == "(no effect)":
+                return m.group(0)       # 45: the engine's own "(no effect)" (the hv_ lines): copied as it is
             raise KeyError(f"not a placeholder: {m.group(0)}")
         if p.what == "award":
             return str(award[1]) if award else ""
