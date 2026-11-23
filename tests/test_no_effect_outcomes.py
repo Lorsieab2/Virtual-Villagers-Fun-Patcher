@@ -91,7 +91,7 @@ class Rule(unittest.TestCase):
         for e, flavor in (({"do": "tech", "amount": 5}, True), ({"do": "damage", "min": 1, "max": 5}, True),
                           ({"do": "village", "what": "tech_level", "step": 1}, True),
                           ({"do": "village", "what": "weather"}, False),
-                          ({"do": "celebrate"}, True), ({"do": "celebrate", "role": "isolan"}, False),
+                          ({"do": "celebrate", "who": "all"}, True), ({"do": "celebrate", "who": "isolan"}, False),
                           ({"do": "mood", "role": "isolan", "good": True}, False)):
             with self.subTest(e=e):
                 self.assertEqual(cg.flavor_only(e), flavor)

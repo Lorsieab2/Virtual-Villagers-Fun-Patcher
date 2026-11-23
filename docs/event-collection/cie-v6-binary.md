@@ -1607,10 +1607,17 @@ it is).
   `neutral` tag never moves the score; without the companion no tag does anything). The effects authored decide it,
   never what a roll made of them: an effect that came to nothing (a full store, a refused change) shows its own line
   or none, never "(no effect)".
+* **The Heathens' own cast** (45): the tribe's effects that section 45 makes the Heathens' village's
+  (`cg_flavor_only`: food, tech, the award, damage and repair, goods, trades, a newcomer, research, everyone at once)
+  and the Village Solidarity tag (never passed on for that cast) are no change; a villager's own effect still is.
+  A mixed cast is as always. Its `hv_*` lines already end with "(no effect)": when one ends the outcome, nothing is
+  added (the check below), so the line is never doubled.
 * **Then** the outcome's last popup (with Scrolling Popups, the event's one popup) ends with one more line,
   `(no effect)`, after its words and every automatic line, unless its words already end with "(no effect)" (any case,
   `\( \)` or not, a full stop after it allowed). In a version 6 text it is written `\(no effect\)` until the page is
-  filled; before version 6 a `(...)` that is no placeholder is copied as it is.
+  filled; before version 6 a `(...)` that is no placeholder is copied as it is, and no glyph fallback reaches it,
+  so in A New Home and The Lost Children without Unicode Text the line is written `-no effect-` itself
+  (`cg_fallback_on`; Codex on #853). The `hv_*` lines are New Believers' only, whose font draws parentheses.
 * Its words are `CG_AUTO_LINES`' `no_effect` (story_graph.inc `cg_part_changes`, `cg_no_effect_mark`;
   src/vv_cie_graph.py `AUTO_LINES["no_effect"]`, `outcome_changes_nothing`, `with_no_effect`, in `walk` -- every
   history's fit counts the line -- and `simulate`, whose `solidarity` argument is the companion), in the translation

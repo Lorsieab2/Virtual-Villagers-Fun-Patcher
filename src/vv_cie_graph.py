@@ -3540,7 +3540,7 @@ def flavor_only(e: dict) -> bool:
         return e.get("what") == "tech_level"
     if do == "trait":
         return False
-    every = effect_role(e) is None                  # the role byte 0xFF: every living, listed villager
+    every = effect_role(e) is None and not e.get("target")   # the role byte 0xFF: every living, listed villager
     return every if do == "group" else every or bool(e.get("target"))
 
 
