@@ -20,13 +20,18 @@
    skips a Heathen at 0x472CB7: it copies the age into the processed age, clears the sick byte, and nothing else
    runs (no eating, starving, sickness, health, Faith drift, old age or birth).
 
-   WHAT THIS DOES (five run-time splices, all or none, stock bytes checked first: native/shared/install_sites.h):
+   WHAT THIS DOES (two run-time splices, all or none, stock bytes checked first: native/shared/install_sites.h):
      0x470077  the age credit's faction test: a believer goes on as before; an AGING Heathen (below) gets the same
                units added to its age (what 0x46F7F0 does) and then takes the Heathen branch the executable has
                there (0x47008D stock, or 0x4700B9 when the Village Statistics rows skip the Oldest Villager maximum
                for Heathens: `jne` 0C or 38 -- both accepted, the branch's own target followed), so a Heathen is
                never the Oldest Villager where the statistics say so; everyone else as the stock game.
-               A living believer seen here is remembered by identity (who turned Heathen from our village).
+               A living believer seen here is remembered by identity; a living Heathen the credit last saw as
+               that very believer turned Heathen since -- by any path at all (the Faith drift, The Breaking
+               Point, island events such as The Spa and The Cracked Mask, a Custom Island Event, Pick Island
+               Event) -- and is written down as a former villager.  A record the Heathen creator fills was never
+               seen as a believer, so it never is.  (No call site is spliced for this: the Heathens Keep Their
+               Masks companion owns The Spa's and The Cracked Mask's faction calls.)
      0x472CB7  the life tick's Heathen skip: an aging Heathen with an age unit due gets ONE unit, exactly the
                believer's old-age rule (0x472FC6..0x47304A: at each whole year of the processed age past
                1,100 + 160 x (Medicine - 1) units, rand(100) < 10 x years over sets health 0, cause 2 Old age,
@@ -34,12 +39,6 @@
                age goes up by one and the pass is marked not done (the tick's own [esp+0x12]), as a believer's
                unit is.  Nothing else of the believer's unit runs: a Heathen still never eats, starves, falls
                sick, loses health, drifts in Faith or works.  Any other Heathen: the stock skip.
-     0x4669E0  to-a-Heathen (SetFaith's conversion at Faith 0 or below: the Faith drift, The Breaking Point,
-               preaching gone wrong, island events, The Spa, The Cracked Mask, a Custom Island Event's "Becomes a
-               Heathen", Pick Island Event) -- its first instructions, replayed exactly;
-     0x415D0C, 0x416C5B  The Spa's and The Cracked Mask's direct `call 0x466880` (faction 1).
-               At these three a believer the age credit has seen alive (so never a record the Heathen creator is
-               filling: its SetFaith runs before any frame sees it) is written down as a former villager.
 
    WHO IS A FORMER VILLAGER.  The identity (native/shared/custom_titles.h vv_title_identity: name, likes,
    dislikes) of every believer seen turning Heathen, kept per save slot in
@@ -49,7 +48,9 @@
    Heathen babies this companion delivered (born Heathens, never former villagers).  A Heathen who turned before
    the row was installed is known by the parents on the record (+0x1BC0 / +0x1BD9: born in the village; the camp's
    and the Barrel's Heathens have none) unless the file says they were born a Heathen.  The file is written at most
-   once a second from the age credit's first record, never inside the life tick.
+   once a second from the age credit's throttled pass, never inside the life tick.  Its entries follow their
+   villager when the likes or dislikes change in place or the name changes (follow_identities: the repo's
+   identity_in_place.h and rename rules), and src/vv_last_names.py's offline renames rekey the file too.
 
    A DEATH.  The old age's SetHealth makes the body as for a believer when a skeleton row says so for this Heathen
    (All Heathens, or Former Villagers and a former villager): the believers bury it through their own "Burying
@@ -61,14 +62,15 @@
    statistics' villager-death counter is put back (Heathens never count: the owner).
    A REPLACEMENT is made at once, in the same tick, by the game's one Heathen creator 0x46FD20 as the stock camp
    makes one: an ordinary Heathen keeps the dead one's camp role (0..11) and mask (blue, orange or red), age 400,
-   random sex, Faith -38 - rand(30); a former villager is replaced by an ordinary blue, orange or red (13 : 7 : 3,
+   random sex, the stock camp's Faith (0x470E60: -38 - rand(30), or the dead one's own when it was one of the
+   five easy blue Faiths -5, -9, -16, -23, -30); a former villager is replaced by an ordinary blue, orange or red (13 : 7 : 3,
    the camp's own mix) with role 0; a puzzle Heathen whose puzzle is not solved yet by a new one in the same role,
    set up exactly as the stock camp sets that role up (the Doctor, Chief with every skill 100, the three Masters;
    the Heathen Mommy with her infant, its father an adult Heathen man when there is one).  Its Faith is written
    after the creator (the creator's own SetFaith would run to-a-Heathen on a record still a believer: its "stopped
    believing" message and the Cause of Death companion's "Left the tribe" record).  The Cause of Death companion
-   writes its Arrived record (VvfpCauseHeathenArrived).  A full table: the replacement waits, and is made at the
-   next age unit that has room.
+   writes its Arrived record (VvfpCauseHeathenArrived).  A full table: the replacement waits (kept per save slot),
+   and is made by the age credit's throttled pass as soon as a record is free.
 
    HEATHEN BABIES (the tribe row only).  An adult Heathen woman (14 to 45 years), not expecting, not the Heathen
    Mommy, with a living adult Heathen man in the camp, conceives on 1 age unit in 400 (about 1 year in 20) through
@@ -77,12 +79,13 @@
    back as the Story upgrades' Custom Island Event does for a Heathen carrier.  The birth comes as a believer's
    does (40 units after conception): each baby is made by the Heathen creator at age 40 with the parents' names,
    heads and bodies on its record (the head the stock birth's rule: the parents' average +-1 on 95%), Faith
-   -38 - rand(30); then the pregnancy and the carry are cleared.  Each baby gets its Birth record (tell_born), marked
+   -38 - rand(30) (the stock camp children's); then the pregnancy and the carry are cleared.  Each baby gets its Birth record (tell_born), marked
    a Heathen, as the conception got its Conception record from the game's own conception routine.  No room: the
    birth waits.  Only a pregnancy this
    companion conceived (its mother kept in the file as expecting) is delivered among the Heathens: one from before a
    believer turned Heathen, and the Heathen Mommy's infant (her puzzle shows her carrying it), wait for them to
-   rejoin the tribe, as in the stock game.
+   rejoin the tribe, as in the stock game; the expecting entry goes when she is a believer again or dies, so a
+   later believer pregnancy is never delivered among the Heathens.
 
    HEATHEN GRAVES AND START OVER.  A grave keeps no faction, so every Heathen body's Roster of the Dead entry is
    written down at its burial (watch_graves) and kept in the file; "VVFP Statistics Export.dll" asks
@@ -101,6 +104,7 @@
 #include "../shared/game_save_slot.h"
 #include "../shared/custom_titles.h"
 #include "../shared/vv5_villager_table.h"
+#include "../shared/identity_in_place.h"
 
 #define HA_GAME 5
 #define HA_FLAG_FORMER "VVFP Heathen Aging Former.txt"
@@ -175,12 +179,7 @@
 #define TICK_BELIEVER 0x472CDBu
 #define TICK_HEATHEN 0x472CC0u
 #define TICK_NEXT 0x473359u
-#define SITE_TO_HEATHEN 0x4669E0u
-#define TO_HEATHEN_ON 0x4669E5u
-#define SITE_SPA 0x415D0Cu
-#define SITE_MASK 0x416C5Bu
-#define G_FACTION_SET 0x466880u
-#define HA_SITES 5
+#define HA_SITES 2
 
 typedef int (__fastcall *tc0_fn)(void *self, void *unused_edx);
 typedef int (__fastcall *tc1_fn)(void *self, void *unused_edx, int a);
@@ -213,6 +212,7 @@ static int g_owed_counts[6];
 #define OWED g_owed_by_slot[g_file_slot]
 #define OWED_COUNT g_owed_counts[g_file_slot]
 static int g_body_count;                   /* the Heathen bodies watched (watch_graves, below) */
+static int g_roster_known;                 /* the last roster look (follow_identities, below) */
 static void pay_owed(void);
 
 /* ---- the game, called ------------------------------------------------------------------------------------- */
@@ -265,7 +265,7 @@ static int puzzle_done(int puzzle) {
 /* ---- the file of former villagers ------------------------------------------------------------------------- */
 
 #define HA_MAGIC 0x31414856u     /* 'VHA1' */
-#define HA_VERSION 1u
+#define HA_VERSION 2u          /* 2: magic, version, game, count, slot (v1 never shipped) */
 #define HA_MAX 1024
 #define HA_HEADER 20u
 #define KIND_BORN 0u             /* born a Heathen (a baby this companion delivered) */
@@ -332,10 +332,10 @@ static int valid_known(const unsigned char *data, DWORD len, void *ctx) {
     const unsigned int *u = (const unsigned int *)data;
     unsigned int count, i;
     if (len < HA_HEADER || u[0] != HA_MAGIC || u[1] != HA_VERSION || u[2] != HA_GAME
-        || u[3] != (unsigned int)*(const int *)ctx) {
+        || u[4] != (unsigned int)*(const int *)ctx) {
         return 0;
     }
-    count = u[4];
+    count = u[3];
     if (count > HA_MAX || len != HA_HEADER + count * 8u) {
         return 0;
     }
@@ -396,7 +396,7 @@ static void read_known(int slot) {
     g_load_blocked = status == VV_SIDECAR_LOAD_BLOCKED;
     if (status == VV_SIDECAR_LOAD_VALID) {
         /* What this village's catch-up noted before the file was read is kept with it. */
-        for (i = 0; i < g_buffer[4]; ++i) {
+        for (i = 0; i < g_buffer[3]; ++i) {
             if (known_find(g_buffer[5 + i * 2], g_buffer[6 + i * 2]) < 0 && g_known_count < HA_MAX) {
                 g_known[g_known_count].identity = g_buffer[5 + i * 2];
                 g_known[g_known_count].kind = g_buffer[6 + i * 2];
@@ -420,8 +420,8 @@ static void write_known(void) {
     header[0] = HA_MAGIC;
     header[1] = HA_VERSION;
     header[2] = HA_GAME;
-    header[3] = (unsigned int)g_file_slot;
-    header[4] = (unsigned int)g_known_count;
+    header[3] = (unsigned int)g_known_count;
+    header[4] = (unsigned int)g_file_slot;
     parts[0] = header;
     sizes[0] = sizeof header;
     parts[1] = g_known;
@@ -449,7 +449,8 @@ static void keep_known(void) {
         g_known_count = 0;
         g_dirty = 0;
         g_file_slot = slot;
-        g_body_count = 0;                  /* another village's bodies and believers */
+        g_body_count = 0;                  /* another village's bodies, believers and roster */
+        g_roster_known = 0;
         memset(g_seen, 0, sizeof g_seen);
         read_known(slot);
     } else if (g_load_blocked && !vv_sidecar_gate_throttled(&g_gate)) {
@@ -545,6 +546,86 @@ static void watch_graves(void) {
     }
 }
 
+/* ---- identities follow their villager ----------------------------------------------------------------------
+
+   The entries are kept by name, likes and dislikes, which island events, the Custom Island Event, the Mysterious
+   Vial, the Crystal of Reflections and the Origins upgrades change, and a rename changes too.  At each look (the
+   age credit's throttled pass) the roster is compared with the last look, by the repo's rules (Former Heathens'
+   cod_former.inc former_follow): one record renamed with its likes, dislikes and sex unchanged, or records whose
+   identity changed in place (identity_in_place.h: same record, name, sex, an age gone on by at most a year, nobody
+   moved) -- and every entry of the old identity is carried to the new one.  An old identity two records carried is
+   carried nowhere (nothing guessed). */
+static unsigned int g_roster[256], g_roster_stable[256], g_roster_keep[256];
+static int g_roster_age[256];
+static int g_roster_known;
+
+static unsigned int stable_of(const unsigned char *record) {
+    unsigned int h = vv_title_identity(record, R_NAME, 0u, R_LIKES, R_DISLIKES, R_PREF_SLOTS);
+    h = (h ^ (unsigned int)i32(record, R_SEX)) * 16777619u;
+    return h ? h : 1u;
+}
+
+static void rekey(const unsigned int *was, int n, unsigned int from, unsigned int to) {
+    int i, carried = 0;
+    for (i = 0; i < n; ++i) {
+        carried += was[i] == from;
+    }
+    if (from == to || from == 0u || to == 0u || carried != 1) {
+        return;
+    }
+    for (i = 0; i < g_known_count;) {
+        if (g_known[i].kind != KIND_GRAVE && g_known[i].identity == from) {
+            unsigned int kind = g_known[i].kind;
+            known_drop(from, kind);
+            known_put(to, kind);
+            continue;                              /* the list moved under i */
+        }
+        ++i;
+    }
+}
+
+static void follow_identities(void) {
+    static unsigned int now[256], now_stable[256], now_keep[256];
+    static int now_age[256];
+    static unsigned char same[256];
+    int n = (int)g_slots, i, at = -1, renames = 0, anyone = 0;
+    for (i = 0; i < n; ++i) {
+        const unsigned char *r = rec_at(i);
+        now[i] = now_stable[i] = now_keep[i] = 0u;
+        now_age[i] = 0;
+        if (r[R_PRESENT] != 0 && r[R_LOOKALIKE] == 0) {
+            now[i] = identity(r);
+            now_stable[i] = stable_of(r);
+            now_keep[i] = vv_identity_keep(r, R_NAME, R_NAME_CAP, R_SEX);
+            now_age[i] = i32(r, R_AGE);
+            anyone = 1;
+        }
+    }
+    if (g_roster_known && anyone) {
+        for (i = 0; i < n; ++i) {
+            if (g_roster[i] != now[i] && g_roster[i] != 0u && now[i] != 0u) {
+                ++renames;
+                at = i;
+            }
+        }
+        if (renames == 1 && g_roster_stable[at] != 0u && g_roster_stable[at] == now_stable[at]) {
+            rekey(g_roster, n, g_roster[at], now[at]);
+        } else if (vv_roster_changed_in_place(n, g_roster, g_roster_keep, g_roster_age, now, now_keep, now_age,
+                                              same) > 0) {
+            for (i = 0; i < n; ++i) {
+                if (same[i]) {
+                    rekey(g_roster, n, g_roster[i], now[i]);
+                }
+            }
+        }
+    }
+    memcpy(g_roster, now, sizeof(unsigned int) * (size_t)n);
+    memcpy(g_roster_stable, now_stable, sizeof(unsigned int) * (size_t)n);
+    memcpy(g_roster_keep, now_keep, sizeof(unsigned int) * (size_t)n);
+    memcpy(g_roster_age, now_age, sizeof(int) * (size_t)n);
+    g_roster_known = anyone;
+}
+
 /* ---- who ages ---------------------------------------------------------------------------------------------- */
 
 static int ages(const unsigned char *record) {
@@ -552,18 +633,6 @@ static int ages(const unsigned char *record) {
         return 0;
     }
     return g_tribe_row || (g_former_row && former_villager(record));
-}
-
-/* A believer about to become a Heathen, at one of the three sites. */
-static void __cdecl turning(unsigned char *record) {
-    __try {
-        int index = rec_index(record);
-        if (index >= 0 && record[R_FACTION] == 0 && living(record) && g_seen[index] != 0
-            && g_seen[index] == identity(record)) {
-            known_put(g_seen[index], KIND_FORMER);
-        }
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-    }
 }
 
 /* The age credit, for a living record: 1 a believer (the stock add), 2 an aging Heathen (add here, then the
@@ -575,6 +644,7 @@ static int __cdecl credit(unsigned char *record, int units) {
         if (GetTickCount() - g_kept_at >= HA_KEEP_MS) {
             g_kept_at = GetTickCount();
             keep_known();
+            follow_identities();
             watch_graves();
             if (OWED_COUNT > 0) {
                 pay_owed();
@@ -583,7 +653,14 @@ static int __cdecl credit(unsigned char *record, int units) {
         if (record[R_FACTION] == 0) {
             if (index >= 0) {
                 g_seen[index] = identity(record);
+                known_drop(g_seen[index], KIND_EXPECTING);   /* a believer now: any pregnancy is hers */
             }
+        } else if (index >= 0 && g_seen[index] != 0 && g_seen[index] == identity(record)) {
+            known_put(g_seen[index], KIND_FORMER);       /* turned Heathen since the last look */
+            g_seen[index] = 0;
+        }
+        if (record[R_FACTION] == 0) {
+            /* the stock add */
         } else if (ages(record)) {
             *(int *)(record + R_AGE) += units;
             answer = 2;
@@ -689,8 +766,15 @@ static int create_role(int role) {
     }
 }
 
+/* The stock camp's Faith (0x470E60): five blue Heathens get -5, -9, -16, -23 and -30, every other ordinary one
+   -38 - rand(30).  A replacement of one of those five keeps that Faith, so the camp is never harder to convert
+   than the stock game's; any other gets -38 - rand(30). */
+static int g_replace_faith;
+
 static int create_ordinary(int role, int orange, int red) {
-    return create(0, ha_rand(6), 5 + ha_rand(5), -1, 400, orange, red, role, camp_faith());
+    int faith = g_replace_faith;
+    g_replace_faith = 0;
+    return create(0, ha_rand(6), 5 + ha_rand(5), -1, 400, orange, red, role, faith != 0 ? faith : camp_faith());
 }
 
 /* One owed replacement made if there is room: 1 made. */
@@ -745,7 +829,9 @@ static void tell_died(int index) {
 
 /* Old age took the Heathen in `record` (the roll said so; health not yet touched). */
 static void died(unsigned char *record) {
+    known_drop(identity(record), KIND_EXPECTING);
     int role = i32(record, R_ROLE);
+    int faith = i32(record, R_FAITH);
     unsigned char orange = record[R_ORANGE], red = record[R_RED];
     int former = former_villager(record);
     int index = rec_index(record);
@@ -778,9 +864,12 @@ static void died(unsigned char *record) {
     } else if (role < 0 || role > 11) {
         role = 0;
     }
+    g_replace_faith = !former && (faith == -5 || faith == -9 || faith == -16 || faith == -23 || faith == -30)
+        ? faith : 0;
     if (!replace(role, orange, red)) {
         owe(role, orange, red);
     }
+    g_replace_faith = 0;
 }
 
 /* ---- babies (the tribe row) -------------------------------------------------------------------------------- */
@@ -926,8 +1015,6 @@ static const unsigned int g_credit_add = CREDIT_ADD;
 static const unsigned int g_tick_believer = TICK_BELIEVER;
 static const unsigned int g_tick_heathen = TICK_HEATHEN;
 static const unsigned int g_tick_next = TICK_NEXT;
-static const unsigned int g_to_heathen_on = TO_HEATHEN_ON;
-static const unsigned int g_faction_set = G_FACTION_SET;
 
 /* In place of 0x470077's `cmp byte [esi+0x1CEC], bl; mov edi, eax; jne`. */
 __declspec(naked) static void credit_stub(void) {
@@ -971,44 +1058,9 @@ __declspec(naked) static void tick_stub(void) {
     }
 }
 
-/* In place of 0x4669E0's `push esi; push -1; mov esi, ecx`. */
-__declspec(naked) static void to_heathen_stub(void) {
-    __asm {
-        pushad
-        push ecx
-        call turning
-        add esp, 4
-        popad
-        push esi
-        push -1
-        mov esi, ecx
-        jmp dword ptr [g_to_heathen_on]
-    }
-}
-
-/* In place of The Spa's and The Cracked Mask's `call 0x466880`. */
-__declspec(naked) static void faction_stub(void) {
-    __asm {
-        pushad
-        push ecx
-        call turning
-        add esp, 4
-        popad
-        jmp dword ptr [g_faction_set]
-    }
-}
-
 static const unsigned char CREDIT_STOCK[10] = { 0x38, 0x9E, 0xEC, 0x1C, 0x00, 0x00, 0x8B, 0xF8, 0x75, 0x0C };
 static const unsigned char CREDIT_STATS[10] = { 0x38, 0x9E, 0xEC, 0x1C, 0x00, 0x00, 0x8B, 0xF8, 0x75, 0x38 };
 static const unsigned char TICK_STOCK[9] = { 0x80, 0xBE, 0xB0, 0x00, 0x00, 0x00, 0x00, 0x74, 0x1B };
-static const unsigned char TO_HEATHEN_STOCK[5] = { 0x56, 0x6A, 0xFF, 0x8B, 0xF1 };
-static unsigned char g_spa_stock[5], g_mask_stock[5];
-
-static void call_bytes(unsigned char *out, unsigned int va, unsigned int target) {
-    unsigned int rel = target - (va + 5u);
-    out[0] = 0xE8;
-    memcpy(out + 1, &rel, 4);
-}
 
 /* "VVFP Statistics Export.dll" (Village Elders): 1 when Roster of the Dead entry `entry` of `game` is a Heathen's
    grave (written down above), else 0 -- a Heathen never counts. */
@@ -1036,6 +1088,7 @@ void __stdcall VvfpHeathenAgingVillageReset(int game, int slot) {
     g_dirty = 0;
     g_file_slot = 0;
     g_body_count = 0;
+    g_roster_known = 0;
     memset(g_seen, 0, sizeof g_seen);
 }
 
@@ -1074,13 +1127,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         return;
     }
     g_skip_target = SITE_CREDIT + 10u + (unsigned int)(signed char)credit_bytes[9];
-    call_bytes(g_spa_stock, SITE_SPA, G_FACTION_SET);
-    call_bytes(g_mask_stock, SITE_MASK, G_FACTION_SET);
     vvfp_site_branch(&sites[0], SITE_CREDIT, 10, credit_bytes, 0xE9, (const void *)credit_stub);
     vvfp_site_branch(&sites[1], SITE_TICK, 9, TICK_STOCK, 0xE9, (const void *)tick_stub);
-    vvfp_site_branch(&sites[2], SITE_TO_HEATHEN, 5, TO_HEATHEN_STOCK, 0xE9, (const void *)to_heathen_stub);
-    vvfp_site_branch(&sites[3], SITE_SPA, 5, g_spa_stock, 0xE8, (const void *)faction_stub);
-    vvfp_site_branch(&sites[4], SITE_MASK, 5, g_mask_stock, 0xE8, (const void *)faction_stub);
     if (vvfp_install_sites(sites, HA_SITES)) {
         g_installed = 1;
     }

@@ -1504,6 +1504,10 @@ def plan_renames(folder: Path, game: int, slot: int, renames: dict[tuple, str],
     if game == 5:
         _plan_u32_file(result, _data_file(folder, "Former Heathens", f"Former Heathens - Save {slot}.dat"),
                        b"VFH1", {1: 8}, game, 16, 0, title_map, "former Heathens", title_conflicts)
+        # New Believers' Heathen Aging file (native/vvfp_heathen_aging): former villagers, born Heathens and expecting
+        # mothers by the same identity; version 2, the count at +12, 8-byte entries after a 20-byte header.
+        _plan_u32_file(result, _data_file(folder, "Heathen Aging", f"Heathen Aging - Save {slot}.dat"),
+                       b"VHA1", {2: 8}, game, 20, 0, title_map, "Heathen Aging", title_conflicts)
     if game == 1:
         _plan_vv1_parentage(result, folder, data_dir, slot, people, renames, asked, by_name)
     _plan_unaccounted(result, game, slot, data_dir, renames, asked, by_name,

@@ -309,6 +309,7 @@ class FormerVillagers(unittest.TestCase):
         self.assertEqual(v.i32(r, AGE), 601)
         v.turn_heathen(r)                                # the game's own to-a-Heathen
         self.assertEqual(v.read(r + FACTION, 1), b"\x01")
+        v.credit(r, 0)                                   # the next frame's look sees the turning
         return r
 
     def test_a_former_villager_ages_like_a_believer(self):
@@ -682,6 +683,130 @@ class OwedReplacements(unittest.TestCase):
         v.credit(v.record(41), 1)
         self.assertEqual(v.created, [])
 
+DISLIKES = 0x1F68
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class SelfReview(unittest.TestCase):
+    """#850's self-review: turnings seen by the age credit (no call-site splices), a stale expecting entry, entries
+    following their villager, and the stock camp's Faith for a replacement."""
+
+    def _seen_then(self, v: Village, index: int = 3, **kw) -> int:
+        r = v.villager(index, heathen=False, **kw)
+        v.credit(r, 1)
+        return r
+
+    def test_a_turning_by_the_direct_faction_setter_is_seen(self):
+        # The Spa's and The Cracked Mask's own `call 0x466880` (faction 1), not through to-a-Heathen.
+        v = Village((FORMER,))
+        self.assertEqual(v.installed, 1)
+        r = self._seen_then(v)
+        v.write(r + FACTION, b"\x01")
+        v.credit(r, 3)
+        self.assertEqual(v.i32(r, AGE), 604, "a former villager: ages from that very credit")
+
+    def test_no_call_site_of_the_spa_cracked_mask_or_to_a_heathen_is_written(self):
+        v = Village((FORMER, TRIBE))
+        image = v.image()
+        stock = Village(())                              # not installed
+        base = v.exe_base
+        for va, n in ((0x415D0C, 5), (0x416C5B, 5), (0x4669E0, 5), (0x4669F5, 10), (0x466966, 7), (0x41699F, 5)):
+            with self.subTest(va=hex(va)):
+                self.assertEqual(image[va - base:va - base + n], stock.image()[va - base:va - base + n])
+
+    def test_a_stale_expecting_entry_never_delivers_a_believer_pregnancy_among_the_heathens(self):
+        v = Village((TRIBE,))
+        man = v.villager(1, heathen=True, sex=0, name="Kalo")
+        woman = v.villager(2, heathen=True, sex=1, name="Mele")
+        v.put32(woman + AGE, 601)
+        v.rand_answers.extend([0, 0])
+        v.life_tick()                                    # a Heathen pregnancy: expecting
+        self.assertEqual(len(v.conceived), 1)
+        v.write(woman + FACTION, b"\x00")                # she joins the tribe ...
+        v.credit(woman, 0)                               # ... and is seen a believer
+        v.put32(woman + PREGNANT, 0)                     # her baby born a believer
+        v.put32(woman + PREGNANT, 700)                   # later, a believer pregnancy
+        v.put32(woman + LITTER, 1)
+        v.write(woman + FACTION, b"\x01")                # and she turns Heathen while expecting
+        v.put32(woman + PROCESSED, 760)
+        v.put32(woman + AGE, 770)
+        v.life_tick()
+        self.assertEqual(v.created, [], "her believer pregnancy waits for her to rejoin, as in the stock game")
+        self.assertEqual(v.i32(woman, PREGNANT), 700)
+        _ = man
+
+    def test_a_former_villager_whose_dislikes_change_in_place_still_ages(self):
+        v = Village((FORMER,))
+        r = self._seen_then(v)
+        v.write(r + FACTION, b"\x01")
+        v.credit(r, 1)                                   # noted
+        self.assertEqual(v.i32(r, AGE), 602)
+        v.write(r + DISLIKES, struct.pack("<3I", 9, 9, 9))   # an island event changes her dislikes
+        v.credit(r, 1)                                   # the look that follows her
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 604, "the entry followed her new identity")
+
+    def test_a_renamed_former_villager_still_ages(self):
+        v = Village((FORMER,))
+        r = self._seen_then(v)
+        v.write(r + FACTION, b"\x01")
+        v.credit(r, 1)
+        v.write(r + NAME, b"V3 Akikai\0")                # a last name given
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 604)
+
+    def test_without_the_follow_a_changed_identity_is_a_stranger(self):
+        # The control: a different villager (sex changed too) in the record is not followed.
+        v = Village((FORMER,))
+        r = self._seen_then(v)
+        v.write(r + FACTION, b"\x01")
+        v.credit(r, 1)
+        v.write(r + NAME, b"Somebody\0")
+        v.put32(r + SEX, 1)
+        v.write(r + DISLIKES, struct.pack("<3I", 9, 9, 9))
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 602)
+
+    def test_a_replacement_keeps_one_of_the_five_easy_camp_faiths(self):
+        for faith, keeps in ((-9, True), (-30, True), (-50, False)):
+            with self.subTest(faith=faith):
+                v = Village((TRIBE,))
+                h = v.villager(1, heathen=True, role=2)
+                v.put32(h + FAITH, faith & 0xFFFFFFFF)
+                _due_to_die(v, h)
+                v.life_tick()
+                new = v.record(v.created[0][0])
+                got = v.i32(new, FAITH)
+                if keeps:
+                    self.assertEqual(got, faith)
+                else:
+                    self.assertTrue(-67 <= got <= -38, got)
+
+
+class OfflineRenames(unittest.TestCase):
+    def test_the_rename_planner_rekeys_the_heathen_aging_file(self):
+        import tempfile
+        import inspect
+        import vv_last_names as ln
+        src = inspect.getsource(ln.plan_renames)
+        self.assertIn('"Heathen Aging", f"Heathen Aging - Save {slot}.dat"', src)
+        self.assertIn('b"VHA1", {2: 8}, game, 20, 0, title_map', src)
+        with tempfile.TemporaryDirectory() as d:
+            path = Path(d) / "Heathen Aging - Save 1.dat"
+            original = (struct.pack("<5I", 0x31414856, 2, 5, 3, 1)
+                        + struct.pack("<6I", 0xAAAA0001, 1, 0xAAAA0001, 2, 7, 3))
+            path.write_bytes(original)
+            plan = ln.Plan({}) if hasattr(ln, "Plan") else None
+            if plan is None:
+                self.skipTest("no Plan in vv_last_names")
+            ln._plan_u32_file(plan, path, b"VHA1", {2: 8}, 5, 20, 0, {0xAAAA0001: 0xBBBB0002}, "Heathen Aging", {})
+            self.assertEqual(len(plan.changes), 1)
+            after = plan.changes[0].updated
+            self.assertEqual(struct.unpack_from("<6I", after, 20), (0xBBBB0002, 1, 0xBBBB0002, 2, 7, 3),
+                             "former and expecting carried; the grave entry 7 left alone")
+
 ROWS = {
     "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
     "vv5_heathen_tribe_ages": ("Heathen Tribe Ages, Dies and Has Children", TRIBE, True),
@@ -730,6 +855,32 @@ class TheRows(unittest.TestCase):
         self.assertEqual(bones_former["conflicts"], ["vv5_all_heathens_leave_skeletons"])
         self.assertEqual(bones_all["conflicts"], ["vv5_former_villager_heathens_leave_skeletons"])
 
+    def test_no_other_new_believers_row_writes_a_byte_this_companion_writes(self):
+        """Two companions splicing one site with all-or-none stock-byte checks: the second installs nothing (the
+        self-review of #850: Heathens Keep Their Masks, #843, splices The Spa's and The Cracked Mask's calls and
+        0x4669F5).  Every VV5 row's declared run-time sites -- and #843's, from its branch when it is fetched --
+        are checked against this companion's two."""
+        import subprocess
+
+        def ranges(row):
+            return [(int(d["va"], 16), int(d["va"], 16) + len(d["stock_bytes"]) // 2) for d in row.get("runtime_detours", [])]
+
+        mine = ranges(json.loads((ROOT / "data" / "vv5_heathen_tribe_ages_feature.json").read_text(encoding="utf-8")))
+        self.assertEqual(sorted(a for a, _ in mine), [0x470077, 0x472CB7])
+        others = {}
+        for path in (ROOT / "data").glob("vv5_*_feature.json"):
+            if path.name in {f"{r}_feature.json" for r in ROWS}:
+                continue
+            others[path.name] = ranges(json.loads(path.read_text(encoding="utf-8")))
+        shown = subprocess.run(["git", "show", "origin/feat/98-reverted-heathens-keep-mask-look:"
+                                "data/vv5_heathens_keep_masks_feature.json"], cwd=ROOT, capture_output=True)
+        if shown.returncode == 0:
+            others["#843 Keep Masks"] = ranges(json.loads(shown.stdout.decode("utf-8-sig")))
+        for name, spans in others.items():
+            for a, b in spans:
+                for c, d in mine:
+                    with self.subTest(row=name, va=hex(a)):
+                        self.assertTrue(b <= c or d <= a, f"{name} writes 0x{a:X}..0x{b:X}")
     def test_the_dll_exports_and_the_flag_files(self):
         try:
             import pefile

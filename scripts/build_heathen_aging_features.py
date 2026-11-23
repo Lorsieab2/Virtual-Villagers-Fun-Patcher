@@ -68,13 +68,6 @@ SITES = (
      "aging Heathen with a unit due gets one unit -- the believers' old-age roll (0x472FC6..0x47304A), with the "
      "tribe row its pregnancy and birth -- its processed age +1 and the pass marked not done ([esp+0x12] = 0), "
      "then 0x473359; any other Heathen the stock skip 0x472CC0"),
-    (0x4669E0, "566AFF8BF1",
-     "to-a-Heathen 0x4669E0's first instructions `push esi; push -1; mov esi, ecx`, replayed exactly after a "
-     "believer the age credit has seen alive is written down as a former villager"),
-    (0x415D0C, "E86F0B0500",
-     "The Spa's `call 0x466880` (faction 1): the same note, then the setter"),
-    (0x416C5B, "E820FC0400",
-     "The Cracked Mask's `call 0x466880` (faction 1): the same note, then the setter"),
 )
 
 NOT_SEEN = ("**Not yet seen in a running game** (checked by emulation of the stock executable).")
@@ -152,15 +145,17 @@ AGING_CHANGES = [
     "companion writes the Death record (VvfpCauseDiedAmongHeathens: Old age, \"no grave (died among the Heathens: "
     "nothing was left)\").",
     "The replacement, in the same tick, by the Heathen creator 0x46FD20 (Faith 1 there, so its SetFaith never runs "
-    "to-a-Heathen; the camp's -38 - rand(30) written to +0x1CF0 after): an ordinary Heathen in the dead one's camp "
+    "to-a-Heathen; the stock camp's Faith written to +0x1CF0 after: -38 - rand(30), or the dead one's own when it "
+    "was one of the five easy blue Faiths -5, -9, -16, -23, -30 of 0x470E60): an ordinary Heathen in the dead one's camp "
     "role (0..11) and mask (+0x1CED orange, +0x1CEE red), age 400, random sex; a former villager's replacement an "
     "ordinary blue, orange or red Heathen (13 : 7 : 3, the camp's mix), role 0; a puzzle Heathen (roles 12-17) "
     "whose puzzle (1, 16, 13, 9, 5, 17: progress 0x51E008 + 8p against 0x51DF30 + 4p) is unsolved by the stock "
     "camp's own set-up of that role (0x424AC0; the Heathen Mommy's as the restored puzzle makes her, with her "
     "infant 0x465E00 forced, its father an adult Heathen man when there is one). A full table: owed until a record "
     "is free. The Cause of Death companion writes its Arrived record (VvfpCauseHeathenArrived).",
-    "Who turned Heathen: a living believer the age credit has seen, at to-a-Heathen 0x4669E0 and The Spa's and The "
-    "Cracked Mask's faction calls (0x415D0C, 0x416C5B), by identity (name, likes, dislikes), kept per save slot in "
+    "Who turned Heathen: a living Heathen the age credit last saw as that very believer (any path: the Faith drift, "
+    "island events, The Spa, The Cracked Mask, a Custom Island Event; no call site spliced), by identity (name, likes, "
+    "dislikes; carried to the new identity when the likes change in place or the name changes), kept per save slot in "
     "\"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Heathen Aging\\Heathen Aging - Save <S>.dat\"; one who turned "
     "before the row by the parents on the record (+0x1BC0 / +0x1BD9).",
 ]
@@ -175,7 +170,7 @@ TRIBE_CHANGES = [
     "Heathen Mommy's infant, wait for her to rejoin the tribe, as in the stock game.",
 ]
 AGING_NON_CHANGES = [
-    "No executable byte is patched: the companion splices five sites at run time, only after verifying their stock "
+    "No executable byte is patched: the companion splices two sites at run time, only after verifying their stock "
     "bytes, all or none; each splice makes the very instructions it replaced.",
     "A Heathen still never eats, starves, falls sick, loses health, drifts in Faith, works or uses the work system.",
     "Heathens never count in the Village Statistics: the death counter is put back, the Oldest Villager maximum "
@@ -228,7 +223,7 @@ def row(row_id: str) -> dict:
         "patches": [],
         "runtime_detours": [
             {"va": f"0x{va:X}", "stock_bytes": stock,
-             "written_bytes": ("E9" if va not in (0x415D0C, 0x416C5B) else "E8") + "XXXXXXXX"
+             "written_bytes": "E9XXXXXXXX"
              + "90" * (len(stock) // 2 - 5),
              "routine": what, "installed_by": INSTALLED_BY}
             for va, stock, what in SITES
