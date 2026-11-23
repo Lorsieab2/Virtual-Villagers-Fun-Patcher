@@ -140,7 +140,7 @@
    "src": "L9335-9337"
   },
   "c1o1": {
-   "text": "(subject) gets the scrolls in dry, and stands in the doorway watching the rain, and for the first time in (subject.his/her) life doesn't feel the pull. It's just water falling. (researcher) is so grateful (subject.he/she) brings (subject) a cup of rainwater. (subject) drinks it, and it tastes of nothing much, and that's fine.",
+   "text": "(subject) gets the scrolls in dry, and stands in the doorway watching the rain, and for the first time in (subject.his/her) life doesn't feel the pull. It's just water falling. (researcher) is so grateful (researcher.he/she) brings (subject) a cup of rainwater. (subject) drinks it, and it tastes of nothing much, and that's fine.",
    "children": [
     {
      "next": "c1o1_c1"

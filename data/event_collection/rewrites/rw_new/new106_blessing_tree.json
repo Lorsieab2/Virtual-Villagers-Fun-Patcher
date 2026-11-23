@@ -208,7 +208,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "As the warmth fades, (friend) shakes (subject.his/her) head gently. \"If it happens, I want it to happen because it happens. Not because a tree said so.\" (subject) understands. They set the leaf among the roots with a word of thanks, and the village respects their choice, though one or two of the more nosy aunts are very disappointed.",
+   "text": "As the warmth fades, (friend) shakes (friend.his/her) head gently. \"If it happens, I want it to happen because it happens. Not because a tree said so.\" (subject) understands. They set the leaf among the roots with a word of thanks, and the village respects their choice, though one or two of the more nosy aunts are very disappointed.",
    "src": "L4981"
   },
   "c2": {
@@ -249,7 +249,7 @@
    "auto_text": true
   },
   "c3": {
-   "text": "(elder), who has tended the old tree's roots for decades, listens with (subject.his/her) hand resting on the bark, as if checking the tree's side of the story...",
+   "text": "(elder), who has tended the old tree's roots for decades, listens with (elder.his/her) hand resting on the bark, as if checking the tree's side of the story...",
    "children": [
     {
      "next": "c3o1",

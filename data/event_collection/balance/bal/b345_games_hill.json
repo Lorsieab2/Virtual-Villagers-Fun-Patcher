@@ -157,7 +157,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "Three days before the games, (runner), pushed too hard for too long, feels something tear at the back of (subject.his/her) leg. The healers do what they can, but it never heals right. The village loses the running and two other events, and hosts the feast. The hill village is kind about it. (subject) isn't kind to (subject.himself/herself) for a long time.",
+   "text": "Three days before the games, (runner), pushed too hard for too long, feels something tear at the back of (runner.his/her) leg. The healers do what they can, but it never heals right. The village loses the running and two other events, and hosts the feast. The hill village is kind about it. (subject) isn't kind to (subject.himself/herself) for a long time.",
    "effects": [
     {
      "do": "health_change",
@@ -168,11 +168,11 @@
     {
      "do": "preference",
      "dislike": "running",
-     "role": "subject"
+     "role": "runner"
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "runner"
     }
    ],
    "src": "L15946",
@@ -209,7 +209,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "At the end of the month, the best swimmer turns out to be (champion), who has never been good at anything much and has never once been picked for anything. (subject.He/She) wins the swimming by a whole length. The village loses the other three events and hosts the feast, and nobody cares, because (champion) is so happy (subject.he/she) can't stop crying.",
+   "text": "At the end of the month, the best swimmer turns out to be (champion), who has never been good at anything much and has never once been picked for anything. (champion.He/She) wins the swimming by a whole length. The village loses the other three events and hosts the feast, and nobody cares, because (champion) is so happy (champion.he/she) can't stop crying.",
    "effects": [
     {
      "do": "skill",

@@ -227,6 +227,36 @@ if old is not None:
             if ran == 0:
                 self.skipTest("no stock executable")
 
+        def test_the_line_is_checked_when_queued(self):
+            """Codex (#853): the text checked when the event is queued holds its "(no effect)" (a blank line and
+            the line), so a description that fills the panel without it is refused -- never shown with it dropped;
+            the longest one queued shows it whole."""
+            ran = 0
+            for game, (_width, lines, _tw, _sep) in old.PANEL.items():
+                if not old.have_stock(game):
+                    continue
+
+                def longest(**fx) -> int:
+                    story = old.Story(game)
+                    story.village.put(1, sex="m", years=30, name="Adult")
+                    best = 0
+                    for k in range(1, lines + 2):
+                        if story.refusal(Event(title="Night", text="\n".join(["Quiet."] * k), **fx)) is None:
+                            best = k
+                    return best
+
+                with self.subTest(game=game):
+                    plain, changing = longest(), longest(tech_op=old.ADD, tech_amount=1)
+                    self.assertGreater(plain, 0)
+                    self.assertEqual(plain, changing - 2, "its blank line and its line are kept free")
+                    line = "-no effect-" if game in ("vv1", "vv2") else "(no effect)"
+                    text_of = self.chooser_text if game in old.CHOOSER else self.object_text
+                    text = text_of(game, Event(title="Night", text="\n".join(["Quiet."] * plain)))
+                    self.assertTrue(text.rstrip().endswith("Quiet.\n\n" + line), repr(text))
+                ran += 1
+            if ran == 0:
+                self.skipTest("no stock executable")
+
 
 if __name__ == "__main__":
     unittest.main()

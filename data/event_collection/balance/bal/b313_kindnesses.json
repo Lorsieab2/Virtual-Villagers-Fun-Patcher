@@ -117,7 +117,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(chief) has noticed the village has been grumpy lately: short tempers at the cooking fire, sulking over chores, two shouting matches in one week. So (subject.he/she) announces a Day of Small Kindnesses. For one day, everyone must do one kind thing for someone they don't usually talk to. (chief) puts (subject) in charge of making sure everyone does it.\nHalf the village rolls its eyes. Should (subject) go round gently reminding people, or set a good example and just start being kind, loudly, so everyone can see?",
+   "text": "(chief) has noticed the village has been grumpy lately: short tempers at the cooking fire, sulking over chores, two shouting matches in one week. So (chief.he/she) announces a Day of Small Kindnesses. For one day, everyone must do one kind thing for someone they don't usually talk to. (chief) puts (subject) in charge of making sure everyone does it.\nHalf the village rolls its eyes. Should (subject) go round gently reminding people, or set a good example and just start being kind, loudly, so everyone can see?",
    "choices": [
     {
      "label": "Gently Remind Everyone",

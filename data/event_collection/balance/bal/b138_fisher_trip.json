@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(fisher) hasn't been out in a canoe for ten years. (subject.His/her) hands shake too much now, and (subject.his/her) eyes have gone cloudy. But this morning (subject.he/she) is down on the beach before anyone else, dragging (subject.his/her) old canoe to the water, muttering about a shoal of silverfish that comes in once a year past the far rocks.\n\"I want to see it one more time,\" (subject.he/she) says when (subject) runs down to stop (subject.him/her). \"I'm going whether you come or not.\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
+   "text": "(fisher) hasn't been out in a canoe for ten years. (fisher.His/her) hands shake too much now, and (fisher.his/her) eyes have gone cloudy. But this morning (fisher.he/she) is down on the beach before anyone else, dragging (fisher.his/her) old canoe to the water, muttering about a shoal of silverfish that comes in once a year past the far rocks.\n\"I want to see it one more time,\" (fisher.he/she) says when (subject) runs down to stop (fisher.him/her). \"I'm going whether you come or not.\"\nShould (subject) go with (fisher.him/her), or try to talk (fisher.him/her) out of it?",
    "choices": [
     {
      "label": "Go With (subject.Him/Her)",
@@ -129,7 +129,7 @@
    "src": "L6335-6337"
   },
   "c1o1": {
-   "text": "They find the shoal past the far rocks, exactly where (fisher) said it would be: a whole river of silver under the water, flashing in the sun. (fisher) doesn't fish. (subject.He/She) just watches, and talks, and tells (subject) everything (subject.he/she) knows about the sea, the tides and the patience of it all. They bring home a canoe-load of fish. (subject) carries what (subject.he/she) learned for the rest of (subject.his/her) life. Your villagers gain (award) food.",
+   "text": "They find the shoal past the far rocks, exactly where (fisher) said it would be: a whole river of silver under the water, flashing in the sun. (fisher) doesn't fish. (fisher.He/She) just watches, and talks, and tells (subject) everything (fisher.he/she) knows about the sea, the tides and the patience of it all. They bring home a canoe-load of fish. (subject) carries what (subject.he/she) learned for the rest of (subject.his/her) life. Your villagers gain (award) food.",
    "effects": [
     {
      "do": "skill",
@@ -152,7 +152,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "They find the shoal. (fisher) watches it for a long time, smiling, with (subject.his/her) hand trailing in the water. Then (subject.he/she) leans back against the side of the canoe, closes (subject.his/her) eyes, and doesn't open them again. (subject) paddles home very slowly. The village buries (fisher) on the headland, looking out at the far rocks, and every year after, when the silverfish come in, someone goes out to watch them.",
+   "text": "They find the shoal. (fisher) watches it for a long time, smiling, with (fisher.his/her) hand trailing in the water. Then (fisher.he/she) leans back against the side of the canoe, closes (fisher.his/her) eyes, and doesn't open them again. (subject) paddles home very slowly. The village buries (fisher) on the headland, looking out at the far rocks, and every year after, when the silverfish come in, someone goes out to watch them.",
    "effects": [
     {
      "do": "kill",
@@ -197,7 +197,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(fisher) gives in, and is so cross about it that (subject.he/she) sits by the fire that night and tells every fisher in the village exactly what they've been doing wrong for the last ten years. It takes all night. The younger fishers listen, at first politely and then with their mouths open. By the end of the season they are catching more fish than they have in years. (fisher) says nothing about it, very smugly.",
+   "text": "(fisher) gives in, and is so cross about it that (fisher.he/she) sits by the fire that night and tells every fisher in the village exactly what they've been doing wrong for the last ten years. It takes all night. The younger fishers listen, at first politely and then with their mouths open. By the end of the season they are catching more fish than they have in years. (fisher) says nothing about it, very smugly.",
    "effects": [
     {
      "do": "skill",

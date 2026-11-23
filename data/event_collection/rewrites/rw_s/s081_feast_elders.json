@@ -112,7 +112,10 @@
   ],
   "description": "The village has decided, all together, that the elders have done quite enough work for one lifetime and deserve a feast.",
   "label_case": "title",
-  "exact_amounts": true
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
  },
  "requirement": {
   "min_eligible": 2
@@ -173,7 +176,7 @@
    "src": "L3818"
   },
   "c1o2": {
-   "text": "The feast is wonderful, and the elders are so moved by it, with their flower crowns and their full bellies, that when the drums start up, they get to their feet and dance. All of them. Slowly at first, then faster. (elder), one of the oldest, dances longest, laughing, (subject.his/her) crown slipping over one eye, until (subject.he/she) finally spins round one last time and collapses, happy and completely exhausted, into a hammock, and falls asleep with a smile. (subject.He/She) is still smiling in the morning.",
+   "text": "The feast is wonderful, and the elders are so moved by it, with their flower crowns and their full bellies, that when the drums start up, they get to their feet and dance. All of them. Slowly at first, then faster. (elder), one of the oldest, dances longest, laughing, (elder.his/her) crown slipping over one eye, until (elder.he/she) finally spins round one last time and collapses, happy and completely exhausted, into a hammock, and falls asleep with a smile. (elder.He/She) is still smiling in the morning.",
    "effects": [
     {
      "do": "food",

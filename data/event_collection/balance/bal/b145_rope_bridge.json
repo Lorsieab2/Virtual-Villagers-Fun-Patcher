@@ -140,7 +140,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "One plank snaps, and (subject)'s leg goes straight through it, up to the hip. (subject.He/She) hangs there, wedged, until the pickers on the far side crawl out and pull (subject.him/her) free. The leg is badly broken. It heals, but stiff, and (subject) walks with a limp from then on and can't stand heights. (builder) mends the bridge, grimly, all by (subject.himself/herself).",
+   "text": "One plank snaps, and (subject)'s leg goes straight through it, up to the hip. (subject.He/She) hangs there, wedged, until the pickers on the far side crawl out and pull (subject.him/her) free. The leg is badly broken. It heals, but stiff, and (subject) walks with a limp from then on and can't stand heights. (builder) mends the bridge, grimly, all by (builder.himself/herself).",
    "effects": [
     {
      "do": "health_change",

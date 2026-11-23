@@ -141,7 +141,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) has asked for a bench.\nNot just any bench. A bench on the bluff above the shore, where (subject.he/she) can sit and watch the fishing canoes come home each evening, the way (subject.he/she) used to watch for (subject.his/her) own family's canoe when (subject.he/she) was young.\nIt is a steep climb up the bluff. The builders are busy. Someone mentions this.\n(subject) points out, quite reasonably, that (subject.he/she) will not be asking for many more things.\nThere is a very uncomfortable silence. (young) finds (subject.himself/herself) already reaching for a hammer. But where exactly should the bench go, and how will (subject) get up there every evening?",
+   "text": "(subject) has asked for a bench.\nNot just any bench. A bench on the bluff above the shore, where (subject.he/she) can sit and watch the fishing canoes come home each evening, the way (subject.he/she) used to watch for (subject.his/her) own family's canoe when (subject.he/she) was young.\nIt is a steep climb up the bluff. The builders are busy. Someone mentions this.\n(subject) points out, quite reasonably, that (subject.he/she) will not be asking for many more things.\nThere is a very uncomfortable silence. (young) finds (young.himself/herself) already reaching for a hammer. But where exactly should the bench go, and how will (subject) get up there every evening?",
    "choices": [
     {
      "label": "Ask Where Exactly It Should Go",

@@ -96,7 +96,10 @@
   ],
   "description": "Chief a villager has had an idea in the night.",
   "label_case": "title",
-  "exact_amounts": true
+  "exact_amounts": true,
+  "cast_only": [
+   "chief"
+  ]
  },
  "requirement": {
   "min_eligible": 3
@@ -215,12 +218,12 @@
    "effects": [
     {
      "do": "preference",
-     "role": "chief",
+     "role": "subject",
      "dislike": "turnips"
     },
     {
      "do": "skill",
-     "role": "chief",
+     "role": "subject",
      "min": 10,
      "max": 10,
      "skills": [

@@ -171,7 +171,7 @@
    "src": "L14259"
   },
   "c2o2": {
-   "text": "As they set the last stone, they both hear it: three slow knocks from the other side. Then nothing. They run all the way back to the village. (friend), who has always wanted to know what's in every cave and under every rock, loses all interest in finding things out after that. \"Some things,\" (subject.he/she) says, \"can stay where they are.\"",
+   "text": "As they set the last stone, they both hear it: three slow knocks from the other side. Then nothing. They run all the way back to the village. (friend), who has always wanted to know what's in every cave and under every rock, loses all interest in finding things out after that. \"Some things,\" (friend.he/she) says, \"can stay where they are.\"",
    "children": [
     {
      "next": "c2o2_c1"

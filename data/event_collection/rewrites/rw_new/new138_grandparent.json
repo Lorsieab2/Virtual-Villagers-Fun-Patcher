@@ -184,7 +184,7 @@
    "src": "L6498"
   },
   "c2o1": {
-   "text": "(subject) shows (young) how storytellers keep long tales straight with knotted cords: a big knot for each part of the story, little knots for each character, a twist for each surprise. Feeling the knots, the teller always knows what comes next. (young) learns a useful skill for remembering anything, and makes a cord of (subject.his/her) own with both endings on it.",
+   "text": "(subject) shows (young) how storytellers keep long tales straight with knotted cords: a big knot for each part of the story, little knots for each character, a twist for each surprise. Feeling the knots, the teller always knows what comes next. (young) learns a useful skill for remembering anything, and makes a cord of (young.his/her) own with both endings on it.",
    "effects": [
     {
      "do": "skill",
@@ -204,7 +204,7 @@
    "src": "L6509"
   },
   "c2": {
-   "text": "(young) asks how storytellers keep long tales straight, so (subject.he/she) can remember both endings. (subject) pulls a knotted cord out of (subject.his/her) pocket. \"With this.\"...",
+   "text": "(young) asks how storytellers keep long tales straight, so (young.he/she) can remember both endings. (subject) pulls a knotted cord out of (subject.his/her) pocket. \"With this.\"...",
    "children": [
     {
      "next": "c2o1",

@@ -189,7 +189,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The footprints end at the tree, and there is nobody up it. Only the rain, and a broken string hanging from a branch. (subject) carries the baby to the healers' hut, where (healer) has just had a baby of (subject.his/her) own and has milk to spare. \"Give him here,\" (healer) says, and the baby settles at once. The carved fish is hung up over the healers' door, in case anyone ever comes looking.",
+   "text": "The footprints end at the tree, and there is nobody up it. Only the rain, and a broken string hanging from a branch. (subject) carries the baby to the healers' hut, where (healer) has just had a baby of (healer.his/her) own and has milk to spare. \"Give him here,\" (healer) says, and the baby settles at once. The carved fish is hung up over the healers' door, in case anyone ever comes looking.",
    "effects": [
     {
      "do": "nursing",

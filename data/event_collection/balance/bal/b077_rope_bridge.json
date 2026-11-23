@@ -140,7 +140,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(subject) makes it to the far side, turns, and raises (subject.his/her) arms, and the young people go wild. (builder) lets out a breath (subject.he/she) seems to have been holding for an hour. Then (builder.he/she) walks out onto the bridge, tests every knot and every plank, re-ties eleven of them, and walks back without a word. (subject) never quite lives it down.",
+   "text": "(subject) makes it to the far side, turns, and raises (subject.his/her) arms, and the young people go wild. (builder) lets out a breath (builder.he/she) seems to have been holding for an hour. Then (builder.he/she) walks out onto the bridge, tests every knot and every plank, re-ties eleven of them, and walks back without a word. (subject) never quite lives it down.",
    "src": "L3493"
   },
   "c1": {
@@ -172,7 +172,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The crack is just the rope settling. The sack goes all the way across and back. (builder) shakes (subject.his/her) head in disbelief and admits, grudgingly, that it'll hold. (subject) walks across to cheers, and the bridge becomes the young people's favourite place, and (builder) checks it every week without telling them.",
+   "text": "The crack is just the rope settling. The sack goes all the way across and back. (builder) shakes (builder.his/her) head in disbelief and admits, grudgingly, that it'll hold. (subject) walks across to cheers, and the bridge becomes the young people's favourite place, and (builder) checks it every week without telling them.",
    "src": "L3502"
   },
   "c2": {

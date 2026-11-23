@@ -140,7 +140,7 @@
    "src": "L5571-5573"
   },
   "c1o1": {
-   "text": "It is the loudest day the village has had all year. Everyone is on a roof, or under one, or passing fronds up to someone on one. People who have never tied a knot in their lives learn three kinds by lunchtime. By sunset every hut has a roof again, a little greener than before and a lot more crooked. (builder) walks round all of them, pulling at the thatch and frowning. Then (subject.he/she) says, grudgingly, \"They'll do.\"",
+   "text": "It is the loudest day the village has had all year. Everyone is on a roof, or under one, or passing fronds up to someone on one. People who have never tied a knot in their lives learn three kinds by lunchtime. By sunset every hut has a roof again, a little greener than before and a lot more crooked. (builder) walks round all of them, pulling at the thatch and frowning. Then (builder.he/she) says, grudgingly, \"They'll do.\"",
    "effects": [
     {
      "do": "repair",

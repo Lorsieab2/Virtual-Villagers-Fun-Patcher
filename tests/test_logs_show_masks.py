@@ -35,6 +35,12 @@ __declspec(dllexport) int __stdcall VvfpMaskOf(void *record) {
     return ((const unsigned char *)record)[0];
 }
 '''
+KEEP_STAND_IN = r'''
+__declspec(dllexport) int __stdcall VvfpHeathensKeepMasksLook(const void *record) {
+    int look = ((const unsigned char *)record)[0x10];
+    return look ? look : -1;
+}
+'''
 ORIGINS = {
     1: ROOT / "assets/origins/VVFP VV1 Origins Icons.dll",
     2: ROOT / "assets/origins/VVFP VV2 Origins Icons.dll",
@@ -112,6 +118,27 @@ class MaskLine(unittest.TestCase):
                 self.assertEqual(self.name(5, heathen(master)), "Purple Mask")
         self.assertEqual(self.name(5, heathen(13)), "Tribal Chief Mask")
         self.assertEqual(self.name(5, heathen(17, red=1)), "Red Mask", "the Heathen Mommy: her mask bytes")
+
+    def test_one_who_went_back_to_the_heathens_wears_the_colour_drawn(self):
+        """Heathens Keep Their Masks When Converted (the owner, 2026-11-22): a villager who once wore orange or red
+        and went back to the Heathens is drawn in that colour while both kind bytes are 0; the Mask line names
+        what the player sees, as the companion's VvfpHeathensKeepMasksLook answers it (here: the byte at +0x10,
+        1 orange, 2 red, else -1)."""
+        def heathen(look=0, orange=0):
+            r = bytearray(0x2000)
+            r[0x1CEC] = 1
+            r[0x1CED] = orange
+            r[0x10] = look
+            return bytes(r)
+        self.assertEqual(self.name(5, heathen(look=1)), "Blue Mask", "no companion loaded: the game's own choice")
+        keep = _cl(Path(self._tmp), KEEP_STAND_IN, "k.c", "VVFP Heathens Keep Masks.dll")
+        if keep is None:
+            self.skipTest("needs the Visual C++ tools")
+        ctypes.CDLL(str(keep))                     # loaded, as VVFP Startup.dll loads it
+        self.assertEqual(self.name(5, heathen(look=1)), "Orange Mask")
+        self.assertEqual(self.name(5, heathen(look=2)), "Red Mask")
+        self.assertEqual(self.name(5, heathen()), "Blue Mask")
+        self.assertEqual(self.name(5, heathen(look=2, orange=1)), "Orange Mask", "the game's own byte first")
 
 
 class EveryOriginsCompanionAnswers(unittest.TestCase):

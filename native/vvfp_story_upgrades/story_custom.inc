@@ -1528,27 +1528,28 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
             }
             ce_line(&w, reasons);
         }
-        if (ce_compose_outcome && !ce_has_effects(e) && !ce_ends_no_effect(e->text)) {
-            /* the owner (2026-11-23): an outcome that changes nothing says so, last, after a blank line as the
-               outcome lines are */
-            if (first) {
-                ce_newline(&w);
-            }
-            ce_tr_done(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s6", "(no effect)",
-                       "(no effect)");
-            if (ce_game_of(a) <= 2 && GetModuleHandleW(L"VVFP Unicode Text.dll") == NULL
-                && GetModuleHandleW(L"VVFP Unicode Font.dll") == NULL) {
-                /* A New Home and The Lost Children draw ( ) only through the Unicode Text companion: "-" without
-                   it, as the branching engine's glyph fallback (story_graph.inc cg_glyph_fallback) */
-                char *c;
-                for (c = line; *c != '\0'; ++c) {
-                    if (*c == '(' || *c == ')') {
-                        *c = '-';
-                    }
+    }
+    if (ce_compose_outcome && !ce_has_effects(e) && !ce_ends_no_effect(e->text)) {
+        /* the owner (2026-11-23): an outcome that changes nothing says so, last, after a blank line as the outcome
+           lines are.  Whatever `r` is: an event that changes nothing has no outcome lines, so the text checked when
+           it is queued (r NULL, ce_refusal / ce_result_refusal, which set ce_compose_outcome too) is the text it
+           shows, line for line -- it always fits, and the fallback without outcome lines keeps it as well (Codex,
+           #853). */
+        ce_newline(&w);
+        ce_tr_done(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s6", "(no effect)",
+                   "(no effect)");
+        if (ce_game_of(a) <= 2 && GetModuleHandleW(L"VVFP Unicode Text.dll") == NULL
+            && GetModuleHandleW(L"VVFP Unicode Font.dll") == NULL) {
+            /* A New Home and The Lost Children draw ( ) only through the Unicode Text companion: "-" without it,
+               as the branching engine's glyph fallback (story_graph.inc cg_glyph_fallback) */
+            char *c;
+            for (c = line; *c != '\0'; ++c) {
+                if (*c == '(' || *c == ')') {
+                    *c = '-';
                 }
             }
-            ce_line(&w, line);
         }
+        ce_line(&w, line);
     }
     return !w.overflow;
 }
@@ -2192,6 +2193,7 @@ static const char *ce_room_refusal(const ce_adapter *a, const ce_event *e) {
    the dialogs were open. */
 static const char *ce_refusal(int game, const ce_event *e) {
     const ce_adapter *a = ce_adapter_for(game);
+    int fits;
     const char *reason;
     static char text[CE_LONG_BUF];
     if (a == NULL) {
@@ -2207,7 +2209,10 @@ static const char *ce_refusal(int game, const ce_event *e) {
     if (reason != NULL) {
         return reason;
     }
-    if (!ce_compose(a, e, NULL, text, sizeof text)) {
+    ce_compose_outcome = 1;            /* its "(no effect)" checked with it, as it is delivered (ce_deliver) */
+    fits = ce_compose(a, e, NULL, text, sizeof text);
+    ce_compose_outcome = 0;
+    if (!fits) {
         return cg_scrolls() ? "The title must fit on one line. Shorten it."
                             : "The title must fit on one line and the description must fit the island event panel. "
                               "Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and "
@@ -2366,6 +2371,7 @@ static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, con
     static char text[CE_LONG_BUF];
     ce_layout l = ce_result_layout(a);
     const char *why;
+    int fits;
     if (ce_word_count(e->text) == 0) {
         return "Give each outcome a result text.";
     }
@@ -2376,7 +2382,10 @@ static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, con
     if (why != NULL) {
         return why;
     }
-    if (!ce_compose_in(a, &l, title, e, NULL, text, sizeof text)) {
+    ce_compose_outcome = 1;            /* its "(no effect)" checked with it, as it is shown (ce_choice_resolve) */
+    fits = ce_compose_in(a, &l, title, e, NULL, text, sizeof text);
+    ce_compose_outcome = 0;
+    if (!fits) {
         return "The result text must fit the island event panel. Shorten it, or install the Scrolling Popups "
                "patch: with it the popup scrolls and the text can be practically unlimited.";
     }

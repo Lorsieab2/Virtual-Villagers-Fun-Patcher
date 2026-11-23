@@ -129,7 +129,7 @@
    "src": "L12446-12448"
   },
   "c1o1": {
-   "text": "(subject) gets the doorway clear just as more mud comes down, and drags (friend) out by the arms. (friend) is alive, but a fallen rafter has crushed (subject.his/her) leg, and it never heals straight. (subject.He/She) walks with a stick after that. For years, whenever it rains hard, (subject.he/she) sits up all night listening to the hill.",
+   "text": "(subject) gets the doorway clear just as more mud comes down, and drags (friend) out by the arms. (friend) is alive, but a fallen rafter has crushed (friend.his/her) leg, and it never heals straight. (friend.He/She) walks with a stick after that. For years, whenever it rains hard, (friend.he/she) sits up all night listening to the hill.",
    "effects": [
     {
      "do": "health_change",
@@ -139,7 +139,7 @@
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "friend"
     }
    ],
    "children": [
@@ -232,7 +232,7 @@
     {
      "do": "preference",
      "dislike": "rocks",
-     "role": "subject"
+     "role": "friend"
     }
    ]
   },
@@ -256,7 +256,7 @@
     {
      "do": "preference",
      "dislike": "wood",
-     "role": "subject"
+     "role": "friend"
     }
    ]
   },

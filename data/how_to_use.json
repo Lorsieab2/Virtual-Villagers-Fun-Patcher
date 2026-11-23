@@ -1079,6 +1079,7 @@
         "Nothing to click in the patcher: on by default.",
         "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
         "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "With Heathens Keep Their Masks When Converted, a former Heathen wears the mask they wore then (still acts as a blue-mask Heathen).",
         "Needs no other patch."
       ]
     },
@@ -1101,6 +1102,7 @@
         "A Heathen who joins the tribe keeps the mask they wore: blue, orange, red, purple or the Chief's.",
         "It is their Change Appearance mask: change it there or choose No Mask whenever you like. Nothing is charged.",
         "Reset to original gives it back: a convert's original look is the one they had, with the mask they wore.",
+        "One who goes back to the Heathens wears their own Heathen mask again but acts like an ordinary blue-masked Heathen.",
         "Heathens who joined before this patch keep the look they have now.",
         "Needs Origins (ticked with it). Not yet seen in a running game."
       ]
@@ -1755,12 +1757,14 @@
       "title": "Copy Player Slot",
       "guide": [
         "Copies a village into another save slot of the same game, under a new name. Quit the game first.",
-        "A slot with no save file is empty, whatever the game's slot list says; a slot with a player is overwritten.",
-        "You are asked first; No (also Return or Escape) changes nothing.",
-        "The whole save folder is backed up first, as (before copy).",
-        "The slot's old files are moved into Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
+        "A slot with no save file is empty, whatever the slot list says; a slot with a player is overwritten. You are asked first; No (also Return or Escape) changes nothing.",
+        "The folder is backed up first, as (before copy). The slot's old files go to Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
         "The copy takes its logs, data and trees along, its record numbers after the game's highest.",
-        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time)."
+        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time).",
+        "Choose Move to move the village itself, keeping its name: its save, the game's older copies, logs, data, trees and repair copies all go along; its old slot is left empty.",
+        "Move lists every file it will move before you say Yes, backs the folder up first, as (before move), and keeps the target slot's old files in Backups, Replaced by move.",
+        "Choose Delete to send every file of a slot to the Recycle Bin: its save, logs, data, trees, repair copies and its files in every backup. Pictures stay.",
+        "Delete lists every file and asks twice; No changes nothing. No backup is made: put anything back from the Recycle Bin."
       ]
     },
     "check_logs": {
