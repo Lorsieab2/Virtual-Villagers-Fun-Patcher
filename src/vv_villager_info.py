@@ -167,7 +167,8 @@ def _notes(village: gen.Village, edits: ft.Edits, names: dict, p: gen.Person,
     elif p.father is None and p.mother is None:
         first = min(gen.snapshot_dates(village), default=None)
         if gen.is_arrival(p, first):
-            how = p.how if p.how and p.how.casefold() != "unknown" else ""
+            how = gen.arrival_how(p)        # one who left for the Heathens and came back: as they first came
+            how = how if how and how.casefold() != "unknown" else ""
             note((f"Arrived: {how}" if how else "Arrived after the village began (how is not recorded)",
                   "plain", None))
         else:

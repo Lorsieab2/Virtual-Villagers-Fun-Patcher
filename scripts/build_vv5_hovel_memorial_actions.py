@@ -31,7 +31,20 @@ THE TWO ACTIONS.
   excluded the Day of Honor one, so only the chooser's start at 0x46B145 can go to the hovel.  Behaviour 46
   ("Honoring the dead (another way)", 0x4567C0) is never started by the game either and is not changed.
 
-HOW.  A wrapper decides once per action: the memorial (project 25 done) and rand(100) < 25.  On "yes" it starts the
+THE OWNER (2026-11-22): "'Honoring the Dead' should allow 50% of villagers to go to the encampment if the memorial
+graphics patch is installed and it is fully renovated."  The memorial graphics patch is "Shrine to the Ancestors"
+(vv5_respectful_hovel_cover, first named "More Respectful Flower Hovel Cover").  "Fully renovated" (the owner: the
+"Fixing up the mud hut" project complete, after The Last Heathen) is the game's own state already used above: project
+25's threshold is 1 (its constructor 0x437170 registers it through 0x43ABB0(this, 25, 1)), the only advance of it is
+the completion of "Fixing up the mud hut" (0x46D487), and the game has no other hovel project or stage
+(CConvertLastHeathenPuzzle is its only hovel puzzle; "no Heathen left" is counted live, never stored).  So project
+25 done (progress at 0x51E0D0 >= 1) is exactly "the mud hut is fixed", the moment the flower cover is drawn.  The
+shrine is detected by its own byte: it points image 0x1B's name (0x4CF76C, read only by the image getter, never
+written at run time) at its "vvfp_respectful_hovel.png" (0x4C5FD0); stock and Fix Vanilla Bugs leave it 0x49D5E0.
+Only the everyday Honoring the dead gets 50%; Reflecting stays 25% and the Day of Honor and behaviour 46 are untouched.
+
+HOW.  A wrapper decides once per action: the memorial (project 25 done) and rand(100) < its chance (25; 50 for the
+everyday Honoring the dead with the shrine installed).  On "yes" it starts the
 action from its own call, whose return address marks the action's stack; the re-aimed walk calls inside the
 routine look for that mark at a fixed depth ([esp+0x1C] for Reflecting's go-tos; [esp+0x2C] for Honoring's area
 walks, through 0x465580 and the dispatcher 0x452BD0) and then walk to a random point in front of the hovel, with
@@ -66,6 +79,9 @@ WALK_AREA = 0x4744C0                # queue a walk to a map area (area, speed, f
 STARTER = 0x465580                  # start behaviour (id, &flag); ecx the villager; ret 8
 PROJECT_DONE, PROJECTS, LAST_HEATHEN = 0x43AE80, 0x51E008, 25
 CHANCE = 25                         # rand(100) < 25: the hovel a quarter of the time (the owner, 2026-11-08)
+SHRINE_CHANCE = 50                  # the everyday Honoring the dead with the shrine installed (the owner, 2026-11-22)
+SHRINE_ID = "vv5_respectful_hovel_cover"                    # "Shrine to the Ancestors", the memorial graphics patch
+SHRINE_NAME_POINTER, SHRINE_NAME = 0x4CF76C, 0x4C5FD0       # image 0x1B's name -> "vvfp_respectful_hovel.png"
 
 REFLECTING, REFLECTING_ROUTINE, REFLECTING_REGISTRATION = 29, 0x457E90, 0x46409E
 REFLECTING_WALKS = (0x457EE2, 0x457F13, 0x457F6E, 0x457FC9, 0x458024)
@@ -107,7 +123,8 @@ def _pieces(at: dict[str, int]) -> list[tuple[str, str, str, int]]:
     """(cave, name, source, mark) in order; each source is assembled at at[name].  A wrapper's mark is the
     return address of its own call of the action (its last `mark` bytes: pop ecx / ret, or ret 8)."""
     return [
-        # decide: al = 1 when the hovel is a memorial (The Last Heathen done) and rand(100) < 25; keeps ecx.
+        # decide(chance): al = 1 when the hovel is a memorial (The Last Heathen done) and rand(100) < chance;
+        # keeps ecx; pops its argument.
         ("A", "decide", f"""
             push ecx
             push {LAST_HEATHEN}
@@ -118,26 +135,20 @@ def _pieces(at: dict[str, int]) -> list[tuple[str, str, str, int]]:
             push 100
             call {RAND:#x}
             pop ecx
-            cmp eax,{CHANCE}
+            cmp eax,dword ptr [esp+8]
             setl al
         no:
             pop ecx
-            ret
+            ret 4
         """, 0),
-        # Reflecting's registered routine (cdecl, the villager): on "yes", run the stock routine from this call.
-        ("A", "reflect", f"""
-            call {at['decide']:#x}
-            test al,al
-            jne hovel
-            jmp {REFLECTING_ROUTINE:#x}
-        hovel:
-            push dword ptr [esp+4]
-            call {REFLECTING_ROUTINE:#x}
-            pop ecx
-            ret
-        """, 2),
-        # The everyday chooser's start of Honoring the dead (ecx the villager; the id and &flag on the stack).
+        # The everyday chooser's start of Honoring the dead (ecx the villager; the id and &flag on the stack):
+        # 25%, or 50% when the shrine's picture is installed (image 0x1B named "vvfp_respectful_hovel.png").
         ("A", "honor", f"""
+            push {CHANCE}
+            cmp dword ptr [{SHRINE_NAME_POINTER:#x}],{SHRINE_NAME:#x}
+            jne roll
+            shl dword ptr [esp],1
+        roll:
             call {at['decide']:#x}
             test al,al
             jne hovel
@@ -184,6 +195,19 @@ def _pieces(at: dict[str, int]) -> list[tuple[str, str, str, int]]:
             mov dword ptr [esp+8],edx
             jmp {WALK_TO:#x}
         """, 0),
+        # Reflecting's registered routine (cdecl, the villager): 25%; on "yes", run the stock routine from this call.
+        ("B", "reflect", f"""
+            push {CHANCE}
+            call {at['decide']:#x}
+            test al,al
+            jne hovel
+            jmp {REFLECTING_ROUTINE:#x}
+        hovel:
+            push dword ptr [esp+4]
+            call {REFLECTING_ROUTINE:#x}
+            pop ecx
+            ret
+        """, 2),
     ]
 
 
@@ -216,6 +240,13 @@ def caves() -> tuple[bytes, bytes, dict[str, int]]:
     return code_a, code_b, at
 
 
+def ceremony_entries(at: dict[str, int]) -> tuple[int, int]:
+    """The Remembrance Ceremony's ways in (native/vvfp_more_island_events/ceremony_games.inc, CR_HOVEL_HONOR and
+    CR_HOVEL_REFLECT): each wrapper's "hovel:" label, past its roll -- the Honoring start's is 13 bytes before its
+    mark (push [esp+8] / push [esp+8] / call), Reflecting's 9 (push [esp+4] / call)."""
+    return at["honor_mark"] - 13, at["reflect_mark"] - 9
+
+
 def patch(va: int, after: bytes, purpose: str, before: bytes | None = None) -> dict:
     before = stock(va, len(after)) if before is None else before
     assert len(before) == len(after)
@@ -229,8 +260,8 @@ DESCRIPTION = (
     "Heathen has been converted and the villagers have fixed up the old Heathen hovel (the game's own moment: The "
     "Last Heathen is solved and the hovel's flower cover appears), the hovel becomes a memorial for good, even if "
     "Heathens come back later. From then on, a villager who goes \"Honoring the dead\" on an ordinary day honors at "
-    "the hovel a quarter of the time: they still go for their flowers first, then lay them in front of the hovel instead "
-    "of at the graves. A villager \"Reflecting\" also reflects in front of the hovel a quarter of the time instead of in "
+    "the hovel a quarter of the time, or half the time when \"Shrine to the Ancestors\" is installed too: they still "
+    "go for their flowers first, then lay them in front of the hovel instead of at the graves. A villager \"Reflecting\" also reflects in front of the hovel a quarter of the time instead of in "
     "the usual spot. Each walk goes to a random point of the open ground just in front of the hovel. The Day of "
     "Honor island event's honoring, every other action and every other place are unchanged, and before the "
     "memorial nothing changes. Nothing is saved: the game's own puzzle progress decides it. **New Believers never "
@@ -257,13 +288,15 @@ def feature() -> dict:
                              f"call 0x{at['honor_walk']:X}"))
     patches.append(patch(CAVE_A[0], code_a,
                          f"cave: the memorial-and-chance check 0x{at['decide']:X} (The Last Heathen, project 25, done "
-                         f"(0x43AE80) and rand(100) < 25), the Reflecting wrapper 0x{at['reflect']:X} (mark "
-                         f"0x{at['reflect_mark']:X}), the Honoring start wrapper 0x{at['honor']:X} (mark "
+                         f"(0x43AE80) and rand(100) < the chance pushed), the Honoring start wrapper "
+                         f"0x{at['honor']:X} (chance {CHANCE}, or {SHRINE_CHANCE} when image 0x1B's name pointer "
+                         f"0x{SHRINE_NAME_POINTER:X} is Shrine to the Ancestors' 0x{SHRINE_NAME:X}; mark "
                          f"0x{at['honor_mark']:X}) and the marked graves walk 0x{at['honor_walk']:X}",
                          bytes(len(code_a))))
     patches.append(patch(CAVE_B[0], code_b,
-                         f"cave: the hovel point 0x{at['point']:X} (2176 + rand(97), 1576 + rand(25)) and the marked "
-                         f"Reflecting go-to 0x{at['reflect_walk']:X}", bytes(len(code_b))))
+                         f"cave: the hovel point 0x{at['point']:X} (2176 + rand(97), 1576 + rand(25)), the marked "
+                         f"Reflecting go-to 0x{at['reflect_walk']:X} and the Reflecting wrapper 0x{at['reflect']:X} "
+                         f"(chance {CHANCE}; mark 0x{at['reflect_mark']:X})", bytes(len(code_b))))
     return {
         "id": ID,
         "enabled": True,
@@ -279,12 +312,13 @@ def feature() -> dict:
             "0x46D487), and draws the hovel's flower cover from then on (0x4370E0). Project progress is saved and "
             "never goes back, so the hovel stays a memorial even when Heathens appear again.",
             "The everyday \"Honoring the dead\" (behaviour 17, 0x4595B0) started by its chooser 0x46B0F0 (0x46B145): "
-            "with the memorial, rand(100) < 25 sends its three walks to the graves (area 0x7B) to random points in "
-            "front of the hovel instead, x = 2176 + rand(97), y = 1576 + rand(25) (the feet's point; 2176..2272 by "
-            "1576..1600); its walk for the flowers (area 0x7A) is unchanged.",
+            "with the memorial, rand(100) < 25 (rand(100) < 50 when Shrine to the Ancestors, vv5_respectful_hovel_cover, "
+            "is installed too: image 0x1B's name pointer 0x4CF76C is its 0x4C5FD0) sends its three walks to the graves "
+            "(area 0x7B) to random points in front of the hovel instead, x = 2176 + rand(97), y = 1576 + rand(25) (the "
+            "feet's point; 2176..2272 by 1576..1600); its walk for the flowers (area 0x7A) is unchanged.",
             "\"Reflecting\" (behaviour 29, 0x457E90; registered at 0x46409E, so every start of it): with the "
-            "memorial, rand(100) < 25 sends its five go-tos to random points in front of the hovel instead of "
-            "1530..1803 by 1606..1805.",
+            "memorial, rand(100) < 25 (with or without Shrine to the Ancestors) sends its five go-tos to random points "
+            "in front of the hovel instead of 1530..1803 by 1606..1805.",
         ],
         "explicit_non_changes": [
             "The Day of Honor island event's honoring (behaviour 17 for everyone, 0x414DDA -> 0x470C60) and the Custom "
