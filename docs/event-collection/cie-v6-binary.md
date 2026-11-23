@@ -256,7 +256,7 @@ Effect record unchanged (16 bytes: `B code, B role, B flags, B 0, i a, i b, H st
 | 11 | celebrate | role index, or 0xFF = every living, listed villager | 0, 0 | NONE |
 | 12 | action | role index | 0, 0 | the action's label words (the game's own, as in `data/cie_actions.json`) |
 | 13 | mood | role index | a = +1 good, -1 bad | NONE |
-| 14 | health_change | role index | a..b signed delta; result clamped to 1..100 (never kills) | NONE |
+| 14 | health_change | role index | a..b signed delta; result clamped to 1..100 (never kills); flags bit 0 ("restore", 25a): a..b is 1..100 PERCENT of the health this villager's last health_change took, given back | NONE |
 | 15 | skill_set | role index | a = value 0..100 | the skills, comma separated |
 | 16 | damage | 0xFF | a..b percent 1..100 | the structures, comma separated, or `any` |
 | 17 | appearance | role index | a = head, b = body: a row 0..29, -1 random, -2 kept | NONE |
@@ -868,6 +868,16 @@ all kept.
 - **simulate** returns the lines in the popups, with the words its rolls and facts give.
 - **Python:** `auto_lines(...)`; the line table `AUTO_LINES` is pinned equal to the engine's `CG_AUTO_LINES`
   (`story_graph.inc`) by `tests/test_cie_graph_v6.py`.
+
+## 25a. A share of a loss given back: health_change "restore" (the owner, 2026-11-22)
+
+"Lose health, then restore some" (The Hospital's Most Difficult Patient, B2): the gain is always smaller than the
+loss.  A `health_change` with `"restore": true` (flags bit 0) and `min`..`max` 1..100 is a gain of that PERCENT,
+rolled as any health_change's, of what the same cast villager's last `health_change` earlier on the SAME NODE really took (after
+the clamp at 1): `(lost x percent + 50) / 100` (story_graph.inc cg_restored, src/vv_cie_graph.py restored).  No
+loss before it: nothing -- and the patcher refuses a restore with no loss of its villager right before it on its node, that is with no group `health_change` (which may reach them: the engine then keeps the group's loss) and no other `health_change` of theirs in between (the engine keeps each villager's loss, by record index, for one node).  One cast villager only (never a group, a target or the newest).  Its line is the
+ordinary `R gains N health.` with the amount given back, so both lines show and the villager always ends below
+where they began (25-75% of 10-20 lost: 3-15 back).
 
 ## 26. The Pick Island Event list
 

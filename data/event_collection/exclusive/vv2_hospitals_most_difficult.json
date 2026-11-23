@@ -125,8 +125,9 @@
     {
      "do": "health_change",
      "role": "patient",
-     "min": 10,
-     "max": 20,
+     "restore": true,
+     "min": 25,
+     "max": 75,
      "src": "L7865"
     }
    ],

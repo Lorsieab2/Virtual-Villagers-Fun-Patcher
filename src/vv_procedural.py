@@ -633,6 +633,8 @@ def effect_json(e: Effect, names: list[str]) -> dict:
             out["status"] = "heathen"
         elif do in ("health", "health_change"):
             out.update(min=e.a, max=e.b)
+            if do == "health_change" and e.flags & 1:
+                out["restore"] = True          # cie-v6-binary.md 25a
         elif do == "preference":
             out.update(list="dislikes" if e.flags & 4 else "likes", preference="random" if e.flags & 8 else e.string)
             if e.flags & 16:
