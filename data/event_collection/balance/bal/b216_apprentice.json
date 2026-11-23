@@ -185,7 +185,7 @@
    "src": "L10050"
   },
   "c2o1": {
-   "text": "By evening the spots are gone, and the fever with them. (subject) puts the paste on everyone else in the village who has a cough, a rash or a fever, and by the time (healer) gets back, nobody in the village is sick. (healer) looks at the moss for a long time. \"Old nonsense,\" (subject.he/she) says at last. \"I'll want to see the scroll.\"",
+   "text": "By evening the spots are gone, and the fever with them. (subject) puts the paste on everyone else in the village who has a cough, a rash or a fever, and by the time (healer) gets back, nobody in the village is sick. (healer) looks at the moss for a long time. \"Old nonsense,\" (healer.he/she) says at last. \"I'll want to see the scroll.\"",
    "effects": [
     {
      "do": "cure",

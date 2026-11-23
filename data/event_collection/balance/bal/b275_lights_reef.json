@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "For three nights now, small green lights have been bobbing out on the reef after dark, too steady for fireflies and too low for stars. The elders say they are the lanterns of the drowned, looking for a way home, and that nobody must ever row out to them. The children say the elders just want them in bed.\nTonight the lights are closer than ever. (subject) and (friend) are on the beach. (friend) is already pushing a canoe into the water. \"Come on,\" (subject.he/she) says. \"Don't you want to know?\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
+   "text": "For three nights now, small green lights have been bobbing out on the reef after dark, too steady for fireflies and too low for stars. The elders say they are the lanterns of the drowned, looking for a way home, and that nobody must ever row out to them. The children say the elders just want them in bed.\nTonight the lights are closer than ever. (subject) and (friend) are on the beach. (friend) is already pushing a canoe into the water. \"Come on,\" (friend.he/she) says. \"Don't you want to know?\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
    "choices": [
     {
      "label": "Go With (friend)",
@@ -170,7 +170,7 @@
    "src": "L12817"
   },
   "c2o1": {
-   "text": "(friend) goes home without a word. In the morning, (subject.his/her) sleeping mat is cold, and the canoe is gone from the beach. Nobody ever sees either of them again. (subject) sits on the beach every evening for weeks, watching the reef. There is one more green light out there than before.",
+   "text": "(friend) goes home without a word. In the morning, (friend.his/her) sleeping mat is cold, and the canoe is gone from the beach. Nobody ever sees either of them again. (subject) sits on the beach every evening for weeks, watching the reef. There is one more green light out there than before.",
    "effects": [
     {
      "do": "vanish",

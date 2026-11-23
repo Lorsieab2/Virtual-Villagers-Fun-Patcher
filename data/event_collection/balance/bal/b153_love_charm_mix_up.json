@@ -120,7 +120,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(apprentice), the healers' newest apprentice, has been trying to make a charm that helps two friends understand each other better. (subject.He/She) found it on an old bark scroll, under a smudge. The smudge was important. Nobody knows that yet.\n(subject) and (friend) have been arguing for a month about whose turn it is to fetch water, and (apprentice) has asked them, very nicely, to try the charm: a little bag of herbs each, worn round the neck for a night. \"It'll help you see it from each other's side,\" (apprentice) says. \"That's what the scroll says. Mostly.\"\nShould they wear the charms, or settle the argument the normal way?",
+   "text": "(apprentice), the healers' newest apprentice, has been trying to make a charm that helps two friends understand each other better. (apprentice.He/She) found it on an old bark scroll, under a smudge. The smudge was important. Nobody knows that yet.\n(subject) and (friend) have been arguing for a month about whose turn it is to fetch water, and (apprentice) has asked them, very nicely, to try the charm: a little bag of herbs each, worn round the neck for a night. \"It'll help you see it from each other's side,\" (apprentice) says. \"That's what the scroll says. Mostly.\"\nShould they wear the charms, or settle the argument the normal way?",
    "choices": [
     {
      "label": "Wear the Charms",

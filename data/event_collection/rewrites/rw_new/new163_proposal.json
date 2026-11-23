@@ -143,7 +143,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Every week for ten years, (subject) and (friend) have shared a pot of stew. Same day, same fire, same pot. It is the most dependable thing in either of their lives.\nTonight, halfway through the stew, (subject) puts down (subject.his/her) bowl, looks into the fire, and asks, very quietly, whether their friendship might become something more.\n(friend) drops the ladle.\nIt lands in the stew with a plop. Neither of them moves to fish it out. (friend) has no idea what to say. What should (subject.he/she) do?",
+   "text": "Every week for ten years, (subject) and (friend) have shared a pot of stew. Same day, same fire, same pot. It is the most dependable thing in either of their lives.\nTonight, halfway through the stew, (subject) puts down (subject.his/her) bowl, looks into the fire, and asks, very quietly, whether their friendship might become something more.\n(friend) drops the ladle.\nIt lands in the stew with a plop. Neither of them moves to fish it out. (friend) has no idea what to say. What should (friend.he/she) do?",
    "choices": [
     {
      "label": "Answer Honestly in Private",

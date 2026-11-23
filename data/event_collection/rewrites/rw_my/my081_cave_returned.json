@@ -254,7 +254,7 @@
    "auto_text": true
   },
   "c3o2": {
-   "text": "(researcher) sits in the dark for a long time. When (subject.he/she) finally crawls out, (subject.he/she) is pale and shaking. \"They were talking,\" (subject.he/she) says, \"about a war. Boats burning on the reef, a {@chief} named someone I've never heard of, an island I've never heard of. It was like listening to a conversation from hundreds of years ago.\" (subject.He/she) writes everything down in careful notes, then puts the notes away in a box and does not take them out again for a long time.",
+   "text": "(researcher) sits in the dark for a long time. When (researcher.he/she) finally crawls out, (researcher.he/she) is pale and shaking. \"They were talking,\" (researcher.he/she) says, \"about a war. Boats burning on the reef, a {@chief} named someone I've never heard of, an island I've never heard of. It was like listening to a conversation from hundreds of years ago.\" (researcher.He/she) writes everything down in careful notes, then puts the notes away in a box and does not take them out again for a long time.",
    "src": "L14599"
   },
   "c3": {

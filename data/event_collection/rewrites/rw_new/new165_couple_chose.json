@@ -168,7 +168,7 @@
    "src": "L8007"
   },
   "c1o2": {
-   "text": "(friend) finally admits it isn't about the hut at all. (subject.He/She) is simply not ready yet. (subject) is quiet for a while, and then accepts that answer. \"Then we'll wait,\" (subject.he/she) says. \"But we're still arguing about the window.\"",
+   "text": "(friend) finally admits it isn't about the hut at all. (friend.He/She) is simply not ready yet. (subject) is quiet for a while, and then accepts that answer. \"Then we'll wait,\" (subject.he/she) says. \"But we're still arguing about the window.\"",
    "src": "L8009"
   },
   "c1": {
@@ -208,7 +208,7 @@
    "src": "L8012"
   },
   "c3o1": {
-   "text": "(parent) listens to both of them, carefully, without taking sides, and without making the decision for them. \"There's never a perfect time,\" (subject.he/she) says at the end. \"But there's a time that's right for you two. Only you know when.\" They walk home in thoughtful silence.",
+   "text": "(parent) listens to both of them, carefully, without taking sides, and without making the decision for them. \"There's never a perfect time,\" (parent.he/she) says at the end. \"But there's a time that's right for you two. Only you know when.\" They walk home in thoughtful silence.",
    "src": "L8021"
   },
   "c3o2": {

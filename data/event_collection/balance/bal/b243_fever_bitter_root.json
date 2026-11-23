@@ -222,7 +222,7 @@
    "auto_text": true
   },
   "c2": {
-   "text": "\"No roots,\" whispers (subject). (healer) nods, piles on a third blanket and sits by the mat with a bowl of cool water and a cloth. (subject.He/She) stays all night...",
+   "text": "\"No roots,\" whispers (subject). (healer) nods, piles on a third blanket and sits by the mat with a bowl of cool water and a cloth. (healer.He/She) stays all night...",
    "children": [
     {
      "next": "c2o1",

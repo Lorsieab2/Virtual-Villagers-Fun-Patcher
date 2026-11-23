@@ -137,7 +137,7 @@
    "src": "L6625-6627"
   },
   "c1o1": {
-   "text": "When (painter) finishes the last eyelash, the painted (subject) blinks. Then it sits up out of the stone, as if climbing out of a pool, and there are two of (subject) on the beach. The squid ink, it turns out, really is very long-lasting. (painter) looks delighted and a little scared. \"That's never happened before,\" (subject.he/she) says. \"Well. Twice.\" The copy takes the name (made1), and stays.",
+   "text": "When (painter) finishes the last eyelash, the painted (subject) blinks. Then it sits up out of the stone, as if climbing out of a pool, and there are two of (subject) on the beach. The squid ink, it turns out, really is very long-lasting. (painter) looks delighted and a little scared. \"That's never happened before,\" (painter.he/she) says. \"Well. Twice.\" The copy takes the name (made1), and stays.",
    "effects": [
     {
      "do": "clone",

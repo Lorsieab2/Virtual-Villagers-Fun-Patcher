@@ -138,7 +138,7 @@
    "src": "L8674-8676"
   },
   "c1o1": {
-   "text": "(subject) wears it to every festival that year. By the end of it, (subject.his/her) hair has gone grey under the brim and (subject.his/her) face has the calm, lined look of a council elder, years before (subject.his/her) time. People start asking (subject.him/her) to settle arguments. (elder) is delighted. \"It knows its own,\" (subject.he/she) says.",
+   "text": "(subject) wears it to every festival that year. By the end of it, (subject.his/her) hair has gone grey under the brim and (subject.his/her) face has the calm, lined look of a council elder, years before (subject.his/her) time. People start asking (subject.him/her) to settle arguments. (elder) is delighted. \"It knows its own,\" (elder.he/she) says.",
    "effects": [
     {
      "do": "old_look",

@@ -133,7 +133,7 @@
    "src": "L6528-6530"
   },
   "c1o1": {
-   "text": "The fig works. Before the next rains (subject) is pregnant, and very happy, and a little bit guilty every time (subject.he/she) walks past (farmer)'s hut. (farmer) is gracious about it. \"The tree chose,\" (subject.he/she) says. But (subject.he/she) stops watering it. Someone else starts.",
+   "text": "The fig works. Before the next rains (subject) is pregnant, and very happy, and a little bit guilty every time (subject.he/she) walks past (farmer)'s hut. (farmer) is gracious about it. \"The tree chose,\" (farmer.he/she) says. But (farmer.he/she) stops watering it. Someone else starts.",
    "effects": [
     {
      "do": "pregnant",
@@ -146,7 +146,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(subject) is pregnant within the month. They can't bear the guilt, so they go to (farmer) and tell (subject.him/her) everything. (farmer) laughs and hugs them both. \"Seven years I've watered that tree,\" (subject.he/she) says. \"It was never going to be for me.\" After that, all four of them work the garden together, and (subject) and (friend) find they've stopped minding a lot of things.",
+   "text": "(subject) is pregnant within the month. They can't bear the guilt, so they go to (farmer) and tell (subject.him/her) everything. (farmer) laughs and hugs them both. \"Seven years I've watered that tree,\" (farmer.he/she) says. \"It was never going to be for me.\" After that, all four of them work the garden together, and (subject) and (friend) find they've stopped minding a lot of things.",
    "effects": [
     {
      "do": "pregnant",

@@ -129,7 +129,7 @@
    "src": "L12492-12494"
   },
   "c1o1": {
-   "text": "When the mask comes off, everyone gasps. (subject)'s face has changed. It's still (subject), still the same eyes and the same smile, but the shape of it is different: like the mask, or like a cousin of (subject)'s that nobody has ever met. (carver) nods, satisfied. \"Told you,\" (subject.he/she) says. \"It was yours.\"",
+   "text": "When the mask comes off, everyone gasps. (subject)'s face has changed. It's still (subject), still the same eyes and the same smile, but the shape of it is different: like the mask, or like a cousin of (subject)'s that nobody has ever met. (carver) nods, satisfied. \"Told you,\" (carver.he/she) says. \"It was yours.\"",
    "effects": [
     {
      "do": "appearance",

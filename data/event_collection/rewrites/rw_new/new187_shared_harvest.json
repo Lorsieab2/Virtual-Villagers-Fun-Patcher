@@ -239,7 +239,7 @@
    "auto_text": true
   },
   "c3o2": {
-   "text": "(builder) looks at the channel, then sighs. \"My first channel,\" (subject.he/she) admits, \"watered the {@chief}'s hut instead of the field. Flooded it. With the {@chief} inside, asleep.\" Everyone laughs so hard that the argument is forgotten, at least until dinner.",
+   "text": "(builder) looks at the channel, then sighs. \"My first channel,\" (builder.he/she) admits, \"watered the {@chief}'s hut instead of the field. Flooded it. With the {@chief} inside, asleep.\" Everyone laughs so hard that the argument is forgotten, at least until dinner.",
    "src": "L9095"
   },
   "c3": {

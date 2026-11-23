@@ -153,7 +153,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Two households both say the rocky stretch past the reef is theirs to fish. Both have scratched marker stones to prove it. Both stones, annoyingly, look exactly alike.\nTwice now, nets have been moved in the night. The first time, (subject)'s family found their net tangled on the rocks. The second time, (friend)'s family found theirs floating halfway to the horizon. Accusations have been flying across the cooking fires ever since, and yesterday somebody threw a fish. Not AT anyone. Near them. Pointedly.\n(leader) wants this settled before somebody's whole net ends up in another village. How should (subject.he/she) settle it?",
+   "text": "Two households both say the rocky stretch past the reef is theirs to fish. Both have scratched marker stones to prove it. Both stones, annoyingly, look exactly alike.\nTwice now, nets have been moved in the night. The first time, (subject)'s family found their net tangled on the rocks. The second time, (friend)'s family found theirs floating halfway to the horizon. Accusations have been flying across the cooking fires ever since, and yesterday somebody threw a fish. Not AT anyone. Near them. Pointedly.\n(leader) wants this settled before somebody's whole net ends up in another village. How should (leader.he/she) settle it?",
    "choices": [
     {
      "label": "Let Both Households Speak",

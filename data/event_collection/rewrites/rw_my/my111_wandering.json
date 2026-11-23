@@ -204,7 +204,7 @@
    ]
   },
   "c1o2": {
-   "text": "The healers try a dark, bitter powder they do not recognize, and it is a mistake. (friend) becomes dizzy and sick on top of the fever, and spends several miserable days unable to keep anything down. (subject.He/she) recovers in the end, thanks to the healers' care. The healers put the rest of that powder away for good, and write a large warning on its compartment. (subject) feels awful, and spends a lot of time sitting at (friend)'s bedside apologizing.",
+   "text": "The healers try a dark, bitter powder they do not recognize, and it is a mistake. (friend) becomes dizzy and sick on top of the fever, and spends several miserable days unable to keep anything down. (friend.He/she) recovers in the end, thanks to the healers' care. The healers put the rest of that powder away for good, and write a large warning on its compartment. (subject) feels awful, and spends a lot of time sitting at (friend)'s bedside apologizing.",
    "effects": [
     {
      "do": "sick",

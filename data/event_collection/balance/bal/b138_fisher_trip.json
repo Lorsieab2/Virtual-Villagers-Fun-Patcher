@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(fisher) hasn't been out in a canoe for ten years. (subject.His/her) hands shake too much now, and (subject.his/her) eyes have gone cloudy. But this morning (subject.he/she) is down on the beach before anyone else, dragging (subject.his/her) old canoe to the water, muttering about a shoal of silverfish that comes in once a year past the far rocks.\n\"I want to see it one more time,\" (subject.he/she) says when (subject) runs down to stop (subject.him/her). \"I'm going whether you come or not.\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
+   "text": "(fisher) hasn't been out in a canoe for ten years. (fisher.His/her) hands shake too much now, and (fisher.his/her) eyes have gone cloudy. But this morning (fisher.he/she) is down on the beach before anyone else, dragging (fisher.his/her) old canoe to the water, muttering about a shoal of silverfish that comes in once a year past the far rocks.\n\"I want to see it one more time,\" (subject.he/she) says when (subject) runs down to stop (subject.him/her). \"I'm going whether you come or not.\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
    "choices": [
     {
      "label": "Go With (subject.Him/Her)",

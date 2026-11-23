@@ -259,8 +259,50 @@ def pronoun_suspects(doc: dict, stem: str) -> list[tuple[str, str, str]]:
     return out
 
 
-def allowed(stem: str, nid: str, sentence: str) -> bool:
-    return any(stem == a and nid == b and sentence.startswith(c) for a, b, c in ALLOWED)
+def allowed(stem: str, nid: str, sentence: str, table=ALLOWED) -> bool:
+    return any(stem == a and nid == b and sentence.startswith(c) for a, b, c in table)
+
+
+# A sentence that names no villager, says the main villager's he/she / his/her / himself/herself, and comes after a
+# sentence whose subject is another villager (with the main villager not named since), read and right or about
+# someone the event does not cast.
+ALLOWED_AFTER = {
+    ("b186_dolphin_waits", "ask", "(subject.His/her) grandmother said dolphins"),
+    ("b203_sleepy_spell", "ask", "(subject.He/She) is very hopeful"),
+    ("b210_grandchild_wish", "c1o1", "The storyteller sits down heavily"),
+    ("b258_game_went_too_far", "c2o2", "(subject.He/She) gives the bag of stones"),
+    ("b261_dream_sharing_tea", "c2o1", '"Your knees,"'),
+    ("b268_mask_carver_faces", "c2o2", "A few days later a fisher says"),
+    ("my058_beggar_request", "c3o1", '"So many kind people,"'),
+    ("my067_hidden_companion", "c2o2", "(subject.He/she) has never been inside the elders' hut"),
+    ("my069_watcher_cliff", "c3o1", "My grandmother said (subject.he/she) never missed"),
+    ("my071_visitor_final", "c3o2", "(subject.He/she) wanders through every few years"),
+}
+SUBJECT_FORMS = (".he/she", ".his/her", ".himself/herself")
+
+
+def after_another_suspects(doc: dict, stem: str) -> list[tuple[str, str, str]]:
+    roles = doc.get("roles") or {}
+    main = next(iter(roles), None)
+    others = {r for r, v in roles.items() if r != main and v.get("kind") == "villager"}
+    out = []
+    if not others:
+        return out
+    for nid, n in doc["nodes"].items():
+        prev_other = None
+        for s in (x.strip() for x in SENT.split(n.get("text") or "")):
+            if not s:
+                continue
+            names = {m.group(1).lower() for m in PH.finditer(s) if not m.group(2)}
+            prons = {m.group(1).lower() for m in PH.finditer(s) if m.group(2) and m.group(2).lower() in SUBJECT_FORMS}
+            lead = PH.match(s)
+            if prev_other and main in prons and not names & (others | {main}):
+                out.append((stem, nid, s))
+            if lead and lead.group(1).lower() in others and (lead.group(2) or main not in names):
+                prev_other = lead.group(1).lower()
+            elif names & (others | {main}) or (lead and lead.group(1).lower() == main and main in prons):
+                prev_other = None
+    return out
 
 
 class GoPronouns(unittest.TestCase):
@@ -277,6 +319,15 @@ class GoPronouns(unittest.TestCase):
     def test_every_allowed_sentence_is_still_there(self):
         found = {(a, b) for stem, d in self.docs.items() for a, b, c in pronoun_suspects(d, stem) if allowed(a, b, c)}
         self.assertEqual(found, {(a, b) for a, b, _ in ALLOWED})
+        found = {(a, b) for stem, d in self.docs.items() for a, b, c in after_another_suspects(d, stem)
+                 if allowed(a, b, c, ALLOWED_AFTER)}
+        self.assertEqual(found, {(a, b) for a, b, _ in ALLOWED_AFTER})
+
+    def test_no_main_pronoun_right_after_another_villagers_sentence(self):
+        bad = []
+        for stem, d in self.docs.items():
+            bad += [x for x in after_another_suspects(d, stem) if not allowed(*x, ALLOWED_AFTER)]
+        self.assertFalse(bad, "\n".join(f"{a} {b}: {c[:120]}" for a, b, c in bad[:30]))
 
     def test_the_pronoun_fixes_are_in_the_files(self):
         for (stem, nid), pairs in fixes.PRONOUNS.items():

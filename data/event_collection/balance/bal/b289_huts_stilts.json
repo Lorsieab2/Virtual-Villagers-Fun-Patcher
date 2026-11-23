@@ -118,7 +118,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "The king tides have come early this year, and for the third time this season the sea has washed in under the huts nearest the beach, soaking the floors and rotting the doorposts. (subject), one of the builders, has an idea: lift those huts up on stilts of ironwood, the way a trader once described them on another island.\n(chief) isn't sure. \"Ironwood takes a long time to cut,\" (subject.he/she) says. \"We could just patch the doorposts and hope the tides calm down.\" Should (subject) build the stilts, or just patch?",
+   "text": "The king tides have come early this year, and for the third time this season the sea has washed in under the huts nearest the beach, soaking the floors and rotting the doorposts. (subject), one of the builders, has an idea: lift those huts up on stilts of ironwood, the way a trader once described them on another island.\n(chief) isn't sure. \"Ironwood takes a long time to cut,\" (chief.he/she) says. \"We could just patch the doorposts and hope the tides calm down.\" Should (subject) build the stilts, or just patch?",
    "choices": [
     {
      "label": "Build the Stilts",

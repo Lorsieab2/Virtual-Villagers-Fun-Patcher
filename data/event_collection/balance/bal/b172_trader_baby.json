@@ -136,7 +136,7 @@
    "src": "L7961-7963"
   },
   "c1o1": {
-   "text": "The baby settles at once. (trader) sells the rest of the pots in an hour, very cheaply, and leaves the next morning, waving until the canoe is out of sight. Every year after that, when (subject.his/her) canoe comes in, there is a present in it for the baby: a carved fish, a little drum, a bag of sweets from far away.",
+   "text": "The baby settles at once. (trader) sells the rest of the pots in an hour, very cheaply, and leaves the next morning, waving until the canoe is out of sight. Every year after that, when (trader.his/her) canoe comes in, there is a present in it for the baby: a carved fish, a little drum, a bag of sweets from far away.",
    "effects": [
     {
      "do": "nursing",

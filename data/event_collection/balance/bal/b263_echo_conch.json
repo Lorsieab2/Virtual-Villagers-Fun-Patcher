@@ -176,7 +176,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The conch cracks right down the middle with a bang, and the roar stops dead. (keeper) gets up, dusts (keeper.himself/herself) off, and looks sadly at the two halves. \"A month,\" (subject.he/she) says. \"A whole month.\" (subject) feels terrible about it and helps (keeper) look for a new shell every day for a week.",
+   "text": "The conch cracks right down the middle with a bang, and the roar stops dead. (keeper) gets up, dusts (keeper.himself/herself) off, and looks sadly at the two halves. \"A month,\" (keeper.he/she) says. \"A whole month.\" (subject) feels terrible about it and helps (keeper) look for a new shell every day for a week.",
    "src": "L12289"
   },
   "c2": {

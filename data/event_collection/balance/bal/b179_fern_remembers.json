@@ -128,7 +128,7 @@
    "src": "L8294-8296"
   },
   "c1o1": {
-   "text": "By the time (subject) gets home, (subject.his/her) face has curled back fifteen years. Smooth skin, bright eyes, not a line on (subject.him/her). The rest of (subject.him/her) is the same age as before. (healer) looks at (subject.him/her) for a long time. \"Unpredictable,\" (subject.he/she) says. \"But I'll admit it suits you.\"",
+   "text": "By the time (subject) gets home, (subject.his/her) face has curled back fifteen years. Smooth skin, bright eyes, not a line on (subject.him/her). The rest of (subject.him/her) is the same age as before. (healer) looks at (subject.him/her) for a long time. \"Unpredictable,\" (healer.he/she) says. \"But I'll admit it suits you.\"",
    "effects": [
     {
      "do": "young_look",

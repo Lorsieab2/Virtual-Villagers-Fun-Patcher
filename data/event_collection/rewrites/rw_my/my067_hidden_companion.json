@@ -240,7 +240,7 @@
    "src": "L13783"
   },
   "c2": {
-   "text": "(friend) decides not to argue. \"All right,\" (subject.he/she) says simply. \"I believe you.\" And (subject.he/she) listens as (subject) chatters on about everything the friend has said and done...",
+   "text": "(friend) decides not to argue. \"All right,\" (friend.he/she) says simply. \"I believe you.\" And (subject.he/she) listens as (subject) chatters on about everything the friend has said and done...",
    "children": [
     {
      "next": "c2o1",

@@ -118,7 +118,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(healer) has been experimenting with a tea made from the purple flowers that grow on the cliffs. The old healers used it, (subject.he/she) says, so that two people could share a dream and talk things over while they slept. (subject.He/She) needs two volunteers to try it.\n(subject) and (friend) have just had a falling-out about a broken fishing spear, and (healer) thinks they would make perfect volunteers. \"It'll help,\" (subject.he/she) says. \"Probably.\"\nThey both look at the steaming cups. Should they drink it together, or hand it back?",
+   "text": "(healer) has been experimenting with a tea made from the purple flowers that grow on the cliffs. The old healers used it, (healer.he/she) says, so that two people could share a dream and talk things over while they slept. (healer.He/She) needs two volunteers to try it.\n(subject) and (friend) have just had a falling-out about a broken fishing spear, and (healer) thinks they would make perfect volunteers. \"It'll help,\" (subject.he/she) says. \"Probably.\"\nThey both look at the steaming cups. Should they drink it together, or hand it back?",
    "choices": [
     {
      "label": "Drink It Together",

@@ -184,7 +184,7 @@
    "src": "L6157"
   },
   "c2o1": {
-   "text": "(subject) teaches (young) how to judge soil by its smell, its colour and the way it crumbles in the hand: dark and sweet-smelling is good, grey and sour is bad, sticky means too wet, dusty means too dry. (young) takes it very seriously and asks good questions. By the end of the afternoon, (subject.he/she) can tell good soil from bad blindfolded, and the sapling is planted in the best spot in the whole garden.",
+   "text": "(subject) teaches (young) how to judge soil by its smell, its colour and the way it crumbles in the hand: dark and sweet-smelling is good, grey and sour is bad, sticky means too wet, dusty means too dry. (young) takes it very seriously and asks good questions. By the end of the afternoon, (young.he/she) can tell good soil from bad blindfolded, and the sapling is planted in the best spot in the whole garden.",
    "effects": [
     {
      "do": "skill",

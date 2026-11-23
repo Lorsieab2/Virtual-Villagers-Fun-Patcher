@@ -210,11 +210,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(Name3) lies there for about as long as it takes to hear an owl hoot twice, then picks up the mat and goes home. \"I like my voice,\" (subject.he/she) explains the next day. Nobody presses anyone else to try, and the spot between the huts gets a lot of nervous looks.",
+   "text": "(Name3) lies there for about as long as it takes to hear an owl hoot twice, then picks up the mat and goes home. \"I like my voice,\" (name3.he/she) explains the next day. Nobody presses anyone else to try, and the spot between the huts gets a lot of nervous looks.",
    "src": "L4933"
   },
   "c2": {
-   "text": "(Name3) is curious, and possibly a little bored. \"If something swapped them in the night, I want to see it.\" (subject.He/She) drags a sleeping mat to the spot between the two huts and lies down, grinning at the stars...",
+   "text": "(Name3) is curious, and possibly a little bored. \"If something swapped them in the night, I want to see it.\" (name3.He/She) drags a sleeping mat to the spot between the two huts and lies down, grinning at the stars...",
    "children": [
     {
      "next": "c2o1",

@@ -143,7 +143,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "Later in the season, (subject) is pregnant, and the healers, listening carefully, announce {#babies:a single strong heartbeat|twins|triplets}. (friend) goes pale, then very pleased, then pale again. \"I'll need more fibre,\" (subject.he/she) says, and goes off to weave {#babies:a tiny hammock|two tiny hammocks|three tiny hammocks} for underneath the big one.",
+   "text": "Later in the season, (subject) is pregnant, and the healers, listening carefully, announce {#babies:a single strong heartbeat|twins|triplets}. (friend) goes pale, then very pleased, then pale again. \"I'll need more fibre,\" (friend.he/she) says, and goes off to weave {#babies:a tiny hammock|two tiny hammocks|three tiny hammocks} for underneath the big one.",
    "effects": [
     {
      "do": "pregnant",

@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(child) has found a spring in the jungle that no grown-up knows about. (subject.He/She) says the water tastes like sugarcane, and that anyone who drinks from it feels like running all day. (subject.He/She) has told no one else, except now (subject.he/she) has told (subject), because (subject) is (subject.his/her) favourite grown-up and has a bad back.\n\"Come and see,\" (child) says, pulling at (subject)'s hand. \"It'll fix your back. I promise.\" The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree. A ring of very small footprints goes all the way round it.\nShould (subject) drink from the children's spring?",
+   "text": "(child) has found a spring in the jungle that no grown-up knows about. (child.He/She) says the water tastes like sugarcane, and that anyone who drinks from it feels like running all day. (subject.He/She) has told no one else, except now (subject.he/she) has told (subject), because (subject) is (subject.his/her) favourite grown-up and has a bad back.\n\"Come and see,\" (child) says, pulling at (subject)'s hand. \"It'll fix your back. I promise.\" The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree. A ring of very small footprints goes all the way round it.\nShould (subject) drink from the children's spring?",
    "choices": [
     {
      "label": "Drink",
@@ -147,7 +147,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(subject) is very thirsty. (subject.He/She) drinks and drinks. (child) tugs at (subject.his/her) sleeve, saying, \"That's enough, that's enough,\" and (subject) doesn't stop until (subject.he/she) looks up and finds (subject.he/she) is only a head taller than (child). (subject) is fifteen. (child) looks at (subject.him/her) with deep disappointment. \"You're not a grown-up now,\" (subject.he/she) says. \"You're just BIG.\"",
+   "text": "(subject) is very thirsty. (subject.He/She) drinks and drinks. (child) tugs at (subject.his/her) sleeve, saying, \"That's enough, that's enough,\" and (subject) doesn't stop until (subject.he/she) looks up and finds (subject.he/she) is only a head taller than (child). (subject) is fifteen. (child) looks at (subject.him/her) with deep disappointment. \"You're not a grown-up now,\" (child.he/she) says. \"You're just BIG.\"",
    "effects": [
     {
      "do": "change_age",
@@ -177,7 +177,7 @@
    "src": "L6775"
   },
   "c2o1": {
-   "text": "The tingle goes all over (subject.his/her) face and stops at (subject.his/her) neck. When (subject) looks in the spring, a young face looks back, bright and smooth, with not a line on it. The rest of (subject.him/her), (subject.his/her) back included, is exactly the same. (child) is annoyed. \"That's not how you do it,\" (subject.he/she) says. \"You're meant to drink it.\"",
+   "text": "The tingle goes all over (subject.his/her) face and stops at (subject.his/her) neck. When (subject) looks in the spring, a young face looks back, bright and smooth, with not a line on it. The rest of (subject.him/her), (subject.his/her) back included, is exactly the same. (child) is annoyed. \"That's not how you do it,\" (child.he/she) says. \"You're meant to drink it.\"",
    "effects": [
     {
      "do": "young_look",

@@ -141,7 +141,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Clearing out an old shelf, (subject) finds a piece of bark tucked behind some pots. On it, in faded charcoal, is a letter.\n(subject.He/She) wrote it long ago, to a dear friend. They had argued about something, something so small (subject) can't even remember what, and (subject) wrote this to say sorry. (subject.He/She) meant to give it to (subject.his/her) friend the next morning. But (subject.his/her) friend fell ill that night, and died before it could be given.\nThe charcoal marks have faded almost to nothing. It doesn't matter. (subject) can still recite almost every word.\n(young) finds (subject.him/her) sitting on the floor, holding it. (young) doesn't know whether to leave (subject.him/her) alone or say something. What should (subject.he/she) do?",
+   "text": "Clearing out an old shelf, (subject) finds a piece of bark tucked behind some pots. On it, in faded charcoal, is a letter.\n(subject.He/She) wrote it long ago, to a dear friend. They had argued about something, something so small (subject) can't even remember what, and (subject) wrote this to say sorry. (subject.He/She) meant to give it to (subject.his/her) friend the next morning. But (subject.his/her) friend fell ill that night, and died before it could be given.\nThe charcoal marks have faded almost to nothing. It doesn't matter. (subject) can still recite almost every word.\n(young) finds (subject.him/her) sitting on the floor, holding it. (young) doesn't know whether to leave (subject.him/her) alone or say something. What should (young.he/she) do?",
    "choices": [
     {
      "label": "Ask What They Want to Do with It",

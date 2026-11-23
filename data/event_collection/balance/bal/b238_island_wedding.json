@@ -117,7 +117,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) and (friend) are being joined today, under the old flowering tree at the top of the beach, with the whole village there. At the end of the ceremony, the custom is that the eldest elder ties a string of shells round both their wrists, and the number of shells on the string, the saying goes, is \"the number of babies the island will send.\"\n(elder), the eldest elder, has brought two strings. One has one shell on it. One has three. (subject.He/She) is holding them both up, with a wicked smile, and asking the couple to choose.\nWhich string should they choose?",
+   "text": "(subject) and (friend) are being joined today, under the old flowering tree at the top of the beach, with the whole village there. At the end of the ceremony, the custom is that the eldest elder ties a string of shells round both their wrists, and the number of shells on the string, the saying goes, is \"the number of babies the island will send.\"\n(elder), the eldest elder, has brought two strings. One has one shell on it. One has three. (elder.He/She) is holding them both up, with a wicked smile, and asking the couple to choose.\nWhich string should they choose?",
    "choices": [
     {
      "label": "The Three-Shell String",
