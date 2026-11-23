@@ -1696,7 +1696,9 @@ def _unrecorded_looks(reg: _Registry, answers: dict | None = None) -> list[Ident
                         or p.body is None or p.key in reg.bodies)]
 
     def heathen_since(p: Person, q: Person) -> bool:
-        return not left_for_the_heathens(p) or q.heathen or q.converted or "Heathen" in q.statuses
+        # A conversion a snapshot's title alone shows ("Former Heathen (blue mask)", "Retired Heathen Chief")
+        # counts as much as a conversion Arrived record (converted_heathen; Codex, #846).
+        return not left_for_the_heathens(p) or q.heathen or converted_heathen(q) or "Heathen" in q.statuses
 
     changed = True
     while changed:
@@ -2091,7 +2093,9 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
 
     A converted Heathen (is_converted_newcomer; the owner, 2026-11-21) goes in the generation the tribe was on
     when they converted: the newest generation among the believers the snapshot of their conversion lists
-    (conversion_snapshot; the snapshot they first appear in when none shows the change).  A conversion while
+    (conversion_snapshot; the snapshot they first appear in when none shows the change) -- counting only the
+    village's own families, never a convert or a convert's descendant (the owner, 2026-11-22: "Only real
+    families"), nor an arrival who came at the same time or later.  A conversion while
     only the founders lived puts them in generation I (the owner, 2026-11-21: "heathens can share the founders
     row"); they are still never called founders (heathen_not_founder)."""
     people = village.people
@@ -2139,10 +2143,14 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
     # arrivals, so nothing feeds back: two converts each with a child in the other's conversion snapshot (a
     # Heathen father's believer child) used to push each other one generation down every round, to generation
     # XLI and on in the owner's 256 village (2026-11-22, "WHY ARE THERE 41 GENERATIONS").
+    # ONLY REAL FAMILIES (the owner, 2026-11-22: "Only real families: I-VI"): the tribe's own family lines
+    # place them -- never a convert nor a convert's descendant -- so converts do not stack generation on
+    # generation (each wave in the newest row, their children starting the next: I-XI in the owner's village).
     own = {pid: descendants(pid) for pid in arrivals}
-    later = {pid: set().union(*(own[q] | {q} for q in arrivals
-                                if same_time[q] is not None and same_time[pid] is not None
-                                and same_time[q] >= same_time[pid]))
+    convert_lines = set().union(*(own[q] | {q} for q in converts))
+    later = {pid: convert_lines.union(*(own[q] | {q} for q in arrivals
+                                        if q == pid or (same_time[q] is not None and same_time[pid] is not None
+                                                        and same_time[q] >= same_time[pid])))
              for pid in arrivals}
     gens = compute()
     for _round in range(len(arrivals) + 1):
@@ -2735,10 +2743,13 @@ def report(village: Village, game_title: str) -> str:
     lines = [f"{game_title} -- Genealogy",
              f"Village: {village.tribe} (Save {village.slot})" if village.tribe else f"Save {village.slot}",
              "",
-             "Generation I is everyone no record gives a parent: the first villagers, island-event "
-             "arrivals and villagers born before the patcher's logs began.  A child is one generation "
-             "below the later of its parents.  Relatedness counts only the family the save and the logs "
-             "record, so ancestry from before the logs began is unknown.",
+             "Generation I is the first villagers and the villagers born before the patcher's logs began.  "
+             "A villager who arrived later with no recorded parent (an island event, a barrel"
+             + (", a Heathen who converted" if village.game == 5 else "") + ") is in the newest generation "
+             "of the village's own families when they "
+             + ("arrived or converted -- never a founder" if village.game == 5 else "arrived")
+             + ".  A child is one generation below the later of its parents.  Relatedness counts only the "
+             "family the save and the logs record, so ancestry from before the logs began is unknown.",
              ""]
     for note in village.notes:
         lines.append(f"Note: {note}")

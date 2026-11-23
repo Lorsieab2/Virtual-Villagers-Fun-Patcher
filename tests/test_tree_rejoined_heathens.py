@@ -62,12 +62,14 @@ def by_name(village: gen.Village, name: str) -> gen.Person:
 
 
 class RejoinedKeepTheirPlace(Base):
-    def build(self, kind: str, rejoined: bool, heathen_now: bool = False, new_looks: bool = False) -> gen.Village:
+    def build(self, kind: str, rejoined: bool, heathen_now: bool = False, new_looks: bool = False,
+              title_only: bool = False) -> gen.Village:
         """The fixture village with a family over three generations and the subject (Nobu): `kind` says how he
         first came -- "founder", "event" (a barrel), "born" (to Sakou and Raiatea) or "prelog" (no Arrived record;
         the first snapshot lists him).  `rejoined`: he left for the Heathens (a Heathen in the middle snapshot) and
         -- unless `heathen_now` -- came back.  `new_looks`: his head changed while he was a Heathen and no record
-        says so."""
+        says so.  `title_only`: no Arrived record of his return -- only the last snapshot's former Heathen's
+        title -- and the middle snapshot (a Heathen) still lists the look he left with."""
         v = self.village("huttest", 5)
         data = bytearray(v.save_path(1).read_bytes())
         entries = v.entries(bytes(data))
@@ -86,7 +88,7 @@ class RejoinedKeepTheirPlace(Base):
         elif kind == "born":
             logs += birth(old, mom, dad)
         logs += birth(KID, mom, dad) + birth(GRANDKID, other, KID)
-        if rejoined and not heathen_now:
+        if rejoined and not heathen_now and not title_only:
             logs += came_back(subject, subject.head, subject.body)
         v.births(logs)
         if rejoined:
@@ -97,7 +99,7 @@ class RejoinedKeepTheirPlace(Base):
             faction[(T2, SUBJECT)] = ["Faction: Heathen"]
             faction[(T3, SUBJECT)] = ["Faction: Heathen"] if heathen_now else \
                 ["Faction: Believer", "Special villager: Former Heathen (blue mask)"]
-        history_text(v, [(T1, first + [KID]), (T2, people + [KID]), (T3, people + [KID, GRANDKID])], faction)
+        history_text(v, [(T1, first + [KID]), (T2, (first if title_only else people) + [KID]), (T3, people + [KID, GRANDKID])], faction)
         return gen.load_village(v.folder, 5, 1)
 
     def picture(self, village: gen.Village) -> dict:
@@ -132,7 +134,10 @@ class RejoinedKeepTheirPlace(Base):
         text = info.plain_text(info.info_lines(back, ft.Edits(), nobu.id))
         self.assertIn("Founder", text)
         self.assertNotIn("Converted from the Heathens", text)
-        self.assertRegex(gen.report(back, "New Believers"), rf"\d+\. {SUBJECT}, Male, [^\n]* -- generation I, founder,")
+        text = gen.report(back, "New Believers")
+        self.assertRegex(text, rf"\d+\. {SUBJECT}, Male, [^\n]* -- generation I, founder,")
+        self.assertNotIn("Generation I is everyone no record gives a parent", text, "the old, wrong rule")
+        self.assertIn("a Heathen who converted) is in the newest generation of the village's own families", text)
 
     def test_an_island_event_villager_who_came_back_keeps_the_events_generation_and_words(self) -> None:
         back = self.check_same_place("event")
@@ -158,6 +163,14 @@ class RejoinedKeepTheirPlace(Base):
         nobu = by_name(back, SUBJECT)
         self.assertTrue(nobu.alive and nobu.founder_record and ft.is_founder(back, nobu))
         self.assertIn((nobu.head + 3, nobu.body), nobu.old_looks, "the look he left with is his old look")
+
+    def test_a_return_only_a_snapshots_former_heathen_title_shows_is_still_one_villager(self) -> None:
+        """Codex, #846: no Arrived record of the return, only the snapshot's "Former Heathen (blue mask)" -- and the
+        look changed with no record -- is still the founder who left, not a "disappeared" founder and a second Nobu."""
+        back = self.check_same_place("founder", new_looks=True, title_only=True)
+        nobu = by_name(back, SUBJECT)
+        self.assertTrue(nobu.alive and ft.is_founder(back, nobu))
+        self.assertIn("Converted Blue Mask Heathen", nobu.statuses)
 
     def test_while_a_heathen_they_keep_their_place_and_hide_unconverted_heathens_keeps_them(self) -> None:
         for kind in ("founder", "event", "born"):
@@ -239,10 +252,13 @@ class ConvertsNeverPushEachOtherDown(unittest.TestCase):
         gen._generations(v, {T1: {1, 2, 3, 4, 5}, T2: {1, 2, 3, 4, 5, 6}, T3: {1, 2, 3, 4, 5, 6, 7}})
         return v
 
-    def test_each_convert_rests_only_on_the_tribe_before_them(self) -> None:
+    def test_each_convert_rests_only_on_the_tribes_own_families(self) -> None:
+        """The owner (2026-11-22): "Only real families: I-VI".  B converts after A's child CA (generation III) is
+        born, but CA is a convert's descendant: B goes by the tribe's own families (K1, generation II), so the
+        converts do not stack row on row."""
         v = self.village()
         gens = {p.name: p.generation for p in v.people.values()}
-        self.assertEqual(gens, {"F1": 1, "F2": 1, "K1": 2, "A": 2, "B": 3, "CB": 4, "CA": 3})
+        self.assertEqual(gens, {"F1": 1, "F2": 1, "K1": 2, "A": 2, "B": 2, "CB": 3, "CA": 3})
         for p in v.people.values():             # a child one below the later parent, always
             parents = [v.people[q].generation for q in (p.father, p.mother) if q is not None]
             if parents:
