@@ -155,8 +155,13 @@ class PolishingPaysTheEnergy(unittest.TestCase):
                        if f["id"] == FEATURE_ID)
         rows = [(int(p["offset"], 16), bytes.fromhex(p["before"]), bytes.fromhex(p["after"]))
                 for p in feature["patches"]]
-        # The Nursery foundation caption's row (tests/test_vv5_nursery_foundation_caption.py) comes after this fix.
+        # The Nursery foundation caption's row (tests/test_vv5_nursery_foundation_caption.py), then the Clothing Hut
+        # click's (tests/test_vv5_clothing_hut_click.py), come after this fix.
+        from test_vv5_clothing_hut_click import clothing_hut_click_fixes
         from test_vv5_nursery_foundation_caption import foundation_caption_fixes
+        click = list(clothing_hut_click_fixes())
+        self.assertEqual(rows[-len(click):], click)
+        rows = rows[:-len(click)]
         caption = list(foundation_caption_fixes())
         self.assertEqual(rows[-len(caption):], caption)
         rows = rows[:-len(caption)]
