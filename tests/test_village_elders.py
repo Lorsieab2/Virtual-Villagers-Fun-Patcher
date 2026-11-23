@@ -86,7 +86,11 @@ class VillageEldersHarnessTests(unittest.TestCase):
                      "a reload that moves both elders down a record still counts two elders",
                      "... each line follows its own elder (Bo does not take over Ana's line)",
                      "a renamed elder moved by a reload keeps his line: still two elders",
-                     "... the lines are Ana [1] and Bob [2]"):
+                     "... the lines are Ana [1] and Bob [2]",
+                     # New Believers (2026-11-22): a Heathen's grave is never a Village Elder.
+                     "VV5 Heathen graves: without the check both flagged graves count",
+                     "VV5 Heathen graves: a Heathen's grave is never a Village Elder, the believer's still is",
+                     "VV5 Heathen graves: a new file counts the flagged graves without the Heathen's"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 

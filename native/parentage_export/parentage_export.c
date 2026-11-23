@@ -88,6 +88,7 @@
 #include "custom_title_shown.h"   /* which record a bound custom title is shown on */
 #include "former_heathens_read.h"
 #include "mask_line.h"
+#include "heathen_word.h"         /* New Believers' "Faction: Heathen" / "Isolan" line */
 #include "patcher_files.h"
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -1383,6 +1384,39 @@ enum {
     KIND_EPITAPH = 4, KIND_UNACCOUNTED = 5, KIND_ARRIVED = 6, KIND_APPEARANCE = 7,
     KIND_ISLAND_EVENT = 8, KIND_LOST_BIRTH = 9, KIND_NAME_CHANGE = 10
 };
+
+/* NEW BELIEVERS' HEATHENS (the owner, 2026-11-22: "do the logs log heathens
+   too? they should"): every record of a Heathen -- a Death, a Disappeared,
+   an Arrived, an Appearance or Name changed record -- says so in its own
+   line, "  Faction: Heathen" ("  Faction: Isolan" with Guardians of Isola,
+   native/shared/heathen_word.h), under the name and the Mask line, so a
+   reader that counts the village's villagers (Village Statistics' reconcile,
+   the Family Tree, Repair Saves & Logs) leaves them out: Heathens never
+   count.  Read from the record's faction byte (+0x1CEC), live or kept.  Not
+   for a record whose caller says the faction itself (the Unaccounted
+   record's own "Faction:" line) nor for "Left the tribe: became a Heathen",
+   the record of a VILLAGER leaving the tribe, which the reconciliation
+   counts as their departure.  An Epitaph changed record names no villager
+   record.  NULL: no line. */
+static const char *record_faction_line(int game_id, int kind, const unsigned char *record, const char *before) {
+    static char line[32];
+    if (game_id != GAME_VV5 || record == NULL || record[VV5_FACTION] == 0 || kind == KIND_EPITAPH
+        || kind == KIND_LOST_BIRTH) {
+        return NULL;
+    }
+    if (before != NULL && (strstr(before, "  Faction: ") != NULL
+                           || strstr(before, "  What happened: Left the tribe") != NULL)) {
+        return NULL;
+    }
+    _snprintf_s(line, sizeof line, _TRUNCATE, "  Faction: %s\n", vv5_heathen_word());
+    return line;
+}
+
+/* The same line for a Birth (the child) or a Conception (the carrier) record: "" for a believer. */
+static const char *faction_line_of(int game_id, const unsigned char *record) {
+    const char *line = record_faction_line(game_id, KIND_BIRTH, record, NULL);
+    return line != NULL ? line : "";
+}
 
 #define UNACCOUNTED_FOLDER L"Virtual Villagers Fun Patcher Logs\\Unaccounted Villagers"
 #define BIRTHS_FOLDER L"Virtual Villagers Fun Patcher Logs\\Births and Conceptions"
@@ -4445,6 +4479,7 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         "  Babies nursing: %d\n"
         "%s"
         "%s"
+        "%s"
         "\n",
         mother_name,
         *(const int *)(mother + g->age),
@@ -4464,7 +4499,10 @@ __declspec(dllexport) int __stdcall WriteParentageRecordWithFather(
         babies,
         g_father_set.name != NULL && father_from_caller == NULL
             ? "  Note: Father set by a Custom Island Event\n" : "",
-        carried_note
+        carried_note,
+        /* New Believers: a Heathen carrier (Abandoned Infants takes every woman; "VVFP Heathen Aging.dll"'s
+           Heathen babies) -- marked, so no reader takes it for the village's own. */
+        faction_line_of(game_id, mother)
     );
     if (written < 0 || (size_t)written >= sizeof(text)) {
         return 0;
@@ -4764,11 +4802,14 @@ static int compose_birth(
         "    Body: %s\n"
         "%s"
         "%s"
+        "%s"
         "\n",
         child, sex_text(g, rec), child_head, child_body, child_likes, child_dislikes, skills,
         mother, mh, mb,
         father, fh, fb,
         born_as_line(litter),
+        /* New Believers: a baby born among the Heathens ("VVFP Heathen Aging.dll") is a Heathen. */
+        faction_line_of(game_id, rec),
         note != NULL ? note : ""
     );
     if (written < 0 || (size_t)written >= text_size) {
@@ -5627,7 +5668,8 @@ static void gone_parents_block(int game_id, const struct game_layout *g, const u
    villager records when `check` is set -- so a wrong pointer can never
    print a plausible stranger.  A departed villager no longer has one: the
    caller then passes `check` 0 and a copy rebuilt at the record's own
-   offsets from what it kept. */
+   offsets from what it kept.  New Believers' Heathens are marked
+   (record_faction_line). */
 __declspec(dllexport) int __stdcall WriteVillageRecord(
     int game_id,
     int kind,
@@ -5645,9 +5687,10 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
     char likes[PREFERENCE_TEXT_MAX], dislikes[PREFERENCE_TEXT_MAX];
     char skills[512];
     char parents[256];
-    char special[128];
+    char special[192];
     char custom[64];
     char text[RECORD_TEXT_MAX];
+    const char *faction;
     int written;
 
     if (game_id < GAME_VV1 || game_id > GAME_VV5 || record == NULL
@@ -5722,6 +5765,11 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
             _snprintf_s(special + used, sizeof special - used, _TRUNCATE, "  Mask: %s\n", mask);
         }
     }
+    faction = record_faction_line(game_id, kind, record, before);
+    if (detail >= 1 && faction != NULL) {
+        size_t used = strlen(special);
+        _snprintf_s(special + used, sizeof special - used, _TRUNCATE, "%s", faction);
+    }
     if (detail >= 2) {
         skill_text(g, record, skills, sizeof skills);
         /* A caller that hands its own "Parents:" block (the Custom Island
@@ -5749,8 +5797,8 @@ __declspec(dllexport) int __stdcall WriteVillageRecord(
         gone_parents_block(game_id, g, check ? records : NULL, record, parents, sizeof parents);
     }
     if (detail <= 0) {
-        written = _snprintf(text, sizeof(text), "%s  Name: %s\n%s%s\n",
-                            heading, name, before != NULL ? before : "",
+        written = _snprintf(text, sizeof(text), "%s  Name: %s\n%s%s%s\n",
+                            heading, name, faction != NULL ? faction : "", before != NULL ? before : "",
                             after != NULL ? after : "");
     } else {
         written = _snprintf(

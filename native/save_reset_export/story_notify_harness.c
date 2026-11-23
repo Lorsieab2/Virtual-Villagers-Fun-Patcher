@@ -27,6 +27,13 @@
 #define STORY_MODULE ((HMODULE)(UINT_PTR)0x10000000u)
 #define CAUSE_MODULE ((HMODULE)(UINT_PTR)0x11000000u)
 #define ORIGINS_MODULE ((HMODULE)(UINT_PTR)0x12000000u)
+#define AGING_MODULE ((HMODULE)(UINT_PTR)0x13000000u)
+
+static int g_aging_loaded;
+static int g_aging_notified;
+static int g_aging_slot;
+static int g_aging_before_sweep;
+static char g_aging_proc_asked[64];
 
 static int g_story_loaded;
 static int g_story_exports;
@@ -75,10 +82,20 @@ static void __stdcall fake_origins_reset(int game, int slot) {
     g_origins_before_sweep = g_swept == 0;
 }
 
+static void __stdcall fake_aging_reset(int game, int slot) {
+    (void)game;
+    ++g_aging_notified;
+    g_aging_slot = slot;
+    g_aging_before_sweep = g_swept == 0;
+}
+
 static HMODULE WINAPI harness_get_module(LPCSTR name) {
     ++g_modules_asked;
     if (g_origins_name != NULL && lstrcmpA(name, g_origins_name) == 0) {
         return ORIGINS_MODULE;
+    }
+    if (lstrcmpA(name, "VVFP Heathen Aging.dll") == 0) {
+        return g_aging_loaded ? AGING_MODULE : NULL;
     }
     if (lstrcmpA(name, "VVFP Story Upgrades.dll") == 0) {
         ++g_story_name_asked;
@@ -99,6 +116,10 @@ static FARPROC WINAPI harness_get_proc(HMODULE module, LPCSTR name) {
     if (module == CAUSE_MODULE) {
         lstrcpynA(g_cause_proc_asked, name, sizeof g_cause_proc_asked);
         return g_cause_exports ? (FARPROC)fake_cause_reset : NULL;
+    }
+    if (module == AGING_MODULE) {
+        lstrcpynA(g_aging_proc_asked, name, sizeof g_aging_proc_asked);
+        return (FARPROC)fake_aging_reset;
     }
     if (module == ORIGINS_MODULE) {
         lstrcpynA(g_origins_proc_asked, name, sizeof g_origins_proc_asked);
@@ -216,6 +237,19 @@ int main(void) {
         check(g_origins_notified == 0 && g_origins_proc_asked[0] == '\0' && g_swept == 1,
               "WITHOUT THE ORIGINS COMPANION LOADED NOTHING IS CALLED");
     }
+
+    /* The Heathen aging rows' companion (New Believers): told before the sweep deletes its file. */
+    reset_recorders(1, 1, 1, 1);
+    g_aging_loaded = 1;
+    g_aging_notified = g_aging_slot = g_aging_before_sweep = 0;
+    ResetDeletedTribe(5, 4);
+    check(g_aging_notified == 1 && g_aging_slot == 4 && g_aging_before_sweep
+          && lstrcmpA(g_aging_proc_asked, "VvfpHeathenAgingVillageReset") == 0,
+          "THE HEATHEN AGING COMPANION IS TOLD THE VILLAGE IS GONE, before the sweep");
+    g_aging_loaded = 0;
+    g_aging_notified = 0;
+    ResetDeletedTribe(5, 4);
+    check(g_aging_notified == 0, "WITHOUT THE HEATHEN AGING COMPANION LOADED NOTHING IS CALLED");
 
     reset_recorders(1, 1, 1, 1);
     ResetDeletedTribe(5, 0);

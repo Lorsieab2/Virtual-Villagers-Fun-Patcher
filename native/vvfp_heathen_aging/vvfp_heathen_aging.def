@@ -1,0 +1,6 @@
+LIBRARY "VVFP Heathen Aging"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpHeathenAgingInstalled=_VvfpHeathenAgingInstalled@0
+    VvfpHeathenAgingGrave=_VvfpHeathenAgingGrave@8
+    VvfpHeathenAgingVillageReset=_VvfpHeathenAgingVillageReset@8

@@ -65,6 +65,7 @@
 #include "custom_title_shown.h"   /* which record a bound custom title is shown on */
 #include "former_heathens_read.h"
 #include "mask_line.h"
+#include "heathen_word.h"   /* "Faction: Heathen", or "Isolan" with Guardians of Isola */
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
 #include "vv3_villager_table.h"
 #include "vv4_villager_table.h"
@@ -1203,9 +1204,10 @@ static int write_villager(
     /* New Believers' Heathens are in the same records as the believers: the
        faction byte +0x1CEC, worded as the Unaccounted record words it
        (cod_roster.inc), so a blue, red or orange Heathen never reads as a
-       believer (and Repair's Village Elders backfill can leave them out). */
+       believer (and Repair's Village Elders backfill can leave them out).
+       "Isolan" for "Heathen" with Guardians of Isola (native/shared/heathen_word.h). */
     if (game_id == GAME_VV5
-        && fprintf(file, "  Faction: %s\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer") < 0) {
+        && fprintf(file, "  Faction: %s\n", record[VV5_FACTION] != 0 ? vv5_heathen_word() : "Believer") < 0) {
         return 0;
     }
     if (!write_kept_values(file, g, record, game_id)) {

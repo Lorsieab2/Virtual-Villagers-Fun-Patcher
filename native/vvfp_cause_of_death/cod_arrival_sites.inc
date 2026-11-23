@@ -288,8 +288,22 @@ static const struct arrival_marker MARKERS_VV4[] = {
          0x415510 (0x415559, 0x415588)  slot 31, News From Another Tribe;
          0x43E220 (0x43E353)  a founder candidate's stand-in father, hidden
                     again at 0x43E390: temporary;
-     0x46FB80, the Heathen allocator (0x46FC28): every Heathen, never a
-       villager (the faction byte, cod_arrivals.inc);
+     0x46FB80, the Heathen allocator (0x46FC28; sub esp,0x18 and three
+       pushes, so its own return address is at +0x1B4), whose one caller is
+       the Heathen creator 0x46FD20 (0x46FD64; 18 arguments and no frame:
+       its caller's return address at +0x200).  Every Heathen gets an
+       Arrived record, marked a Heathen (the owner, 2026-11-22: the logs
+       record the Heathens too, cod_arrivals.inc), by the creator's 31
+       callers:
+         0x424AC0 (0x424ADF ... 0x424F5E, 28 calls)  the camp, made once by
+                    the village seeding 0x4259D0 (0x425DC0) -- with the
+                    tribe's founders: "Founder";
+         0x4152B0 (0x4152ED, 0x415338, 0x415383)  Barrel O' Babies!
+                    (heathens), an island event's apply (no direct caller);
+       any other path into the creator -- the Story / Cheat Upgrades'
+       Custom Island Event (it says so itself, VvfpCauseArrivedBy), "VVFP
+       Heathen Aging.dll"'s replacements (VvfpCauseHeathenArrived) and
+       babies (a birth: VvfpCauseNoteArrival) -- is a companion's own;
      0x46FDE0, Reanimate's stand-in (0x46FE5C): temporary.
    The copy init's one caller, 0x46FD70 (0x46FDCE): the delivery's twins
    and triplets.  The Abandoned Infants makes women pregnant; its babies are
@@ -297,8 +311,10 @@ static const struct arrival_marker MARKERS_VV4[] = {
 #define VV5_FRESH1 0x468411u, 0x154u
 #define VV5_FRESH2 0x468411u, 0x19Cu
 #define VV5_FRESH3 0x468411u, 0x1D8u
+#define VV5_FRESH4 0x468411u, 0x200u
 #define VV5_VIA_46FAD0 0x154u, 0x46FB6Fu
 #define VV5_VIA_471E20 0x19Cu, 0x471E50u
+#define VV5_VIA_46FB80 0x154u, 0x46FC28u
 static const struct arrival_marker MARKERS_VV5[] = {
     { VV5_FRESH2, 0x471EA2u, VV5_VIA_46FAD0, MARK_BIRTH, NULL },
     { 0x4687FEu, 0xCu, 0x46FDCEu, 0, 0, MARK_BIRTH, NULL },
@@ -314,6 +330,38 @@ static const struct arrival_marker MARKERS_VV5[] = {
     { VV5_FRESH3, 0x4154CBu, VV5_VIA_471E20, MARK_EVENT, "Chutes Without Ladders" },
     { VV5_FRESH3, 0x415559u, VV5_VIA_471E20, MARK_EVENT, "News From Another Tribe" },
     { VV5_FRESH3, 0x415588u, VV5_VIA_471E20, MARK_EVENT, "News From Another Tribe" },
+    /* The Heathens (the creator 0x46FD20 by the allocator 0x46FB80): Barrel O' Babies! (heathens), the camp. */
+    { VV5_FRESH4, 0x4152EDu, VV5_VIA_46FB80, MARK_EVENT, "Barrel of Babies" },
+    { VV5_FRESH4, 0x415338u, VV5_VIA_46FB80, MARK_EVENT, "Barrel of Babies" },
+    { VV5_FRESH4, 0x415383u, VV5_VIA_46FB80, MARK_EVENT, "Barrel of Babies" },
+    { VV5_FRESH4, 0x424ADFu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424B09u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424B33u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424B5Du, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424B87u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424BB1u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424BDBu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424C05u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424C2Fu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424C59u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424C83u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424CADu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424CD7u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424CFEu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424D28u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424D52u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424D7Cu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424DD0u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424DFAu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424E24u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424E4Eu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424E78u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424E97u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424EB6u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424EE0u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424F0Au, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424F34u, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
+    { VV5_FRESH4, 0x424F5Eu, VV5_VIA_46FB80, MARK_FOUNDER, "Founder" },
 };
 
 #define MARKERS(table) do { *out = (table); *count = (int)(sizeof(table) / sizeof((table)[0])); } while (0)

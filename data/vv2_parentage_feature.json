@@ -21,12 +21,12 @@
       "companion_files": [
         {
           "destination": "VVFP Parentage Export.dll",
-          "sha256": "16c2810c5019da383e05e00c34c3f55563955a7811e1a6c0a66086adb5c685ad",
+          "sha256": "72cd45dfe9f73c7e29b68906f288c56e25a5d8af14e27ada258daaad738df487",
           "source": "assets/parentage/VVFP Parentage Export.dll"
         },
         {
           "destination": "VVFP Save Reset.dll",
-          "sha256": "263aa5c6bb1a75d7b650f6fca2f51c59dfbb4253354be763a69129aa0a5def95",
+          "sha256": "8fec6ccfc62d9ddd14eb87d829099afe018a58e2d7a2046b3be2dda9b3d72875",
           "source": "assets/save_reset/VVFP Save Reset.dll"
         },
         {

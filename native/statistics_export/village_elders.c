@@ -513,8 +513,9 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
             char name[NAME_MAX_CHARS];
             int i;
             int matched = 0;
-            if (grave[l->grave_elder_flag] == 0) {
-                continue;
+            if (grave[l->grave_elder_flag] == 0
+                || (l->grave_is_heathen != NULL && l->grave_is_heathen(index))) {
+                continue;                 /* not an elder, or a Heathen's grave (Heathens never count) */
             }
             copy_name(name, grave + l->grave_name, l->grave_name_capacity);
             if (!fresh) {

@@ -1,0 +1,29 @@
+{
+  "id": "vv5_former_villager_heathens_leave_skeletons",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Former Villagers Among the Heathens Leave Skeletons",
+  "description": "**Only matters with \"Former Villagers Keep Aging Among the Heathens\" or \"Heathen Tribe Ages, Dies and Has Children\" ticked**: in the normal game a Heathen never ages, so never dies of old age. When a villager who had left your tribe dies of old age among the Heathens, they leave a skeleton like any villager: your believers bury it with \"Burying the dead\" (once The Buried Mausoleum is solved), which gives a normal grave. Other Heathens who die leave nothing. **Cannot be ticked with \"All Heathens Leave Skeletons\"**: ticking one unticks the other. The Death record says how they died; **Heathens never count in the Village Statistics.**",
+  "output_tag": "Former Villager Skeletons",
+  "dependencies": [],
+  "conflicts": [
+    "vv5_all_heathens_leave_skeletons"
+  ],
+  "behavior_changes": [
+    "While this file is shipped, VVFP Heathen Aging.dll lets a former villager who dies of old age among the Heathens leave a body (SetHealth 0x4758B0(0, 2)) for the believers' burial; any other Heathen who dies leaves nothing."
+  ],
+  "explicit_non_changes": [
+    "Nothing happens unless a Heathen aging row is ticked: in the stock game no Heathen dies of old age."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
+      "destination": "VVFP Heathen Skeletons Former.txt",
+      "sha256": "ED145D876B717082EC2C1AE092A1F1547E5FE7A8F05B7172BD5A34F5D1C01F7E"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": []
+}

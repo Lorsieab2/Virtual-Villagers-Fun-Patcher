@@ -58,6 +58,10 @@ struct elders_layout {
     unsigned int elder_flag;
     unsigned int skip_flag;
     int seed;
+    /* New Believers: 1 when memorial entry `index` is a Heathen's grave (a grave keeps no faction; "VVFP Heathen
+       Aging.dll" writes them down, VvfpHeathenAgingGrave), so it never counts (Heathens never count).  NULL:
+       every flagged grave counts. */
+    int (*grave_is_heathen)(unsigned int index);
 };
 
 /* Update the save's Village Elders .dat and return the number of elders,

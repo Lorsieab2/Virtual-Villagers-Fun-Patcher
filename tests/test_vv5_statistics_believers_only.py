@@ -20,8 +20,11 @@ VV5_BELIEVER_GUARDS and vv5_believers_only):
   inside the conception routine 0x465E00 on its mother, with no faction test; a
   Heathen mother's conception is not counted.
 
-Villagers Buried needs no guard: the owner rules that a Heathen grave is never
-made (2026-09-30), so a Heathen-corpse check could never fire.
+* Villagers Buried (the patch's pending +0x44, 0x51D39C): the burial pickup
+  0x473F8F counts every body it clears.  The owner ruled on 2026-09-30 that a
+  Heathen grave is never made, and the stock game makes none; "VVFP Heathen
+  Aging.dll"'s skeleton rows (2026-11-22) give a Heathen a body the believers
+  bury, so a Heathen's body is buried and not counted.
 
 Two layers. The first runs the wrappers straight from the manifest's cave bytes
 and needs no game file, so it runs in CI. The second executes the patched game
@@ -55,6 +58,7 @@ FACTION, SICK, TYPE, AGE = 0x1CEC, 0x1C48, 0x1CFC, 0x1B8C
 BLOCK = 0x51D358
 BABIES, CURED, OLDEST, TWINS, TRIPLETS = (BLOCK + 0x08, BLOCK + 0x10, BLOCK + 0x20,
                                           BLOCK + 0x28, BLOCK + 0x2C)
+BURIED = 0x51D39C                  # the patch's pending Villagers Buried (build_statistics_features.py)
 HEAP, STACK = 0x20000000, 0x10000000
 RETURN = 0x0BADC0DE
 HEATHEN, BELIEVER = 1, 0
@@ -187,6 +191,25 @@ class CaveWrapperTests(unittest.TestCase):
                     step = (litter or 1) if counted else 0
                     self.assertEqual(rd(mu, counter), 7 + step)
                     self.assertEqual(mu.reg_read(UC_X86_REG_ESI), HEAP)
+
+    def test_villagers_buried_counts_only_a_believer_body(self):
+        """The burial pickup 0x473F8F (ESI = the body): "VVFP Heathen Aging.dll"'s skeleton rows give a Heathen a
+        body the believers bury (the owner, 2026-11-22: Heathens never count), so a Heathen's body clears its
+        awaiting-burial latch as before and is not counted; a believer's (a converted Heathen's too) is."""
+        patch = patch_at(0x73F8F)
+        self.assertEqual(patch["before"], "C686D41C000000")
+        self.assertTrue(CAVE_VA <= jump_target(0x73F8F) < CAVE_VA + len(cave()))
+        for faction, counted in ((BELIEVER, 1), (HEATHEN, 0), (2, 0)):
+            with self.subTest(faction=faction):
+                mu = self.machine()
+                self.record(mu, faction)
+                mu.mem_write(HEAP + 0x1CD4, b"\x01")      # the latch the pickup clears
+                wr(mu, BURIED, 5)
+                self.assertEqual(self.run_wrapper(mu, jump_target(0x73F8F), (0x473F96,)), 0x473F96)
+                self.assertEqual(rd(mu, BURIED), 5 + counted)
+                self.assertEqual(mu.mem_read(HEAP + 0x1CD4, 1)[0], 0, "the latch was not cleared")
+                self.assertEqual(mu.reg_read(UC_X86_REG_ESI), HEAP)
+                self.assertEqual(mu.reg_read(UC_X86_REG_ESP), STACK, "stack not balanced")
 
 
 # ---------------------------------------------------------------------------
