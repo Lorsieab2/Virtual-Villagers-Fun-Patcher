@@ -1782,6 +1782,7 @@ def plan_esteemed(folder: Path, game: int, slot: int, people: list[Block], curre
     persons = _persons(current)
     preview: dict[str, set] = {}
     line = f"  Special villager: {ESTEEMED_TITLE}"
+    special = _special_villagers(folder, game, slot)
     for b in people:
         if is_population(b.path) or b.value("Name") is None or b.value("Special villager") is not None \
                 or re.match(r"^Death( \d+)?$", b.heading):
@@ -1791,6 +1792,10 @@ def plan_esteemed(folder: Path, game: int, slot: int, people: list[Block], curre
         mine = _now_of(b, current, persons)
         now = current.get(mine) if mine is not None else None
         if game == 1 and now is not None and now.value("Special villager") == "Golden Child":
+            continue
+        # ...nor one any record of the logs names as the Golden Child -- a dead or gone one too (Codex, #839): by
+        # name and looks, or by name, likes and dislikes (what a Change Appearance leaves).
+        if b.identity in special or (b.person is not None and b.person in special):
             continue
         kind.inserts.append(Insert(b.path, _after_name(b, "special"), RANK["special"], line=line))
         preview.setdefault(b.value("Name"), set()).add("records")
@@ -1833,6 +1838,30 @@ def plan_esteemed(folder: Path, game: int, slot: int, people: list[Block], curre
     kind.context["preview"] = [f"{name}: {', '.join(sorted(what))}" for name, what in sorted(preview.items())]
     kind.context["graves_count"] = len(planned.in_save) if planned is not None else 0
     return kind
+
+
+# The titles that keep a villager from ever being titled Esteemed Elder by the row (esteemed_elder.h vv_elder_rule).
+NEVER_ELDER_TITLES = ("Golden Child",)
+
+
+def _special_villagers(folder: Path, game: int, slot: int) -> set:
+    """Every villager the slot's logs ever name with a title that excludes them (A New Home's Golden Child), in any
+    record -- a Birth's child, an Arrived, a snapshot, a Death or Disappeared record: their (name, head, body) and
+    their (name, likes, dislikes).  Reads only."""
+    out: set = set()
+    villages = current_villages(folder, game, slot)
+    for path in tools.load_checker().log_files(Path(folder)):
+        for b in blocks(path):
+            if not b.of(slot, game, villages):
+                continue
+            if b.value("Special villager") in NEVER_ELDER_TITLES:
+                out.add(b.identity)
+                if b.person is not None:
+                    out.add(b.person)
+            child = _sub_identity(b, "Child") if is_birth(b.heading) else None
+            if child and any(line.strip() == "Special villager: Golden Child" for line in b.lines):
+                out.add(child)
+    return out
 
 
 def _last_skills(people: list[Block], death: Block) -> list[int]:

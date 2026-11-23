@@ -204,12 +204,25 @@ def grave_line(game: int, job: int, value: int, age: int) -> str:
     return f"{rank} {lay.jobs[job]}"
 
 
+def elder_byte_title(game: int) -> str:
+    """The title a grave's elder byte keeps: The Tree of Life's is the Scholar's (its writer stores 0x46AC70, all five
+    skills, 0x45D4F9), the others' the Esteemed Elder's."""
+    return "Scholar" if game == 4 else "Esteemed Elder"
+
+
+def grave_titles(game: int) -> tuple[str, ...]:
+    """The titles a grave of `game` can keep ("" = none): what the grave editor offers and check_value accepts."""
+    if LAYOUTS[game].elder is None:
+        return ("",)
+    return ("", elder_byte_title(game)) + (("Tribal Chief",) if LAYOUTS[game].chief is not None else ())
+
+
 def _title_of(lay: Layout, data, at: int, game: int = 0) -> str:
     if lay.chief is not None and data[at + lay.chief]:
         return "Tribal Chief"
     if lay.elder is not None and data[at + lay.elder]:
         # The Tree of Life's byte is the Scholar's: its writer stores 0x46AC70, all five skills (0x45D4F9).
-        return "Scholar" if game == 4 else "Esteemed Elder"
+        return elder_byte_title(game)
     return ""
 
 
@@ -697,7 +710,7 @@ def check_value(game: int, key: str, value, survey_: Survey | None = None, seen:
             raise GraveError("Sex must be Male or Female.")
         return value
     if key == "title":
-        allowed = ("", "Esteemed Elder") + (("Tribal Chief",) if game == 3 else ())
+        allowed = grave_titles(game)
         if value not in allowed:
             raise GraveError("A grave keeps only " + " or ".join(a or "no title" for a in allowed) + ".")
         return value
@@ -823,7 +836,7 @@ def _apply_to_save(game: int, buf: bytearray, g: Grave, key: str, value) -> bool
             return False
         if lay.chief is not None:
             buf[at + lay.chief] = 1 if value == "Tribal Chief" else 0
-        buf[at + lay.elder] = 1 if value == "Esteemed Elder" else 0
+        buf[at + lay.elder] = 1 if value == elder_byte_title(game) else 0
     else:
         return False
     return True

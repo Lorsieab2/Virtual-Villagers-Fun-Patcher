@@ -92,6 +92,36 @@ class Plan(unittest.TestCase):
                     v.close()
 
 
+class GoldenChild(unittest.TestCase):
+    """Codex (#839): a Golden Child who is dead or gone is not on the Village Population page; his older snapshots
+    must not get the title when any record of the logs names him the Golden Child."""
+
+    def test_a_dead_golden_childs_snapshot_is_never_titled(self):
+        v = village(1, row=True)
+        try:
+            v.log_text += ("Death 4\n  Name: Eve\n  Special villager: Golden Child\n  Age at death: 100\n"
+                           "  Sex: Male\n  Cause of death: Disease\n  Grave: Golden Child\n  Epitaph: Curious and Playful\n"
+                           "  Head: 1\n  Body: 1\n\n")
+            v.log()
+            kind = plan(v, 1)
+            self.assertEqual(sorted(i.line for i in kind.inserts), ["  Special villager: Esteemed Elder"],
+                             "Anna's Death record only, never Eve's snapshot")
+            self.assertNotIn("Eve: records", kind.context["preview"])
+        finally:
+            v.close()
+
+    def test_by_name_likes_and_dislikes_after_a_change_of_looks(self):
+        v = village(1, row=True)
+        try:
+            v.log_text += ("Arrived 1\n  Name: Eve\n  Special villager: Golden Child\n  Head: 19\n  Body: 7\n"
+                           "  Likes: (none)\n  Dislikes: (none)\n\n")
+            v.log()
+            kind = plan(v, 1)
+            self.assertNotIn("Eve: records", kind.context["preview"])
+        finally:
+            v.close()
+
+
 class Apply(unittest.TestCase):
     def test_the_save_the_graves_file_and_the_log(self):
         for game in GAMES:
@@ -157,6 +187,29 @@ class Graves(unittest.TestCase):
         self.assertFalse(vv_graves._title_differs(4, "", "Esteemed Elder"))
         self.assertTrue(vv_graves._title_differs(4, "", "Scholar"))
 
+    def test_the_tree_of_lifes_grave_title_round_trips_as_the_scholar(self):
+        """Codex (#839): read as Scholar, accepted as Scholar, written back as the same byte; Esteemed Elder is no
+        title a The Tree of Life grave can keep."""
+        lay = vv_graves.LAYOUTS[4]
+        data = bytearray(lay.base + lay.places * lay.stride)
+        data[lay.base:lay.base + 4] = b"Kai\0"
+        struct.pack_into("<i", data, lay.base + lay.age, 900)
+        g = vv_graves.read_graves(4, bytes(data))[0]
+        self.assertEqual(g.values["title"], "")
+        self.assertEqual(vv_graves.grave_titles(4), ("", "Scholar"))
+        self.assertEqual(vv_graves.check_value(4, "title", "Scholar"), "Scholar")
+        with self.assertRaises(vv_graves.GraveError):
+            vv_graves.check_value(4, "title", "Esteemed Elder")
+        self.assertTrue(vv_graves._apply_to_save(4, data, g, "title", "Scholar"))
+        self.assertEqual(data[lay.base + lay.elder], 1)
+        self.assertEqual(vv_graves.read_graves(4, bytes(data))[0].values["title"], "Scholar")
+        self.assertTrue(vv_graves._apply_to_save(4, data, g, "title", ""))
+        self.assertEqual(vv_graves.read_graves(4, bytes(data))[0].values["title"], "")
+        # The other games are as they were.
+        self.assertEqual(vv_graves.grave_titles(5), ("", "Esteemed Elder"))
+        self.assertEqual(vv_graves.grave_titles(3), ("", "Esteemed Elder", "Tribal Chief"))
+        gui = (Path(__file__).resolve().parents[1] / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn("vv_graves.grave_titles(number)", gui, "the grave editor offers what the grave can keep")
     def test_a_version_4_graves_file_reads_and_an_older_never_holds_14(self):
         e = bytearray(44)
         struct.pack_into("<HHIbB", e, 0, 0, 0, 1234, vv_graves.CAUSE_NONE, vv_graves.EPITAPH_ELDER)

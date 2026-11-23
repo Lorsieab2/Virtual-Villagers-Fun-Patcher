@@ -7750,7 +7750,8 @@ class App(tk.Tk):
                 now = now or "(no title)"
                 var.set(now)
                 ttk.Combobox(frame, textvariable=var, state="readonly", width=40,
-                             values=["(no title)", "Esteemed Elder"] + (["Tribal Chief"] if number == 3 else [])
+                             # what the grave can keep (The Tree of Life's byte is the Scholar's)
+                             values=["(no title)"] + [t for t in vv_graves.grave_titles(number) if t]
                              ).grid(row=row, column=1, sticky="w")
             else:
                 ttk.Entry(frame, textvariable=var, width=42).grid(row=row, column=1, sticky="w")

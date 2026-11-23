@@ -37,13 +37,28 @@ PYTEST_OK = (0, 5)            # passed; nothing collected
 PYTEST_FAILED = 1             # a test failed: a real result, never re-run
 
 
+# faulthandler's watchdog prints every thread's stack after this many seconds (a stall names its test), without
+# stopping the test.  A file whose ONE test runs longer than that gets a watchdog past its own length: the dump walks
+# the running thread's frames while it runs, and on #839 (shard 1, twice, the second time alone) it crashed the
+# process -- "Windows fatal exception: access violation", exit 3221225477 -- exactly 10 minutes into
+# test_event_collection_files.py's test_every_file_passes (about 22 minutes on the runners), while that test was deep
+# in vv_cie_graph's recursive walk.  main's own run of the same file dumped at the same mark in a shallow frame and
+# lived (#837: "Timeout (0:10:00)!" at glyph_fallback, then 62 passed).
+FAULTHANDLER_TIMEOUT = 600
+FAULTHANDLER_TIMEOUT_LONG = {"tests/test_event_collection_files.py": 3600}
+
+
+def faulthandler_timeout(path: str) -> int:
+    return FAULTHANDLER_TIMEOUT_LONG.get(path.replace("\\", "/"), FAULTHANDLER_TIMEOUT)
+
+
 def run_file(path: str, report: Path, tally: Path | None = None) -> int:
     """One file's pytest session.  tests/conftest.py's "this run verified nothing" guard is per session, and a
     file whose game-file tests all skip (CI has no game files) is not a failure of its own: the session's guard is
     off (VVFP_ALLOW_NO_FIXTURES) and its counts go to `tally` (VVFP_FIXTURE_TALLY), so the guard is applied to the
     whole shard as one run (shard_verified_nothing)."""
     cmd = [sys.executable, "-X", "faulthandler", "-m", "pytest", path, "-q", "-rf", "-p", "no:cacheprovider",
-           "-o", "faulthandler_timeout=600", f"--junit-xml={report}"]
+           "-o", f"faulthandler_timeout={faulthandler_timeout(path)}", f"--junit-xml={report}"]
     env = dict(os.environ, VVFP_ALLOW_NO_FIXTURES="1")
     if tally is not None:
         env["VVFP_FIXTURE_TALLY"] = str(tally)
