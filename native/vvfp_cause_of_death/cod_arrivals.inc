@@ -263,13 +263,46 @@ static void arrival_write(int index) {
    unaccounted arrival -- and they are never Unaccounted.  An Arrived record
    not yet written is written first, so the two read in order.  Converted
    back, the tick writes their Arrived record as for any Heathen. */
+/* New Believers with Guardians of Isola Rewrite (the owner, 2026-11-22): the record says "Left the tribe: became
+   an Isolan".  The rewrite is seen as the Faith popup sees it (story_faith_notice.inc faith_notice_left_the_tribe):
+   the game's own eSayStoppedBelieving (string 0x48, table 0x5240A8: { id, name, built-in, loaded }) says "left the
+   tribe". */
+static int arrival_guardians_on(void) {
+    static const char WORDS[] = "left the tribe";
+    int found = 0;
+    __try {
+        const unsigned int *entry = *(const unsigned int *const *)(UINT_PTR)(0x5240A8u + 4u * 0x48u);
+        const char *text;
+        int i, k;
+        if (entry != NULL && entry[0] == 0x48u) {
+            text = (const char *)(UINT_PTR)(entry[3] != 0 ? entry[3] : entry[2]);
+            for (i = 0; text != NULL && text[i] != '\0' && i < 256 && !found; ++i) {
+                for (k = 0; WORDS[k] != '\0'; ++k) {
+                    char c = text[i + k];
+                    if (c >= 'A' && c <= 'Z') {
+                        c = (char)(c - 'A' + 'a');
+                    }
+                    if (c != WORDS[k]) {
+                        break;
+                    }
+                }
+                found = WORDS[k] == '\0';
+            }
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        found = 0;
+    }
+    return found;
+}
+
 static void arrival_left_for_the_heathens(int index, const unsigned char *record) {
     char before[256];
     if (arrivals[index].state != ARRIVAL_NONE) {
         arrival_departed(index);
     }
-    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: Left the tribe: became a Heathen\n",
-              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)));
+    wsprintfA(before, "  Age: %d\n  Sex: %s\n  What happened: Left the tribe: became %s\n",
+              rec_age(record), roster_sex(*(const int *)(record + REC[g_game].sex)),
+              g_game == 5 && arrival_guardians_on() ? "an Isolan" : "a Heathen");
     COD_COUNT(left_tribe);
     cod_write(LOG_DISAPPEARED, record, 1, before, NULL, 1);
 }
