@@ -1306,6 +1306,7 @@ def _assemble(groups: dict, never: list, write: bool) -> dict[str, list[Piece]]:
             fit_games(pieces)
             assign_bits(pieces, forbid)
             files[name] = pieces
+    guardians_forms(files)
     BUILT.clear()
     BUILT.update(files)
     if write:
@@ -1320,6 +1321,83 @@ def _assemble(groups: dict, never: list, write: bool) -> dict[str, list[Piece]]:
             vp.read_pcb(data, name)
             (OUT_DIR / f"pieces-{name}.pcb").write_bytes(data)
     return files
+
+
+# ---- Guardians of Isola Rewrite (New Believers) --------------------------------------------------------------------
+#
+# The owner (2026-11-14 / 2026-11-16; docs/event-collection/guardians-wording.md, "Procedural events"): with the patch,
+# New Believers says Isolan for Heathen and the approved words for believer(s) / convert.  A composed event shows its
+# pieces' own texts, so each piece New Believers can draw that says one of these words carries its Guardians form
+# (PF_GUARDIANS: the form is written right after the text, story_procedural.inc pc_words): the text with its own
+# event's pairs of guardians-wording.md made (a Living bank piece: vv_living_mixer.GUARDIANS_BANK).  Nothing else in
+# the text changes.  A piece left with such a word is in GUARDIANS_AWAITING (the owner decides its wording) or the build
+# fails.
+
+GUARDIANS_WORDS = cc.GUARDIANS_WORDS
+_ROLE_TOKEN = re.compile(r"\([^()]*\)")
+# Pieces whose text has a sentence no approved pair covers: shown as written until the owner gives the wording
+# (docs/event-collection/guardians-wording.md, "Procedural events").  None now.
+GUARDIANS_AWAITING: frozenset[str] = frozenset()
+# The owner's pairs for a piece's own wording that no collection text has (guardians-wording.md, "Procedural
+# events"; the owner, 2026-11-22), made after the event's own pairs.
+GUARDIANS_PIECE_PAIRS = {
+    "s027_isolan_fire": (("the believers' circle", "the faithful's circle"),),
+}
+
+
+def says_guardians_word(text: str | None) -> bool:
+    """`text` says Heathen, convert or believer(s) (a role's placeholder such as "(Believer)" is a name, not a word)."""
+    return bool(text) and bool(GUARDIANS_WORDS.search(_ROLE_TOKEN.sub("", text)))
+
+
+def _event_of(pid: str, keys: list[str]) -> str | None:
+    return next((k for k in keys if k in pid), None)
+
+
+def _bank_form(text: str, label: bool) -> str:
+    """A Living bank piece's Guardians form (a title-case label: the bank's pair made whatever its case)."""
+    for before, after in lm.GUARDIANS_BANK:
+        text = re.sub(re.escape(before), after, text, flags=re.I) if label else text.replace(before, after)
+    return text
+
+
+def guardians_form(pid: str, text: str | None, label: bool, keys: list[str]) -> str | None:
+    if text is None:
+        return None
+    if pid.startswith("le_"):
+        out = _bank_form(text, label)
+    else:
+        out = text
+        eid = _event_of(pid, keys) or ""
+        for _where, before, after in cc.lib.guardians_pairs().get(eid, []):
+            out = out.replace(before, after)
+        for before, after in GUARDIANS_PIECE_PAIRS.get(eid, ()):
+            out = out.replace(before, after)
+    if label and out != text and text == vp.title_case(text):
+        out = vp.title_case(out)
+    return out
+
+
+def guardians_forms(files: dict[str, list[Piece]]) -> list[str]:
+    """Each New Believers piece that says Heathen / convert / believer gets its Guardians form (PF_GUARDIANS)."""
+    keys = sorted(cc.lib.guardians_pairs(), key=len, reverse=True)
+    left = []
+    for pieces in files.values():
+        for p in pieces:
+            p.flags &= ~vp.PF_GUARDIANS
+            p.gtext = p.glabel = None
+            if not p.games & (1 << 4) or not (says_guardians_word(p.text) or says_guardians_word(p.label)):
+                continue
+            gt, gl = guardians_form(p.id, p.text, False, keys), guardians_form(p.id, p.label, True, keys)
+            if (gt, gl) != (p.text, p.label):
+                p.flags |= vp.PF_GUARDIANS
+                p.gtext, p.glabel = gt, gl
+            if says_guardians_word(gt) or says_guardians_word(gl):
+                left.append(p.id)
+    bad = sorted({x for x in left if not any(a in x for a in GUARDIANS_AWAITING)})
+    if bad:
+        raise ValueError(f"New Believers pieces with no Guardians of Isola form (guardians-wording.md): {bad}")
+    return left
 
 
 def _graph_pieces(eid: str, g: dict, mood: int, cat_filters: list[str]) -> list[Piece]:
