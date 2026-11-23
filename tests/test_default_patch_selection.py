@@ -192,6 +192,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p.endswith("_island_event_content_notes")
                   or "_island_event_filter_f" in p
                   or p.endswith("_island_events_any_time")
+                  # Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers, new 2026-11-23:
+                  # off by default, on in Owner's Defaults only).
+                  or p == "vv5_heathens_in_island_events"
                   # Village Solidarity (the owner, 2026-11-17: on in Owner's Defaults only).
                   or p.endswith("_village_solidarity")
                   # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions (New
@@ -239,6 +242,15 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                 self.assertFalse(default_fun_patch_selection(patch_id))
                 self.assertTrue(owners_default_fun_patch_selection(patch_id))
                 self.assertFalse(select_all_fun_patch_selection(patch_id))
+
+    def test_heathens_in_island_events_is_on_in_owners_defaults_only(self) -> None:
+        """The owner (2026-11-23): "Heathens can be selected in Island Events/Heathen-Exclusive Events" is ON in
+        Owner's Defaults; off by default and in Select All, as every new option of this round."""
+        patch_id = "vv5_heathens_in_island_events"
+        self.assertIn(patch_id, fun_patch_ids())
+        self.assertFalse(default_fun_patch_selection(patch_id))
+        self.assertTrue(owners_default_fun_patch_selection(patch_id))
+        self.assertFalse(select_all_fun_patch_selection(patch_id))
 
     def test_heathens_keep_masks_is_on_in_owners_defaults_only(self) -> None:
         """The owner (2026-11-08): "NEW PATCH FOR VV5, default on in OWNERS DEFAULTS ONLY." -- Select All ticks it
@@ -477,6 +489,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         # ...and Esteemed Elders in Every Game (the owner, 2026-11-22: on in Owner's Defaults, off otherwise).
         held_back |= {f"vv{n}_esteemed_elders" for n in (1, 2, 4, 5)}
+        # ...and Heathens can be selected in Island Events/Heathen-Exclusive Events (new 2026-11-23: on in Owner's
+        # Defaults only).
+        held_back |= {"vv5_heathens_in_island_events"}
         # ...and the four Heathen aging rows (the owner, 2026-11-23: Select All ticks none of them).
         held_back |= {"vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons",
                       "vv5_former_villager_heathens_leave_skeletons"}

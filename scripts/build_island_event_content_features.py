@@ -103,9 +103,83 @@ def any_time_row(game: int) -> dict:
     return record
 
 
+HEATHENS = "heathens_in_island_events"
+# The owner's exact title (2026-11-23).
+HEATHENS_NAME = "Heathens can be selected in Island Events/Heathen-Exclusive Events"
+
+
+def heathens_row(game: int) -> dict:
+    """New Believers only (the owner, 2026-11-23; docs/event-collection/cie-v6-binary.md 45)."""
+    record = row(game, HEATHENS, HEATHENS_NAME,
+                 "New Believers. Ordinary Heathens can be chosen for the roles of the new island events that allow "
+                 "them, and events written for the Heathens alone (Heathen-Exclusive Events) can happen. A chief, the "
+                 "Retired Chief and the puzzles' Heathens are never chosen. Heathens get the same personal outcomes "
+                 "as your villagers. When only Heathens are in an event, the outcomes for the whole tribe (food, tech "
+                 "points, buildings, goods, research) happen to the Heathens' village instead and change nothing in "
+                 "yours: their lines end \"(no effect)\". When Heathens and villagers are in an event together, those "
+                 "outcomes reach your tribe as usual. Heathens never count in the Village Statistics, and the Island "
+                 "Events log marks them \"Faction: Heathen\". Heathens can die, disappear or have a baby in an event, "
+                 "by the Heathens' own rules: a Heathen who dies just disappears from the camp (a Death record, no "
+                 "grave) unless a skeleton row covers them, a camp Heathen is replaced as when one dies of old age "
+                 "(never after The Last Heathen, never a villager who left your tribe), and a baby is only ever two "
+                 "Heathens' and is born a Heathen. A Heathen is never copied or made a Heathen again. Which roles "
+                 "allow Heathens is set per event; the game's own island events are unchanged. Off by default; Owner's Defaults "
+                 f"ticks it. **Needs Story / Cheat Upgrades.** {UNVERIFIED}",
+                 ["Story / Cheat Upgrades casts an ordinary Heathen (faction set, never roles 12-17, never sick) in a "
+                  "new event's role marked \"heathens\": \"allowed\" or \"only\" while this row is installed; a role "
+                  "marked \"only\" takes no believer, and without this row nobody, so its event is not offered.",
+                  "When every villager cast is a Heathen, the event's food, tech points, award, building damage or "
+                  "repair, goods, trades, tech level and whole-village effects are made nowhere: each automatic line "
+                  "says it happens to the Heathens' village (the Isolans' village with Guardians of Isola Rewrite) "
+                  "and ends \"(no effect)\".",
+                  "An event's death or disappearance of a cast Heathen goes through \"VVFP Heathen Aging.dll\" "
+                  "(VvfpHeathenAgingEventGone): a body only with a skeleton row (the statistics' death counter put "
+                  "back), else the activity stopped, the presence byte cleared and a Death record (Cause of Death's "
+                  "VvfpCauseDiedAmongHeathens); then the replacement of a camp Heathen by the Heathen creator "
+                  "0x46FD20, as for an old-age death.",
+                  "An event's pregnancy of a cast Heathen goes through the same companion "
+                  "(VvfpHeathenAgingEventPregnancy): the game's conception 0x465E00 with a Heathen father only (the "
+                  "twins counters put back), the mother kept as expecting and aging until the companion's Heathen "
+                  "birth 40 units later (at once for a nursing baby); none once The Last Heathen is solved.",
+                  "With this row \"VVFP Heathen Aging.dll\" splices its two sites even with no aging row ticked; "
+                  "then only a Heathen expecting an event's baby ages, until the birth.",
+                  "More Island Events casts a Heathen only in a role its table names (none yet).",
+                  "The Island Events log ends each Heathen's record with \"Faction: Heathen\" (\"Isolan\" with "
+                  "Guardians of Isola Rewrite)."])
+    record["needs_on"] = [{"id": f"vv{game}_story_cheat_upgrades",
+                           "for": "the island-event engine that chooses the villagers"}]
+    record["explicit_non_changes"] = [
+        "No executable byte, game file or save is changed: the row is only a name in the installed patches' list "
+        "(\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades and More Island Events read.",
+        "The game's own island events, their text, their villagers and their chances are never changed.",
+        "A Heathen never counts in the Village Statistics; the puzzles' Heathens are never chosen.",
+    ]
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import build_heathen_aging_features as aging  # noqa: E402  (its DLL, the flag file and the two sites)
+    record["companion_files"] = [
+        {"source": f"assets/heathen_aging/{aging.DLL_NAME}", "destination": aging.DLL_NAME,
+         "sha256": aging.sha(aging.DLL)},
+        {"source": f"assets/heathen_aging/{aging.EVENTS_FLAG}", "destination": aging.EVENTS_FLAG,
+         "sha256": aging.sha(aging.FOLDER / aging.EVENTS_FLAG)},
+    ]
+    record["runtime_detours"] = [
+        {"va": f"0x{va:X}", "stock_bytes": stock, "written_bytes": "E9XXXXXXXX" + "90" * (len(stock) // 2 - 5),
+         "routine": what, "installed_by": aging.INSTALLED_BY}
+        for va, stock, what in aging.SITES]
+    record["explicit_non_changes"][0] = (
+        "No executable byte is patched: \"VVFP Heathen Aging.dll\" splices its two sites at run time, after verifying "
+        "their stock bytes, all or none; the row is otherwise a name in the installed patches' list (\"VVFP "
+        "Installed Patches.txt\") that Story / Cheat Upgrades and More Island Events read.")
+    record["evidence_status"] = ("the casting, the flavor-only effects and the log line pinned in "
+                                 "tests/test_heathens_in_island_events.py (emulated); runtime/player confirmation "
+                                 "pending")
+    return record
+
+
 def rows(game: int) -> list[dict]:
     return ([notes_row(game), any_time_row(game)]
-            + [filter_row(game, f) for f in content.FILTER_IDS])
+            + [filter_row(game, f) for f in content.FILTER_IDS]
+            + ([heathens_row(game)] if game == 5 else []))
 
 
 def feature_path(record: dict) -> Path:

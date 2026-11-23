@@ -150,9 +150,14 @@ class EngineWords(unittest.TestCase):
     def test_automatic_lines(self):
         m = re.search(r'#define CG_GUARDIANS_BECOMES "([^"]+)"', self.graph)
         self.assertIsNotNone(m)
-        self.assertEqual({k: m.group(1) for k in ("status", "apostasy")}, cg.GUARDIANS_AUTO_LINES)
+        # ... and the Heathens' own cast's lines (cie-v6-binary.md 44): "the Isolans' village", the engine's
+        # CG_HV_ISOLAN
+        table = self.graph[self.graph.index("CG_HV_ISOLAN[][2] = {"):]
+        hv = dict(re.findall(r'\{ "(hv_[^"]+)", "([^"]+)" \}', table[:table.index("};")]))
+        self.assertEqual({**{k: m.group(1) for k in ("status", "apostasy")}, **hv}, cg.GUARDIANS_AUTO_LINES)
         self.assertEqual({k: cg.AUTO_LINES[k] for k in cg.GUARDIANS_AUTO_LINES},
-                         {k: v.replace("an Isolan", "a Heathen") for k, v in cg.GUARDIANS_AUTO_LINES.items()})
+                         {k: v.replace("an Isolan", "a Heathen").replace("Isolans'", "Heathens'")
+                          for k, v in cg.GUARDIANS_AUTO_LINES.items()})
         self.assertIn('lstrcmpA(key, "status") == 0 || lstrcmpA(key, "apostasy") == 0) && cg_guardians_on()',
                       self.graph)
         # both readers of the table go through it

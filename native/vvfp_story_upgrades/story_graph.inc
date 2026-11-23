@@ -249,6 +249,22 @@ static const char *cg_pref_word;      /* a preference effect's word given here i
 #define CG_ROLE_SPEAKS 0x80u          /* 32: a villager role's byte 13 bit: its words have them speak */
 #define CG_ROLE_HEATHEN 0x40u         /* ... bit 6: New Believers: the role is a Heathen's (an Isolan), cast as the game's
                                          own picker 0x471870 casts one with Heathens-only on and special roles off */
+/* cie-v6-binary.md 45 (the owner, 2026-11-23): New Believers' row "Heathens can be selected in Island Events/Heathen-
+   Exclusive Events" (heathens_in_island_events in the installed patches' list).  Bit 5: with the row, an ordinary
+   Heathen may take the role as well as a believer ("heathens": "allowed"); bit 4: with the row, only an ordinary
+   Heathen ("heathens": "only"), and without it the role is never filled (the event is not offered).  Never with bit 6
+   or each other; never a puzzle's Heathen (roles 12-17).  Without either bit the role is a believer's as before. */
+#define CG_ROLE_HEATHEN_MAY 0x20u
+#define CG_ROLE_HEATHEN_ONLY 0x10u
+#define CG_ROLE_BYTE13_BITS (CG_ROLE_SPEAKS | CG_ROLE_HEATHEN | CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_ONLY)
+#define CG_ROLE_HEATHEN_ROW (CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_ONLY)
+#define CG_HEATHENS_ROW "heathens_in_island_events"   /* the row's id after "vv5_" (also More Island Events') */
+
+/* A role's byte 13 holds at most one of the three Heathen bits. */
+static int cg_heathen_bits_ok(unsigned int b) {
+    b &= CG_ROLE_HEATHEN | CG_ROLE_HEATHEN_ROW;
+    return b == 0 || b == CG_ROLE_HEATHEN || b == CG_ROLE_HEATHEN_MAY || b == CG_ROLE_HEATHEN_ONLY;
+}
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
 #define CG_HEADER_REL 104u            /* a version 6 header with the kinship relations (cie-v6-binary.md 21) */
@@ -1111,6 +1127,104 @@ static int cg_heathen_effect_ok(const unsigned char *e) {
     }
 }
 
+/* cie-v6-binary.md 45: what never happens to a Heathen cast through the row (everything else happens to them as to a
+   villager, the owner 2026-11-23: "Everything that happens to our villagers happens to heathens too"): a birth that
+   kills its parent, a lost baby or a baby born early (a Heathen's births are "VVFP Heathen Aging.dll"'s own); a copy
+   or a double (New Believers' Heathens are never copied); becoming a Heathen (one already). */
+static int cg_heathen_never_effect(const unsigned char *e) {
+    switch (e[0]) {
+    case CGE_BIRTH_THEN_DIE: case CGE_BABY_LOST: case CGE_DELIVER_EARLY: case CGE_CLONE: case CGE_NEW_VILLAGER:
+    case CGE_STATUS: case CGE_APOSTASY:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/* What "VVFP Heathen Aging.dll" carries for a Heathen (the owner, 2026-11-23, "Heathens CAN die, vanish and get
+   pregnant from events"): a death (a body only with a skeleton row, else nothing left and a Death record), a
+   disappearance, a death with no body, a pregnancy or a nursing baby (two Heathens' only) -- each by the Heathens'
+   own rules (cg_heathen_aging_gone / cg_heathen_aging_pregnancy).  Without that companion's exports they never
+   happen to a Heathen. */
+static int cg_heathen_aging_effect(const unsigned char *e) {
+    switch (e[0]) {
+    case CGE_KILL: case CGE_VANISH: case CGE_DIE_UNRECOVERED: case CGE_PREGNANT: case CGE_NURSING:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+typedef int (__stdcall *cg_ha_gone_fn)(int game, int index, int how, int cause);
+typedef int (__stdcall *cg_ha_pregnancy_fn)(int game, int mother, int father, int litter, int now);
+#ifdef VVFP_TEST
+static int test_graph_heathen_aging = -1;   /* -1 the real companion; 0 none; 1 the test build's own (story_graph's
+                                                emulated stand-ins, VvfpStoryProbeHeathenAging) */
+static int __stdcall cg_test_ha_gone(int game, int index, int how, int cause);
+static int __stdcall cg_test_ha_pregnancy(int game, int mother, int father, int litter, int now);
+#endif
+
+static FARPROC cg_heathen_aging_export(const char *name) {
+    HMODULE dll;
+#ifdef VVFP_TEST
+    if (test_graph_heathen_aging >= 0) {
+        if (test_graph_heathen_aging == 0) {
+            return NULL;
+        }
+        return lstrcmpA(name, "VvfpHeathenAgingEventGone") == 0 ? (FARPROC)(void *)cg_test_ha_gone
+                                                                 : (FARPROC)(void *)cg_test_ha_pregnancy;
+    }
+#endif
+    dll = GetModuleHandleA("VVFP Heathen Aging.dll");
+    return dll != NULL ? GetProcAddress(dll, name) : NULL;
+}
+
+/* A Heathen's death (`how` 0, the effect's cause words) or disappearance (1) through "VVFP Heathen Aging.dll": 2 a
+   body was made (the event tells its cause as for any villager), 1 taken with nothing left, 0 not made.  The Death
+   record of a death with nothing left is the companion's: "Unknown causes" for the stock events' "unknown", else
+   Cause of Death's custom-event cause (5): the author's own words, kept for the record first, else "Died in a
+   custom island event" -- exactly what a villager's Death record would say. */
+static void cg_tell_words(const char *export_name, int game, int index, const char *words, int fallback);
+#ifdef VVFP_TEST
+static void cg_test_tell(int kind, int index, const char *words);
+#endif
+
+static int cg_heathen_aging_gone(int game, int index, int how, const char *cause) {
+    cg_ha_gone_fn gone = (cg_ha_gone_fn)(void *)cg_heathen_aging_export("VvfpHeathenAgingEventGone");
+    if (gone == NULL) {
+        return 0;
+    }
+    if (how == 0 && cause != NULL && cause[0] != '\0' && lstrcmpA(cause, "unknown") != 0
+        && lstrcmpA(cause, "custom") != 0) {
+        /* the author's own cause words, kept for the record first (Cause of Death's VvfpCauseWordsFor), so a Death
+           record with nothing left says them, as a villager's would (the coordinator, #852: logs must be correct) */
+#ifdef VVFP_TEST
+        cg_test_tell(6, index, cause);
+#endif
+        cg_tell_words("VvfpCauseWordsFor", game, index, cause, 0);
+    }
+    return gone(game, index, how, cause != NULL && lstrcmpA(cause, "unknown") == 0 ? -1 : 5);
+}
+
+/* An event's pregnancy (`now` 1: a nursing baby, born at once) of the Heathen in record `mother` with the Heathen in
+   `father` (-1: a Heathen man of the camp) through "VVFP Heathen Aging.dll": the babies on their way, 0 none. */
+static int cg_heathen_aging_pregnancy(int game, int mother, int father, int litter, int now) {
+    cg_ha_pregnancy_fn conceive = (cg_ha_pregnancy_fn)(void *)cg_heathen_aging_export("VvfpHeathenAgingEventPregnancy");
+    return conceive != NULL ? conceive(game, mother, father, litter, now) : 0;
+}
+
+/* The effect can not happen to a Heathen cast through the row, here and now. */
+static int cg_heathen_barred_effect(const unsigned char *e) {
+    if (cg_heathen_never_effect(e)) {
+        return 1;
+    }
+    if (cg_heathen_aging_effect(e)) {
+        return cg_heathen_aging_export(e[0] == CGE_PREGNANT || e[0] == CGE_NURSING ? "VvfpHeathenAgingEventPregnancy"
+                                                                                   : "VvfpHeathenAgingEventGone") == NULL;
+    }
+    return 0;
+}
+
 /* A group effect (role byte 254): the effects a group may take, and its selector. */
 static int cg_group_ok(const cg_graph *g, const unsigned char *e) {
     unsigned int value = (unsigned int)e[14] | ((unsigned int)e[15] << 8);
@@ -1252,7 +1366,8 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
             if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > CG_PREFER_CHIEF || !cg_str_ok(g, cg_u16(r + 10), 1)
-                || (r[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) > 1u || r[12] > 100u) {
+                || (r[13] & ~CG_ROLE_BYTE13_BITS) > 1u || r[12] > 100u
+                || !cg_heathen_bits_ok(r[13])) {
                 return cg_bad("a role's requirement is not one this game can read");
             }
             if (r[0] == CG_ROLE_OTHER) {
@@ -1559,6 +1674,13 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             /* a Heathen's role: vanilla's own list only, whatever is ticked (No Safeguards too) */
             return cg_bad("an effect is not one a Heathen may have");
         }
+        if (g->version >= 6 && cg_heathen_never_effect(e)
+            && ((e[1] < (unsigned int)g->n_role && (cg_role_at(g, e[1])[13] & CG_ROLE_HEATHEN_ONLY))
+                || ((e[0] == CGE_PREGNANT || e[0] == CGE_NURSING) && (unsigned int)a < (unsigned int)g->n_role
+                    && (cg_role_at(g, a)[13] & CG_ROLE_HEATHEN_ONLY)))) {
+            /* 45: a Heathen-only role never takes what can not yet happen to a Heathen (it could never be cast) */
+            return cg_bad("an effect is not one a Heathen may have");
+        }
     }
     for (i = 0; i < g->n_node; ++i) {
         const unsigned char *n = cg_node_at(g, i);
@@ -1746,11 +1868,17 @@ typedef struct {
        just before display k's effects were made, restored with identity_at when a quit rewinds to that page (a
        version 2-5 file is read with every display holding its cg.female). */
     unsigned char female_at[CG_MAX_DISPLAYS][CG_MAX_ROLES];
+    /* Run file version 7 (cie-v6-binary.md 45), after everything version 6 kept (an older file is read with it 0: the
+       village's own effects made as always): 1 when the cast was the Heathens' alone -- the row installed, a role of
+       the row in the event, and every villager cast a Heathen -- decided once at the cast (cg_start_run), so every
+       page lays out and makes the village's effects the same way: as the Heathens' village's, with no effect. */
+    int heathen_cast;
 } cg_state;
 
 
 static cg_state cg;
 static cg_graph cg_g;
+static int cg_flavor_only(const unsigned char *e);   /* 45: the Heathens' village's effect, flavor only (below) */
 static char cg_labels[CG_MAX_ANSWERS][CE_LONG_LINE_BYTES];   /* the asked question's button labels, names filled
                                                                   in (with Scrolling Popups: practically any length) */
 
@@ -2211,10 +2339,89 @@ static unsigned int cg_conversion_roles(void) {
     return mask;
 }
 
+/* Role `role` with an alias's or an "other"'s members: the villager roles an effect naming it may reach. */
+static unsigned int cg_role_reach(int role) {
+    const unsigned char *spec;
+    if (role < 0 || role >= cg_g.n_role) {
+        return 0;
+    }
+    spec = cg_role_at(&cg_g, role);
+    if (spec[0] == CG_ROLE_ALIAS) {
+        return (1u << role) | cg_u16(spec + 14);
+    }
+    if (spec[0] == CG_ROLE_OTHER) {
+        int al;
+        for (al = 0; al < cg_g.n_role; ++al) {
+            if (cg_u16(spec + 14) == (1u << al)) {
+                return (1u << role) | cg_u16(cg_role_at(&cg_g, al) + 14);
+            }
+        }
+    }
+    return 1u << role;
+}
+
+/* Whether role `role` can stand for a Heathen: a villager role with a Heathen bit, or an alias or "other" one of whose
+   villager members has one (Codex on #852: an alias carries no Heathen bit of its own, a single-member alias too). */
+static int cg_role_may_be_heathen(int role) {
+    unsigned int reach = cg_role_reach(role);
+    int k;
+    for (k = 0; k < cg_g.n_role; ++k) {
+        const unsigned char *spec = cg_role_at(&cg_g, k);
+        if (((reach >> k) & 1u) && spec[0] == CG_ROLE_VILLAGER && (spec[13] & (CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN))) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* cie-v6-binary.md 45: the roles a Heathen cast through the row never takes -- those an effect that can not yet happen
+   to a Heathen names (cg_heathen_barred_effect), a pregnancy's partner too, with the members of an alias or "other"
+   that stands for them. */
+static unsigned int cg_heathen_barred_roles(void) {
+    unsigned int mask = 0;
+    int i;
+    for (i = 0; cg_g.d != NULL && i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        if (!cg_heathen_barred_effect(e)) {
+            continue;
+        }
+        mask |= cg_role_reach((int)e[1]);
+        if (e[0] == CGE_PREGNANT || e[0] == CGE_NURSING) {
+            mask |= cg_role_reach((int)cg_u32(e + 4));
+        }
+    }
+    /* Never a Heathen and a believer (the owner): a pregnancy whose other parent's role can never be a Heathen's (no
+       Heathen bit) keeps Heathens out of this one's. */
+    for (i = 0; cg_g.d != NULL && i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        int carrier = (int)e[1], partner = (int)cg_u32(e + 4);
+        if ((e[0] != CGE_PREGNANT && e[0] != CGE_NURSING) || partner == 0xFF || carrier >= cg_g.n_role
+            || partner >= cg_g.n_role) {
+            continue;
+        }
+        if (!cg_role_may_be_heathen(partner)) {
+            mask |= cg_role_reach(carrier);
+        }
+        if (!cg_role_may_be_heathen(carrier)) {
+            mask |= cg_role_reach(partner);
+        }
+    }
+    return mask;
+}
+
+static int cg_heathens_row(int game);   /* the row installed (below) */
+
+/* An ordinary Heathen the row may cast: a Heathen, never a puzzle's (roles 12-17), present and alive (listed), never
+   sick -- as the game's own picker 0x471870 takes one. */
+static int cg_ordinary_heathen(int game, const unsigned char *r) {
+    int hrole = *(const int *)(r + 0x1CFC);
+    return cg_heathen(game, r) && !(hrole >= 12 && hrole <= 17) && r[0x1C48] == 0 && cg_health_now(game, r) > 0;
+}
+
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
     const unsigned char *r = a->record(index);
-    int sex;
+    int sex, row_heathen = 0;
     if (spec[0] != CG_ROLE_VILLAGER || r == NULL || !a->listed(r)) {
         return 0;
     }
@@ -2244,6 +2451,19 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
         if (!cg_heathen(game, r) || (hrole >= 12 && hrole <= 17) || r[0x1C48] != 0 || cg_health_now(game, r) <= 0) {
             return 0;
         }
+    } else if (game == 5 && cg_g.version >= 6 && (spec[13] & CG_ROLE_HEATHEN_ROW)) {
+        /* 45 (the owner, 2026-11-23): the row "Heathens can be selected in Island Events/Heathen-Exclusive Events".
+           "allowed": a believer, or with the row an ordinary Heathen; "only": with the row an ordinary Heathen, never
+           a believer (without the row nobody: the event is not offered).  Never a puzzle's Heathen, never a role
+           whose effects can not yet happen to a Heathen. */
+        if (cg_heathen(game, r)) {
+            if (!cg_heathens_row(game) || !cg_ordinary_heathen(game, r) || ((cg_heathen_barred_roles() >> role) & 1u)) {
+                return 0;
+            }
+            row_heathen = 1;
+        } else if (spec[13] & CG_ROLE_HEATHEN_ONLY) {
+            return 0;
+        }
     } else if (game == 5 && cg_heathen(game, r) && cg_ns_cast(game) && !((cg_conversion_roles() >> role) & 1u)) {
         /* No Safeguards (the owner, 2026-11-15): a Heathen is cast only in a role whose purpose is a conversion;
            Guardians of Isola's rules and words stay as they are. */
@@ -2255,7 +2475,8 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     if (cg_carrier_role(role) && !cg_born_female(game, r, index)) {
         return 0;                      /* only a villager born female is cast as a carrier */
     }
-    if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r) && !(game == 5 && (spec[13] & CG_ROLE_HEATHEN))) {
+    if ((spec[1] & CG_ROLE_BELIEVERS) && cg_heathen(game, r) && !(game == 5 && (spec[13] & CG_ROLE_HEATHEN))
+        && !row_heathen) {
         return 0;
     }
     if (cg_g.version >= 6 && (spec[1] & CG_ROLE_PROTECTED) && cg_protected(a, game, r)) {
@@ -3251,7 +3472,7 @@ static int cg_bind(int game) {
         if (n == 0) {
             return 0;
         }
-        if (cg_g.version >= 6 && (spec[13] & ~(CG_ROLE_SPEAKS | CG_ROLE_HEATHEN)) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
+        if (cg_g.version >= 6 && (spec[13] & ~CG_ROLE_BYTE13_BITS) == 1 && cg_u16(spec + 10) != CG_NONE && !(cg_relax_mask & (1u << r))) {
             /* "pick": "highest": only the villagers with the top value of the listed skills, then drawn. */
             const char *skills = cg_s(&cg_g, cg_u16(spec + 10));
             int best = -1, m = 0;
@@ -6255,8 +6476,8 @@ static void cg_new_villager(const ce_adapter *a, int game, const unsigned char *
     if (e[1] != CG_ROLE_ALIAS_ALL) {
         int from = -1;
         const unsigned char *src = cg_target(a, e[1], &from);
-        if (src == NULL) {
-            return;                    /* the villager to duplicate is gone: nothing */
+        if (src == NULL || cg_heathen(game, src)) {
+            return;                    /* the villager to duplicate is gone (or a Heathen, never copied: 45): nothing */
         }
         s.sex = ce_sex(a, src);
         s.head = *(const int *)(src + a->off_head);
@@ -6607,8 +6828,26 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
             int at = -1;
             unsigned char *mate = cg_target(a, other, &at);
             if (mate != NULL) {
+                if (cg_heathen(game, mate) != cg_heathen(game, record)) {
+                    return;            /* 45: never a Heathen and a believer (the owner, 2026-11-23) */
+                }
                 partner = at;
             }
+        }
+        if (cg_heathen(game, record)) {
+            /* 45: two Heathens' baby, conceived, carried and born by the Heathens' own rules ("VVFP Heathen
+               Aging.dll": born a Heathen 40 units later, or at once for a nursing baby); the litter as below */
+            unsigned int kind = e[2] & (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS);
+            int babies = kind == (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS) ? 3 : kind == CG_FX_LITTER_TWINS ? 2 : 1;
+            if (kind == CG_FX_LITTER_ROLL && ce_random_below(a, 100) < 7) {
+                babies = ce_random_below(a, 100) < 25 ? 3 : 2;
+            }
+            babies = cg_heathen_aging_pregnancy(game, index, partner, babies, e[0] == CGE_NURSING);
+            cg_count_add(0, babies);
+            if (babies > 0) {
+                cg_carrier_line(a, record, partner, swapped, e[0] == CGE_NURSING);
+            }
+            return;
         }
         {
             unsigned int kind = e[2] & (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS);
@@ -7035,9 +7274,12 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         cg_told(e, -1, 0);             /* nothing made unless it is (a refusal below takes its line back); a change
                                           made says so again (cg_told keeps the last word) */
     }
-    if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record) && !cg_heathen_effect_ok(e)) {
+    if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record)
+        && (role >= 0 && (cg_role_at(&cg_g, role)[13] & CG_ROLE_HEATHEN_ROW) ? cg_heathen_barred_effect(e)
+                                                                           : !cg_heathen_effect_ok(e))) {
         /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
-           only, as the load checks a Heathen's own role (Codex, #771). */
+           only, as the load checks a Heathen's own role (Codex, #771).  One cast through the row (45): everything a
+           villager may have, but what can not yet happen to a Heathen (cg_heathen_barred_effect). */
         ce_refuse(r, CE_WHY_OTHER);
         return;
     }
@@ -7050,6 +7292,29 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
     }
     if (cg_effect_harmful(a, game, e) && cg_never_harmed(game, record)) {
         ce_refuse(r, CE_WHY_OTHER);    /* never harmed, whatever the role allows (cg_never_harmed) */
+        return;
+    }
+    if ((e[0] == CGE_KILL || e[0] == CGE_VANISH || e[0] == CGE_DIE_UNRECOVERED) && cg_heathen(game, record)) {
+        /* 45: a Heathen's death or disappearance by the Heathens' own rules ("VVFP Heathen Aging.dll"): a body only
+           with a skeleton row (then told as any villager's), else nothing left -- the companion's Death record for a
+           death, the event's own for a disappearance or a body not recovered -- and the camp Heathen replaced. */
+        int got = cg_heathen_aging_gone(game, index, e[0] == CGE_KILL ? 0 : 1, cg_s(&cg_g, cg_u16(e + 12)));
+        if (got == 0) {
+            ce_refuse_as(r, CE_WHY_OTHER);
+        } else if (e[0] == CGE_KILL) {
+            ++r->died;
+            if (got == 2) {
+                cg_tell_killed(game, index, cg_s(&cg_g, cg_u16(e + 12)));
+            }
+        } else if (e[0] == CGE_VANISH) {
+            ++r->vanished;
+            cg_tell_vanished(game, index);
+        } else {
+            ++r->died;
+            cg_tell_died_unrecovered(game, index);
+            cg_extra_add(name, " died (Unknown causes); the body was not recovered.");
+        }
+        cg_gone_role(role);
         return;
     }
     if (e[0] == CGE_KILL || e[0] == CGE_VANISH || e[0] == CGE_DIE_UNRECOVERED) {
@@ -7458,6 +7723,26 @@ static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int
                       int *award, ce_result *r) {
     unsigned char *record;
     int index, role;
+    if (cg_flavor_only(e) && !((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u))) {
+        /* 45: the Heathens' own cast -- the tribe's effect is the Heathens' village's, and makes nothing.  The lines
+           the pages lay out say so already (cg_auto_one); these are written as they would be made (cg_after_line). */
+        switch (e[0]) {
+        case CGE_SUPPLY:
+            if (va != 0) {
+                cg_after_line(va > 0 ? "hv_supply+" : "hv_supply-", cg_s(&cg_g, cg_u16(e + 12)), va);
+            }
+            break;
+        case CGE_TRADE: cg_after_line("hv_trade", "", 0); break;
+        case CGE_VILLAGE: cg_after_line("hv_level", "", 0); break;
+        case CGE_GROUP: cg_after_line("hv_group", "", 0); break;
+        default:
+            if (e[1] == CG_ROLE_GROUP) {
+                cg_after_line("hv_group", "", 0);
+            }
+            break;
+        }
+        return;
+    }
     switch (e[0]) {
     case CGE_FOOD: case CGE_TECH:
         if (e[2] & 2u) {
@@ -7752,8 +8037,43 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "group1_set", "<W>'s <S> skill is now <N>." },
     { "group_health", "The health of <C> villagers is now <N>." },
     { "group1_health", "<W>'s health is now <N>." },
+    /* cie-v6-binary.md 45 (the owner, 2026-11-23): the Heathens' own cast -- the tribe's effects are the Heathens'
+       village's ("village, NOT camp") and change nothing, so each ends "(no effect)".  With Guardians of Isola's
+       rewrite, "the Isolans' village" (CG_HV_ISOLAN). */
+    { "hv_food+", "The Heathens' village gains <N> food. (no effect)" },
+    { "hv_food-", "The Heathens' village loses <N> food. (no effect)" },
+    { "hv_tech+", "The Heathens' village gains <N> tech points. (no effect)" },
+    { "hv_tech-", "The Heathens' village loses <N> tech points. (no effect)" },
+    { "hv_tech1+", "The Heathens' village gains 1 tech point. (no effect)" },
+    { "hv_tech1-", "The Heathens' village loses 1 tech point. (no effect)" },
+    { "hv_damage", "A building in the Heathens' village loses <N>% of its construction. (no effect)" },
+    { "hv_repair", "The Heathens' village's damaged buildings are being repaired. (no effect)" },
+    { "hv_supply+", "The Heathens' village gains <N> <W>. (no effect)" },
+    { "hv_supply-", "The Heathens' village loses <N> <W>. (no effect)" },
+    { "hv_trade", "The Heathens' village makes a trade. (no effect)" },
+    { "hv_level", "The Heathens' village's technology changes. (no effect)" },
+    { "hv_group", "The Heathens' village gathers together. (no effect)" },
+    { "hv_celebrate_all", "Everyone in the Heathens' village celebrates. (no effect)" },
     /* The owner (2026-11-23): an outcome that changes nothing ends with this line (cg_no_effect_mark). */
     { "no_effect", "(no effect)" },
+};
+
+/* 45: the same lines with Guardians of Isola's rewrite on: "the Isolans' village" (the owner's pair). */
+static const char *const CG_HV_ISOLAN[][2] = {
+    { "hv_food+", "The Isolans' village gains <N> food. (no effect)" },
+    { "hv_food-", "The Isolans' village loses <N> food. (no effect)" },
+    { "hv_tech+", "The Isolans' village gains <N> tech points. (no effect)" },
+    { "hv_tech-", "The Isolans' village loses <N> tech points. (no effect)" },
+    { "hv_tech1+", "The Isolans' village gains 1 tech point. (no effect)" },
+    { "hv_tech1-", "The Isolans' village loses 1 tech point. (no effect)" },
+    { "hv_damage", "A building in the Isolans' village loses <N>% of its construction. (no effect)" },
+    { "hv_repair", "The Isolans' village's damaged buildings are being repaired. (no effect)" },
+    { "hv_supply+", "The Isolans' village gains <N> <W>. (no effect)" },
+    { "hv_supply-", "The Isolans' village loses <N> <W>. (no effect)" },
+    { "hv_trade", "The Isolans' village makes a trade. (no effect)" },
+    { "hv_level", "The Isolans' village's technology changes. (no effect)" },
+    { "hv_group", "The Isolans' village gathers together. (no effect)" },
+    { "hv_celebrate_all", "Everyone in the Isolans' village celebrates. (no effect)" },
 };
 
 /* New Believers with Guardians of Isola's rewrite on (docs/event-collection/guardians-wording.md, "The branching
@@ -7762,8 +8082,16 @@ static const char *const CG_AUTO_LINES[][2] = {
 #define CG_GUARDIANS_BECOMES "<R> becomes an Isolan."
 
 static const char *cg_auto_guardians(const char *key, const char *t) {
+    int i;
     if (t != NULL && (lstrcmpA(key, "status") == 0 || lstrcmpA(key, "apostasy") == 0) && cg_guardians_on()) {
         return CG_GUARDIANS_BECOMES;
+    }
+    if (t != NULL && key[0] == 'h' && key[1] == 'v' && key[2] == '_' && cg_guardians_on()) {
+        for (i = 0; i < (int)(sizeof CG_HV_ISOLAN / sizeof CG_HV_ISOLAN[0]); ++i) {
+            if (lstrcmpA(CG_HV_ISOLAN[i][0], key) == 0) {
+                return CG_HV_ISOLAN[i][1];
+            }
+        }
     }
     return t;
 }
@@ -7806,6 +8134,10 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
             tail = t[1] == 'R' || t[1] == 'Q' ? ".Name)" : t[1] == 'P' ? ".his/her)" : t[1] == 'H' ? ".he/she)" : "";
         }
         if (put == NULL) {
+            if (cg_g.version >= 6 && (*t == '(' || *t == ')') && n < (int)sizeof line - 2) {
+                line[n++] = '\\';      /* 45: the words' own parenthesis ("(no effect)"), never a placeholder: kept
+                                           escaped until the page is filled (cg_expand), as version 6 words are */
+            }
             line[n++] = *t;
             continue;
         }
@@ -7857,6 +8189,33 @@ static void cg_auto_one(int game, const cg_history *h, const unsigned char *e, i
             return;                    /* no role to name: the group's line is written as it is made */
         }
         const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
+        if (cg_flavor_only(e)) {
+            /* 45: the Heathens' own cast -- the tribe's effect told as the Heathens' village's, "(no effect)" */
+            char key[24];
+            switch (e[0]) {
+            case CGE_FOOD: case CGE_TECH:
+                if (!(e[2] & 2u) && told != 0) {
+                    wsprintfA(key, "hv_%s", cg_amount_key(e[0] == CGE_FOOD, told));
+                    cg_auto_add(out, cap, key, -1, "", "", told, -1);
+                }
+                break;
+            case CGE_PAY:
+                if (award_kind >= 0 && award != 0) {
+                    wsprintfA(key, "hv_%s", cg_amount_key(award_kind == 0, award));
+                    cg_auto_add(out, cap, key, -1, "", "", award, -1);
+                }
+                break;
+            case CGE_DAMAGE:
+                if (told > 0) {
+                    cg_auto_add(out, cap, "hv_damage", -1, "", "", told, -1);
+                }
+                break;
+            case CGE_REPAIR: cg_auto_add(out, cap, "hv_repair", -1, "", "", 0, -1); break;
+            case CGE_CELEBRATE: cg_auto_add(out, cap, "hv_celebrate_all", -1, "", "", 0, -1); break;
+            default: break;            /* written as they would be made (cg_effect) */
+            }
+            return;
+        }
         switch (e[0]) {
         case CGE_FOOD: case CGE_TECH:
             if (!(e[2] & 2u) && told != 0) {   /* the true change (cg_group): none, no line */
@@ -8148,11 +8507,19 @@ static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, i
    What the effects authored say decides it, never what a roll made of them (src/vv_cie_graph.py
    outcome_changes_nothing / with_no_effect). */
 static int cg_part_changes(const cg_history *h, int from) {
-    int i;
+    int i, k;
     for (i = from; i < h->nodes; ++i) {
         const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
         int tag = cg_sol_tag(n);
-        if (cg_fx_count(n) > 0 || ((tag == CG_SOL_RAISE || tag == CG_SOL_LOWER) && cg_sol_on())) {
+        for (k = 0; k < cg_fx_count(n); ++k) {
+            /* 45: the Heathens' own cast -- the tribe's effects are the Heathens' village's, flavor only
+               (cg_flavor_only); a mixed cast makes them as always */
+            if (!cg_flavor_only(cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k))) {
+                return 1;
+            }
+        }
+        /* ... and the Heathens' own cast never moves Village Solidarity (cg_make_effects) */
+        if ((tag == CG_SOL_RAISE || tag == CG_SOL_LOWER) && cg_sol_on() && !cg.heathen_cast) {
             return 1;
         }
     }
@@ -8182,6 +8549,39 @@ static void cg_no_effect_mark(char *out, int cap) {
         }
         lstrcatA(out, line);
     }
+}
+
+/* 45 (the owner, 2026-11-23): the Heathens' own cast -- the words that make the tribe the event's home and people
+   are swapped automatically, never hand-reworded: "your villagers" -> "the Heathens", "your village" -> "the
+   Heathens' village" (with Guardians of Isola Rewrite "the Isolans"), each with its capital.  Nothing else of the
+   owner's words changes. */
+static void cg_swap_words(char *s, int cap, const char *from, const char *to) {
+    static char out[CG_RAW_BYTES];
+    int n = 0, f = lstrlenA(from), k;
+    const char *p = s;
+    while (*p != '\0' && n < (int)sizeof out - 1) {
+        for (k = 0; k < f && p[k] == from[k]; ++k) {
+        }
+        if (k == f) {
+            const char *q;
+            for (q = to; *q != '\0' && n < (int)sizeof out - 1; ++q) {
+                out[n++] = *q;
+            }
+            p += f;
+        } else {
+            out[n++] = *p++;
+        }
+    }
+    out[n] = '\0';
+    lstrcpynA(s, out, cap);
+}
+
+static void cg_heathens_words(char *s, int cap) {
+    int isolans = cg_guardians_on();
+    cg_swap_words(s, cap, "Your villagers", isolans ? "The Isolans" : "The Heathens");
+    cg_swap_words(s, cap, "your villagers", isolans ? "the Isolans" : "the Heathens");
+    cg_swap_words(s, cap, "Your village", isolans ? "The Isolans' village" : "The Heathens' village");
+    cg_swap_words(s, cap, "your village", isolans ? "the Isolans' village" : "the Heathens' village");
 }
 
 static void cg_group(int game, const cg_history *h, int from) {
@@ -8220,6 +8620,15 @@ static void cg_group(int game, const cg_history *h, int from) {
             if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u)) {
                 award_kind = e[0] == CGE_FOOD ? 0 : 1;
                 award = va;
+            } else if (cg_flavor_only(e)) {
+                /* 45: the Heathens' village's, flavor only: the amount as rolled, the village's stores untouched */
+                if (e[0] == CGE_PAY && award_kind >= 0) {
+                    paid = va = award;
+                    paid_here = 1;
+                    pay_fx = fx < CG_MAX_FX ? fx : -1;
+                } else if (e[0] == CGE_DAMAGE) {
+                    va = va < 1 ? 0 : (va > 100 ? 100 : va);
+                }
             } else if (e[0] == CGE_FOOD || e[0] == CGE_TECH) {
                 va = ad != NULL && !(ad->caps & (e[0] == CGE_FOOD ? CAP_FOOD : CAP_TECH)) ? 0
                      : cg_applied(&store[e[0] == CGE_FOOD ? 0 : 1], va);
@@ -8242,6 +8651,8 @@ static void cg_group(int game, const cg_history *h, int from) {
         /* the award as it is really given: paid here, what was paid; else what paying it now would give */
         if (paid_here) {
             shown = paid;
+        } else if (award_kind >= 0 && cg.heathen_cast) {
+            shown = award;             /* 45: the Heathens' village's: never the tribe's stores */
         } else if (award_kind >= 0) {
             long long probe = store[award_kind];
             shown = cg_applied(&probe, award);
@@ -8270,6 +8681,9 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_award_fx = paid_here ? pay_fx : -1;
             cg_award2_fx = award2 >= 0 && fx0 + award2 < CG_MAX_FX ? fx0 + award2 : -1;
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
+            if (cg.heathen_cast) {
+                cg_heathens_words(text, sizeof text);   /* 45: the Heathens' village, never yours */
+            }
             cg_award2_on = 0;
             cg_award_fx = cg_award2_fx = -1;
             if (award2 >= 0 && !cg_says_word(said, "(award2)")) {
@@ -8554,9 +8968,58 @@ static void cg_displays_cut(int count) {
 
 static void cg_entry_start(const char *label);
 
+/* cie-v6-binary.md 45: whether this cast is the Heathens' alone -- New Believers with the row installed, an event
+   with a role of the row, at least one villager cast, and every villager cast a Heathen (the owner, 2026-11-23: the
+   tribe's own effects -- food, tech, buildings, goods, research, the whole village -- are then the Heathens' village's,
+   flavor only; a mixed cast makes them as always). */
+static int cg_heathen_cast_now(const ce_adapter *a, int game) {
+    int r, cast = 0, row_role = 0;
+    if (game != 5 || cg_g.version < 6 || !cg_heathens_row(game)) {
+        return 0;
+    }
+    for (r = 0; r < cg_g.n_role; ++r) {
+        const unsigned char *spec = cg_role_at(&cg_g, r);
+        const unsigned char *rec;
+        if (spec[0] != CG_ROLE_VILLAGER) {
+            continue;
+        }
+        row_role |= (spec[13] & CG_ROLE_HEATHEN_ROW) != 0;
+        if (!((cg.bound >> r) & 1u) || (rec = cg_villager(a, r)) == NULL) {
+            continue;
+        }
+        if (!cg_heathen(game, rec)) {
+            return 0;
+        }
+        cast = 1;
+    }
+    return cast && row_role;
+}
+
+/* The village's own effects in this run are the Heathens' village's, flavor only (cg.heathen_cast). */
+static int cg_flavor_only(const unsigned char *e) {
+    if (!cg.heathen_cast) {
+        return 0;
+    }
+    switch (e[0]) {
+    case CGE_FOOD: case CGE_TECH: case CGE_PAY: case CGE_DAMAGE: case CGE_REPAIR: case CGE_SUPPLY: case CGE_TRADE:
+    case CGE_NEW_VILLAGER:             /* a newcomer would join the tribe */
+        return 1;
+    case CGE_VILLAGE:
+        /* research (a tech level) is the tribe's; the weather and the next island event are the island's: made as
+           always */
+        return cg_prefix(cg_s(&cg_g, cg_u16(e + 12)), "tech_level");
+    case CGE_GROUP:
+        return e[1] == CG_ROLE_ALIAS_ALL;
+    default:
+        /* every villager of the tribe at once: everyone celebrating, a group's changes */
+        return e[1] == CG_ROLE_ALIAS_ALL || e[1] == CG_ROLE_GROUP;
+    }
+}
+
 /* The run's first segment, from the start: walked, added to the path and laid out (the roles are bound). */
 static void cg_start_run(const ce_adapter *a, int game) {
     static cg_history first;
+    cg.heathen_cast = cg_heathen_cast_now(a, game);   /* 45: before any page is laid out */
     memset(&cg.path, 0, sizeof cg.path);
     cg.pick_count = cg.start_picks;    /* the start question's, drawn at the purchase (cg_queue) */
     cg.display_count = cg.display_next = cg.display_used = cg.jobs_used = 0;
@@ -8805,8 +9268,12 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
             cg_fx_now = -1;
         }
         /* Village Solidarity: once per run (its purchase time) and page (its place on the path, its node). */
-        cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
-                       (unsigned int)i << 16 | (unsigned int)(unsigned short)h->node[i]);
+        if (!cg.heathen_cast) {
+            /* 45 (Codex on #852): the Heathens' own cast never moves the village's solidarity -- flavor only, as
+               the tribe's other effects (cg_flavor_only) */
+            cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
+                           (unsigned int)i << 16 | (unsigned int)(unsigned short)h->node[i]);
+        }
     }
     if (cg.job_count[k] > 0) {
         cg.applied_when[k] = sq_clock();
@@ -9450,7 +9917,16 @@ static void cg_role_words(int game, int r, char *out, int size) {
             lstrcatA(out, part);
         }
     }
-    if ((spec[1] & CG_ROLE_BELIEVERS) && game == 5) {
+    if (game == 5 && cg_g.version >= 6 && (spec[13] & CG_ROLE_HEATHEN_ROW)
+        && ((spec[13] & CG_ROLE_HEATHEN_ONLY) || cg_heathens_row(game))) {
+        /* 45: an ordinary Heathen (never a puzzle's), or a believer or one; the "only" role needs the row */
+        const char *who = (spec[13] & CG_ROLE_HEATHEN_ONLY) ? (cg_guardians_on() ? ", an ordinary Isolan"
+                                                                                 : ", an ordinary Heathen")
+                        : cg_guardians_on() ? ", a tribe member or an Isolan" : ", a believer or a Heathen";
+        if (lstrlenA(out) + lstrlenA(who) < size) {
+            lstrcatA(out, who);
+        }
+    } else if ((spec[1] & CG_ROLE_BELIEVERS) && game == 5) {
         lstrcatA(out, cg_guardians_on() ? ", a tribe member" : ", a believer");   /* guardians-wording.md */
     }
     if (cg_g.version >= 6) {
@@ -9574,6 +10050,21 @@ static int cg_partner_carries(const ce_adapter *a) {
 static int cg_no_safeguards(int game) {
     cg_installed_load();
     return cg_installed_state == 1 && cg_installed_has(game, "island_events_any_time");
+}
+
+/* cie-v6-binary.md 45: New Believers' row "Heathens can be selected in Island Events/Heathen-Exclusive Events"
+   (vv5_heathens_in_island_events) is installed. */
+static int cg_heathens_row(int game) {
+    if (game != 5) {
+        return 0;
+    }
+    cg_installed_load();
+    return cg_installed_state == 1 && cg_installed_has(game, CG_HEATHENS_ROW);
+}
+
+/* For "VVFP More Island Events.dll" (adv_core.inc adv_heathen_ok): the row installed in `game`, 1 / 0. */
+__declspec(dllexport) int __stdcall VvfpStoryHeathensRow(int game) {
+    return cg_heathens_row(game);
 }
 
 /* Whether the patches named by the event are on: the installed patches' list when the patcher wrote one; without
@@ -10144,13 +10635,14 @@ static void cg_tick(int game) {
 /* ---- The run's file ---------------------------------------------------------------------------------------- */
 
 #define CG_FILE_MAGIC 0x31474356u      /* 'V' 'C' 'G' '1' */
-#define CG_FILE_VERSION 6u                 /* 2: the run keeps its path and every question's answers; 3: and a
+#define CG_FILE_VERSION 7u                 /* 2: the run keeps its path and every question's answers; 3: and a
                                               question's third and fourth answers (cg_state.seg_more); 4 (format
                                               version 6): answers five to seven, the pool picks, the aliases, each
                                               question's buttons, the origin and the cast; 5: the displays' words
                                               in CG_DISPLAY_BYTES (practically unlimited text), not 49,152; 6: the
                                               partner-carry swaps (cg_state.carry_swapped) and each display's words'
-                                              sex (female_at, cie-v6-binary.md 37) */
+                                              sex (female_at, cie-v6-binary.md 37); 7: the Heathens' own cast
+                                              (heathen_cast, cie-v6-binary.md 45) */
 /* Versions 2 to 4 kept CG_DISPLAY_BYTES_V4 bytes of displays: every field after them sits that much nearer. */
 #define CG_DISPLAY_GROWTH ((unsigned int)(CG_DISPLAY_BYTES - CG_DISPLAY_BYTES_V4))
 #define CG_ENTRY_GROWTH ((unsigned int)(CG_ENTRY_BYTES - CG_ENTRY_BYTES_V4))
@@ -10159,6 +10651,9 @@ static void cg_tick(int game) {
                                                                                            bytes */
 #define CG_FILE_V3_STATE ((unsigned int)offsetof(cg_state, seg_v6) - CG_FILE_GROWTH)     /* a version 3 file's */
 #define CG_FILE_V5_STATE ((unsigned int)offsetof(cg_state, carry_swapped))               /* a version 5 file's */
+/* a version 6 file's: sizeof the state then -- everything before heathen_cast, rounded up to the state's 8-byte
+   alignment (its unsigned __int64 members), as the compiler padded it */
+#define CG_FILE_V6_STATE (((unsigned int)offsetof(cg_state, heathen_cast) + 7u) & ~7u)
 
 #define CG_FILE_V4_STATE (CG_FILE_V5_STATE - CG_FILE_GROWTH)                             /* a version 4 file's */
 
@@ -10182,6 +10677,7 @@ static cg_state cg_read_state;
    empty: cg_file_upgrade); 0 for any other. */
 static unsigned int cg_file_state_bytes(void) {
     return cg_head.version == CG_FILE_VERSION ? (unsigned int)sizeof(cg_state)
+         : cg_head.version == 6u ? CG_FILE_V6_STATE
          : cg_head.version == 5u ? CG_FILE_V5_STATE
          : cg_head.version == 4u ? CG_FILE_V4_STATE
          : cg_head.version == 3u ? CG_FILE_V3_STATE
@@ -10213,8 +10709,11 @@ static void cg_file_widen(cg_state *st) {
 
 static void cg_file_upgrade(cg_state *st) {
     int r, k;
-    if (cg_head.version >= CG_FILE_VERSION) {
-        return;
+    if (cg_head.version == 6u) {
+        st->heathen_cast = 0;          /* 45: a version 6 file's padding may lie where it is now */
+    }
+    if (cg_head.version >= 6u) {
+        return;                        /* version 6's fields are there */
     }
     for (k = 0; k < CG_MAX_DISPLAYS; ++k) {
         for (r = 0; r < CG_MAX_ROLES; ++r) {
@@ -10963,6 +11462,55 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphVv1Parent(int record, in
 /* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's, [3] where
    the displays' words start in it, [4] their bytes, [5] the bytes versions 2 to 4 kept for them, [6] where version
    3's state ends now (the third and fourth answers' segments end), [7] a version 4 file's state bytes. */
+/* 45: "VVFP Heathen Aging.dll" stood in for (cg_heathen_aging_export): `mode` -1 the real one, 0 none, 1 the stand-ins
+   below; `body` 1: a death leaves a body (a skeleton row).  The calls are kept: out[0] the deaths' count, then each
+   (index, how, cause); out[16] the pregnancies' count, then each (mother, father, litter, now). */
+static int test_ha_body;
+static int test_ha_calls[32];
+
+static int __stdcall cg_test_ha_gone(int game, int index, int how, int cause) {
+    unsigned char *r = (unsigned char *)c5_record(index);
+    int n = test_ha_calls[0];
+    (void)game;
+    if (n < 5) {
+        test_ha_calls[1 + 3 * n] = index;
+        test_ha_calls[2 + 3 * n] = how;
+        test_ha_calls[3 + 3 * n] = cause;
+        test_ha_calls[0] = n + 1;
+    }
+    if (how == 0 && test_ha_body) {
+        *(int *)(r + 0x1C40) = 0;          /* the body (SetHealth) */
+        return 2;
+    }
+    r[0x1CD4] = 0;                         /* nothing left */
+    return 1;
+}
+
+static int __stdcall cg_test_ha_pregnancy(int game, int mother, int father, int litter, int now) {
+    unsigned char *r = (unsigned char *)c5_record(mother);
+    (void)game;
+    test_ha_calls[16] = 1;
+    test_ha_calls[17] = mother;
+    test_ha_calls[18] = father;
+    test_ha_calls[19] = litter;
+    test_ha_calls[20] = now;
+    if (!now) {
+        *(int *)(r + 0x1C4C) = 1;
+    }
+    return litter;
+}
+
+__declspec(dllexport) void __stdcall VvfpStoryProbeHeathenAging(int mode, int body, int *out) {
+    if (mode >= -1) {
+        test_graph_heathen_aging = mode;
+        test_ha_body = body;
+        memset(test_ha_calls, 0, sizeof test_ha_calls);
+    }
+    if (out != NULL) {
+        memcpy(out, test_ha_calls, sizeof test_ha_calls);
+    }
+}
+
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
     out[0] = (int)CG_FILE_V3_STATE;
     out[1] = (int)sizeof(cg_file_head);
@@ -10975,6 +11523,8 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
     out[8] = (int)offsetof(cg_state, entry);           /* [8] the log entry's start, [9] its bytes, [10] version 4's */
     out[9] = (int)CG_ENTRY_BYTES;
     out[10] = (int)CG_ENTRY_BYTES_V4;
+    out[11] = (int)CG_FILE_V6_STATE;                   /* 45: a version 6 file's state bytes */
+    out[12] = (int)offsetof(cg_state, heathen_cast);
 }
 
 /* cg_queue_origin as story_collection.inc calls it: 1 queued, else 0 with the reason copied to `why` (200 bytes). */
