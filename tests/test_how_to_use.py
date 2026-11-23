@@ -134,7 +134,7 @@ class ContentTests(unittest.TestCase):
 
         # The island event controls are named together in the selection guides.
         names = {patch.id: ("island event controls"
-                            if re.search(r"_island_event_(filter_f|content_notes)|_island_events_any_time", patch.id)
+                            if re.search(r"_island_event_(filter_f|content_notes)|_island_events_any_time|_heathens_in_island_events", patch.id)
                             # The five 0.1x-10x sliders' rows, named together (the owner, 2026-11-17).
                             else "the 0.1-10x sliders"
                             if any(patch.id.endswith(s.row_suffix) for s in vfp.RUNTIME_SLIDERS)

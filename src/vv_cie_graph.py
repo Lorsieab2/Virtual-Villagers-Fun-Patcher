@@ -417,6 +417,18 @@ TRAIT_EFFECT_CODE = 26        # cie-v6-binary.md 32
 TRAIT_CODES = {"mute": 1}     # 32: a story trait's bit
 ROLE_SPEAKS = 0x80            # 32: a villager role's byte 13 bit: the role's words have them speak
 ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Isolan), cast as the game's picker casts one
+# 45 (the owner, 2026-11-23): New Believers' row "Heathens can be selected in Island Events/Heathen-Exclusive Events"
+# (heathens_in_island_events).  A villager role's "heathens": "allowed" -- with the row an ordinary Heathen may take
+# it as well as a believer -- or "only" -- with the row only an ordinary Heathen, without it nobody (the event is not
+# offered).  Default (no key, or "never"): a believer's.  Never a puzzle's Heathen (roles 12-17).
+ROLE_HEATHEN_MAY = 0x20
+ROLE_HEATHEN_ONLY = 0x10
+HEATHENS_MODES = {"never": 0, "allowed": ROLE_HEATHEN_MAY, "only": ROLE_HEATHEN_ONLY}
+HEATHENS_ROW = "heathens_in_island_events"
+# What can not yet happen to a Heathen cast through the row (story_graph.inc cg_heathen_barred_effect): a death, a
+# disappearance, a lost baby, a pregnancy or a nursing baby (either parent), a copy or a double, becoming a Heathen.
+HEATHEN_BARRED_EFFECTS = ("kill", "vanish", "die_unrecovered", "birth_then_die", "baby_lost", "pregnant", "nursing",
+                          "deliver_early", "clone", "new_villager", "status", "apostasy")
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
@@ -1587,8 +1599,17 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
             if not _int_in(min_age, 0, 80):
                 problems.append(f"{where}: min_age is 0..80 years")
             if v6:
-                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok", "prefer"}
+                extra -= {"max_age", "skill", "special", "protected", "relation", "speaks", "heathen_ok", "prefer",
+                          "heathens"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
+                if r.get("heathens") is not None:
+                    # 45: the row's Heathens ("allowed" / "only"; "never" is the default and is dropped)
+                    if not isinstance(r["heathens"], str) or r["heathens"] not in HEATHENS_MODES:
+                        problems.append(f"{where}: heathens is never, allowed or only")
+                    elif r.get("heathen_ok"):
+                        problems.append(f"{where}: give heathens or heathen_ok, not both")
+                    elif r["heathens"] != "never":
+                        roles[rid]["heathens"] = r["heathens"]
                 if r.get("prefer") is not None:
                     # 35: the role prefers the Golden Child / the Tribal Chief (any game; cast when they may be)
                     if r["prefer"] not in PREFER_CODES:
@@ -3450,7 +3471,26 @@ AUTO_LINES = {
     "group1_set": "<W>'s <S> skill is now <N>.",
     "group_health": "The health of <C> villagers is now <N>.",
     "group1_health": "<W>'s health is now <N>.",
+    # 45 (the owner, 2026-11-23): the Heathens' own cast -- the tribe's effects are the Heathens' village's ("village,
+    # NOT camp") and change nothing, so each ends "(no effect)" (story_graph.inc cg_flavor_only).  Guardians of Isola:
+    # "the Isolans' village" (GUARDIANS_AUTO_LINES).
+    "hv_food+": "The Heathens' village gains <N> food. (no effect)",
+    "hv_food-": "The Heathens' village loses <N> food. (no effect)",
+    "hv_tech+": "The Heathens' village gains <N> tech points. (no effect)",
+    "hv_tech-": "The Heathens' village loses <N> tech points. (no effect)",
+    "hv_tech1+": "The Heathens' village gains 1 tech point. (no effect)",
+    "hv_tech1-": "The Heathens' village loses 1 tech point. (no effect)",
+    "hv_damage": "A building in the Heathens' village loses <N>% of its construction. (no effect)",
+    "hv_repair": "The Heathens' village's damaged buildings are being repaired. (no effect)",
+    "hv_supply+": "The Heathens' village gains <N> <W>. (no effect)",
+    "hv_supply-": "The Heathens' village loses <N> <W>. (no effect)",
+    "hv_trade": "The Heathens' village makes a trade. (no effect)",
+    "hv_level": "The Heathens' village's technology changes. (no effect)",
+    "hv_group": "The Heathens' village gathers together. (no effect)",
+    "hv_celebrate_all": "Everyone in the Heathens' village celebrates. (no effect)",
 }
+GUARDIANS_AUTO_LINES.update({k: v.replace("Heathens'", "Isolans'") for k, v in AUTO_LINES.items()
+                             if k.startswith("hv_")})
 # A good's words for one of it and for many (story_graph_village.inc cg_good_words); other goods as they are.
 GOOD_WORDS = {"tech": ("tech point", "tech points"), "collectible": ("collectible", "collectibles"),
               "cutting_tools": ("cutting tool", "cutting tools"), "berries": ("berry", "berries"),
@@ -4588,6 +4628,15 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
                 elif g["roles"][p.role].get("optional"):
                     problems.append(f"node {nid}: the label's {raw} names {p.role}, who may not be bound")
 
+    # 45: a Heathens-only role never takes what can not yet happen to a Heathen (it could never be cast: the engine's
+    # loader refuses it too, story_graph.inc cg_heathen_barred_effect).
+    only = {rid for rid, r in g["roles"].items() if r.get("heathens") == "only"}
+    for nid, n in nodes.items():
+        for e in n.get("effects") or []:
+            if e.get("do") in HEATHEN_BARRED_EFFECTS and ({e.get("role"), e.get("partner"), e.get("copy_of")} & only):
+                problems.append(f"node {nid}: {e['do']} can not happen to a Heathen yet, so a role with heathens "
+                                f"only may not take it")
+
     # Every history in every context.
     for ctx in contexts(g):
         paths = walk(g, ctx, problems)
@@ -4744,7 +4793,8 @@ def _compile_v6(g: dict) -> bytes:
                                  SPECIAL_CODES.get(v["special"], 0) or PREFER_CODES.get(v.get("prefer"), 0),
                                  s(",".join(sk["names"])) if sk else NONE, sk["min"] if sk else 0,
                                  (PICK_CODES[sk["pick"]] if sk else 0) | (ROLE_SPEAKS if v.get("speaks") else 0)
-                                 | (ROLE_HEATHEN if v.get("heathen_ok") else 0), 0)
+                                 | (ROLE_HEATHEN if v.get("heathen_ok") else 0)
+                                 | HEATHENS_MODES[v.get("heathens", "never")], 0)
     nodes = children = effects = variants = b""
     n_child = n_effect = n_variant = 0
     for nid in node_ids:
@@ -4992,6 +5042,8 @@ def _decompile_v6(data: bytes) -> dict:
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
         speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
+        heathens = {v: k for k, v in HEATHENS_MODES.items()}.get(pick & (ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY), "never")
+        pick &= ~(ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY)
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -5020,6 +5072,8 @@ def _decompile_v6(data: bytes) -> dict:
                 roles[rid]["speaks"] = True
             if heathen:
                 roles[rid]["heathen_ok"] = True
+            if heathens != "never":
+                roles[rid]["heathens"] = heathens       # 44
     if _hsize == HEADER_BYTES_REL:
         o_rel, n_rel, _z = _HEADER_REL.unpack_from(data, _HEADER6.size)
         code_relation = {v: k for k, v in RELATION_CODES.items()}

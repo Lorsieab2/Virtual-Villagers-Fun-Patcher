@@ -103,9 +103,53 @@ def any_time_row(game: int) -> dict:
     return record
 
 
+HEATHENS = "heathens_in_island_events"
+# The owner's exact title (2026-11-23).
+HEATHENS_NAME = "Heathens can be selected in Island Events/Heathen-Exclusive Events"
+
+
+def heathens_row(game: int) -> dict:
+    """New Believers only (the owner, 2026-11-23; docs/event-collection/cie-v6-binary.md 45)."""
+    record = row(game, HEATHENS, HEATHENS_NAME,
+                 "New Believers. Ordinary Heathens can be chosen for the roles of the new island events that allow "
+                 "them, and events written for the Heathens alone (Heathen-Exclusive Events) can happen. A chief, the "
+                 "Retired Chief and the puzzles' Heathens are never chosen. Heathens get the same personal outcomes "
+                 "as your villagers. When only Heathens are in an event, the outcomes for the whole tribe (food, tech "
+                 "points, buildings, goods, research) happen to the Heathens' village instead and change nothing in "
+                 "yours: their lines end \"(no effect)\". When Heathens and villagers are in an event together, those "
+                 "outcomes reach your tribe as usual. Heathens never count in the Village Statistics, and the Island "
+                 "Events log marks them \"Faction: Heathen\". For now a Heathen is never chosen where an outcome "
+                 "could kill them, make them disappear, make them pregnant or copy them. Which roles allow Heathens "
+                 "is set per event; the game's own island events are unchanged. Off by default; Owner's Defaults "
+                 f"ticks it. **Needs Story / Cheat Upgrades.** {UNVERIFIED}",
+                 ["Story / Cheat Upgrades casts an ordinary Heathen (faction set, never roles 12-17, never sick) in a "
+                  "new event's role marked \"heathens\": \"allowed\" or \"only\" while this row is installed; a role "
+                  "marked \"only\" takes no believer, and without this row nobody, so its event is not offered.",
+                  "When every villager cast is a Heathen, the event's food, tech points, award, building damage or "
+                  "repair, goods, trades, tech level and whole-village effects are made nowhere: each automatic line "
+                  "says it happens to the Heathens' village (the Isolans' village with Guardians of Isola Rewrite) "
+                  "and ends \"(no effect)\".",
+                  "More Island Events casts a Heathen only in a role its table names (none yet).",
+                  "The Island Events log ends each Heathen's record with \"Faction: Heathen\" (\"Isolan\" with "
+                  "Guardians of Isola Rewrite)."])
+    record["needs_on"] = [{"id": f"vv{game}_story_cheat_upgrades",
+                           "for": "the island-event engine that chooses the villagers"}]
+    record["explicit_non_changes"] = [
+        "No executable byte, game file or save is changed: the row is only a name in the installed patches' list "
+        "(\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades and More Island Events read.",
+        "The game's own island events, their text, their villagers and their chances are never changed.",
+        "A Heathen never counts in the Village Statistics; the puzzles' Heathens are never chosen.",
+    ]
+    record["evidence_status"] = ("the casting, the flavor-only effects and the log line pinned in "
+                                 "tests/test_heathens_in_island_events.py (emulated); runtime/player confirmation "
+                                 "pending")
+    return record
+
+
 def rows(game: int) -> list[dict]:
     return ([notes_row(game), any_time_row(game)]
-            + [filter_row(game, f) for f in content.FILTER_IDS])
+            + [filter_row(game, f) for f in content.FILTER_IDS]
+            + ([heathens_row(game)] if game == 5 else []))
 
 
 def feature_path(record: dict) -> Path:

@@ -176,6 +176,53 @@ static int adv_is_protected(int game, const unsigned char *r) {
     return adv_is_protected_allowing(game, r, 0);
 }
 
+/* ---- New Believers' Heathens in these events (docs/event-collection/cie-v6-binary.md 45; the owner, 2026-11-23) --
+
+   With the row "Heathens can be selected in Island Events/Heathen-Exclusive Events" installed (Story / Cheat
+   Upgrades' VvfpStoryHeathensRow), a role ADV_HEATHEN_ROLES names may take an ordinary Heathen (allowed: a believer
+   or one; only: one, never a believer) -- never a puzzle's Heathen (roles 12-17, adv_is_protected), never a sick one.
+   Every role it does not name stays a believer's (the default), so nothing changes until the owner approves a role:
+   the Heathen audit fills the table (an event's key as mie_pick.inc names it, the role).  A role whose outcomes can
+   kill, take away, make pregnant or make a Heathen of its villager is never named (the Story engine's
+   cg_heathen_barred_effect: what can not yet happen to a Heathen) -- The Aspiring Adventurer's adventurer is such a
+   role. */
+enum { ADV_ROLE_ADVENTURER = 0, ADV_ROLE_FRIEND = 1 };
+enum { ADV_HEATHEN_NEVER = 0, ADV_HEATHEN_ALLOWED = 1, ADV_HEATHEN_ONLY = 2 };
+typedef struct {
+    const char *event;                                /* mie_pick.inc's key */
+    int role;                                         /* ADV_ROLE_* */
+    int mode;                                         /* ADV_HEATHEN_* */
+} adv_heathen_role;
+static const adv_heathen_role ADV_HEATHEN_ROLES[] = {
+    { "", -1, ADV_HEATHEN_NEVER }                     /* (none approved yet: the audit's rows go above this one) */
+};
+static const char *adv_event_now = "aspiring_adventurer";   /* the event and role being cast */
+static int adv_role_now = ADV_ROLE_ADVENTURER;
+
+static int adv_heathen_mode(const char *event, int role) {
+    int k;
+    for (k = 0; k < (int)(sizeof ADV_HEATHEN_ROLES / sizeof ADV_HEATHEN_ROLES[0]); ++k) {
+        if (ADV_HEATHEN_ROLES[k].role == role && lstrcmpA(ADV_HEATHEN_ROLES[k].event, event) == 0) {
+            return ADV_HEATHEN_ROLES[k].mode;
+        }
+    }
+    return ADV_HEATHEN_NEVER;
+}
+
+/* New Believers: whether record `r`'s faction fits the role being cast -- a believer unless the role is Heathens
+   only; a Heathen only when the role allows one and the row is installed, and never a sick one (the protected
+   villagers, the puzzles' Heathens among them, are the caller's own test). */
+static int adv_vv5_faction_ok(const unsigned char *r) {
+    int mode = adv_heathen_mode(adv_event_now, adv_role_now);
+    if (r[0x1CEC] == 0) {
+        return mode != ADV_HEATHEN_ONLY;
+    }
+    return mode != ADV_HEATHEN_NEVER && r[0x1C48] == 0
+        && !(*(const int *)(r + 0x1CFC) >= 12 && *(const int *)(r + 0x1CFC) <= 17)   /* never a puzzle's, No
+                                                                                       Safeguards or not */
+        && adv_story_int("VvfpStoryHeathensRow", 5, 0) != 0;
+}
+
 static struct {
     const adv_game *g;
     int ready;                                        /* composed, not yet answered */
@@ -816,6 +863,7 @@ static int adv_begin(const adv_game *g) {
     adv.hero_id = adv_identity(g, adv.hero);
     adv.female = g->female(g->record(adv.hero)) ? 1 : 0;
     g->name(g->record(adv.hero), adv.name, sizeof adv.name);
+    adv_role_now = ADV_ROLE_FRIEND;    /* New Believers: the friend's own Heathen rule (ADV_HEATHEN_ROLES) */
     n = adv_eligible_count(g, adv.hero);
     if (n > 0) {
         adv.friend_ = adv_eligible_at(g, adv.hero, g->rand_below(n));
@@ -823,6 +871,7 @@ static int adv_begin(const adv_game *g) {
             g->name(g->record(adv.friend_), adv.friend_name, sizeof adv.friend_name);
         }
     }
+    adv_role_now = ADV_ROLE_ADVENTURER;
     /* Choice A. */
     roll = g->rand_below(100);
     adv.find = roll < 50 ? ADV_FIND_NOTHING : (roll < 75 ? ADV_FIND_MEAT : ADV_FIND_CHEST);

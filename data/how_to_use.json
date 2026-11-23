@@ -280,6 +280,17 @@
       ]
     },
     {
+      "ids": ["vv5_heathens_in_island_events"],
+      "guide": [
+        "New Believers. Off by default; Owner's Defaults ticks it. Select All does not tick it. In the Island Events section.",
+        "Ordinary Heathens can be chosen for the new island events' roles that allow them, and Heathen-Exclusive Events can happen.",
+        "A chief, the Retired Chief and the puzzles' Heathens are never chosen.",
+        "When only Heathens are in an event, food, tech points, buildings, goods and research happen to the Heathens' village and change nothing in yours.",
+        "Those lines end \"(no effect)\". Heathens never count in the Village Statistics.",
+        "Needs Story / Cheat Upgrades. The game's own island events are unchanged. Not yet tested in play."
+      ]
+    },
+    {
       "ids": ["vv1_island_events_any_time", "vv2_island_events_any_time", "vv3_island_events_any_time", "vv4_island_events_any_time", "vv5_island_events_any_time"],
       "guide": [
         "Off everywhere, Owner's Defaults too; Select All does not tick it. For masochists. In each game's patch list, right under Classic VV Difficulty where the game has it.",

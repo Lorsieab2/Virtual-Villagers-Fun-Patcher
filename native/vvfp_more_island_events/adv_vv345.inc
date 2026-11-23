@@ -139,10 +139,11 @@ static int vv4_eligible(const unsigned char *r) {
 }
 
 /* New Believers: present (+0x1CD4), alive (+0x1C40), not a Reanimated spirit (+0x1CE1), a believer (Heathen
-   +0x1CEC clear), not one of the roles the game's own picker skips (+0x1CFC 12-17: the chief, the Retired Chief,
-   the puzzles' Heathens), 14 or more (+0x1B8C), not carrying a baby (+0x1C4C). */
+   +0x1CEC clear) -- or an ordinary Heathen where the role allows one (adv_vv5_faction_ok) --, not one of the roles
+   the game's own picker skips (+0x1CFC 12-17: the chief, the Retired Chief, the puzzles' Heathens), 14 or more
+   (+0x1B8C), not carrying a baby (+0x1C4C). */
 static int vv5_eligible(const unsigned char *r) {
-    return r[0x1CD4] != 0 && *(const int *)(r + 0x1C40) > 0 && r[0x1CEC] == 0
+    return r[0x1CD4] != 0 && *(const int *)(r + 0x1C40) > 0 && adv_vv5_faction_ok(r)
         && *(const int *)(r + 0x1B8C) >= ADV_ADULT_UNITS && !adv_is_protected(5, r);
 }
 

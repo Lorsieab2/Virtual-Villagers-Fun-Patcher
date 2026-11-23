@@ -615,6 +615,7 @@ FILES = [
     "data/vv5_island_event_filter_f26_feature.json",
     "data/vv5_island_event_filter_f27_feature.json",
     "data/vv5_island_event_filter_f28_feature.json",
+    "data/vv5_heathens_in_island_events_feature.json",
     "data/vv5_classic_vv_difficulty_feature.json",
     "data/vv5_respecting_the_legacy_of_isola_feature.json",
     # The two bitmap fonts of every game: glyph coordinates and addresses only, never a picture.
