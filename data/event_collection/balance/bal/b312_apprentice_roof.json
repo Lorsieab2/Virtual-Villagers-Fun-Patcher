@@ -114,7 +114,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(apprentice) has been learning to build from (subject) for a year, and today (subject.he/she) asks to do a roof alone. Not just any roof: the roof of the healers' hut, which has been leaking onto the sleeping mats for a month. \"I can do it,\" (apprentice) says. \"I've watched you a hundred times.\"\n(subject) remembers (subject.his/her) own first roof, which fell in during the first storm. Should (subject.he/she) let (apprentice) do it alone, or work alongside and keep an eye on every knot?",
+   "text": "(apprentice) has been learning to build from (subject) for a year, and today (apprentice.he/she) asks to do a roof alone. Not just any roof: the roof of the healers' hut, which has been leaking onto the sleeping mats for a month. \"I can do it,\" (apprentice) says. \"I've watched you a hundred times.\"\n(subject) remembers (subject.his/her) own first roof, which fell in during the first storm. Should (subject.he/she) let (apprentice) do it alone, or work alongside and keep an eye on every knot?",
    "choices": [
     {
      "label": "Let (subject.Him/Her) Do It Alone",
@@ -130,7 +130,7 @@
    "src": "L14463-14464"
   },
   "c1o1": {
-   "text": "(apprentice) works from dawn to dusk and doesn't ask for help once. The roof is tight, neat and even, and when the next rain comes, not a drop gets through. The healers are so pleased that they ask (apprentice) to fix every other leaking roof in the village, and (subject.he/she) does, one after another. (subject) admits, privately, that it's better than (subject.his/her) own first roof by a long way.",
+   "text": "(apprentice) works from dawn to dusk and doesn't ask for help once. The roof is tight, neat and even, and when the next rain comes, not a drop gets through. The healers are so pleased that they ask (apprentice) to fix every other leaking roof in the village, and (apprentice.he/she) does, one after another. (subject) admits, privately, that it's better than (subject.his/her) own first roof by a long way.",
    "effects": [
     {
      "do": "repair",
@@ -148,7 +148,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "Late in the afternoon, reaching for one last bundle, (apprentice) leans too far and slides off the edge of the roof. (subject.He/She) lands badly on (subject.his/her) shoulder. The healers, whose roof (subject.he/she) was fixing, take care of (subject.him/her) under their own half-finished thatch. The shoulder never works quite right again. (subject) finishes the roof the next day, and doesn't say much for a long time.",
+   "text": "Late in the afternoon, reaching for one last bundle, (apprentice) leans too far and slides off the edge of the roof. (apprentice.He/She) lands badly on (apprentice.his/her) shoulder. The healers, whose roof (apprentice.he/she) was fixing, take care of (apprentice.him/her) under their own half-finished thatch. The shoulder never works quite right again. (subject) finishes the roof the next day, and doesn't say much for a long time.",
    "effects": [
     {
      "do": "health_change",
@@ -158,7 +158,7 @@
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "apprentice"
     }
    ],
    "children": [
@@ -244,7 +244,7 @@
     {
      "do": "preference",
      "dislike": "heights",
-     "role": "subject"
+     "role": "apprentice"
     }
    ]
   },

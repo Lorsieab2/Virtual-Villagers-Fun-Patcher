@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A cough has gone through the village. It started with one of the fishers and now half the huts are barking like seals at night. (sick) has it worst. (subject.He/She) has been coughing for nine days and can barely lift (subject.his/her) head.\n(subject), the healer on duty, has two ideas. The elders' way is a steam hut: hot stones, wet leaves, and the patient sitting in it until they can breathe again. The other is a salve of crushed eucalyptus leaves that a traveller once showed the healers, which nobody has tried yet.\nWhich should (subject) try?",
+   "text": "A cough has gone through the village. It started with one of the fishers and now half the huts are barking like seals at night. (sick) has it worst. (sick.He/She) has been coughing for nine days and can barely lift (sick.his/her) head.\n(subject), the healer on duty, has two ideas. The elders' way is a steam hut: hot stones, wet leaves, and the patient sitting in it until they can breathe again. The other is a salve of crushed eucalyptus leaves that a traveller once showed the healers, which nobody has tried yet.\nWhich should (subject) try?",
    "choices": [
     {
      "label": "Build a Steam Hut",
@@ -153,11 +153,11 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "The steam works, but (subject) gets the stones too hot. (sick) comes out cured and the colour of a boiled crab. That night (subject.he/she) can't sleep for the itching, nor the night after, and somewhere in all that scratching (subject.he/she) loses all love for (subject.his/her) sleeping mat. \"I'll lie down,\" (subject.he/she) says, \"but I won't enjoy it.\"",
+   "text": "The steam works, but (subject) gets the stones too hot. (sick) comes out cured and the colour of a boiled crab. That night (sick.he/she) can't sleep for the itching, nor the night after, and somewhere in all that scratching (sick.he/she) loses all love for (sick.his/her) sleeping mat. \"I'll lie down,\" (sick.he/she) says, \"but I won't enjoy it.\"",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "preference",
@@ -184,11 +184,11 @@
    "src": "L11912"
   },
   "c2o1": {
-   "text": "By morning (sick)'s cough has loosened, and by the next day (subject.he/she) is sitting up and complaining about the smell, which (subject) takes as a good sign. The healers make jars and jars of the salve and soon the whole village smells like a forest. (subject) keeps a careful note of the recipe, and adds the traveller's name at the top.",
+   "text": "By morning (sick)'s cough has loosened, and by the next day (sick.he/she) is sitting up and complaining about the smell, which (subject) takes as a good sign. The healers make jars and jars of the salve and soon the whole village smells like a forest. (subject) keeps a careful note of the recipe, and adds the traveller's name at the top.",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "skill",
@@ -202,7 +202,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The salve gives (sick) a rash from (subject.his/her) neck to (subject.his/her) belly, on top of the cough. (subject) washes it off as quickly as (subject.he/she) can and goes back to the elders' way after all. The cough eases slowly over the following weeks. (sick) does not trust anything that smells like trees for a long time after that.",
+   "text": "The salve gives (sick) a rash from (sick.his/her) neck to (sick.his/her) belly, on top of the cough. (subject) washes it off as quickly as (subject.he/she) can and goes back to the elders' way after all. The cough eases slowly over the following weeks. (sick) does not trust anything that smells like trees for a long time after that.",
    "effects": [
     {
      "do": "health_change",

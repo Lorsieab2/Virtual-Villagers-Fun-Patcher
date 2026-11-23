@@ -268,7 +268,7 @@
    "auto_text": true
   },
   "c3": {
-   "text": "(elder) hears the whole thing with (subject.his/her) eyes closed, nodding slowly. \"Shadows that ran off to be people. Yes. I know that one...\"",
+   "text": "(elder) hears the whole thing with (elder.his/her) eyes closed, nodding slowly. \"Shadows that ran off to be people. Yes. I know that one...\"",
    "children": [
     {
      "next": "c3o1",

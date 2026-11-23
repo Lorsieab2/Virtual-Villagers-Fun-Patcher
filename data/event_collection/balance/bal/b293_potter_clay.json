@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(potter), the village potter, has found a new bank of clay up the river, red and very smooth. (subject.He/She) has been making little figures of people from it, and they are so lifelike that everyone wants one. Today (subject.he/she) has made one of (subject), sitting on (subject.his/her) shelf to dry. It looks so much like (subject) that it's unsettling.\nThe trouble is, the old potters used to say that red river clay remembers what it was shaped into, and given enough heat, tries to become it. (potter) laughs about that. Should (subject) let the figure be fired in the kiln tonight, or ask (potter) to squash it back into a lump?",
+   "text": "(potter), the village potter, has found a new bank of clay up the river, red and very smooth. (potter.He/She) has been making little figures of people from it, and they are so lifelike that everyone wants one. Today (potter.he/she) has made one of (subject), sitting on (potter.his/her) shelf to dry. It looks so much like (subject) that it's unsettling.\nThe trouble is, the old potters used to say that red river clay remembers what it was shaped into, and given enough heat, tries to become it. (potter) laughs about that. Should (subject) let the figure be fired in the kiln tonight, or ask (potter) to squash it back into a lump?",
    "choices": [
     {
      "label": "Fire It in the Kiln",
@@ -128,7 +128,7 @@
    "src": "L13615-13616"
   },
   "c1o1": {
-   "text": "In the morning, when (potter) opens the kiln, a full-sized person climbs out of it, dusting ash off (subject.his/her) shoulders. It is (subject), exactly: same face, same scar, same laugh. (potter) drops the pot (subject.he/she) is holding. The new (subject) catches it. The village names (subject.him/her) (made1), and (potter) never touches red clay again.",
+   "text": "In the morning, when (potter) opens the kiln, a full-sized person climbs out of it, dusting ash off (subject.his/her) shoulders. It is (subject), exactly: same face, same scar, same laugh. (potter) drops the pot (potter.he/she) is holding. The new (subject) catches it. The village names (subject.him/her) (made1), and (potter) never touches red clay again.",
    "effects": [
     {
      "do": "clone",
@@ -180,7 +180,7 @@
    "src": "L13637"
   },
   "c2": {
-   "text": "\"Squash it,\" says (subject). (potter) sighs, picks up the figure and squeezes it in (subject.his/her) fist. The clay is warm. It squirms...",
+   "text": "\"Squash it,\" says (subject). (potter) sighs, picks up the figure and squeezes it in (potter.his/her) fist. The clay is warm. It squirms...",
    "children": [
     {
      "next": "c2o1",

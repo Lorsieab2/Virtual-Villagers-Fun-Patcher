@@ -184,7 +184,7 @@
    "src": "L10251"
   },
   "c2o2": {
-   "text": "The next spring, the white bird comes back and lands on the peg over the door, beside the crown, and looks at (subject) for a long time. Then it touches (subject.his/her) forehead with its beak, very gently, and flies away. By the next morning (subject)'s face looks ten years younger. (elder) says (subject.he/she) has never heard of the bird coming back.",
+   "text": "The next spring, the white bird comes back and lands on the peg over the door, beside the crown, and looks at (subject) for a long time. Then it touches (subject.his/her) forehead with its beak, very gently, and flies away. By the next morning (subject)'s face looks ten years younger. (elder) says (elder.he/she) has never heard of the bird coming back.",
    "effects": [
     {
      "do": "young_look",

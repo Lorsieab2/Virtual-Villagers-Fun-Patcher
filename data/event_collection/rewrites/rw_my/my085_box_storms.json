@@ -281,7 +281,7 @@
    "src": "L14838"
   },
   "c4": {
-   "text": "(friend) decides that a box of storms, real or not, is not a toy. (subject.He/she) promises (subject) it will be kept safe, and puts it up on the highest shelf in the hut...",
+   "text": "(friend) decides that a box of storms, real or not, is not a toy. (friend.He/she) promises (subject) it will be kept safe, and puts it up on the highest shelf in the hut...",
    "children": [
     {
      "next": "c4o1",

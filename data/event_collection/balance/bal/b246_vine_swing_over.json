@@ -168,7 +168,7 @@
    "src": "L11502"
   },
   "c2o1": {
-   "text": "Halfway across, the vine snaps where it rubbed against the branch. (teen) drops into the bushes on the side of the gorge and doesn't get up. (subject) climbs down to (subject.him/her) faster than (subject.he/she) has ever moved in (subject.his/her) life, heights or no heights. (teen) lives, but (subject.his/her) hip never sets right, and (subject.he/she) walks with a limp after that. Nobody swings over the gorge again.",
+   "text": "Halfway across, the vine snaps where it rubbed against the branch. (teen) drops into the bushes on the side of the gorge and doesn't get up. (subject) climbs down to (teen.him/her) faster than (subject.he/she) has ever moved in (subject.his/her) life, heights or no heights. (teen) lives, but (teen.his/her) hip never sets right, and (teen.he/she) walks with a limp after that. Nobody swings over the gorge again.",
    "effects": [
     {
      "do": "health_change",
@@ -178,7 +178,7 @@
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "teen"
     }
    ],
    "children": [
@@ -247,7 +247,7 @@
     {
      "do": "preference",
      "dislike": "heights",
-     "role": "subject"
+     "role": "teen"
     }
    ]
   },

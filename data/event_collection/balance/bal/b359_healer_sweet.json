@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) has had a deep cough for two weeks. (healer) has made a new tonic for it out of honey, wild ginger and a pinch of crushed coral, which (subject.he/she) learned from a traveller. It tastes wonderful, which is suspicious, because everyone knows good medicine tastes terrible.\n(healer) says to take one spoonful every morning. (subject), who loves the taste, is tempted to drink the whole gourd at once and be done with it. Should (subject) take it a spoonful at a time, or drink the lot?",
+   "text": "(subject) has had a deep cough for two weeks. (healer) has made a new tonic for it out of honey, wild ginger and a pinch of crushed coral, which (healer.he/she) learned from a traveller. It tastes wonderful, which is suspicious, because everyone knows good medicine tastes terrible.\n(healer) says to take one spoonful every morning. (subject), who loves the taste, is tempted to drink the whole gourd at once and be done with it. Should (subject) take it a spoonful at a time, or drink the lot?",
    "choices": [
     {
      "label": "A Spoonful at a Time",

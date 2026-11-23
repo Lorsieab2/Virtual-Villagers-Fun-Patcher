@@ -237,7 +237,7 @@
    "auto_text": true
   },
   "c3": {
-   "text": "(elder) stops what (subject.he/she) is doing when (subject) hums the tune. \"Where did you hear that?\" (subject.He/She) sits down heavily. \"There was a singer who lived in that hut, when I was a child...\"",
+   "text": "(elder) stops what (elder.he/she) is doing when (subject) hums the tune. \"Where did you hear that?\" (subject.He/She) sits down heavily. \"There was a singer who lived in that hut, when I was a child...\"",
    "children": [
     {
      "next": "c3o1",

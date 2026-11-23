@@ -131,7 +131,7 @@
    "src": "L10042-10044"
   },
   "c1o1": {
-   "text": "The fever breaks at midnight. By morning the spots are fading. When (healer) gets back, (subject.he/she) looks at (friend), and at (subject), and nods once. That's all. It is the proudest moment of (subject)'s life, and (subject.he/she) is a much better healer for having done it alone.",
+   "text": "The fever breaks at midnight. By morning the spots are fading. When (healer) gets back, (healer.he/she) looks at (friend), and at (subject), and nods once. That's all. It is the proudest moment of (subject)'s life, and (subject.he/she) is a much better healer for having done it alone.",
    "effects": [
     {
      "do": "cure",
@@ -185,7 +185,7 @@
    "src": "L10050"
   },
   "c2o1": {
-   "text": "By evening the spots are gone, and the fever with them. (subject) puts the paste on everyone else in the village who has a cough, a rash or a fever, and by the time (healer) gets back, nobody in the village is sick. (healer) looks at the moss for a long time. \"Old nonsense,\" (subject.he/she) says at last. \"I'll want to see the scroll.\"",
+   "text": "By evening the spots are gone, and the fever with them. (subject) puts the paste on everyone else in the village who has a cough, a rash or a fever, and by the time (healer) gets back, nobody in the village is sick. (healer) looks at the moss for a long time. \"Old nonsense,\" (healer.he/she) says at last. \"I'll want to see the scroll.\"",
    "effects": [
     {
      "do": "cure",
@@ -198,7 +198,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The moss makes the spots much worse. (friend)'s whole skin comes up in a red, itching rash on top of the fever. (subject) washes it off in a panic and does it (healer)'s way, and (friend) gets better, slowly, over a week. When (healer) gets back, (subject.he/she) doesn't say anything at all, which is worse than anything (subject.he/she) could have said.",
+   "text": "The moss makes the spots much worse. (friend)'s whole skin comes up in a red, itching rash on top of the fever. (subject) washes it off in a panic and does it (healer)'s way, and (friend) gets better, slowly, over a week. When (healer) gets back, (healer.he/she) doesn't say anything at all, which is worse than anything (healer.he/she) could have said.",
    "effects": [
     {
      "do": "health_change",

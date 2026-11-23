@@ -233,7 +233,7 @@
    "auto_text": true
   },
   "c3o2": {
-   "text": "(builder) looks over at the old bridge, and then lowers (subject.his/her) voice. \"I haven't trusted that log in years,\" (subject.he/she) admits. \"I go around too. Early, before anyone sees.\" (subject) stares. Then, the next morning, the two of them take the long way together.",
+   "text": "(builder) looks over at the old bridge, and then lowers (builder.his/her) voice. \"I haven't trusted that log in years,\" (builder.he/she) admits. \"I go around too. Early, before anyone sees.\" (subject) stares. Then, the next morning, the two of them take the long way together.",
    "src": "L9144"
   },
   "c3": {

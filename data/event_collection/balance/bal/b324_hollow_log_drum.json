@@ -185,7 +185,7 @@
    "src": "L15003"
   },
   "c2o1": {
-   "text": "The eldest villager in the village, (eldest), who has also never danced, gets up slowly and says (subject.he/she) supposes it's (subject.his/her) turn. (subject.He/She) dances one slow, careful circle around the drum. Everyone cries. In the firelight, (subject.his/her) face looks years younger, and in the morning, it still does. The drum sounds wonderful ever after.",
+   "text": "The eldest villager in the village, (eldest), who has also never danced, gets up slowly and says (eldest.he/she) supposes it's (eldest.his/her) turn. (eldest.He/She) dances one slow, careful circle around the drum. Everyone cries. In the firelight, (eldest.his/her) face looks years younger, and in the morning, it still does. The drum sounds wonderful ever after.",
    "src": "L15015",
    "effects": [
     {
@@ -196,7 +196,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Nobody else will do it. The drum is played anyway, and it sounds flat and dull, like hitting a wet log. (drummer) tries for weeks to make it sing, and fails, and by the end of the season has lost (subject.his/her) love of drumming altogether. The great drum ends up as a water trough for the pigs.",
+   "text": "Nobody else will do it. The drum is played anyway, and it sounds flat and dull, like hitting a wet log. (drummer) tries for weeks to make it sing, and fails, and by the end of the season has lost (drummer.his/her) love of drumming altogether. The great drum ends up as a water trough for the pigs.",
    "effects": [
     {
      "do": "preference",

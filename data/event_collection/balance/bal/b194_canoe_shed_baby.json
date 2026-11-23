@@ -188,7 +188,7 @@
    "src": "L9012"
   },
   "c2o1": {
-   "text": "\"Who will take this child?\" asks the {@chief}. There's a silence. Then (healer), who has a baby of (subject.his/her) own and milk enough for two, stands up. \"Give (subject.him/her) here,\" (subject.he/she) says. The baby grows up in the healers' hut, with a milk-brother and a lot of very bossy healers.",
+   "text": "\"Who will take this child?\" asks the {@chief}. There's a silence. Then (healer), who has a baby of (healer.his/her) own and milk enough for two, stands up. \"Give (subject.him/her) here,\" (healer.he/she) says. The baby grows up in the healers' hut, with a milk-brother and a lot of very bossy healers.",
    "effects": [
     {
      "do": "nursing",

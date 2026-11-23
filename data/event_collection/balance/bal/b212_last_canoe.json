@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(carver) has carved every canoe in the village for fifty years. (subject.His/her) eyes are going now, and (subject.his/her) hands shake, and (subject.he/she) says this canoe will be (subject.his/her) last. It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.\n(carver) has asked (subject) to help (subject.him/her) finish it. It will take all season. Or (subject) could ask (carver) to teach (subject.him/her) to carve while they work, which will take longer, and might mean it isn't finished at all.\nShould (subject) help finish the canoe, or ask to learn?",
+   "text": "(carver) has carved every canoe in the village for fifty years. (carver.His/her) eyes are going now, and (carver.his/her) hands shake, and (carver.he/she) says this canoe will be (carver.his/her) last. It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.\n(carver) has asked (subject) to help (carver.him/her) finish it. It will take all season. Or (subject) could ask (carver) to teach (subject.him/her) to carve while they work, which will take longer, and might mean it isn't finished at all.\nShould (subject) help finish the canoe, or ask to learn?",
    "choices": [
     {
      "label": "Help Finish It",
@@ -143,7 +143,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "One morning, near the end, (carver) makes the last fine cut on the prow, sits back on (subject.his/her) heels to look at it, and smiles, and doesn't get up again. (subject) finishes the canoe alone. The village launches it at sunset with (carver)'s name carved on the prow, and (subject) paddles it out first.",
+   "text": "One morning, near the end, (carver) makes the last fine cut on the prow, sits back on (carver.his/her) heels to look at it, and smiles, and doesn't get up again. (subject) finishes the canoe alone. The village launches it at sunset with (carver)'s name carved on the prow, and (subject) paddles it out first.",
    "effects": [
     {
      "do": "skill",
@@ -176,7 +176,7 @@
    "src": "L9862"
   },
   "c2o1": {
-   "text": "It takes two seasons, and the canoe is a little lopsided, but it floats, and (carver) says it is the best first canoe (subject.he/she) has ever seen. The village has a carver again. (carver) sits on (subject.his/her) log on the beach every day after that, shouting at (subject), very happily.",
+   "text": "It takes two seasons, and the canoe is a little lopsided, but it floats, and (carver) says it is the best first canoe (carver.he/she) has ever seen. The village has a carver again. (carver) sits on (carver.his/her) log on the beach every day after that, shouting at (subject), very happily.",
    "effects": [
     {
      "do": "skill",
@@ -197,7 +197,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Before the canoe is done, (carver) dies in (subject.his/her) sleep. The half-carved canoe sits on the beach for a long time. (subject) can't bring (subject.himself/herself) to touch it. In the end the village leaves it there, and the children play in it, and it becomes (carver)'s canoe, the one that never went to sea.",
+   "text": "Before the canoe is done, (carver) dies in (carver.his/her) sleep. The half-carved canoe sits on the beach for a long time. (subject) can't bring (subject.himself/herself) to touch it. In the end the village leaves it there, and the children play in it, and it becomes (carver)'s canoe, the one that never went to sea.",
    "effects": [
     {
      "do": "kill",

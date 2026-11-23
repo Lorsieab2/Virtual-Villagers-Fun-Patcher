@@ -177,7 +177,7 @@
    "src": "L7298"
   },
   "c2o1": {
-   "text": "(healer) has raised five children and says {#made:one more|two more} won't make much difference. It makes a great deal of difference, and (subject.he/she) says so loudly every night for a year. {#made:The baby grows|The babies grow} up in the healers' hut, among the herbs and the pots, and {#made:when old enough, becomes a healer|both of them, when they are old enough, become healers}.",
+   "text": "(healer) has raised five children and says {#made:one more|two more} won't make much difference. It makes a great deal of difference, and (healer.he/she) says so loudly every night for a year. {#made:The baby grows|The babies grow} up in the healers' hut, among the herbs and the pots, and {#made:when old enough, becomes a healer|both of them, when they are old enough, become healers}.",
    "effects": [
     {
      "do": "new_villager",

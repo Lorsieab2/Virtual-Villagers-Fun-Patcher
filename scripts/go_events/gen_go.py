@@ -49,6 +49,9 @@ import collection_lib as lib  # noqa: E402
 import vv_owner_layout as owner  # noqa: E402
 import vv_player_events as pe  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import go_role_fixes as role_fixes  # noqa: E402
+
 PIECES_OUT = ROOT / "data" / "procedural_pieces" / "go_seeds.json"
 GRAMMAR_MARK = ("<!-- GO grammar fixes: written by scripts/go_events/gen_go.py -->",
                 "<!-- end of GO grammar fixes -->")
@@ -323,6 +326,14 @@ COUNT_TOKENS: dict[tuple[str, int], list[tuple[str, str]]] = {
         2, "they move straight in", one=f"one of them moves straight in, as {_ROOM}"))],
 }
 COUNT_USED: set[tuple[str, int]] = set()
+
+# The owner (2026-11-22, #842): a page whose text says "(award)" for two kinds -- the second is the node's own food /
+# tech change, "(award2)" (cie-v6-binary.md), no rewording.  (event id, node) -> (before, after), `before` once.
+AWARD2: dict[tuple[str, str], tuple[str, str]] = {
+    ("s061_soft_yams", "c2o1"): ("Your village loses (award) food.", "Your village loses (award2) food."),
+    ("s064_stranger_recipe", "c2o1"): ("(award) tech points and (award) food.", "(award) tech points and (award2) food."),
+    ("s095_lucky_harvest", "c2o2"): ("(award) food and (award) tech points.", "(award) food and (award2) tech points."),
+}
 COUNT_WHY = ("the owner's rule 13: the page makes several villagers or babies, as many as the game's room allows, so "
              "its words fit any count (a count token: one, two, three or more)")
 
@@ -687,6 +698,14 @@ class Build:
                 if e.get("do") == "skill" and "size" in e:
                     lo, hi = cc.SKILL_SIZES[e.pop("size")]
                     e["min"], e["max"] = lo, hi
+        # who a pronoun or an effect is about, where the main villager's is the wrong one (go_role_fixes.py)
+        role_fixes.apply(self.row["id"], nodes)
+        # a page that tells two kinds: its second "(award)" is the node's own change, (award2) (#842)
+        for (eid, nid), (before, after) in AWARD2.items():
+            if eid == self.row["id"]:
+                if nodes[nid]["text"].count(before) != 1:
+                    raise ValueError(f"AWARD2 {eid} {nid}: {before!r} is not on the page once")
+                nodes[nid]["text"] = nodes[nid]["text"].replace(before, after)
         g.pop("title_variants", None)
         if "patches" in g:
             g["patches"] = [p for p in g["patches"] if p != pe.GUARDIANS_PATCH]

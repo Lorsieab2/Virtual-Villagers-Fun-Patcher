@@ -168,7 +168,7 @@
    "src": "L8153"
   },
   "c1o2": {
-   "text": "(friend) admits, honestly, that (subject.he/she) is still hurt, and needs some time apart before things can go back to normal. (subject) accepts that, though it stings. A few weeks later, (friend) nods to (subject.him/her) at the well. Then says hello. Then, one day, waits for (subject.him/her).",
+   "text": "(friend) admits, honestly, that (friend.he/she) is still hurt, and needs some time apart before things can go back to normal. (subject) accepts that, though it stings. A few weeks later, (friend) nods to (subject.him/her) at the well. Then says hello. Then, one day, waits for (subject.him/her).",
    "src": "L8155"
   },
   "c1": {
@@ -212,7 +212,7 @@
    "src": "L8167"
   },
   "c3o2": {
-   "text": "(Name3)'s advice makes everything much more confusing. Somehow it involves a goat, a misunderstanding from six years ago, and a theory about the moon. (subject) thanks (subject.him/her), and follows (subject.his/her) own judgment, which is to go and knock on (friend)'s door.",
+   "text": "(Name3)'s advice makes everything much more confusing. Somehow it involves a goat, a misunderstanding from six years ago, and a theory about the moon. (subject) thanks (name3.him/her), and follows (subject.his/her) own judgment, which is to go and knock on (friend)'s door.",
    "src": "L8169"
   },
   "c3": {

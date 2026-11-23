@@ -129,7 +129,7 @@
    "src": "L10702-10704"
   },
   "c1o1": {
-   "text": "In the morning (subject) walks down the hill, and the other children don't recognise (subject.him/her). (subject.He/She) is fifteen: tall, long-legged, and not afraid of anything, or at least not afraid of the things (subject.he/she) was afraid of yesterday. (elder) is not at all surprised. \"Grandmother liked brave ones,\" (subject.he/she) says. The teasing stops at once.",
+   "text": "In the morning (subject) walks down the hill, and the other children don't recognise (subject.him/her). (subject.He/She) is fifteen: tall, long-legged, and not afraid of anything, or at least not afraid of the things (subject.he/she) was afraid of yesterday. (elder) is not at all surprised. \"Grandmother liked brave ones,\" (elder.he/she) says. The teasing stops at once.",
    "effects": [
     {
      "do": "change_age",
@@ -187,7 +187,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(subject) stays home that night. But the next night, without telling anyone, (subject.he/she) goes up to the hut after all, alone, and sleeps there till dawn. When (subject.he/she) comes down, (subject.he/she) is fourteen. (elder) sees (subject.him/her) on the path and laughs out loud. \"Grandmother liked brave ones,\" (subject.he/she) says. \"Especially stubborn ones.\"",
+   "text": "(subject) stays home that night. But the next night, without telling anyone, (subject.he/she) goes up to the hut after all, alone, and sleeps there till dawn. When (subject.he/she) comes down, (subject.he/she) is fourteen. (elder) sees (subject.him/her) on the path and laughs out loud. \"Grandmother liked brave ones,\" (elder.he/she) says. \"Especially stubborn ones.\"",
    "effects": [
     {
      "do": "change_age",
@@ -199,7 +199,7 @@
    "auto_text": true
   },
   "c2": {
-   "text": "(subject) looks at the hill, and the dark coming down, and unpacks the basket. (elder) sits down beside (subject.him/her) on the doorstep. \"Brave isn't only doing the scary thing,\" (subject.he/she) says. \"Want to hear about Grandmother?\"",
+   "text": "(subject) looks at the hill, and the dark coming down, and unpacks the basket. (elder) sits down beside (subject.him/her) on the doorstep. \"Brave isn't only doing the scary thing,\" (elder.he/she) says. \"Want to hear about Grandmother?\"",
    "children": [
     {
      "next": "c2o1",

@@ -226,7 +226,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The botanist examines the flower from every angle, sniffs it, counts its petals twice, and finally sits back on (subject.his/her) heels, baffled. \"I don't know what this is,\" (subject.he/she) admits. \"I've never seen anything like it.\" The botanist takes careful notes and a sketch, and promises to keep looking. (subject.He/she) never finds it in any record, and though (subject.he/she) searches the whole island for years, never sees another one.",
+   "text": "The botanist examines the flower from every angle, sniffs it, counts its petals twice, and finally sits back on (botanist.his/her) heels, baffled. \"I don't know what this is,\" (botanist.he/she) admits. \"I've never seen anything like it.\" The botanist takes careful notes and a sketch, and promises to keep looking. (botanist.He/she) never finds it in any record, and though (botanist.he/she) searches the whole island for years, never sees another one.",
    "src": "L13493"
   },
   "c2": {
