@@ -1757,12 +1757,14 @@
       "title": "Copy Player Slot",
       "guide": [
         "Copies a village into another save slot of the same game, under a new name. Quit the game first.",
-        "A slot with no save file is empty, whatever the game's slot list says; a slot with a player is overwritten.",
-        "You are asked first; No (also Return or Escape) changes nothing.",
-        "The whole save folder is backed up first, as (before copy).",
-        "The slot's old files are moved into Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
+        "A slot with no save file is empty, whatever the slot list says; a slot with a player is overwritten. You are asked first; No (also Return or Escape) changes nothing.",
+        "The folder is backed up first, as (before copy). The slot's old files go to Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
         "The copy takes its logs, data and trees along, its record numbers after the game's highest.",
-        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time)."
+        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time).",
+        "Choose Move to move the village itself, keeping its name: its save, the game's older copies, logs, data, trees and repair copies all go along; its old slot is left empty.",
+        "Move lists every file it will move before you say Yes, backs the folder up first, as (before move), and keeps the target slot's old files in Backups, Replaced by move.",
+        "Choose Delete to send every file of a slot to the Recycle Bin: its save, logs, data, trees, repair copies and its files in every backup. Pictures stay.",
+        "Delete lists every file and asks twice; No changes nothing. No backup is made: put anything back from the Recycle Bin."
       ]
     },
     "check_logs": {
