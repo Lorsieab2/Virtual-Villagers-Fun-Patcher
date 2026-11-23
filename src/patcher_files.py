@@ -162,6 +162,9 @@ PATCHER_READS: frozenset[str] = frozenset({
     "VVFP Heathen Aging Tribe.txt",
     "VVFP Heathen Skeletons Former.txt",
     "VVFP Heathen Skeletons All.txt",
+    # Heathens can be selected in Island Events/Heathen-Exclusive Events: the same companion carries island events'
+    # Heathen deaths and births.
+    "VVFP Heathen Aging Events.txt",
     # A New Home's The Golden Child May Be Born Female (50:50): a flag file whose presence beside the companions tells
     # "VVFP Gender Presentation.dll" to keep the sex the creator draws for a new Golden Child
     # (vvfp_gender_presentation.c).

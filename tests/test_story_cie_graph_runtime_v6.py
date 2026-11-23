@@ -408,7 +408,7 @@ class PartnerCarryNamesFollow(unittest.TestCase):
                 first = norm(r.p.cstring(TEXT_BUF))
                 r.tick()
                 file = r.graph_file()
-                self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
+                self.assertEqual(struct.unpack_from("<I", file, 4)[0], 7, "written as version 7 (heathen_cast)")
                 again = V6(game, self.PEOPLE)
                 text = f"vv{again.n}\n# partner_carry_percent=0\n"   # the setting moved since: the run keeps its own
                 buf = again.p.alloc(len(text) + 1)
@@ -641,7 +641,7 @@ class ResumeAndFile(unittest.TestCase):
         (v3, head, whole, words_at, words, words_v4, v3_end, v4, entry_at, entry, entry_v4) = struct.unpack(
             "<11i", r.p.read(LAYOUT_BUF, 44))
         growth = (words - words_v4) + (entry - entry_v4)
-        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
+        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 7, "written as version 7 (heathen_cast)")
         self.assertEqual(v3, v3_end - growth)
         self.assertLess(v4, whole - growth)   # version 6 added carry_swapped and female_at after version 5's state
         state = bytes(file[head:head + whole])

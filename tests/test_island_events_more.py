@@ -27,6 +27,7 @@ SDK_VERSION = "10.0.26100.0"
 # villager title, the whole likes list, no same-reading line, the village, the weather (or\n# none), a food store = 11; New Believers' Heathen
 # mask and The Lost Children's totem one more each.
 CHECKS = 5 * 15 + 2 + 3   # and the weather with no word, in the three games that have weather
+CHECKS += 1               # New Believers: the Heathen's record ends "Faction: Heathen" (2026-11-23)
 # + 3 per game: the time skip's closing notice is no island event (and what is still logged).
 CHECKS += 3 * 5
 # + 6 per game: More Island Events' ending and a branching Custom Island Event's page, bracketed by

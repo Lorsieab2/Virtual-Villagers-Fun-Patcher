@@ -35,6 +35,7 @@
 
 #include "../shared/patcher_files.h"
 #include "../shared/install_sites.h"   /* every site written, or none */
+#include "../shared/heathen_word.h"    /* New Believers: "Heathen", or "Isolan" with Guardians of Isola */
 
 #define GAMES 5
 #define KIND_ISLAND_EVENT 8               /* parentage_export.c */
@@ -371,6 +372,19 @@ static int graph_logged_by_story(const struct snapshot *s) {
    the comparison came back empty ("Changes: none" for The Aspiring Adventurer's tech points, live v1.35.97). */
 static int g_graph_comparing;
 
+/* New Believers (the owner, 2026-11-22/23: every log records the Heathens, clearly marked, and Heathens can now be cast
+   in island events): a record of a villager who is a Heathen at the end of the event ends "  Faction: Heathen" --
+   "Isolan" with Guardians of Isola (native/shared/heathen_word.h, the other logs' own line).  The appended length. */
+static size_t faction_line(const unsigned char *record, char *changes, size_t used, size_t size) {
+    int n;
+    if (g_game != 5 || record == NULL || record[0x1CEC] == 0 || used >= size) {
+        return used;
+    }
+    n = _snprintf(changes + used, size - used, "  Faction: %s\n", vv5_heathen_word());
+    changes[size - 1] = '\0';
+    return n < 0 ? size : used + (size_t)n;
+}
+
 /* Compare and write: one record per villager the event changed. */
 static void compare(struct snapshot *s) {
     unsigned char *now[MAX_VILLAGERS];
@@ -410,6 +424,7 @@ static void compare(struct snapshot *s) {
             /* Gone (died without a body, disappeared, left), or its record
                reused for someone else: named from the copy. */
             used += (size_t)_snprintf(changes + used, sizeof changes - used, "  Gone: yes\n");
+            used = faction_line(old, changes, used, sizeof changes);
             g_write(g_game, KIND_ISLAND_EVENT, old, 0, before, changes, 0);
             ++g_more_wrote;
             continue;
@@ -481,6 +496,7 @@ static void compare(struct snapshot *s) {
         if (changes[0] == '\0') {
             continue;
         }
+        used = faction_line(live, changes, used, sizeof changes);
         changes[sizeof changes - 1] = '\0';
         g_write(g_game, KIND_ISLAND_EVENT, live, 1, before, changes, 0);
         ++g_more_wrote;
@@ -901,6 +917,7 @@ static void graph_lines(const char *who, const char *lines) {
         while (s < p + n && *s == ' ') {
             ++s;
         }
+        joined = strncmp(s, "Faction: ", 9) == 0;   /* "  Ana: Faction: Heathen", the other logs' own words */
         for (i = 0; s + i < p + n && k + 1 < sizeof body; ++i) {
             if (!joined && s[i] == ':' && s + i + 1 < p + n && s[i + 1] == ' ') {
                 joined = 1;            /* "Health: 80 -> 0" -> "Health 80 -> 0" */

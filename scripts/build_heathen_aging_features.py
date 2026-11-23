@@ -51,6 +51,15 @@ FLAG_WORDS = {
     BONES_FORMER_ID: "leaves a body for the believers to bury when a former villager among the Heathens dies",
     BONES_ALL_ID: "leaves a body for the believers to bury when any Heathen dies",
 }
+# "Heathens can be selected in Island Events/Heathen-Exclusive Events" (vv5_heathens_in_island_events, the owner
+# 2026-11-23; scripts/build_island_event_content_features.py writes that row and pins this companion and this flag in
+# it): island events may kill, take away or make pregnant an ordinary Heathen, and this companion carries their
+# deaths, replacements and births (VvfpHeathenAgingEventGone / VvfpHeathenAgingEventPregnancy).
+EVENTS_ID = "vv5_heathens_in_island_events"
+EVENTS_FLAG = "VVFP Heathen Aging Events.txt"
+EVENTS_NAME = "Heathens can be selected in Island Events/Heathen-Exclusive Events"
+EVENTS_WORDS = ("carries the deaths, disappearances, replacements and births island events bring to the Heathens, "
+                "by the Heathens' own rules")
 NAMES = {FORMER_ID: FORMER_NAME, TRIBE_ID: TRIBE_NAME, BONES_FORMER_ID: BONES_FORMER_NAME,
          BONES_ALL_ID: BONES_ALL_NAME}
 TAGS = {FORMER_ID: "Former Villagers Age", TRIBE_ID: "Heathen Tribe Ages", BONES_FORMER_ID: "Former Villager Skeletons",
@@ -196,8 +205,9 @@ SKELETON_CHANGES = {
 
 
 def flag_text(row: str) -> bytes:
-    return (f"Virtual Villagers Fun Patcher: \"{NAMES[row]}\" (New Believers).\n"
-            f"While this file is here, \"{DLL_NAME}\" {FLAG_WORDS[row]}.\n"
+    name, words = (EVENTS_NAME, EVENTS_WORDS) if row == EVENTS_ID else (NAMES[row], FLAG_WORDS[row])
+    return (f"Virtual Villagers Fun Patcher: \"{name}\" (New Believers).\n"
+            f"While this file is here, \"{DLL_NAME}\" {words}.\n"
             "The patcher adds and removes this file with the patch; nothing reads what it says.\n").encode("ascii")
 
 
@@ -247,6 +257,7 @@ def main() -> None:
     FOLDER.mkdir(parents=True, exist_ok=True)
     for row_id, flag in FLAGS.items():
         (FOLDER / flag).write_bytes(flag_text(row_id))
+    (FOLDER / EVENTS_FLAG).write_bytes(flag_text(EVENTS_ID))   # its row: build_island_event_content_features.py
     for row_id in FLAGS:
         out = ROOT / "data" / f"{row_id}_feature.json"
         out.write_text(json.dumps(row(row_id), indent=2) + "\n", encoding="utf-8", newline="\n")

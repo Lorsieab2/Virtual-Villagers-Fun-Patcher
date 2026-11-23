@@ -577,6 +577,11 @@ ISLAND_EVENT_CONTENT_IDS = (("island_event_content_notes", "island_events_any_ti
                             + tuple(f"island_event_filter_f{n:02d}" for n in range(1, 29)))
 ISLAND_EVENT_CONTENT_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_{ident}_feature.json" for n in range(1, 6) for ident in ISLAND_EVENT_CONTENT_IDS)
+# Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers; the owner, 2026-11-23: off by
+# default, on in Owner's Defaults): a name in the installed patches' list only, which Story / Cheat Upgrades and More
+# Island Events read (docs/event-collection/cie-v6-binary.md 45); scripts/build_island_event_content_features.py.
+HEATHENS_IN_ISLAND_EVENTS_ID = "vv5_heathens_in_island_events"
+HEATHENS_IN_ISLAND_EVENTS_FEATURE_PATHS = (ROOT / "data" / f"{HEATHENS_IN_ISLAND_EVENTS_ID}_feature.json",)
 CLASSIC_DIFFICULTY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_classic_vv_difficulty_feature.json" for n in (4, 5))
 # Respecting the Legacy of Isola (New Believers; off by default, on in Owner's Defaults and Select All): no bytes of
@@ -4397,6 +4402,7 @@ def _load_fun_patch_records(
                          + ISLAND_EVENTS_SCALE_FEATURE_PATHS
                          + SCROLLING_POPUPS_FEATURE_PATHS + MORE_ISLAND_EVENTS_FEATURE_PATHS
                          + EVENT_COLLECTION_FEATURE_PATHS + ISLAND_EVENT_CONTENT_FEATURE_PATHS
+                         + HEATHENS_IN_ISLAND_EVENTS_FEATURE_PATHS
                          + CLOTH_SACKS_FEATURE_PATHS):
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))

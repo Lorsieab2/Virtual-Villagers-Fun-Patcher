@@ -73111,6 +73111,636 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s0",
+   "english": "Your villagers",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s1",
+   "english": "The Isolans",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s2",
+   "english": "The Heathens",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s3",
+   "english": "your villagers",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s4",
+   "english": "the Isolans",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s5",
+   "english": "the Heathens",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s6",
+   "english": "Your village",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s7",
+   "english": "The Isolans' village",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s8",
+   "english": "The Heathens' village",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s9",
+   "english": "your village",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s10",
+   "english": "the Isolans' village",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s11",
+   "english": "the Heathens' village",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_core.adv_heathens_words.s12",
+   "english": " (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "vvfp_more_island_events",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s118",
+   "english": "The Heathens' village gains <N> food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s119",
+   "english": "The Heathens' village loses <N> food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s120",
+   "english": "The Heathens' village gains <N> tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s121",
+   "english": "The Heathens' village loses <N> tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s122",
+   "english": "The Heathens' village gains 1 tech point. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s123",
+   "english": "The Heathens' village loses 1 tech point. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s124",
+   "english": "A building in the Heathens' village loses <N>% of its construction. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s125",
+   "english": "The Heathens' village's damaged buildings are being repaired. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s126",
+   "english": "The Heathens' village gains <N> <W>. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s127",
+   "english": "The Heathens' village loses <N> <W>. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s128",
+   "english": "The Heathens' village makes a trade. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s129",
+   "english": "The Heathens' village's technology changes. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s130",
+   "english": "The Heathens' village gathers together. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s131",
+   "english": "Everyone in the Heathens' village celebrates. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s0",
+   "english": "The Isolans' village gains <N> food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s1",
+   "english": "The Isolans' village loses <N> food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s2",
+   "english": "The Isolans' village gains <N> tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s3",
+   "english": "The Isolans' village loses <N> tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s4",
+   "english": "The Isolans' village gains 1 tech point. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s5",
+   "english": "The Isolans' village loses 1 tech point. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s6",
+   "english": "A building in the Isolans' village loses <N>% of its construction. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s7",
+   "english": "The Isolans' village's damaged buildings are being repaired. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s8",
+   "english": "The Isolans' village gains <N> <W>. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s9",
+   "english": "The Isolans' village loses <N> <W>. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s10",
+   "english": "The Isolans' village makes a trade. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s11",
+   "english": "The Isolans' village's technology changes. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s12",
+   "english": "The Isolans' village gathers together. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s13",
+   "english": "Everyone in the Isolans' village celebrates. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s18",
+   "english": ", an ordinary Isolan",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s19",
+   "english": ", an ordinary Heathen",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s20",
+   "english": ", a tribe member or an Isolan",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s21",
+   "english": ", a believer or a Heathen",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0",
    "english": "Revive Buried/Disappeared Villagers",
    "games": [
@@ -73884,7 +74514,37 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_revive.rv_dialog.s0",
+   "english": "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/story_revive.rv_dialog.s1",
+   "english": "Revive (%s tech points)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_dialog.s2",
    "english": "Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)",
    "games": [
     "vv1",
@@ -73899,7 +74559,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_dialog.s2",
+   "stem": "vvfp.story/story_revive.rv_dialog.s3",
    "english": "Choose a villager in the list first.",
    "games": [
     "vv1",
@@ -73914,7 +74574,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_dialog.s3",
+   "stem": "vvfp.story/story_revive.rv_dialog.s4",
    "english": "%s can not be brought back: %s.",
    "games": [
     "vv1",
@@ -73926,6 +74586,21 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.story_revive_from_graves.s0",
+   "english": "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
    "route": "key"
   },
   {
@@ -73971,51 +74646,6 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_dialog.s4",
-   "english": "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_dialog.s5",
-   "english": "Revive (%s tech points)",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.story_revive_from_graves.s3",
-   "english": "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
-   "route": "key"
   },
   {
    "stem": "vvfp.gui/rename_tribe.long_name_note",

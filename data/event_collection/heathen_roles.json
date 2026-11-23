@@ -1,0 +1,4 @@
+{
+  "_comment": "New Believers' Heathens in the Isola Grand Event Collection's roles (the owner, 2026-11-23; docs/event-collection/cie-v6-binary.md 45; scripts/build_event_collection_features.py apply_heathen_roles). With the row 'Heathens can be selected in Island Events/Heathen-Exclusive Events' installed, a role marked 'allowed' may cast a believer or an ordinary Heathen, 'only' an ordinary Heathen (never a puzzle's, never a believer). A role not named here stays a believer's. 'exclusive': true marks a Heathen-Exclusive Event (every villager role 'only'). The Heathen audit fills 'events'; each row needs the owner's approval before it ships. Form: {\"<event id>\": {\"roles\": {\"<role id>\": \"allowed\" | \"only\" | \"never\"}, \"exclusive\": true}}",
+  "events": {}
+}

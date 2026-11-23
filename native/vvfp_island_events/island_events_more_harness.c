@@ -481,6 +481,9 @@ int main(void) {
             CHECK(strstr(record_of(slot(1))->changes, "  Heathen: no -> yes\n") != NULL
                   && strstr(record_of(slot(1))->changes, "  Mask: none -> Tribal Chief Mask\n") != NULL,
                   "...and a Heathen made the Heathen Chief: \"Heathen: no -> yes\", \"Mask: none -> Tribal Chief Mask\"");
+            /* the owner, 2026-11-23: a Heathen's record is marked (no game image here: "Heathen", never "Isolan") */
+            CHECK(strstr(record_of(slot(1))->changes, "  Faction: Heathen\n") != NULL,
+                  "...and the Heathen's record ends \"Faction: Heathen\"");
         }
 
         /* 5. The Lost Children: the elder's totem (the statue record). */

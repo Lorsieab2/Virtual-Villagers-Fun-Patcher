@@ -1372,11 +1372,11 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
             ReleaseDC(window, dc);
         }
         SendDlgItemMessageA(window, IDC_RG_LIST, LB_SETHORIZONTALEXTENT, (WPARAM)(widest + 8), 0);
-        wsprintfA(intro, vvfp_tr("vvfp.story/story_revive.rv_dialog.s4", "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).", 600), rv_price_text(rv_game),
+        wsprintfA(intro, vvfp_tr("vvfp.story/story_revive.rv_dialog.s0", "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).", 600), rv_price_text(rv_game),
                   a != NULL ? a->tech() : 0);
         {
             char button[RV_LINE];
-            wsprintfA(button, vvfp_tr("vvfp.story/story_revive.rv_dialog.s5", "Revive (%s tech points)", 120),
+            wsprintfA(button, vvfp_tr("vvfp.story/story_revive.rv_dialog.s1", "Revive (%s tech points)", 120),
                       rv_price_text(rv_game));
             SetDlgItemTextA(window, IDOK, button);
         }
@@ -1385,7 +1385,7 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
             SendDlgItemMessageA(window, IDC_RG_LIST, LB_SETCURSEL, 0, 0);
         } else {
             SetDlgItemTextA(window, IDC_RG_DETAILS,
-                            vvfp_tr("vvfp.story/story_revive.rv_dialog.s1",
+                            vvfp_tr("vvfp.story/story_revive.rv_dialog.s2",
                                     "Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)", 600));
         }
         if (rv_rows > 0) {
@@ -1402,13 +1402,13 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
         if (id == IDOK || (id == IDC_RG_LIST && HIWORD(wparam) == LBN_DBLCLK)) {
             int sel = (int)SendDlgItemMessageA(window, IDC_RG_LIST, LB_GETCURSEL, 0, 0);
             if (sel < 0 || sel >= rv_rows) {
-                MessageBoxA(window, vvfp_tr("vvfp.story/story_revive.rv_dialog.s2", "Choose a villager in the list first.", 200), vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
+                MessageBoxA(window, vvfp_tr("vvfp.story/story_revive.rv_dialog.s3", "Choose a villager in the list first.", 200), vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
                 return TRUE;
             }
             if (rv_people[rv_order[sel]].refusal != NULL) {
                 char text[RV_LINE];
-                wsprintfA(text, vvfp_tr("vvfp.story/story_revive.rv_dialog.s3", "%s can not be brought back: %s.", 200),
+                wsprintfA(text, vvfp_tr("vvfp.story/story_revive.rv_dialog.s4", "%s can not be brought back: %s.", 200),
                           rv_people[rv_order[sel]].name, rv_why(rv_people[rv_order[sel]].refusal));
                 MessageBoxA(window, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
                             MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
@@ -1474,7 +1474,7 @@ static int story_revive_from_graves(int game, HWND owner) {
         return 0;
     }
     wsprintfA(text,
-                vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s3",
+                vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s0",
                         "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
                 rv_people[rv_chosen].name, rv_price_text(game),
                 rv_people[rv_chosen].grave >= 0

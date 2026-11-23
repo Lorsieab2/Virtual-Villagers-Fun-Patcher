@@ -112,6 +112,10 @@
 #define HA_FLAG_TRIBE "VVFP Heathen Aging Tribe.txt"
 #define HA_FLAG_BONES_FORMER "VVFP Heathen Skeletons Former.txt"
 #define HA_FLAG_BONES_ALL "VVFP Heathen Skeletons All.txt"
+/* "Heathens can be selected in Island Events/Heathen-Exclusive Events" (the owner, 2026-11-23): island events may
+   kill, take away or make pregnant an ordinary Heathen; this companion carries their deaths, replacements and
+   births (VvfpHeathenAgingEventGone, VvfpHeathenAgingEventPregnancy), whatever aging row is ticked. */
+#define HA_FLAG_EVENTS "VVFP Heathen Aging Events.txt"
 
 /* The villager record (vv5). */
 #define R_STRIDE 0x2F44u
@@ -194,7 +198,7 @@ typedef void (__stdcall *cod_died_fn)(int game, int index, int cause);
 typedef void (__stdcall *cod_arrived_fn)(int game, int index, const char *how);
 
 static int g_installed;
-static int g_former_row, g_tribe_row, g_bones_former, g_bones_all;
+static int g_former_row, g_tribe_row, g_bones_former, g_bones_all, g_events_row;
 static unsigned char *g_manager;
 static unsigned char *g_records;
 static unsigned int g_slots;
@@ -676,7 +680,9 @@ static int ages(const unsigned char *record) {
     if (record[R_FACTION] == 0 || !living(record)) {
         return 0;
     }
-    return g_tribe_row || (g_former_row && former_villager(record));
+    return g_tribe_row || (g_former_row && former_villager(record))
+        || (g_events_row && known_find(identity(record), KIND_EXPECTING) >= 0);   /* an event's pregnancy: until
+                                                                                   the birth, as a believer's */
 }
 
 /* The age credit, for a living record: 1 a believer (the stock add), 2 an aging Heathen (add here, then the
@@ -824,6 +830,9 @@ static int create_role(int role) {
    -38 - rand(30).  A replacement of one of those five keeps that Faith, so the camp is never harder to convert
    than the stock game's; any other gets -38 - rand(30). */
 static int g_replace_faith;
+static const char *g_replace_words;   /* the Arrived record's words (NULL: old age) */
+static const char *const REPLACED_OLD_AGE = "Replaced a Heathen who died of old age";
+static const char *const REPLACED_EVENT = "Replaced a Heathen lost in an island event";
 
 static int create_ordinary(int role, int orange, int red) {
     int faith = g_replace_faith;
@@ -842,15 +851,20 @@ static int replace(int role, unsigned char orange, unsigned char red) {
     if (index < 0) {
         return 0;
     }
-    tell_arrived(index, "Replaced a Heathen who died of old age");
+    tell_arrived(index, g_replace_words != NULL ? g_replace_words : REPLACED_OLD_AGE);
     return 1;
 }
 
 /* An owed replacement, packed into a file entry: bit 31 set, a number 0..255 (bits 20-27) keeping two alike
-   apart, the Faith kept (its negation, bits 8-15; 0: the camp's -38 - rand(30)), red (7), orange (6), the role (0-5). */
+   apart, how the one replaced was lost (bit 16: an island event, else old age -- its Arrived record says the real
+   cause when it is paid), the Faith kept (its negation, bits 8-15; 0: the camp's -38 - rand(30)), red (7), orange
+   (6), the role (0-5). */
+#define OWED_EVENT 0x10000u
+
 static unsigned int owed_pack(int role, int orange, int red, int faith, int number) {
     return 0x80000000u | ((unsigned int)(number & 0xFF) << 20) | ((unsigned int)(-faith & 0xFF) << 8)
-        | ((unsigned int)(red != 0) << 7) | ((unsigned int)(orange != 0) << 6) | (unsigned int)(role & 0x3F);
+        | ((unsigned int)(red != 0) << 7) | ((unsigned int)(orange != 0) << 6) | (unsigned int)(role & 0x3F)
+        | (g_replace_words == REPLACED_EVENT ? OWED_EVENT : 0u);
 }
 
 static int owed_count(void) {
@@ -893,11 +907,14 @@ static void pay_owed(void) {
         if (g_known[i].kind == KIND_OWED) {
             unsigned int packed = g_known[i].identity;
             g_replace_faith = -(int)((packed >> 8) & 0xFF);
+            g_replace_words = (packed & OWED_EVENT) ? REPLACED_EVENT : REPLACED_OLD_AGE;   /* the real cause */
             if (!replace((int)(packed & 0x3F), (unsigned char)((packed >> 6) & 1), (unsigned char)((packed >> 7) & 1))) {
                 g_replace_faith = 0;
+                g_replace_words = NULL;
                 return;
             }
             g_replace_faith = 0;
+            g_replace_words = NULL;
             known_drop(packed, KIND_OWED);
             i = g_known_count;             /* the list moved */
         }
@@ -910,26 +927,32 @@ static int keeps_body(const unsigned char *record) {
     return g_bones_all || (g_bones_former && former_villager(record));
 }
 
-static void tell_died(int index) {
+static void tell_died(int index, int cause) {
     HMODULE module = GetModuleHandleA("VVFP Cause of Death.dll");
     cod_died_fn told = module != NULL
         ? (cod_died_fn)(void *)GetProcAddress(module, "VvfpCauseDiedAmongHeathens") : NULL;
     if (told != NULL) {
-        told(HA_GAME, index, 2);
+        told(HA_GAME, index, cause);
     }
 }
 
-/* Old age took the Heathen in `record` (the roll said so; health not yet touched). */
-static void died(unsigned char *record) {
+/* The Heathen in `record` is gone (health not yet touched): `how` HA_DIED (a death with the game's `cause`: a body
+   when a skeleton row covers them, else a Death record and nothing left) or HA_TAKEN (taken with no body, the
+   caller's own record: an island event's disappearance).  Then the replacement.  2 a body was made, 1 not. */
+#define HA_DIED 0
+#define HA_TAKEN 1
+static int gone(unsigned char *record, int how, int cause) {
     known_drop(identity(record), KIND_EXPECTING);
     int role = i32(record, R_ROLE);
     int faith = i32(record, R_FAITH);
     unsigned char orange = record[R_ORANGE], red = record[R_RED];
     int former = former_villager(record);
     int index = rec_index(record);
-    if (keeps_body(record)) {
+    int body = how == HA_DIED && keeps_body(record);
+    if (body) {
         int deaths = *(volatile int *)(UINT_PTR)G_DEATHS_STAT;
-        ((tc2_fn)(UINT_PTR)G_SET_HEALTH)(record + R_HEALTH_BLOCK, NULL, 0, 2);
+        /* the game's own causes are 0..4 and -1; an island event's (Cause of Death's 5) is told by the event */
+        ((tc2_fn)(UINT_PTR)G_SET_HEALTH)(record + R_HEALTH_BLOCK, NULL, 0, cause >= -1 && cause <= 4 ? cause : -1);
         *(volatile int *)(UINT_PTR)G_DEATHS_STAT = deaths;     /* Heathens never count */
         if (puzzle_of_role(role) != 0) {
             *(int *)(record + R_ROLE) = 0;                       /* the role finder finds the new one */
@@ -940,15 +963,15 @@ static void died(unsigned char *record) {
             ((tc0_fn)(UINT_PTR)G_DESELECT)(g_manager, NULL);
         }
         record[R_PRESENT] = 0;
-        if (index >= 0) {
-            tell_died(index);
+        if (index >= 0 && how == HA_DIED) {
+            tell_died(index, cause);
         }
     }
     /* The owner (2026-11-23): once The Last Heathen is solved nobody is replaced (the camp empties over time);
        otherwise a camp Heathen is, and a puzzle Heathen while its puzzle is unsolved (replace), never a former
        villager -- a defection must not grow the camp. */
     if (puzzle_done(LAST_HEATHEN) || (former && puzzle_of_role(role) == 0) || living_heathens() == 0) {
-        return;                            /* (the last Heathen: none is ever made from nothing) */
+        return body ? 2 : 1;               /* (the last Heathen: none is ever made from nothing) */
     }
     if (puzzle_of_role(role) != 0) {
         /* the same role (replace: a new one while the puzzle is unsolved) */
@@ -957,10 +980,19 @@ static void died(unsigned char *record) {
     }
     g_replace_faith = !former && (faith == -5 || faith == -9 || faith == -16 || faith == -23 || faith == -30)
         ? faith : 0;
-    if (!replace(role, orange, red)) {
+    if (how == HA_TAKEN || !replace(role, orange, red)) {
+        /* An island event's disappearance (Codex on #852): its record is the caller's to log next, and the Cause of
+           Death companion needs it as it was left -- the presence byte cleared -- so the replacement is owed, made
+           at the next look (pay_owed), never in the record before the Disappeared record is written. */
         owe(role, orange, red, g_replace_faith);
     }
     g_replace_faith = 0;
+    return body ? 2 : 1;
+}
+
+/* Old age took the Heathen in `record` (the roll said so). */
+static void died(unsigned char *record) {
+    (void)gone(record, HA_DIED, 2);
 }
 
 /* ---- babies (the tribe row) -------------------------------------------------------------------------------- */
@@ -1086,12 +1118,12 @@ static int __cdecl unit(unsigned char *record) {
             died(record);
             return 1;
         }
-        if (g_tribe_row) {
+        if (g_tribe_row || g_events_row) {
             int conceived = i32(record, R_PREGNANT);
             if (conceived != 0 && i32(record, R_ROLE) != 17 && conceived + DELIVERY < processed
                 && known_find(identity(record), KIND_EXPECTING) >= 0 && !puzzle_done(LAST_HEATHEN)) {
                 deliver(record);
-            } else if (conceived == 0) {
+            } else if (conceived == 0 && g_tribe_row) {
                 maybe_conceive(record);
             }
         }
@@ -1185,6 +1217,81 @@ void __stdcall VvfpHeathenAgingVillageReset(int game, int slot) {
     memset(g_seen, 0, sizeof g_seen);
 }
 
+/* ---- island events (the owner, 2026-11-23: "Heathens CAN die, vanish and get pregnant from events") ------------
+
+   "VVFP Story Upgrades.dll" hands an island event's death or disappearance of an ordinary Heathen here, so it follows
+   the Heathens' own rules: a body only when a skeleton row covers them (else nothing is left, a Death record says so),
+   the statistics' death counter put back, and the replacement (a camp Heathen only, never a former villager, nobody
+   once The Last Heathen is solved, never from nothing).  `how` 0 a death (the game's `cause`), 1 taken with no body
+   (a disappearance or a death whose body is not recovered: the event's own record).  2 a body was made (the event
+   then tells its cause as for any villager), 1 taken, 0 not this companion's (not installed, not a living Heathen). */
+int __stdcall VvfpHeathenAgingEventGone(int game, int index, int how, int cause) {
+    int answer = 0;
+    unsigned char *record;
+    if (!g_installed || !g_events_row || game != HA_GAME || index < 0 || (unsigned int)index >= g_slots) {
+        return 0;
+    }
+    record = rec_at(index);
+    if (record[R_FACTION] == 0 || !living(record)) {
+        return 0;
+    }
+    __try {
+        g_replace_words = REPLACED_EVENT;
+        answer = gone(record, how == 1 ? HA_TAKEN : HA_DIED, cause);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        answer = 0;
+    }
+    g_replace_words = NULL;
+    return answer;
+}
+
+/* An island event's pregnancy of the ordinary Heathen in record `mother` -- only ever with a Heathen father (the
+   owner: never a Heathen and a believer): `father` a Heathen's record, or -1 for a random adult Heathen man of the
+   camp.  The game's own conception 0x465E00 (the twins counters put back: Heathens never count), the litter as the
+   event asks (1-3, as many as there is room for beside the village's own HA_ROOM_KEPT), and the mother kept as expecting a Heathen baby this companion
+   delivers 40 units later (she ages until then); `now` 1: born at once (a nursing baby).  Nothing once The Last
+   Heathen is solved (no Heathen baby is born then), with no room, no father or a pregnancy already.  The babies on
+   their way (or born), 0 none. */
+int __stdcall VvfpHeathenAgingEventPregnancy(int game, int mother, int father, int litter, int now) {
+    unsigned char *woman, *man;
+    int twins, triplets, babies = 0;
+    if (!g_installed || !g_events_row || game != HA_GAME || mother < 0 || (unsigned int)mother >= g_slots) {
+        return 0;
+    }
+    woman = rec_at(mother);
+    if (woman[R_FACTION] == 0 || !living(woman) || i32(woman, R_PREGNANT) != 0 || puzzle_done(LAST_HEATHEN)
+        || free_records() <= HA_ROOM_KEPT) {      /* the village's own births keep their records, as for the tribe's */
+        return 0;
+    }
+    man = father >= 0 && (unsigned int)father < g_slots ? rec_at(father) : random_man(woman);
+    if (man == NULL || man == woman || man[R_FACTION] == 0 || !living(man)) {
+        return 0;
+    }
+    __try {
+        twins = *(volatile int *)(UINT_PTR)G_TWINS;
+        triplets = *(volatile int *)(UINT_PTR)G_TRIPLETS;
+        ((tc7_fn)(UINT_PTR)G_CONCEIVE)(woman, NULL, i32(man, R_LINEAGE), 0, 0, (int)(UINT_PTR)(man + R_NAME),
+                                       i32(man, R_HEAD), i32(man, R_BODY), 1);
+        *(volatile int *)(UINT_PTR)G_TWINS = twins;
+        *(volatile int *)(UINT_PTR)G_TRIPLETS = triplets;
+        if (i32(woman, R_PREGNANT) == 0) {
+            *(int *)(woman + R_PREGNANT) = i32(woman, R_PROCESSED) > 0 ? i32(woman, R_PROCESSED) : 1;
+        }
+        babies = litter < 1 ? 1 : litter > 3 ? 3 : litter;
+        if (babies > free_records() - HA_ROOM_KEPT) {
+            babies = free_records() - HA_ROOM_KEPT;
+        }
+        *(int *)(woman + R_LITTER) = babies;
+        known_put(identity(woman), KIND_EXPECTING);
+        if (now) {
+            deliver(woman);                    /* (no room: she stays expecting, born later) */
+        }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        babies = 0;
+    }
+    return babies;
+}
+
 /* 1 when every site is installed, else 0. */
 int __stdcall VvfpHeathenAgingInstalled(void) {
     return g_installed;
@@ -1203,7 +1310,8 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
     g_tribe_row = vvfp_patcher_file_exists(HA_FLAG_TRIBE);
     g_bones_all = vvfp_patcher_file_exists(HA_FLAG_BONES_ALL);
     g_bones_former = !g_bones_all && vvfp_patcher_file_exists(HA_FLAG_BONES_FORMER);
-    if (!g_former_row && !g_tribe_row) {
+    g_events_row = vvfp_patcher_file_exists(HA_FLAG_EVENTS);
+    if (!g_former_row && !g_tribe_row && !g_events_row) {
         return;
     }
     vv5_villager_table((const unsigned char *)GetModuleHandleA(NULL), &manager_rva, &g_slots);

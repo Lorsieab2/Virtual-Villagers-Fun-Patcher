@@ -389,6 +389,23 @@ __declspec(dllexport) void __stdcall VvfpCauseKilledBy(int game, int index, cons
     VvfpCauseKilled(game, index);
 }
 
+/* New Believers' "Heathens can be selected in Island Events/Heathen-Exclusive Events" (story_graph.inc
+   cg_heathen_aging_gone): an island event is about to take the Heathen in record `index` with its author's own cause
+   `words`, and "VVFP Heathen Aging.dll" then writes their Death record with nothing left (VvfpCauseDiedAmongHeathens,
+   Cause of Death's custom-event cause): the words are kept for that record first, so the Death record says the
+   author's words, as a villager's would.  The record still lives here (the companion takes it next). */
+__declspec(dllexport) void __stdcall VvfpCauseWordsFor(int game, int index, const char *words) {
+    unsigned char *record;
+    if (install_state != 1 || game != g_game || words == NULL || words[0] == '\0') {
+        return;
+    }
+    record = cod_record(index);
+    if (record == NULL || !rec_present(record) || rec_health(record) <= 0 || !cod_is_villager(record)) {
+        return;
+    }
+    cw_add(cod_record_fingerprint(record), words);
+}
+
 /* The grave line of a death whose body was never recovered (docs/event-collection/cie-v6-binary.md 22): "no grave",
    so the Village Statistics' reconciliation never counts it as a burial. */
 #define NO_GRAVE_NOT_RECOVERED "no grave (the body was not recovered)"
