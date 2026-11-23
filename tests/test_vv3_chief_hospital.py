@@ -225,11 +225,12 @@ class ChiefHospitalVillageEmulated(unittest.TestCase):
 
     def _image(self, with_256: bool) -> bytes:
         try:
+            import pefile  # noqa: F401
             import unicorn  # noqa: F401
             import capstone  # noqa: F401
             import keystone  # noqa: F401
         except ImportError:
-            self.skipTest("needs unicorn, capstone and keystone")
+            self.skipTest("needs pefile, unicorn, capstone and keystone")
         if not STOCK_EXE.is_file():
             self.skipTest("needs the stock The Secret City executable")
         sys.path.insert(0, str(ROOT / "tests"))
@@ -237,8 +238,8 @@ class ChiefHospitalVillageEmulated(unittest.TestCase):
         return render("collection_progression", with_256)
 
     def _villages(self, with_256: bool) -> tuple[int, int]:
+        image = self._image(with_256)          # skips first without the emulation toolchain or the executable
         from story_emulator import Process
-        image = self._image(with_256)
         p = Process(image, DLL)
         p.export("VvfpStartup", 3, 0)
         self.assertEqual(p.read(SITE, 1), b"\xE9")                 # installed

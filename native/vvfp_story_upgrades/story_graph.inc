@@ -309,6 +309,8 @@ enum { CG_GROUP_ALL = 1,              /* every living, listed villager (New Beli
        CG_GROUP_ADULTS = 7 };         /* ... every adult, 18 or more */
 #define CG_GROUP_SKILL_MIN 50
 #define CG_SKILL_BEST 32u             /* skill / skill_set flags: the villager's own highest skill, not the list's */
+#define CG_HEALTH_RESTORE 1u          /* health_change flags (cie-v6-binary.md 25a): a..b PERCENT of the health this
+                                         villager's earlier health_change on the run really took, given back */
 #define CG_NEW_CHILD_OF_NEWEST 1u     /* new_villager flags: its parents are the two newest (253, 252); it does not
                                          become the newest itself, so brothers and sisters share them */
 /* CG_DONE: every page shown, the file kept until a save holds the last page's effects (a crash before it must
@@ -1496,7 +1498,13 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             case CGE_CELEBRATE: ok = a == 0 && b == 0 && str == CG_NONE; break;
             case CGE_ACTION: ok = a == 0 && b == 0 && str != CG_NONE && cg_str_ok(g, str, 0); break;
             case CGE_MOOD: ok = (a == 1 || a == -1) && b == 0 && str == CG_NONE; break;
-            case CGE_HEALTH_CHANGE: ok = a >= -100 && b >= a && b <= 100 && str == CG_NONE; break;
+            case CGE_HEALTH_CHANGE:
+                ok = str == CG_NONE && (e[2] & ~CG_HEALTH_RESTORE) == 0
+                     && ((e[2] & CG_HEALTH_RESTORE)
+                         ? (a >= 1 && b >= a && b <= 100 && e[1] != CG_ROLE_GROUP && e[1] != CG_ROLE_NEWEST
+                            && e[1] != CG_ROLE_NEWEST2 && e[1] != CG_ROLE_ALIAS_ALL)
+                         : (a >= -100 && b >= a && b <= 100));
+                break;
             case CGE_SKILL_SET: ok = a >= 0 && a <= 100 && b == 0; break;
             case CGE_DAMAGE:
                 ok = e[1] == CG_ROLE_ALIAS_ALL && a >= 1 && b >= a && b <= 100 && str != CG_NONE
@@ -6851,6 +6859,16 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
     cg_group_line(a, e, va);
 }
 
+/* 25a: the villager (record index, -1 none) whose health the last health_change made took `cg_lost_health`. */
+static int cg_lost_index = -1;
+static int cg_lost_health;
+
+/* What a health_change "restore" gives back: `percent` of the health `lost` (rounded; src/vv_cie_graph.py
+   restored). */
+static int cg_restored(int lost, int percent) {
+    return lost > 0 && percent > 0 ? (lost * percent + 50) / 100 : 0;
+}
+
 /* One effect on one villager (`record`, record `index`, `name` for the log): a cast role's (`role`), or a group's
    member or a villager this event made (`role` -1). */
 static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, ce_result *r,
@@ -7191,6 +7209,11 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
     case CGE_HEALTH_CHANGE: {
         int now = cg_health_now(game, record);
         int value = now + (role >= 0 ? cg_told_amount(va) : va);   /* a cast villager: exactly what the page states */
+        int restore = (e[2] & CG_HEALTH_RESTORE) != 0;
+        if (restore && !(role >= 0 && cg_told_known())) {
+            /* 25a with no stated amount (a run restored after a quit): va is the percent of this villager's last loss */
+            value = now + (index == cg_lost_index ? cg_restored(cg_lost_health, va) : 0);
+        }
         if (a->set_health == NULL) {
             ce_refuse(r, CE_WHY_OTHER);
             if (role >= 0) {
@@ -7202,6 +7225,11 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         if ((va > 0 && value < now) || (va < 0 && value > now)) {
             value = now;               /* above the top already: a gain never lowers it */
         }
+        if (restore && value < now) {
+            value = now;               /* a restore never takes */
+        }
+        cg_lost_index = restore || value >= now ? -1 : index;   /* 25a: what a later "restore" gives a share of */
+        cg_lost_health = value < now ? now - value : 0;
         c->health = value;
         told_health = 1;
         told_before = now;
@@ -7845,6 +7873,7 @@ static int cg_applied(long long *store, int v) {
 #define CG_SIM 24
 static struct {
     int who, what, value;
+    int lost;                          /* health: what its last health_change took (25a "restore"), 0 none */
 } cg_sim[CG_SIM];
 static int cg_sim_n;
 
@@ -7854,15 +7883,16 @@ static int cg_sim_n;
 static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, int va, int vb) {
     int rolled = e[0] == CGE_SKILL ? vb : e[0] == CGE_HEALTH_CHANGE ? va : (game == 5 ? (int)cg_u32(e + 4) : 0);
     int who, what, now, d = rolled, lo, hi, after, i;
+    int restore = e[0] == CGE_HEALTH_CHANGE && (e[2] & CG_HEALTH_RESTORE);   /* rolled is a percent (25a) */
     const unsigned char *record;
     if (a == NULL || e[1] == CG_ROLE_GROUP || e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2
         || e[1] == CG_ROLE_ALIAS_ALL) {
-        return rolled;
+        return restore ? 0 : rolled;
     }
     who = cg_resolve_role(e[1]);
     record = who >= 0 ? cg_villager(a, who) : NULL;
     if (record == NULL) {
-        return rolled;
+        return restore ? 0 : rolled;
     }
     switch (e[0]) {
     case CGE_SKILL:
@@ -7899,6 +7929,9 @@ static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, i
     if (i < cg_sim_n) {
         now = cg_sim[i].value;
     }
+    if (restore) {                     /* 25a: a share of what the earlier change really took */
+        d = cg_restored(i < cg_sim_n ? cg_sim[i].lost : 0, rolled);
+    }
     after = now + d;
     after = after < lo ? lo : (after > hi ? hi : after);
     if ((d > 0 && after < now) || (d < 0 && after > now)) {
@@ -7906,10 +7939,14 @@ static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, i
     }
     if (i == cg_sim_n && cg_sim_n < CG_SIM) {
         cg_sim[cg_sim_n].who = who;
+        cg_sim[cg_sim_n].lost = 0;
         cg_sim[cg_sim_n++].what = what;
     }
     if (i < CG_SIM) {
         cg_sim[i].value = after;
+        if (what == 100) {
+            cg_sim[i].lost = restore || after >= now ? 0 : now - after;
+        }
     }
     return after - now;
 }
@@ -8480,6 +8517,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg_after[0] = '\0';
     cg_fix_count = 0;
+    cg_lost_index = -1;                /* 25a: a "restore" shares in a loss made with it, never an older one */
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     {

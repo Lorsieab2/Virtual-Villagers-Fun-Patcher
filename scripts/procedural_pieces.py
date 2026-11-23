@@ -117,6 +117,8 @@ def encode_effect(e: dict, idx: dict[str, int]) -> Effect:
         a = cg.STATUS_CODES[e["status"]]
     elif do in ("health", "health_change", "damage"):
         a, b = e["min"], e["max"]
+        if do == "health_change" and e.get("restore"):
+            flags |= cg.HEALTH_RESTORE_FLAG
         if do == "damage":
             st = cg.DAMAGE_ANY if e["structures"] == cg.DAMAGE_ANY else ",".join(e["structures"])
     elif do == "preference":
