@@ -2151,16 +2151,16 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
             out.append((run[0], run[most - 1]))
             run = run[most - 1:]
         out.append((run[0], run[-1]))
-    # A page that would show nobody -- everyone on it hidden there, on the tree or by the page itself (a
-    # generation hidden on the tree and restored only on another page) -- is no page at all: the owner never
-    # wants a blank page.  Its generations are hidden there, so nothing shown is lost.
-    kept = [(lo, hi) for lo, hi in out if _page_shows_someone(edits, village, lo, hi)]
+    # A page of nobody the tree shows -- its villagers all hidden on the tree (a generation hidden on the tree
+    # and restored only on another page) -- is no page at all: the owner never wants a blank page.  A page the
+    # player emptied on that page alone (Delete there) stays, so Deleted items -> Restore can bring them back.
+    kept = [(lo, hi) for lo, hi in out if _page_keeps_someone(edits, village, lo, hi)]
     return kept or out[:1]
 
 
-def _page_shows_someone(edits: Edits, village: gen.Village, lo: int, hi: int) -> bool:
-    """Whether the page from `lo` to `hi` (its name in page_edits: `lo`, page_key) shows anyone: someone
-    there not hidden on it (that page's own hidden, when it has one, else the tree's)."""
+def _page_keeps_someone(edits: Edits, village: gen.Village, lo: int, hi: int) -> bool:
+    """Whether the page from `lo` to `hi` (its name in page_edits: `lo`, page_key) has anyone: someone there
+    the tree does not hide, or whom the page itself shows or hides (the player's doing on that page)."""
     part = edits.page_edits.get(str(lo))
     own = part.get("entries", {}) if isinstance(part, dict) else {}
     if not own and not any(isinstance(f, dict) and f.get("hidden") for f in edits.entries.values()):
@@ -2169,11 +2169,46 @@ def _page_shows_someone(edits: Edits, village: gen.Village, lo: int, hi: int) ->
         if lo <= p.generation <= hi:
             key = entry_key(village, p)
             here = own.get(key)
-            hidden = here["hidden"] if isinstance(here, dict) and "hidden" in here else \
-                (edits.entries.get(key) or {}).get("hidden")
-            if not hidden:
+            if not (edits.entries.get(key) or {}).get("hidden") or isinstance(here, dict) and "hidden" in here:
                 return True
     return False
+
+
+def _merge_page_part(into: dict, part: dict) -> None:
+    """One page's own edits added to another's; what the page already keeps wins (nothing is overwritten)."""
+    for name, value in part.items():
+        if isinstance(value, dict):
+            have = into.setdefault(name, {})
+            for k, v in value.items():
+                if isinstance(v, dict) and isinstance(have.get(k), dict):
+                    for f, x in v.items():
+                        have[k].setdefault(f, x)
+                else:
+                    have.setdefault(k, v)
+        elif isinstance(value, list):
+            have = into.setdefault(name, [])
+            have.extend(x for x in value if x not in have)
+        else:
+            into.setdefault(name, value)
+
+
+def rekey_pages(edits: Edits, village: gen.Village) -> bool:
+    """A page's own edits are kept under its first generation (page_key).  When the pages are cut differently
+    (a tree that once had a page for every six generation numbers -- the owner's 36 and 41 -- now has pages of
+    the generations someone is in), each page's edits a page no longer starts at go to the page that now holds
+    that generation (the first or last page past either end), added to what it keeps, so nothing the player
+    placed disappears.  True when the edits changed (to be saved)."""
+    spans = page_spans(edits, village)
+    starts = {lo for lo, _hi in spans}
+    orphans = sorted(int(k) for k in edits.page_edits if str(k).isdigit() and int(k) not in starts)
+    if not orphans:
+        return False
+    for g in orphans:
+        part = edits.page_edits.pop(str(g))
+        to = next((lo for lo, hi in spans if lo <= g <= hi), spans[0][0] if g < spans[0][0] else spans[-1][0])
+        _merge_page_part(edits.page_edits.setdefault(str(to), {}), part)
+    edits.page_edits = clean_page_edits(edits.page_edits)
+    return True
 
 
 def shown_generations(edits: Edits, village: gen.Village) -> list[int]:
@@ -8852,6 +8887,7 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
     if edits.hide_heathens:                     # "Hide unconverted Heathens": the pictures as the editor shows it
         village = gen.without_heathens(village)
     arrange(village, edits)
+    rekey_pages(edits, village)                 # each page's own edits on the page that holds them now
     return village, edits, layout(village, edits)
 
 

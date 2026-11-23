@@ -3191,6 +3191,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.history.clear()
             self.future.clear()
             self.last_state = self._state()
+        # A page's own edits kept under a page the tree no longer has (its pages cut differently now) go to
+        # the page that holds that generation, once, and are saved (ft.rekey_pages).
+        ft.arrange(self.village, self.edits)
+        if ft.rekey_pages(self.edits, self.village):
+            self.dirty = True
+            self.history.clear()
+            self.future.clear()
+            self.last_state = self._state()
         self._auto_marks()                      # under the keys the villagers have now
         changed = [p for p in self.village.known() if p.old_looks and "look" not in self._entry(p)]
         if changed:

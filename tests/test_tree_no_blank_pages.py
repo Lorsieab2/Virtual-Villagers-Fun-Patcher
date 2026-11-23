@@ -173,7 +173,9 @@ class NoBlankPagesTests(unittest.TestCase):
                 self.assertEqual(ft.layout(v, edits, 0).pages, 1)
                 self.assertIn(2, page_generations(ft.layout(v, edits, 0)))
 
-    def test_a_page_whose_villagers_are_all_hidden_on_it_is_no_page(self) -> None:
+    def test_a_page_the_player_emptied_on_that_page_stays_so_restore_can_reach_it(self) -> None:
+        # Deletes in the window are the shown page's own, and Deleted items -> Restore acts on the shown page:
+        # a page the player emptied there must stay, or its deletions could not be restored.
         for game in GAMES:
             with self.subTest(game=game):
                 v = chain_village(game, list(range(1, 13)))
@@ -181,12 +183,58 @@ class NoBlankPagesTests(unittest.TestCase):
                 ft.arrange(v, edits)
                 hide = {ft.entry_key(v, p): {"hidden": True} for p in v.people.values() if p.generation >= 11}
                 edits.page_edits = ft.clean_page_edits({"11": {"entries": hide}})
-                self.assertEqual(self.assert_no_blank_page(v, edits), [(1, 6), (6, 11)])
+                self.assertEqual(ft.page_spans(edits, v), [(1, 6), (6, 11), (11, 12)])
+                self.assertEqual(ft.page_key(edits, v, 2), 11)
+                self.assertEqual(ft.layout(v, edits, 2).pages, 3)
+                # Restored there (hidden: None on that page), they are on it again.
+                edits.page_edits = ft.clean_page_edits({"11": {"entries": {k: {"hidden": None} for k in hide}}})
+                self.assertEqual(page_generations(ft.layout(v, edits, 2)), {11, 12})
+
+    def test_a_page_s_own_edits_follow_their_generation_when_the_pages_are_cut_anew(self) -> None:
+        # Page edits are kept under the page's first generation.  The owner's tree had pages starting at 36 and
+        # 41 (one for every six generation numbers); its pages now start at I, VI and XLIV.
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = chain_village(game, GAPPED)
+                edits = ft.Edits()
+                ft.arrange(v, edits)
+                someone = ft.entry_key(v, next(p for p in v.people.values() if p.generation == 41))
+                edits.page_edits = ft.clean_page_edits({
+                    "6": {"moved": {"s1": [9, 9]}},
+                    "11": {"free_lines": ["a"]},
+                    "36": {"moved": {"s1": [1, 2], "s2": [3, 4]}, "free_lines": ["a", "b"]},
+                    "41": {"entries": {someone: {"hidden": True}}},
+                    "99": {"moved": {"s3": [5, 6]}}})
+                self.assertTrue(ft.rekey_pages(edits, v))
+                self.assertEqual(sorted(edits.page_edits, key=int), ["6", "44"])
+                six = edits.page_edits["6"]
+                self.assertEqual(six["moved"], {"s1": [9, 9], "s2": [3, 4]})     # the page's own kept
+                self.assertEqual(six["free_lines"], ["a", "b"])
+                self.assertEqual(six["entries"], {someone: {"hidden": True}})
+                self.assertEqual(edits.page_edits["44"]["moved"], {"s3": [5, 6]})   # past the end: the last page
+                self.assertFalse(ft.rekey_pages(edits, v))                       # once
+                hidden_pid = next(q for q, p in v.people.items() if ft.entry_key(v, p) == someone)
+                self.assertNotIn(hidden_pid, ft.layout(v, edits, 1).x)        # still deleted on the page holding XLI
 
     def test_the_window_refuses_a_page_break_at_a_generation_of_nobody(self) -> None:
-        source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
-        body = source[source.index("    def _add_page_break("):source.index("    def _remove_page_break(")]
-        self.assertIn("ft.shown_generations(self.edits, self.village)", body)
+        from types import SimpleNamespace
+        from unittest import mock
+        import vv_genealogy_window as gw
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = chain_village(game, GAPPED)
+                edits = ft.Edits()
+                ft.arrange(v, edits)
+                fake = SimpleNamespace(break_var=SimpleNamespace(get=lambda: "20"), village=v, edits=edits,
+                                       status=mock.Mock(), _saved=mock.Mock())
+                gw.TreeEditor._add_page_break(fake)
+                self.assertEqual(edits.pages, [])
+                fake._saved.assert_not_called()
+                self.assertIn("Nobody is in generation XX", fake.status.set.call_args[0][0])
+                fake.break_var = SimpleNamespace(get=lambda: "42")
+                gw.TreeEditor._add_page_break(fake)
+                self.assertEqual(edits.pages, [42])
+                fake._saved.assert_called_once()
 
 
 if __name__ == "__main__":
