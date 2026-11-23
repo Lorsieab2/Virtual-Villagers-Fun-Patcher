@@ -218,6 +218,64 @@ class ChiefHospitalChainInTheStockExecutable(unittest.TestCase):
         self.assertIn("game != VV3_GAME", source)
 
 
+class ChiefHospitalVillageEmulated(unittest.TestCase):
+    """The supervision roll (0x45FC60) and the chief lookup (0x45EF30) are asked on the village the running
+    executable uses: 0x59E110 stock, 0x800000 with 256 Villagers (Experimental), whose manager moves and whose
+    lookups walk 256 records -- from the dead stock object they would read past it."""
+
+    def _image(self, with_256: bool) -> bytes:
+        try:
+            import unicorn  # noqa: F401
+            import capstone  # noqa: F401
+            import keystone  # noqa: F401
+        except ImportError:
+            self.skipTest("needs unicorn, capstone and keystone")
+        if not STOCK_EXE.is_file():
+            self.skipTest("needs the stock The Secret City executable")
+        sys.path.insert(0, str(ROOT / "tests"))
+        from vv3_population_256_harness import render
+        return render("collection_progression", with_256)
+
+    def _villages(self, with_256: bool) -> tuple[int, int]:
+        from story_emulator import Process
+        image = self._image(with_256)
+        p = Process(image, DLL)
+        p.export("VvfpStartup", 3, 0)
+        self.assertEqual(p.read(SITE, 1), b"\xE9")                 # installed
+        seen = {}
+
+        def roll(q):            # stdcall(site), ecx the village: passes
+            seen["roll"] = q.reg("ecx")
+            return 1, 4
+
+        def chief(q):           # fastcall(village): no living chief
+            seen["chief"] = q.reg("ecx")
+            return 0, 0
+
+        # The cure: a failed Healing roll (al = 0) asks the chief's roll for the hospital.
+        p.stub(0x45FC60, roll)
+        p.set_reg("esp", 0x0FEFF000)
+        p.set_reg("eax", 0)
+        p.run(SITE, 0x4573A2)
+        # The study bonus: a healer studying medicine (0xBD) at the study step asks for the living chief.
+        p.stub(0x45EF30, chief)
+        healer = p.alloc(0x1F8C)
+        p.put32(healer + 0xF24, 0xBD)
+        esp = 0x0FEFF000
+        p.put32(esp + 0x1C, STUDY_STEP_RETURN)
+        p.set_reg("esp", esp)
+        p.set_reg("eax", 3)
+        p.set_reg("esi", healer)
+        p.run(0x45A753, 0x45A75C)
+        return seen["roll"], seen["chief"]
+
+    def test_the_stock_build_asks_the_stock_village(self):
+        self.assertEqual(self._villages(False), (0x59E110, 0x59E110))
+
+    def test_the_256_build_asks_the_relocated_village(self):
+        self.assertEqual(self._villages(True), (0x800000, 0x800000))
+
+
 class ChiefHospitalGuide(unittest.TestCase):
 
     def test_the_guide_has_an_entry_for_the_row(self):
