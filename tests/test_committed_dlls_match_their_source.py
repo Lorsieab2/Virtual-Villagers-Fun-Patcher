@@ -8,9 +8,9 @@ notices when one of them is stale -- a merge that keeps the older binary
 silently ships (or tests) code the source no longer contains.
 
 This re-runs each build script in a throwaway copy of the project (its native
-source folders, native/shared, the icons its resources name and the script
-itself), so nothing in this checkout is written, and compares every DLL the
-script produces with the committed file of the same relative path. Every
+source folders, every native folder those sources #include, native/shared,
+the icons its resources name and the script itself), so nothing in this
+checkout is written, and compares every DLL the script produces with the committed file of the same relative path. Every
 script links with /Brepro and embeds no path or date
 (tests/test_dll_builds_are_deterministic.py), so the comparison is the whole
 file, not selected sections: the earlier version of this test masked the link
