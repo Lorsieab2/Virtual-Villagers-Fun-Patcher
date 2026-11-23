@@ -1933,6 +1933,11 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         plan_apprentice(folder, game, slot, game_folders),
         plan_esteemed(folder, game, slot, people, current, game_folders),
     ]
+    # New Believers: the mask a villager wore when they rejoined the tribe, given back once (the owner,
+    # 2026-11-22; src/vv5_rejoined_masks.py) -- listed here, so the player sees who before approving.
+    if game == 5:
+        import vv5_rejoined_masks
+        kinds.append(vv5_rejoined_masks.plan_kind(folder, slot, game_folders))
     import vv_log_contradictions
     kinds.append(vv_log_contradictions.plan(folder, game, slot))
     # Unaccounted records an older build wrote by record number, contradicted by identity (v1.35.80).

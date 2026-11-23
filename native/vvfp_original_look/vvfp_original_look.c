@@ -180,6 +180,20 @@ static int ol_save_written(int slot, FILETIME *out) {
     return 1;
 }
 
+/* The Tree of Life's and New Believers' "Select 5 villagers" screen is open: the save manager's scene (the same
+   singleton as its slot, native/shared/game_save_slot.h) is 3 until the fifth Select starts the game (VV4
+   [0x4CB51C]+0x171A8, VV5 [0x4DACE0]+0x17E1C: native/vvfp_cause_of_death cod_creation_save.inc
+   founder_screen_open, native/population_export founder_screen_open). */
+static int ol_founder_screen(void) {
+    static const unsigned int SCENE[6] = { 0, 0, 0, 0, 0x171A8u, 0x17E1Cu };
+    const unsigned char *manager;
+    if (g_game < 1 || g_game > 5 || SCENE[g_game] == 0u) {
+        return 0;
+    }
+    manager = *VV_GAME_SAVE_MANAGER_AT(g_game);
+    return manager != NULL && *(const volatile unsigned int *)(manager + SCENE[g_game]) == 3u;
+}
+
 #include "original_look_store.inc"
 
 /* VILLAGERS RENAMED AS THE VILLAGE LOADED (native/shared/villager_rekey.h): "VVFP Last Names.dll" names

@@ -2438,6 +2438,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.status.set(f"A new page can start at generation {gens[0] + 1} to {gens[-1]}." if len(gens) > 1
                             else "This tree has one generation: it fits one page.")
             return
+        if g not in ft.shown_generations(self.edits, self.village):    # a page of nobody would be blank
+            self.status.set(f"Nobody is in generation {gen.roman(g)}: a new page starts at a generation the tree shows.")
+            return
         if g in self.edits.pages:
             return
         self.edits.pages = sorted(self.edits.pages + [g])
@@ -3184,6 +3187,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         moved = ft.full_name_edits(self.edits, self.village)
         if moved is not self.edits:
             self.edits = moved
+            self.dirty = True
+            self.history.clear()
+            self.future.clear()
+            self.last_state = self._state()
+        # A page's own edits kept under a page the tree no longer has (its pages cut differently now) go to
+        # the page that holds that generation, once, and are saved (ft.rekey_pages).
+        ft.arrange(self.village, self.edits)
+        if ft.rekey_pages(self.edits, self.village):
             self.dirty = True
             self.history.clear()
             self.future.clear()

@@ -18,7 +18,9 @@ taken), but what the callers did with that -1 lost villagers and spent things
     has no record left;
   * New Believers' Reanimate (0x42341A) made its stand-in with no record
     check and crashed on a NULL record with every record taken: it is now
-    refused, nothing spent, like a cast with no free spell slot, and says
+    refused, nothing spent, while every record is occupied (the stand-in is
+    freed when the villager has risen, so the babies still owed are not
+    counted here), like a cast with no free spell slot, and says
     why in the gray message bar ("There's no room in your village to revive
     this person.") as the game's own god-power refusals say theirs;
   * The Secret City's amber Mysterious Vial (two copies) asked for no record
@@ -305,8 +307,14 @@ def layout(game: str):
         place("room", lambda: room_wrapper(g, 0x4713F0, 0x4944C0))
         place("delivery", lambda: delivery(g, 0x10, 0x14, names["occupied"]))
         place("reanimate_text", lambda: REANIMATE_NO_ROOM.encode("ascii") + b"\0")
+        # The stand-in holds its record only while the villager rises (4 seconds: 0x420142
+        # clears its active byte; the dead villager keeps its own record and is revived in
+        # it), so the spell needs one record free NOW: the occupied records, not the
+        # records' demand.  Counting the babies still owed refused it with free records
+        # (v1.35.97: Population 255 of 256 = 242 living + 13 owed, one body, 13 records
+        # free).  A delivery due in those seconds waits for the record, its pregnancy kept.
         place("reanimate", lambda: f"""
-            call 0x4944C0
+            call {names['occupied']:#x}
             cmp eax, {g['slots']:#x}
             jb ok
             push 0xFF

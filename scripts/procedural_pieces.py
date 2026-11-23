@@ -862,7 +862,7 @@ def build(write: bool = True) -> dict[str, list[Piece]]:
 _SPLIT: list = []
 
 GO_SEEDS = ROOT / "data" / "procedural_pieces" / "go_seeds.json"
-GO_TOKENS = {"made1", "made2", "award", "award_unit"}     # placeholders that name no cast role
+GO_TOKENS = {"made1", "made2", "award", "award_unit", "award2"}     # placeholders that name no cast role
 GO_TAGS = {"minor": vp.TAG_MINOR, "romance": vp.TAG_ROMANCE, "power": vp.TAG_POWER,
            "invalidating": vp.TAG_INVALIDATING, "lesser": vp.TAG_LESSER}
 
