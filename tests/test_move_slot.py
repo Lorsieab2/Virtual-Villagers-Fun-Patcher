@@ -472,7 +472,8 @@ class GuiWiringTests(unittest.TestCase):
         self.assertIn('value="move"', body)
         self.assertIn("confirm_and_move(\n                ask_yes_no, ask_preview,", body)
         self.assertNotIn("vv_move_slot.move_slot(", body)        # only through the questions
-        self.assertIn('"Move..." if move else "Copy..."', body)
+        self.assertIn('verb = "delete" if delete else "move" if move else "copy"', body)
+        self.assertIn('copy_button.configure(text=verb.capitalize() + "...")', body)
 
 
 import unittest.mock  # noqa: E402  (used above)

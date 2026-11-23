@@ -23,12 +23,14 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 import vv_copy_slot
+import vv_delete_slot
 import vv_move_slot
 import vv_save_backup
 import vv_tribe_rename
 
 TITLE = "Copy Player Slot"
 MOVE_TITLE = vv_move_slot.TITLE
+DELETE_TITLE = vv_delete_slot.TITLE
 # The most set-aside leftover files named one by one in the question; the rest are counted.
 SHOWN_LEFTOVERS = 25
 
@@ -169,14 +171,14 @@ def preview_lines(plan: vv_move_slot.Plan, when: datetime) -> list[str]:
     return lines
 
 
-def ask_preview(parent, title: str, message: str, lines: list[str]) -> bool:
+def ask_preview(parent, title: str, message: str, lines: list[str], question: str = "Move it?") -> bool:
     """Yes / No under a scrolled list of every change; No the default (Return, Escape and closing say No)."""
-    top, answer = build_preview(parent, title, message, lines)
+    top, answer = build_preview(parent, title, message, lines, question)
     top.wait_window()
     return answer["yes"]
 
 
-def build_preview(parent, title: str, message: str, lines: list[str]):
+def build_preview(parent, title: str, message: str, lines: list[str], question: str = "Move it?"):
     """The preview window and its answer ({"yes": False} until Yes is chosen); `ask_preview` waits."""
     top = tk.Toplevel(parent)
     top.title(title)
@@ -199,7 +201,7 @@ def build_preview(parent, title: str, message: str, lines: list[str]):
     box.columnconfigure(0, weight=1)
     listing.insert("1.0", "\n".join(lines))
     listing.configure(state="disabled")
-    ttk.Label(frame, text="Move it?").pack(anchor="w", pady=(8, 0))
+    ttk.Label(frame, text=question).pack(anchor="w", pady=(8, 0))
     buttons = ttk.Frame(frame)
     buttons.pack(anchor="e", pady=(12, 0))
 
@@ -221,6 +223,53 @@ def build_preview(parent, title: str, message: str, lines: list[str]):
     except tk.TclError:
         pass
     return top, answer
+
+
+def delete_text(folder: Path, plan: vv_delete_slot.Plan) -> str:
+    """The delete's question above the list of every file (the patchers' shared words)."""
+    village = plan.name or "an unreadable village"
+    backups = sum(1 for g in plan.groups if g.where and g.aside is None)
+    asides = sum(1 for g in plan.groups if g.aside is not None)
+    text = (f"Every file of Save {plan.slot} ({village}) goes to the Recycle Bin: its save, the game's older copies "
+            f"of it, its logs, data, family trees and repair copies, and its files in {backups} backup(s)")
+    text += f" and {asides} folder(s) of files it replaced." if asides else "."
+    text += (f" Pictures stay where they are. Other slots are not touched. No new backup is made: anything can be "
+             f"put back from the Recycle Bin. ({folder})")
+    return text + f"\n\n{len(plan.files)} file(s) to the Recycle Bin, {len(plan.pictures)} picture(s) kept:"
+
+
+def delete_final_text(plan: vv_delete_slot.Plan) -> str:
+    """The second, explicit question, naming the village."""
+    village = plan.name or "the unreadable village"
+    return (f"Delete {village} from Save {plan.slot}? Its {len(plan.files)} file(s), in this save folder and in "
+            "its backups, go to the Recycle Bin. Delete it?")
+
+
+def confirm_and_delete(
+    ask: Callable[..., bool],
+    preview: Callable[..., bool],
+    run: Callable[[Callable[[], vv_delete_slot.DeleteResult]], vv_delete_slot.DeleteResult],
+    game: vv_tribe_rename.GameSaves,
+    folder: Path,
+    source: vv_tribe_rename.SlotInfo,
+    parent=None,
+    processes=None,
+    now: datetime | None = None,
+    recycle=None,
+) -> vv_delete_slot.DeleteResult | None:
+    """Refused at once while the game runs.  Every file is listed first; then a second question names the
+    village.  Only Yes to both sends exactly what was listed to the Recycle Bin.  None when the player said
+    No: then nothing at all changed."""
+    vv_delete_slot._refuse_if_running(Path(folder), processes if processes is not None
+                                      else vv_save_backup.WindowsProcesses())
+    plan = vv_delete_slot.plan_delete(game, folder, source.slot)
+    if not preview(parent, DELETE_TITLE, delete_text(folder, plan), plan.preview(), "Delete it?"):
+        return None
+    if not ask(parent, DELETE_TITLE, delete_final_text(plan)):
+        return None
+    shown = plan.signature()
+    return run(lambda: vv_delete_slot.delete_slot(game, folder, source.slot, processes=processes, now=now,
+                                                  expected=shown, recycle=recycle))
 
 
 def confirm_and_move(
@@ -280,7 +329,10 @@ def open_copy_slot(app, build) -> None:
             "Move instead takes the village itself, keeping its name, to the other slot with everything "
             "tied to its slot -- its save and the game's older copies of it, its logs, data, family trees "
             "and repair copies -- and leaves its slot empty. You see every file before saying Yes; the "
-            "folder is backed up first (listed as \"before move\")."
+            "folder is backed up first (listed as \"before move\").\n\n"
+            "Delete sends every file of a slot -- its save, logs, data, family trees, repair copies and its "
+            "files inside every backup -- to the Recycle Bin, where it can be put back. Pictures stay. You "
+            "see every file and are asked twice."
         ),
         wraplength=560, justify="left",
     ).grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 10))
@@ -305,6 +357,9 @@ def open_copy_slot(app, build) -> None:
     move_choice = ttk.Radiobutton(modes, text="Move (the same village and all its files; its slot is left empty)",
                                   value="move", variable=mode_var)
     move_choice.pack(anchor="w")
+    delete_choice = ttk.Radiobutton(modes, text="Delete (every file of the slot to the Recycle Bin; pictures stay)",
+                                    value="delete", variable=mode_var)
+    delete_choice.pack(anchor="w")
     from_label = ttk.Label(frame, text="Copy from:")
     from_label.grid(row=4, column=0, sticky="w")
     source_box = ttk.Combobox(frame, textvariable=source_var, state="readonly", width=48)
@@ -352,23 +407,30 @@ def open_copy_slot(app, build) -> None:
     def moving() -> bool:
         return mode_var.get() == "move"
 
+    def deleting() -> bool:
+        return mode_var.get() == "delete"
+
     def refresh(*_args) -> None:
         saves = game()
-        move = moving()
+        move, delete = moving(), deleting()
+        verb = "delete" if delete else "move" if move else "copy"
         name = name_var.get()
-        from_label.configure(text="Move from:" if move else "Copy from:")
-        to_label.configure(text="Move to:" if move else "Copy to:")
-        name_entry.configure(state="disabled" if move else "normal")
-        counter_var.set("(the village keeps its name)" if move else f"{len(name)} / {saves.max_length} characters")
-        counter.configure(foreground="#a01010" if not move and len(name) > saves.max_length else "")
-        copy_button.configure(text="Move..." if move else "Copy...")
+        from_label.configure(text="Delete:" if delete else "Move from:" if move else "Copy from:")
+        to_label.configure(text="" if delete else "Move to:" if move else "Copy to:")
+        target_box.configure(state="disabled" if delete else "readonly")
+        name_entry.configure(state="disabled" if move or delete else "normal")
+        counter_var.set("" if delete else "(the village keeps its name)" if move
+                        else f"{len(name)} / {saves.max_length} characters")
+        counter.configure(foreground="#a01010" if not (move or delete) and len(name) > saves.max_length else "")
+        copy_button.configure(text=verb.capitalize() + "...")
         source, target = chosen()
         problem = None
         if not state["folders"]:
             problem = "No save folder was found for this game."
         elif source is None:
-            problem = ("This save folder has no player to " + ("move" if move else "copy")
-                       + " (no slot has a save the game can load).")
+            problem = f"This save folder has no player to {verb} (no slot has a save the game can load)."
+        elif delete:
+            pass
         elif target is None:
             problem = "Choose the slot to " + ("move" if move else "copy") + " to."
         elif move:
@@ -379,7 +441,7 @@ def open_copy_slot(app, build) -> None:
             if problem is None and name in taken_names(target):
                 problem = vv_copy_slot.name_taken_message(name, target)
         problem_var.set(problem or "")
-        copy_button.configure(state="normal" if problem is None and (name or move) else "disabled")
+        copy_button.configure(state="normal" if problem is None and (name or move or delete) else "disabled")
 
     def load_targets(*_args) -> None:
         """Every slot but the source: an empty one, or the village it would overwrite."""
@@ -448,12 +510,52 @@ def open_copy_slot(app, build) -> None:
         )
         load_slots()
 
+    def start_delete(source, folder, saves) -> None:
+        try:
+            result = confirm_and_delete(
+                ask_yes_no, ask_preview,
+                lambda work: app._run_with_wait("Sending the slot's files to the Recycle Bin…", work),
+                saves, folder, source, parent=dialog)
+        except (vv_copy_slot.CopyError, vv_save_backup.BackupError, OSError) as exc:
+            _regrab(dialog)
+            app.status_var.set("Delete Player Slot: nothing was deleted.")
+            messagebox.showerror(DELETE_TITLE, str(exc), parent=dialog)
+            load_slots()
+            return
+        _regrab(dialog)
+        if result is None:
+            app.status_var.set("Delete Player Slot: nothing was deleted.")
+            return
+        notes = ("\n\n" + "\n".join(result.notes)) if result.notes else ""
+        kept = f" {len(result.pictures)} picture(s) were kept." if result.pictures else ""
+        if result.problem is None:
+            app.status_var.set(f"Delete Player Slot: Save {result.slot} sent to the Recycle Bin.")
+            messagebox.showinfo(
+                DELETE_TITLE,
+                f"Save {result.slot} ({result.name or 'unreadable'}) was deleted: {len(result.recycled)} file(s), "
+                f"from this save folder and {result.backups_touched} backup(s), are in the Recycle Bin, where they "
+                f"can be put back.{kept}{notes}", parent=dialog)
+        else:
+            app.status_var.set(f"Delete Player Slot: Save {result.slot} was only partly deleted.")
+            left = "\n".join(f"  {p.relative_to(folder)}" for p in result.not_recycled[:25])
+            more = f"\n  ...and {len(result.not_recycled) - 25} more" if len(result.not_recycled) > 25 else ""
+            messagebox.showerror(
+                DELETE_TITLE,
+                f"{result.problem} {len(result.recycled)} file(s) are in the Recycle Bin; "
+                f"{len(result.not_recycled)} are still here:\n\n{left}{more}{notes}", parent=dialog)
+        load_slots()
+
     def start() -> None:
         source, target = chosen()
-        if source is None or target is None:
+        if source is None:
             return
         folder = state["folders"][folder_box.current()]
         saves = game()
+        if deleting():
+            start_delete(source, folder, saves)
+            return
+        if target is None:
+            return
         if moving():
             start_move(source, target, folder, saves)
             return

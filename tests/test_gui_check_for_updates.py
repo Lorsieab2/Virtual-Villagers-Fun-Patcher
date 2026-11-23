@@ -178,6 +178,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_copy_slot", "vv_copy_slot_window",
                # Move Player Slot (the owner, 2026-11-22), the Copy Player Slot window's Move choice.
                "vv_move_slot",
+               # Delete Player Slot (the owner, 2026-11-23), its Delete choice.
+               "vv_delete_slot",
                # Backups (the owner, 2026-11-09): each backup's vital statistics and its window.
                "vv_backup_details", "vv_backup_details_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -265,8 +267,12 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
                               "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
             # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
-            ("vv_copy_slot_window", {"vv_copy_slot", "vv_move_slot", "vv_save_backup", "vv_tribe_rename",
-                                     "vv_fun_patcher_gui", "vv_tree_editor_tools"}),
+            ("vv_copy_slot_window", {"vv_copy_slot", "vv_delete_slot", "vv_move_slot", "vv_save_backup",
+                                     "vv_tribe_rename", "vv_fun_patcher_gui", "vv_tree_editor_tools"}),
+            # Delete Player Slot: Move's discovery, the repair copies' index, Back Up Saves; function-level: the
+            # Recycle Bin call it shares with the translations.
+            ("vv_delete_slot", {"vv_copy_slot", "vv_long_paths", "vv_move_slot", "vv_repair_copies", "vv_save_backup",
+                                "vv_tribe_rename", "vv_translations"}),
             # Move Player Slot: Copy Player Slot's transforms, Back Up Saves, the per-save layout; function-
             # level: the villagers as Last Names reads them, the Repairs log, the shared words boundaries, the
             # Family Tree Maker's tree name.

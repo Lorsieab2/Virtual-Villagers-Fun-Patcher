@@ -765,6 +765,8 @@ FILES = [
     "src/vv_copy_slot_window.py",
     # Move Player Slot (the Copy Player Slot window's Move choice).
     "src/vv_move_slot.py",
+    # Delete Player Slot (the Copy Player Slot window's Delete choice).
+    "src/vv_delete_slot.py",
     # Backups (Tools tab, Restore Saves' Details..., Repair Saves & Logs): each backup's vital statistics, read-only.
     "src/vv_backup_details.py",
     "src/vv_backup_details_window.py",
