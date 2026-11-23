@@ -693,6 +693,22 @@ class Backfill(unittest.TestCase):
         self.assertEqual(results[0], (ol.KNOWN, 0), "the rename is followed: the founder's look, no mask")
         self.assertNotEqual(results[1], (ol.KNOWN, 0), "an old name two villagers had: the rule says nothing")
 
+    def test_leaving_as_an_isolan_is_not_gone_for_good(self):
+        """Codex, #841: "Left the tribe: became an Isolan" (Guardians of Isola) is the Heathens' leaving, never a
+        death: the believer-founder rule still gives the founder look with no mask."""
+        v = self.village(5)
+        a = v.people[0].seen
+        now = (a.head, a.body)
+        v.births(arrived(1, a.name, a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + change(a.name, now, now, ("Blue Mask", "none"))
+                 + arrived(9, a.name, a.sex, now).replace(
+                     "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n"))
+        v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
+              f"Disappeared\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: Left the tribe: became an Isolan\n\n")
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()[a.name]
+        self.assertEqual((got.kind, got.mask), (ol.KNOWN, 0))
+
     def test_the_founder_rule_follows_a_sex_change(self):
         """Codex, #841: a founder record logged under the other sex (their sex changed since, recorded) is still
         theirs: the believer-founder rule gives their founder look with no mask."""

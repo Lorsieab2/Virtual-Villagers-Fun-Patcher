@@ -410,7 +410,7 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
         for b in additions.blocks(p):
             if b.of(slot, game, villages) and b.value("Name"):
                 out.names.add(b.value("Name"))
-                if "became a heathen" not in (b.value("What happened") or "").lower():
+                if (b.value("What happened") or "").strip() not in additions.LEFT_RECORDS:   # Heathen / Isolan
                     out.gone.add(b.value("Name"))
     # The renames the patcher itself made (Last Names, Number Duplicate Names, a name given back...).
     for d in decisions.load(folder, game, slot):

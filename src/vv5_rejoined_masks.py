@@ -116,7 +116,7 @@ def _lives(folder: Path, slot: int) -> _Lives:
     for p in [p for p in files if "Deaths" in p.name or "Unaccounted" in p.name]:
         for b in additions.blocks(p):
             if b.of(slot, GAME, villages) and not b.not_kept and b.value("Name") \
-                    and "became a heathen" not in (b.value("What happened") or "").lower():
+                    and (b.value("What happened") or "").strip() not in additions.LEFT_RECORDS:
                 out.gone.add(b.value("Name"))
     return out
 

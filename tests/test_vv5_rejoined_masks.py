@@ -177,6 +177,19 @@ class RejoinedMasks(unittest.TestCase):
         survey = rm.survey(self.v.folder, 1)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 1)])
 
+    def test_leaving_for_the_heathens_in_either_wording_is_not_gone(self):
+        """Codex, #841: with Guardians of Isola on, the Deaths log says "Left the tribe: became an Isolan" -- a
+        villager who rejoined after it is not gone for good, so their mask is still given back."""
+        a = self.p[0]
+        self.masks_file({})
+        self.v.births(arrived(1, a.name, a.sex, (a.head, a.body))
+                      + converted(2, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)"))
+        for what in ("Left the tribe: became a Heathen", "Left the tribe: became an Isolan"):
+            with self.subTest(what=what):
+                self.v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
+                           f"Disappeared\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: {what}\n\n")
+                self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1).restore], [(a.name, 1)])
+
     def test_repair_saves_and_logs_runs_it(self):
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
         self.assertIn("vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)", source)
