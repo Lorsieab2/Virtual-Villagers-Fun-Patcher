@@ -265,6 +265,22 @@ int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *co
     return hl_renamed(slot, count, records, old_names, 0x2F44u, 0x1B9Cu, 0x19u);
 }
 
+/* Start Over or a deleted tribe ("VVFP Save Reset.dll", before the slot's folder -- the Masks Worn file with it --
+   is deleted): the masks worn held for that slot are dropped, so nothing of the erased village is written into the
+   new one; the next look reads the slot's file afresh (gone: nobody has one). */
+void __stdcall VvfpHeathensKeepMasksVillageReset(int game, int slot) {
+    if (game != HK_GAME || slot < 1 || slot > 5 || (g_slot != 0 && g_slot != slot)) {
+        return;
+    }
+    memset(g_look, 0, sizeof g_look);
+    memset(g_look_id, 0, sizeof g_look_id);
+    memset(g_roster, 0, sizeof g_roster);
+    memset(g_stable, 0, sizeof g_stable);
+    g_have_roster = 0;
+    g_sync_tried = 0;
+    g_slot = 0;
+}
+
 /* A villager's sex changed (native/shared/sex_change.h): their mask worn stays theirs. */
 int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
     if (game != HK_GAME || !g_installed) {
