@@ -116,6 +116,29 @@ class NoBlankPagesTests(unittest.TestCase):
                         edits.entries[ft.entry_key(v, p)] = {"hidden": True}
                 self.assertEqual(self.assert_no_blank_page(v, edits), [(1, 6)])
 
+    def test_a_generation_hidden_on_one_page_only_never_moves_the_pages(self) -> None:
+        # Codex, PR #844: the page's own hides were laid over the edits before the pages were worked out, so
+        # hiding generation VI on page 1 made that page see 1-7, 7-12 while the others saw 1-6, 6-11, 11-12.
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = chain_village(game, list(range(1, 13)))
+                edits = ft.Edits()
+                ft.arrange(v, edits)
+                hide = {ft.entry_key(v, p): {"hidden": True} for p in v.people.values() if p.generation == 6}
+                edits.page_edits = {"1": {"entries": hide}}
+                tree = [(1, 6), (6, 11), (11, 12)]
+                self.assertEqual(ft.page_spans(edits, v), tree)
+                for k in range(3):
+                    lay = ft.layout(v, edits, k)
+                    self.assertEqual((lay.page, lay.pages), (k, 3))
+                    self.assertTrue(lay.x)
+                    lo, hi = tree[k]
+                    self.assertTrue(all(lo <= g <= hi for g in page_generations(lay)), (k, page_generations(lay)))
+                self.assertNotIn(6, page_generations(ft.layout(v, edits, 0)))     # hidden on page 1 alone
+                self.assertIn(6, page_generations(ft.layout(v, edits, 1)))
+                self.assertEqual(ft.page_view(edits, v, 0).tree_spans, tree)
+                self.assertNotIn("tree_spans", ft.page_view(edits, v, 0).to_data())
+
     def test_the_window_refuses_a_page_break_at_a_generation_of_nobody(self) -> None:
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
         body = source[source.index("    def _add_page_break("):source.index("    def _remove_page_break(")]

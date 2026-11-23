@@ -444,6 +444,9 @@ class Edits:
     canvas_w: int = 0
     canvas_h: int = 0
     page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
+    # A page's own view (page_view): the tree's pages, worked out from the tree's own edits before the page's
+    # were laid over them, so a villager hidden on one page never moves the pages (Codex, PR #844).  Never saved.
+    tree_spans: list | None = field(default=None, compare=False, repr=False)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
@@ -1401,6 +1404,7 @@ def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
     if not part:
         return edits
     view = replace(edits)
+    view.tree_spans = page_spans(edits, village)     # the tree's pages, before this page's own hides
     entries = {k: dict(v) for k, v in edits.entries.items()}
     for ekey, fields in part.get("entries", {}).items():
         merged = entries.setdefault(ekey, {})
@@ -2128,8 +2132,10 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     with the generation the next one starts at, and that page shows it again as its founders (the
     owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
     generation on the second page being treated as "founders" on the second page")."""
+    if edits.tree_spans is not None:            # a page's view keeps the tree's pages (page_view)
+        return list(edits.tree_spans)
     # (a page laid out with generations of its own keeps the tree's pages: page_village)
-    gens = getattr(village, "span_generations", None) or shown_generations(edits, village) or [1]
+    gens =getattr(village, "span_generations", None) or shown_generations(edits, village) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
     # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
