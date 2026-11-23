@@ -3500,14 +3500,19 @@ def ends_no_effect(text: str) -> bool:
     return text.rstrip(" \n\r\t.").replace("\\", "").lower().endswith(NO_EFFECT_LINE)
 
 
-def with_no_effect(text: str, escaped: bool = False) -> str:
+def with_no_effect(text: str, escaped: bool = False, game: int | None = None) -> str:
     """`text` with the "(no effect)" line after it (story_graph.inc cg_no_effect_mark); as it is when it ends so.
-    `escaped`: `text` is a version 6 graph's words before they are filled, where a parenthesis is written \\( \\)."""
+    `escaped`: `text` is a version 6 graph's words before they are filled, where a parenthesis is written \\( \\)
+    (their glyph fallback comes with the filling).  `game`: words before version 6 shown in that game, which no
+    glyph fallback reaches -- the line takes its own (A New Home, The Lost Children: "-no effect-", without the
+    Unicode Text companion; Codex, #853)."""
     if ends_no_effect(text):
         return text
     line = AUTO_LINES["no_effect"]
     if escaped:
         line = line.replace("(", "\\(").replace(")", "\\)")
+    elif game is not None:
+        line = glyph_fallback(line, game)
     return text + "\n" + line if text else line
 
 
@@ -3990,7 +3995,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             if not changed and popups and popups[-1].layout != "question":
                 # The owner (2026-11-23): an outcome that changes nothing ends with "(no effect)" (story_graph.inc
                 # cg_group).  A Village Solidarity tag is taken as no change here: the longest text.
-                popups[-1].text = with_no_effect(popups[-1].text, escaped=v6)
+                popups[-1].text = with_no_effect(popups[-1].text, escaped=v6, game=None if v6 else game.number)
                 popups[-1].worst = with_no_effect(popups[-1].worst)
             n_new = len(popups)
             if n_new > max_popups:

@@ -63,6 +63,18 @@ class Rule(unittest.TestCase):
         self.assertEqual(cg.with_no_effect("Done.", escaped=True), "Done.\n\\(no effect\\)")
         self.assertEqual(cg.with_no_effect(""), "(no effect)")
 
+    def test_before_version_6_the_line_takes_its_own_glyph_fallback(self):
+        self.assertEqual(cg.with_no_effect("Done.", game=1), "Done.\n-no effect-")
+        self.assertEqual(cg.with_no_effect("Done.", game=3), "Done.\n(no effect)")
+        for version in (1, 3, 5):
+            g = cg.load({"format": "vvfp-cie-graph", "version": version, "title": "A Breeze", "games": [1, 2, 3, 4, 5],
+                         "roles": {"subject": {"kind": "villager"}}, "start": "p",
+                         "nodes": {"p": {"text": "(Name) feels a breeze."}}})
+            for game, line in ((1, "-no effect-"), (2, "-no effect-"), (3, "(no effect)"), (5, "(no effect)")):
+                with self.subTest(version=version, game=game):
+                    h = cg.walk(g, cg.Context(game, frozenset(), frozenset({"subject"})))
+                    self.assertTrue(h[0].popups[-1].text.endswith("\n" + line), h[0].popups[-1].text)
+
     def test_the_line_is_an_automatic_line(self):
         self.assertEqual(cg.AUTO_LINES["no_effect"], "(no effect)")
         self.assertEqual(cg.NO_EFFECT_LINE, "(no effect)")
@@ -158,6 +170,32 @@ if emulated is not None:
                         self.assertEqual(shown.endswith(line), answer != 1, shown)
                         self.assertEqual(shown.count(line), 0 if answer == 1 else 1)
                         ran += 1
+            if ran == 0:
+                self.skipTest("no stock executable")
+
+        def test_every_graph_version_draws_it(self):
+            """Codex (#853): A New Home and The Lost Children draw no parenthesis without the Unicode Text
+            companion -- "-no effect-" there in every graph version (before version 6 no glyph fallback reaches the
+            line: it takes its own), "(no effect)" with the companion and in the later games."""
+            ran = 0
+            for version in range(1, 7):
+                g = {"format": "vvfp-cie-graph", "version": version, "title": "A Breeze", "games": [1, 2, 3, 4, 5],
+                     "roles": {"subject": {"kind": "villager"}}, "start": "p",
+                     "nodes": {"p": {"text": "(Name) feels a breeze."}}}
+                for game in GAME_IDS:
+                    if not have_stock(game):
+                        continue
+                    for unicode in (0, 1):
+                        with self.subTest(version=version, game=game, unicode=unicode):
+                            r = V6(game, TWO)
+                            r.rolls([0] * 40)
+                            r.facts(unicode=unicode)
+                            self.assertIsNone(r.queue6(compiled(g)))
+                            r.walk_through()
+                            shown = norm(" ".join(r.displays()))
+                            line = "-no effect-" if game in ("vv1", "vv2") and not unicode else "(no effect)"
+                            self.assertTrue(shown.endswith("feels a breeze. " + line), shown)
+                            ran += 1
             if ran == 0:
                 self.skipTest("no stock executable")
 

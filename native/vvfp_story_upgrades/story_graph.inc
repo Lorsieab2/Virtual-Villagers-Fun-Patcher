@@ -8160,18 +8160,26 @@ static int cg_part_changes(const cg_history *h, int from) {
 }
 
 /* "(no effect)" after `out`'s last line (cg_auto_add's room rule: dropped only when the buffer is full).  Version 6
-   words keep a parenthesis escaped (\( \)) until the page is filled for the screen (cg_expand); before, a "(...)"
-   that is no placeholder is copied as it is. */
+   words keep a parenthesis escaped (\( \)) until the page is filled for the screen (cg_expand, whose glyph fallback
+   then draws it in A New Home and The Lost Children).  Before version 6 a "(...)" that is no placeholder is copied
+   as it is and no glyph fallback runs, so the line takes its own: "-" for each parenthesis where the game cannot
+   draw one (cg_fallback_on; Codex, #853 -- the shipped version 3 and 5 graphs). */
 static void cg_no_effect_mark(char *out, int cap) {
     char line[64];
     const char *t = cg_auto_text("no_effect");
-    int n = 0;
+    int n = 0, dash = cg_g.version < 6 && cg_fallback_on();
     if (t == NULL || ce_ends_no_effect(out)) {
         return;
     }
     for (; *t != '\0' && n < (int)sizeof line - 2; ++t) {
-        if (cg_g.version >= 6 && (*t == '(' || *t == ')')) {
-            line[n++] = '\\';
+        if (*t == '(' || *t == ')') {
+            if (dash) {
+                line[n++] = '-';
+                continue;
+            }
+            if (cg_g.version >= 6) {
+                line[n++] = '\\';
+            }
         }
         line[n++] = *t;
     }
