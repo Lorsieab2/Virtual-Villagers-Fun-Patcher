@@ -1,7 +1,8 @@
 """Write the "Esteemed Elders in Every Game" rows: data/vv1_esteemed_elders_feature.json, vv2_..., vv4_... (the owner,
 2026-11-22: "all 5 games should change a villager's title to 'Esteemed Elder' if they master 3 skills (EXCEPT SPECIAL
-VILLAGERS LIKE THE GOLDEN CHILD, VV3 TRIBAL CHIEF ETC)").  The Secret City and New Believers already do it in the
-stock game (0x462570, 0x475610), so they have no row: the rule is the game's own there.
+VILLAGERS LIKE THE GOLDEN CHILD, VV3 TRIBAL CHIEF ETC)").  The Secret City already does it in the stock game
+(0x462570), so it has no row.  New Believers does too (0x475610), but gives it to a current Heathen as well; its row
+takes it from them (the owner, 2026-11-22: Heathens never, Former Heathens yes).
 
 The companion "VVFP Esteemed Elders.dll" (native/vvfp_esteemed_elders) splices the villager panel's title and the
 burial's epitaph at run time; the rule is native/shared/esteemed_elder.h.  tests/test_esteemed_elders.py proves it
@@ -23,7 +24,7 @@ NAME = "Esteemed Elders in Every Game"
 DLL_NAME = "VVFP Esteemed Elders.dll"
 DLL = ROOT / "assets" / "esteemed_elders" / DLL_NAME
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP More Companions.dll, third word)"
-GAMES = (1, 2, 4)
+GAMES = (1, 2, 4, 5)
 CAUSE_ROW_VV1 = "Show Cause of Death and Epitaphs on Graves, and Log Every Death"
 REPAIR = ("**Villagers and graves from before: Repair Saves & Logs > \"Give the Esteemed Elder title "
           "retroactively\".**")
@@ -48,13 +49,22 @@ DESCRIPTIONS = {
         "making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their "
         "totems, are unchanged; this patch makes no totem. A totem statue never gets the title, and a custom title "
         "(Story / Cheat Upgrades) still shows in its place. The logs' \"Special villager\" line says it too, and "
-        "when such a villager dies as an adult their grave gets the game's own \"Esteemed Elder\" epitaph. "
+        "when such a villager dies as an adult their grave gets the game's own \"Esteemed Elder\" epitaph. The Village "
+        "Statistics' \"Village Elders\" then counts every Esteemed Elder the village ever had, kept in the save's "
+        "Village Elders file (a new file starts from the game's own count). "
         f"{REPAIR} {COMMON_END}"),
     4: ("A villager who has mastered three or four skills (88 or more) gets the title \"Esteemed Elder\" on the "
         "Villager Details screen, as in The Secret City and New Believers. Mastering all five is still the game's "
         "own \"Scholar\", which wins. A ghost never gets the title, and a custom title (Story / Cheat Upgrades) "
         "still shows in its place. The logs' \"Special villager\" line says it too, and when such a villager dies "
         f"as an adult their grave's epitaph is \"Esteemed Elder\". {REPAIR} {COMMON_END}"),
+    5: ("A current Heathen is never titled \"Esteemed Elder\": in the normal game a Heathen with three mastered "
+        "skills (88 or more) and no Heathen role title of their own is shown as one on the Villager Details screen. "
+        "A believer -- a Former Heathen too, once they join the tribe -- still gets the title with three mastered "
+        "skills, as in the normal game, and the Heathen roles (Doctor, Chief, the three Masters, Mommy) keep their "
+        "own titles. The logs' \"Special villager\" line never says it for a Heathen either; a Former Heathen's "
+        "line keeps their Former Heathen title. Heathens never count as Village Elders and are never buried. "
+        f"{COMMON_END}"),
 }
 
 SITES = {
@@ -82,6 +92,11 @@ SITES = {
          "more whose Scholar byte +0x31 is 0, when the record (the writer's first argument) is an Esteemed Elder by "
          "the same rule, the epitaph +0x38 (char[0x20]) becomes \"Esteemed Elder\"; then the two loads re-run and "
          "the writer goes on at 0x45D619")],
+    5: [(0x442EB5, "E85627030084C0743F",
+         "the villager panel's elder test (`call 0x475610 / test al, al / je 0x442EFD`, ecx the record's skills, "
+         "[esp+0x10] the record): the game's own three-mastered test, then a current Heathen (+0x1CEC set) goes on "
+         "to the rank (0x442EFD) instead of \"Esteemed Elder\" (0x442EBE, string 0xCA, or the Retired Chief's "
+         "0xD3); a believer goes on as in the stock game")],
 }
 
 BEHAVIOUR = {
@@ -102,13 +117,18 @@ BEHAVIOUR = {
         "Elder gets the epitaph \"Esteemed Elder\" in place of the job's; the grave's job, value and Scholar byte "
         "are the game's own. The logs' \"Special villager: Esteemed Elder\" line follows the same rule while the "
         "companion is installed."],
+    5: ["The Villager Details screen: a current Heathen with three mastered skills and no role title gets the "
+        "skill-and-job label instead of \"Esteemed Elder\"; believers (Former Heathens included) are as in the "
+        "stock game.",
+        "The logs' \"Special villager\" line (native/shared/special_title.h): never \"Esteemed Elder\" for a "
+        "current Heathen while the companion is installed."],
 }
 
 NON_CHANGES = [
     "No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying "
     "their stock bytes; the game goes on with the registers it reads afterwards as they were.",
     "No skill, flag, totem, job or save field is changed; the rule only reads the villager's record.",
-    "The Secret City and New Believers are left as the stock game makes them (their own Esteemed Elder rule).",
+    "The Secret City is left as the stock game makes it (its own Esteemed Elder rule).",
 ]
 
 

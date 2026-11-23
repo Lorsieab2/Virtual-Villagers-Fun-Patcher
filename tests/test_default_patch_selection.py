@@ -449,7 +449,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
         held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
         # ...and Esteemed Elders in Every Game (the owner, 2026-11-22: on in Owner's Defaults, off otherwise).
-        held_back |= {f"vv{n}_esteemed_elders" for n in (1, 2, 4)}
+        held_back |= {f"vv{n}_esteemed_elders" for n in (1, 2, 4, 5)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv2",
   "name": "Esteemed Elders in Every Game",
-  "description": "A villager who has mastered three or more skills (88 or more) gets the title \"Esteemed Elder\" on the Villager Details screen even when the game has not made them an Esteemed Elder (the normal game stops making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their totems, are unchanged; this patch makes no totem. A totem statue never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' \"Special villager\" line says it too, and when such a villager dies as an adult their grave gets the game's own \"Esteemed Elder\" epitaph. **Villagers and graves from before: Repair Saves & Logs > \"Give the Esteemed Elder title retroactively\".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Esteemed Elders.dll\"; it never writes a save or a file.",
+  "description": "A villager who has mastered three or more skills (88 or more) gets the title \"Esteemed Elder\" on the Villager Details screen even when the game has not made them an Esteemed Elder (the normal game stops making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their totems, are unchanged; this patch makes no totem. A totem statue never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' \"Special villager\" line says it too, and when such a villager dies as an adult their grave gets the game's own \"Esteemed Elder\" epitaph. The Village Statistics' \"Village Elders\" then counts every Esteemed Elder the village ever had, kept in the save's Village Elders file (a new file starts from the game's own count). **Villagers and graves from before: Repair Saves & Logs > \"Give the Esteemed Elder title retroactively\".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Esteemed Elders.dll\"; it never writes a save or a file.",
   "output_tag": "Esteemed Elders",
   "dependencies": [],
   "behavior_changes": [
@@ -15,14 +15,14 @@
   "explicit_non_changes": [
     "No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were.",
     "No skill, flag, totem, job or save field is changed; the rule only reads the villager's record.",
-    "The Secret City and New Believers are left as the stock game makes them (their own Esteemed Elder rule).",
+    "The Secret City is left as the stock game makes it (its own Esteemed Elder rule).",
     "The stock elder pass (0x44D4C0), its flag, its totems and the Village Elders counter are unchanged."
   ],
   "companion_files": [
     {
       "source": "assets/esteemed_elders/VVFP Esteemed Elders.dll",
       "destination": "VVFP Esteemed Elders.dll",
-      "sha256": "66913C5234B5D4CDD4E18260FF55EA10474A10A855E9032F57D7E2BA0159A197"
+      "sha256": "14DFAC15F1D1F8A0EC2B971C50CBE8F758A77644A72F6A7C1F244A058132F24C"
     }
   ],
   "patches": [],

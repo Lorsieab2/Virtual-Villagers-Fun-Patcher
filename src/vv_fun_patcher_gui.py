@@ -293,7 +293,7 @@ FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
 # Practicing Devotion Builds Faith and Divine Energy (New Believers).
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
 # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; the owner, 2026-11-22).
-ESTEEMED_ELDERS_IDS = ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders"]
+ESTEEMED_ELDERS_IDS = ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 

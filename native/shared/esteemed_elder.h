@@ -6,8 +6,10 @@
    GOLDEN CHILD, VV3 TRIBAL CHIEF ETC)".  Mastered is the game's own Master
    level -- the level its Villager Details screen first says "Master" at.
    The Secret City and New Believers already give the title in the stock game
-   (0x462570, 0x475610: three or more skills at 88 or more) and are left as
-   they are; this rule is the other three's:
+   (0x462570, 0x475610: three or more skills at 88 or more); this rule is the
+   other three's, and in New Believers the row only takes the title from a
+   current Heathen (the stock panel gives one of no role title the title;
+   +0x1CEC set; a Former Heathen, a believer now, keeps it):
 
      A New Home         five i32 skills +0x3BC..+0x3CC, Master from 90 (the
                         Details screen 0x41FC16 `cmp eax, 0x5A`; the grave

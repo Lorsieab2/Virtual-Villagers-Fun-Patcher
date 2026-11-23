@@ -365,6 +365,7 @@ FILES = [
     "data/vv1_esteemed_elders_feature.json",
     "data/vv2_esteemed_elders_feature.json",
     "data/vv4_esteemed_elders_feature.json",
+    "data/vv5_esteemed_elders_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

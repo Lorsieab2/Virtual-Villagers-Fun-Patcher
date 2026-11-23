@@ -15,13 +15,13 @@
   "explicit_non_changes": [
     "No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were.",
     "No skill, flag, totem, job or save field is changed; the rule only reads the villager's record.",
-    "The Secret City and New Believers are left as the stock game makes them (their own Esteemed Elder rule)."
+    "The Secret City is left as the stock game makes it (its own Esteemed Elder rule)."
   ],
   "companion_files": [
     {
       "source": "assets/esteemed_elders/VVFP Esteemed Elders.dll",
       "destination": "VVFP Esteemed Elders.dll",
-      "sha256": "66913C5234B5D4CDD4E18260FF55EA10474A10A855E9032F57D7E2BA0159A197"
+      "sha256": "14DFAC15F1D1F8A0EC2B971C50CBE8F758A77644A72F6A7C1F244A058132F24C"
     }
   ],
   "patches": [],

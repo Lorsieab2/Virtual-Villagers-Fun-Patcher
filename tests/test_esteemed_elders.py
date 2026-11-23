@@ -42,7 +42,7 @@ except ImportError:  # pragma: no cover - environment dependent
 DLL_NAME = "VVFP Esteemed Elders.dll"
 DLL = ROOT / "assets" / "esteemed_elders" / DLL_NAME
 CAUSE_TEST_DLL = ROOT / "tests" / "test_dlls" / "VVFP Cause of Death.test.dll"
-GAMES = (1, 2, 4)
+GAMES = (1, 2, 4, 5)
 FAKE_ELDERS = 0x0C800000
 TITLE = "Esteemed Elder"
 
@@ -114,8 +114,7 @@ class TheRows(unittest.TestCase):
                 self.assertEqual([c["destination"] for c in row["companion_files"]], [DLL_NAME])
                 self.assertIn("Esteemed Elder", row["description"])
                 self.assertIn("**", row["description"])
-        for game in (3, 5):
-            self.assertNotIn(row_id(game), ids, "the stock game already gives the title")
+        self.assertNotIn(row_id(3), ids, "the stock game already gives the title")
         self.assertIn(DLL_NAME, patcher.STARTUP_LOADER_COMPANIONS_3)
         header = (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8")
         self.assertIn(f'"{DLL_NAME}"', header)
@@ -258,6 +257,43 @@ class TitleOnThePanel(unittest.TestCase):
         self.assertEqual(self.vv4([88.0, 90.5, 100.0, 3.0, 0.0], start=False), ("rank", None))
         self.assertEqual(self.vv4([88.0] * 5, start=False), ("scholar", None))
 
+
+def vv5_record(m: Machine, skills, faction=0, role=0, orange=0) -> int:
+    r = m.alloc(0x2F48)
+    for k, v in enumerate(skills):
+        m.write(r + 0x1C5C + 4 * k, struct.pack("<f", v))
+    m.write(r + 0x1CEC, bytes([faction, orange]))
+    m.put32(r + 0x1CFC, role)
+    return r
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class NewBelieversHeathens(unittest.TestCase):
+    """The owner (2026-11-22): a current Heathen NEVER shows "Esteemed Elder"; a Former Heathen (a believer now) does
+    with three mastered skills (88+)."""
+
+    def vv5(self, skills, start=True, **kw) -> str | None:
+        m = Panel(5, start=start)
+        if start:
+            self.assertEqual(m.export("VvfpEsteemedEldersInstalled"), 1)
+        m.stop_at({0x442EBE: "title", 0x442EFD: "rank"})
+        r = vv5_record(m, skills, **kw)
+        esp = m.run_from(0x442EB5, {"ecx": r + 0x1C5C, "esi": r + 0x1C5C, "ebx": 0, "ebp": m.alloc(0x400)}, {0x10: r})
+        self.assertEqual(m.reg("esp"), esp)
+        return m.stopped
+
+    MASTERED = [88.0, 90.0, 100.0, 1.0, 0.0, 0.0]
+
+    def test_a_heathen_never_a_former_heathen_and_a_believer_yes(self):
+        self.assertEqual(self.vv5(self.MASTERED, faction=1, role=3), "rank", "a current Heathen")
+        self.assertEqual(self.vv5(self.MASTERED, faction=1, role=12), "rank", "the Heathen Doctor keeps the role")
+        self.assertEqual(self.vv5(self.MASTERED), "title", "a believer")
+        self.assertEqual(self.vv5(self.MASTERED, orange=1), "title", "a Former Heathen (the orange mask byte)")
+        self.assertEqual(self.vv5([88.0, 90.0, 87.9, 1.0, 0.0, 0.0]), "rank")
+
+    def test_stock_game_titles_a_heathen(self):
+        """Before: the stock panel gives a Heathen of no role title "Esteemed Elder"."""
+        self.assertEqual(self.vv5(self.MASTERED, start=False, faction=1, role=3), "title")
 
 @unittest.skipIf(_skip(), _skip() or "")
 class TitleOnTheGrave(unittest.TestCase):

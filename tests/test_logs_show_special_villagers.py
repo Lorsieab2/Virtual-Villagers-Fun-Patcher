@@ -202,6 +202,14 @@ class EsteemedEldersInEveryGame(unittest.TestCase):
         self.assertIsNone(self.title(1, vv1))
         self.assertIsNone(self.title(2, vv2))
         self.assertIsNone(self.title(4, vv4))
+        self.assertEqual(self.title(5, self.heathen()), "Esteemed Elder", "the stock panel's rule titles a Heathen")
+
+    def heathen(self, faction=1, orange=0):
+        r = bytearray(0x2000)
+        struct.pack_into("<6f", r, 0x1C5C, 88, 90, 100, 0, 0, 0)
+        r[0x1CEC], r[0x1CED] = faction, orange
+        struct.pack_into("<i", r, 0x1CFC, 3)
+        return r
 
     def test_with_the_row(self):
         if not self.stand_in_path.is_file():
@@ -227,7 +235,13 @@ class EsteemedEldersInEveryGame(unittest.TestCase):
         vv4b[0x1CC7] = 1
         self.assertIsNone(self.title(4, vv4b), "never a ghost")
         # Loaded but not installed (its sites refused): the stock titles.
+        # New Believers (the owner, 2026-11-22): a current Heathen never; a believer yes; a Former Heathen keeps the
+        # Former Heathen title in the logs (the priority list).
+        self.assertIsNone(self.title(5, self.heathen()), "a current Heathen is never an Esteemed Elder")
+        self.assertEqual(self.title(5, self.heathen(faction=0)), "Esteemed Elder")
+        self.assertEqual(self.title(5, self.heathen(faction=0, orange=1)), "Former Heathen (orange mask)")
         self.stand_in.SetInstalled(0)
+        self.assertEqual(self.title(5, self.heathen()), "Esteemed Elder", "not installed: the stock rule")
         vv1, vv2, vv4 = self.records()
         self.assertIsNone(self.title(1, vv1))
         self.assertIsNone(self.title(2, vv2))

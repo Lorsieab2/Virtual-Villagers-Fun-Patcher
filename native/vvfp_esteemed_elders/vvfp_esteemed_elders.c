@@ -1,4 +1,5 @@
-/* VVFP Esteemed Elders -- "Esteemed Elders in Every Game" (A New Home, The Lost Children, The Tree of Life).
+/* VVFP Esteemed Elders -- "Esteemed Elders in Every Game" (A New Home, The Lost Children, The Tree of Life, New
+   Believers).
 
    The owner (2026-11-22): "all 5 games should change a villager's title to 'Esteemed Elder' if they master 3
    skills (EXCEPT SPECIAL VILLAGERS LIKE THE GOLDEN CHILD, VV3 TRIBAL CHIEF ETC)".  The Secret City and New
@@ -28,6 +29,14 @@
                        after its epitaph copy (0x45D611, the record its first argument): an adult (age at death
                        360 or more), not a Scholar (+0x31), who is an Esteemed Elder gets "Esteemed Elder" in
                        place of the job's epitaph -- as The Secret City and New Believers' writers choose it.
+
+     New Believers     the panel 0x442E70: at 0x442EB5 `call 0x475610 / test al, al / je 0x442EFD` (ecx the
+                       record's skills, [esp+0x10] the record) the stock game gives "Esteemed Elder" (string
+                       0xCA, or the Retired Chief's 0xD3, 0x442EBE) to ANY villager with three skills at 88 --
+                       a Heathen too, whose role 12-17 only overwrites it later (0x443102).  The owner
+                       (2026-11-22): a current Heathen never shows "Esteemed Elder"; a Former Heathen (a
+                       believer now) does.  Here a Heathen (+0x1CEC set) goes on to the rank (0x442EFD).
+                       Heathens are never buried, so no grave changes.
 
    The title is the player's language through "VVFP Translations.dll" when a translation is chosen (vvfp_tr),
    else English; The Lost Children's are the game's own strings.
@@ -68,6 +77,12 @@
 #define V4_GRAVE_EPITAPH 0x38
 #define V4_EPITAPH_BYTES 0x20
 #define ADULT_AGE 360
+/* New Believers: the panel's elder test. */
+#define V5_TITLE_SITE 0x442EB5
+#define V5_ELDER_TEST 0x475610
+#define V5_ELDER 0x442EBE
+#define V5_RANK 0x442EFD
+#define V5_FACTION 0x1CEC
 
 static const unsigned char V1_TITLE_STOCK[12] = { 0x81, 0xB9, 0x6C, 0x03, 0x00, 0x00, 0xC7, 0x00, 0x00, 0x00,
                                                   0x75, 0x15 };
@@ -75,6 +90,7 @@ static const unsigned char V2_TITLE_STOCK[8] = { 0x38, 0x99, 0xFC, 0x07, 0x00, 0
 static const unsigned char V2_GRAVE_STOCK[10] = { 0x8A, 0x81, 0xFC, 0x07, 0x00, 0x00, 0x84, 0xC0, 0x74, 0x2C };
 static const unsigned char V4_TITLE_STOCK[9] = { 0xE8, 0x57, 0xA9, 0x02, 0x00, 0x84, 0xC0, 0x74, 0x18 };
 static const unsigned char V4_GRAVE_STOCK[8] = { 0x8B, 0x44, 0x24, 0x14, 0x8B, 0x4C, 0x24, 0x20 };
+static const unsigned char V5_TITLE_STOCK[9] = { 0xE8, 0x56, 0x27, 0x03, 0x00, 0x84, 0xC0, 0x74, 0x3F };
 
 static int g_game;
 static int g_installed;
@@ -260,6 +276,27 @@ __declspec(naked) static void v4_grave_stub(void) {
     }
 }
 
+/* ---- New Believers ---------------------------------------------------------------------------------------- */
+
+/* In place of `call 0x475610 / test al, al / je 0x442EFD`: ecx the record's skills, [esp+0x10] the record.  The
+   game's own three-mastered test, then never for a current Heathen. */
+__declspec(naked) static void v5_title_stub(void) {
+    __asm {
+        mov eax, V5_ELDER_TEST
+        call eax
+        test al, al
+        jz rank
+        mov eax, dword ptr [esp + 0x10]
+        cmp byte ptr [eax + V5_FACTION], 0
+        jne rank
+        push V5_ELDER
+        ret
+    rank:
+        push V5_RANK
+        ret
+    }
+}
+
 /* ---- Exports ---------------------------------------------------------------------------------------------- */
 
 /* 1 when every site of this game is in (native/shared/esteemed_elder.h vv_elders_row_on), else 0. */
@@ -297,8 +334,12 @@ void __stdcall VvfpStartup(int game, unsigned int shipped) {
         vvfp_site_branch(&sites[count++], V4_GRAVE_SITE, (int)sizeof V4_GRAVE_STOCK, V4_GRAVE_STOCK, 0xE9,
                          (const void *)v4_grave_stub);
         break;
+    case 5:
+        vvfp_site_branch(&sites[count++], V5_TITLE_SITE, (int)sizeof V5_TITLE_STOCK, V5_TITLE_STOCK, 0xE9,
+                         (const void *)v5_title_stub);
+        break;
     default:
-        return;                         /* The Secret City and New Believers: the stock game's own title */
+        return;                         /* The Secret City: the stock game's own title */
     }
     g_game = game;
     if (vvfp_install_sites(sites, count)) {

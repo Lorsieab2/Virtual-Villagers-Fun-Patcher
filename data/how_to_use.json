@@ -1126,14 +1126,14 @@
       ]
     },
     {
-      "ids": ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders"],
+      "ids": ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"],
       "guide": [
         "Off by default; on in Owner's Defaults only. Nothing to click: it works on its own.",
         "Three or more mastered skills (90 in A New Home, 88 in the others) give the title \"Esteemed Elder\" on the Details screen.",
         "Never the Golden Child, a totem statue or a ghost; The Tree of Life's Scholar (all five) still wins; a custom title wins.",
         "The logs' Special villager line says it, and a new adult's grave gets the epitaph \"Esteemed Elder\".",
         "For older villagers and graves: Repair Saves & Logs, \"Give the Esteemed Elder title retroactively\".",
-        "The Secret City and New Believers already do it. Not yet seen in a running game."
+        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running."
       ]
     },
     {

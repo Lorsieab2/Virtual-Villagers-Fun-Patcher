@@ -1665,7 +1665,7 @@ every change in its Village Solidarity log; Start Over clears both. Needs
 Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
 defaults and in Select All). Not yet seen in a running game.
 
-ESTEEMED ELDERS IN EVERY GAME (A NEW HOME, THE LOST CHILDREN, THE TREE OF LIFE)
+ESTEEMED ELDERS IN EVERY GAME (A NEW HOME, THE LOST CHILDREN, THE TREE OF LIFE, NEW BELIEVERS)
 
 Off by default; on in Owner's Defaults only (off in Select All). Nothing to
 click: it works on its own. A villager who has mastered three or more skills
@@ -1682,7 +1682,12 @@ Elders and their totems are unchanged. For villagers and graves from before:
 Repair Saves & Logs, "Give the Esteemed Elder title retroactively" lists who
 gets it first; a grave is changed only where the save still holds that
 villager's skills at death, the others are listed and left. Not yet seen in
-a running game.
+a running game. In New Believers (which gives the title already) a current
+Heathen is never an Esteemed Elder, on the Details screen or in the logs; a
+Former Heathen who has joined the tribe is, with three mastered skills (the
+logs keep their Former Heathen title). In The Lost Children the Village
+Statistics' Village Elders then counts every Esteemed Elder ever, kept in
+the save's Village Elders file.
 
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
