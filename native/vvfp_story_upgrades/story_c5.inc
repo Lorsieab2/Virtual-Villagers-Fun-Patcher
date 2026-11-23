@@ -631,7 +631,7 @@ static int c5_behave(int index, int behaviour) {
         return 0;
     }
     act = &C5_BEHAVIOURS[behaviour];
-    if (!ce_supply_value(act, index, c5_record, c5_listed, c5_skeleton, &value)) {
+    if (!ce_supply_value(act, index, c5_record, c5_listed, c5_skeleton, 0x554148u, c5_manager(), &value)) {
         return 0;
     }
     if (act->kind == ACT_DROP) {
@@ -1041,10 +1041,11 @@ static const ce_probe_field C5_PROBE[] = {
     { 0x1CEC, 1, 0, 1 },
 };
 
-/* New Believers' villager catch-up 0x472C90 on the villager array 0x554148 (its one caller, the update 0x4260EB,
-   right after the aging 0x46FE90). */
+/* New Believers' villager catch-up 0x472C90 on the villager manager (its one caller, the update 0x4260EB,
+   right after the aging 0x46FE90): the running table's -- 0x554148 stock, 0x800000 with 256 Villagers
+   (Experimental), whose catch-up walks 256 records and would run past the stock object. */
 static void c5_catch_up(void) {
-    TC0(0x472C90u, 0x554148u);
+    TC0(0x472C90u, c5_manager());
 }
 
 static const ce_birth_layout C5_BIRTH = { 0x1B8Cu, 0x1C3Cu, 0x1C4Cu, 0x1C40u, c5_catch_up };
