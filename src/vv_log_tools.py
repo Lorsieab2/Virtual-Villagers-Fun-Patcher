@@ -430,6 +430,8 @@ class ApprovalResult:
     renamed: dict = field(default_factory=dict)  # (name, head, body) -> the name an answer gave back
     kept_answers: list = field(default_factory=list)  # answers kept, changed or cleared (vv_answered_questions)
     originals: object | None = None             # src/vv_original_look.py Result: the logs' original looks added
+    rejoined: object | None = None              # src/vv5_rejoined_masks.py Result: rejoined villagers' masks given back
+    heathen_masks: object | None = None         # src/vv5_heathen_masks_restore.py Result (or why not): Heathens' masks
 
 
 def _refuse_if_running(folder: Path, processes: vv_save_backup.ProcessController) -> None:
@@ -658,6 +660,34 @@ def approve_repair(
             ValueError, KeyError, IndexError, struct.error) as exc:
         originals = vv_original_look.Result(vv_original_look.path(folder, slot), False,
                                             note=f"the original looks were not added ({exc})")
+    # New Believers: the mask a villager wore when they rejoined the tribe from the Heathens, given back once
+    # when they have none now and the logs prove it -- only when the player ticked the checklist's row, only
+    # those it listed, and only in a game with Heathens Keep Their Masks When Converted
+    # (src/vv5_rejoined_masks.py; the owner, 2026-11-22).  Never stops a Repair.
+    rejoined = None
+    import vv5_rejoined_masks
+    planned = next((k for k in kinds if getattr(k, "id", None) == vv5_rejoined_masks.KIND_ID), None)
+    if game == 5 and planned is not None and planned.id in chosen and planned.context.get("restore"):
+        try:
+            rejoined = vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now, game_folders,
+                                                  only=set(planned.context["restore"]))
+        except (vv_reconcile.ReconcileError, vv_last_names.LastNamesError, OSError, ValueError, KeyError,
+                IndexError, struct.error) as exc:
+            rejoined = vv5_rejoined_masks.Result(note=f"the rejoined villagers' masks were not given back ({exc})")
+    # ...and the mask each villager who went back to the Heathens wore as a Heathen before (Heathens, where the
+    # row above is believers; src/vv5_heathen_masks_restore.py), after it, reading the Village Masks file afresh:
+    # only when ticked, only those it listed.  Never stops a Repair.
+    heathen_masks = None
+    import vv5_heathen_masks_restore
+    planned = next((k for k in kinds if getattr(k, "id", None) == vv5_heathen_masks_restore.KIND_ID), None)
+    if game == 5 and planned is not None and planned.id in chosen and planned.context.get("restore"):
+        try:
+            heathen_masks = vv5_heathen_masks_restore.restore(folder, slot, now=now,
+                                                              backup_name=backup.backup_folder.name,
+                                                              only=set(planned.context["restore"]))
+        except (vv5_heathen_masks_restore.HeathenMasksError, vv_last_names.LastNamesError, OSError, ValueError,
+                KeyError, IndexError, struct.error) as exc:
+            heathen_masks = str(exc)
     # Nothing is moved or renamed: an older build's folders and files keep their names, and every
     # repair above wrote where its file already was (the owner, 2026-10-09; src/vv_save_layout.py).
     approval = approval_path(folder, game, slot)
@@ -672,7 +702,8 @@ def approve_repair(
         except (vv_save_backup.BackupError, OSError):
             kept_backup = backup                # kept: an unneeded backup is never a fault
     return ApprovalResult(folder, slot, game, cleared, approval if rearm else None, kept_backup, words,
-                          added.get("sex", []), added, answered, renamed, answer_lines, originals)
+                          added.get("sex", []), added, answered, renamed, answer_lines, originals, rejoined,
+                          heathen_masks)
 
 
 # ---------------------------------------------------------------------------

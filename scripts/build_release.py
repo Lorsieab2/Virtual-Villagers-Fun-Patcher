@@ -787,6 +787,8 @@ FILES = [
     "src/vv_reconcile_view.py",
     # The original looks Repair Saves & Logs adds from the logs (Change Appearance's Reset to original).
     "src/vv_original_look.py",
+    # New Believers: the mask a villager wore when they rejoined the tribe, which Repair Saves & Logs gives back.
+    "src/vv5_rejoined_masks.py",
     # The games' fonts and the letters the patcher makes for them (shared with the Picture Studio Text tool),
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",

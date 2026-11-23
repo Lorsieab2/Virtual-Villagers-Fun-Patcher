@@ -294,17 +294,27 @@ def _copy_before(folder: Path, path: Path, original: bytes) -> str:
 
 
 def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController | None = None,
-            now: datetime | None = None) -> Result:
+            now: datetime | None = None, backup_name: str | None = None,
+            only: set[tuple[str, int]] | None = None) -> Result:
     """Give back every certain mask (and clear the kind bytes of those still carrying one).  The survey is made
     again here, so nothing is written from a stale one.  Refused while the game runs; the save folder is backed up
-    first; the masks file is written first and the save last; a failure puts every file back."""
+    first; the masks file is written first and the save last; a failure puts every file back.
+
+    From Repair Saves & Logs' checklist (approve_repair, `backup_name` its backup: the game already closed and the
+    save folder already backed up) only the (name, mask) pairs in `only`, the ones the checklist listed, and no
+    second backup.  "Masks of villagers who rejoined the tribe" (src/vv5_rejoined_masks.py) writes the same file
+    for believers before this runs; this writes only Heathens' entries, reading the file afresh, so neither undoes
+    the other."""
     folder = Path(folder)
     controller = processes if processes is not None else vv_save_backup.WindowsProcesses()
-    tools._refuse_if_running(folder, controller)
+    if backup_name is None:
+        tools._refuse_if_running(folder, controller)
     try:
         work = survey(folder, slot)
     except (struct.error, ValueError, OSError, ln.LastNamesError) as exc:
         raise HeathenMasksError(f"A file could not be read ({exc}); nothing was changed.") from exc
+    if only is not None:
+        work.restore = [f for f in work.restore if (f.name, f.mask) in only]
     if not work.restore:
         raise HeathenMasksError("No Heathen's mask was found to restore.")
     changes: list[tuple[Path, bytes, bytes]] = []
@@ -312,11 +322,14 @@ def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController
         changes.append((work.path, work.original, updated(work.original, work.restore)))
     if work.writes_save:
         changes.append((work.save, work.save_original, updated_save(work.save_original, work.restore)))
-    try:
-        backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_LABEL)
-    except vv_save_backup.BackupError as exc:
-        raise HeathenMasksError(f"The backup failed, so nothing was changed. {exc}") from exc
-    tools._refuse_if_running(folder, controller)
+    if backup_name is None:
+        try:
+            backup = vv_save_backup.copy_save_folder(folder, now or datetime.now(), suffix=BACKUP_LABEL)
+        except vv_save_backup.BackupError as exc:
+            raise HeathenMasksError(f"The backup failed, so nothing was changed. {exc}") from exc
+        tools._refuse_if_running(folder, controller)
+    else:
+        backup = _Named(backup_name)
     copies = [_copy_before(folder, path, original) for path, original, _new in changes]
     done: list[tuple[Path, bytes, bytes]] = []
     try:
@@ -348,6 +361,12 @@ def restore(folder: Path, slot: int, processes: vv_save_backup.ProcessController
     return Result(work.restore, copies, backup)
 
 
+@dataclass
+class _Named:
+    """The backup Repair Saves & Logs already made, by its folder's name."""
+    backup_folder: str
+
+
 def survey_kind_bytes(save: bytes, restore: list[Found]) -> list[str]:
     """The villagers whose kind byte the save still holds (a write that did not take)."""
     return [f.name for f in restore if f.kind_byte and (save[f.at + ORANGE] or save[f.at + RED])]
@@ -372,3 +391,31 @@ def _note(folder: Path, slot: int, restored: list[Found], files: list[tuple], ba
     text += f"  Backup: {Path(backup.backup_folder).name}\r\n\r\n"
     with open(log, "ab") as handle:
         handle.write(text.encode(GAME_TEXT, "replace"))
+
+
+KIND_ID = "heathen_masks"
+KIND_LABEL = "Masks of Heathens who went back to the Heathens"
+
+
+def plan_kind(folder: Path, slot: int, game_folders: list[Path] | None = None):
+    """Repair Saves & Logs' checklist row (src/vv_log_additions.py plan), beside "Masks of villagers who rejoined
+    the tribe" (src/vv5_rejoined_masks.py): who gets their own mask back as a Heathen (context "restore": the
+    (name, mask) pairs; "lines": each as the checklist says it) and, in the notes, who does not and why.  Only in a
+    game with Heathens Keep Their Masks When Converted, which draws it.  Reads only."""
+    import vv_log_additions as additions
+    import vv5_rejoined_masks
+    kind = additions.Kind(KIND_ID, KIND_LABEL)
+    if vv5_rejoined_masks.keep_masks_in_game(folder, game_folders) is False:
+        kind.notes.append("not looked for: this game does not have Heathens Keep Their Masks When Converted.")
+        return kind
+    try:
+        work = survey(folder, slot)
+    except (struct.error, ValueError, OSError, ln.LastNamesError) as exc:
+        kind.notes.append(f"not checked: a file could not be read ({exc}).")
+        return kind
+    kind.notes.extend(work.notes)
+    kind.notes.extend(f.line() for f in work.listed)
+    if work.restore:
+        kind.context["restore"] = [(f.name, f.mask) for f in work.restore]
+        kind.context["lines"] = [f.line() for f in work.restore]
+    return kind

@@ -6045,6 +6045,12 @@ class App(tk.Tk):
         if getattr(result, "kept_answers", None):
             lines.append(f"Answers kept, changed or cleared: {len(result.kept_answers)} (an answer is not asked again; "
                          "see Answered questions in Repair Saves & Logs; listed in the Repairs log).")
+        rejoined = getattr(result, "rejoined", None)
+        if rejoined is not None and rejoined.restored:
+            lines.append("Masks given back to villagers who rejoined the tribe (once; a later Repair never gives them "
+                         "again): " + "; ".join(f.line() for f in rejoined.restored) + ".")
+        elif rejoined is not None and rejoined.note:
+            lines.append(f"Masks of villagers who rejoined the tribe: {rejoined.note}")
         for (old, head, body), new in getattr(result, "renamed", {}).items():
             lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
                          "patcher's files.")
@@ -6303,16 +6309,25 @@ class App(tk.Tk):
             unnumber = kind.id == vv_number_names.UNNUMBER_KIND and bool(kind.questions)
             preferred = kind.context.get("graves") if kind.id == "apprentice" else None
             preferred = preferred if preferred is not None and preferred.in_save else None
+            # New Believers' rejoined villagers' masks (src/vv5_rejoined_masks.py): each one listed, by name.
+            rejoined = kind.context.get("lines") if kind.id == "rejoined_masks" else None
+            # ...and the masks of Heathens who went back (src/vv5_heathen_masks_restore.py): listed the same way.
+            if kind.id == "heathen_masks":
+                rejoined = kind.context.get("lines")
             # The Esteemed Elder title, retroactively (src/vv_log_additions.py plan_esteemed): its graves in the save.
             elders = kind.context.get("graves") if kind.id == "esteemed" else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber and not preferred and not elders:
+                    and not unnumber and not preferred and not elders and not rejoined:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
-            text = (f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
+            text = (f"Give back the mask {len(rejoined)} Heathen(s) wore as a Heathen before they went back"
+                    if rejoined and kind.id == "heathen_masks"
+                    else f"Give back the mask {len(rejoined)} villager(s) wore when they rejoined the tribe (once)"
+                    if rejoined
+                    else f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
                     # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
                     else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if kind.id == "misfiled"
@@ -6329,6 +6344,10 @@ class App(tk.Tk):
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
+            if rejoined:
+                for line in list(rejoined) + list(kind.notes):
+                    ttk.Label(frame, text=f"    {line}", wraplength=600, justify="left",
+                              foreground="#555555").pack(anchor="w", pady=(1, 0))
             if kind.id == "esteemed":
                 # Who it gives the title to, before anything is written (the owner: a list first), and who is
                 # left as they are and why.

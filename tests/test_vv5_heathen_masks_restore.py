@@ -238,6 +238,28 @@ class RestoreHeathenMasks(unittest.TestCase):
         self.assertIn("every file was put back", str(raised.exception))
         self.assertEqual((self.save.read_bytes(), self.masks.read_bytes()), (save, masks))
 
+    def test_repairs_checklist_row_beside_the_rejoined_masks(self):
+        """Repair Saves & Logs' checklist (src/vv_log_additions.py plan) lists this beside "Masks of villagers who
+        rejoined the tribe" (src/vv5_rejoined_masks.py, believers): who, and who not with why; approve_repair writes
+        only what it listed, with its own backup (no second one), and never a believer's entry."""
+        import vv5_rejoined_masks
+        with mock.patch.object(vv5_rejoined_masks, "keep_masks_in_game", return_value=True):
+            kind = hm.plan_kind(self.folder, 1)
+        self.assertEqual(kind.id, "heathen_masks")
+        self.assertEqual(kind.context["restore"], [("Nobu", 4), ("Tama", 3)])
+        self.assertTrue(any(line.startswith("Lulu (head 9, body 9): mask unknown") for line in kind.notes))
+        with mock.patch.object(vv5_rejoined_masks, "keep_masks_in_game", return_value=False):
+            self.assertNotIn("restore", hm.plan_kind(self.folder, 1).context, "no Keep Masks: nothing to draw it")
+        backups = self.folder / "Backups"
+        result = hm.restore(self.folder, 1, now=NOW, backup_name="2026-11-22 12-00-00 (before repair re-arm)",
+                            only={("Nobu", 4)})
+        self.assertEqual([f.name for f in result.restored], ["Nobu"], "only what the checklist listed")
+        self.assertFalse(backups.exists() and any(backups.iterdir()), "Repair's own backup: no second one")
+        self.assertEqual([self.nibble(i) for i in range(3)], [2, 4, 0], "Kai's (a believer's) entry untouched")
+        source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
+        self.assertLess(source.index("vv5_rejoined_masks.restore("), source.index("vv5_heathen_masks_restore.restore("),
+                        "the rejoined believers' row first, then this one, each reading the file afresh")
+
     def test_no_masks_file_writes_nothing(self):
         self.masks.unlink()
         work = hm.survey(self.folder, 1)
