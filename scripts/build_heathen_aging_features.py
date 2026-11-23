@@ -113,7 +113,7 @@ def description(row: str) -> str:
             "stay free for your own village's babies; a Heathen child grows up in the camp. **What is left when a "
             "Heathen dies is decided by \"All Heathens Leave Skeletons\" or \"Former Villagers Among the Heathens "
             "Leave Skeletons\"**; with neither they simply disappear from the camp, no grave. Deaths go in the "
-            "Deaths log and each replacement in the Births log's Arrived records; births are never logged. "
+            "Deaths log, each replacement in the Births log's Arrived records, and each Heathen baby's conception and birth in the Births and Conceptions log, every one marked as a Heathen. "
             "**Heathens never count in the Village Statistics.** **With \"Former Villagers Keep Aging Among the "
             "Heathens\" also ticked, this covers everyone: nobody ages twice.** " + NOT_SEEN + " The companion is "
             "\"VVFP Heathen Aging.dll\"; it keeps its own small file per save, never writes a save."
