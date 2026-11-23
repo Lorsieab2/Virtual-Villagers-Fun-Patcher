@@ -1549,11 +1549,11 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
-        "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
-        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Esteemed Elders in Every Game,",
-        "Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons,",
-        "Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
+        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
+        "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
+        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
+        "Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons, Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders",
+        "and the island event controls (Content Notes, every Content Filter, No Safeguards, Heathens in island events) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1577,7 +1577,8 @@
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
-        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
+        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
+        "Yellow Breadfruit Refills Partially Every Time is off too.",
         "Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off too.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",

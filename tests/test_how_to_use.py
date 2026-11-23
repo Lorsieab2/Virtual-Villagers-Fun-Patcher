@@ -165,6 +165,18 @@ class ContentTests(unittest.TestCase):
         for patch_id in gui.SELECT_ALL_OFF_FUN_PATCH_IDS:
             self.assertIn(names[patch_id], select_all)
             self.assertIn("Select All does not tick it", " ".join(how.guide(how.patch_key(patch_id), "x").lines))
+        # The other way round: a patch the guide names as not ticked must really be left off.  The lines that
+        # name a ticked alternative ("... (ticked).") are left out.  The guide once named Isola Grand Event
+        # Collection and Birth Control, which Select All ticks.
+        not_ticked = " ".join(line for line in how.guide("select_all").lines if "(ticked)" not in line)
+        ticked = {}
+        for patch in vfp.load_public_fun_patches():
+            ticked.setdefault(patch.name, set()).add(patch.id not in gui.SELECT_ALL_OFF_FUN_PATCH_IDS)
+        longer = [n for n in ticked if any(n != m and n in m and m in not_ticked for m in ticked)]
+        for name, states in ticked.items():
+            if name in not_ticked and name not in longer:
+                with self.subTest(select_all_names=name):
+                    self.assertEqual(states, {False}, f"the Select All guide says {name} is not ticked")
 
     def test_the_guides_ship_with_the_patcher(self) -> None:
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
