@@ -140,7 +140,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Years ago, (subject) stopped using (subject.his/her) childhood name. (subject.He/She) chose a new one, the one everyone is supposed to call (subject.him/her) now.\nHalf the village still uses the old one.\nEspecially the elders. Especially (elder), who shouts it across the beach at the top of (subject.his/her) voice, every morning, as if it's a tradition. This morning at the well, (subject) heard the old name four times before breakfast. One of those times, it was from someone who wasn't even born when (subject.he/she) changed it.\n(subject) is standing by the well with (subject.his/her) jar, very, very calm, the way a volcano is calm. Should (subject) explain where the old name came from, or finally make everyone use the new one?",
+   "text": "Years ago, (subject) stopped using (subject.his/her) childhood name. (subject.He/She) chose a new one, the one everyone is supposed to call (subject.him/her) now.\nHalf the village still uses the old one.\nEspecially the elders. Especially (elder), who shouts it across the beach at the top of (elder.his/her) voice, every morning, as if it's a tradition. This morning at the well, (subject) heard the old name four times before breakfast. One of those times, it was from someone who wasn't even born when (subject.he/she) changed it.\n(subject) is standing by the well with (subject.his/her) jar, very, very calm, the way a volcano is calm. Should (subject) explain where the old name came from, or finally make everyone use the new one?",
    "choices": [
     {
      "label": "Keep the Story of the Old Name",

@@ -177,7 +177,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "(healer) wades into the swamp up to (subject.his/her) waist and comes back with a muddy black root that smells like a wet boot. (subject.He/She) grinds it to a paste. (subject) holds (subject.his/her) nose and swallows...",
+   "text": "(healer) wades into the swamp up to (healer.his/her) waist and comes back with a muddy black root that smells like a wet boot. (healer.He/She) grinds it to a paste. (subject) holds (subject.his/her) nose and swallows...",
    "children": [
     {
      "next": "c1o1",
@@ -191,7 +191,7 @@
    "src": "L11365"
   },
   "c2o1": {
-   "text": "Just before dawn the fever breaks on its own. (subject) wakes up soaked through, weak as a newborn goat, and hungry for the first time in days. (healer) is asleep sitting up, with the cloth still in (subject.his/her) hand. When (subject.he/she) wakes, (subject.he/she) writes down every step of that night, and the healers use it for years.",
+   "text": "Just before dawn the fever breaks on its own. (subject) wakes up soaked through, weak as a newborn goat, and hungry for the first time in days. (healer) is asleep sitting up, with the cloth still in (healer.his/her) hand. When (healer.he/she) wakes, (healer.he/she) writes down every step of that night, and the healers use it for years.",
    "effects": [
     {
      "do": "cure",
@@ -222,7 +222,7 @@
    "auto_text": true
   },
   "c2": {
-   "text": "\"No roots,\" whispers (subject). (healer) nods, piles on a third blanket and sits by the mat with a bowl of cool water and a cloth. (subject.He/She) stays all night...",
+   "text": "\"No roots,\" whispers (subject). (healer) nods, piles on a third blanket and sits by the mat with a bowl of cool water and a cloth. (healer.He/She) stays all night...",
    "children": [
     {
      "next": "c2o1",

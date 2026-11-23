@@ -368,6 +368,14 @@ GAMES = {
         "burial_hook_va": 0x473F8F,
         "burial_guard": "C686D41C000000",
         "burial_replay": "mov byte ptr [esi + 0x1CD4], 0",
+        # Heathens never count (the owner): the body (ESI here) keeps its
+        # faction byte, and "VVFP Heathen Aging.dll"'s skeleton rows (All
+        # Heathens Leave Skeletons, Former Villagers Among the Heathens Leave
+        # Skeletons) give a Heathen a body the believers bury. The guarded
+        # wrapper is 27 bytes, past the 0x1A8 death wrapper's start, so it
+        # sits in the cave's free tail (0x1E0..0x1FF).
+        "burial_faction_offset": 0x1CEC,
+        "burial_slot": 0x1E0,
         # +0x30 holds the Origins saved bit flags and +0x34 the Heathens
         # Converted total, so this game's first free reserve dword is +0x38.
         "burial_stat_va": 0x51D39C,  # pending +0x44 (old +0x38 frozen)
@@ -924,7 +932,17 @@ def build_game(
             burial_body = (
                 f"inc dword ptr [0x{int(config['burial_stat_va']):X}]"
             )
-            burial_slot = 0x190
+            if "burial_faction_offset" in config:
+                # New Believers: a Heathen's body is buried (the Heathen
+                # Aging skeleton rows) but never counted. Only the increment
+                # is skipped; the latch clear below is replayed either way.
+                burial_body = (
+                    f"cmp byte ptr [esi + 0x{int(config['burial_faction_offset']):X}], 0\n"
+                    f"                jne heathen_body\n"
+                    f"                {burial_body}\n"
+                    f"            heathen_body:"
+                )
+            burial_slot = int(config.get("burial_slot", 0x190))
         else:
             burial_body = (
                 f"{config['burial_manager']}\n"
@@ -974,6 +992,8 @@ def build_game(
                 "purpose": (
                     "count every skeleton pickup once in the per-save reserve, "
                     "including pickups made after the memorial array is full"
+                    + ("; a Heathen's body is buried but never counted"
+                       if "burial_faction_offset" in config else "")
                 ),
             }
         )

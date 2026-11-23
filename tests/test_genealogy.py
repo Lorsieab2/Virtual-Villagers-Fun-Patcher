@@ -330,6 +330,40 @@ class RuleTests(unittest.TestCase):
         self.assertEqual(litter["Gu"], litter["Ha"])
         self.assertNotEqual(litter["Fa"], litter["Gu"])
 
+    def test_records_marked_a_heathen_are_heathens_and_the_camp_is_no_founder(self) -> None:
+        # The owner, 2026-11-22: the logs record the Heathens too, each record marked "Faction: Heathen" ("Isolan"
+        # with Guardians of Isola).  The camp's Heathens get "How: Founder" Arrived records with the founders, and
+        # are never the tribe's founders (the owner, 2026-11-21); a Heathen's Death record says they died a Heathen.
+        def arrived(n: int, name: str, head: int, faction: str = "") -> str:
+            return (f"Arrived {n}\n  Name: {name}\n" + (f"  Faction: {faction}\n" if faction else "")
+                    + f"  Age at arrival: 400\n  Sex: Male\n  Head: {head}\n  Body: {head}\n"
+                      f"  Likes: (none)\n  Dislikes: (none)\n  How: Founder\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            births = Path(tmp) / "Virtual Villagers Fun Patcher Logs" / "Births and Conceptions"
+            deaths = Path(tmp) / "Virtual Villagers Fun Patcher Logs" / "Deaths and Disappearances"
+            births.mkdir(parents=True)
+            deaths.mkdir(parents=True)
+            (births / "Virtual Villagers 5 Births and Conceptions Log 1.txt").write_text(
+                "Village: Test Tribe (Save 1)\n\n" + "\n".join(
+                    [arrived(1, "Fo", 1), arrived(2, "Cam", 2, "Heathen"), arrived(3, "Iso", 3, "Isolan")]),
+                encoding="utf-8")
+            (deaths / "Virtual Villagers 5 Deaths Log 1.txt").write_text(
+                "Village: Test Tribe (Save 1)\n\nDeath 1\n  Name: Old\n  Faction: Heathen\n  Age at death: 1300\n"
+                "  Sex: Male\n  Cause of death: Old age\n  Grave: no grave (died among the Heathens: nothing was "
+                "left)\n  Epitaph: (none)\n  Head: 4\n  Body: 4\n  Likes: (none)\n  Dislikes: (none)\n",
+                encoding="utf-8")
+            reg = gen._Registry()
+            gen._log_people(reg, Path(tmp), 5, 1)
+        people = {p.name: p for p in reg.people.values()}
+        self.assertTrue(people["Fo"].founder_record, "a founder of the tribe")
+        for heathen in ("Cam", "Iso"):
+            self.assertFalse(getattr(people[heathen], "founder_record", False), f"{heathen}: the camp, no founder")
+            self.assertIn("Heathen", people[heathen].statuses)
+        self.assertEqual(people["Old"].gone, "died")
+        self.assertIn("Heathen", people["Old"].statuses)
+        self.assertEqual(people["Old"].faction_seen[1], "Heathen")
+        self.assertNotIn("Heathen", people["Fo"].statuses)
+
     def test_relatedness_ignores_the_trees_display_generations(self) -> None:
         # Codex, #555: "Move to generation" only moves where a villager is drawn.
         v = village()

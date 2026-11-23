@@ -182,7 +182,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The best healer in the village, (healer), turns one berry over and over in (subject.his/her) fingers and decides there's only one way to be sure. \"Just a small taste,\" (healer) says. \"For science.\" By morning (healer) is sick with a roaring fever and talking to the roof beams. With the best healer out of action, (subject) has to look after (subject.him/her), mixing teas, cooling (subject.his/her) forehead, sitting up through the nights. It takes a week. (Healer) gets better. And (subject) learns more about healing in that one week than (subject.he/she) ever expected to.",
+   "text": "The best healer in the village, (healer), turns one berry over and over in (healer.his/her) fingers and decides there's only one way to be sure. \"Just a small taste,\" (healer) says. \"For science.\" By morning (healer) is sick with a roaring fever and talking to the roof beams. With the best healer out of action, (subject) has to look after (healer.him/her), mixing teas, cooling (healer.his/her) forehead, sitting up through the nights. It takes a week. (Healer) gets better. And (subject) learns more about healing in that one week than (subject.he/she) ever expected to.",
    "effects": [
     {
      "do": "sick",

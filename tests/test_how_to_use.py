@@ -152,6 +152,10 @@ class ContentTests(unittest.TestCase):
             # Fog of Doom Lets Red and Orange Heathens Listen and its option, named together likewise.
             if patch_id.startswith("vv5_fog_of_doom_"):
                 short = "both Fog of Doom patches"
+            # The four Heathen aging rows (New Believers, 2026-11-22), named together likewise.
+            if patch_id in ("vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages",
+                            "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons"):
+                short = "the four Heathen aging patches"
             with self.subTest(default_off=patch_id):
                 self.assertIn(short, default)
         owners = " ".join(how.guide("owners_defaults").lines)

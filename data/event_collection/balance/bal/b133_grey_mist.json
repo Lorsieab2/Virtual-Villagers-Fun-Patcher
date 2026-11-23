@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A pale mist rolls down off the mountain at dawn, thin and silvery, and settles over the huts like a cobweb. It doesn't smell of rain. It smells of ash and old flowers. Where it touches the leaves, they turn grey at the tips.\n(subject) is up early, as always, and is the first to notice that the mist is doing the same to people. (fisher), asleep in a hammock outside, has woken up with silver streaks in (subject.his/her) hair. A child's eyebrows have gone white. (subject)'s grandmother used to say that grey mist comes from the mountain when the spirits up there are grieving, and that it \"borrows years from whoever it finds outside.\"\nShould (subject) wake everyone and tell them to stay indoors, or climb up the mountain to find out what's grieving?",
+   "text": "A pale mist rolls down off the mountain at dawn, thin and silvery, and settles over the huts like a cobweb. It doesn't smell of rain. It smells of ash and old flowers. Where it touches the leaves, they turn grey at the tips.\n(subject) is up early, as always, and is the first to notice that the mist is doing the same to people. (fisher), asleep in a hammock outside, has woken up with silver streaks in (fisher.his/her) hair. A child's eyebrows have gone white. (subject)'s grandmother used to say that grey mist comes from the mountain when the spirits up there are grieving, and that it \"borrows years from whoever it finds outside.\"\nShould (subject) wake everyone and tell them to stay indoors, or climb up the mountain to find out what's grieving?",
    "choices": [
     {
      "label": "Wake Everyone",

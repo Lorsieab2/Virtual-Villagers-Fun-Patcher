@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "At first light, (subject) sees a raft out past the reef. It is badly made, three logs and a lot of rope, and it is sitting very low in the water. There are people on it, waving a shirt on a stick. The current is carrying them along the reef towards the rocks at the point.\n(fisher), the best fisher, is already pushing a canoe out. \"It's too rough for one canoe to bring them all,\" (subject.he/she) shouts. \"Come with me, or run for more help!\"\nShould (subject) jump into the canoe, or run back for the others?",
+   "text": "At first light, (subject) sees a raft out past the reef. It is badly made, three logs and a lot of rope, and it is sitting very low in the water. There are people on it, waving a shirt on a stick. The current is carrying them along the reef towards the rocks at the point.\n(fisher), the best fisher, is already pushing a canoe out. \"It's too rough for one canoe to bring them all,\" (fisher.he/she) shouts. \"Come with me, or run for more help!\"\nShould (subject) jump into the canoe, or run back for the others?",
    "choices": [
     {
      "label": "Jump Into the Canoe",

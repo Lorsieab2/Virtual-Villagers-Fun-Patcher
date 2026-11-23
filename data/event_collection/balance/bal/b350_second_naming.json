@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "In the old days, the elders say, everyone on the island had two names: the one given at birth, and a second one, given when they had done something worth a name. The custom died out long ago. But this year, (elder) has decided to bring it back, and the first person (subject.he/she) chooses is (subject), who pulled two children out of the surf last month.\nThe whole village gathers at the fire. (elder) asks: will (subject) take a name chosen by the elders, or choose one (subject.himself/herself)?",
+   "text": "In the old days, the elders say, everyone on the island had two names: the one given at birth, and a second one, given when they had done something worth a name. The custom died out long ago. But this year, (elder) has decided to bring it back, and the first person (elder.he/she) chooses is (subject), who pulled two children out of the surf last month.\nThe whole village gathers at the fire. (elder) asks: will (subject) take a name chosen by the elders, or choose one (subject.himself/herself)?",
    "choices": [
     {
      "label": "Let the Elders Choose",
@@ -157,7 +157,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "The elders put their heads together and whisper for a long time. Then (elder) stands up, clears (subject.his/her) throat, and announces it...",
+   "text": "The elders put their heads together and whisper for a long time. Then (elder) stands up, clears (elder.his/her) throat, and announces it...",
    "children": [
     {
      "next": "c1o1",

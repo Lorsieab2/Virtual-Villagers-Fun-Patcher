@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "It started with (subject) bringing a single fish to the cooking fire. Then someone else brought some yams to go with it. Then somebody's aunt brought a pot of stew \"because it would only go to waste\", and the children brought mangoes, and the farmers brought sweet potatoes, and by mid-afternoon there is enough food spread on the mats to feed the village twice.\n(cook), the head cook, stands with (subject.his/her) hands on (subject.his/her) hips. \"Nobody told me there was a feast,\" (subject.he/she) says. \"Is there a feast?\"\nEveryone looks at (subject), since it was (subject.his/her) fish. Should (subject) call it a feast, or tell everyone to pack the extra away for later?",
+   "text": "It started with (subject) bringing a single fish to the cooking fire. Then someone else brought some yams to go with it. Then somebody's aunt brought a pot of stew \"because it would only go to waste\", and the children brought mangoes, and the farmers brought sweet potatoes, and by mid-afternoon there is enough food spread on the mats to feed the village twice.\n(cook), the head cook, stands with (cook.his/her) hands on (cook.his/her) hips. \"Nobody told me there was a feast,\" (cook.he/she) says. \"Is there a feast?\"\nEveryone looks at (subject), since it was (subject.his/her) fish. Should (subject) call it a feast, or tell everyone to pack the extra away for later?",
    "choices": [
     {
      "label": "Call It a Feast",
@@ -174,7 +174,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "\"It's a feast,\" says (subject). A cheer goes up. The drummers fetch their drums, and (cook) throws (subject.his/her) hands in the air and starts giving orders...",
+   "text": "\"It's a feast,\" says (subject). A cheer goes up. The drummers fetch their drums, and (cook) throws (cook.his/her) hands in the air and starts giving orders...",
    "children": [
     {
      "next": "c1o1",
@@ -188,7 +188,7 @@
    "src": "L11595"
   },
   "c2o1": {
-   "text": "(cook) has always grumbled about the food store, which (subject.he/she) calls \"the cave of rotting things,\" and has never been able to stand the sticky smell of fruit and berries heaped up in baskets. But with everyone helping, it gets cleaned out, sorted and filled in one afternoon, and by evening it smells of fresh leaves instead of old fish and bruised fruit. (cook) stands in the doorway, breathing in, and finds that the smell of a basket of ripe fruit doesn't turn (subject.his/her) stomach any more. Your villagers gain (award) food.",
+   "text": "(cook) has always grumbled about the food store, which (cook.he/she) calls \"the cave of rotting things,\" and has never been able to stand the sticky smell of fruit and berries heaped up in baskets. But with everyone helping, it gets cleaned out, sorted and filled in one afternoon, and by evening it smells of fresh leaves instead of old fish and bruised fruit. (cook) stands in the doorway, breathing in, and finds that the smell of a basket of ripe fruit doesn't turn (cook.his/her) stomach any more. Your villagers gain (award) food.",
    "effects": [
     {
      "do": "food",
@@ -209,7 +209,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The food goes into the store, and the village goes to bed early, a little put out. The children sulk the most. The next day the stew is reheated and served at lunch, and it tastes even better the second time, which (cook) says (subject.he/she) could have told everyone. Your villagers gain (award) food.",
+   "text": "The food goes into the store, and the village goes to bed early, a little put out. The children sulk the most. The next day the stew is reheated and served at lunch, and it tastes even better the second time, which (cook) says (cook.he/she) could have told everyone. Your villagers gain (award) food.",
    "effects": [
     {
      "do": "food",

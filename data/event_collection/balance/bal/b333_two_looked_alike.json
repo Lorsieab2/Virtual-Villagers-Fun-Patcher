@@ -131,7 +131,7 @@
    "src": "L15395-15396"
   },
   "c1o1": {
-   "text": "In the morning, (subject) wakes up on (subject.his/her) own mat, in (subject.his/her) own hut, in (friend)'s body. Across the village, (friend) is doing the same thing in reverse. The island, it seems, liked the joke. (elder) just nods when they come back. \"I did say,\" (subject.he/she) says.",
+   "text": "In the morning, (subject) wakes up on (subject.his/her) own mat, in (subject.his/her) own hut, in (friend)'s body. Across the village, (friend) is doing the same thing in reverse. The island, it seems, liked the joke. (elder) just nods when they come back. \"I did say,\" (elder.he/she) says.",
    "effects": [
     {
      "do": "body_swap",

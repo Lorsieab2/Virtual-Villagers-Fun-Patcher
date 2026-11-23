@@ -2,6 +2,18 @@
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
   {
+   "reason": "The Heathens in the logs (New Believers, native/shared/heathen_word.h): the game's own Guardians of Isola words it looks for (\"left the tribe\", compared with the game's string 0x48 to choose the logs' \"Isolan\"), never shown; logs are never translated.",
+   "files": [
+    "native/shared/heathen_word.h"
+   ]
+  },
+  {
+   "reason": "The Heathen aging rows (VVFP Heathen Aging.dll, New Believers): its only text is the \"How:\" words of the Arrived record it asks the Cause of Death companion to write for a replacement Heathen, and the stand-in father name \"Unknown\" the stock Heathen Mommy's infant has; logs are never translated and nothing is drawn in the game.",
+   "files": [
+    "native/vvfp_heathen_aging/*"
+   ]
+  },
+  {
    "reason": "The game-text fixes (Fix Vanilla Bugs, all five games; VVFP Text Fixes.dll): the games' own stock texts and their fixed versions (data/vanilla_text_fixes.json), and the Food Mastery line inside eTechFoodMasteryInfo. Each is the game's own string-table row, whose English src/vv_translations.py gives fixed when the companion is in the game; none is patcher text of its own (and the stock \"Harvesting blackberries\" the cutting-tool caption compares with, and the mark \"Harvesting berries with a cutting tool\" the harvest writes into the caption field, which is never shown: the Action line draws the full caption for it). Not the cutting-tool harvest caption itself (The Tree of Life): its own row is vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0.",
    "files": ["native/vvfp_text_fixes/*"],
    "match": "^(?!Harvesting blackberries with a cutting tool$)"
@@ -101,10 +113,10 @@
    "files": ["native/vvfp_unicode_text/*"]
   },
   {
-   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, Gender Presentation, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
+   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, Gender Presentation, Heathens Keep Masks, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
    "files": ["native/vvfp_last_names/*", "native/vvfp_number_names/*", "native/vvfp_original_look/*",
              "native/vvfp_head_look/*", "native/vvfp_vv2_totems/*", "native/vvfp_game_log/*",
-             "native/vvfp_gender_presentation/*"]
+             "native/vvfp_gender_presentation/*", "native/vvfp_heathens_keep_masks/*"]
   },
   {
    "reason": "Builders Fix Huts' log values (what a builder found: nothing / started).",

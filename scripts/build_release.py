@@ -160,6 +160,12 @@ FILES = [
     "assets/devotion_faith/VVFP Devotion Faith.dll",
     # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): the companion.
     "assets/esteemed_elders/VVFP Esteemed Elders.dll",
+    # The four Heathen aging rows (New Believers): the companion and each row's flag file.
+    "assets/heathen_aging/VVFP Heathen Aging.dll",
+    "assets/heathen_aging/VVFP Heathen Aging Former.txt",
+    "assets/heathen_aging/VVFP Heathen Aging Tribe.txt",
+    "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
+    "assets/heathen_aging/VVFP Heathen Skeletons All.txt",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -366,6 +372,11 @@ FILES = [
     "data/vv2_esteemed_elders_feature.json",
     "data/vv4_esteemed_elders_feature.json",
     "data/vv5_esteemed_elders_feature.json",
+    # The four Heathen aging rows (New Believers).
+    "data/vv5_former_villagers_keep_aging_feature.json",
+    "data/vv5_heathen_tribe_ages_feature.json",
+    "data/vv5_former_villager_heathens_leave_skeletons_feature.json",
+    "data/vv5_all_heathens_leave_skeletons_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",
@@ -771,6 +782,10 @@ FILES = [
     # Copy Player Slot and its window; the GUI imports the window.
     "src/vv_copy_slot.py",
     "src/vv_copy_slot_window.py",
+    # Move Player Slot (the Copy Player Slot window's Move choice).
+    "src/vv_move_slot.py",
+    # Delete Player Slot (the Copy Player Slot window's Delete choice).
+    "src/vv_delete_slot.py",
     # Backups (Tools tab, Restore Saves' Details..., Repair Saves & Logs): each backup's vital statistics, read-only.
     "src/vv_backup_details.py",
     "src/vv_backup_details_window.py",
@@ -971,6 +986,8 @@ FILES = [
     # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
     "src/vv_corrupt_skills.py",
     "src/vv_golden_child_revive.py",
+    # Repair Saves & Logs' New Believers Catch up Heathen ages (the GUI imports it).
+    "src/vv5_heathen_ages.py",
     # Repair Saves & Logs' The Lost Children totem rows: Give Esteemed Elders Totems Retroactively and Fix
     # Rare Villager Turning Into Totem (the GUI imports it).
     "src/vv_vv2_totems.py",
@@ -980,6 +997,8 @@ FILES = [
     "src/vv_history_revision.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
     "src/vv1_parents_restore.py",
+    # Repair Saves & Logs' Restore Heathen Masks (New Believers; the GUI imports it).
+    "src/vv5_heathen_masks_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
     # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
     "src/vv_save_layout.py",

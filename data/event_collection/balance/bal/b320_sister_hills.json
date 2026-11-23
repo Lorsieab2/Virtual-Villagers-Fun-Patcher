@@ -167,7 +167,7 @@
    "src": "L14826"
   },
   "c2o1": {
-   "text": "The child turns away and runs back into the trees, laughing. (friend), before (subject) can stop (subject.him/her), runs after (subject.him/her). \"I'll bring (subject.him/her) back!\" (friend) calls. Neither of them comes back. On still evenings, people at the last garden row say they hear (friend) laughing in the hills, as if (subject.he/she) is having the time of (subject.his/her) life.",
+   "text": "The child turns away and runs back into the trees, laughing. (friend), before (subject) can stop (friend.him/her), runs after (subject.him/her). \"I'll bring (subject.him/her) back!\" (friend) calls. Neither of them comes back. On still evenings, people at the last garden row say they hear (friend) laughing in the hills, as if (friend.he/she) is having the time of (friend.his/her) life.",
    "effects": [
     {
      "do": "vanish",

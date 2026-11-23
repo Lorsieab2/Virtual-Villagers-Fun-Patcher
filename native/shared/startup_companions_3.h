@@ -48,6 +48,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
        give the Esteemed Elder title on the villager panel and the grave, as The Secret City and New Believers do
        (the owner, 2026-11-22). */
     "VVFP Esteemed Elders.dll",
+    /* The four Heathen aging rows (New Believers): Heathens who age and die of old age, are replaced at once, and
+       (the tribe row) have children; each row's flag file says which (the owner, 2026-11-22). */
+    "VVFP Heathen Aging.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

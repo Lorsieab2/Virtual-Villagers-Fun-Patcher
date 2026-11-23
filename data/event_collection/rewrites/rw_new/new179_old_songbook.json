@@ -200,7 +200,7 @@
    "src": "L8686"
   },
   "c2o1": {
-   "text": "(elder) suddenly starts humming, then singing, in a cracked, sweet voice. (subject.He/She) remembers this one! It was sung to keep rowing time on long canoe trips, so every paddle hit the water together. It's a forgotten detail that makes the song useful again, and the canoe crews start singing it. And \"LOUDER,\" (elder) explains, is what the song leader used to shout when the rowers got tired.",
+   "text": "(elder) suddenly starts humming, then singing, in a cracked, sweet voice. (elder.He/She) remembers this one! It was sung to keep rowing time on long canoe trips, so every paddle hit the water together. It's a forgotten detail that makes the song useful again, and the canoe crews start singing it. And \"LOUDER,\" (elder) explains, is what the song leader used to shout when the rowers got tired.",
    "effects": [
     {
      "do": "tech",

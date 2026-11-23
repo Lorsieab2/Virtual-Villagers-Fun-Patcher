@@ -131,7 +131,7 @@
    "src": "L14194-14195"
   },
   "c1o1": {
-   "text": "By evening the blossoms have wilted, and when (subject) takes the crown off, the face underneath is the one (subject.he/she) had at twenty: smooth, bright, a little cheeky. (subject.His/her) back and knees are as old as ever. (child) is very proud and tells everyone (subject.he/she) did it. Technically, (subject.he/she) did.",
+   "text": "By evening the blossoms have wilted, and when (subject) takes the crown off, the face underneath is the one (subject.he/she) had at twenty: smooth, bright, a little cheeky. (subject.His/her) back and knees are as old as ever. (child) is very proud and tells everyone (child.he/she) did it. Technically, (child.he/she) did.",
    "effects": [
     {
      "do": "young_look",
@@ -142,7 +142,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "Nothing happens to (subject). But (child) puts the crown on (subject.his/her) own head afterwards, to see, and by the next morning nothing has happened to (subject.him/her) either, except that (subject.he/she) smells of honey for a week and is followed everywhere by bees. (subject) laughs until (subject.he/she) cries. \"Stories for children,\" (subject.he/she) says.",
+   "text": "Nothing happens to (subject). But (child) puts the crown on (child.his/her) own head afterwards, to see, and by the next morning nothing has happened to (child.him/her) either, except that (child.he/she) smells of honey for a week and is followed everywhere by bees. (subject) laughs until (subject.he/she) cries. \"Stories for children,\" (subject.he/she) says.",
    "src": "L14207"
   },
   "c1": {

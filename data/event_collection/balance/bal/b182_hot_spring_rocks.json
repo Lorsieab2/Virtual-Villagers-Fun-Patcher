@@ -131,7 +131,7 @@
    "src": "L8436-8438"
   },
   "c1o1": {
-   "text": "(friend) lies in the pool until (subject.his/her) fingers wrinkle. The cough loosens. The aching goes. That evening, (subject.he/she) walks down to the village without help, smelling powerfully of eggs and grinning. The healers start taking sick villagers up to the pool every week, and holding their noses.",
+   "text": "(friend) lies in the pool until (friend.his/her) fingers wrinkle. The cough loosens. The aching goes. That evening, (friend.he/she) walks down to the village without help, smelling powerfully of eggs and grinning. The healers start taking sick villagers up to the pool every week, and holding their noses.",
    "effects": [
     {
      "do": "cure",
@@ -142,7 +142,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "The pool cures (friend) completely, and does something else as well. When (friend) climbs out, (subject.his/her) skin is smooth and bright and (subject.his/her) face looks years younger. (healer) is fascinated. Half the village goes up to the pool that week. It doesn't work on anyone else's face, only on the sick, which makes several people very cross.",
+   "text": "The pool cures (friend) completely, and does something else as well. When (friend) climbs out, (friend.his/her) skin is smooth and bright and (friend.his/her) face looks years younger. (healer) is fascinated. Half the village goes up to the pool that week. It doesn't work on anyone else's face, only on the sick, which makes several people very cross.",
    "effects": [
     {
      "do": "cure",
@@ -157,7 +157,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "(subject) and (healer) carry (friend) up to the rocks on a mat and lower (subject.him/her) into the milky water, very slowly. (friend) gasps at the heat, then sighs, a long, long sigh...",
+   "text": "(subject) and (healer) carry (friend) up to the rocks on a mat and lower (friend.him/her) into the milky water, very slowly. (friend) gasps at the heat, then sighs, a long, long sigh...",
    "children": [
     {
      "next": "c1o1",

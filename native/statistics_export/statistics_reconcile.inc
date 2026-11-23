@@ -34,7 +34,11 @@
      Villagers Buried (all five games).  A lower bound: the Death records
      of this village in its Deaths log whose Grave line names a grave (not
      "no grave ..."), and the graves the memorial holds now.  The counter is
-     raised to it when below.
+     raised to it when below.  New Believers: a Death record marked
+     "  Faction: Heathen" ("Isolan" with Guardians of Isola) is a Heathen's
+     ("VVFP Heathen Aging.dll"'s skeleton rows) and never counts; the
+     memorial's graves are taken less those, and not at all while a Heathen
+     skeleton row is shipped (a grave keeps no faction).
 
      Twins Birthed (The Lost Children: the patcher's counter, counted at
      conception).  A lower bound: this village's Conception records with
@@ -276,6 +280,7 @@ struct rc_count {
     const char *village;          /* "Village: <name> (Save S)" */
     int game;
     long long graves;             /* Death records with a grave */
+    long long heathen_graves;     /* ...of them, New Believers' Heathens' (never counted) */
     long long twins;              /* Conception records of twins */
     /* Each Death record with a grave counted so far, by its whole text: the
        Deaths logs are read from both "Deaths" and "Deaths and
@@ -292,9 +297,11 @@ static unsigned long long rc_hash_line(unsigned long long h, const char *line) {
     return (h ^ (unsigned char)'\n') * 1099511628211ull;
 }
 
-/* One grave, unless the very same record was counted already. */
-static void rc_count_grave(struct rc_count *c, unsigned long long record) {
+/* One grave, unless the very same record was counted already: a believer's to `graves`, a Heathen's to
+   `heathen_graves` (New Believers: Heathens never count -- the owner). */
+static void rc_count_grave(struct rc_count *c, unsigned long long record, int heathen) {
     int i;
+    long long *into = heathen ? &c->heathen_graves : &c->graves;
     for (i = 0; i < c->seen_count; ++i) {
         if (c->seen[i] == record) {
             return;
@@ -304,39 +311,47 @@ static void rc_count_grave(struct rc_count *c, unsigned long long record) {
         int cap = c->seen_cap ? c->seen_cap * 2 : 64;
         unsigned long long *more = (unsigned long long *)realloc(c->seen, (size_t)cap * sizeof *more);
         if (more == NULL) {
-            ++c->graves;              /* counted, if not remembered */
+            ++*into;                  /* counted, if not remembered */
             return;
         }
         c->seen = more;
         c->seen_cap = cap;
     }
     c->seen[c->seen_count++] = record;
-    ++c->graves;
+    ++*into;
+}
+
+/* A record's "  Faction:" line names a Heathen (New Believers: "Heathen", or "Isolan" with Guardians of Isola,
+   native/shared/heathen_word.h): anything but "Believer". */
+static int rc_heathen_faction_line(const char *line) {
+    return strncmp(line, "  Faction: ", 11) == 0 && strcmp(line + 11, "Believer") != 0 && line[11] != '\0';
 }
 
 /* The Deaths log: "Death <n>" records under this village's header whose
-   "  Grave:" line names a grave. */
+   "  Grave:" line names a grave.  A Heathen's ("  Faction: Heathen": "VVFP
+   Heathen Aging.dll"'s skeleton rows give a Heathen a body the believers
+   bury) is kept apart and never raises Villagers Buried. */
 static void rc_visit_deaths(char *text, void *context) {
     struct rc_count *c = (struct rc_count *)context;
     char *cursor = text;
     char *line;
-    int ours = 0, open = 0, grave = 0;
+    int ours = 0, open = 0, grave = 0, heathen = 0;
     unsigned long long record = 0;
     while ((line = rc_line(&cursor)) != NULL) {
         if (strncmp(line, "Village:", 8) == 0) {
             if (open && grave) {
-                rc_count_grave(c, record);
+                rc_count_grave(c, record, heathen);
             }
-            open = grave = 0;
+            open = grave = heathen = 0;
             ours = strcmp(line, c->village) == 0;
             continue;
         }
         if (line[0] != ' ') {
             if (open && grave) {
-                rc_count_grave(c, record);
+                rc_count_grave(c, record, heathen);
             }
             open = ours && strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9';
-            grave = 0;
+            grave = heathen = 0;
             record = rc_hash_line(14695981039346656037ull, line);
             continue;
         }
@@ -346,10 +361,20 @@ static void rc_visit_deaths(char *text, void *context) {
         if (open && strncmp(line, "  Grave: ", 9) == 0) {
             grave = strncmp(line + 9, "no grave", 8) != 0 && line[9] != '\0';
         }
+        if (open && rc_heathen_faction_line(line)) {
+            heathen = 1;
+        }
     }
     if (open && grave) {
-        rc_count_grave(c, record);
+        rc_count_grave(c, record, heathen);
     }
+}
+
+/* New Believers: a Heathen skeleton row of "VVFP Heathen Aging.dll" is shipped (its flag file in the patcher's
+   folder): the memorial may hold Heathens' graves, which a grave cannot tell apart (it keeps no faction). */
+static int rc_heathen_graves_possible(int game) {
+    return game == GAME_VV5 && (vvfp_patcher_file_exists("VVFP Heathen Skeletons All.txt")
+                                || vvfp_patcher_file_exists("VVFP Heathen Skeletons Former.txt"));
 }
 
 /* The Births and Conceptions log: this village's "Conception <n>" records
@@ -594,7 +619,7 @@ static void rc_visit_history(char *text, void *context) {
                 section = 2;
             } else if (strcmp(line, "  Faction: Believer") == 0) {
                 faction = 1;
-            } else if (strcmp(line, "  Faction: Heathen") == 0) {
+            } else if (rc_heathen_faction_line(line)) {      /* "Heathen", or "Isolan" with Guardians of Isola */
                 faction = 2;
             }
             continue;
@@ -857,8 +882,11 @@ static void rc_make_plan(int game, int slot, const char *village, const wchar_t 
             plan->blocked = 1;
         }
         if (plan->counters_ok) {
-            int graves = vvs_memorial_graves(context);
-            if ((long long)graves > c.graves) {
+            /* The memorial's graves less the Heathens' the Deaths log names; and none of it while a Heathen
+               skeleton row is shipped -- a Heathen grave made with the Deaths log off would be counted: the
+               Deaths log's believers alone are the bound then. */
+            long long graves = (long long)vvs_memorial_graves(context) - c.heathen_graves;
+            if (!rc_heathen_graves_possible(game) && graves > c.graves) {
                 c.graves = graves;
             }
             key = vvs_counter_key(game, VVS_BURIED);

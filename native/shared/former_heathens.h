@@ -74,6 +74,32 @@ static int vv_former_kind_of(const unsigned char *record) {
     return record[VV5_RED] != 0 ? VV_FORMER_RED : VV_FORMER_BLUE;
 }
 
+/* The mask a Heathen's record is DRAWN with.  "Heathens Keep Their Masks When Converted" (the owner,
+   2026-11-22): a villager who goes back to the Heathens is drawn in the mask they wore as a Heathen before
+   (orange, red, purple or the Chief's) while the game treats them as an ordinary blue one -- role and kind
+   bytes 0, the mask kept by the Origins companion ("VVFP Heathens Keep Masks.dll", its export
+   VvfpHeathensKeepMasksLook).  So the logs' Mask line and the Former Heathens file name what the player sees:
+   that mask for such a Heathen, else vv_former_kind_of.  The companion is found loaded by name (never a search) and remembered once found. */
+#define VV_FORMER_KEEP_MASKS_DLL "VVFP Heathens Keep Masks.dll"
+typedef int (__stdcall *vv_former_look_fn)(const void *record);
+
+static int vv_former_drawn_kind(const unsigned char *record) {
+    static vv_former_look_fn look;
+    int kind = vv_former_kind_of(record), drawn;
+    if (kind != VV_FORMER_BLUE || record[VV5_FACTION] == 0) {
+        return kind;
+    }
+    if (look == NULL) {
+        HMODULE keep = GetModuleHandleA(VV_FORMER_KEEP_MASKS_DLL);
+        look = keep != NULL ? (vv_former_look_fn)GetProcAddress(keep, "VvfpHeathensKeepMasksLook") : NULL;
+        if (look == NULL) {
+            return kind;
+        }
+    }
+    drawn = look(record);
+    return drawn >= VV_FORMER_ORANGE && drawn <= VV_FORMER_CHIEF ? drawn : kind;
+}
+
 static const char *vv_former_mask_word(int kind) {
     switch (kind) {
     case VV_FORMER_BLUE: return "blue mask";

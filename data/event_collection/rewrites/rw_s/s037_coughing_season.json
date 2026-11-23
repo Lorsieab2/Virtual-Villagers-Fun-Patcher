@@ -94,7 +94,10 @@
   ],
   "description": "A cough is going round the village.",
   "label_case": "title",
-  "exact_amounts": true
+  "exact_amounts": true,
+  "cast_only": [
+   "subject"
+  ]
  },
  "requirement": {
   "min_eligible": 2
@@ -183,7 +186,7 @@
    "src": "L1762"
   },
   "c2o2": {
-   "text": "It runs its course. For most people, it passes in a week or two. But for the oldest villager, (elder), it goes deep into (subject.his/her) chest and stays there. (Elder) is laid up for a very long time, wrapped in blankets by the fire, coughing in long, tired fits. (subject.He/She) gets better, in the end. But (subject.he/she) never quite gets back (subject.his/her) strength. Work that was easy becomes hard, and then too hard, and (elder) comes to dread it. The healers say (subject.he/she) was lucky. (Elder) says (subject.he/she) doesn't feel lucky.",
+   "text": "It runs its course. For most people, it passes in a week or two. But for the oldest villager, (elder), it goes deep into (elder.his/her) chest and stays there. (Elder) is laid up for a very long time, wrapped in blankets by the fire, coughing in long, tired fits. (elder.He/She) gets better, in the end. But (elder.he/she) never quite gets back (elder.his/her) strength. Work that was easy becomes hard, and then too hard, and (elder) comes to dread it. The healers say (elder.he/she) was lucky. (Elder) says (elder.he/she) doesn't feel lucky.",
    "effects": [
     {
      "do": "health_change",
@@ -194,11 +197,11 @@
     {
      "do": "preference",
      "dislike": "work",
-     "role": "subject"
+     "role": "elder"
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "elder"
     }
    ],
    "src": "L1765",

@@ -194,7 +194,7 @@
    "auto_text": true
   },
   "c2": {
-   "text": "(friend) takes (subject.his/her) hand off the post. \"Leave it,\" (subject.he/she) says. \"Just in case.\" (subject) shrugs. They walk away. That night, two little children sneak out to the posts...",
+   "text": "(friend) takes (friend.his/her) hand off the post. \"Leave it,\" (friend.he/she) says. \"Just in case.\" (subject) shrugs. They walk away. That night, two little children sneak out to the posts...",
    "children": [
     {
      "next": "c2o1",

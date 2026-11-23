@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(child) has been following the village's old spell-keeper around for a month, and today (subject.he/she) runs up to (subject) with a bundle of herbs, a feather and a seashell tied together with string. \"I learned a spell,\" (child) says. \"It makes you young. Can I try it on you?\"\n(subject) is an elder, and (subject.his/her) knees agree with that loudly every morning. The spell-keeper is nowhere in sight. (child) is bouncing on (subject.his/her) toes.\nShould (subject) let the child try, or gently say no?",
+   "text": "(child) has been following the village's old spell-keeper around for a month, and today (child.he/she) runs up to (subject) with a bundle of herbs, a feather and a seashell tied together with string. \"I learned a spell,\" (child) says. \"It makes you young. Can I try it on you?\"\n(subject) is an elder, and (subject.his/her) knees agree with that loudly every morning. The spell-keeper is nowhere in sight. (child) is bouncing on (child.his/her) toes.\nShould (subject) let the child try, or gently say no?",
    "choices": [
     {
      "label": "Let (Child) Try",
@@ -128,7 +128,7 @@
    "src": "L11633-11635"
   },
   "c1o1": {
-   "text": "Something tickles (subject)'s cheeks. When (subject.he/she) opens (subject.his/her) eyes, (child) is staring at (subject.him/her) with (subject.his/her) mouth open. (subject) goes to the water to look and finds (subject.his/her) own face from forty years ago looking back, smooth and bright. (subject.His/her) knees still creak exactly as before. \"You only did the face,\" (subject) says. \"That's the best bit,\" says (child).",
+   "text": "Something tickles (subject)'s cheeks. When (subject.he/she) opens (subject.his/her) eyes, (child) is staring at (subject.him/her) with (child.his/her) mouth open. (subject) goes to the water to look and finds (subject.his/her) own face from forty years ago looking back, smooth and bright. (subject.His/her) knees still creak exactly as before. \"You only did the face,\" (subject) says. \"That's the best bit,\" says (child).",
    "effects": [
     {
      "do": "young_look",
@@ -157,7 +157,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "(subject) sits down on a log and closes (subject.his/her) eyes. (child) waves the bundle around (subject.his/her) head three times and says a long word that (subject.he/she) gets wrong twice...",
+   "text": "(subject) sits down on a log and closes (subject.his/her) eyes. (child) waves the bundle around (subject.his/her) head three times and says a long word that (child.he/she) gets wrong twice...",
    "children": [
     {
      "next": "c1o1",
@@ -171,7 +171,7 @@
    "src": "L11641"
   },
   "c2o1": {
-   "text": "(child) is so delighted to be listened to that (subject.he/she) presents (subject) with the seashell from the bundle, and starts calling (subject.him/her) by the name of the hero in the spell-keeper's shell story: \"Ponui\" for a man, \"Tonga\" for a woman. The other children pick it up within a day. Within a week, the adults are doing it too. (subject) pretends to be annoyed about it, and wears the shell on a string around (subject.his/her) neck for the rest of (subject.his/her) life.",
+   "text": "(child) is so delighted to be listened to that (child.he/she) presents (subject) with the seashell from the bundle, and starts calling (subject.him/her) by the name of the hero in the spell-keeper's shell story: \"Ponui\" for a man, \"Tonga\" for a woman. The other children pick it up within a day. Within a week, the adults are doing it too. (subject) pretends to be annoyed about it, and wears the shell on a string around (subject.his/her) neck for the rest of (subject.his/her) life.",
    "effects": [
     {
      "do": "change_name",

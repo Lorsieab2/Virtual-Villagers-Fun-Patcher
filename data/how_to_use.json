@@ -1090,6 +1090,7 @@
         "Nothing to click in the patcher: on by default.",
         "A believer whose Faith drifts down to 0 becomes an ordinary blue-mask Heathen with Faith -38 to -67, like the game's own blue Heathens, instead of 0.",
         "So one preaching no longer brings them straight back: win them back like any blue Heathen. Island events keep their own Faith.",
+        "With Heathens Keep Their Masks When Converted, a former Heathen wears the mask they wore then (still acts as a blue-mask Heathen).",
         "Needs no other patch."
       ]
     },
@@ -1112,6 +1113,7 @@
         "A Heathen who joins the tribe keeps the mask they wore: blue, orange, red, purple or the Chief's.",
         "It is their Change Appearance mask: change it there or choose No Mask whenever you like. Nothing is charged.",
         "Reset to original gives it back: a convert's original look is the one they had, with the mask they wore.",
+        "One who goes back to the Heathens wears their own Heathen mask again but acts like an ordinary blue-masked Heathen.",
         "Heathens who joined before this patch keep the look they have now.",
         "Needs Origins (ticked with it). Not yet seen in a running game."
       ]
@@ -1157,6 +1159,51 @@
         "With Faith Loss is Doubled/Gains Halved also ticked, the Faith chance is 1 in 20; the Divine Energy chance stays 1 in 10.",
         "Faith never goes above 100 and Divine Energy never above the village's cap. Heathens and the special Heathen roles never get it.",
         "Works while playing and while catching up. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv5_former_villagers_keep_aging"],
+      "guide": [
+        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
+        "A villager who leaves your tribe and becomes a Heathen keeps growing older among the Heathens, as believers do:",
+        "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
+        "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
+        "A former villager who dies is not replaced, so leaving your tribe never grows the camp.",
+        "What is left is decided by All Heathens Leave Skeletons or Former Villagers Among the Heathens Leave Skeletons;",
+        "with neither, they disappear from the camp, no grave. Deaths are logged; Heathens never count in the Village Statistics.",
+        "Villagers who left before this patch are recognised by the parents on their record. Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv5_heathen_tribe_ages"],
+      "guide": [
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
+        "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
+        "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
+        "A camp Heathen who dies is replaced at once; a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
+        "set up as the game sets that role up, so every puzzle can still be solved. A solved puzzle's Heathen never comes back.",
+        "Heathen couples now and then have children (about once in 20 years for each woman from 14 to 45), only while room is",
+        "left for your own village's babies. Villagers who left you are not replaced; after The Last Heathen, or with none alive, no new Heathens.",
+        "With Former Villagers Keep Aging Among the Heathens also ticked, nobody ages twice. Heathens never count in statistics.",
+        "Not yet seen in a running game."
+      ]
+    },
+    {
+      "ids": ["vv5_all_heathens_leave_skeletons"],
+      "guide": [
+        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Only matters with a Heathen aging patch ticked:",
+        "Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children.",
+        "Every Heathen who dies of old age leaves a skeleton; your believers bury it with Burying the dead (once The Buried",
+        "Mausoleum is solved), which gives a normal grave. Cannot be ticked with Former Villagers Among the Heathens Leave Skeletons."
+      ]
+    },
+    {
+      "ids": ["vv5_former_villager_heathens_leave_skeletons"],
+      "guide": [
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only.",
+        "Only matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children ticked.",
+        "Only villagers who had left your tribe leave a skeleton when they die among the Heathens; your believers bury it",
+        "(once The Buried Mausoleum is solved). Other Heathens leave nothing. Cannot be ticked with All Heathens Leave Skeletons."
       ]
     },
     {
@@ -1494,7 +1541,8 @@
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
         "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Esteemed Elders in Every Game,",
-        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
+        "Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons,",
+        "Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1508,7 +1556,8 @@
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
-        "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game."
+        "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
+        "the four Heathen aging patches."
       ]
     },
     "owners_defaults": {
@@ -1518,6 +1567,7 @@
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
         "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
+        "Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off too.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",
         "Story / Cheat Upgrades cost Tech Points is off here (the upgrades are free). So is Island Events Scale With Stored Food and Tech Points.",
@@ -1766,12 +1816,14 @@
       "title": "Copy Player Slot",
       "guide": [
         "Copies a village into another save slot of the same game, under a new name. Quit the game first.",
-        "A slot with no save file is empty, whatever the game's slot list says; a slot with a player is overwritten.",
-        "You are asked first; No (also Return or Escape) changes nothing.",
-        "The whole save folder is backed up first, as (before copy).",
-        "The slot's old files are moved into Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
+        "A slot with no save file is empty, whatever the slot list says; a slot with a player is overwritten. You are asked first; No (also Return or Escape) changes nothing.",
+        "The folder is backed up first, as (before copy). The slot's old files go to Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
         "The copy takes its logs, data and trees along, its record numbers after the game's highest.",
-        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time)."
+        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time).",
+        "Choose Move to move the village itself, keeping its name: its save, the game's older copies, logs, data, trees and repair copies all go along; its old slot is left empty.",
+        "Move lists every file it will move before you say Yes, backs the folder up first, as (before move), and keeps the target slot's old files in Backups, Replaced by move.",
+        "Choose Delete to send every file of a slot to the Recycle Bin: its save, logs, data, trees, repair copies and its files in every backup. Pictures stay.",
+        "Delete lists every file and asks twice; No changes nothing. No backup is made: put anything back from the Recycle Bin."
       ]
     },
     "check_logs": {
@@ -1790,6 +1842,7 @@
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
         "Tick what to do, then Repair (backed up first). Reset corrupted skill values, old \"?\" names, children's \"Apprentice\" Job lines.",
+        "New Believers: Catch up Heathen ages adds the time each villager spent among the Heathens to their age (the list is shown first).",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; you are asked what files cannot tell.",
         "Give villagers last names (Choose...): village rule, own rule or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",

@@ -131,7 +131,7 @@
    "src": "L11724-11726"
   },
   "c1o1": {
-   "text": "(healer) tries the pot, then a smoke, then a cold plunge in the river, then a hot one in a steam hut. Nothing works. By evening (healer) admits (subject.he/she) has never seen anything like it and doesn't expect to again. (subject) and (friend) walk home in each other's bodies. In the morning (subject), in (friend)'s body, fetches the water without a word.",
+   "text": "(healer) tries the pot, then a smoke, then a cold plunge in the river, then a hot one in a steam hut. Nothing works. By evening (healer) admits (healer.he/she) has never seen anything like it and doesn't expect to again. (subject) and (friend) walk home in each other's bodies. In the morning (subject), in (friend)'s body, fetches the water without a word.",
    "effects": [
     {
      "do": "body_swap",

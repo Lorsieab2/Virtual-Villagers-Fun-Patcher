@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A strange rain is falling: warm, silver-grey, and heavy, each drop as big as a grape. Where a drop hits a puddle, the puddle shows a reflection of whoever is standing nearest, and holds it for a long moment after they've moved. (researcher) says it's a rain that \"remembers faces,\" and that it fell once before, in (subject.his/her) great-grandmother's time, and that afterwards the village was \"a little more crowded.\"\n(subject) was caught out in it, and is standing in the middle of the biggest puddle in the village, soaked, looking down at a perfect reflection of (subject.himself/herself) that has just winked.\nShould (subject) stay in the puddle, or step out quickly?",
+   "text": "A strange rain is falling: warm, silver-grey, and heavy, each drop as big as a grape. Where a drop hits a puddle, the puddle shows a reflection of whoever is standing nearest, and holds it for a long moment after they've moved. (researcher) says it's a rain that \"remembers faces,\" and that it fell once before, in (researcher.his/her) great-grandmother's time, and that afterwards the village was \"a little more crowded.\"\n(subject) was caught out in it, and is standing in the middle of the biggest puddle in the village, soaked, looking down at a perfect reflection of (subject.himself/herself) that has just winked.\nShould (subject) stay in the puddle, or step out quickly?",
    "choices": [
     {
      "label": "Stay in the Puddle",

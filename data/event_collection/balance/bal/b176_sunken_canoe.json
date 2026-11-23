@@ -128,7 +128,7 @@
    "src": "L8152-8154"
   },
   "c1o1": {
-   "text": "(subject) reaches the canoe, and grabs the bundle, and the current comes. (fisher) sees bubbles, and then nothing. (subject.He/She) dives, and dives again, until (subject.he/she) can't. The village searches the lagoon for days. They never find (subject), or the bundle. The old canoe, when the fishers next go out, is gone from the bottom too.",
+   "text": "(subject) reaches the canoe, and grabs the bundle, and the current comes. (fisher) sees bubbles, and then nothing. (fisher.He/She) dives, and dives again, until (fisher.he/she) can't. The village searches the lagoon for days. They never find (subject), or the bundle. The old canoe, when the fishers next go out, is gone from the bottom too.",
    "effects": [
     {
      "do": "vanish",

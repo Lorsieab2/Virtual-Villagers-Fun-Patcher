@@ -296,7 +296,7 @@
    "src": "L9465"
   },
   "c4o1": {
-   "text": "(subject) teaches (novice) how to repeat the stone test fairly: the same stone, the same place, the same time of day, and always write down exactly what happens, not what anyone thinks should happen. (novice) learns a great deal about watching carefully, and runs the test (subject.himself/herself) the next morning, with a crowd.",
+   "text": "(subject) teaches (novice) how to repeat the stone test fairly: the same stone, the same place, the same time of day, and always write down exactly what happens, not what anyone thinks should happen. (novice) learns a great deal about watching carefully, and runs the test (novice.himself/herself) the next morning, with a crowd.",
    "effects": [
     {
      "do": "skill",

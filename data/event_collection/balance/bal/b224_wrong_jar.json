@@ -127,7 +127,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "The healers' hut is a mess. (healer) has been sick for a week, and nobody else knows where anything is. (friend) has a fever and a cough that rattles, and (subject) has been sent to find the jar of blue root powder that (healer) always uses for it.\nThere are two jars on the shelf with blue powder in them. One is labelled with a fish. One is labelled with a bird. (healer), asked from (subject.his/her) mat, waves a hand and says, \"The fish. No. The bird. Which one has the chip in the lid?\" Neither has a chip in the lid.\nWhich jar should (subject) use?",
+   "text": "The healers' hut is a mess. (healer) has been sick for a week, and nobody else knows where anything is. (friend) has a fever and a cough that rattles, and (subject) has been sent to find the jar of blue root powder that (healer) always uses for it.\nThere are two jars on the shelf with blue powder in them. One is labelled with a fish. One is labelled with a bird. (healer), asked from (healer.his/her) mat, waves a hand and says, \"The fish. No. The bird. Which one has the chip in the lid?\" Neither has a chip in the lid.\nWhich jar should (subject) use?",
    "choices": [
     {
      "label": "The Fish Jar",

@@ -792,6 +792,99 @@ int main(int argc, char **argv) {
             rec(9)[g->active] = 0;
         }
 
+        /* 3e: New Believers' Heathens (the owner, 2026-11-22: "do the logs log heathens too? they should"):
+           every record of a Heathen says "  Faction: Heathen" -- "Isolan" with Guardians of Isola's words in
+           the game's string 0x48 -- from the faction byte (+0x1CEC); a believer's never has the line; the
+           Unaccounted record keeps its own one line; "Left the tribe: became a Heathen" (a villager leaving)
+           is not marked. */
+        if (game == 5) {
+            typedef int (__stdcall *birth5_t)(int, const char *, int, int, const char *, int, int,
+                                              const char *, int, int, const void *);
+            birth5_t birth5 = (birth5_t)GetProcAddress(dll, "WriteParentageBirth");
+            const char *at, *end;
+            villager(10, "Oru", 1200, 3, 3);
+            rec(10)[0x1CEC] = 1;
+            CHECK(write_record(game, DEATH, rec(10), 1, "  Age at death: 1200\n  Grave: Untrained\n", NULL, 1) == 1
+                  && read_deaths(game, 1) && (at = strstr(text, "  Name: Oru\r\n")) != NULL
+                  && (end = strstr(at, "\r\n\r\n")) != NULL && strstr(at, "  Faction: Heathen\r\n") != NULL
+                  && strstr(at, "  Faction: Heathen\r\n") < end
+                  && strstr(at, "  Faction: Heathen\r\n") < strstr(at, "  Age at death: 1200\r\n"),
+                  "a Heathen's Death record: Faction: Heathen, under the name, before the caller's lines");
+            CHECK(write_record(game, DISAPPEARED, rec(10), 1,
+                               "  Age: 1201\n  What happened: Left the tribe: became a Heathen\n", NULL, 1) == 1
+                  && read_deaths(game, 1) && (at = strstr(text, "\r\nDisappeared\r\n  Name: Oru\r\n")) != NULL
+                  && (end = strstr(at + 2, "\r\n\r\n")) != NULL
+                  && (strstr(at, "  Faction: ") == NULL || strstr(at, "  Faction: ") > end),
+                  "\"Left the tribe: became a Heathen\" (a villager leaving the tribe) is not marked");
+            CHECK(write_record(game, DISAPPEARED, rec(10), 1, "  Age: 1202\n  What happened: Test\n", NULL, 1) == 1
+                  && read_deaths(game, 1) && (at = strstr(text, "  Age: 1202\r\n")) != NULL
+                  && strstr(text, "  Faction: Heathen\r\n  Age: 1202\r\n") != NULL,
+                  "a Heathen's own Disappeared record is marked");
+            CHECK(write_record(game, UNACCOUNTED, rec(10), 1, "  What: Test\n  Age: 1203\n  Faction: Heathen\n",
+                               "  Record: 10\n", 2) == 1
+                  && read_unaccounted(game, 1) && (at = strstr(text, "  What: Test\r\n  Age: 1203\r\n")) != NULL
+                  && (end = strstr(at, "\r\n\r\n")) != NULL && strstr(at, "  Faction: Heathen\r\n") < end
+                  && (strstr(strstr(at, "  Faction: Heathen\r\n") + 1, "  Faction: ") == NULL
+                      || strstr(strstr(at, "  Faction: Heathen\r\n") + 1, "  Faction: ") > end)
+                  && strstr(text, "  Faction: Heathen\r\n  What: Test\r\n") == NULL,
+                  "the Unaccounted record keeps its own Faction line, never a second");
+            CHECK(write_record(game, 6, rec(10), 1, "  Age at arrival: 1204\n", "  How: Founder\n", 2) == 1
+                  && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                  && strstr(text, "  Faction: Heathen\r\n  Age at arrival: 1204\r\n") != NULL,
+                  "a Heathen's Arrived record is marked");
+            CHECK(birth5 != NULL && birth5(game, "Oru", 3, 3, "Mama", 8, 8, "Papa", 1, 1, rec(10)) == 1
+                  && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                  && (at = strstr(text, "  Child: Oru\r\n")) != NULL && (end = strstr(at, "\r\n\r\n")) != NULL
+                  && strstr(at, "  Faction: Heathen\r\n") != NULL && strstr(at, "  Faction: Heathen\r\n") < end,
+                  "a Heathen baby's Birth record is marked");
+            {
+                /* A Heathen carrier's conception (Abandoned Infants takes every woman; "VVFP Heathen Aging.dll"'s
+                   Heathen babies): the Conception record is marked after its babies. */
+                typedef int (__stdcall *conceived_t)(int, const void *, const void *, const void *);
+                conceived_t conceived = (conceived_t)GetProcAddress(dll, "WriteParentageRecordWithFather");
+                CHECK(conceived != NULL && conceived(game, records, rec(10), NULL) == 1
+                      && read_log("Births and Conceptions", "Births and Conceptions Log", game, 1)
+                      && (at = strstr(text, "  Mother: Oru\r\n")) != NULL && (end = strstr(at, "\r\n\r\n")) != NULL
+                      && strstr(at, "  Babies nursing: 1\r\n") != NULL
+                      && strstr(at, "  Faction: Heathen\r\n") != NULL && strstr(at, "  Faction: Heathen\r\n") < end,
+                      "a Heathen carrier's Conception record is marked");
+            }
+            {
+                /* Guardians of Isola: string 0x48 says "left the tribe" (the table at the executable's base +
+                   0x1240A8, as in the game at 0x5240A8). */
+                unsigned char *base = (unsigned char *)GetModuleHandleW(NULL);
+                unsigned char *page = (unsigned char *)VirtualAlloc(base + 0x124000, 0x1000,
+                                                                    MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+                CHECK(page != NULL, "the string table's page is placed");
+                if (page != NULL) {
+                    unsigned int *entry = (unsigned int *)(page + 0x800);
+                    static const char words[] = "%s has left the tribe to join the Isolans.";
+                    memcpy(page + 0x900, words, sizeof words);
+                    entry[0] = 0x48;
+                    entry[1] = 0;
+                    entry[2] = (unsigned int)(UINT_PTR)(page + 0x900);
+                    entry[3] = 0;
+                    *(unsigned int **)(base + 0x1240A8 + 4 * 0x48) = entry;
+                    CHECK(write_record(game, DEATH, rec(10), 1, "  Age at death: 1205\n  Grave: Untrained\n",
+                                       NULL, 1) == 1
+                          && read_deaths(game, 1) && strstr(text, "  Faction: Isolan\r\n  Age at death: 1205\r\n") != NULL,
+                          "with Guardians of Isola's words: Faction: Isolan");
+                    VirtualFree(page, 0, MEM_RELEASE);
+                }
+            }
+            CHECK(write_record(game, DEATH, rec(10), 1, "  Age at death: 1206\n  Grave: Untrained\n", NULL, 1) == 1
+                  && read_deaths(game, 1) && strstr(text, "  Faction: Heathen\r\n  Age at death: 1206\r\n") != NULL,
+                  "...and Faction: Heathen again without them");
+            rec(10)[0x1CEC] = 0;
+            CHECK(write_record(game, DEATH, rec(10), 1, "  Age at death: 1207\n  Grave: Untrained\n", NULL, 1) == 1
+                  && read_deaths(game, 1) && (at = strstr(text, "  Age at death: 1207\r\n")) != NULL
+                  && (end = strstr(at, "\r\n\r\n")) != NULL
+                  && strstr(text, "  Faction: Heathen\r\n  Age at death: 1207") == NULL
+                  && strstr(text, "  Faction: Believer\r\n  Age at death: 1207") == NULL,
+                  "a believer's record has no Faction line");
+            rec(10)[g->active] = 0;
+        }
+
         /* 3d: "Lost before birth" (kind 9, "VVFP Cause of Death.dll"'s cod_lost.inc): the
            Births and Conceptions log, unnumbered, every line the caller's. */
         CHECK(write_record(game, 9, rec(1), 1,

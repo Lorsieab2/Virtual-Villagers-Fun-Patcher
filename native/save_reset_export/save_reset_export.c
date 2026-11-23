@@ -322,6 +322,36 @@ static void notify_village_solidarity(int game, int slot) {
         reset(game, slot);
     }
 }
+/* Heathens Keep Their Masks When Converted (New Believers): the masks worn it holds in memory for the slot
+ * being erased are dropped BEFORE the slot's folder (its Masks Worn file with it) is deleted below, so nothing
+ * is written back into the new village.  Only when already loaded. */
+static void notify_heathens_keep_masks(int game, int slot) {
+    HMODULE keep = GetModuleHandleA("VVFP Heathens Keep Masks.dll");
+    story_village_reset_fn reset;
+    if (keep == NULL) {
+        return;
+    }
+    reset = (story_village_reset_fn)(void *)GetProcAddress(keep, "VvfpHeathensKeepMasksVillageReset");
+    if (reset != NULL) {
+        reset(game, slot);
+    }
+}
+
+/* The Heathen aging rows (New Believers): the former villagers, Heathen babies, owed replacements and Heathen graves
+ * it keeps in memory for the slot being erased are dropped BEFORE the slot's folder (its Heathen Aging file with it)
+ * is deleted below, so none of them is written back into the new village.  Only when already loaded. */
+static void notify_heathen_aging(int game, int slot) {
+    HMODULE aging = GetModuleHandleA("VVFP Heathen Aging.dll");
+    story_village_reset_fn reset;
+    if (aging == NULL) {
+        return;
+    }
+    reset = (story_village_reset_fn)(void *)GetProcAddress(aging, "VvfpHeathenAgingVillageReset");
+    if (reset != NULL) {
+        reset(game, slot);
+    }
+}
+
 /* The Origins companion: a Barrel of Babies or Island Event bought and not
  * delivered yet is held in the executable's own memory (A New Home 0x48D700,
  * The Lost Children 0x49C700, The Secret City 0x6E0050 / 0x6E0058, The Tree
@@ -375,6 +405,8 @@ __declspec(dllexport) int __stdcall ResetDeletedTribe(int game, int slot) {
     notify_cause_of_death(game, slot);
     notify_origins(game, slot);
     notify_village_solidarity(game, slot);
+    notify_heathens_keep_masks(game, slot);
+    notify_heathen_aging(game, slot);
     /* The village in the slot's own save, which both hooks reach before the
      * game removes or overwrites it (see vv_saved_village_header). The
      * reserve is the reader's own "\\*<slot>.ldw" filter; it bounds each full

@@ -141,7 +141,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) wants to plant a breadfruit sapling at the edge of the garden.\nIt is a fine little sapling, glossy-leaved and sturdy. The trouble is that a breadfruit tree takes many years to give its best fruit, and (subject) has done the counting. Everyone can see (subject.him/her) doing it in (subject.his/her) head: the years, (subject.his/her) age, the obvious answer.\n\"Somebody will eat from it,\" (subject) says firmly, to nobody in particular, and reaches for the digging stick.\n(subject.His/Her) family exchange worried glances. (young) opens (subject.his/her) mouth to say something, and then isn't sure what. Should (young) let (subject) plant it (subject.his/her) own way, ask (subject.him/her) to teach the old planting lore, or find a way to make the digging easier on (subject.his/her) back?",
+   "text": "(subject) wants to plant a breadfruit sapling at the edge of the garden.\nIt is a fine little sapling, glossy-leaved and sturdy. The trouble is that a breadfruit tree takes many years to give its best fruit, and (subject) has done the counting. Everyone can see (subject.him/her) doing it in (subject.his/her) head: the years, (subject.his/her) age, the obvious answer.\n\"Somebody will eat from it,\" (subject) says firmly, to nobody in particular, and reaches for the digging stick.\n(subject.His/Her) family exchange worried glances. (young) opens (young.his/her) mouth to say something, and then isn't sure what. Should (young) let (subject) plant it (subject.his/her) own way, ask (subject.him/her) to teach the old planting lore, or find a way to make the digging easier on (subject.his/her) back?",
    "choices": [
     {
      "label": "Let the Gardener Choose",
@@ -184,7 +184,7 @@
    "src": "L6157"
   },
   "c2o1": {
-   "text": "(subject) teaches (young) how to judge soil by its smell, its colour and the way it crumbles in the hand: dark and sweet-smelling is good, grey and sour is bad, sticky means too wet, dusty means too dry. (young) takes it very seriously and asks good questions. By the end of the afternoon, (subject.he/she) can tell good soil from bad blindfolded, and the sapling is planted in the best spot in the whole garden.",
+   "text": "(subject) teaches (young) how to judge soil by its smell, its colour and the way it crumbles in the hand: dark and sweet-smelling is good, grey and sour is bad, sticky means too wet, dusty means too dry. (young) takes it very seriously and asks good questions. By the end of the afternoon, (young.he/she) can tell good soil from bad blindfolded, and the sapling is planted in the best spot in the whole garden.",
    "effects": [
     {
      "do": "skill",
@@ -204,7 +204,7 @@
    "src": "L6168"
   },
   "c2": {
-   "text": "(young) asks if (subject.he/she) can watch and learn how (subject) does it. (subject) snorts, but (subject.his/her) eyes light up. \"Well, first, you don't just stick it in any old dirt...\"",
+   "text": "(young) asks if (young.he/she) can watch and learn how (subject) does it. (subject) snorts, but (subject.his/her) eyes light up. \"Well, first, you don't just stick it in any old dirt...\"",
    "children": [
     {
      "next": "c2o1",

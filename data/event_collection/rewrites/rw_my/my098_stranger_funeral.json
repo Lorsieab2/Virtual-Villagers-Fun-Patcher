@@ -237,11 +237,11 @@
    "src": "L15574"
   },
   "c3o1": {
-   "text": "(friend) looks, and frowns. \"There's no one there,\" (subject.he/she) whispers. Then (subject.he/she) looks at (subject)'s pale face, and does not argue. Instead (subject.he/she) takes (subject)'s hand and holds it tightly, and walks closer beside (subject.him/her) the rest of the way. At the memorial, (friend) does not let go once. Later, (subject) cannot remember when the stranger left. (subject.He/she) only remembers the warm hand holding (subject.his/her) own.",
+   "text": "(friend) looks, and frowns. \"There's no one there,\" (friend.he/she) whispers. Then (friend.he/she) looks at (subject)'s pale face, and does not argue. Instead (friend.he/she) takes (subject)'s hand and holds it tightly, and walks closer beside (subject.him/her) the rest of the way. At the memorial, (friend) does not let go once. Later, (subject) cannot remember when the stranger left. (subject.He/she) only remembers the warm hand holding (subject.his/her) own.",
    "src": "L15583"
   },
   "c3o2": {
-   "text": "(friend) cannot see anyone. But when (subject) describes the stranger later, the grey clothes, the bare feet, the scar across one cheek, (friend) goes very quiet. \"That's my great-grandmother,\" (subject.he/she) says. \"Or someone exactly like her. There's an old painting of her in my family's hut. She always walked in the processions barefoot. She said the dead could hear you better that way.\" (subject.He/she) takes (subject) to see the painting. It is the stranger.",
+   "text": "(friend) cannot see anyone. But when (subject) describes the stranger later, the grey clothes, the bare feet, the scar across one cheek, (friend) goes very quiet. \"That's my great-grandmother,\" (friend.he/she) says. \"Or someone exactly like her. There's an old painting of her in my family's hut. She always walked in the processions barefoot. She said the dead could hear you better that way.\" (friend.He/she) takes (subject) to see the painting. It is the stranger.",
    "src": "L15585"
   },
   "c3": {
