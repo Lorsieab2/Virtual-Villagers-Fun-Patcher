@@ -348,7 +348,7 @@ static int c1_behave(int index, int behaviour) {
         return 0;
     }
     act = &C1_BEHAVIOURS[behaviour];
-    if (!ce_supply_value(act, index, c1_record, c1_listed, c1_skeleton, &value)) {
+    if (!ce_supply_value(act, index, c1_record, c1_listed, c1_skeleton, 0, 0, &value)) {
         return 0;
     }
     argument = act->supply != NULL && act->supply->slot == -1 ? value : act->arg;

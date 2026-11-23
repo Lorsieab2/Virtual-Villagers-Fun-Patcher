@@ -179,6 +179,67 @@ class PatcherSide(unittest.TestCase):
                 self.assertNotIn("Your village gains 150 food.\nThe village gains 150 food.", text)
                 self.assertIn("A second prize.\nThe village gains 150 food.", text, "no (award): the line stays")
 
+    def test_a_restore_gives_back_a_share_of_the_loss(self):
+        """cie-v6-binary.md 25a (the owner, 2026-11-22): "Lose health, then restore some" -- the gain is a percent of
+        what the loss took, so it is always smaller.  It validates, round-trips the compiled file (flags bit 0) and its
+        line states the share given back."""
+        fx = [{"do": "health_change", "min": -20, "max": -20},
+              {"do": "health_change", "restore": True, "min": 25, "max": 75}]
+        g = cg.load(copy.deepcopy(pages([fx], "vv2")))
+        self.assertEqual(g["nodes"]["p0"]["effects"][1]["restore"], True)
+        back = cg.decompile_graph(cg.compile_graph(g))
+        self.assertEqual(back["nodes"]["p0"]["effects"][1].get("restore"), True)
+        self.assertEqual((back["nodes"]["p0"]["effects"][1]["min"], back["nodes"]["p0"]["effects"][1]["max"]), (25, 75))
+        self.assertEqual(cg.restored(20, 25), 5)
+        self.assertEqual(cg.restored(20, 75), 15)
+        self.assertEqual(cg.restored(0, 75), 0)
+        # the fixed loss takes no roll; the percent's roll 0 is 25, 50 is 75
+        for roll, back_n in ((0, 5), (50, 15)):
+            out = cg.simulate(g, 2, [roll] + [0] * 7, {"subject": cg.Binding("Adam", "m")})
+            text = " ".join(out["popups"])
+            self.assertIn("Adam loses 20 health.", text)
+            self.assertIn(f"Adam gains {back_n} health.", text)
+        for bad in ({"do": "health_change", "restore": True, "min": 0, "max": 50},
+                    {"do": "health_change", "restore": True, "min": 25, "max": 101},
+                    {"do": "health_change", "restore": True, "min": 25, "max": 75, "target": {"all": True}}):
+            with self.subTest(bad=bad):
+                _g, problems = cg.validate(copy.deepcopy(pages([[bad]], "vv2")))
+                self.assertTrue(any("restore" in p for p in problems), problems)
+
+    def test_a_restore_needs_its_loss_on_its_own_node(self):
+        """25a (Codex, #840): the engine keeps a loss for the node it is made on (cg_make_effects), so a restore on a
+        later page would give nothing while a preview said it gave back -- the patcher refuses it.  A loss of another
+        villager, or a gain, does not count; the loss first, on the same node, is fine."""
+        loss = {"do": "health_change", "min": -20, "max": -20}
+        restore = {"do": "health_change", "restore": True, "min": 50, "max": 50}
+        cases = (([[loss], [restore]], False),                                   # the loss on page 1
+                 ([[restore, loss]], False),                                     # the restore before the loss
+                 ([[{"do": "health_change", "min": 5, "max": 5}, restore]], False),  # a gain, not a loss
+                 # a group's change between the loss and the restore (Codex, #840): it may reach the villager, and the
+                 # engine then keeps the group's loss -- refused, so no preview can differ from the game
+                 ([[loss, {"do": "health_change", "min": -10, "max": -10, "target": {"all": True}}, restore]], False),
+                 ([[{"do": "health_change", "min": -10, "max": -10, "target": {"all": True}}, loss, restore]], True),
+                 ([[loss, {"do": "health_change", "min": 5, "max": 5}, restore]], False),    # their own gain between
+                 ([[loss, restore]], True))
+        for pages_fx, ok in cases:
+            with self.subTest(pages=pages_fx):
+                _g, problems = cg.validate(copy.deepcopy(pages(copy.deepcopy(pages_fx), "vv2")))
+                said = [p for p in problems if "restore" in p]
+                self.assertEqual(not said, ok, problems)
+
+    def test_the_hospitals_patient_always_ends_worse_off(self):
+        """vv2_hospitals_most_difficult B2: the loss (10-20), then 25-75% of it back -- never the whole of it."""
+        import json
+        doc = json.loads((ROOT / "data" / "event_collection" / "exclusive" / "vv2_hospitals_most_difficult.json")
+                         .read_text(encoding="utf-8"))
+        loss, back = doc["nodes"]["b2"]["effects"]
+        self.assertEqual((loss["do"], loss["min"], loss["max"]), ("health_change", -20, -10))
+        self.assertEqual((back["do"], back.get("restore"), back["min"], back["max"]), ("health_change", True, 25, 75))
+        for lost in range(10, 21):
+            for pct in range(25, 76):
+                self.assertLess(cg.restored(lost, pct), lost)
+                self.assertGreater(cg.restored(lost, pct), 0)
+
     def test_award2_states_the_nodes_own_change(self):
         """The owner (2026-11-22): "Your village loses (award) food. Your villagers gain (award) tech points." filled
         both with the tech award's amount and added "The village loses M food.".  (award2) is the node's own food /
@@ -537,6 +598,100 @@ class GameSideAmounts(unittest.TestCase):
                     else:
                         self.assertIn(line, text)
                     self.assertEqual(r.v.i32(0, r.v.L["health"]), end, "applied = shown")
+
+    def test_a_restore_gives_back_a_share_of_what_was_really_lost(self):
+        """25a in the engine: 50% of the loss as it was really made (after the clamp at 1) -- the line says it, and the
+        villager ends below the start."""
+        fx = [{"do": "health_change", "min": -20, "max": -20},
+              {"do": "health_change", "restore": True, "min": 50, "max": 50}]
+        for game in self.games():
+            for start, lost_line, back_line, end in ((60, "Adam loses 20 health.", "Adam gains 10 health.", 50),
+                                                     (9, "Adam loses 8 health.", "Adam gains 4 health.", 5)):
+                with self.subTest(game=game, start=start):
+                    def setup(r, start=start):
+                        r.p.put32(r.v.record(0) + r.v.L["health"], start)
+
+                    r, shown = self.run_graph(game, pages([copy.deepcopy(fx)], game), setup)
+                    text = one_line(shown)
+                    self.assertIn(lost_line, text)
+                    self.assertIn(back_line, text)
+                    self.assertEqual(r.v.i32(0, r.v.L["health"]), end, "applied = shown, below the start")
+
+    def test_a_restore_follows_the_loss_when_health_moves_after_layout(self):
+        """25a (Codex, #840): laid out at 60 (lose 20, restore 50%: back 10); the villager is down to 9 when the page
+        is shown, so the loss really takes 8 -- the restore gives back 4 of THAT, never the 10 it was laid out with,
+        the line says so, and the villager ends below where the page began."""
+        fx = [{"do": "health_change", "min": -20, "max": -20},
+              {"do": "health_change", "restore": True, "min": 50, "max": 50}]
+        for game in self.games():
+            with self.subTest(game=game):
+                g = pages([[{"do": "tech", "amount": 3}], copy.deepcopy(fx)], game)
+
+                def setup(r):
+                    r.p.put32(r.v.record(0) + r.v.L["health"], 60)
+                    state = {"n": 0}
+
+                    def watch():
+                        state["n"] += 1
+                        if state["n"] == 1:
+                            r.p.put32(r.v.record(0) + r.v.L["health"], 9)
+                    r.watch = watch
+
+                r, shown = self.run_graph(game, g, setup)
+                text = one_line(shown)
+                self.assertIn("Adam loses 8 health.", text)
+                self.assertIn("Adam gains 4 health.", text)
+                self.assertNotIn("gains 10 health", text)
+                self.assertEqual(r.v.i32(0, r.v.L["health"]), 5, "a share of the real loss: below the 9")
+
+    def test_a_restore_follows_its_own_villagers_loss(self):
+        """25a (Codex, #840): the subject loses 20, the friend loses 10, then the subject gets 50% back -- 10, a share
+        of the subject's own loss, not of the friend's loss that came between."""
+        fx = [{"do": "health_change", "role": "subject", "min": -20, "max": -20},
+              {"do": "health_change", "role": "friend", "min": -10, "max": -10},
+              {"do": "health_change", "role": "subject", "restore": True, "min": 50, "max": 50}]
+        people = [(0, "m", 30, "Adam", 0, False), (1, "f", 31, "Bea", 0, False)]
+        for game in self.games():
+            with self.subTest(game=game):
+                g = pages([copy.deepcopy(fx)], game)
+                g["roles"]["friend"] = {"kind": "villager", "min_age": 14}
+
+                def setup(r):
+                    for i in (0, 1):
+                        r.p.put32(r.v.record(i) + r.v.L["health"], 60)
+
+                r, shown = self.run_graph(game, g, setup, people=people)
+                text = one_line(shown)
+                self.assertIn(" loses 20 health.", text)
+                self.assertIn(" loses 10 health.", text)
+                self.assertIn(" gains 10 health.", text)
+                self.assertEqual(sorted(r.v.i32(i, r.v.L["health"]) for i in (0, 1)), [50, 50],
+                                 "the subject 60 - 20 + 10, the friend 60 - 10")
+
+    def test_a_restore_after_a_group_change_to_many(self):
+        """25a (Codex, #840): everyone (30 villagers) loses 5, then the subject -- the 30th, the only one of 50 or
+        more -- loses 20 and gets 50% back: 10.  A group change to any number of villagers never crowds out the
+        subject's own loss."""
+        fx = [{"do": "health_change", "min": -5, "max": -5, "target": {"all": True}},
+              {"do": "health_change", "role": "subject", "min": -20, "max": -20},
+              {"do": "health_change", "role": "subject", "restore": True, "min": 50, "max": 50}]
+        people = [(i, "m" if i % 2 else "f", 20, f"Ana{i}", 0, False) for i in range(29)]
+        people.append((29, "m", 60, "Elder", 0, False))
+        for game in self.games():
+            with self.subTest(game=game):
+                g = pages([copy.deepcopy(fx)], game)
+                g["roles"]["subject"] = {"kind": "villager", "min_age": 50}
+
+                def setup(r):
+                    for i in range(30):
+                        r.p.put32(r.v.record(i) + r.v.L["health"], 60)
+
+                r, shown = self.run_graph(game, g, setup, people=people)
+                text = one_line(shown)
+                self.assertIn("Elder loses 20 health.", text)
+                self.assertIn("Elder gains 10 health.", text)
+                self.assertEqual(r.v.i32(29, r.v.L["health"]), 45, "60 - 5 - 20 + 10")
+                self.assertEqual(r.v.i32(0, r.v.L["health"]), 55)
 
     def test_a_groups_skill_line(self):
         for game in self.games():

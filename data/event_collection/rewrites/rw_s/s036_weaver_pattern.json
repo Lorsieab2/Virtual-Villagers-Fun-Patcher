@@ -183,7 +183,7 @@
    "src": "L1701"
   },
   "c2o1": {
-   "text": "(subject) gives it to (elder), who has been cold all season, shivering by the fire even on warm days, and wrapped in an old blanket worn so thin it is almost see-through. (Elder) runs \\(elder: his/her\\) wrinkled hands over the waves and birds, slowly, and doesn't say anything for a long time. Then \\(elder: he/she\\) puts it on, and smiles. (Elder) never takes it off. Not to sleep, not to bathe, not ever. When anyone asks, \\(elder: he/she\\) says that the birds keep \\(elder: him/her\\) warm.",
+   "text": "(subject) gives it to (elder), who has been cold all season, shivering by the fire even on warm days, and wrapped in an old blanket worn so thin it is almost see-through. (Elder) runs (elder.his/her) wrinkled hands over the waves and birds, slowly, and doesn't say anything for a long time. Then (elder.he/she) puts it on, and smiles. (Elder) never takes it off. Not to sleep, not to bathe, not ever. When anyone asks, (elder.he/she) says that the birds keep (elder.him/her) warm.",
    "effects": [
     {
      "do": "appearance",

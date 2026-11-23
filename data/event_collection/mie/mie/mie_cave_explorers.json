@@ -286,7 +286,7 @@
  "nodes": {
   "intro": {
    "type": "question",
-   "text": "(subject) has been curious about the cave. (subject.He/She) wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. (subject) is trying to convince (friend), (subject.his/her) special friend, to come with (subject.him/her). (friend) is also curious, but is not sure whether to sneak off from work to go spelunking.  \"We'll be safer if we're together. Come on, it'll be fun!\", says (subject). \"So, what do you say?\"",
+   "text": "(subject) has been curious about the cave. (subject.He/She) wonders why the other villagers have not explored it more thoroughly, and speculates that there must be more to it than meets the eye. (subject) is trying to convince (friend), (subject.his/her) special friend, to come with (subject.him/her). (friend) is also curious, but is not sure whether to sneak off from work to go spelunking. \"We'll be safer if we're together. Come on, it'll be fun!\", says (subject). \"So, what do you say?\"",
    "src": "L322",
    "choices": [
     {

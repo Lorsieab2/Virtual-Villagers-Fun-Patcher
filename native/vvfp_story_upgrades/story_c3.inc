@@ -454,7 +454,7 @@ static int c3_behave(int index, int behaviour) {
         return 0;
     }
     act = &C3_BEHAVIOURS[behaviour];
-    if (!ce_supply_value(act, index, c3_record, c3_listed, c3_skeleton, &value)) {
+    if (!ce_supply_value(act, index, c3_record, c3_listed, c3_skeleton, 0x59E110u, c3_village(), &value)) {
         return 0;
     }
     if (act->kind == ACT_DROP) {
@@ -987,10 +987,11 @@ static const ce_probe_field C3_PROBE[] = {
     { 0xF10, 1, 1, 1 }, { 0xE78, 4, 90, 90 }, { 0xE94, 1, 0, 0 }, { 0xE8C, 4, 0, 0 },
 };
 
-/* The Secret City's villager catch-up 0x45FFE0 on the villager array 0x59E110 (its one caller, the update 0x428CA0,
-   right after the aging 0x45F3E0). */
+/* The Secret City's villager catch-up 0x45FFE0 on the villager manager (its one caller, the update 0x428CA0,
+   right after the aging 0x45F3E0): the running table's -- 0x59E110 stock, 0x800000 with 256 Villagers
+   (Experimental), whose catch-up walks 256 records and would run past the stock object. */
 static void c3_catch_up(void) {
-    TC0(0x45FFE0u, 0x59E110u);
+    TC0(0x45FFE0u, c3_village());
 }
 
 static const ce_birth_layout C3_BIRTH = { 0xDC4u, 0xE74u, 0xE8Cu, 0xE78u, c3_catch_up };

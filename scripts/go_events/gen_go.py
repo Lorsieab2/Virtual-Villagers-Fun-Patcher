@@ -503,6 +503,14 @@ PRONOUN_RE = r"(?:he/she|his/her|him/her|himself/herself|his/hers|man/woman|woma
              r"father/mother|son/daughter)"
 
 
+def role_pronouns(text: str) -> str:
+    """The owner's "(healer: his/her)" / "(Healer: He/She)" is the engine's "(healer.his/her)" / "(healer.He/She)":
+    a role's pronoun written with a colon would otherwise be escaped as literal text the player sees (the owner
+    layout reader has already escaped it: "\\(healer: his/her\\)")."""
+    return re.sub(r"\\?\(([A-Za-z]+): (" + PRONOUN_RE + r")\\?\)",
+                  lambda m: f"({m.group(1).lower()}.{m.group(2)})", text, flags=re.I)
+
+
 def prefix_roles(text: str, main: str, second: str | None) -> str:
     """An event of two or more villagers names each in every placeholder (collection rule): "(Name1)" ->
     "(subject)", "(he/she)" -> "(subject.he/she)", "(Name2)" -> "(friend)"."""
@@ -678,7 +686,8 @@ class Build:
         for n in nodes.values():
             n.pop("variants", None)
             if n.get("text"):
-                t = prefix_roles(n["text"], main, second) if multi else n["text"]
+                t = role_pronouns(n["text"])
+                t = prefix_roles(t, main, second) if multi else t
                 t = escape_bare(t)
                 n["text"] = game_words(t) if chief else t
             if n.get("effects"):
@@ -687,6 +696,7 @@ class Build:
                 n["effects"].sort(key=lambda e: e.get("do") in ("kill", "vanish", "die_unrecovered"))
             for c in n.get("choices", []) or []:
                 lab = owner.normalize_text(c["label"].replace("\\(", "(").replace("\\)", ")"))
+                lab = role_pronouns(lab)
                 lab = prefix_roles(lab, main, second) if multi else lab
                 lab = lib.title_case_label(escape_bare(lab))
                 c["label"] = game_words(lab) if chief else lab
@@ -791,6 +801,9 @@ class Build:
             p["source"] = self.sid
             p["event"] = self.row["id"]
             p["family"] = p.get("family") or ""
+            for k in ("text", "label"):
+                if p.get(k):
+                    p[k] = role_pronouns(p[k])
             # the importer's stricter label rule ("Walk, and Follow") is not the collection's
             # (collection_lib.title_case_label): such a label is kept; any other problem leaves the piece out
             bad = [str(q) for q in it.problems if "not in Title Case" not in str(q)]

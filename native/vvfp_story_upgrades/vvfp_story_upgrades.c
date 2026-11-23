@@ -1895,6 +1895,22 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeChoiceSizes(int *out) {
     out[9] = (int)offsetof(ce_outcome, effects);
 }
 
+/* The two places an adapter hands the game's villager manager to a game routine: which 0 runs `game`'s
+   catch-up after a Custom Island Event birth (C<N>_BIRTH), which 1 the adapter's behave(index, behaviour) (a
+   behaviour whose supply is a finder on the manager).  1 done, 0 no such game / place. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeManagerCall(int game, int which, int index, int behaviour) {
+    const ce_adapter *a = ce_adapter_for(game);
+    static const ce_birth_layout *const BIRTHS[6] = { NULL, &C1_BIRTH, &C2_BIRTH, &C3_BIRTH, &C4_BIRTH, &C5_BIRTH };
+    if (a == NULL) {
+        return 0;
+    }
+    if (which == 0) {
+        BIRTHS[game]->catch_up();
+        return 1;
+    }
+    return which == 1 && a->behave != NULL ? a->behave(index, behaviour) : 0;
+}
+
 /* The capabilities of `game`'s adapter. */
 __declspec(dllexport) unsigned int __stdcall VvfpStoryProbeCaps(int game) {
     const ce_adapter *a = ce_adapter_for(game);
