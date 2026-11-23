@@ -5177,6 +5177,7 @@ class App(tk.Tk):
         move_button = None
         save_folders_button = None
         restore_button = None
+        heathen_masks_button = None
         if repair:
             # The owner, 2026-10-09: "Repair logs should have the move legacy files button!" -- for
             # the chosen save folder, whichever tribe is picked (src/vv_move_old_names.py).
@@ -5203,6 +5204,17 @@ class App(tk.Tk):
             )
             restore_button.pack(side="left", padx=(8, 0))
             self._help_button(buttons, "repair_logs").pack(side="left", padx=(2, 0))
+            # The owner, 2026-11-22: "an option in repair logs to restore the proper masks to heathens that
+            # reconverted into heathens" -- New Believers, the chosen tribe (src/vv5_heathen_masks_restore.py).
+            # On a row of its own, so the row above keeps its width.
+            more = ttk.Frame(frame)
+            more.grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
+            heathen_masks_button = ttk.Button(
+                more, text="Restore Heathen Masks...",
+                command=lambda: self._restore_heathen_masks(dialog, state["folders"][folder_box.current()], chosen())
+                if state["folders"] and chosen() is not None and game().number == 5 else None,
+            )
+            heathen_masks_button.pack(side="left")
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
 
         def game() -> vv_tribe_rename.GameSaves:
@@ -5237,6 +5249,9 @@ class App(tk.Tk):
             if restore_button is not None:
                 restore_button.configure(
                     state="normal" if problem is None and game().number == 1 else "disabled")
+            if heathen_masks_button is not None:
+                heathen_masks_button.configure(
+                    state="normal" if problem is None and game().number == 5 else "disabled")
 
         def load_slots(*_args) -> None:
             slot_list.delete(0, "end")
@@ -5488,6 +5503,48 @@ class App(tk.Tk):
         self.status_var.set(f"Restore A New Home Parents: {len(result.plan.restored)} villager(s) in {folder.name}.")
         messagebox.showinfo(title, f"{len(result.plan.restored)} villager(s) have their parents back. Each is listed "
                             "in the Repairs Made log.", parent=parent)
+
+    def _restore_heathen_masks(self, parent, folder: Path, info) -> None:
+        """Repair Saves & Logs' "Restore Heathen Masks..." (src/vv5_heathen_masks_restore.py): list who gets
+        their own mask back and who cannot (and why), ask, then write it with the game closed."""
+        import vv5_heathen_masks_restore
+        title = "Restore Heathen Masks"
+        try:
+            work = vv5_heathen_masks_restore.survey(folder, info.slot)
+        except (vv5_heathen_masks_restore.HeathenMasksError, OSError, ValueError) as exc:
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        lines = work.lines()
+        if len(lines) > 25:
+            lines = lines[:25] + [f"... and {len(lines) - 25} more"]
+        if not work.restore:
+            messagebox.showinfo(title, "Nothing to restore.\n\n" + ("\n".join(lines) or
+                                "No Heathen in this village is known to have joined the tribe and gone back "
+                                "with a mask other than blue."), parent=parent)
+            return
+        if not messagebox.askyesno(
+                title,
+                f"{folder.name}, Save {info.slot}: these Heathens joined the tribe once and went back. Each gets "
+                "back the mask they wore as a Heathen before; they still act as ordinary blue-masked Heathens. "
+                "Only the patcher's Village Masks file changes, never the save; the mask shows with \"Heathens "
+                "Keep Their Masks When Converted\".\n\n" + "\n".join(lines)
+                + "\n\nThe save folder is backed up first, and the file is copied into Copies Made Before "
+                "Repairs. Restore them now?", parent=parent):
+            return
+        try:
+            result = self._run_with_wait(
+                "Restoring the masks…\n\nThe save folder is backed up first.",
+                lambda: vv5_heathen_masks_restore.restore(folder, info.slot),
+            )
+        except (vv5_heathen_masks_restore.HeathenMasksError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            _regrab(parent)
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        _regrab(parent)
+        self.status_var.set(f"Restore Heathen Masks: {len(result.restored)} villager(s) in {folder.name}.")
+        messagebox.showinfo(title, f"{len(result.restored)} Heathen(s) have their own mask back. Each is listed in "
+                            "the Repairs Made log.", parent=parent)
 
     def _check_logs(self, parent, folder: Path, number: int, info) -> None:
         """Run the read-only checker off the main thread and show its report."""

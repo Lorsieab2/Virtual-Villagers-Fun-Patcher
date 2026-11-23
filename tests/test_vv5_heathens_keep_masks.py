@@ -52,6 +52,7 @@ STOCK_RECORDS, STOCK_TABLE = 0x554148 + 0x48, 0x7B1D20
 BIG_RECORDS, BIG_TABLE = 0x800000 + 0x48, 0x7F1400
 ORIGINS_BASE = 0x0B000000
 LOOKS_BASE = 0x0B100000
+CAUSE_BASE = 0x0B200000
 CONVERT, DEFECTOR = 0x4668B0, 0x416970
 
 # What the conversion 0x4668B0 calls, each popping its own arguments (thiscall/stdcall): sound 0x44C440, the
@@ -106,10 +107,14 @@ class Village(Machine):
         if keep_export:
             self.exports_of_origins["VvfpMaskKeep"] = stubs
         self.exports_of_looks = {"VvfpOriginalLookConverted": stubs + 0x30}
+        # The Cause of Death companion's Former Heathens file, as VvfpCauseFormerKind answers it: record -> kind.
+        self.former: dict[int, int] | None = None
+        self.exports_of_cause = {"VvfpCauseFormerKind": stubs + 0x40}
         self.stub(stubs, self._keep)
         self.stub(stubs + 0x10, lambda p: (0, 4))
-        self.stub(stubs + 0x20, lambda p: (0, 4))
+        self.stub(stubs + 0x20, self._mask_of)
         self.stub(stubs + 0x30, self._converted)
+        self.stub(stubs + 0x40, lambda p: (self.former.get(p.arg(0), 0xFFFFFFFF), 4))
         self.api_handlers["GetModuleHandleA"] = self._module
         self.api_handlers["GetProcAddress"] = self._proc
         for va, pop in CONVERSION_CALLS.items():
@@ -121,10 +126,13 @@ class Village(Machine):
         name = p.cstring(p.arg(0))
         if self.origins and name == "VVFP Origins Icons.dll":
             return ORIGINS_BASE, 4
+        if self.former is not None and name == "VVFP Cause of Death.dll":
+            return CAUSE_BASE, 4
         return (LOOKS_BASE if self.looks and name == "VVFP Original Look.dll" else 0), 4
 
     def _proc(self, p):
-        exports = {ORIGINS_BASE: self.exports_of_origins, LOOKS_BASE: self.exports_of_looks}.get(p.arg(0), {})
+        exports = {ORIGINS_BASE: self.exports_of_origins, LOOKS_BASE: self.exports_of_looks,
+                   CAUSE_BASE: self.exports_of_cause}.get(p.arg(0), {})
         return exports.get(p.cstring(p.arg(1)), 0), 8
 
     def _keep(self, p):
@@ -138,6 +146,12 @@ class Village(Machine):
             byte = ((byte & 0x0F) | (mask << 4)) if index & 1 else ((byte & 0xF0) | mask)
             p.write(at, bytes([byte]))
         return self.keep_answer, 8
+
+    def _mask_of(self, p):
+        """VvfpMaskOf(record): the nibble, as the real store answers it (vv5_story_mask_get)."""
+        index = (p.arg(0) - self.records) // STRIDE
+        byte = p.read(self.table + (index >> 1), 1)[0]
+        return ((byte >> 4) if index & 1 else byte) & 0x0F, 4
 
     def _converted(self, p):
         self.told.append((p.arg(0), p.arg(1), p.arg(2)))
@@ -257,7 +271,8 @@ class TheRow(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathensKeepMasksInstalled", "VvfpHeathensKeepMasksKept", "VvfpStartup"])
+        self.assertEqual(names, ["VvfpHeathensKeepMasksInstalled", "VvfpHeathensKeepMasksKept",
+                                 "VvfpHeathensKeepMasksLook", "VvfpHeathensKeepMasksReturned", "VvfpStartup"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA",
                                     "OutputDebugStringW", "MessageBoxA", "MessageBoxW", "CreateFileA",
@@ -266,6 +281,10 @@ class TheRow(unittest.TestCase):
             self.assertFalse(section.Characteristics & 0x20000000 and section.Characteristics & 0x80000000)
         source = (ROOT / "native" / "vvfp_heathens_keep_masks" / "vvfp_heathens_keep_masks.c").read_text(
             encoding="utf-8")
+        # The mask a villager going back wore: the Cause of Death companion's Former Heathens file, by its export.
+        cause = pefile.PE(str(ROOT / "assets" / "cause_of_death" / "VVFP Cause of Death.dll"))
+        self.assertIn(b"VvfpCauseFormerKind", {e.name for e in cause.DIRECTORY_ENTRY_EXPORT.symbols})
+        self.assertIn('"VvfpCauseFormerKind"', source)
         self.assertNotIn("vvfp_tr", source)          # no text of its own: nothing to translate
         self.assertNotIn("OutputDebugString", source)
 
@@ -417,6 +436,246 @@ class KeptMasks(unittest.TestCase):
         for game in (1, 2, 3, 4):
             v.export("VvfpStartup", game, 0)
         self.assertEqual(v.export("VvfpHeathensKeepMasksInstalled"), 0)
+
+
+# ---- Going back to the Heathens (the owner, 2026-11-22) ---------------------------------------------------------
+# "a villager who goes back to the Heathens gets back exactly the mask they wore as a Heathen before -- blue, orange,
+# red, purple, or the Chief's mask -- whatever it was; behaviour is always an ordinary blue Heathen (listens,
+# convertible; never the puzzle role again: not a Master, not the Chief)."
+TO_HEATHEN = 0x4669E0                    # SetFaith's to-a-Heathen routine (the drift, events, CIE, Story)
+SPA_TAIL, CRACKED_TAIL = 0x415CFE, 0x416C4A   # The Spa's / The Cracked Mask's "go Heathen" answers
+DROP_TEST, DROP_LISTEN = 0x443D4D, 0x443D65   # the drop handler's mask test and its listening path
+HEAD_TEST, HEAD_DRAW = 0x472732, 0x472769     # the render's head kind tests and the call they feed (edx)
+MASK_PICK, MASK_DRAW = 0x4728C6, 0x472919     # the render's mask pick (role, then kind bytes) and its art row (ebx)
+SLOT_BLUE, SLOT_ORANGE, SLOT_RED = 0xB10E, 0x0A4A, 0x4ED0   # stand-in sprite handles at [esp+0x30/0x4C/0x54]
+ROW_BLUE, ROW_ORANGE, ROW_RED, ROW_PURPLE, ROW_CHIEF = 0, 1, 2, 3, 4   # the art rows 0x4728C6..0x472919 pick
+K_BLUE, K_ORANGE, K_RED, K_PURPLE, K_CHIEF = 0, 1, 2, 3, 4                         # former_heathens.h VV_FORMER_*
+
+
+class GoingBack(Village):
+    """The village with the game's own ways a believer goes back to the Heathens and the render's own mask pick."""
+
+    def __init__(self, exe: bytes, **kw):
+        super().__init__(exe, **kw)
+        self.stub(0x467F90, lambda p: (0, 8))   # SetFaith(-10): the Faith left above 0 here (the direct setter)
+        self.former = {}                        # the Cause of Death companion is loaded; its file is filled per test
+
+    def believer(self, index: int, role: int, orange: int, red: int, *, filed: bool = True) -> int:
+        """A villager converted from a Heathen of this role and kind bytes (the bytes the stock conversion leaves),
+        filed in the Former Heathens file as the Cause of Death companion files them (the mask drawn)."""
+        record = self.heathen(index, role, orange, red)
+        wore = K_CHIEF if role == 13 else K_PURPLE if role in (12, 14, 15, 16) else K_ORANGE if orange else K_RED if red \
+            else K_BLUE
+        self.convert(record)
+        if filed:
+            self.former[record] = wore
+        return record
+
+    def go_back(self, record: int, way: str) -> None:
+        if way == "Faith at 0 (0x4669E0)":
+            self.call(TO_HEATHEN, ecx=record)
+            return
+        event = self.alloc(0x20)
+        self.put32(event + 4, record)
+        from story_emulator import RETURN
+        # Mid-answer: the tail's `pop esi; ret 4` lands on RETURN.
+        self.call(SPA_TAIL if way == "The Spa" else CRACKED_TAIL, [RETURN, 0], regs={"esi": event})
+
+    def head_slot(self, record: int) -> int:
+        """The sprite the render's head draw is handed for this Heathen (0x472732..0x472769: edx)."""
+        from story_emulator import STACK_TOP
+        esp = STACK_TOP - 0x1000 - 4
+        for offset, slot in ((0x30, SLOT_BLUE), (0x4C, SLOT_ORANGE), (0x54, SLOT_RED)):
+            self.put32(esp + offset, slot)
+        self.call(HEAD_TEST, regs={"esi": record}, until=HEAD_DRAW, limit=5000)
+        return self.reg("edx")
+
+    def mask_row(self, record: int) -> int:
+        """The mask art row the render picks (0x4728C6..0x472919: ebx)."""
+        self.call(MASK_PICK, regs={"esi": record, "ebx": 0x77}, until=MASK_DRAW, limit=5000)
+        return self.reg("ebx")
+
+    def listens(self, record: int) -> bool:
+        """The drop handler's mask test: on to the listening path (a blue Heathen's), or turned away."""
+        try:
+            self.call(DROP_TEST, regs={"esi": record, "ebx": 0}, until=DROP_LISTEN, limit=20)
+        except Exception:
+            return False
+        return True
+
+
+WAYS = ("Faith at 0 (0x4669E0)", "The Spa", "The Cracked Mask")
+# Heathen (role, orange, red) -> (Origins mask, head sprite, mask art row)
+WORN = {
+    "blue": ((0, 0, 0), 1, SLOT_BLUE, ROW_BLUE),
+    "orange": ((0, 1, 0), 2, SLOT_ORANGE, ROW_ORANGE),
+    "red": ((0, 0, 1), 3, SLOT_RED, ROW_RED),
+    "purple (a Master)": ((14, 0, 0), 4, SLOT_BLUE, ROW_PURPLE),
+    "purple (the Heathen Doctor)": ((12, 0, 0), 4, SLOT_BLUE, ROW_PURPLE),
+    "the Chief's (the Retired Chief)": ((13, 0, 0), 5, SLOT_BLUE, ROW_CHIEF),
+    "the Heathen Mommy's (orange)": ((17, 1, 0), 2, SLOT_ORANGE, ROW_ORANGE),
+}
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class GoingBackToTheHeathens(unittest.TestCase):
+    maxDiff = None
+
+    def village(self, mode="collection_progression", *, big=False, start=True, **kw) -> GoingBack:
+        rows = [ROW] + (["vv5_population_256"] if big else [])
+        v = GoingBack(render(5, with_requirements(5, rows), mode), big=big, **kw)
+        if start:
+            v.export("VvfpStartup", 5, 0)
+            self.assertEqual(v.export("VvfpHeathensKeepMasksInstalled"), 1)
+        return v
+
+    def test_the_stock_game_gets_the_mask_or_the_behaviour_wrong(self):
+        """Without the companion: an orange convert goes back an orange Heathen in behaviour too (a drop on them does
+        nothing), a purple one is drawn blue, and the Retired Chief through The Spa's own call is the Heathen Chief
+        again -- what the owner's request changes."""
+        v = GoingBack(render(5, with_requirements(5, [ROW]), "collection_progression"))
+        orange = v.believer(3, 0, 1, 0)
+        v.go_back(orange, WAYS[0])
+        self.assertEqual(v.read(orange + ORANGE, 2), b"\x01\x00")
+        self.assertFalse(v.listens(orange))
+        master = v.believer(4, 14, 0, 0)
+        v.go_back(master, WAYS[0])
+        self.assertEqual(v.mask_row(master), ROW_BLUE)
+        chief = v.believer(5, 13, 0, 0)
+        v.go_back(chief, "The Spa")
+        self.assertEqual(v.u32(chief + ROLE), 13, "the Heathen Chief's puzzle role again")
+
+    def test_they_wear_their_own_mask_and_behave_as_an_ordinary_blue_heathen(self):
+        for mode in MODES:
+            for way in WAYS:
+                for worn, ((role, orange, red), mask, slot, row) in WORN.items():
+                    with self.subTest(mode=mode, way=way, worn=worn):
+                        v = self.village(mode)
+                        record = v.believer(7, role, orange, red)
+                        self.assertEqual(v.mask_get(record), mask, "kept as a believer (as before)")
+                        v.go_back(record, way)
+                        self.assertEqual(v.read(record + FACTION, 1), b"\x01", "a Heathen again")
+                        self.assertEqual(v.read(record + ORANGE, 2), b"\0\0", "both kind bytes 0")
+                        self.assertEqual(v.u32(record + ROLE), 0, "never a puzzle role again")
+                        self.assertEqual(v.faction_calls[-1][2],
+                                         {WAYS[0]: 0x466A04, "The Spa": 0x415D11, "The Cracked Mask": 0x416C60}[way],
+                                         "the setter sees its stock return address")
+                        self.assertEqual(v.mask_get(record), mask, "their own mask is kept by the villager")
+                        self.assertEqual(v.head_slot(record), slot, "the head is drawn as in their own mask")
+                        self.assertEqual(v.mask_row(record), row, "their own mask is drawn")
+                        self.assertTrue(v.listens(record), "a believer dropped on them preaches, as on a blue one")
+                        self.assertEqual(v.export("VvfpHeathensKeepMasksLook", record),
+                                         0xFFFFFFFF if mask == 1 else mask - 1)
+                        self.assertEqual(v.export("VvfpHeathensKeepMasksReturned"), 1)
+
+    def test_with_256_villagers(self):
+        for index in (0, 149, 150, 255):
+            with self.subTest(record=index):
+                v = self.village(big=True)
+                record = v.believer(index, 14, 0, 0)
+                v.go_back(record, WAYS[0])
+                self.assertEqual((v.mask_get(record), v.mask_row(record), v.u32(record + ROLE)), (4, ROW_PURPLE, 0))
+
+    def test_joining_again_keeps_their_mask_and_going_back_again_too(self):
+        for worn, ((role, orange, red), mask, _slot, row) in WORN.items():
+            with self.subTest(worn=worn):
+                v = self.village()
+                record = v.believer(4, role, orange, red)
+                for round_trip in range(3):
+                    v.go_back(record, WAYS[round_trip % 3])
+                    self.assertEqual((v.read(record + ORANGE, 2), v.u32(record + ROLE), v.mask_row(record)),
+                                     (b"\0\0", 0, row))
+                    v.convert(record)
+                    self.assertEqual(v.read(record + FACTION, 1), b"\0")
+                    self.assertEqual(v.mask_get(record), mask, "their own mask is kept, not the blue the bytes say")
+                    self.assertEqual(v.keeps[-1], (record, mask))
+                    self.assertEqual(v.told[-1], (5, record, mask), "Original Look is told their mask")
+                    self.assertEqual(v.read(record + ORANGE, 2), bytes([orange, red]),
+                                     "an orange or red kind byte is back, as the stock conversion leaves it")
+
+    def test_a_camp_job_later_keeps_their_mask(self):
+        """The Heathens' own jobs are roles 1-11 (the owner's saves hold them): a Heathen who went back and is
+        later given one is still drawn in their own mask."""
+        for role in (1, 6, 11):
+            with self.subTest(role=role):
+                v = self.village()
+                record = v.believer(4, 14, 0, 0)
+                v.go_back(record, WAYS[0])
+                v.put32(record + ROLE, role)
+                self.assertEqual(v.mask_row(record), ROW_PURPLE)
+                self.assertEqual(v.export("VvfpHeathensKeepMasksLook", record), K_PURPLE)
+
+    def test_a_mask_changed_as_a_believer_does_not_change_the_one_they_wore(self):
+        v = self.village()
+        record = v.believer(4, 0, 0, 1)
+        v.mask_set(record, 2)                       # Change Appearance: Orange, as a believer
+        v.go_back(record, WAYS[0])
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (3, ROW_RED), "red, the mask they wore")
+
+    def test_the_former_heathens_file_is_what_they_wore(self):
+        """The Former Heathens file says what was drawn at their conversion; the kind bytes say only orange or red."""
+        v = self.village()
+        record = v.believer(4, 0, 1, 0)
+        v.former[record] = K_RED                      # e.g. Story / Cheat Upgrades set their kind after it was filed
+        v.go_back(record, WAYS[0])
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (3, ROW_RED))
+
+    def test_without_the_file_the_bytes_and_the_retired_chief_still_tell(self):
+        for (role, orange, red), mask in (((0, 1, 0), 2), ((0, 0, 1), 3), ((13, 0, 0), 5)):
+            with self.subTest(role=role, orange=orange, red=red):
+                v = self.village()
+                record = v.believer(4, role, orange, red, filed=False)
+                v.go_back(record, WAYS[0])
+                self.assertEqual((v.mask_get(record), v.u32(record + ROLE)), (mask, 0))
+
+    def test_not_known_to_have_worn_a_mask_goes_back_blue(self):
+        """No Former Heathens entry and nothing in the record (born a believer, or a Master converted before
+        anything recorded it), with an orange, red, purple or Chief's Change Appearance mask: blue, as before -- a
+        believer's chosen mask is never taken for one they wore."""
+        for chosen in (2, 3, 4, 5):
+            with self.subTest(chosen=chosen):
+                v = self.village()
+                record = v.believer(6, 14, 0, 0, filed=False)
+                v.mask_set(record, chosen)
+                v.go_back(record, WAYS[0])
+                self.assertEqual(v.mask_get(record), 1)
+                self.assertEqual((v.head_slot(record), v.mask_row(record)), (SLOT_BLUE, ROW_BLUE))
+                self.assertTrue(v.listens(record))
+                self.assertEqual(v.export("VvfpHeathensKeepMasksReturned"), 0)
+
+    def test_heathens_the_game_makes_and_the_puzzle_heathens_are_drawn_as_ever(self):
+        v = self.village()
+        for role, orange, red, slot, row in ((0, 0, 0, SLOT_BLUE, ROW_BLUE), (0, 1, 0, SLOT_ORANGE, ROW_ORANGE),
+                                             (0, 0, 1, SLOT_RED, ROW_RED), (12, 0, 0, SLOT_BLUE, ROW_PURPLE),
+                                             (14, 0, 0, SLOT_BLUE, ROW_PURPLE), (13, 0, 0, SLOT_BLUE, ROW_CHIEF),
+                                             (17, 0, 1, SLOT_RED, ROW_RED)):
+            with self.subTest(role=role, orange=orange, red=red):
+                record = v.heathen(9, role, orange, red)
+                if role or orange or red:            # a store entry never changes a puzzle or orange/red Heathen
+                    v.mask_set(record, 5 if role != 13 else 2)
+                self.assertEqual((v.head_slot(record), v.mask_row(record)), (slot, row))
+                self.assertEqual(v.listens(record), not (orange or red), "the drop test as stock")
+                self.assertEqual(v.export("VvfpHeathensKeepMasksLook", record), 0xFFFFFFFF)
+
+    def test_without_the_store_going_back_is_the_stock_game(self):
+        for kw in ({"origins": False}, {"keep_export": False}, {"keep_answer": 0}):
+            with self.subTest(**kw):
+                v = self.village(**kw)
+                record = v.heathen(7, 0, 1, 0)
+                v.write(record + FACTION, b"\0")    # a believer from an orange Heathen
+                v.former[record] = K_ORANGE
+                v.go_back(record, WAYS[0])
+                self.assertEqual(v.read(record + ORANGE, 2), b"\x01\x00", "the stock bytes, its behaviour")
+                self.assertEqual(v.export("VvfpHeathensKeepMasksReturned"), 0)
+
+    def test_the_install_is_refused_on_other_bytes_at_a_drawing_site(self):
+        exe = bytearray(render(5, with_requirements(5, [ROW]), "collection_progression"))
+        exe[MASK_PICK - 0x400000] = 0x90
+        v = GoingBack(bytes(exe))
+        v.export("VvfpStartup", 5, 0)
+        self.assertEqual(v.export("VvfpHeathensKeepMasksInstalled"), 0)
+        self.assertEqual(v.read(0x4669F5, 10), bytes.fromhex("C786FC1C000000000000"), "no site is written")
+        self.assertEqual(v.read(0x466966, 7), bytes.fromhex("83BEFC1C00000D"))
 
 
 if __name__ == "__main__":

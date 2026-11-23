@@ -428,13 +428,64 @@ static void former_tick(int index, const unsigned char *record, int heathen, int
         former_ready = 1;
     }
     if (heathen) {
-        former_kind_seen[index] = (signed char)vv_former_kind_of(record);
+        former_kind_seen[index] = (signed char)vv_former_drawn_kind(record);   /* the mask drawn on them */
         return;
     }
     if (was_heathen == 1 && former_kind_seen[index] >= 0) {
         former_file(record, former_kind_seen[index]);
     }
     former_kind_seen[index] = -1;
+}
+
+/* int __stdcall VvfpCauseFormerKind(const void *record): the mask the Former Heathens file keeps for the
+   villager in `record` (New Believers) -- VV_FORMER_BLUE..VV_FORMER_CHIEF -- or -1 (no entry, two entries,
+   no file, another game).  The newest filing still queued for their identity first (not written yet), then
+   the slot's file as it is on disk; a rename still queued is not followed (-1 until it is written).  Reads
+   only.  For "Heathens Keep Their Masks When Converted": a villager going back to the Heathens gets back the
+   mask they wore (the owner, 2026-11-22). */
+int __stdcall VvfpCauseFormerKind(const void *record) {
+    static unsigned char file[VV_FORMER_FILE_MAX];
+    unsigned int identity;
+    int slot, k;
+    HANDLE h;
+    DWORD got = 0;
+    if (g_game != 5 || record == NULL) {
+        return -1;
+    }
+    __try {
+        identity = former_identity((const unsigned char *)record);
+        slot = cod_slot();
+        for (k = former_pending_count - 1; k >= 0; --k) {
+            if (former_pending[k].slot != slot) {
+                continue;
+            }
+            if (former_pending[k].op == FORMER_OP_FILE && former_pending[k].a == identity) {
+                return (int)former_pending[k].b;
+            }
+            if (former_pending[k].op != FORMER_OP_FILE
+                && (former_pending[k].a == identity || former_pending[k].b == identity)) {
+                return -1;            /* carried to or from them, not written yet: not known */
+            }
+        }
+        if (!former_bind(slot)) {
+            return -1;
+        }
+        h = CreateFileA(former.path, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL,
+                        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h == INVALID_HANDLE_VALUE) {
+            return -1;
+        }
+        if (!ReadFile(h, file, sizeof file, &got, NULL)) {
+            got = 0;
+        }
+        CloseHandle(h);
+        if (got == 0 || !vv_former_validate(file, got)) {
+            return -1;
+        }
+        return vv_former_lookup(file, identity);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        return -1;
+    }
 }
 
 static void former_forget(int index) {

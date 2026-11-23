@@ -225,7 +225,10 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Chief's for the Heathen Chief, else orange, red or blue) as their Change Appearance mask, kept by the "
             "Origins upgrades. Change Appearance can change it or take it off, and Reset to original gives it back "
             "(their original look is the one they had as a Heathen, mask and all). Heathens who joined before the "
-            "patch are not given one.", sub=True)
+            "patch are not given one. One who later goes back to the Heathens wears the mask they wore as a Heathen "
+            "before (blue, orange, red, purple or the Chief's) but is treated as an ordinary Heathen in the blue "
+            "mask: a believer dropped on them preaches, they can be converted again, and they are never a Master or "
+            "the Chief again.", sub=True)
     # The drop handler 0x443BF0's mask test 0x443D4D (orange +0x1CED, red +0x1CEE turned away at 0x44402D; the rest
     # get Heathen action 6 and believer action 0x27); the sermon's end, the work event 0x468DA0.
     add("Dropping a believer of 14 or more on a Heathen in the blue mask starts preaching: the believer is "

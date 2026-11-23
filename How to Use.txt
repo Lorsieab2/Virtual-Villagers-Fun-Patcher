@@ -1490,8 +1490,14 @@ Chief). It is kept exactly as if you had chosen it with Change Appearance:
 Change Appearance shows it as their mask, and you can change it or choose No
 Mask whenever you like. Nothing is charged. Reset to original gives it back: a
 convert's original look is the head and body they had with the mask they wore.
-Heathens who joined before this patch keep the look they have now. Runs on the
-Origins upgrades, which the patcher adds with it.
+If a villager who was once a Heathen later loses their faith and goes back to
+the Heathens, they wear their own mask again (the one they wore as a Heathen
+before: blue, orange, red, purple or the Chief's) but act exactly like an
+ordinary Heathen in a blue mask: you can talk to them, they listen, and they can
+be converted again like any blue one (never a Master or the Chief again).
+Heathens who joined before this patch keep the look they have now; Repair Saves
+& Logs > Restore Heathen Masks... gives their own mask back to villagers who
+already went back. Runs on the Origins upgrades, which the patcher adds with it.
 
 FOG OF DOOM LETS RED AND ORANGE HEATHENS LISTEN (NEW BELIEVERS)
 
