@@ -1259,7 +1259,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_rewrites.pak",
       "destination": "Events/st_rewrites.pak",
-      "sha256": "6C405B502E35D4B87D2682C11E32B15675A4109D5D00B65C97185603D18BA2C7"
+      "sha256": "45EFA632E20B8930DF9AFA026EFEC79530C7CEFCB9CDDAF7711757CA198AA55A"
     },
     {
       "source": "assets/event_collection/vv5/living-st_rolemode.pak",
@@ -20804,7 +20804,7 @@
     {
       "source": "assets/event_collection/s061_soft_yams.cieg",
       "destination": "Events/3915.cieg",
-      "sha256": "A363F47E5428CFFD236595013ECC9620CDDAE14D88442C6DB39CAEE32891D4CE"
+      "sha256": "51B37B40FEF2F4B1E0B3E8384376048BF1F17FF86AB2069E63950AC867C71515"
     },
     {
       "source": "assets/event_collection/s062_flood.cieg",
@@ -20819,7 +20819,7 @@
     {
       "source": "assets/event_collection/s064_stranger_recipe.cieg",
       "destination": "Events/3918.cieg",
-      "sha256": "1F9EE9F57BBA8FEEB5FF3523F335E549397D6B123A10B9DB30FC183DF2DF6E2C"
+      "sha256": "925D74A6586243071C08761C2B8DDB3800DDB94A62BBE099BE96AAE7ABCF015D"
     },
     {
       "source": "assets/event_collection/s065_coral_reef_dive.cieg",
@@ -20964,7 +20964,7 @@
     {
       "source": "assets/event_collection/s095_lucky_harvest.cieg",
       "destination": "Events/3949.cieg",
-      "sha256": "89EFF2E5DC083B7336C1BE87D83DB1BA826F204F801EE0BC1497A9F1C4A1A435"
+      "sha256": "7D7B7CD8B43973240635E4B18E46D7D71F38AE961EC6A92110A1697018E66B78"
     },
     {
       "source": "assets/event_collection/s096_peaceful_passing.cieg",

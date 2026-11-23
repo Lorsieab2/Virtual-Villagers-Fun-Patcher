@@ -151,6 +151,9 @@ static int ol_save_written(int slot, FILETIME *out) {
     return 1;
 }
 
+static int g_founder_screen;                    /* "Select 5 villagers" is open (The Tree of Life, New Believers) */
+static int ol_founder_screen(void) { return g_founder_screen; }
+
 #include "original_look_store.inc"
 
 /* ---- the village -------------------------------------------------------------------------------- */
@@ -233,6 +236,7 @@ static void new_session(void) {
     g_synced = 0;
     g_candidate_slot = 0;
     g_origins = 1;
+    g_founder_screen = 0;
     g_ticks += 10000;
 }
 
@@ -1101,6 +1105,87 @@ int main(int argc, char **argv) {
     g_game_slot = 1;
     clear_village();
     check(original(1) == -1, "nobody in the records: nothing is known");
+
+    /* The owner, 2026-11-22 ("it reset some of my villagers to the wrong appearance"): a new New Believers
+       village, its founders chosen on "Select 5 villagers".  The candidate on show is a real record and a
+       Reject makes the next one in that record: of one sex, with no parents, the two have the same stable
+       part, so the change read as a rename and the rejected candidate's look was kept for the founder. */
+    printf("the founder screen is no village (The Tree of Life, New Believers)\n");
+    {
+        int game;
+        for (game = 4; game <= 5; ++game) {
+            char what[96];
+            fresh_disk();
+            g_game = game;
+            g_count = 256;
+            new_session();
+            g_game_slot = 1;
+            clear_village();
+            g_founder_screen = 1;
+            villager(0, "Hope Powaka", 1, "", "", 14, 21);      /* chosen */
+            villager(1, "Candidate", 0, "", "", 29, 22);        /* on show, held long enough to be bound */
+            settle();
+            (void)tick();
+            wsprintfA(what, "game %d: nothing is bound while the founders are chosen", game);
+            check(g_state == OL_UNBOUND && g_source[0] == OL_NONE && g_source[1] == OL_NONE, what);
+            rec(1)[LAYOUT[game].present] = 0;                   /* Reject: the next candidate, same record */
+            villager(1, "Nobu Helaku", 0, "", "", 26, 26);
+            (void)tick();
+            villager(2, "Yapili Tawonga", 0, "", "", 18, 13);
+            g_founder_screen = 0;                               /* the fifth Select starts the game */
+            settle();
+            game_saves(1);
+            wsprintfA(what, "game %d: the founder's original is his own look, never the rejected candidate's", game);
+            check(original(1) == 260260 && original(0) == 140210 && original(2) == 180130, what);
+            wsprintfA(what, "game %d: ...kept and read back after a reload", game);
+            new_session();
+            g_game_slot = 1;
+            settle();
+            check(original(1) == 260260 && g_state == OL_BOUND, what);
+        }
+        g_game = 5;
+        g_count = 150;
+    }
+
+    /* A wrong original kept before the fix: Repair Saves & Logs proves the right one from the founder's own
+       Arrived record and writes it as CORRECTED, which takes over even a SEEN original; a plain KNOWN never
+       does. */
+    printf("a corrected original (src/vv_original_look.py)\n");
+    fresh_disk();
+    new_session();
+    g_game_slot = 1;
+    founders(6, "Kai");
+    settle();
+    game_saves(1);
+    villager(6, "Nobu", 0, "", "", 29, 22);                     /* kept SEEN with a look that was not his */
+    (void)tick();
+    set_look(6, 26, 26);
+    villager(7, "Other", 1, "", "", 9, 9);
+    (void)tick();
+    set_look(7, 3, 3);
+    (void)tick();
+    check(g_source[6] == OL_SEEN && original(6) == 290220 && g_source[7] == OL_SEEN,
+          "(Nobu and Other have SEEN originals)");
+    g_logged[0].id = ol_identity(rec(6));
+    g_logged[0].head = 26;
+    g_logged[0].body = 26;
+    g_logged[0].mask = 0;
+    g_logged[0].kind = OL_LOGGED_CORRECTED;
+    g_logged[1].id = ol_identity(rec(7));
+    g_logged[1].head = 1;
+    g_logged[1].body = 1;
+    g_logged[1].kind = OL_LOGGED_KNOWN;
+    g_logged_count = 2;
+    check(ol_publish() == 1, "(a file with a corrected original, as Repair Saves & Logs leaves it)");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(6) == 260260 && g_source[6] == OL_LOGS, "a CORRECTED original takes over a SEEN one");
+    check(original(7) == 90090 && g_source[7] == OL_SEEN, "...a plain KNOWN still never does");
+    new_session();
+    g_game_slot = 1;
+    settle();
+    check(original(6) == 260260, "...and stays after a reload");
 
     printf("256 records, and the other games' layouts\n");
     fresh_disk();

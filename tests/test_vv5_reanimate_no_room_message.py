@@ -1,8 +1,9 @@
 """New Believers: Reanimate refused for want of a record says why in the gray message bar.
 
 v1.35.58's record guard (scripts/build_record_guards_vv345.py) refuses
-Reanimate, nothing spent, while every villager record is taken (records in use
-plus babies owed), because the stock spell crashed on a NULL record.  The owner
+Reanimate, nothing spent, while every villager record is occupied (the stand-in
+is freed once the villager has risen, so babies still owed do not count),
+because the stock spell crashed on a NULL record.  The owner
 tried it at 256 of 256 and the power silently did nothing; he wants the gray
 bar to say:
 
@@ -166,8 +167,8 @@ class ReanimateNoRoomMessage(unittest.TestCase):
     def test_refused_reanimate_says_why_in_the_gray_bar_and_spends_nothing(self):
         for label, mode, ids, slots in builds():
             pe = render(mode, ids)
-            # every record in use; or two free, both owed to a pregnant mother
-            for occupied, owed in ((slots, 0), (slots - 2, 2)):
+            # every record in use, with or without babies owed
+            for occupied, owed in ((slots, 0), (slots, 2)):
                 with self.subTest(build=label, occupied=occupied, owed=owed):
                     self.check_refused(pe, Game(pe, slots, occupied, owed))
 
@@ -197,6 +198,20 @@ class ReanimateNoRoomMessage(unittest.TestCase):
                                  "the stock return address and argument")
                 self.assertEqual(game.bar(), (b"\xAA" * 0x100, 7))
                 self.assertNotIn(STRNCPY, game.calls)
+
+    def test_babies_still_owed_do_not_block_a_revive_while_a_record_is_free(self):
+        """The stand-in holds its record only while the villager rises (0x420142 frees
+        it; the dead villager is revived in its own record), so Reanimate needs one
+        record free now.  The owner's village (v1.35.97, 256 build): Population 255 =
+        242 living + 13 babies owed, one body, 243 of 256 records in use -- refused
+        while the guard counted the babies owed."""
+        for label, mode, ids, slots in builds():
+            for occupied, owed in ((slots - 13, 13), (slots - 1, 1), (slots - 1, 3)):
+                with self.subTest(build=label, occupied=occupied, owed=owed):
+                    game = Game(render(mode, ids), slots, occupied, owed)
+                    self.assertEqual(game.reanimate(), "slot finder")
+                    self.assertEqual(game.bar(), (b"\xAA" * 0x100, 7))
+                    self.assertNotIn(STRNCPY, game.calls)
 
     def test_the_expanded_modes_keep_the_text_and_rescale_only_the_cap(self):
         """The (unpublished) Expanded-256 modes rewrite every safety row's 150 as

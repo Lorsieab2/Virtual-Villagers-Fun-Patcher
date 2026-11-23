@@ -179,6 +179,24 @@ class TheContract(unittest.TestCase):
         self.assertEqual(got[4], (40043, ol.FIRST_RUN), "everyone else is seen as they are now")
         self.assertEqual(got[0], (0, ol.FIRST_RUN))
 
+    def test_a_corrected_original_written_here_takes_over_the_dlls_seen_one(self):
+        """The owner, 2026-11-22 ("it reset some of my villagers to the wrong appearance"): a founder's SEEN
+        original that was a rejected candidate's look is corrected by Repair (CORRECTED), and the DLL's store
+        takes it; a plain KNOWN still never replaces a SEEN original."""
+        ids = [ol.identity(5, f"Kai{i}".encode(), struct.pack("<i", i & 1))[0] for i in range(10)]
+        entries = [ol.Entry(roster=ident) for ident in ids] + [ol.Entry() for _ in range(140)]
+        entries[2] = ol.Entry(ids[2], ids[2], 9, 9, 0, ol.SEEN)
+        entries[6] = ol.Entry(ids[6], ids[6], 9, 9, 0, ol.SEEN)
+        looks = ol.OriginalLooks(5, entries, [ol.Logged(ids[2], 2, 2, 0, ol.CORRECTED),
+                                              ol.Logged(ids[6], 6, 6, 0, ol.KNOWN)])
+        with tempfile.TemporaryDirectory() as d:
+            made = Path(d) / "corrected.dat"
+            made.write_bytes(ol.build(looks))
+            out = harness("read", str(made))
+        got = {int(i): (int(o), int(s)) for i, o, s in re.findall(r"^ORIGINAL (\d+) (-?\d+) (\d+)$", out, re.M)}
+        self.assertEqual(got[2], (20020, ol.LOGS), "CORRECTED takes over the SEEN original")
+        self.assertEqual(got[6], (90090, ol.SEEN), "KNOWN never does")
+
     def test_a_file_started_for_this_village_is_taken_by_the_dlls_store_and_another_villages_is_not(self):
         """Codex, PR #653: the backfill starts a file for the village on screen (new_looks) when the slot's
         file is another village's; the DLL takes that one and applies its logs' part, and would refuse the
@@ -557,6 +575,185 @@ class Backfill(unittest.TestCase):
         got = v.logged()
         self.assertEqual(got[a.name].kind, ol.UNKNOWN)
         self.assertEqual(got[b.name].kind, ol.UNKNOWN)
+    def test_a_wrong_original_the_dll_kept_is_corrected_only_when_proven(self):
+        """The owner, 2026-11-22: a New Believers founder kept with a rejected founder candidate's look (the DLL
+        read the Reject as a rename: original_look_store.inc THE FOUNDER SCREEN IS NO VILLAGE), so Reset to
+        original gave him that look.  Repair corrects such an original from the villager's own record -- only
+        when the logs prove it -- and never touches the DLL's entries."""
+        for game in (4, 5):
+            with self.subTest(game=game):
+                v = Village(self.root / f"fix{game}", game)
+                p = [x.seen for x in v.people]
+                entries = [ol.Entry() for _ in range(150)]
+                for x in v.people:
+                    entries[x.seen.record].roster = x.id
+                ids = {x.seen.name: x.id for x in v.people}
+
+                def kept(i: int, looks: tuple[int, int], source: int = ol.SEEN, game_body: int = 0) -> None:
+                    entries[p[i].record] = ol.Entry(ids[p[i].name], ids[p[i].name], looks[0], looks[1], 0, source,
+                                                    game_body)
+
+                now = [(x.head, x.body) for x in p]
+                # p0: never changed, kept with another look: corrected to the Arrived record's (= now).
+                kept(0, (29, 22))
+                text = arrived(1, p[0].name, p[0].sex, now[0])
+                # p1 (the owner's Nobu): a founder, Reset to the wrong original while a Heathen (Old mask Blue),
+                # a head change back, then the conversion's own Arrived record: corrected to the founder's look.
+                kept(1, (29, 22))
+                text += (arrived(2, p[1].name, p[1].sex, (5, 5))
+                         + change(p[1].name, (5, 5), (29, 22), ("Blue Mask", "none"))
+                         + change(p[1].name, (29, 22), now[1], ("none", "none"))
+                         + arrived(3, p[1].name, p[1].sex, now[1]).replace("\n\n", "\n  How: Converted from the Heathens\n\n"))
+                # p2: a FIRST RUN snapshot (bound on the founder screen) never changed since: the logs' KNOWN,
+                # which the DLL already takes over a first-run snapshot.
+                kept(2, (29, 22), ol.FIRST_RUN)
+                text += arrived(4, p[2].name, p[2].sex, now[2])
+                # p3: two records of their own that are not a conversion (a namesake): never corrected.
+                kept(3, (29, 22))
+                text += arrived(5, p[3].name, p[3].sex, now[3]) + arrived(6, p[3].name, p[3].sex, (1, 1))
+                # p4: the game set the body since (a bought outfit): never corrected.
+                kept(4, (now[4][0], 27), game_body=1)
+                text += arrived(7, p[4].name, p[4].sex, now[4])
+                # p5: the logs do not lead back to their record (a change seen with no record): never corrected.
+                kept(5, (29, 22))
+                text += arrived(8, p[5].name, p[5].sex, (3, 3))
+                path = ol.path(v.folder, 1)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(ol.build(ol.OriginalLooks(game, entries)))
+                v.births(text)
+                result = ol.backfill(v.folder, game, 1)
+                got = v.logged()
+                self.assertEqual((got[p[0].name].kind, got[p[0].name].head, got[p[0].name].body, got[p[0].name].mask),
+                                 (ol.CORRECTED, now[0][0], now[0][1], 0))
+                self.assertEqual((got[p[1].name].kind, got[p[1].name].head, got[p[1].name].body, got[p[1].name].mask),
+                                 (ol.CORRECTED, 5, 5, 0), "the founder's own look, and the mask he was kept with")
+                self.assertEqual((got[p[2].name].kind, got[p[2].name].head, got[p[2].name].body),
+                                 (ol.KNOWN, now[2][0], now[2][1]))
+                self.assertNotEqual(got.get(p[3].name, ol.Logged(0, 0, 0, 0, None)).kind, ol.CORRECTED)
+                self.assertNotEqual(got.get(p[4].name, ol.Logged(0, 0, 0, 0, None)).kind, ol.CORRECTED)
+                self.assertNotEqual(got.get(p[5].name, ol.Logged(0, 0, 0, 0, None)).kind, ol.CORRECTED)
+                self.assertEqual(result.corrected, 3)
+                self.assertEqual(v.file().entries, entries, "the DLL's entries are kept byte for byte")
+                self.assertFalse(ol.backfill(v.folder, game, 1).written, "running it again changes nothing")
+
+    def test_a_mask_got_as_a_heathen_is_never_a_believers_original(self):
+        """The owner, 2026-11-22: Caia, a believer founder (no mask), became a Heathen and rejoined; a Reset done
+        since logged "Old mask: Blue Mask".  Her original is her founder look with no mask, never the blue."""
+        v = self.village(5)
+        a, b = v.people[0].seen, v.people[1].seen
+        now = (a.head, a.body)
+        converted = arrived(9, a.name, a.sex, now).replace(
+            "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n")
+        v.births(arrived(1, a.name, a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + change(a.name, now, now, ("Blue Mask", "none")) + converted
+                 # b never left the tribe: a Change Appearance mask before their first change is still theirs.
+                 + birth(2, b.name, b.sex, (6, 6)) + change(b.name, (6, 6), (b.head, b.body), ("Red Mask", "none")))
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()
+        self.assertEqual((got[a.name].kind, got[a.name].head, got[a.name].body, got[a.name].mask),
+                         (ol.KNOWN, now[0], now[1], 0))
+        self.assertEqual((got[b.name].kind, got[b.name].mask), (ol.KNOWN, 3))
+
+    def test_a_gone_namesakes_records_never_decide_the_original(self):
+        """Codex, #841: a villager of the same name died; whose founder record, conversion and Reset these were
+        cannot be told, so the believer-founder rule (and the correction) say nothing of the living one."""
+        v = self.village(5)
+        a = v.people[0].seen
+        now = (a.head, a.body)
+        converted = arrived(9, a.name, a.sex, now).replace(
+            "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n")
+        v.births(arrived(1, a.name, a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + change(a.name, now, now, ("Blue Mask", "none")) + converted)
+        v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
+              f"Died\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: Old age\n\n")
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged().get(a.name)
+        self.assertFalse(got is not None and got.kind == ol.KNOWN and got.mask == 0,
+                         "the founder rule is not applied over a gone namesake")
+
+    def test_the_founder_rule_follows_a_rename_and_never_an_old_name_another_villager_had(self):
+        """Codex, #841: renamed since they rejoined, their records are under the old name and are followed; an
+        old name another living villager also had is never taken for theirs."""
+        results = []
+        for shared in (False, True):
+            v = Village(self.root / f"r{int(shared)}", 5)
+            a, b = v.people[0].seen, v.people[1].seen
+            now = (a.head, a.body)
+            text = (arrived(1, "Oldname", a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                    + change("Oldname", now, now, ("Blue Mask", "none"))
+                    + arrived(9, "Oldname", a.sex, now).replace(
+                        "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n")
+                    + f"Name changed\n  Name: {a.name}\n  Old name: Oldname\n\n")
+            if shared:
+                text += f"Name changed\n  Name: {b.name}\n  Old name: Oldname\n\n"
+            v.births(text)
+            ol.backfill(v.folder, 5, 1)
+            got = v.logged().get(a.name)
+            results.append(None if got is None else (got.kind, got.mask))
+        self.assertEqual(results[0], (ol.KNOWN, 0), "the rename is followed: the founder's look, no mask")
+        self.assertNotEqual(results[1], (ol.KNOWN, 0), "an old name two villagers had: the rule says nothing")
+
+    def test_a_record_written_afterwards_never_proves_an_original(self):
+        """Codex, #841: a backfilled Arrived or Birth record ("Note: Recorded afterwards", native/shared/
+        arrival_backfill.h) carries the look the villager had when it was written, so it never corrects a SEEN
+        original nor makes a founder's original."""
+        v = self.village(5)
+        a, b = v.people[0].seen, v.people[1].seen
+        late = "  Note: Recorded afterwards (arrived before this log existed)\n"
+        entries = [ol.Entry() for _ in range(150)]
+        for x in v.people:
+            entries[x.seen.record].roster = x.id
+        entries[a.record] = ol.Entry(v.people[0].id, v.people[0].id, 29, 22, 0, ol.SEEN)
+        path = ol.path(v.folder, 1)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(ol.build(ol.OriginalLooks(5, entries)))
+        nowb = (b.head, b.body)
+        v.births(arrived(1, a.name, a.sex, (a.head, a.body)).replace("\n\n", f"\n{late}\n")
+                 # b: the founder rule's own record written afterwards
+                 + arrived(2, b.name, b.sex, nowb).replace("\n\n", f"\n  How: Founder\n{late}\n")
+                 + change(b.name, nowb, nowb, ("Blue Mask", "none"))
+                 + arrived(9, b.name, b.sex, nowb).replace(
+                     "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n"))
+        result = ol.backfill(v.folder, 5, 1)
+        got = v.logged()
+        self.assertNotEqual(getattr(got.get(a.name), "kind", None), ol.CORRECTED, "the SEEN original stays")
+        self.assertEqual(result.corrected, 0)
+        self.assertNotEqual((getattr(got.get(b.name), "kind", None), getattr(got.get(b.name), "mask", None)),
+                            (ol.KNOWN, 0), "the founder rule takes no record written afterwards")
+
+    def test_leaving_as_an_isolan_is_not_gone_for_good(self):
+        """Codex, #841: "Left the tribe: became an Isolan" (Guardians of Isola) is the Heathens' leaving, never a
+        death: the believer-founder rule still gives the founder look with no mask."""
+        v = self.village(5)
+        a = v.people[0].seen
+        now = (a.head, a.body)
+        v.births(arrived(1, a.name, a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + change(a.name, now, now, ("Blue Mask", "none"))
+                 + arrived(9, a.name, a.sex, now).replace(
+                     "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n"))
+        v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
+              f"Disappeared\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: Left the tribe: became an Isolan\n\n")
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()[a.name]
+        self.assertEqual((got.kind, got.mask), (ol.KNOWN, 0))
+
+    def test_the_founder_rule_follows_a_sex_change(self):
+        """Codex, #841: a founder record logged under the other sex (their sex changed since, recorded) is still
+        theirs: the believer-founder rule gives their founder look with no mask."""
+        v = self.village(5)
+        a = v.people[0].seen
+        now = (a.head, a.body)
+        other = "Female" if str(a.sex).strip().lower() == "male" else "Male"
+        v.births(arrived(1, a.name, other, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + f"Appearance changed\n  Name: {a.name}\n  Old head: {now[0]}\n  Old body: {now[1]}\n"
+                   f"  New head: {now[0]}\n  New body: {now[1]}\n  Old sex: {other}\n  New sex: {a.sex}\n\n"
+                 + change(a.name, now, now, ("Blue Mask", "none"))
+                 + arrived(9, a.name, str(a.sex), now).replace(
+                     "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n"))
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()[a.name]
+        self.assertEqual((got.kind, got.head, got.body, got.mask), (ol.KNOWN, now[0], now[1], 0))
+
     def test_idempotent(self):
         v = self.village(3)
         a = v.people[2].seen
