@@ -456,7 +456,9 @@ class TheDraw(unittest.TestCase):
         self.assertFalse(v.begin_climb([5] * 20))
         self.assertEqual(v.done, [(2, 0)])
         self.assertEqual(v.p.u32(v.dlg + 0x509C), 5)              # the stock draw ran ...
-        self.assertEqual(set(v.bounds), {22})                     # ... with the stock bound
+        # ... with the stock bound; the stock event's own setup then picks its villager among the one there (rand(1):
+        # the village's records are where the game reads them, so the game's own picker sees Ana)
+        self.assertEqual(v.bounds, [22, 1])
         # Never the village's first island event.
         v = ClimbVillage()
         v.scientist(0, "Ana", True)
