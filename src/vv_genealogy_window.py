@@ -2438,6 +2438,9 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.status.set(f"A new page can start at generation {gens[0] + 1} to {gens[-1]}." if len(gens) > 1
                             else "This tree has one generation: it fits one page.")
             return
+        if g not in ft.shown_generations(self.edits, self.village):    # a page of nobody would be blank
+            self.status.set(f"Nobody is in generation {gen.roman(g)}: a new page starts at a generation the tree shows.")
+            return
         if g in self.edits.pages:
             return
         self.edits.pages = sorted(self.edits.pages + [g])

@@ -1458,7 +1458,7 @@ def page_village(edits: Edits, village: gen.Village, page: int) -> gen.Village:
     out.people = {pid: _copy(p) for pid, p in village.people.items()}
     for pid, g in changed.items():
         out.people[pid].generation = g
-    out.span_generations = sorted({p.generation for p in village.people.values()}) or [1]
+    out.span_generations = shown_generations(edits, village) or [1]
     _renumber(out, replace(edits, entries=entries))
     return out
 
@@ -2129,20 +2129,31 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
     generation on the second page being treated as "founders" on the second page")."""
     # (a page laid out with generations of its own keeps the tree's pages: page_village)
-    gens = getattr(village, "span_generations", None) or sorted({p.generation for p in village.people.values()}) or [1]
+    gens = getattr(village, "span_generations", None) or shown_generations(edits, village) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
     # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
     # say, 10 at most, so every page stays legible): a longer span goes on over the next pages, each
-    # starting with the generation the one before ends with.
+    # starting with the generation the one before ends with.  Counted in the generations someone is in,
+    # never in generation numbers: a tree whose numbers jump (VII, then XLI) made a page for every six
+    # numbers between, each one blank (the owner, 2026-11-22: "why are there 9 pages with blank ones").
     most = edits.page_generations
     out = []
     for lo, hi in spans:
-        while hi - lo + 1 > most:
-            out.append((lo, lo + most - 1))
-            lo += most - 1
-        out.append((lo, hi))
+        run = [g for g in gens if lo <= g <= hi]
+        while len(run) > most:
+            out.append((run[0], run[most - 1]))
+            run = run[most - 1:]
+        out.append((run[0], run[-1]))
     return out
+
+
+def shown_generations(edits: Edits, village: gen.Village) -> list[int]:
+    """The generations the tree shows someone in (a villager the player hid shows nowhere), lowest first --
+    the generations its pages are made of, so no page is ever blank."""
+    hidden = {k for k, f in edits.entries.items() if isinstance(f, dict) and f.get("hidden")}
+    return sorted({p.generation for p in village.people.values()
+                   if not hidden or entry_key(village, p) not in hidden})
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
