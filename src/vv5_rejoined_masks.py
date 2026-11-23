@@ -90,8 +90,8 @@ def _lives(folder: Path, slot: int) -> _Lives:
     order = 0
     for p in ol._in_order([p for p in files if "Births and Conceptions" in p.name]):
         for b in additions.blocks(p):
-            if not b.of(slot, GAME, villages):
-                continue
+            if not b.of(slot, GAME, villages) or b.not_kept:
+                continue                                # a record the saved village never held (src/vv_not_kept.py)
             order += 1
             if rc.BIRTH.match(b.heading):
                 child = ol._sub_lines(b.lines, "Child")
@@ -110,12 +110,12 @@ def _lives(folder: Path, slot: int) -> _Lives:
     out.sex_changed = set(ev.sex_changed)
     for p in [p for p in files if "Island Events" in p.name]:
         for b in additions.blocks(p):
-            if b.of(slot, GAME, villages) and (b.value("New villager") or "").lower().startswith("yes") \
+            if b.of(slot, GAME, villages) and not b.not_kept and (b.value("New villager") or "").lower().startswith("yes") \
                     and b.value("Name"):
                 out.newcomers.add((b.value("Name"), _sex(b.value("Sex"))))
     for p in [p for p in files if "Deaths" in p.name or "Unaccounted" in p.name]:
         for b in additions.blocks(p):
-            if b.of(slot, GAME, villages) and b.value("Name") \
+            if b.of(slot, GAME, villages) and not b.not_kept and b.value("Name") \
                     and "became a heathen" not in (b.value("What happened") or "").lower():
                 out.gone.add(b.value("Name"))
     return out

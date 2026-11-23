@@ -164,6 +164,19 @@ class RejoinedMasks(unittest.TestCase):
         survey = rm.survey(self.v.folder, 1)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 3)])
 
+    def test_a_birth_the_saved_village_never_held_is_no_namesake(self):
+        """Codex, #841: a Birth record marked "Not in the village as it was saved" (src/vv_not_kept.py) is no
+        villager, so a discarded birth of the same name never blocks a proven restore."""
+        from vv_not_kept import NOT_KEPT_LINE
+        from test_original_look import birth
+        a = self.p[0]
+        self.masks_file({})
+        discarded = birth(7, a.name, a.sex, (1, 1)).replace("\n\n", f"\n{NOT_KEPT_LINE}\n\n")
+        self.v.births(arrived(1, a.name, a.sex, (a.head, a.body))
+                      + converted(2, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)") + discarded)
+        survey = rm.survey(self.v.folder, 1)
+        self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 1)])
+
     def test_repair_saves_and_logs_runs_it(self):
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
         self.assertIn("vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)", source)
