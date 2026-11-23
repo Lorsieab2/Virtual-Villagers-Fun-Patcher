@@ -169,6 +169,7 @@ PATCHER_READS: frozenset[str] = frozenset({
     # "VVFP Gender Presentation.dll" to keep the sex the creator draws for a new Golden Child
     # (vvfp_gender_presentation.c).
     "VVFP Golden Child Born Female.txt",
+    "VVFP Revive From Graves.txt",       # Revive Buried/Disappeared Villagers: the Story companion's flag
 }) | frozenset(
     # The Unicode companions' bundled open fonts (assets/unicode_fonts), their licence texts and sources: loaded
     # privately by "VVFP Unicode Text.dll" / "VVFP Unicode Font.dll" from "Unicode Fonts\\" beside them.

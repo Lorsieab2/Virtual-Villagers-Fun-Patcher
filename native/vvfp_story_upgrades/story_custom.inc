@@ -1721,6 +1721,11 @@ static char test_arrival_parents[CE_MAX_SPAWN_GROUPS * 4][256];   /* TEST build:
 static int test_arrival_told;
 #endif
 
+/* The "How:" of a new villager's Arrived record: a Custom Island Event's, or what made them instead (Revive
+   Buried/Disappeared Villagers says "Returned from the dead" while it makes its villager, story_revive.inc). */
+#define CE_ARRIVAL_HOW "Custom Island Event"
+static const char *ce_arrival_how = CE_ARRIVAL_HOW;
+
 static void ce_tell_arrival(int game, int index, const ce_spawn *s) {
     typedef void (__stdcall *arrived_fn)(int, int, const char *);
     typedef void (__stdcall *parents_fn)(int, int, const char *);
@@ -1737,7 +1742,7 @@ static void ce_tell_arrival(int game, int index, const ce_spawn *s) {
     }
 #endif
     if (arrived != NULL) {
-        arrived(game, index, "Custom Island Event");
+        arrived(game, index, ce_arrival_how);
     }
     if (parents != NULL && block[0] != '\0') {
         parents(game, index, block);

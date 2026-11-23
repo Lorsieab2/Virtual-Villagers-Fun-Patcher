@@ -129,6 +129,9 @@ CHECKS += 7 * 2
 # Arrived record is marked "Faction: Heathen", and a Heathen a stock event makes gets one, named by the event
 # and marked (the check that a Heathen the creator makes is no arrival now says it gets a marked one).
 CHECKS += 2
+# + 1 per game and 1 more in New Believers (the owner, 2026-11-23): Revive Buried/Disappeared Villagers' villager is
+# "How: Returned from the dead", and a revived Heathen's record is marked "Faction: Heathen".
+CHECKS += 5 + 1
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}
@@ -200,7 +203,10 @@ class ArrivedRecordSource(unittest.TestCase):
 
     def test_the_custom_island_event_names_its_villagers(self):
         source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
-        self.assertIn('arrived(game, index, "Custom Island Event");', source)
+        # The How is the Custom Island Event's unless Revive Buried/Disappeared Villagers names its own (story_revive.inc).
+        self.assertIn('#define CE_ARRIVAL_HOW "Custom Island Event"', source)
+        self.assertIn('static const char *ce_arrival_how = CE_ARRIVAL_HOW;', source)
+        self.assertIn('arrived(game, index, ce_arrival_how);', source)
         spawn = source[source.index("int index = a->spawn(s);"):]
         self.assertLess(spawn.index("ce_tell_arrival(e->game, index, s);"), spawn.index("titles_set"))
 

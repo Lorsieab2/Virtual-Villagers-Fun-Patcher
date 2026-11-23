@@ -209,7 +209,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # The four Heathen aging rows (New Believers, new 2026-11-22: off by default; three on in
                   # Owner's Defaults, the alternative skeleton row off there too).
                   or p in ("vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages",
-                           "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons")})
+                           "vv5_all_heathens_leave_skeletons", "vv5_former_villager_heathens_leave_skeletons")
+                  # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
+                  # Owner's Defaults; 100,000 tech points while the story upgrades cost tech points).
+                  or p.endswith("_revive_from_graves")})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,
