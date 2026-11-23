@@ -70,6 +70,7 @@ class _Lives:
     newcomers: set[tuple[str, str]] = field(default_factory=set)   # an island event's newcomer of that name, sex
     gone: set[str] = field(default_factory=set)                    # a villager of that name died, vanished, lost
     renames: list[tuple[str, str]] = field(default_factory=list)   # (old name, new name): every recorded rename
+    sex_changed: set[str] = field(default_factory=set)             # names whose sex changed (vv_sex_changes)
 
 
 def _sex(value: str | None) -> str:
@@ -104,7 +105,9 @@ def _lives(folder: Path, slot: int) -> _Lives:
                     out.events.setdefault(key, []).append((order, "own", None))
     # The names a villager has had (Codex, #841): "Name changed" records, island events' renames and the
     # patcher's own renames -- the same list the original looks follow (src/vv_original_look.py evidence).
-    out.renames = list(ol.evidence(folder, GAME, slot).renames)
+    ev = ol.evidence(folder, GAME, slot)
+    out.renames = list(ev.renames)
+    out.sex_changed = set(ev.sex_changed)
     for p in [p for p in files if "Island Events" in p.name]:
         for b in additions.blocks(p):
             if b.of(slot, GAME, villages) and (b.value("New villager") or "").lower().startswith("yes") \
@@ -126,7 +129,10 @@ def _rejoined_title(lives: _Lives, name: str, sex: str, others: set[str] = froze
     when the logs show no conversion of them at all."""
     import vv_original_look as ol
     names = ol._names(name, lives.renames)
-    events = sorted(e for n in names for e in lives.events.get((n, sex), []))
+    # A sex change since (Codex, #841): their records of the other sex are theirs too -- under a name whose sex
+    # changed only, and a second own record of either sex still makes it more than one villager.
+    sexes = {sex} | ({"male", "female"} if names & lives.sex_changed else set())
+    events = sorted(e for n in names for x in sexes for e in lives.events.get((n, x), []))
     convs = [k for k, e in enumerate(events) if e[1] == "conv"]
     owns = [k for k, e in enumerate(events) if e[1] == "own"]
     if not convs:
@@ -135,7 +141,7 @@ def _rejoined_title(lives: _Lives, name: str, sex: str, others: set[str] = froze
         return None, "another living villager has (or had) one of their names; whose conversion it was cannot be told"
     if names & lives.gone:
         return None, "a villager of their name is gone; whose conversion it was cannot be told"
-    if any((n, sex) in lives.newcomers for n in names) or len(owns) > 1:
+    if any((n, x) in lives.newcomers for n in names for x in sexes) or len(owns) > 1:
         return None, "the logs know more than one villager of their name"
     if owns and owns[0] > convs[-1]:
         return None, "their own record comes after the conversion: it was another villager's"

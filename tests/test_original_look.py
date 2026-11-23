@@ -693,6 +693,23 @@ class Backfill(unittest.TestCase):
         self.assertEqual(results[0], (ol.KNOWN, 0), "the rename is followed: the founder's look, no mask")
         self.assertNotEqual(results[1], (ol.KNOWN, 0), "an old name two villagers had: the rule says nothing")
 
+    def test_the_founder_rule_follows_a_sex_change(self):
+        """Codex, #841: a founder record logged under the other sex (their sex changed since, recorded) is still
+        theirs: the believer-founder rule gives their founder look with no mask."""
+        v = self.village(5)
+        a = v.people[0].seen
+        now = (a.head, a.body)
+        other = "Female" if str(a.sex).strip().lower() == "male" else "Male"
+        v.births(arrived(1, a.name, other, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + f"Appearance changed\n  Name: {a.name}\n  Old head: {now[0]}\n  Old body: {now[1]}\n"
+                   f"  New head: {now[0]}\n  New body: {now[1]}\n  Old sex: {other}\n  New sex: {a.sex}\n\n"
+                 + change(a.name, now, now, ("Blue Mask", "none"))
+                 + arrived(9, a.name, str(a.sex), now).replace(
+                     "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n"))
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()[a.name]
+        self.assertEqual((got.kind, got.head, got.body, got.mask), (ol.KNOWN, now[0], now[1], 0))
+
     def test_idempotent(self):
         v = self.village(3)
         a = v.people[2].seen

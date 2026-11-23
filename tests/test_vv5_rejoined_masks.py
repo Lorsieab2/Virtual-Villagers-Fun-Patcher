@@ -146,6 +146,24 @@ class RejoinedMasks(unittest.TestCase):
         self.assertEqual(survey.restore, [])
         self.assertIn(a.name, [f.name for f in survey.listed])
 
+    def test_a_conversion_made_while_they_were_the_other_sex_is_theirs(self):
+        """Codex, #841: rejoined in blue, sex changed, rejoined again in red, sex changed back.  The last
+        conversion is the red one, logged under the other sex: it is the one given back."""
+        a = self.p[0]
+        other = "Female" if str(a.sex).strip().lower() == "male" else "Male"
+
+        def sex_change(old: str, new: str) -> str:
+            return (f"Appearance changed\n  Name: {a.name}\n  Old head: {a.head}\n  Old body: {a.body}\n"
+                    f"  New head: {a.head}\n  New body: {a.body}\n  Old sex: {old}\n  New sex: {new}\n\n")
+        self.masks_file({})
+        self.v.births(arrived(1, a.name, a.sex, (a.head, a.body))
+                      + converted(2, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)")
+                      + sex_change(str(a.sex), other)
+                      + converted(3, a.name, other, (a.head, a.body), "Former Heathen (red mask)")
+                      + sex_change(other, str(a.sex)))
+        survey = rm.survey(self.v.folder, 1)
+        self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 3)])
+
     def test_repair_saves_and_logs_runs_it(self):
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
         self.assertIn("vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)", source)
