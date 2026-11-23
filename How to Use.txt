@@ -776,6 +776,29 @@ parents; the Family Tree Maker shows a newborn named like a dead villager as
 a person of her own; and the Village Elders repair counts a dead elder even
 when a living villager has her name.
 
+NEW BELIEVERS: THE HEATHENS IN THE LOGS
+
+Every log records New Believers' Heathens too, each record clearly marked
+with the line "Faction: Heathen" ("Faction: Isolan" with the Guardians of
+Isola Rewrite), as the Village History and Village Population records are:
+- Arrived: the camp's Heathens, made with a new village's founders ("How:
+  Founder"), Barrel O' Babies! (heathens), a Custom Island Event's Heathens,
+  and the Heathen who replaces one who died of old age.
+- Death and Disappeared: a Heathen who dies (with "Former Villagers Keep
+  Aging Among the Heathens" or "Heathen Tribe Ages, Dies and Has Children")
+  or disappears.
+- Conception and Birth: a Heathen woman's pregnancy, and a baby born among
+  the Heathens (with "Heathen Tribe Ages, Dies and Has Children").
+- Appearance changed and Name changed, for a Heathen.
+A believer's records never have the line. "Left the tribe: became a Heathen"
+is the villager's own record of leaving, so it is not marked; a Heathen who
+converts gets "How: Converted from the Heathens", unmarked. Heathens never
+count: the Village Statistics (Villagers Buried too: burying a Heathen's
+skeleton is never counted), the Family Tree Maker (a camp Heathen is never a
+founder), Catch up Heathen ages and Repair Saves & Logs read the line and
+leave them out. Heathens already in a village get no Arrived record
+afterwards; the Village History lists them.
+
 LAST NAMES: EACH VILLAGER'S OWN RULE
 
 In Repair Saves & Logs, "Give villagers last names" > Choose... > "Each
