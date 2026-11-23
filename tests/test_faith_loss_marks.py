@@ -5,7 +5,8 @@ or disease", then: decided once per villager, not on every roll (a roll each age
 everyone over a long famine), 1 in 10 become Heathens.  The owner (2026-11-20, after a village of 5 to 7 believers
 lost five to the Heathens and none to death): once per villager PER CAUSE per crisis -- starvation (food under 10),
 hunger (food 10 to 250), sickness, and too few believers (fewer than 12) now too -- each crisis ending on its own
-(food above 250; cured; 12 or more believers).
+(food above 250; cured; 12 or more believers).  The owner (2026-11-22): each cause its own odds -- starvation 1 in 20,
+sickness 1 in 25, hunger and too few believers 1 in 50 (1 in 10 for each before).
 
 "VVFP Faith Loss.dll" (the shipped DLL) runs in the emulator beside New Believers' executable rendered with the row,
 with the drift 0x468040's own code: the game routines it asks are stubbed, rand gives a seeded random stream, and
@@ -47,6 +48,10 @@ STRIDE, FIRST = 0x2F44, 0x48
 NAME, HEALTH, SICK, PRESENT, HEATHEN, FAITH, LIKES = 0x1B9C, 0x1C40, 0x1C48, 0x1CD4, 0x1CEC, 0x1CF0, 0x1F5C
 AGE, DISLIKES = 0x1B8C, 0x1F68
 STARVATION, HUNGER, SICKNESS, TOO_FEW = 1, 2, 4, 8          # a mark's causes
+# Each cause's decision is rand(N) < 1 (the owner, 2026-11-22: starvation 1 in 20, sickness 1 in 25, hunger and too
+# few believers 1 in 50; the cave's own rule without the companion is rand(10)).
+ODDS = {STARVATION: 20, SICKNESS: 25, HUNGER: 50, TOO_FEW: 50}
+DECIDE_ODDS = (10, 20, 25, 50)
 
 _renders: dict = {}
 
@@ -65,17 +70,20 @@ def rendered(ids: tuple, mode: str = "collection_progression") -> bytes:
 class Files:
     """The Windows file calls the companion makes (sidecar_io.h), over a dict of path -> bytes."""
 
-    def __init__(self):
+    def __init__(self, docs: bytes = b"C:\\Docs", exe: bytes | None = None):
         self.files: dict[str, bytes] = {}
         self.handles: dict[int, list] = {}
         self.next = 0x100
         self.error = 0
+        self.docs, self.exe = docs, exe
 
     def install(self, p: "Process") -> None:
         h = p.api_handlers
+        if self.exe is not None:
+            p.exe_path = self.exe
 
         def special(q):
-            q.write(q.arg(1), b"C:\\Docs\0")
+            q.write(q.arg(1), self.docs + b"\0")
             return 1, 16
         h["SHGetSpecialFolderPathA"] = special
         h["CreateDirectoryA"] = lambda q: (1, 8)
@@ -155,6 +163,7 @@ class Game:
         self.rng = random.Random(seed)
         self.forced: list[int] = []
         self.decisions = 0
+        self.decided_with: list[int] = []
         self.food, self.believers = 100, 20
         manager = p.alloc(0x20000)
         p.put32(SAVE_MANAGER, manager)
@@ -165,8 +174,9 @@ class Game:
 
         def rand(q):
             n = q.arg(0)
-            if n == 10:
+            if n in DECIDE_ODDS:                       # a decision (every other roll is rand(100))
                 self.decisions += 1
+                self.decided_with.append(n)
             value = self.forced.pop(0) if self.forced else self.rng.randrange(32768)
             return value % n, 0
 
@@ -233,17 +243,17 @@ class OnceACrisis(unittest.TestCase):
         self.assertEqual(bare.export("VvfpFaithLossInstalled"), 0, "without the row's cave nothing is written")
         self.assertEqual(bare.read(0x494F14, 5), bytes(5))
 
-    def test_a_long_famine_keeps_about_nine_in_ten_believers(self):
+    def test_a_long_famine_keeps_nearly_every_believer(self):
         """150 believers through 80 age units of food 100 (the food roll every unit at 20%): each is decided once, the
-        first time the food would take their last Faith; about 1 in 10 becomes a Heathen, the rest stay believers at
-        Faith 1 or more for the whole famine, however many more falls come."""
+        first time hunger would take their last Faith; 1 in 50 becomes a Heathen (the owner, 2026-11-22), the rest
+        stay believers at Faith 1 or more for the whole famine, however many more falls come."""
         g = Game(rendered((FAITH_LOSS,)), Files(), n=150, seed=7)
         for _ in range(80):
             g.unit()
         heathens = sum(g.heathen(r) for r in g.records)
         self.assertEqual(g.decisions, 150, "every believer reached the decision, once")
-        self.assertGreaterEqual(heathens, 6)
-        self.assertLessEqual(heathens, 26, "about 15 of 150 expected")
+        self.assertEqual(set(g.decided_with), {ODDS[HUNGER]})
+        self.assertLessEqual(heathens, 10, "about 3 of 150 expected")
         for rec in g.records:
             if not g.heathen(rec):
                 self.assertGreaterEqual(g.faith(rec), 1, "never below 1 (a gain roll may still lift it)")
@@ -287,7 +297,7 @@ class OnceACrisis(unittest.TestCase):
 
     def test_each_cause_is_decided_once_per_crisis_too_few_believers_included(self):
         """The owner (2026-11-20): one roll per villager per cause per crisis; too few believers goes through the
-        same once-a-crisis 1 in 10, and ends when the village has 12 or more believers again."""
+        same once-a-crisis decision (its own odds), and ends when the village has 12 or more believers again."""
         files = Files()
         g = Game(rendered((FAITH_LOSS,)), files, n=3)
         a, b, c = g.records
@@ -326,7 +336,7 @@ class OnceACrisis(unittest.TestCase):
         g.drift(a, sick=1)
         self.assertEqual(g.decisions, 5)
         self.assertTrue(g.heathen(a))
-        # Too few believers alone, never decided: 1 in 10 a Heathen, else held.
+        # Too few believers alone, never decided: 1 in 50 a Heathen, else held.
         g.p.put32(b + FAITH, 1)
         g.forced = [0, 0]
         g.drift(b)
@@ -342,9 +352,9 @@ class OnceACrisis(unittest.TestCase):
 
     def test_a_small_starving_village_mostly_stays_and_dies(self):
         """The owner's village (5 to 7 believers, hungry): 120 believers counted as 8 by the game through 300 age
-        units of food 100.  Each is decided at most twice (hunger, too few believers), so about 1 - 0.9^2 = 19%
-        become Heathens; before, a believer held at Faith 1 left on the first too-few roll (8% each age unit here),
-        so nearly every one did."""
+        units of food 100.  Each is decided at most twice (hunger, too few believers, each 1 in 50: the owner,
+        2026-11-22), so about 1 - 0.98^2 = 4% become Heathens; before the once-a-crisis rule, a believer held at Faith
+        1 left on the first too-few roll (8% each age unit here), so nearly every one did."""
         g = Game(rendered((FAITH_LOSS,)), Files(), n=120, seed=11)
         g.believers = 8
         for rec in g.records:
@@ -354,8 +364,8 @@ class OnceACrisis(unittest.TestCase):
         heathens = sum(g.heathen(r) for r in g.records)
         self.assertLessEqual(g.decisions, 2 * 120)
         self.assertGreaterEqual(g.decisions, 120)
-        self.assertGreaterEqual(heathens, 8)
-        self.assertLessEqual(heathens, 40, "about 23 of 120 expected")
+        self.assertEqual(set(g.decided_with), {ODDS[HUNGER], ODDS[TOO_FEW]})
+        self.assertLessEqual(heathens, 15, "about 5 of 120 expected")
         for rec in g.records:
             if not g.heathen(rec):
                 self.assertGreaterEqual(g.faith(rec), 1)
@@ -547,6 +557,89 @@ class OnceACrisis(unittest.TestCase):
         g.forced = [0, 99, 0]
         g.drift(dead)                                       # no second roll
         self.assertEqual((g.decisions, g.heathen(dead)), (before, False))
+
+    def test_the_owners_long_256_folder_keeps_the_marks_through_a_restart(self):
+        """The owner (2026-11-22): "i had 5 convert instead of die" from sickness, in "Virtual Villagers - New
+        Believers - Modded 256" under a 33-character Documents folder.  Its marks file was never written: the path
+        check guessed 160 characters for everything after the Documents folder and the executable's name (33 + 46 +
+        160 = 239, over MAX_PATH less the set-aside name's 27), though the real path is 165.  The marks lived only in
+        memory, so every game start (and its load-time catch-up) decided every held believer again.  A sick believer
+        decided once stays decided through any number of restarts; a path really too long is still refused.  (A
+        made-up Documents folder of the same length stands in for the player's.)"""
+        docs = b"D:\\Profiles\\Player\\SavedDocuments"
+        self.assertEqual(len(docs), 33)
+        exe_name = b"Virtual Villagers - New Believers - Modded 256"
+        exe = b"D:\\Games\\Modded Games\\" + exe_name + b"\\" + exe_name + b".exe"
+        files = Files(docs, exe)
+        build = rendered((FAITH_LOSS, POP256))
+        g = Game(build, files, n=1)
+        (rec,) = g.records
+        g.food = 1000
+        g.p.put32(rec + FAITH, 1)
+        g.forced = [0, 99, 5]                          # sickness takes the last Faith: decided, stays
+        g.drift(rec, sick=1)
+        self.assertEqual((g.heathen(rec), g.decisions), (False, 1))
+        (path,) = files.files
+        self.assertEqual(path, (docs + b"\\LDW\\" + exe_name + b"\\Virtual Villagers Fun Patcher\\Save 1\\Data\\"
+                                b"Faith Loss\\Believers Kept - Save 1.dat").decode().lower())
+        self.assertEqual(files.causes(), [SICKNESS])
+        for restart in range(5):                       # the same illness, the game quit and started again
+            again = Game(build, files, n=1)
+            again.food = 1000
+            again.p.put32(again.records[0] + FAITH, 1)
+            again.forced = [0, 99, 0]                  # a roll now would make a Heathen
+            again.drift(again.records[0], sick=1)
+            self.assertEqual((again.heathen(again.records[0]), again.decisions), (False, 0), restart)
+        # A Documents folder long enough that the whole path would not fit: refused, nothing written, no fault.
+        long_files = Files(b"C:\\" + b"D" * 100, exe)  # 235 characters: with the set-aside name, over 259
+        far = Game(build, long_files, n=1)
+        far.food = 1000
+        far.p.put32(far.records[0] + FAITH, 1)
+        far.forced = [0, 99, 5]
+        far.drift(far.records[0], sick=1)
+        self.assertEqual((far.heathen(far.records[0]), far.decisions, long_files.files), (False, 1, {}))
+
+    def test_each_cause_draws_the_owners_odds(self):
+        """The owner (2026-11-22): starvation 1 in 20, sickness 1 in 25, hunger 1 in 50, too few believers 1 in 50 --
+        each cause's decision is rand(N) < 1 with its own N."""
+        for cause, setup in ((STARVATION, dict(food=5, sick=0, believers=20, forced=[0, 99, 5])),
+                             (HUNGER, dict(food=100, sick=0, believers=20, forced=[0, 99, 5])),
+                             (SICKNESS, dict(food=1000, sick=1, believers=20, forced=[0, 99, 5])),
+                             (TOO_FEW, dict(food=1000, sick=0, believers=3, forced=[0, 5]))):
+            with self.subTest(cause=cause):
+                g = Game(rendered((FAITH_LOSS,)), Files(), n=1)
+                (rec,) = g.records
+                g.food, g.believers, g.forced = setup["food"], setup["believers"], setup["forced"]
+                g.p.put32(rec + FAITH, 1)
+                g.drift(rec, sick=setup["sick"])
+                self.assertEqual(g.decided_with, [ODDS[cause]])
+                self.assertFalse(g.heathen(rec))
+        self.assertEqual(ODDS, {STARVATION: 20, SICKNESS: 25, HUNGER: 50, TOO_FEW: 50})
+
+    def test_it_says_which_cause_decided_a_conversion(self):
+        """VVFP Faith Notice.dll's popup must name the cause that decided (VvfpFaithLossDecided), not the first loss
+        roll that hit: a believer held at Faith 1 for sickness is turned only by another cause's roll."""
+        g = Game(rendered((FAITH_LOSS,)), Files(), n=2)
+        a, b = g.records
+        g.food = 1000
+        g.p.put32(a + FAITH, 1)
+        g.forced = [0, 99, 5]                          # sickness decided: held
+        g.drift(a, sick=1)
+        self.assertEqual(g.p.export("VvfpFaithLossDecided", 5, a), 0, "held: no conversion decided")
+        g.believers = 3
+        g.forced = [0, 0, 0]                           # sick (held) and too few hit; too few's roll: a Heathen
+        g.drift(a, sick=1)
+        self.assertTrue(g.heathen(a))
+        self.assertEqual(g.p.export("VvfpFaithLossDecided", 5, a), TOO_FEW)
+        self.assertEqual(g.p.export("VvfpFaithLossDecided", 4, a), 0, "only New Believers")
+        self.assertEqual(g.p.export("VvfpFaithLossDecided", 5, b), 0, "another record's drift was not decided")
+        g.believers = 20
+        g.food = 5
+        g.p.put32(b + FAITH, 1)
+        g.forced = [0, 99, 0]                          # starvation's roll: a Heathen
+        g.drift(b)
+        self.assertEqual(g.p.export("VvfpFaithLossDecided", 5, b), STARVATION)
+        self.assertEqual(g.p.export("VvfpFaithLossDecided", 5, a), 0, "the last drift was b's")
 
     def test_another_slot_has_its_own_marks(self):
         files = Files()
