@@ -48,10 +48,27 @@ def toolchain_present(script: Path) -> bool:
     return bool(m) and (Path(m.group(1)) / "bin" / "Hostx64" / "x86" / "cl.exe").exists()
 
 
+_SIBLING_INCLUDE = re.compile(r'^\s*#\s*include\s*"\.\./([A-Za-z0-9_]+)/', re.M)
+
+
 def native_dirs(script: Path) -> set[str]:
+    """The native folders a build needs: the ones the script names, native/shared, and every sibling
+    folder a source in them includes (`#include "../vvfp_head_look/head_look_store.inc"`), followed
+    until no new folder appears -- a copy without an included folder fails to compile."""
     dirs = set(re.findall(r"native\\\\?([A-Za-z0-9_]+)", _text(script)))
     dirs.add("shared")
-    return {d for d in dirs if (ROOT / "native" / d).is_dir()}
+    dirs = {d for d in dirs if (ROOT / "native" / d).is_dir()}
+    pending = list(dirs)
+    while pending:
+        for source in sorted((ROOT / "native" / pending.pop()).rglob("*")):
+            # (a harness source builds a test executable, not the DLL: its includes are not the build's)
+            if source.suffix.lower() not in {".c", ".h", ".inc", ".rc"} or "harness" in source.name:
+                continue
+            for d in _SIBLING_INCLUDE.findall(source.read_text(encoding="utf-8", errors="replace")):
+                if d not in dirs and (ROOT / "native" / d).is_dir():
+                    dirs.add(d)
+                    pending.append(d)
+    return dirs
 
 
 def build_copy(script: Path, parent: Path) -> dict[Path, str]:
@@ -114,6 +131,15 @@ class SourceTests(unittest.TestCase):
                 with self.subTest(file=path.relative_to(ROOT).as_posix()):
                     code = re.sub(r"/\*.*?\*/|//[^\n]*", "", path.read_text(encoding="utf-8"), flags=re.S)
                     self.assertIsNone(pattern.search(code))
+
+
+class CopyTests(unittest.TestCase):
+    def test_the_copy_brings_every_native_folder_a_source_includes(self) -> None:
+        # Heathens Keep Masks includes the Head Looks store from native/vvfp_head_look and its script never
+        # names that folder: the throwaway copy failed to compile until includes were followed.
+        self.assertIn("vvfp_head_look", native_dirs(SCRIPTS_DIR / "build_vvfp_heathens_keep_masks.ps1"))
+        self.assertIn("vvfp_head_look", native_dirs(SCRIPTS_DIR / "build_vvfp_gender_presentation.ps1"))
+        self.assertIn("vv1_origins_icons", native_dirs(SCRIPTS_DIR / "build_vv2_origins_icons.ps1"))
 
 
 class BuildFailureTests(unittest.TestCase):
