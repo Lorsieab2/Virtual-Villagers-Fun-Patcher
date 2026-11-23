@@ -1064,7 +1064,7 @@
     {
       "source": "assets/event_collection/vv2/living-st_draft_ad.pak",
       "destination": "Events/st_draft_ad.pak",
-      "sha256": "D29B90CDB65071355015D6BD74A9AEC1302F90E5BB610CB933DF6466480BFAE7"
+      "sha256": "D0C22CD81A6AC4276A80F78A35FF4AAFA148F4A527046375727E5EBC18EE3B84"
     },
     {
       "source": "assets/event_collection/vv2/living-st_draft_ar.pak",
@@ -1254,7 +1254,7 @@
     {
       "source": "assets/event_collection/vv2/living-st_rewrites.pak",
       "destination": "Events/st_rewrites.pak",
-      "sha256": "2C5572CD2F7A0DFF91D989420AA9A8ABDB28DF3B7964953159B732A8EB1307BC"
+      "sha256": "329355364154C54F2A0FA25DAD38EEFA054CBE1D34778A1AA18E941F57BB9968"
     },
     {
       "source": "assets/event_collection/vv2/living-st_rolemode.pak",
@@ -1264,7 +1264,7 @@
     {
       "source": "assets/event_collection/vv2/living-st_v28.pak",
       "destination": "Events/st_v28.pak",
-      "sha256": "C8B0334BB1F465C1534C664BB27805316A60080671221C0EDF7419507258949D"
+      "sha256": "C7F8AB2E31703D7D882EFCB841AAC5D7E8F319DB3A1C7D1DF05BC35273E09712"
     },
     {
       "source": "assets/event_collection/adv01_three_people.cieg",
@@ -1409,7 +1409,7 @@
     {
       "source": "assets/event_collection/adv29_elder_asks_young.cieg",
       "destination": "Events/29.cieg",
-      "sha256": "EFDBFC16C0B54B9E37AD97F56D0FFD1B318181E80B3F13B8C39B03EFBAC5E2F7"
+      "sha256": "68C45668CDBA88B5C6FC8B483ED1F17AE4BECEBA085C1AA70FB5434C5846D8A8"
     },
     {
       "source": "assets/event_collection/adv30_dream_gave.cieg",
@@ -1524,7 +1524,7 @@
     {
       "source": "assets/event_collection/all_conundrums.cieg",
       "destination": "Events/52.cieg",
-      "sha256": "7AA961D6A0191262EC4A9DD8684EE8377618C45E9EDF036B8413B7F017419B77"
+      "sha256": "6FF94A70E3BB9E4373C13E3519448488FD6A70A9D6CDD717DDB768067BF7E0DD"
     },
     {
       "source": "assets/event_collection/all_doctors_dilemma.cieg",
@@ -1554,7 +1554,7 @@
     {
       "source": "assets/event_collection/all_invention_showcase.cieg",
       "destination": "Events/58.cieg",
-      "sha256": "1217FA12A5FDAFFD815ADA7CD9DDC4C0C7751D5E8181083B06BCE1CDDD621975"
+      "sha256": "7311227241CE22960F300FB31A3D8F002B48DAAAC558FB5F832F5C2062E8CC63"
     },
     {
       "source": "assets/event_collection/all_its_alive.cieg",
@@ -1579,7 +1579,7 @@
     {
       "source": "assets/event_collection/all_secret_of_life.cieg",
       "destination": "Events/63.cieg",
-      "sha256": "A54A170333C2848D77B86E189DBDF3F4F5FFAC95D7007AF4AFED3CDD74CC0D23"
+      "sha256": "33406E760FB6FAE05D18E55B55620EE386CBEE357DC9826653AF42C508C4052B"
     },
     {
       "source": "assets/event_collection/all_storytelling.cieg",
@@ -1734,7 +1734,7 @@
     {
       "source": "assets/event_collection/all_v20_r1_should_not.cieg",
       "destination": "Events/94.cieg",
-      "sha256": "3DEE8669DD39DB1060FA95D322CC2585B73E3A804A4720389D7F3F23CE29BA4B"
+      "sha256": "3143881422B6E0CDFC15EF408719BBA2FF0444B791BB7B2A7CE7BEC6DE471086"
     },
     {
       "source": "assets/event_collection/all_v20_r2_relic_trial.cieg",
@@ -1819,7 +1819,7 @@
     {
       "source": "assets/event_collection/all_v24_revolutionary.cieg",
       "destination": "Events/111.cieg",
-      "sha256": "801AC24BDD0B574D8513EB1D9EF257DA2B41E5C5CADC8650F46ABF7E2C077EE7"
+      "sha256": "F23CF266C5645B695EC066342A82DDD1F031FFE6377E8CC894B7AEA8C02CA868"
     },
     {
       "source": "assets/event_collection/all_v27_01_cry.cieg",
@@ -1939,7 +1939,7 @@
     {
       "source": "assets/event_collection/all_v27_24_explorer.cieg",
       "destination": "Events/135.cieg",
-      "sha256": "ACFB2E54FE8189EF4D90705F591AF2E519982BACC33D95592CE0C25818B02EE1"
+      "sha256": "CA39A9E8351E412964A0A75CD729A6DDEB5228AEB980C6CB89393B1E8218C642"
     },
     {
       "source": "assets/event_collection/all_v27_25_crossing.cieg",
@@ -20509,7 +20509,7 @@
     {
       "source": "assets/event_collection/s036_weaver_pattern.cieg",
       "destination": "Events/3890.cieg",
-      "sha256": "A9FF2D808798B1E60454D6538E2ED804878A3B5BFA935C3F9A1D3BF6E64DC6E5"
+      "sha256": "3B9292508D78D28571BB820528FBB8205C166A731C69EAB1C697A35CF423BA4E"
     },
     {
       "source": "assets/event_collection/s037_coughing_season.cieg",
@@ -20539,7 +20539,7 @@
     {
       "source": "assets/event_collection/s042_midwife_dream.cieg",
       "destination": "Events/3896.cieg",
-      "sha256": "357FFE9C3D440F856FA952E8682B445BD0DD7C17C2B6A883244E2A2725741F60"
+      "sha256": "EB3122493F96951CEB7DB45F67E02B40A430F567585C4120A0DBA09F2F45F91D"
     },
     {
       "source": "assets/event_collection/s043_raft_strangers.cieg",
@@ -22499,7 +22499,7 @@
     {
       "source": "assets/event_collection/vv2_cooking_contest.cieg",
       "destination": "Events/4359.cieg",
-      "sha256": "DF3CF7115EE289C05877506FFF8461656747C2F45DE1C84E5840911FB194E8B7"
+      "sha256": "80A5937B1C446C8A4FD658C5F21CC0E7E725E4DBA354A26CC36AEFB746D84ADA"
     },
     {
       "source": "assets/event_collection/vv2_experimental_remedy.cieg",
@@ -22509,7 +22509,7 @@
     {
       "source": "assets/event_collection/vv2_hospitals_most_difficult.cieg",
       "destination": "Events/4361.cieg",
-      "sha256": "0170F44CA70FE0B36F1B92A3617419F1A5557114CB28162C1AB68121B500D063"
+      "sha256": "E654D98F73323D6587983FA00B2EA7DBE2C592ADC14EA979641F42AEA7F38538"
     },
     {
       "source": "assets/event_collection/vv2_hut_sharing_negotiation.cieg",
