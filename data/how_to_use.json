@@ -1264,7 +1264,7 @@
     {
       "ids": ["vv1_revive_from_graves", "vv2_revive_from_graves", "vv3_revive_from_graves", "vv4_revive_from_graves", "vv5_revive_from_graves"],
       "guide": [
-        "Adds Revive Buried/Disappeared Villagers to the Tech screen's upgrades: 100,000 tech points each time.",
+        "Adds Revive Buried/Disappeared Villagers to the Tech upgrades: 100,000 tech points, free when upgrades are free.",
         "It lists the village's buried and vanished villagers with what the logs and graves say about them.",
         "The one you pick comes back as the same person, aged 5, and their grave is removed.",
         "Not possible while the village is full; nothing is spent then. You can buy it again and again.",

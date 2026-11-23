@@ -425,9 +425,9 @@ above its other story buttons, as wide as its label needs (`native/shared/story_
 `vvfp_story_add_revive_button`, id 4095; the menu is widened when it is narrower than the label). No executable
 byte is written.
 
-**Price.** Always 100,000 tech points (the owner: "it still costs 100,000 tech points -- not free"), also when
-Story / Cheat Upgrades cost Tech Points is unticked; taken only once the villager is back; with fewer the purchase
-is refused, so tech points never go below 0.
+**Price** (the owner, 2026-11-23). Like the other story upgrades: 100,000 tech points while Story / Cheat
+Upgrades cost Tech Points is ticked, free while it is not (the button and the window say which); taken only
+once the villager is back; with fewer the purchase is refused, so tech points never go below 0.
 
 **Who is listed.** The save slot's own Deaths and Disappearances logs (`Virtual Villagers Fun Patcher Logs\Save
 <S>\` and `Virtual Villagers Fun Patcher\Save <S>\Logs\`, both "Deaths" and "Deaths and Disappearances"; Start Over

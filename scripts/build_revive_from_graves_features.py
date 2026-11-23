@@ -56,14 +56,15 @@ def row(game: str, digest: str) -> dict:
     description = (
         "**Needs Story / Cheat Upgrades** (it adds to that row's Tech-screen upgrades). A new upgrade in the Tech "
         "screen's upgrades menu, \"Revive Buried/Disappeared Villagers\", which costs 100,000 tech points each time "
-        "(also when Story / Cheat Upgrades cost Tech Points is unticked). It lists every buried villager and every "
+        "while Story / Cheat Upgrades cost Tech Points is ticked and nothing while it is unticked, like the other "
+        "story upgrades. It lists every buried villager and every "
         "villager who vanished, from the village's own Deaths and Disappearances log, with their name, sex, age at "
         "death, cause of death or what happened, grave line and epitaph, likes and dislikes, head and body, parents, "
         "mask, custom title and special title, and their skills from the last Village History snapshot of them; "
         "anything the logs do not hold is shown as unknown. The one you pick comes back as the same person - name "
         "and last name, sex, parents, likes and dislikes, looks, mask, custom title and skills - aged 5, through the "
         "game's own villager creator, and their grave is removed. It can be bought again and again. **Refused, with "
-        "nothing charged, while the village is at its maximum population or has fewer than 100,000 tech points.** "
+        "nothing charged, while the village is at its maximum population or has fewer tech points than it costs.** "
         "**The list comes from the logs: villagers are listed only when \"Write Births and Conceptions Log to Text "
         "File\" and \"Show Cause of Death and Epitaphs on Graves, and Log Every Death\" logged their death or "
         "disappearance (without them the list is empty), and their skills are known only with a "
@@ -96,7 +97,8 @@ def row(game: str, digest: str) -> dict:
             + (" and the head and body" if game in ("vv4", "vv5") else "")
             + ", each grave to one record in log order; a grave that changed since the list was made is never "
               "removed (the purchase is refused).",
-            "100,000 tech points are taken only once the villager is back; with fewer the purchase is refused, so "
+            "With Story / Cheat Upgrades cost Tech Points ticked, 100,000 tech points are taken only once the villager is "
+            "back (free with it unticked); with fewer the purchase is refused, so "
             "the tech points never go below 0.",
         ],
         "explicit_non_changes": [

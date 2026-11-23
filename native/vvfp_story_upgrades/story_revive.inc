@@ -72,14 +72,13 @@
    A record whose grave is not found (the game removed the body, the
    graveyard was full, a Disappeared record) has no grave to remove.
 
-   PRICE.  Always 100,000 tech points (the owner: "it still costs 100,000
-   tech points -- not free"), whether or not Story / Cheat Upgrades cost Tech
-   Points is ticked; taken only once the villager is back; never more than
-   the village has (it is refused with fewer). */
+   PRICE (the owner, 2026-11-23).  As the other story upgrades: 100,000 tech points while Story / Cheat
+   Upgrades cost Tech Points is ticked (the Story companion's `charges`), free while it is not.  Taken
+   only once the villager is back; never more than the village has (with fewer it is refused). */
 
-#define RV_PRICE 100000
+#define RV_PRICE 100000               /* with Story / Cheat Upgrades cost Tech Points ticked; else 0 (rv_price) */
 #define RV_AGE 100                    /* five years */
-#define RV_MAX 400                    /* people listed */
+#define RV_MAX 4096                   /* people kept: past it the OLDEST record goes (the newest always show) */
 #define RV_PREFS 64                   /* likes (or dislikes) kept per person (The Secret City holds 62) */
 #define RV_NAME 32
 #define RV_FLAG_FILE "VVFP Revive From Graves.txt"
@@ -129,8 +128,59 @@ typedef struct {
     int listed;                       /* 0: in the village (not shown) or replaced by a newer record */
 } rv_person;
 
-static rv_person rv_people[RV_MAX];
+static rv_person *rv_people;         /* grown on the process heap (rv_room), up to RV_MAX */
+static int rv_people_cap;
+static int *rv_order;                 /* the list's rows: listed people, the newest first (rv_people_cap) */
 static int rv_count;
+
+/* What a revival costs in `game` now: RV_PRICE with "cost Tech Points" ticked, else 0. */
+static int rv_price(int game) {
+    return game >= 1 && game <= 5 && charges[game] ? RV_PRICE : 0;
+}
+
+/* That price as the boxes print it ("100,000" or "0"). */
+static const char *rv_price_text(int game) {
+    static char text[16];
+    int price = rv_price(game);
+    if (price >= 1000) {
+        wsprintfA(text, "%d,%03d", price / 1000, price % 1000);
+    } else {
+        wsprintfA(text, "%d", price);
+    }
+    return text;
+}
+
+/* Room for one more person: the arrays grown (doubling, up to RV_MAX); at RV_MAX the oldest record goes, so the
+   newest deaths are always listed (Codex, #851).  The new person's place, or NULL with no memory at all. */
+static rv_person *rv_room(void) {
+    if (rv_count >= rv_people_cap && rv_people_cap < RV_MAX) {
+        int cap = rv_people_cap > 0 ? rv_people_cap * 2 : 64;
+        void *people, *order;
+        if (cap > RV_MAX) {
+            cap = RV_MAX;
+        }
+        people = rv_people != NULL
+                     ? HeapReAlloc(GetProcessHeap(), 0, rv_people, (SIZE_T)cap * sizeof(rv_person))
+                     : HeapAlloc(GetProcessHeap(), 0, (SIZE_T)cap * sizeof(rv_person));
+        if (people != NULL) {
+            rv_people = (rv_person *)people;
+            order = rv_order != NULL ? HeapReAlloc(GetProcessHeap(), 0, rv_order, (SIZE_T)cap * sizeof(int))
+                                     : HeapAlloc(GetProcessHeap(), 0, (SIZE_T)cap * sizeof(int));
+            if (order != NULL) {
+                rv_order = (int *)order;
+                rv_people_cap = cap;
+            }
+        }
+    }
+    if (rv_people == NULL || rv_people_cap == 0) {
+        return NULL;
+    }
+    if (rv_count >= rv_people_cap) {
+        memmove(rv_people, rv_people + 1, (size_t)(rv_count - 1) * sizeof(rv_person));
+        --rv_count;
+    }
+    return &rv_people[rv_count++];
+}
 static int rv_game;
 #ifdef VVFP_TEST
 static int rv_test_offered = -1;      /* TEST build: -1 the flag file decides, else this */
@@ -253,6 +303,22 @@ static void rv_begin(rv_person *p, int kind, int number) {
     p->listed = 1;
 }
 
+static int rv_same_person(const rv_person *x, const rv_person *y);
+
+/* The record just read (the last one) closed: an older record of the same person is dropped, so each person is
+   one entry -- their newest record -- however long the log (Codex, #851). */
+static void rv_close(rv_person *p, int prefs_known) {
+    int i;
+    p->prefs_known = prefs_known;
+    for (i = 0; i < rv_count - 1; ++i) {
+        if (rv_same_person(&rv_people[i], p)) {
+            memmove(&rv_people[i], &rv_people[i + 1], (size_t)(rv_count - 1 - i) * sizeof(rv_person));
+            --rv_count;
+            return;
+        }
+    }
+}
+
 /* Every Death and Disappeared record of `text` (a whole log file, NUL-terminated), appended in order. */
 static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
     const char *cursor = text, *end = text + length;
@@ -264,23 +330,24 @@ static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
         const char *v;
         if (line[0] != ' ') {
             if (p != NULL) {
-                p->prefs_known = likes_seen && dislikes_seen && likes_ok;
+                rv_close(p, likes_seen && dislikes_seen && likes_ok);
                 p = NULL;
             }
             parent = 0;
             likes_seen = dislikes_seen = 0;
             likes_ok = 1;
-            if (rv_count >= RV_MAX) {
-                continue;
-            }
             if (strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9') {
                 int number = 0;
                 (void)rv_number(line + 6, &number);
-                p = &rv_people[rv_count++];
-                rv_begin(p, RV_DEATH, number);
+                p = rv_room();
+                if (p != NULL) {
+                    rv_begin(p, RV_DEATH, number);
+                }
             } else if (strncmp(line, "Disappeared", 11) == 0) {
-                p = &rv_people[rv_count++];
-                rv_begin(p, RV_GONE, 0);
+                p = rv_room();
+                if (p != NULL) {
+                    rv_begin(p, RV_GONE, 0);
+                }
             }
             continue;
         }
@@ -330,13 +397,19 @@ static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
         }
     }
     if (p != NULL) {
-        p->prefs_known = likes_seen && dislikes_seen && likes_ok;
+        rv_close(p, likes_seen && dislikes_seen && likes_ok);
     }
 }
 
 /* ---- The Village History: the skills ------------------------------------------- */
 
 static int rv_skill_index(const ce_adapter *a, const char *word, int length) {
+    /* The Village History's own labels (population_export.c SKILL_NAMES_VV1): A New Home's Parenting is printed
+       "Breeding" (Codex, #851). */
+    if (length == 8 && strncmp(word, "Breeding", 8) == 0) {
+        word = "Parenting";
+        length = 9;
+    }
     int k;
     for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
         if (lstrlenA(a->skill_names[k]) == length && strncmp(a->skill_names[k], word, (size_t)length) == 0) {
@@ -896,7 +969,7 @@ static int rv_village_refusal(int game, const ce_adapter *a) {
     if (!a->room()) {
         return RV_NO_ROOM;
     }
-    if (a->tech() < RV_PRICE) {
+    if (a->tech() < rv_price(game)) {
         return RV_NO_TECH;
     }
     return 0;
@@ -1002,7 +1075,9 @@ static int rv_buy(int game, int which, int *made) {
     if (p->grave >= 0) {
         (void)rv_grave_remove(game, p->grave);
     }
-    a->change_tech(CE_AMOUNT_SUBTRACT, RV_PRICE);
+    if (rv_price(game) > 0) {
+        a->change_tech(CE_AMOUNT_SUBTRACT, rv_price(game));
+    }
     p->listed = 0;
     return RV_DONE;
 }
@@ -1184,7 +1259,6 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
 
 enum { IDD_RG = 313, IDC_RG_INTRO = 3901, IDC_RG_LIST = 3902, IDC_RG_DETAILS = 3903 };
 
-static int rv_order[RV_MAX];          /* the list's rows: listed people, the newest first */
 static int rv_rows;
 static int rv_chosen;
 
@@ -1224,7 +1298,14 @@ static INT_PTR CALLBACK rv_dialog(HWND window, UINT message, WPARAM wparam, LPAR
             ReleaseDC(window, dc);
         }
         SendDlgItemMessageA(window, IDC_RG_LIST, LB_SETHORIZONTALEXTENT, (WPARAM)(widest + 8), 0);
-        wsprintfA(intro, vvfp_tr("vvfp.story/story_revive.rv_dialog.s0", "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs 100,000 tech points (your village has %d).", 600), a != NULL ? a->tech() : 0);
+        wsprintfA(intro, vvfp_tr("vvfp.story/story_revive.rv_dialog.s4", "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).", 600), rv_price_text(rv_game),
+                  a != NULL ? a->tech() : 0);
+        {
+            char button[200];
+            wsprintfA(button, vvfp_tr("vvfp.story/story_revive.rv_dialog.s5", "Revive (%s tech points)", 120),
+                      rv_price_text(rv_game));
+            SetDlgItemTextA(window, IDOK, button);
+        }
         SetDlgItemTextA(window, IDC_RG_INTRO, intro);
         if (rv_rows > 0) {
             SendDlgItemMessageA(window, IDC_RG_LIST, LB_SETCURSEL, 0, 0);
@@ -1319,9 +1400,9 @@ static int story_revive_from_graves(int game, HWND owner) {
         return 0;
     }
     wsprintfA(text,
-                vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s0",
-                        "Do you want to bring back %s for 100,000 tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
-                rv_people[rv_chosen].name,
+                vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s3",
+                        "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.", 500),
+                rv_people[rv_chosen].name, rv_price_text(game),
                 rv_people[rv_chosen].grave >= 0
                     ? vvfp_tr("vvfp.story/story_revive.story_revive_from_graves.s1", ", and their grave is removed", 100) : "");
     if (MessageBoxA(owner, text, vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0", "Revive Buried/Disappeared Villagers", 128),
@@ -1352,9 +1433,9 @@ __declspec(dllexport) int __stdcall VvfpStoryReviveOffered(int game) {
     return rv_offered(game);
 }
 
-/* What it costs: always 100,000 (the owner). */
+/* What it costs now: 100,000, or 0 while the story upgrades are free (rv_price). */
 __declspec(dllexport) int __stdcall VvfpStoryRevivePrice(int game) {
-    return rv_offered(game) ? RV_PRICE : 0;
+    return rv_offered(game) ? rv_price(game) : 0;
 }
 
 #ifdef VVFP_TEST
@@ -1405,6 +1486,13 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveState(int row, int *grav
     }
     *grave = rv_people[rv_order[row]].grave;
     return rv_people[rv_order[row]].refusal == NULL;
+}
+
+/* "Story / Cheat Upgrades cost Tech Points" on (1) or off (0) for `game`. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeReviveCharges(int game, int on) {
+    if (game >= 1 && game <= 5) {
+        charges[game] = on != 0;
+    }
 }
 
 /* -1 the flag file decides whether the row is in place, else this. */

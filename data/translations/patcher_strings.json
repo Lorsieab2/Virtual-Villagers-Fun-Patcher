@@ -73884,21 +73884,6 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_dialog.s0",
-   "english": "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs 100,000 tech points (your village has %d).",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = a number (number)",
-   "route": "key"
-  },
-  {
    "stem": "vvfp.story/story_revive.rv_dialog.s1",
    "english": "Nobody to bring back: the village's Deaths and Disappearances log has no villager who is not in the village now. (Deaths are logged with Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death ticked.)",
    "games": [
@@ -73931,21 +73916,6 @@
   {
    "stem": "vvfp.story/story_revive.rv_dialog.s3",
    "english": "%s can not be brought back: %s.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name)",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.story_revive_from_graves.s0",
-   "english": "Do you want to bring back %s for 100,000 tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.",
    "games": [
     "vv1",
     "vv2",
@@ -74001,6 +73971,51 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_dialog.s4",
+   "english": "Bring back a villager who was buried or vanished: they return as the same person, aged 5, and their grave is removed. Each revival costs %s tech points (your village has %d).",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = a number (number)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_dialog.s5",
+   "english": "Revive (%s tech points)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name)",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.story_revive_from_graves.s3",
+   "english": "Do you want to bring back %s for %s tech points?\r\nThey return as the same person, aged 5%s.\r\n\r\nPress OK to confirm, or Cancel.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = text (person when it is a villager's name); %2 = text (person when it is a villager's name); %3 = text (person when it is a villager's name)",
+   "route": "key"
   },
   {
    "stem": "vvfp.gui/rename_tribe.long_name_note",

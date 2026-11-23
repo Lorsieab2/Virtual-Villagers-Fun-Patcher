@@ -443,7 +443,7 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # in Select All.
     + ESTEEMED_ELDERS_IDS
     # Revive Buried/Disappeared Villagers (all five games; the owner, 2026-11-22): off by default, "ON in Owner's Defaults"
-    # (it still costs 100,000 tech points); Owner's Defaults ticks it like every default-off patch it does not name.
+    # (100,000 tech points while the story upgrades cost tech points); Owner's Defaults ticks it like every default-off patch it does not name.
     + ["vv%d_revive_from_graves" % game for game in range(1, 6)]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).

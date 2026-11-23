@@ -204,7 +204,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # in Owner's Defaults only).
                   or p.endswith("_esteemed_elders")
                   # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
-                  # Owner's Defaults; it still costs 100,000 tech points).
+                  # Owner's Defaults; 100,000 tech points while the story upgrades cost tech points).
                   or p.endswith("_revive_from_graves")})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:

@@ -207,3 +207,4 @@ EXPORTS
     VvfpStoryProbeReviveOffered=_VvfpStoryProbeReviveOffered@4
     VvfpStoryProbeReviveRefusal=_VvfpStoryProbeReviveRefusal@4
     VvfpStoryProbeReviveRemoveGrave=_VvfpStoryProbeReviveRemoveGrave@8
+    VvfpStoryProbeReviveCharges=_VvfpStoryProbeReviveCharges@8

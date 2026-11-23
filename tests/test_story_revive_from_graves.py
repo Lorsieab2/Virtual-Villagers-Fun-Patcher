@@ -52,6 +52,19 @@ YARDS = {
     "vv5": ("static", 0x5481A8, 0x5C, 0x19, 0x1C),
 }
 VV3_DEAD = 0x5973F0
+def _exported_skill_names():
+    """The labels the Village History exporter prints (native/population_export/population_export.c), read from its
+    source: A New Home's Parenting is "Breeding" there (Codex, #851)."""
+    import re
+    source = (ROOT / "native" / "population_export" / "population_export.c").read_text(encoding="utf-8")
+    out = {}
+    for n in range(1, 6):
+        body = re.search(r"SKILL_NAMES_VV%d\[MAX_SKILLS\] = \{(.*?)\};" % n, source, re.S).group(1)
+        out[f"vv{n}"] = [s for s in re.findall(r'"([^"]+)"', body) if not s.startswith("(")]
+    return out
+
+
+EXPORTED_SKILLS = _exported_skill_names()
 SKILLS = {
     "vv1": ["Parenting", "Building", "Farming", "Healing", "Research"],
     "vv2": ["Parenting", "Building", "Farming", "Healing", "Research"],
@@ -88,7 +101,7 @@ def history(game, name, age, sex, head, body, values):
     lines = [f"=== Virtual Villagers -- 2026-11-22 10:00:00 ===", "Village: Test (Save 1)", "",
              "Villager 1", f"  Name: {name}", f"  Age: {age}", f"  Sex: {sex}", f"  Head: {head}",
              f"  Body: {body}", "  Skills:"]
-    lines += [f"    {skill:<10} {value}" for skill, value in zip(SKILLS[game], values)]
+    lines += [f"    {skill:<10} {value}" for skill, value in zip(EXPORTED_SKILLS[game], values)]
     return "\n".join(lines) + "\n\n"
 
 
@@ -101,6 +114,7 @@ class Revive:
         self.p = self.s.proc
         self.v = self.s.village
         self.p.export("VvfpStoryProbeReviveOffered", 1)
+        self.p.export("VvfpStoryProbeReviveCharges", self.s.n, 1)   # "cost Tech Points" ticked (the default)
         self.told = []
         self._watch_arrivals()
         if game == "vv3":
@@ -418,6 +432,75 @@ class HeathenTests(unittest.TestCase):
                 self.assertEqual(r.tech(), 150000 - PRICE)
                 # a living Heathen with that whole identity is in the village: not listed again
                 self.assertEqual(r.load(text), 1)
+
+@emulated
+class PriceTests(unittest.TestCase):
+    """The owner (2026-11-23): the price follows "Story / Cheat Upgrades cost Tech Points" like the other story
+    upgrades -- 100,000 tech points with it ticked, free with it unticked."""
+
+    def test_free_while_the_story_upgrades_are_free(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            r = Revive(game)
+            r.p.export("VvfpStoryProbeReviveCharges", r.s.n, 0)
+            r.set_tech(0)
+            with self.subTest(game=game):
+                self.assertEqual(r.p.export("VvfpStoryRevivePrice", r.s.n), 0)
+                self.assertEqual(r.load(death(1, "Ana Rua", 1300, "Female", 5, 6)), 1)
+                self.assertEqual(r.buy(0)[0], 1)
+                self.assertEqual(r.tech(), 0)
+
+    def test_100000_while_they_cost_tech_points(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            r = Revive(game)
+            with self.subTest(game=game):
+                self.assertEqual(r.p.export("VvfpStoryRevivePrice", r.s.n), PRICE)
+                r.load(death(1, "Ana Rua", 1300, "Female", 5, 6))
+                r.set_tech(PRICE - 1)
+                self.assertEqual(r.buy(0), (-2, -1))
+                r.set_tech(PRICE + 7)
+                self.assertEqual(r.buy(0)[0], 1)
+                self.assertEqual(r.tech(), 7)
+
+
+@emulated
+class LongLogTests(unittest.TestCase):
+    """Codex (#851): a log of more than 400 records still lists the newest deaths, one entry per person."""
+
+    def test_the_newest_records_of_a_long_log_are_listed(self):
+        for game in ("vv1", "vv5"):
+            if not have_stock(game):
+                continue
+            r = Revive(game)
+            text = "".join(death(k + 1, f"P{k:04d} Rua", 300 + k, "Male" if k % 2 else "Female", k % 20, (k // 20) % 20)
+                           for k in range(450))
+            text += "".join(death(451 + k, "Ana Rua", 400, "Female", 5, 6) for k in range(300))
+            text += death(999, "Last One", 1200, "Male", 3, 3)
+            with self.subTest(game=game):
+                self.assertEqual(r.load(text), 452)
+                self.assertTrue(r.row(0)[1].startswith("Last One"))
+                self.assertTrue(r.row(1)[1].startswith("Ana Rua"))
+                self.assertIn("Death record: Death 750", r.row(1)[2])
+                self.assertTrue(r.row(451)[1].startswith("P0000 Rua"))
+
+
+@emulated
+class ExportedSkillNamesTests(unittest.TestCase):
+    def test_a_new_homes_breeding_label_is_parenting(self):
+        if not have_stock("vv1"):
+            self.skipTest("no stock executable")
+        self.assertEqual(EXPORTED_SKILLS["vv1"][0], "Breeding")
+        r = Revive("vv1")
+        r.load(death(1, "Ana Rua", 1300, "Female", 5, 6), history("vv1", "Ana Rua", 1280, "Female", 5, 6,
+                                                                    [40, 50, 60, 70, 80]))
+        self.assertIn("    Parenting 40", r.row(0)[2])
+        answer, made = r.buy(0)
+        self.assertEqual(answer, 1)
+        self.assertEqual(r.v.skill(made, 0), 40)
+
 
 @emulated
 class GraveyardTests(unittest.TestCase):
