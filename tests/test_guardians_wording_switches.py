@@ -98,11 +98,15 @@ class ProceduralPieces(unittest.TestCase):
                        for x, y in ((p.gtext, p.text), (p.glabel, p.label)))]
         self.assertEqual(bad, [])
 
-    def test_awaiting_the_owner_is_still_unchanged(self):
-        # the owner decides its wording (guardians-wording.md, "Procedural events"); drop it here when answered
-        left = [p.id for _g, p in self.pieces if self.awaiting(p.id) and p.games & (1 << 4)
-                and pp.says_guardians_word((p.gtext if p.flags & vp.PF_GUARDIANS else None) or p.text)]
-        self.assertTrue(left)
+    def test_the_owners_piece_pair(self):
+        # the owner, 2026-11-22: s027's procedural setup, "the believers' circle" -> "the faithful's circle"
+        self.assertEqual(pp.GUARDIANS_AWAITING, frozenset())
+        s027 = [p for _g, p in self.pieces if p.id.endswith("s027_isolan_fire_s")]
+        self.assertTrue(s027)
+        for p in s027:
+            self.assertTrue(p.flags & vp.PF_GUARDIANS)
+            self.assertIn("the believers' circle", p.text)
+            self.assertEqual(p.gtext, p.text.replace("the believers' circle", "the faithful's circle"))
 
     def test_the_composer_shows_the_form_only_with_the_patch(self):
         setup = vp.Piece("s1", vp.KIND_SETUP, flags=vp.PF_GUARDIANS | vp.PF_BELIEVERS, games=0x10,
@@ -160,6 +164,14 @@ class EngineWords(unittest.TestCase):
         self.assertIn('return cg_guardians_on() ? "tribe members" : "believers";', self.graph)
         self.assertNotIn('game == 5 ? "believers"', self.graph)
 
+    def test_custom_island_event_refusal(self):
+        c5 = (NATIVE / "story_c5.inc").read_text(encoding="utf-8")
+        body = c5[c5.index("static const char *c5_arm_refusal(void)"):]
+        body = body[:body.index("\n}\n")]
+        self.assertIn('cg_guardians_on()\n        ? "A question needs a living adult tribe member in the village to ask '
+                      'it.', body)
+        self.assertIn(': "A question needs a living adult believer in the village to ask it.', body)
+
     def test_composer_reads_shown_words_through_pc_words(self):
         self.assertIn("#define PC_F_GUARDIANS 0x20u", self.proc)
         self.assertEqual(vp.PF_GUARDIANS, 0x20)
@@ -167,6 +179,40 @@ class EngineWords(unittest.TestCase):
         # every remaining direct read of a text (32) or label (36) is a check, never a shown text
         direct = [ln.strip() for ln in self.proc.splitlines() if re.search(r"pc_str\(pc_u32\([^)]*\+ 3[26]\)\)", ln)]
         self.assertTrue(all(("== NULL" in d or "!= NULL" in d) for d in direct), direct)
+
+
+class LeftTheTribeRecord(unittest.TestCase):
+    """The owner (2026-11-22): the Deaths log's "Left the tribe: became a Heathen" is "...became an Isolan" with the
+    patch (the companion: tests/test_cause_of_death.py); every reader takes both, and a record the patcher adds
+    afterwards follows the logs' own words."""
+
+    def test_the_companion_writes_it(self):
+        cod = (ROOT / "native" / "vvfp_cause_of_death" / "cod_arrivals.inc").read_text(encoding="utf-8")
+        self.assertIn('What happened: Left the tribe: became %s\\n', cod)
+        self.assertIn('g_game == 5 && arrival_guardians_on() ? "an Isolan" : "a Heathen"', cod)
+
+    def test_readers_take_both(self):
+        import vv_genealogy as gen
+        import vv_log_additions as la
+        both = ("Left the tribe: became a Heathen", "Left the tribe: became an Isolan")
+        self.assertEqual(la.LEFT_RECORDS, both)
+        self.assertEqual(gen.LEFT_RECORDS, both)
+        for mod in ("vv_log_additions", "vv_genealogy"):
+            src = (ROOT / "src" / f"{mod}.py").read_text(encoding="utf-8")
+            self.assertIsNone(re.search(r"(\)|strip\(\)) == LEFT_FOR_THE_HEATHENS", src), mod)
+
+    def test_an_added_record_says_what_the_logs_say(self):
+        import vv_log_additions as la
+
+        class Person:
+            def value(self, label):
+                return {"Name": "Ana", "Sex": "Female", "Head": "3", "Body": "4"}.get(label)
+        isolan = la._left_record(Person(), la.LEFT_FOR_THE_ISOLANS)
+        heathen = la._left_record(Person())
+        self.assertIn("  What happened: Left the tribe: became an Isolan\n", isolan)
+        self.assertIn("(became an Isolan with no record written", isolan)
+        self.assertNotIn("Heathen", isolan)
+        self.assertIn("  What happened: Left the tribe: became a Heathen\n", heathen)
 
 
 if __name__ == "__main__":

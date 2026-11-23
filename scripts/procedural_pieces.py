@@ -1336,8 +1336,13 @@ def _assemble(groups: dict, never: list, write: bool) -> dict[str, list[Piece]]:
 GUARDIANS_WORDS = cc.GUARDIANS_WORDS
 _ROLE_TOKEN = re.compile(r"\([^()]*\)")
 # Pieces whose text has a sentence no approved pair covers: shown as written until the owner gives the wording
-# (docs/event-collection/guardians-wording.md, "Procedural events: awaiting the owner").
-GUARDIANS_AWAITING = frozenset({"s027_isolan_fire_s"})
+# (docs/event-collection/guardians-wording.md, "Procedural events").  None now.
+GUARDIANS_AWAITING: frozenset[str] = frozenset()
+# The owner's pairs for a piece's own wording that no collection text has (guardians-wording.md, "Procedural
+# events"; the owner, 2026-11-22), made after the event's own pairs.
+GUARDIANS_PIECE_PAIRS = {
+    "s027_isolan_fire": (("the believers' circle", "the faithful's circle"),),
+}
 
 
 def says_guardians_word(text: str | None) -> bool:
@@ -1363,7 +1368,10 @@ def guardians_form(pid: str, text: str | None, label: bool, keys: list[str]) -> 
         out = _bank_form(text, label)
     else:
         out = text
-        for _where, before, after in cc.lib.guardians_pairs().get(_event_of(pid, keys) or "", []):
+        eid = _event_of(pid, keys) or ""
+        for _where, before, after in cc.lib.guardians_pairs().get(eid, []):
+            out = out.replace(before, after)
+        for before, after in GUARDIANS_PIECE_PAIRS.get(eid, ()):
             out = out.replace(before, after)
     if label and out != text and text == vp.title_case(text):
         out = vp.title_case(out)

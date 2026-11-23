@@ -192,12 +192,22 @@ piece kept the patch-off wording, so with the patch New Believers' composed even
 Now each piece New Believers can draw that says one of these words carries its Guardians form (VPCB piece flag 0x20:
 the form is the string right after the text and after the label): the text with its own event's pairs above made (a
 Living Engine bank piece: the bank's pairs), nothing else changed. `scripts/procedural_pieces.py` (guardians_forms)
-writes them and fails the build if a piece is left with such a word, except one awaiting the owner:
+writes them and fails the build if a piece is left with such a word. One piece has wording of its own that no
+collection text has; the owner gave its pair (2026-11-22, procedural_pieces.py GUARDIANS_PIECE_PAIRS):
 
-- s027_isolan_fire's procedural setup (its own shorter wording, not the collection page): "...and sits on the very
-  edge of the believers' circle with (isolan.his/her) hands held out to the warmth." No approved pair covers "the
-  believers' circle"; proposed (as "the believers' fire" -> "the faithful's fire"): "the faithful's circle". Until
-  the owner answers it shows as written.
+- s027_isolan_fire's procedural setup: "...and sits on the very edge of the believers' circle with
+  (isolan.his/her) hands held out to the warmth." -> "...the faithful's circle...".
+
+## Other New Believers texts (the owner, 2026-11-22)
+
+| Where | Before | After |
+|---|---|---|
+| Custom Island Event, the refusal when nobody can ask the question (story_c5.inc) | A question needs a living adult believer in the village to ask it. | A question needs a living adult tribe member in the village to ask it. |
+| Deaths and Disappearances log, the Disappeared record of a believer who leaves (cod_arrivals.inc; vv_log_additions.py's added record) | What happened: Left the tribe: became a Heathen | What happened: Left the tribe: became an Isolan |
+
+The log record keeps its format; every reader takes both (vv_log_additions.LEFT_RECORDS, vv_genealogy). A record the
+patcher adds afterwards says "an Isolan" when the logs already hold one that does (the companion wrote it with the
+patch on), else "a Heathen".
 
 ## Judgement calls for the owner
 
