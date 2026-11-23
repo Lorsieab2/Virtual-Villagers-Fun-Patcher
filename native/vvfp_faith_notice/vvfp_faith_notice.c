@@ -48,9 +48,18 @@
    village's popup never comes back and another slot's still does.  A batch is only ever written to its own slot's
    file, and a file is only read for its own slot.  The save itself is never written.
 
-   FORMAT (little-endian): u32 magic 'VFN1', u32 version 1, u32 game 5, u32 slot, u32 total (1 or more), then the
-   five reasons' u32 counts (starvation, hunger, sickness, too few believers, other), which add up to the total.
-   Exactly 40 bytes.
+   FORMAT (little-endian): u32 magic 'VFN1', u32 version 2, u32 game 5, u32 slot, u32 total (1 or more), then the
+   five reasons' u32 counts (starvation, hunger, sickness, too few believers, other), which add up to the total,
+   then u32 n (0..256, at most the total) and n entries of who left (char name[28], NUL-ended; i32 Faith before;
+   i32 Faith after): 44 + 36 * n bytes.  A version 1 file (the 40 bytes before n) is read, with no one named.
+
+   THE REASON.  With Faith Loss is Doubled/Gains Halved, the cause that decided the conversion (VVFP Faith
+   Loss.dll's VvfpFaithLossDecided): a believer held at Faith 1 for one cause is turned only by another's roll, so
+   the first loss roll that hit is not always why they left.  Without it, the first loss roll that hit.
+
+   THE LOG.  Who left (the name, the Faith before and after) is kept with the batch, so the Island Events log's
+   entry for the popup lists them (VvfpFaithNoticeLeftLines, asked by VVFP Story Upgrades.dll as it arms the
+   popup) instead of "Changes: none".
 
    SAFETY.  Our steps run under structured exception handling; a fault loses a count, never the game's drift.  No
    debug output. */
@@ -113,9 +122,27 @@ static int g_batch_slot;
 static unsigned int g_batch_generation;
 static unsigned int g_generation;
 
+/* Who left in the batch, for the Island Events log's entry of the popup (VvfpFaithNoticeLeftLines): each drift
+   conversion's name and Faith before and after.  A branching Custom Island Event's conversion (VvfpFaithNoticeCount)
+   is in that event's own entry, so it is counted but not named here. */
+#define FN_LEFT_MAX 256
+#define FN_NAME_AT 0x1B9Cu                 /* the record's name */
+#define FN_NAME_CAP 0x19
+#define FN_NAME_BYTES 28
+#define FN_FAITH_AT 0x1CF0u
+typedef struct {
+    char name[FN_NAME_BYTES];
+    int before;
+    int after;
+} fn_left;
+static fn_left g_left[FN_LEFT_MAX];
+static int g_left_count;
+static int g_faith_before;                 /* the record's Faith when the drift began */
+
 static void forget_batch(void) {
     g_count = 0;
     memset(g_counts, 0, sizeof g_counts);
+    g_left_count = 0;
 }
 
 static int batch_is_here(void) {
@@ -129,8 +156,10 @@ static DWORD fn_now(void) {
 /* ---- the file (THE FILE, above) ---------------------------------------------------------------------------- */
 
 #define FN_MAGIC 0x314E4656u               /* 'VFN1' */
-#define FN_VERSION 1u
+#define FN_VERSION 2u                      /* the counts, then who left */
+#define FN_VERSION_1 1u                    /* the counts alone (read, never written) */
 #define FN_FILE_WORDS (5 + FNR_COUNT)
+#define FN_FILE_MAX (sizeof(unsigned int) * (FN_FILE_WORDS + 1) + sizeof(fn_left) * FN_LEFT_MAX)
 #define FN_WRITE_MS 500u                   /* the file follows the batch at most this often */
 #define FN_RESERVE ((int)sizeof(".unreadable-4294967295-999"))   /* sidecar_io.h's set-aside name */
 
@@ -139,7 +168,7 @@ static int g_file_slot;                    /* the slot whose file was read (0: n
 static int g_load_blocked;                 /* its file could not be read: retried on the gate's throttle */
 static int g_dirty;                        /* the batch is not what the file says */
 static DWORD g_synced_at;
-static unsigned int g_buffer[FN_FILE_WORDS + 1];
+static unsigned int g_buffer[FN_FILE_MAX / sizeof(unsigned int) + 1];
 
 /* "<Documents>\LDW\<executable's name>\Virtual Villagers Fun Patcher\Save <S>\Data\Faith Notice\
    Waiting Popup - Save <S>.dat"; `make` creates the folders. */
@@ -147,10 +176,10 @@ static int notice_path(int slot, char *out, int make) {
     static const char *const LEVELS[4] = {
         "\\Virtual Villagers Fun Patcher", "\\Save %d", "\\Data", "\\Faith Notice"
     };
-    char docs[MAX_PATH], exe[MAX_PATH], part[64];
+    char docs[MAX_PATH], exe[MAX_PATH], part[64], level[64];
     char *base = exe, *p, *dot = NULL;
     DWORD n;
-    int i;
+    int i, length;
     if (slot < 1 || slot > 5 || !SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
         return 0;
     }
@@ -169,34 +198,61 @@ static int notice_path(int slot, char *out, int make) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if (base[0] == '\0' || lstrlenA(docs) + lstrlenA(base) + 160 >= MAX_PATH - FN_RESERVE) {
+    /* The whole path's own length, with room for sidecar_io.h's set-aside name (a fixed guess of 160 for the rest
+       refused "Virtual Villagers - New Believers - Modded 256" under OneDrive\Documents: no waiting popup was ever
+       kept there). */
+    wsprintfA(part, "\\Waiting Popup - Save %d.dat", slot);
+    length = lstrlenA(docs) + 5 + lstrlenA(base) + lstrlenA(part);
+    for (i = 0; i < 4; ++i) {
+        length += lstrlenA(LEVELS[i]);     /* "%d" is 2 wide, the slot's digit 1: never short */
+    }
+    if (base[0] == '\0' || length >= MAX_PATH - FN_RESERVE) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     for (i = 0; i < 4; ++i) {
-        wsprintfA(part, LEVELS[i], slot);
-        lstrcatA(out, part);
+        wsprintfA(level, LEVELS[i], slot);
+        lstrcatA(out, level);
         if (make) {
             CreateDirectoryA(out, NULL);
         }
     }
-    wsprintfA(part, "\\Waiting Popup - Save %d.dat", slot);
     lstrcatA(out, part);
     return 1;
 }
 
 static int valid_file(const unsigned char *data, DWORD len, void *ctx) {
     const unsigned int *u = (const unsigned int *)data;
-    unsigned int sum = 0;
+    const DWORD head = sizeof(unsigned int) * FN_FILE_WORDS;
+    unsigned int sum = 0, n, k;
     int i;
-    if (len != sizeof(unsigned int) * FN_FILE_WORDS || u[0] != FN_MAGIC || u[1] != FN_VERSION || u[2] != FN_GAME
+    if (len < head || u[0] != FN_MAGIC || (u[1] != FN_VERSION && u[1] != FN_VERSION_1) || u[2] != FN_GAME
         || u[3] != (unsigned int)*(const int *)ctx || u[4] == 0u || u[4] > 0xFFFFu) {
         return 0;
     }
     for (i = 0; i < FNR_COUNT; ++i) {
         sum += u[5 + i] <= 0xFFFFu ? u[5 + i] : 0x10000u;
     }
-    return sum == u[4];
+    if (sum != u[4]) {
+        return 0;
+    }
+    if (u[1] == FN_VERSION_1) {
+        return len == head;
+    }
+    if (len < head + sizeof(unsigned int)) {
+        return 0;
+    }
+    n = u[FN_FILE_WORDS];
+    if (n > FN_LEFT_MAX || n > u[4] || len != head + sizeof(unsigned int) + sizeof(fn_left) * n) {
+        return 0;
+    }
+    for (k = 0; k < n; ++k) {
+        const fn_left *e = (const fn_left *)(data + head + sizeof(unsigned int)) + k;
+        if (memchr(e->name, '\0', FN_NAME_BYTES) == NULL) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 /* The slot's file, read into the batch: what it holds is added to the believers this village has turned since it
@@ -224,6 +280,12 @@ static void read_batch(int slot) {
         for (i = 0; i < FNR_COUNT; ++i) {
             g_counts[i] += (int)g_buffer[5 + i];
         }
+        if (g_buffer[1] == FN_VERSION) {
+            const fn_left *e = (const fn_left *)(g_buffer + FN_FILE_WORDS + 1);
+            for (i = 0; i < (int)g_buffer[FN_FILE_WORDS] && g_left_count < FN_LEFT_MAX; ++i) {
+                g_left[g_left_count++] = e[i];
+            }
+        }
         g_batch_slot = slot;
         g_batch_generation = g_generation;
         g_last = fn_now();                 /* it waits its quiet time, as any batch */
@@ -233,9 +295,9 @@ static void read_batch(int slot) {
 /* The file made what the batch is: written while believers wait, deleted once none does.  `now`: at once, else
    no sooner than FN_WRITE_MS after the last. */
 static void sync_file(int now) {
-    unsigned int words[FN_FILE_WORDS];
-    const void *parts[1];
-    DWORD sizes[1];
+    unsigned int words[FN_FILE_WORDS + 1];
+    const void *parts[2];
+    DWORD sizes[2];
     char path[MAX_PATH];
     int i;
     if (!g_dirty || g_file_slot == 0 || g_load_blocked || !vv_sidecar_gate_ready(&g_gate, g_file_slot)
@@ -264,9 +326,12 @@ static void sync_file(int now) {
     for (i = 0; i < FNR_COUNT; ++i) {
         words[5 + i] = (unsigned int)g_counts[i];
     }
+    words[FN_FILE_WORDS] = (unsigned int)g_left_count;
     parts[0] = words;
     sizes[0] = sizeof words;
-    if (vv_sidecar_publish(&g_gate, path, parts, sizes, 1)) {
+    parts[1] = g_left;
+    sizes[1] = (DWORD)(sizeof(fn_left) * (unsigned int)g_left_count);
+    if (vv_sidecar_publish(&g_gate, path, parts, sizes, g_left_count > 0 ? 2 : 1)) {
         g_dirty = 0;
     }
 }
@@ -351,11 +416,43 @@ static int roll_hit(int which) {
     return g_roll[which] < limit - g_believers;
 }
 
+/* "VVFP Faith Loss.dll" (Faith Loss is Doubled/Gains Halved): the cause whose once-a-crisis decision made `record` a
+   Heathen in the drift just run -- the reason the popup must give, since a cause the believer was already held for
+   at Faith 1 never decides (a believer held for sickness and turned by too few believers left for too few
+   believers, though the sickness roll hit first).  -1 when that companion is absent or did not decide it. */
+typedef int (__stdcall *decided_fn)(int game, const void *record);
+
+static int decided_reason(const unsigned char *record) {
+    static decided_fn decided;
+    int cause;
+    if (decided == NULL) {
+        HMODULE module = GetModuleHandleA("VVFP Faith Loss.dll");
+        decided = module != NULL ? (decided_fn)(void *)GetProcAddress(module, "VvfpFaithLossDecided") : NULL;
+        if (decided == NULL) {
+            return -1;                     /* looked for again next time (it may start after this one) */
+        }
+    }
+    cause = decided(FN_GAME, record);
+    switch (cause) {
+    case 1:
+        return FNR_STARVATION;
+    case 2:
+        return FNR_HUNGER;
+    case 4:
+        return FNR_SICKNESS;
+    case 8:
+        return FNR_BELIEVERS;
+    default:
+        return -1;
+    }
+}
+
 static void __cdecl drift_before(unsigned char *record) {
     __try {
         g_record = record;
         g_was_believer = record[FN_FACTION] == 0;
         g_food = *(const volatile int *)(UINT_PTR)FN_FOOD;
+        g_faith_before = *(const int *)(record + FN_FAITH_AT);
         memset(g_rolled, 0, sizeof g_rolled);
         g_in_drift = 1;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -366,21 +463,34 @@ static void __cdecl drift_before(unsigned char *record) {
 static void __cdecl drift_after(void) {
     __try {
         if (g_in_drift && g_was_believer && g_record[FN_FACTION] != 0) {
-            int reason = FNR_OTHER;
-            if (roll_hit(ROLL_FOOD_LOW) || (roll_hit(ROLL_FOOD) && g_food < FN_STARVING)) {
-                reason = FNR_STARVATION;
-            } else if (roll_hit(ROLL_FOOD)) {
-                reason = FNR_HUNGER;
-            } else if (roll_hit(ROLL_SICK)) {
-                reason = FNR_SICKNESS;
-            } else if (roll_hit(ROLL_BELIEVERS)) {
-                reason = FNR_BELIEVERS;
+            /* Faith Loss decided it: the cause whose once-a-crisis roll made the Heathen (a cause the believer was
+               already held for never decides); without it, the first loss roll that hit. */
+            int reason = decided_reason(g_record);
+            if (reason < 0) {
+                if (roll_hit(ROLL_FOOD_LOW) || (roll_hit(ROLL_FOOD) && g_food < FN_STARVING)) {
+                    reason = FNR_STARVATION;
+                } else if (roll_hit(ROLL_FOOD)) {
+                    reason = FNR_HUNGER;
+                } else if (roll_hit(ROLL_SICK)) {
+                    reason = FNR_SICKNESS;
+                } else if (roll_hit(ROLL_BELIEVERS)) {
+                    reason = FNR_BELIEVERS;
+                } else {
+                    reason = FNR_OTHER;
+                }
             }
             if (g_count > 0 && !batch_is_here()) {
                 forget_batch();            /* the last batch was another village's (its own file has it) */
             }
             g_batch_slot = vv_game_save_slot(FN_GAME);
             g_batch_generation = g_generation;
+            if (g_left_count < FN_LEFT_MAX) {
+                fn_left *e = &g_left[g_left_count++];
+                memset(e, 0, sizeof *e);
+                lstrcpynA(e->name, (const char *)(g_record + FN_NAME_AT), FN_NAME_CAP + 1);
+                e->before = g_faith_before;
+                e->after = *(const int *)(g_record + FN_FAITH_AT);
+            }
             ++g_count;
             ++g_counts[reason];
             g_last = fn_now();
@@ -436,6 +546,31 @@ int __stdcall VvfpFaithNoticePending(int game, int *out) {
         out[1 + i] = g_counts[i];
     }
     return 1;
+}
+
+/* Asked by "VVFP Story Upgrades.dll" as it arms the popup (before VvfpFaithNoticeTaken): the Island Events log's
+   lines for who left, in its one-entry words ("  <name>: Heathen no -> yes", "  <name>: Faith <old> -> <new>"),
+   into `out` (`cap` bytes); their length (0: none named). */
+int __stdcall VvfpFaithNoticeLeftLines(int game, char *out, int cap) {
+    char line[160];
+    int used = 0, i, n;
+    if (game != FN_GAME || out == NULL || cap <= 0) {
+        return 0;
+    }
+    out[0] = '\0';
+    if (g_count <= 0 || !batch_is_here()) {
+        return 0;
+    }
+    for (i = 0; i < g_left_count; ++i) {
+        n = wsprintfA(line, "  %s: Heathen no -> yes\n  %s: Faith %d -> %d\n", g_left[i].name, g_left[i].name,
+                      g_left[i].before, g_left[i].after);
+        if (used + n + 1 > cap) {
+            break;
+        }
+        memcpy(out + used, line, (size_t)n + 1);
+        used += n;
+    }
+    return used;
 }
 
 /* "VVFP Story Upgrades.dll": a branching Custom Island Event made a believer a Heathen (the owner, 2026-11-12: it

@@ -103,12 +103,15 @@ def lines(village: gm.Village) -> list[gm.Fact]:
                 f"(believers / 5) in 100 -> (believers / 10) in 100, rounded down (50 believers {_p(10)} -> {_p(5)}).",
                 f"A fall with Faith below 5: skipped {_p(50)} of the time -> never skipped, so a falling believer can "
                 f"reach 0 and become a Heathen; a rise above 75 is still skipped {_p(70)} of the time.",
-                # The roll is rand(10) < 1; the patch's hook at 0x4681DB, its cave 0x494F14; the four loss sites
-                # 0x46805E, 0x46807E, 0x4680BB, 0x468184 (scripts/build_apprentice_faith_puddles_features.py).
+                # The roll is rand(N) < 1, N per cause (native/vvfp_faith_loss FL_ODDS_*: the owner, 2026-11-22); the
+                # patch's hook at 0x4681DB, its cave 0x494F14; the four loss sites 0x46805E, 0x46807E, 0x4680BB,
+                # 0x468184 (scripts/build_apprentice_faith_puddles_features.py).
                 f"Believers in a crisis mostly stay and die rather than leave, decided once per villager for each "
                 f"crisis. There are four: starvation (food under 10), hunger (food 10 to 250), sickness, and too few "
-                f"believers (fewer than 12). The first time one of them would take a believer's last Faith, 1 time in "
-                f"10 ({pct(below(10, 1))}) they become a Heathen. Otherwise they are marked for that crisis, which "
+                f"believers (fewer than 12). The first time one of them would take a believer's last Faith, they "
+                f"become a Heathen 1 time in 20 for starvation ({pct(below(20, 1))}), 1 in 25 for sickness "
+                f"({pct(below(25, 1))}), 1 in 50 for hunger ({pct(below(50, 1))}) and 1 in 50 for too few believers "
+                f"({pct(below(50, 1))}). Otherwise they are marked for that crisis, which "
                 "never takes them below Faith 1 again, so they go on eating, starving and falling ill like any "
                 "believer (a Heathen does none of that). Each crisis ends on its own: starvation and hunger when food "
                 "is above 250, sickness when the villager is cured, too few believers at 12 or more believers; a later "

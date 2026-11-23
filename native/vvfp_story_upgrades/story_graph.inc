@@ -8428,6 +8428,9 @@ static void cg_log_write(int game) {
 /* Asked by "VVFP Island Events.dll" as it compares the popup the game just showed: 1 (once) when it was this
    run's page or question -- its changes are the event's one entry's, never a record of their own. */
 __declspec(dllexport) int __stdcall VvfpStoryGraphLogged(int game, const char *title) {
+    if (faith_notice_logged(game, title)) {
+        return 1;                      /* the Breaking Point: its entry, with who left (story_faith_notice.inc) */
+    }
     if (cg_logged == 0 || cg_logged != game) {
         return 0;
     }

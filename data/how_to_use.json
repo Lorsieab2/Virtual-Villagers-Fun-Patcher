@@ -1067,7 +1067,8 @@
       "guide": [
         "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
         "A believer whose Faith falls to 0 becomes a Heathen, as in the normal game, and now nothing slows a fall near 0.",
-        "When hunger or sickness first would make a believer a Heathen, it is decided once: 1 in 10 leaves; the others stay believers at Faith 1 and can starve or die of illness.",
+        "When hunger or sickness first would make a believer a Heathen, it is decided once; the others stay believers at Faith 1 and can starve or die of illness.",
+        "Who leaves: 1 in 20 for starvation, 1 in 25 for sickness, 1 in 50 for hunger and 1 in 50 for too few believers.",
         "They stay until fed (more than 250 food) and well; a later crisis is decided again. Saving and loading keeps this.",
         "Keep food high, keep everyone healthy and preach to win them back. Good Luck!"
       ]
@@ -1301,6 +1302,7 @@
         "Villagers already named keep their names. A \"%\" in a name can no longer crash the game, and the game's text boxes no longer accept a typed \"%\".",
         "On the Villager Details screen, a villager's name is only ever saved back to that villager; a name you type is still kept.",
         "Rain can no longer crash the game: a raindrop of no length is drawn as a dot. An unfinished Nursery School says \"foundation\" until building starts.",
+        "Clicking the finished Clothing Hut no longer says \"Construction 100% completed\" (the other finished buildings never did).",
         "Nursery School lessons no longer nearly always go to Devotion (a tie is broken at random). The Last Heathen's hovel fits the map (art by Lorsieab2).",
         "The Puzzles screen shows how many hours The Hungry Totem took (it always said 0); a village that already solved it shows its real time too.",
         "The Defector is always a Heathen of 14 or more, like the envoy in Outreach? (the original game could pick a Heathen child).",
