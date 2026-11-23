@@ -2275,6 +2275,32 @@ class NewBelieversLeaveForTheHeathens(unittest.TestCase):
         self.assertLess(tick.index("REC[g_game].heathen == 0u"), tick.index("arrival_left_for_the_heathens(i, record);"))
 
 
+class HeathenEventDeathWords(unittest.TestCase):
+    """#852 (logs must be correct): an island event that kills an ordinary Heathen with no body left ("VVFP Heathen
+    Aging.dll" writes the Death record, VvfpCauseDiedAmongHeathens with the custom-event cause) says the event author's
+    own cause words -- kept first by the Story companion through VvfpCauseWordsFor -- as a villager's would; without
+    them, "Died in a custom island event"."""
+
+    def test_the_authors_words_reach_a_heathens_death_record(self):
+        if not STOCK["vv5"].is_file() or not TEST_DLL.is_file():
+            self.skipTest("no stock New Believers or no test build")
+        for words in ("Crushed by a falling coconut", None):
+            with self.subTest(words=words):
+                g, w = later("vv5")
+                r = w.villager(3, "Kaila", 640, 80)
+                g.p.write(r + 0x1CEC, b"\x01")             # an ordinary Heathen
+                g.tick()
+                if words is not None:
+                    buf = g.p.alloc(64)
+                    g.p.write(buf, words.encode() + b"\0")
+                    g.p.export("VvfpCauseWordsFor", 5, 3, buf)
+                g.p.write(r + w.l["present"], b"\x00")     # the companion takes them: nothing left
+                g.p.export("VvfpCauseDiedAmongHeathens", 5, 3, 5)
+                deaths = g.of_kind(DEATH)
+                self.assertEqual(len(deaths), 1)
+                self.assertEqual(deaths[0]["Cause of death"], words or CIE_DIED)
+
+
 class ManifestsAndShipping(unittest.TestCase):
     def test_rows_are_public_default_on_and_pin_the_dll(self):
         import hashlib

@@ -408,7 +408,7 @@ class PartnerCarryNamesFollow(unittest.TestCase):
                 first = norm(r.p.cstring(TEXT_BUF))
                 r.tick()
                 file = r.graph_file()
-                self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
+                self.assertEqual(struct.unpack_from("<I", file, 4)[0], 7, "written as version 7 (heathen_cast)")
                 again = V6(game, self.PEOPLE)
                 text = f"vv{again.n}\n# partner_carry_percent=0\n"   # the setting moved since: the run keeps its own
                 buf = again.p.alloc(len(text) + 1)
@@ -641,7 +641,7 @@ class ResumeAndFile(unittest.TestCase):
         (v3, head, whole, words_at, words, words_v4, v3_end, v4, entry_at, entry, entry_v4) = struct.unpack(
             "<11i", r.p.read(LAYOUT_BUF, 44))
         growth = (words - words_v4) + (entry - entry_v4)
-        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 6, "written as version 6")
+        self.assertEqual(struct.unpack_from("<I", file, 4)[0], 7, "written as version 7 (heathen_cast)")
         self.assertEqual(v3, v3_end - growth)
         self.assertLess(v4, whole - growth)   # version 6 added carry_swapped and female_at after version 5's state
         state = bytes(file[head:head + whole])
@@ -1342,7 +1342,7 @@ class FormatGaps(unittest.TestCase):
                     r.walk_through()
                     want = (f"{name} gathers. Ana speaks for {name}." if name
                             else "The village gathers. Ana speaks for the village.")
-                    want += " " + cg.glyph_fallback("(no effect)", int(game[2]))   # cie-v6-binary.md 45
+                    want += " " + cg.glyph_fallback("(no effect)", int(game[2]))   # cie-v6-binary.md 46
                     self.assertEqual(self.words(r), want)
 
     def test_g6_quotes_in_the_title(self):
@@ -1454,7 +1454,7 @@ class G1LayoutParity(unittest.TestCase):
             plain = cg.GAMES[n].plain
             title = "The Gaps"
             # The most one-line paragraphs one notice page holds, as Python counts it (the answer changes nothing:
-            # its "(no effect)" line last, cie-v6-binary.md 45).
+            # its "(no effect)" line last, cie-v6-binary.md 46).
             fit = max(k for k in range(1, 40)
                       if len(cg.paginate(plain, title, cg.with_no_effect(
                           "\n".join(f"Line {i + 1}." for i in range(k))))[0]) == 1)

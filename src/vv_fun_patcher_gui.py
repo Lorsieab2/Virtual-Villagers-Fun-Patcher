@@ -182,9 +182,13 @@ ISLAND_EVENT_NOTES_IDS = ["vv%d_island_event_content_notes" % game for game in r
 # No Safeguards for Island Events (and Additional Events too) ("for masochists"; the owner, 2026-11-15): off everywhere, Owner's Defaults and Select All too.
 ISLAND_EVENT_ANY_TIME_IDS = ["vv%d_island_events_any_time" % game for game in range(1, 6)]
 ISLAND_EVENT_FILTER_IDS = ["vv%d_island_event_filter_f%02d" % (game, n) for game in range(1, 6) for n in range(1, 29)]
+# Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers; the owner, 2026-11-23): off by
+# default, on in Owner's Defaults, off in Select All (every new option of this round: on in Owner's Defaults only).
+HEATHENS_IN_ISLAND_EVENTS_IDS = ["vv5_heathens_in_island_events"]
 # Each game's Island Events section holds these rows (by the id after "vvN_"), in this order, and the filters below
 # them; the main list leaves them out.
-ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes")
+ISLAND_EVENT_SECTION_ROWS = ("more_island_events", "isola_grand_event_collection", "island_event_content_notes",
+                             "heathens_in_island_events")
 # "More Island Events and Creator" (the owner, 2026-11-16): one row per game for every added island event, its
 # tick ticking (and unticking) these rows together; each keeps its own id, defaults and rules as a setting inside it,
 # so saved settings and installed games need no migration.  The event creator and the partner-carry setting sit
@@ -404,6 +408,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The island events' content controls (the owner, 2026-11-15): Content Notes on in Owner's
     # Defaults only; the content filters off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too).
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    # Heathens can be selected in Island Events/Heathen-Exclusive Events (New Believers; the owner, 2026-11-23): off
+    # here and in Select All, on in Owner's Defaults.
+    + HEATHENS_IN_ISLAND_EVENTS_IDS
     # Change Sex and Gender Presentation (all five games; the owner, 2026-11-15): every new option "ON in Owner's
     # Defaults and OFF everywhere else" -- off here and in Select All.
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
@@ -520,6 +527,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # The island events' content controls (the owner, 2026-11-15): notes on in Owner's Defaults
     # only, the filters off everywhere.
     + ISLAND_EVENT_NOTES_IDS + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    # Heathens can be selected in Island Events/Heathen-Exclusive Events: on in Owner's Defaults only (2026-11-23).
+    + HEATHENS_IN_ISLAND_EVENTS_IDS
     # Change Sex and Gender Presentation: on in Owner's Defaults only (the owner, 2026-11-15).
     + ["vv%d_gender_presentation" % game for game in range(1, 6)]
     # More Frequent Island Events: on in Owner's Defaults only (the owner, 2026-11-15).

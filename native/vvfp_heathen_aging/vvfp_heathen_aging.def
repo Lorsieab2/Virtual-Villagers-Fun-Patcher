@@ -4,3 +4,5 @@ EXPORTS
     VvfpHeathenAgingInstalled=_VvfpHeathenAgingInstalled@0
     VvfpHeathenAgingGrave=_VvfpHeathenAgingGrave@8
     VvfpHeathenAgingVillageReset=_VvfpHeathenAgingVillageReset@8
+    VvfpHeathenAgingEventGone=_VvfpHeathenAgingEventGone@16
+    VvfpHeathenAgingEventPregnancy=_VvfpHeathenAgingEventPregnancy@20

@@ -1,5 +1,5 @@
 """The owner, 2026-11-23, in capitals: "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect)
-at the end." (docs/event-collection/cie-v6-binary.md 45).
+at the end." (docs/event-collection/cie-v6-binary.md 46).
 
 * src/vv_cie_graph.py: an outcome (after the last answer, or the whole run with no question) whose nodes have no
   effect ends with "(no effect)" in simulate and in walk (the fit counts it); the pages before a question never do;
@@ -78,6 +78,23 @@ class Rule(unittest.TestCase):
     def test_the_line_is_an_automatic_line(self):
         self.assertEqual(cg.AUTO_LINES["no_effect"], "(no effect)")
         self.assertEqual(cg.NO_EFFECT_LINE, "(no effect)")
+
+    def test_the_heathens_own_cast(self):
+        """45: with the Heathens' own cast the tribe's effects and the solidarity tag change nothing; a villager's
+        own effect still does; a mixed cast is as always."""
+        food = [{"effects": [{"do": "food", "amount": 50, "defer": False, "scaled": False}], "solidarity": "raise"}]
+        self.assertTrue(cg.outcome_changes_nothing(food, solidarity=True, heathen_cast=True))
+        self.assertFalse(cg.outcome_changes_nothing(food, solidarity=True))
+        self.assertFalse(cg.outcome_changes_nothing(food))
+        own = [{"effects": [{"do": "health_change", "role": "isolan", "min": -40, "max": -40}]}]
+        self.assertFalse(cg.outcome_changes_nothing(own, heathen_cast=True))
+        for e, flavor in (({"do": "tech", "amount": 5}, True), ({"do": "damage", "min": 1, "max": 5}, True),
+                          ({"do": "village", "what": "tech_level", "step": 1}, True),
+                          ({"do": "village", "what": "weather"}, False),
+                          ({"do": "celebrate"}, True), ({"do": "celebrate", "role": "isolan"}, False),
+                          ({"do": "mood", "role": "isolan", "good": True}, False)):
+            with self.subTest(e=e):
+                self.assertEqual(cg.flavor_only(e), flavor)
 
 
 class Simulate(unittest.TestCase):
@@ -294,6 +311,53 @@ if old is not None:
                 ran += 1
             if ran == 0:
                 self.skipTest("no stock executable")
+
+
+try:
+    import test_heathens_in_island_events as hv  # noqa: E402
+except Exception:  # noqa: BLE001 -- no emulator here
+    hv = None
+
+if hv is not None and old is not None:
+    @old.emulated
+    class HeathenCast(unittest.TestCase):
+        """New Believers' Heathens in island events (45): with the Heathens' own cast an outcome whose only effects
+        are the tribe's (flavor, the Heathens' village's) ends with "(no effect)" -- once, the hv_ lines' own
+        included; a mixed cast's food is the tribe's and gets none."""
+
+        def setUp(self):
+            if not old.have_stock("vv5"):
+                self.skipTest("no New Believers")
+            self.e = hv.Engine()
+
+        def words(self, g, people, heathens, solidarity=False) -> str:
+            r = self.e.run_with(people, heathens=heathens)
+            if solidarity:
+                from test_village_solidarity import fake_solidarity
+                fake_solidarity(r.p, 1000, 1000, [])
+            self.assertIsNone(r.queue6(hv.compiled(g)))
+            return " ".join(" ".join(s[1] for s in r.walk_through()).split())
+
+        def test_a_heathen_only_flavor_outcome(self):
+            for auto in (True, False):
+                for solidarity in (False, True):
+                    with self.subTest(auto_lines=auto, solidarity=solidarity):
+                        g = hv.graph("only", auto=auto)
+                        g["nodes"]["p"]["solidarity"] = "raise"
+                        words = self.words(g, hv.Engine.ONE, (0,), solidarity)
+                        self.assertTrue(words.endswith("(no effect)"), words)
+                        self.assertEqual(words.count("(no effect)"), 1, words)
+            with self.subTest(case="a villager's own effect"):
+                fx = [{"do": "health_change", "role": "isolan", "min": -40, "max": -40}]
+                self.assertNotIn("(no effect)", self.words(hv.graph("only", fx), hv.Engine.ONE, (0,)))
+
+        def test_a_mixed_cast_outcome(self):
+            roles = {"isolan": {"kind": "villager", "min_age": 14, "heathens": "only"},
+                     "host": {"kind": "villager", "min_age": 14}}
+            for auto in (True, False):
+                with self.subTest(auto_lines=auto):
+                    words = self.words(hv.graph("only", roles=roles, auto=auto), hv.Engine.TWO, (1,))
+                    self.assertNotIn("(no effect)", words)
 
 
 if __name__ == "__main__":

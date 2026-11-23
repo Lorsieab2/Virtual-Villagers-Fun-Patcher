@@ -1030,5 +1030,84 @@ class EveryBuild(unittest.TestCase):
                 self.assertEqual(v.p.read(other_va, len(stock) // 2).hex().upper(), stock)
 
 
+@unittest.skipUnless(HAVE_EMULATOR and HAVE_STOCK and DLL.is_file(), "needs unicorn, pefile and the stock executables")
+class HeathenAdventurer(unittest.TestCase):
+    """The owner (2026-11-23): New Believers' adventurer MAY be an ordinary Heathen (with "Heathens can be selected in
+    Island Events/Heathen-Exclusive Events" installed, and "VVFP Heathen Aging.dll" to carry their death or
+    disappearance); lost ending 2 is "... seems to have joined another tribe." and they disappear (logged); a death or
+    a disappearance goes by the Heathens' own rules; the find nobody of the tribe shares is the Heathens' own (no
+    effect).  Both stood in for here."""
+
+    HA = 0x0EA00000
+
+    def village(self, row: bool = True, aging: bool = True) -> Village:
+        v = Village(5)
+        v.villager(0, "Ana", True)
+        v.villager(1, "Ben")
+        v.p.write(v.rec(0) + 0x1CEC, b"\x01")             # Ana: an ordinary Heathen (camp role 0)
+        v.gone = []
+        p = v.p
+        row_stub, gone_stub = p.alloc(16), p.alloc(16)
+        p.write(row_stub, b"\xC3")
+        p.write(gone_stub, b"\xC3")
+        p.stub(row_stub, lambda pr: (1 if row else 0, 4))
+
+        def gone(pr):
+            v.gone.append((pr.arg(0), pr.arg(1), pr.arg(2), pr.arg(3)))
+            pr.write(v.rec(pr.arg(1)) + v.L["present"], b"\x00")
+            return 1, 16
+        p.stub(gone_stub, gone)
+        module, proc = p.api_handlers["GetModuleHandleA"], p.api_handlers["GetProcAddress"]
+        ha = self.HA
+
+        def module2(pr):
+            name = pr.cstring(pr.arg(0)) if pr.arg(0) else ""
+            return (ha, 4) if name == "VVFP Heathen Aging.dll" and aging else module(pr)
+
+        def proc2(pr):
+            name = pr.cstring(pr.arg(1))
+            if pr.arg(0) == ha:
+                return (gone_stub if name == "VvfpHeathenAgingEventGone" else 0), 8
+            if pr.arg(0) in v.story_handles and name == "VvfpStoryHeathensRow":
+                return row_stub, 8
+            return proc(pr)
+        p.api_handlers["GetModuleHandleA"] = module2
+        p.api_handlers["GetProcAddress"] = proc2
+        return v
+
+    def test_a_heathen_goes_only_with_the_row_and_the_aging_companion(self) -> None:
+        self.assertEqual(self.village().eligible(0), 1)
+        self.assertEqual(self.village(row=False).eligible(0), 0)
+        self.assertEqual(self.village(aging=False).eligible(0), 0)
+        v = self.village()
+        v.p.put32(v.rec(0) + 0x1CFC, 14)                 # a Master: a puzzle's Heathen, never
+        self.assertEqual(v.eligible(0), 0)
+
+    def test_lost_ending_2_joins_another_tribe_and_disappears(self) -> None:
+        v = self.village()
+        seen = " ".join(v.play(rolls(game=5, lost=True, lost_end=2), 2))
+        self.assertIn("Ana seems to have joined another tribe.", seen)
+        self.assertNotIn("heathens' tribe", seen)
+        self.assertEqual(v.gone, [(5, 0, 1, 0xFFFFFFFF)], "taken by the Heathens' own rules")
+        self.assertEqual(v.vanished[-1][2], "Disappeared in The Aspiring Adventurer (joined another tribe)")
+        self.assertEqual(v.p.read(v.rec(0) + 0x1CEC, 1), b"\x01", "never converted again")
+
+    def test_a_death_goes_by_the_heathens_rules(self) -> None:
+        v = self.village()
+        v.play(rolls(game=5, survive=False, end=0), 1)
+        self.assertEqual(v.gone, [(5, 0, 0, 0xFFFFFFFF)])
+        self.assertEqual(v.health(0), 100, "the game's own death never runs on a Heathen")
+
+    def test_the_heathens_own_find_changes_nothing(self) -> None:
+        v = self.village()
+        before = v.stores()
+        seen = " ".join(v.play(rolls(game=5, find=1, end=0), 1))   # A1: Ana alone
+        state = v.state()
+        self.assertEqual(state[4], 1)
+        self.assertEqual(v.stores(), before)
+        self.assertIn(f"The Heathens gain {state[11]} food. (no effect)", seen)
+        self.assertNotIn("Your villagers", seen)
+
+
 if __name__ == "__main__":
     unittest.main()
