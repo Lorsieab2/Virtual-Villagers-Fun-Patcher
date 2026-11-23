@@ -513,6 +513,7 @@ The owner's More Island Events file (2026-11-16; scripts/go_events/gen_mie.py).
 | Line | Before | After | Event | Why |
 |---|---|---|---|---|
 | mie L718 | `(fisherman/fisherwoman)` | `fisher(man/woman)` | The Playful Dolphins | the engine has no (fisherman/fisherwoman) word: fisher(man/woman) reads the same |
+| mie L322 | `spelunking.  "We'll` | `spelunking. "We'll` | The Cave Explorers | a double space: one space |
 <!-- end of MIE grammar fixes -->
 
 ### (Name1)'s Harshest Critic (2026-11-17; source `critic`)

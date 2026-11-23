@@ -765,12 +765,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10294-10296"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
@@ -847,12 +841,6 @@
      "min": 10,
      "max": 20,
      "src": "L10296"
-    },
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10294-10296"
     },
     {
      "do": "tech",
@@ -936,12 +924,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10294-10296"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
@@ -1021,12 +1003,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10294-10296"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L10294-10296"
@@ -1092,12 +1068,6 @@
      "do": "celebrate",
      "who": "all",
      "src": "L10295"
-    },
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10294-10296"
     },
     {
      "do": "tech",
@@ -1282,12 +1252,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10301-10302"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
@@ -1354,12 +1318,6 @@
      "min": 20,
      "max": 40,
      "src": "L10302"
-    },
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10301-10302"
     },
     {
      "do": "tech",
@@ -1433,12 +1391,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10301-10302"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L10301-10302"
@@ -1505,12 +1457,6 @@
      "min": 20,
      "max": 40,
      "src": "L10302"
-    },
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10301-10302"
     },
     {
      "do": "tech",
@@ -1582,12 +1528,6 @@
     }
    ],
    "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10301-10302"
-    },
     {
      "do": "tech",
      "size": "normal",
@@ -2388,12 +2328,6 @@
     }
    ],
    "effects": [
-    {
-     "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10354-10355"
-    },
     {
      "do": "tech",
      "size": "normal",
