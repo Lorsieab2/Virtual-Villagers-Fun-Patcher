@@ -5798,6 +5798,8 @@ static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned c
     return -1;
 }
 
+static int cg_guardians_on(void);   /* below: New Believers with Guardians of Isola's rewrite on */
+
 /* One more line for the event's log entry ("  <text>\n"), when it fits. */
 static void cg_extra_add(const char *who, const char *what) {
     char line[224];
@@ -7062,7 +7064,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         }
         if (was != cg_heathen(game, record)) {
             cg_tell_faith(game, index);
-            cg_extra_add(name, was ? " joined the tribe." : " became a Heathen.");
+            cg_extra_add(name, was ? " joined the tribe." : cg_guardians_on() ? " became an Isolan." : " became a Heathen.");
         } else if (e[0] == CGE_FAITH) {
             cg_extra_add(name, "'s Faith grew.");
         }
@@ -7587,12 +7589,24 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "group1_health", "<W>'s health is now <N>." },
 };
 
+/* New Believers with Guardians of Isola's rewrite on (docs/event-collection/guardians-wording.md, "The branching
+   engine's own words"): "<R> becomes a Heathen." is "<R> becomes an Isolan." (the owner's pair a Heathen -> an
+   Isolan).  Pinned equal to src/vv_cie_graph.py GUARDIANS_AUTO_LINES by tests/test_guardians_wording_switches.py. */
+#define CG_GUARDIANS_BECOMES "<R> becomes an Isolan."
+
+static const char *cg_auto_guardians(const char *key, const char *t) {
+    if (t != NULL && (lstrcmpA(key, "status") == 0 || lstrcmpA(key, "apostasy") == 0) && cg_guardians_on()) {
+        return CG_GUARDIANS_BECOMES;
+    }
+    return t;
+}
+
 /* Line `key`'s words, NULL when the table has none. */
 static const char *cg_auto_text(const char *key) {
     int i;
     for (i = 0; i < (int)(sizeof CG_AUTO_LINES / sizeof CG_AUTO_LINES[0]); ++i) {
         if (lstrcmpA(CG_AUTO_LINES[i][0], key) == 0) {
-            return CG_AUTO_LINES[i][1];
+            return cg_auto_guardians(key, CG_AUTO_LINES[i][1]);
         }
     }
     return NULL;
@@ -7610,6 +7624,7 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
             t = CG_AUTO_LINES[i][1];
         }
     }
+    t = cg_auto_guardians(key, t);
     if (t == NULL) {
         return;
     }
@@ -9170,7 +9185,7 @@ static void cg_role_words(int game, int r, char *out, int size) {
         }
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && game == 5) {
-        lstrcatA(out, ", a believer");
+        lstrcatA(out, cg_guardians_on() ? ", a tribe member" : ", a believer");   /* guardians-wording.md */
     }
     if (cg_g.version >= 6) {
         const ce_adapter *a = ce_adapter_for(game);
@@ -9324,6 +9339,12 @@ static int cg_guardians_on(void) {
     return (cg_installed_state == 1 && cg_installed_has(5, "guardians_of_isola")) || faith_notice_left_the_tribe();
 }
 
+/* New Believers' word for the villagers an event can cast: "believers", with Guardians of Isola's rewrite on "tribe
+   members" (the faction sense: docs/event-collection/guardians-wording.md, "Believers"). */
+static const char *cg_believers_word(void) {
+    return cg_guardians_on() ? "tribe members" : "believers";
+}
+
 /* The loaded event's title in `game` (cie-v6-binary.md 18): the first title variant whose condition (game and patch
    conditions only) holds with the patches on now, else the file's own title.  Into cg_g.title, so every later use
    -- the popups, the log, the refusals -- shows it. */
@@ -9466,7 +9487,7 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
     part[0] = '\0';
     switch (c[0]) {
     case CGC_MIN_POPULATION:
-        wsprintfA(part, "at least %d %s", (int)a, game == 5 ? "believers" : "villagers");
+        wsprintfA(part, "at least %d %s", (int)a, game == 5 ? cg_believers_word() : "villagers");
         break;
     case CGC_MIN_CHILDREN:
         wsprintfA(part, "at least %d %s under 14", (int)a, a == 1u ? "child" : "children");
@@ -9507,7 +9528,7 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
         const unsigned char *n = cg_cond_at(&cg_g, (int)a);
         unsigned int na = cg_u16(n + 2);
         if (n[0] == CGC_MIN_POPULATION) {
-            wsprintfA(part, "fewer than %d %s", (int)na, game == 5 ? "believers" : "villagers");
+            wsprintfA(part, "fewer than %d %s", (int)na, game == 5 ? cg_believers_word() : "villagers");
         } else if (n[0] == CGC_MIN_CHILDREN) {
             wsprintfA(part, "fewer than %d children under 14", (int)na);
         } else if (n[0] == CGC_SPECIAL_PRESENT) {
@@ -9568,7 +9589,8 @@ static void cg_requirement_words(int game, unsigned int needed, char *out) {
     }
     if (needed == 0u) {
         wsprintfA(out, "\"%s\" can not happen in this village right now: it needs at least %d %s.", words,
-                  (int)cg_g.min_eligible, game == 5 ? "believers" : (cg_g.min_eligible == 1 ? "villager" : "villagers"));
+                  (int)cg_g.min_eligible, game == 5 ? cg_believers_word()
+                                                    : (cg_g.min_eligible == 1 ? "villager" : "villagers"));
         return;
     }
     for (r = 0; r < cg_g.n_role; ++r) {

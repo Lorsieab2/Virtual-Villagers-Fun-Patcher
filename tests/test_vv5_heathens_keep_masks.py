@@ -276,7 +276,8 @@ class TheRow(unittest.TestCase):
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
         self.assertEqual(names, ["VvfpHeathensKeepMasksFaction", "VvfpHeathensKeepMasksInstalled",
                                  "VvfpHeathensKeepMasksKept", "VvfpHeathensKeepMasksLook",
-                                 "VvfpHeathensKeepMasksReturned", "VvfpStartup", "VvfpVillagerSexChanged",
+                                 "VvfpHeathensKeepMasksReturned", "VvfpHeathensKeepMasksVillageReset", "VvfpStartup",
+                                 "VvfpVillagerSexChanged",
                                  "VvfpVillagersRenamed"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA",
@@ -868,6 +869,46 @@ class TheCompanionRemembersTheMaskItself(unittest.TestCase):
         self.assertEqual(w.export("VvfpVillagersRenamed", 5, 1, 1, records, names), 1)
         w.go_back(record, WAYS[0])
         self.assertEqual((w.mask_get(record), w.mask_row(record)), (4, ROW_PURPLE))
+
+    def test_a_sex_change_keeps_it(self):
+        """A sex change (the Custom Island Event's or Change Appearance's Change sex: native/shared/sex_change.h tells
+        every owner in VV_SEX_OWNERS) carries the villager's mask worn to who they are now."""
+        source = (ROOT / "native" / "shared" / "sex_change.h").read_text(encoding="utf-8")
+        start = source.index("VV_SEX_OWNERS[] = {")
+        self.assertIn('"VVFP Heathens Keep Masks.dll"', source[start:source.index("};", start)])
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        record = v.believer(4, 14, 0, 0, filed=False)
+        before = v.alloc(STRIDE)
+        v.write(before, v.read(record, STRIDE))
+        v.put32(record + 0x1B90, 1)                 # now female
+        self.assertEqual(v.export("VvfpVillagerSexChanged", 5, 1, record, before), 1)
+        v.go_back(record, WAYS[0])
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (4, ROW_PURPLE))
+
+    def test_start_over_drops_the_slots_masks_worn(self):
+        """Start Over ("VVFP Save Reset.dll" calls VvfpHeathensKeepMasksVillageReset before it wipes the save's own
+        folder, the Masks Worn file with it): nothing of the erased village comes back in the new one."""
+        source = (ROOT / "native" / "save_reset_export" / "save_reset_export.c").read_text(encoding="utf-8")
+        self.assertIn('"VvfpHeathensKeepMasksVillageReset"', source)
+        self.assertIn("notify_heathens_keep_masks(game, slot);", source)
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        record = v.believer(4, 14, 0, 0, filed=False)
+        v.export("VvfpHeathensKeepMasksVillageReset", 5, 1)
+        for path in [p for p in disk.files if p.endswith("masks worn - save 1.dat")]:
+            del disk.files[path]                                    # the save's own folder wiped
+        v.mask_set(record, 1)
+        v.go_back(record, WAYS[0])                                  # the same name in the new village: not him
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (1, ROW_BLUE))
+
+    def test_another_slots_start_over_keeps_it(self):
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        record = v.believer(4, 14, 0, 0, filed=False)
+        v.export("VvfpHeathensKeepMasksVillageReset", 5, 2)
+        v.go_back(record, WAYS[0])
+        self.assertEqual(v.mask_row(record), ROW_PURPLE)
 
     def test_a_reused_record_never_inherits_it(self):
         disk = Disk()
