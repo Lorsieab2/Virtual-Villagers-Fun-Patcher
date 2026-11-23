@@ -283,6 +283,8 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_number_names",       # numbers a looks change gave, taken off (v1.35.80 update)
                               # Repair's original looks proved by the logs (function-level, v1.35.85).
                               "vv_original_look",
+                              # Repair gives back the mask a Former Heathen rejoined with (v1.35.98).
+                              "vv5_rejoined_masks",
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The original looks behind Change Appearance's Reset to original (v1.35.85): the per-save
