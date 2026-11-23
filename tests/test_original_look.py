@@ -636,6 +636,24 @@ class Backfill(unittest.TestCase):
                 self.assertEqual(v.file().entries, entries, "the DLL's entries are kept byte for byte")
                 self.assertFalse(ol.backfill(v.folder, game, 1).written, "running it again changes nothing")
 
+    def test_a_mask_got_as_a_heathen_is_never_a_believers_original(self):
+        """The owner, 2026-11-22: Caia, a believer founder (no mask), became a Heathen and rejoined; a Reset done
+        since logged "Old mask: Blue Mask".  Her original is her founder look with no mask, never the blue."""
+        v = self.village(5)
+        a, b = v.people[0].seen, v.people[1].seen
+        now = (a.head, a.body)
+        converted = arrived(9, a.name, a.sex, now).replace(
+            "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n")
+        v.births(arrived(1, a.name, a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + change(a.name, now, now, ("Blue Mask", "none")) + converted
+                 # b never left the tribe: a Change Appearance mask before their first change is still theirs.
+                 + birth(2, b.name, b.sex, (6, 6)) + change(b.name, (6, 6), (b.head, b.body), ("Red Mask", "none")))
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged()
+        self.assertEqual((got[a.name].kind, got[a.name].head, got[a.name].body, got[a.name].mask),
+                         (ol.KNOWN, now[0], now[1], 0))
+        self.assertEqual((got[b.name].kind, got[b.name].mask), (ol.KNOWN, 3))
+
     def test_idempotent(self):
         v = self.village(3)
         a = v.people[2].seen

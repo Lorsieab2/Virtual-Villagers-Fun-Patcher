@@ -481,6 +481,13 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     masks = [m for m in ev.masks if m[0] in names]
     if not chain and not masks:
         return Found(None)
+    # A MASK GOT AS A HEATHEN IS NEVER THE ORIGINAL (the owner, 2026-11-22: Caia's original is her founder
+    # look, no mask).  A New Believers villager who joined the tribe from the Heathens since their own Birth or
+    # Arrived record: their original is that record's look with no mask -- never the mask an "Appearance
+    # changed" record's Old mask names once they had been a Heathen (or had rejoined wearing it).
+    believer_first = _believer_record(ev, names, s) if game == 5 and not names & set(others) else None
+    if believer_first is not None and believer_first[1] == 0 and same(believer_first[0], state):
+        return Found(KNOWN, state[0], state[1], 0, chain=tuple(chain))
     if not chain or ev.changes[chain[0]].old_mask is not None:
         # EVERY piece of mask evidence, in time order (Codex, PR #653): the island events' mask steps, the
         # Appearance changed records' Old / New mask lines, and their own record's Mask line.  The original
@@ -565,6 +572,23 @@ def _mask_origin(steps_c: list[tuple], steps_e: list[tuple], birth: int | None) 
 def _converted(how: str | None) -> bool:
     """A New Believers Heathen's conversion, logged as an Arrived record of a villager already known."""
     return (how or "").strip().lower().startswith("converted")
+
+
+def _believer_record(ev: Evidence, names: set[str], s) -> tuple[tuple, int] | None:
+    """(looks, mask) of a villager's own first record when they were a believer then and have joined the tribe
+    from the Heathens since: exactly one record of their own that is not a conversion, it is their first, it
+    is of their sex, and a conversion record follows it.  None otherwise."""
+    mine = [k for k, o in enumerate(ev.own) if o[0] in names]
+    hows = [ev.own_hows[k] if k < len(ev.own_hows) else None for k in mine]
+    first = [k for k, how in zip(mine, hows) if not _converted(how)]
+    if len(first) != 1 or first[0] != mine[0] or not any(_converted(h) for h in hows):
+        return None
+    name, sex, looks, mask = ev.own[first[0]]
+    if None in looks or mask is None or (sex is not None and s.sex is not None
+                                         and sex.strip().lower() != str(s.sex).strip().lower()
+                                         and name not in ev.sex_changed):
+        return None
+    return looks, mask
 
 
 def correction(v: Living, kept: Entry, ev: Evidence, f: Found, others: set[str] = frozenset(),
