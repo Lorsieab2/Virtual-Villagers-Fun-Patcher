@@ -74,6 +74,9 @@ CHECKS += 1
 # + 3 per game: Unaccounted and Arrived records name the villager's own parents in every game -- A New
 # Home's from the Show Parents companion, kept in the roster file (arrival_harness.c parents_cases)
 CHECKS += 3 * 5
+# + 2 in New Believers (2026-11-22): VVFP Heathen Aging.dll's replacement Heathen gets an Arrived record
+# (VvfpCauseHeathenArrived), a believer never one from that export
+CHECKS += 2
 # + 4 per game with Birth records (The Lost Children on): a villager with the looks and the very parents
 # of a Birth record under another name nobody carries now is a CONTRADICTION for the player -- no
 # second Birth record, and nothing taken as settled (the marker waits) -- while a villager with no
@@ -122,6 +125,13 @@ CHECKS += 3
 # replaces in the same record, no roster, no Unaccounted -- and the save after the start writes exactly
 # the five chosen as Arrived 1-5 (arrival_harness.c founder_screen_cases)
 CHECKS += 7 * 2
+# + 2 in New Believers (the owner, 2026-11-22: the logs record the Heathens too): the replacement Heathen's
+# Arrived record is marked "Faction: Heathen", and a Heathen a stock event makes gets one, named by the event
+# and marked (the check that a Heathen the creator makes is no arrival now says it gets a marked one).
+CHECKS += 2
+# + 1 per game and 1 more in New Believers (the owner, 2026-11-23): Revive Buried/Disappeared Villagers' villager is
+# "How: Returned from the dead", and a revived Heathen's record is marked "Faction: Heathen".
+CHECKS += 5 + 1
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

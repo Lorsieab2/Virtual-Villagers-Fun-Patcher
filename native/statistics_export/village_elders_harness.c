@@ -68,6 +68,11 @@ static void bury(unsigned int grave, const char *name, int elder_flag) {
     g[0x29] = (unsigned char)(elder_flag ? 1 : 0);
 }
 
+/* New Believers: the graves "VVFP Heathen Aging.dll" wrote down as Heathens' (here: entry 1). */
+static int heathen_grave_1(unsigned int index) {
+    return index == 1u;
+}
+
 static struct elders_layout layout(int with_graves) {
     struct elders_layout l;
     memset(&l, 0, sizeof(l));
@@ -417,6 +422,30 @@ int wmain(int argc, wchar_t **argv) {
         set_skill(1, 0, 90.0f); set_skill(1, 1, 90.0f); set_skill(1, 2, 90.0f);
         check(vv_village_elders_file(2, dat, tmp, &l) == 7, "VV2: a new elder later in that record counts once more");
         l.seed = 0;
+        DeleteFileW(dat);
+    }
+    /* New Believers (the owner: Heathens never count): a Heathen's grave the game flagged as an elder's -- the
+       Heathen Chief, every skill 100, buried after dying of old age -- is never a Village Elder; a believer's is. */
+    {
+        memset(villagers, 0, sizeof(villagers));
+        memset(graves, 0, sizeof(graves));
+        DeleteFileW(dat);
+        l = layout(1);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 0, "VV5 Heathen graves: an empty history");
+        bury(0, "Elder Believer", 1);
+        bury(1, "Mojo Mahuru", 1);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 2, "VV5 Heathen graves: without the check both flagged graves count");
+        DeleteFileW(dat);
+        memset(graves, 0, sizeof(graves));
+        l.grave_is_heathen = heathen_grave_1;
+        check(vv_village_elders_file(5, dat, tmp, &l) == 0, "VV5 Heathen graves: an empty history again");
+        bury(0, "Elder Believer", 1);
+        bury(1, "Mojo Mahuru", 1);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 1,
+              "VV5 Heathen graves: a Heathen's grave is never a Village Elder, the believer's still is");
+        DeleteFileW(dat);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 1,
+              "VV5 Heathen graves: a new file counts the flagged graves without the Heathen's");
         DeleteFileW(dat);
     }
     printf("%d failure(s)\n", failures);

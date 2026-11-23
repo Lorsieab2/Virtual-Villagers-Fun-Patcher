@@ -26,7 +26,7 @@ GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 # Guides stay short: the owner asked for "brief, simple to understand".
 # 9 since 2026-11-19: the Default Patches guide's ninth line (the v1.35.97 merge); the owner's rule is never to drop
 # text for length, and the guide window scrolls.
-# 10 since 2026-11-22: Revive Buried/Disappeared Villagers joined the Default Patches guide (never drop text).
+# 10 since 2026-11-22: the four Heathen aging patches and Revive Buried/Disappeared Villagers joined the Default Patches guide (never drop text).
 MAX_LINES = 10
 MAX_LINE_CHARS = 180
 # 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
@@ -38,7 +38,7 @@ MAX_LINE_CHARS = 180
 # (and Village Solidarity, 2026-11-17; and Birth Control in The Tree of Life and New Believers, 2026-11-19.)
 # 1,450 since 2026-11-19, when the v1.35.97 merge put every PR's default-off patches into it (1,405); never drop text.
 # 1,500 since 2026-11-21, when Practicing Devotion Builds Faith and Divine Energy joined it (1,482).
-# 1,550 since 2026-11-22, when Revive Buried/Disappeared Villagers joined it (1,519).
+# 1,550 since 2026-11-22, when the four Heathen aging patches and Revive Buried/Disappeared Villagers joined it (1,514).
 MAX_GUIDE_CHARS = 1550
 
 

@@ -1145,6 +1145,32 @@ LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"
 LEFT_FOR_THE_ISOLANS = "Left the tribe: became an Isolan"
 LEFT_RECORDS = (LEFT_FOR_THE_HEATHENS, LEFT_FOR_THE_ISOLANS)
 
+# New Believers' "  Faction:" line names a Heathen as "Heathen", or "Isolan" with Guardians of Isola
+# (native/shared/heathen_word.h); a believer is "Believer" either way.  Every record of a Heathen carries it --
+# the Village History and Population snapshots, the Unaccounted records, and since 2026-11-22 (the owner: the logs
+# record the Heathens too) their Death, Disappeared, Arrived, Birth, Conception, Appearance and Name changed
+# records -- so every reader that counts the village leaves them out: Heathens never count.
+HEATHEN_FACTIONS = ("Heathen", "Isolan")
+
+
+def is_heathen_faction(value: str | None) -> bool:
+    """Whether a record's Faction value names a Heathen ("Heathen", or Guardians of Isola's "Isolan")."""
+    return (value or "").strip() in HEATHEN_FACTIONS
+
+
+def faction_side(value: str | None) -> str | None:
+    """A Faction value as "Heathen" or "Believer" (Guardians of Isola's "Isolan" is a Heathen); None for none."""
+    value = (value or "").strip()
+    if value in HEATHEN_FACTIONS:
+        return "Heathen"
+    return "Believer" if value == "Believer" else None
+
+
+def is_heathen_record(b) -> bool:
+    """Whether a log record is a Heathen's by its own Faction line (a Death, Arrived, Birth, Conception... record;
+    a snapshot).  A "Left the tribe: became a Heathen" record has none: a villager leaving the tribe."""
+    return is_heathen_faction(b.value("Faction"))
+
 
 def _faction_of_title(title: str | None) -> str | None:
     """What a record's own Special villager line says of its faction then: a Heathen role title is
@@ -1306,7 +1332,7 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
     # Every entry of the page (two villagers may share a name and looks: each is its own entry).
     entries = [b for b in blocks(page) if b.of(slot, game, villages) and b.heading.startswith("Villager ")
                and None not in b.identity]
-    heathens = [b for b in entries if b.value("Faction") == "Heathen"]
+    heathens = [b for b in entries if is_heathen_faction(b.value("Faction"))]
     if not heathens:
         return kind
     stem = f"Virtual Villagers {game} Deaths Log"

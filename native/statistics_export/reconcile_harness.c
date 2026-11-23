@@ -349,6 +349,18 @@ static void write_files(int buried, int twins, int chiefs) {
         "  Grave: no grave (never buried: the game removed the body)\r\n\r\n"
         "Death 6\r\n  Name: Ana\r\n  Age at death: 960\r\n  Head: 7\r\n  Body: 8\r\n  Cause of death: Old age\r\n"
         "  Grave: no grave (never buried: the game removed the body)\r\n\r\n");
+    if (game == 5) {
+        /* New Believers' Heathens buried by the believers ("VVFP Heathen Aging.dll"'s skeleton rows), marked by
+           the Parentage Export -- "Isolan" with Guardians of Isola: never counted (the owner: Heathens never
+           count), so Villagers Buried still reads 2 below. */
+        _snprintf(h + strlen(h), sizeof h - strlen(h),
+            "Death 7\r\n  Name: Oru\r\n  Mask: Blue Mask\r\n  Faction: Heathen\r\n  Age at death: 1200\r\n"
+            "  Cause of death: Old age\r\n  Grave: Untrained\r\n\r\n"
+            "Death 8\r\n  Name: Ika\r\n  Faction: Isolan\r\n  Age at death: 1210\r\n  Cause of death: Old age\r\n"
+            "  Grave: Untrained\r\n\r\n"
+            "Death 9\r\n  Name: Pua\r\n  Faction: Believer\r\n  Age at death: 1000\r\n  Cause of death: Old age\r\n"
+            "  Grave: no grave (never buried: the game removed the body)\r\n\r\n");
+    }
     /* In the odd games the logs are where an older build kept them, "Deaths": the reconcile reads them
        there and never moves them (native/shared/save_layout.h). */
     _snprintf(line, sizeof line, LOGS "\\%s\\Virtual Villagers %d Deaths Log 1.txt", DEATHS_DIR, game);

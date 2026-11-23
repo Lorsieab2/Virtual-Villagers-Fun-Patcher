@@ -117,10 +117,17 @@ class ReconcileSource(unittest.TestCase):
         self.assertIn('strcmp(line, "  Faction: Believer") == 0', visit)
         self.assertEqual(visit.count("rc_counted(h, skills, faction)"), 2)
         # ...the line the History and Population records carry, worded as the Unaccounted record's.
+        # A Heathen is "Heathen", or "Isolan" with Guardians of Isola (native/shared/heathen_word.h, the owner,
+        # 2026-11-22); anything but "Believer" is a Heathen to the reconcile.
         exporter = (ROOT / "native" / "population_export" / "population_export.c").read_text(encoding="utf-8")
-        self.assertIn('fprintf(file, "  Faction: %s\\n", record[VV5_FACTION] != 0 ? "Heathen" : "Believer")', exporter)
+        self.assertIn('fprintf(file, "  Faction: %s\\n", record[VV5_FACTION] != 0 ? vv5_heathen_word() : "Believer")',
+                      exporter)
         roster = (ROOT / "native" / "vvfp_cause_of_death" / "cod_roster.inc").read_text(encoding="utf-8")
-        self.assertIn('"  Faction: Heathen\\n" : "  Faction: Believer\\n"', roster)
+        self.assertIn('record[REC[g_game].heathen] ? "  Faction: " : "  Faction: Believer\\n"', roster)
+        self.assertIn("lstrcatA(extra, vv5_heathen_word());", roster)
+        self.assertIn("rc_heathen_faction_line(line)", visit)
+        words = (ROOT / "native" / "shared" / "heathen_word.h").read_text(encoding="utf-8")
+        self.assertIn('return vv5_guardians_of_isola() ? "Isolan" : "Heathen";', words)
 
 
 @unittest.skipUnless(CL.is_file(), "the 32-bit MSVC toolchain is not installed")

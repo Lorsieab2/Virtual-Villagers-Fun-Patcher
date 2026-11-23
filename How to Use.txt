@@ -482,6 +482,22 @@ With both settings off the game still loads and plays such a save and shows the 
 stored as UTF-8 (Western European letters keep their one byte), so older names read as before; the base
 game shows other characters as odd letters.
 
+CATCH UP HEATHEN AGES (New Believers)
+
+New Believers never ages a Heathen: a villager who goes to the Heathens, and
+every Heathen of the camp, stays as old as the day they left or the village
+began. In Repair Saves & Logs, "Catch up Heathen ages" (never ticked for you)
+adds that frozen time to their age: a Heathen who was a villager gets the time
+since they became one; a villager who rejoined, the time they spent as one; a
+Heathen of the camp (the puzzle Heathens too), the time since the village
+started. The time comes from the logs (the Founder records, every Village
+History snapshot) and the save, in the game's own age units. Where the logs do
+not make it certain, the villager is listed as not known and left as they
+are. The full time is added, even past old age: Repair first shows the whole
+list (age old -> new, and who goes past old age and may die soon after you
+load the village), and Cancel changes nothing. The save folder is backed up
+first and every change is listed in the Repairs Made log.
+
 OLDER LOGS' "?" NAMES
 
 Logs written before v1.35.89 hold each accented or other non-English letter of a
@@ -759,6 +775,29 @@ when one dies during play the other keeps her own mask, custom title and
 parents; the Family Tree Maker shows a newborn named like a dead villager as
 a person of her own; and the Village Elders repair counts a dead elder even
 when a living villager has her name.
+
+NEW BELIEVERS: THE HEATHENS IN THE LOGS
+
+Every log records New Believers' Heathens too, each record clearly marked
+with the line "Faction: Heathen" ("Faction: Isolan" with the Guardians of
+Isola Rewrite), as the Village History and Village Population records are:
+- Arrived: the camp's Heathens, made with a new village's founders ("How:
+  Founder"), Barrel O' Babies! (heathens), a Custom Island Event's Heathens,
+  and the Heathen who replaces one who died of old age.
+- Death and Disappeared: a Heathen who dies (with "Former Villagers Keep
+  Aging Among the Heathens" or "Heathen Tribe Ages, Dies and Has Children")
+  or disappears.
+- Conception and Birth: a Heathen woman's pregnancy, and a baby born among
+  the Heathens (with "Heathen Tribe Ages, Dies and Has Children").
+- Appearance changed and Name changed, for a Heathen.
+A believer's records never have the line. "Left the tribe: became a Heathen"
+is the villager's own record of leaving, so it is not marked; a Heathen who
+converts gets "How: Converted from the Heathens", unmarked. Heathens never
+count: the Village Statistics (Villagers Buried too: burying a Heathen's
+skeleton is never counted), the Family Tree Maker (a camp Heathen is never a
+founder), Catch up Heathen ages and Repair Saves & Logs read the line and
+leave them out. Heathens already in a village get no Arrived record
+afterwards; the Village History lists them.
 
 LAST NAMES: EACH VILLAGER'S OWN RULE
 
@@ -1553,6 +1592,58 @@ With Faith Loss is Doubled/Gains Halved also ticked, the Faith chance is
 Faith never goes above 100 and Divine Energy never above the village's cap.
 Heathens, the Chief (and the Retired Chief), purple-masked Heathens and the
 Heathen Mommy never get it.
+
+FORMER VILLAGERS KEEP AGING AMONG THE HEATHENS (NEW BELIEVERS)
+
+Off by default and in Select All; on in Owner's Defaults only. A villager who leaves
+your tribe and becomes a Heathen (losing Faith, The Spa, The Cracked Mask, a
+Custom Island Event, any way) keeps growing older among the Heathens: their
+age goes up, their hair greys at the usual age, and they can die of old age
+by the believers' own rule. They still never eat, starve or fall sick. The
+camp's own Heathens and the puzzle Heathens do not age with this patch. A
+former villager who dies is not replaced, so leaving never grows the camp.
+What is left
+is decided by the two skeleton patches; with neither they disappear, no
+grave. Deaths go in the Deaths log. Heathens never count in the Village
+Statistics. Villagers who left before this patch are recognised by the
+parents on their record.
+
+HEATHEN TRIBE AGES, DIES AND HAS CHILDREN (NEW BELIEVERS)
+
+Off by default, in Owner's Defaults and in Select All. Every Heathen ages
+and can die of old age by the believers' own rule: the camp's Heathens,
+villagers who left you, and the puzzle Heathens too (the Heathen Doctor, the
+Heathen Chief, the three Masters and the Heathen Mommy). When a camp Heathen
+dies a new one joins at once in the same camp role and mask, and a puzzle
+Heathen whose puzzle is not solved is replaced in the same role, set up as
+the game sets it up (the Heathen Mommy with her infant), so every puzzle can
+still be solved; a solved puzzle's Heathen never comes back. A villager who
+left your tribe is not replaced. Once The Last Heathen is solved nobody is
+replaced and no Heathen baby is conceived or born: the camp empties over
+time. With no Heathen alive none is ever made; island events and Barrel
+O' Babies still add Heathens as in the game.
+Heathen couples
+now and then have children (about once in 20 years for each woman from 14 to
+45 with a man in the camp), only while at least 10 places stay free for your
+own village's babies; the children grow up in the camp. With Former
+Villagers Keep Aging Among the Heathens also ticked nobody ages twice.
+
+ALL HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
+
+Off by default, in Owner's Defaults and in Select All. Only matters with a
+Heathen aging patch ticked. Every Heathen who dies of old age leaves a
+skeleton; your believers bury it with Burying the dead (once The Buried
+Mausoleum is solved), which gives a normal grave. Cannot be ticked with
+Former Villagers Among the Heathens Leave Skeletons: ticking one unticks the
+other.
+
+FORMER VILLAGERS AMONG THE HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
+
+Off by default and in Select All; on in Owner's Defaults only. Only
+matters with a Heathen aging patch ticked. Only villagers who had left your
+tribe leave a skeleton when they die among the Heathens; your believers bury
+it. Other Heathens leave nothing. Cannot be ticked with All Heathens Leave
+Skeletons: ticking one unticks the other.
 
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 

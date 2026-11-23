@@ -515,8 +515,15 @@ was given.
 - **Evidence:** A read-only scan of the owner's 65 VV5 saves found no Heathen
   corpse or grave. Static analysis suggested one was theoretically reachable
   through a bad outcome of The Missing Kids; the owner's ruling outranks it.
-- **Exceptions:** None. A Heathen-grave guard would be dead code.
-- **Status:** non-bug.
+- **Exceptions:** None in the stock game. Since 2026-11-22 the owner's Heathen
+  aging rows ("Former Villagers Keep Aging Among the Heathens", "Heathen Tribe
+  Ages, Dies and Has Children") let Heathens die of old age, and the skeleton
+  rows ("All Heathens Leave Skeletons", "Former Villagers Among the Heathens
+  Leave Skeletons") leave their bodies for the believers' stock burial, which
+  makes a normal grave. Heathens still never count in the statistics: the
+  companion puts the villager-death counter back, the Village Statistics skip a
+  Heathen's burial (Villagers Buried) and a Heathen's grave (Village Elders).
+- **Status:** non-bug (stock); changed by the owner's 2026-11-22 rows.
 
 ### S5. Babies Made, Twins Birthed and Triplets Birthed count at conception
 

@@ -306,6 +306,17 @@ static int g_elders_value;
    village_changed read (g_roster_was, rows in record order). */
 static void elders_ranks(struct elders_layout *l);
 
+/* New Believers: a grave "VVFP Heathen Aging.dll" wrote down as a Heathen's (VvfpHeathenAgingGrave) is never a
+   Village Elder.  Only when that companion is already loaded; without it no Heathen grows old and dies there. */
+typedef int (__stdcall *heathen_grave_fn)(int game, int entry);
+
+static int vv5_grave_is_heathen(unsigned int index) {
+    HMODULE aging = GetModuleHandleA("VVFP Heathen Aging.dll");
+    heathen_grave_fn is_heathen = aging != NULL
+        ? (heathen_grave_fn)(void *)GetProcAddress(aging, "VvfpHeathenAgingGrave") : NULL;
+    return is_heathen != NULL && is_heathen(GAME_VV5, (int)index) != 0;
+}
+
 static int village_elders_for(int game_id) {
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     struct elders_layout l;
@@ -347,6 +358,7 @@ static int village_elders_for(int game_id) {
         l.skills = 0x1C5Cu; l.skill_count = 6u; l.skills_are_float = 1; l.master_float = 88.0f;
         l.tribe = 0x1CECu;              /* 0 = believer; heathens (the chief has all 100s) are not villagers */
         l.graves = module + 0x1481A8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
+        l.grave_is_heathen = vv5_grave_is_heathen;
     } else {
         return -1;
     }

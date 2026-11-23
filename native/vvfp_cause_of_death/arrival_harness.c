@@ -36,8 +36,9 @@
         Custom Island Event"), one who arrives and is buried before the save
         (recorded at the departure); a birth is never an arrival (the Births
         log's note; A New Home's child-creation call even without it); a
-        Heathen made by the creator is not; a Heathen converted to a believer
-        is ("Converted from the Heathens").  None of them is Unaccounted.
+        Heathen made by the creator is one too, marked "Faction: Heathen"
+        (2026-11-22), and so is a Heathen converted to a believer, unmarked
+        ("Converted from the Heathens").  None of them is Unaccounted.
      4. Start Over deletes the marker; the new village's founders, made by the
         seeding, get "How: Founder" at its first save (and the seeding's
         records in a village saved before -- a load overwrites them -- never
@@ -377,6 +378,7 @@ static int_t departed;
 static note_t note_birth;
 static arrived_by_t arrived_by;
 static arrived_by_t arrived_parents;          /* VvfpCauseArrivedParents: the same shape */
+static arrived_by_t heathen_arrived;          /* VvfpCauseHeathenArrived (New Believers): the same shape */
 
 static int host_slot_value = 1;
 static int __stdcall host_slot(void) { return host_slot_value; }
@@ -401,8 +403,9 @@ static void load(void) {
     note_birth = (note_t)GetProcAddress(cause, "VvfpCauseNoteArrival");
     arrived_by = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedBy");
     arrived_parents = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedParents");
+    heathen_arrived = (arrived_by_t)GetProcAddress(cause, "VvfpCauseHeathenArrived");
     if (!ensure_village || !setup || !save_done || !reset || !scan_arrivals || !repair_arrivals || !created
-        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by || !arrived_parents
+        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by || !arrived_parents || !heathen_arrived
         || GetProcAddress(parentage, "RecordArrivalsMissingFromLog") == NULL) {
         printf("missing exports\n");
         exit(2);
@@ -2080,7 +2083,30 @@ int main(int argc, char **argv) {
             villager(14, "Pagan", 300, 4, 4, 0);
             rec(14)[VV5_FACTION] = 1;
             created(14, 0);
+            /* VVFP Heathen Aging.dll's replacement for a Heathen who died of old age (the owner, 2026-11-22: an
+               Arrived-style record), and a believer, which that export never writes for. */
+            villager(18, "Ashen", 400, 2, 2, 0);
+            rec(18)[VV5_FACTION] = 1;
+            created(18, 0);
+            heathen_arrived(game, 18, "Replaced a Heathen who died of old age");
+            villager(19, "Notheathen", 400, 2, 3, 0);
+            heathen_arrived(game, 19, "Replaced a Heathen who died of old age");
+            /* A Heathen a stock event's path makes (Barrel O' Babies! (heathens)): an Arrived record named by the
+               event, marked a Heathen (the owner, 2026-11-22: the logs record the Heathens too). */
+            villager(21, "Barrelborn", 20, 5, 5, 0);
+            rec(21)[VV5_FACTION] = 1;
+            created(21, MARK[game - 1].event);
+            /* Revive Buried/Disappeared Villagers (the owner, 2026-11-23): a Heathen comes back a Heathen through the
+               game's own Heathen creator, told by the Story companion as "Returned from the dead": marked a Heathen. */
+            villager(22, "Lazaro", 100, 4, 5, 1);
+            rec(22)[VV5_FACTION] = 1;
+            created(22, 0);
+            arrived_by(game, 22, "Returned from the dead");
         }
+        /* ...and a believer revived, in every game: the How, no Faction line. */
+        villager(23, "Revived", 100, 3, 6, 0);
+        created(23, 0);
+        arrived_by(game, 23, "Returned from the dead");
         arrival_tick();
         *(int *)(rec(9) + g->age) = 720;    /* aged since it arrived */
         departed(13);                        /* buried before the save */
@@ -2107,6 +2133,31 @@ int main(int argc, char **argv) {
             CHECK(gone != NULL && record_has("Gone", "  Age at arrival: 650\r\n"),
                   "one who arrived and was buried before the save has the record too, at the burial");
             CHECK(strstr(text, "  Name: Reborn\r\n") == NULL, "...and whoever has the record now gets none");
+            if (game == 5) {
+                CHECK(record_has("Ashen", "  Age at arrival: 400\r\n")
+                      && record_has("Ashen", "  How: Replaced a Heathen who died of old age\r\n"),
+                      "a replacement Heathen (VvfpCauseHeathenArrived): an Arrived record, its age, How: in its words");
+                CHECK(record_has("Ashen", "  Faction: Heathen\r\n"),
+                      "...marked a Heathen (the Parentage Export, from the faction byte)");
+                {
+                    char how3[96];
+                    _snprintf(how3, sizeof how3, "  How: %s\r\n", MARK[game - 1].label);
+                    CHECK(record_has("Barrelborn", "  Age at arrival: 20\r\n") && record_has("Barrelborn", how3)
+                          && record_has("Barrelborn", "  Faction: Heathen\r\n")
+                          && count_of(text, "  Name: Barrelborn\r\n") == 1,
+                          "a Heathen a stock event makes: an Arrived record named by the event, marked a Heathen");
+                }
+                CHECK(strstr(text, "  Name: Notheathen\r\n") == NULL,
+                      "...never for a believer (who would be an ordinary arrival)");
+            }
+            CHECK(record_has("Revived", "  Age at arrival: 100\r\n")
+                  && record_has("Revived", "  How: Returned from the dead\r\n") && !record_has("Revived", "  Faction: "),
+                  "Revive Buried/Disappeared Villagers' villager: How: Returned from the dead (a believer: no Faction line)");
+            if (game == 5) {
+                CHECK(record_has("Lazaro", "  How: Returned from the dead\r\n")
+                      && record_has("Lazaro", "  Faction: Heathen\r\n") && count_of(text, "  Name: Lazaro\r\n") == 1,
+                      "a revived Heathen: How: Returned from the dead, marked Faction: Heathen");
+            }
             CHECK(strstr(text, "  Name: Babe\r\n") == NULL && strstr(text, "  Name: Twin\r\n") == NULL,
                   "a birth is never an arrival (its path's marker, or the Births log's note)");
             {
@@ -2126,9 +2177,13 @@ int main(int argc, char **argv) {
             CHECK(count_of(text, "  Name: Newcomer\r\n") == 1 && count_of(text, "  Name: Cie\r\n") == 1
                   && count_of(text, "  Name: Gone\r\n") == 1, "each written once");
             if (game == 5) {
-                CHECK(strstr(text, "  Name: Pagan\r\n") == NULL, "a Heathen the creator makes is not an arrival");
-                CHECK(record_has("Hea", "  How: Converted from the Heathens\r\n"),
-                      "a Heathen converted to a believer is: Converted from the Heathens");
+                CHECK(record_has("Pagan", "  How: added outside a recorded event\r\n")
+                      && record_has("Pagan", "  Faction: Heathen\r\n") && count_of(text, "  Name: Pagan\r\n") == 1,
+                      "a Heathen the creator makes gets an Arrived record, marked Faction: Heathen (the owner, "
+                      "2026-11-22: the logs record the Heathens; Heathens never count)");
+                CHECK(record_has("Hea", "  How: Converted from the Heathens\r\n")
+                      && !record_has("Hea", "  Faction: "),
+                      "a Heathen converted to a believer is: Converted from the Heathens (a believer: no Faction line)");
                 CHECK(record_has("Hea", "  Special villager: Former Heathen Master (purple mask)\r\n"),
                       "...a Former Heathen Master: the mask the tick saw, kept in the Former Heathens file");
                 {

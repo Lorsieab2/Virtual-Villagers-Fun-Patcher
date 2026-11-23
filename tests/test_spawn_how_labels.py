@@ -47,13 +47,14 @@ TARGETS = {
     2: [0x44C600, 0x44CEC0],
     3: [0x456120, 0x4566E0, 0x45F0B0],
     4: [0x45EF10, 0x466270, EVENT_CREATOR],
-    5: [0x4681F0, 0x4687F0],
+    # New Believers' Heathen creator 0x46FD20 too (the owner, 2026-11-22: the logs record the Heathens): the
+    # camp's 28 calls and Barrel O' Babies! (heathens)' three, each a marker row through the allocator 0x46FB80.
+    5: [0x4681F0, 0x4687F0, 0x46FD20],
 }
 # Direct calls that need no marker, and why.
 ALLOWED = {
     4: {0x45D9B0: "the copy init's call inside the twin wrapper 0x466310 (0x466361): its callers "
                   "0x4688F3 and 0x468996 are the labelled marker rows"},
-    5: {0x46FC28: "the Heathen allocator (0x46FB80): a Heathen is never a villager"},
 }
 EXE_TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
               5: "New Believers"}
@@ -147,6 +148,31 @@ class TheTreeOfLifeF7IsTheDeveloperCommand(unittest.TestCase):
             with self.subTest(site=hex(site)):
                 self.assertIn(site, rows)
                 self.assertEqual(rows[site]["label"], "Developer command (F7)")
+
+
+@unittest.skipUnless(HAVE_PEFILE, "pefile not installed")
+@unittest.skipUnless(_exe(5).is_file(), "the stock executables are not in this checkout")
+class NewBelieversHeathensAreLabelled(unittest.TestCase):
+    """The Heathen creator 0x46FD20's callers: the camp 0x424AC0 (made once, by the village seeding 0x4259D0, with
+    the tribe's founders) and Barrel O' Babies! (heathens) 0x4152B0.  Each Heathen they make gets an Arrived record
+    (marked a Heathen by the Parentage Export): the camp's as founders, the barrel's as the believers' barrel is."""
+
+    def test_the_camp_is_founders_and_the_barrel_is_the_barrel(self):
+        rows = {r["value"]: r for r in emu.markers(5) if r["need_value"] == 0x46FC28}
+        sites = _call_sites(5, 0x46FD20)
+        self.assertEqual(len(sites), 31)
+        self.assertEqual(sorted(rows), sorted(sites))
+        for site in sites:
+            with self.subTest(return_address=hex(site)):
+                row = rows[site]
+                self.assertEqual((row["offset"], row["need_offset"]), (0x200, 0x154))
+                if 0x424AC0 < site < 0x425000:
+                    self.assertEqual((row["kind"], row["label"]), (emu.KIND["MARK_FOUNDER"], "Founder"))
+                else:
+                    self.assertTrue(0x4152B0 < site < 0x4153A0)
+                    self.assertEqual((row["kind"], row["label"]), (emu.KIND["MARK_EVENT"], "Barrel of Babies"))
+        self.assertEqual(_call_sites(5, 0x424AC0), [0x425DC0], "the camp is made by the village seeding alone")
+        self.assertEqual(_call_sites(5, 0x46FB80), [0x46FD64], "the allocator's one caller is the creator")
 
 
 class AnUnlistedPathIsNotUnknown(unittest.TestCase):

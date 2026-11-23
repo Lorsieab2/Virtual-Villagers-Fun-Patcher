@@ -687,9 +687,10 @@ def snapshot_villagers(text: str) -> list[dict]:
         m = re.search(r"\n  Custom title: (.*)", block)
         if m:
             v["title"] = m.group(1).strip()
-        m = re.search(r"\n  Faction: (Believer|Heathen)\n", block + "\n")
+        m = re.search(r"\n  Faction: (Believer|Heathen|Isolan)\n", block + "\n")
         if m:
-            v["faction"] = m.group(1)
+            # Guardians of Isola's "Isolan" is a Heathen (native/shared/heathen_word.h).
+            v["faction"] = "Heathen" if m.group(1) == "Isolan" else m.group(1)
         skills = re.search(r"\n  Skills:\n((?:    .*\n?)+)", block)
         if skills:
             v["skills"] = [int(x) for x in re.findall(r"^    \S+\s+(-?\d+)", skills.group(1), re.M)]
@@ -1798,8 +1799,11 @@ def check_unaccounted(game_dir: Path, slot: int, game: int, rep: Report) -> int:
     label = f"{LOGS}\\Deaths and Unaccounted Villagers"
     rep.add(label, "OK", f"{len(deaths)} Death records, {len(unacc)} Unaccounted records for Save {slot}")
     global LAST_GRAVES
+    # A New Believers Heathen's Death record ("  Faction: Heathen" / "Isolan": the Heathen Aging skeleton rows) is
+    # never a burial of the village (Heathens never count), as statistics_reconcile.inc reads it.
     LAST_GRAVES = sum(1 for d in deaths if (m := re.search(r"^  Grave: (.*)$", d, re.M)) and m.group(1).strip()
-                      and not m.group(1).startswith("no grave"))
+                      and not m.group(1).startswith("no grave")
+                      and not re.search(r"^  Faction: (?!Believer\s*$)\S", d, re.M))
     dead = {re.search(r"Name: (.*)", d).group(1).strip() for d in deaths if re.search(r"Name: (.*)", d)}
     for u in unacc:
         m = re.search(r"Name: (.*)", u)

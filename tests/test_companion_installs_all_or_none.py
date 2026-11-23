@@ -482,6 +482,12 @@ CASES = [
     Case("Esteemed Elders", "assets/esteemed_elders/VVFP Esteemed Elders.dll", (1, 2, 4, 5),
          lambda g: [f"vv{g}_esteemed_elders"],
          lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpEsteemedEldersInstalled"))[1]),
+    # The four Heathen aging rows (New Believers): the age credit's and the life tick's Heathen tests, to-a-Heathen
+    # and The Spa's and The Cracked Mask's faction calls (the tribe row's flag file present).
+    Case("Heathen Aging", "assets/heathen_aging/VVFP Heathen Aging.dll", (5,),
+         lambda g: [f"vv{g}_heathen_tribe_ages", f"vv{g}_all_heathens_leave_skeletons"],
+         lambda m, g: (m.export("VvfpStartup", g, 0), m.export("VvfpHeathenAgingInstalled"))[1],
+         present=("VVFP Heathen Aging Tribe.txt",)),
     # More Frequent Island Events (all five games): the trigger's draws of the next wait (two in New Believers).
     Case("Island Frequency", "assets/island_frequency/VVFP Island Frequency.dll", (1, 2, 3, 4, 5),
          lambda g: [f"vv{g}_more_frequent_island_events"],

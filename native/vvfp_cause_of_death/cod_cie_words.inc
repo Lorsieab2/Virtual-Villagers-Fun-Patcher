@@ -416,6 +416,27 @@ __declspec(dllexport) void __stdcall VvfpCauseDiedUnrecovered(int game, int inde
     (void)cod_log_death(record, CAUSE_UNKNOWN, NO_GRAVE_NOT_RECOVERED, NULL);
 }
 
+/* New Believers' "VVFP Heathen Aging.dll": a Heathen it ages died of old age and left no body (no skeleton row
+   covers them: the owner, 2026-11-22, "a Heathen who dies just disappears from the camp, logged, no grave").  The
+   companion took them as the game's own disappearances do (the activity stopped, the presence byte cleared, health
+   untouched) and calls this at once: a Death record with the game's own cause (`cause`: 2, Old age) and the grave
+   line below, written by cod_log_death as every Death record.  The same checks as VvfpCauseDiedUnrecovered. */
+#define NO_GRAVE_AMONG_HEATHENS "no grave (died among the Heathens: nothing was left)"
+
+__declspec(dllexport) void __stdcall VvfpCauseDiedAmongHeathens(int game, int index, int cause) {
+    unsigned char *record;
+    if (install_state != 1 || game != g_game || game != 5) {
+        return;
+    }
+    record = cod_record(index);
+    if (record == NULL || rec_present(record) || rec_health(record) <= 0 || !cod_is_villager(record)) {
+        return;
+    }
+    seen_alive[index] = 0;
+    roster_departed(index, record);
+    (void)cod_log_death(record, cause, NO_GRAVE_AMONG_HEATHENS, NULL);
+}
+
 /* The branching Custom Island Event's "baby lost" (story_graph.inc cg_tell_baby_lost): called right BEFORE it ends
    the pregnancy of the living villager in record `index` (the record still holds the babies).  The Births and
    Conceptions log closes the open Conception: "Lost before birth", `what` happened (the event's words, at most 120

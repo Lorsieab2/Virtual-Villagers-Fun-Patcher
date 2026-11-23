@@ -1,0 +1,3 @@
+Virtual Villagers Fun Patcher: "Heathen Tribe Ages, Dies and Has Children" (New Believers).
+While this file is here, "VVFP Heathen Aging.dll" makes every Heathen age, die of old age and be replaced, and Heathen couples have children.
+The patcher adds and removes this file with the patch; nothing reads what it says.
