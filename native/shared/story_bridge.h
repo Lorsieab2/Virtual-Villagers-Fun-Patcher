@@ -437,6 +437,121 @@ static void vvfp_story_add_time_skip_button(int game, HWND dialog) {
     vvfp_story_button(dialog, label, VVFP_STORY_TIME_SKIP_ID, want.left, want.top, width, height);
 }
 
+/* ---- Revive Buried/Disappeared Villagers (the owner, 2026-11-22) -------------------------------------------
+
+   Its own row ships a flag file beside the companions; the Story DLL says whether the button is offered
+   (VvfpStoryReviveOffered: Story / Cheat Upgrades in place and that file there), what it costs
+   (VvfpStoryRevivePrice: always 100,000) and runs the purchase (VvfpStoryReviveFromGraves).  A Story DLL older than
+   the upgrade has none of the three: no button.  Not an island event, so not under the Island Event row's lock.
+   Each Origins companion adds the button LAST, after its own story buttons (The Lost Children's Pick Gong of
+   Wonder Outcome, The Secret City's Recharge Chief Powers), so its place is found among all of them. */
+#define VVFP_STORY_REVIVE_ID 4095
+
+static vvfp_story_pick_fn vvfp_story_revive_fn(void) {
+    HMODULE module;
+    if (!vvfp_story_load()) {
+        return NULL;
+    }
+    module = GetModuleHandleA(VVFP_STORY_DLL);
+    return module != NULL ? (vvfp_story_pick_fn)GetProcAddress(module, "VvfpStoryReviveFromGraves") : NULL;
+}
+
+static int vvfp_story_revive_offered(int game) {
+    HMODULE module;
+    vvfp_story_active_fn offered;
+    if (!vvfp_story_offered(game) || vvfp_story_revive_fn() == NULL) {
+        return 0;
+    }
+    module = GetModuleHandleA(VVFP_STORY_DLL);
+    offered = module != NULL ? (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryReviveOffered") : NULL;
+    return offered != NULL && offered(game) != 0;
+}
+
+static vvfp_story_active_fn vvfp_story_revive_price(void) {
+    HMODULE module = GetModuleHandleA(VVFP_STORY_DLL);
+    return module != NULL ? (vvfp_story_active_fn)GetProcAddress(module, "VvfpStoryRevivePrice") : NULL;
+}
+
+/* Whether `want` covers one of the story buttons (the game-specific ones included). */
+static int vvfp_story_revive_overlaps(HWND dialog, const RECT *want) {
+    static const int ids[] = { VVFP_STORY_PICK_ID, VVFP_STORY_CUSTOM_ID, 4092, VVFP_STORY_TIME_SKIP_ID, 4094 };
+    int i;
+    for (i = 0; i < (int)(sizeof ids / sizeof ids[0]); ++i) {
+        HWND button = GetDlgItem(dialog, ids[i]);
+        RECT rc, overlap;
+        if (button == NULL) {
+            continue;
+        }
+        GetWindowRect(button, &rc);
+        MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+        if (IntersectRect(&overlap, &rc, want)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* The button: "Revive Buried/Disappeared Villagers (100,000 tech points)...", as wide as its label needs (never cut:
+   the dialog is widened when it is narrower), above the highest story button of the Custom Island Event's column,
+   moved up past any button or line of the menu it would cover. */
+static void vvfp_story_add_revive_button(int game, HWND dialog) {
+    HWND anchor = GetDlgItem(dialog, VVFP_STORY_CUSTOM_ID);
+    RECT rc, unit = { 0, 0, 120, 4 }, client, want;
+    int width, height;
+    char label[VVFP_STORY_LABEL];
+    if (GetDlgItem(dialog, VVFP_STORY_REVIVE_ID) != NULL || !vvfp_story_revive_offered(game)) {
+        return;
+    }
+    if (anchor == NULL) {
+        anchor = GetDlgItem(dialog, VVFP_STORY_PICK_ID);
+    }
+    if (anchor == NULL) {
+        anchor = GetDlgItem(dialog, IDCANCEL);
+    }
+    if (anchor == NULL) {
+        return;
+    }
+    vvfp_story_label_priced(game,
+                            vvfp_tr("vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0",
+                                    "Revive Buried/Disappeared Villagers", 128),
+                            label, sizeof label, vvfp_story_revive_price());
+    GetWindowRect(anchor, &rc);
+    MapWindowPoints(NULL, dialog, (POINT *)&rc, 2);
+    MapDialogRect(dialog, &unit);
+    GetClientRect(dialog, &client);
+    width = vvfp_story_fit_width(dialog, label, rc.right - rc.left, unit.bottom);
+    height = rc.bottom - rc.top;
+    if (rc.left + width > client.right - unit.bottom) {
+        /* Right-aligned with the anchor's column when that keeps it inside; a menu too narrow for the whole label
+           is widened to hold it (text is never cut). */
+        int left = rc.right - width;
+        if (left >= unit.bottom) {
+            rc.left = left;
+        } else {
+            RECT outer;
+            int grow = width + 2 * unit.bottom - (client.right - client.left);
+            GetWindowRect(dialog, &outer);
+            if (grow > 0) {
+                SetWindowPos(dialog, NULL, 0, 0, outer.right - outer.left + grow, outer.bottom - outer.top,
+                             SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+            }
+            rc.left = unit.bottom;
+        }
+    }
+    SetRect(&want, rc.left, rc.top - height - unit.bottom, rc.left + width, rc.top - unit.bottom);
+    while (want.top - height - unit.bottom >= 0
+           && (vvfp_story_revive_overlaps(dialog, &want) || vvfp_story_covers_any(dialog, &want))) {
+        OffsetRect(&want, 0, -(height + unit.bottom));
+    }
+    vvfp_story_button(dialog, label, VVFP_STORY_REVIVE_ID, want.left, want.top, width, height);
+}
+
+/* The button was clicked: 1 when a villager came back (the caller closes the menu). */
+static int vvfp_story_revive_clicked(int game, HWND dialog) {
+    vvfp_story_pick_fn revive = vvfp_story_revive_fn();
+    return vvfp_story_revive_offered(game) && revive != NULL && revive(game, dialog) == 1;
+}
+
 static void vvfp_story_add_event_buttons(int game, HWND dialog);
 
 static void vvfp_story_add_pick_button(int game, HWND dialog) {

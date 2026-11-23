@@ -1,0 +1,32 @@
+{
+  "id": "vv4_revive_from_graves",
+  "enabled": true,
+  "game_id": "vv4",
+  "name": "Revive Buried/Disappeared Villagers",
+  "description": "**Needs Story / Cheat Upgrades** (it adds to that row's Tech-screen upgrades). A new upgrade in the Tech screen's upgrades menu, \"Revive Buried/Disappeared Villagers\", which costs 100,000 tech points each time (also when Story / Cheat Upgrades cost Tech Points is unticked). It lists every buried villager and every villager who vanished, from the village's own Deaths and Disappearances log, with their name, sex, age at death, cause of death or what happened, grave line and epitaph, likes and dislikes, head and body, parents, mask, custom title and special title, and their skills from the last Village History snapshot of them; anything the logs do not hold is shown as unknown. The one you pick comes back as the same person - name and last name, sex, parents, likes and dislikes, looks, mask, custom title and skills - aged 5, through the game's own villager creator, and their grave is removed. It can be bought again and again. **Refused, with nothing charged, while the village is at its maximum population or has fewer than 100,000 tech points.** **The list comes from the logs: villagers are listed only when \"Write Births and Conceptions Log to Text File\" and \"Show Cause of Death and Epitaphs on Graves, and Log Every Death\" logged their death or disappearance (without them the list is empty), and their skills are known only with a Village History snapshot of them.** A villager in the village now is never listed. The returned villager gets an \"Arrived\" record (How: Returned from the dead) in the Births and Conceptions log at the next save; nothing is counted as a birth or a death. Off by default; on in Owner's Defaults. **Unverified in play: not yet tested in a running game.**",
+  "output_tag": "Revive From Graves",
+  "dependencies": [
+    "vv4_story_cheat_upgrades"
+  ],
+  "behavior_changes": [
+    "\"VVFP Story Upgrades.dll\" offers the upgrade while \"VVFP Revive From Graves.txt\" is in the patcher's folder (its contents are never read); the Origins companion adds the Tech menu's button last, above its other story buttons, as wide as its label needs.",
+    "The list: every \"Death <n>\" and \"Disappeared\" record of this save slot's Deaths and Disappearances logs (both folder layouts), the newest record of each person (name, sex, head, body, likes, dislikes); the skills from the newest Village History snapshot of the same name, sex, head and body no older than at death.",
+    "The revival: the game's own creator (through the Custom Island Event's spawn: the game's own room predicate and a free record first) at age 100 (5 years), then the name, head, body, every like and dislike the record holds room for, the skills, the parents (A New Home: with Show Parents in Details Screen), the custom title and the mask.",
+    "The grave (The Tree of Life): the mausoleum's Roster of the Dead (0x5025C8, 500 entries of 0x5C): the later entries move down one place and the last is emptied (every count and the save's loader stop at the first empty entry). Matched by name and age at death and the head and body, each grave to one record in log order; a grave that changed since the list was made is never removed (the purchase is refused).",
+    "100,000 tech points are taken only once the villager is back; with fewer the purchase is refused, so the tech points never go below 0."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the row's only file is its flag.",
+    "Nothing is counted as a birth or a death, and the game's own statistics are not touched; the logs are append-only, so the old Death or Disappeared record stays and the Arrived record says they returned.",
+    "A body awaiting burial is not listed (Custom Island Event's Revive brings bodies back)."
+  ],
+  "evidence_status": "emulated: the list from log texts, the refusals, the purchase through each game's own creator in all three population modes, the grave's removal and the game's own grave counts afterwards (tests/test_story_revive_from_graves.py); runtime/player confirmation pending",
+  "companion_files": [
+    {
+      "source": "assets/story_upgrades/VVFP Revive From Graves.txt",
+      "destination": "VVFP Revive From Graves.txt",
+      "sha256": "2DF437860451843C8DADD4BBBCA81503671C209BDC9904B7B9D8642D899FE421"
+    }
+  ],
+  "patches": []
+}

@@ -875,6 +875,19 @@ From the command line the setting is on by default; add
 --no-check-logs-automatically to dry-run, apply, dry-run-all or apply-all to
 turn it off.
 
+REVIVE BURIED/DISAPPEARED VILLAGERS
+
+With the row "Revive Buried/Disappeared Villagers" ticked (it needs Story /
+Cheat Upgrades), the Tech screen's upgrades menu has a "Revive
+Buried/Disappeared Villagers (100,000 tech points)..." button. It lists the
+village's buried and vanished villagers, from the village's own Deaths and
+Disappearances log (so "Write Births and Conceptions Log to Text File" and
+"Show Cause of Death and Epitaphs on Graves, and Log Every Death" must have
+been ticked when they died), with what the logs and graves keep about each.
+Pick one and press Revive: they come back as the same person, aged 5, and
+their grave is removed. It costs 100,000 tech points each time and is refused,
+with nothing charged, while the village is at its maximum population.
+
 OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once except

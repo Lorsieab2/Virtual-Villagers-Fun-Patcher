@@ -1219,8 +1219,10 @@ class ManifestTests(unittest.TestCase):
         # 0.1x-10x sliders (vv2_collectible_frequency, _food_gain, _tech_gain, _skill_success, _age_speed),
         # no executable byte -- each companion writes its sites at run time; 87 with Every Island Event Can Happen
         # (vv2_every_island_event_can_happen), two technology tests and two raises re-encoded in place; 88 with Village
-        # Solidarity (vv2_village_solidarity, #804), no executable byte -- its companion writes its sites at run time.
-        self.assertEqual(len(feature_ids), 88)
+        # Solidarity (vv2_village_solidarity, #804), no executable byte -- its companion writes its sites at run time;
+        # 89 with Revive Buried/Disappeared Villagers (vv2_revive_from_graves), no executable byte -- its flag file the
+        # Story / Cheat Upgrades companion reads.
+        self.assertEqual(len(feature_ids), 89)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823
@@ -2666,6 +2668,8 @@ class StockIntegrationTests(unittest.TestCase):
                 # Requires the Origins upgrades row excluded above.
                 "vv1_story_cheat_upgrades",
                 "vv1_story_cheat_upgrades_cost_tech_points",
+                # Revive Buried/Disappeared Villagers: requires Story / Cheat Upgrades too.
+                "vv1_revive_from_graves",
                 # Require Story / Cheat Upgrades, excluded above.
                 "vv1_more_island_events",
                 "vv1_isola_grand_event_collection",
@@ -4183,6 +4187,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_numeric_keys_tip_wording",
                 "vv2_story_cheat_upgrades",
                 "vv2_story_cheat_upgrades_cost_tech_points",
+                # Revive Buried/Disappeared Villagers: requires Story / Cheat Upgrades too.
+                "vv2_revive_from_graves",
                 "vv2_firepit_dry_grass_above_wood",
                 "vv2_fix_vanilla_bugs",
                 "vv2_cause_of_death",

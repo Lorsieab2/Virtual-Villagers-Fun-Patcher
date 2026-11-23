@@ -226,6 +226,8 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         if (!villager_menu) {
             vvfp_story_add_pick_button(2, window);
             vv2_story_add_gong_button(window);
+            /* Revive Buried/Disappeared Villagers: last, its place found among every story button. */
+            vvfp_story_add_revive_button(2, window);
         }
         vv2_surface_dialog(window);
         return TRUE;
@@ -234,6 +236,13 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         if (command == VV2_STORY_GONG_ID) {
             /* Pick Gong of Wonder Outcome: not an island event, no lock. */
             if (vv2_story_gong_clicked(window)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
+        if (command == VVFP_STORY_REVIVE_ID) {
+            /* Revive Buried/Disappeared Villagers: not an island event, no lock. */
+            if (vvfp_story_revive_clicked(2, window)) {
                 EndDialog(window, -1);
             }
             return TRUE;

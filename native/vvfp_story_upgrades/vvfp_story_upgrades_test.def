@@ -196,3 +196,13 @@ EXPORTS
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
     VvfpStoryTraitsOf=_VvfpStoryTraitsOf@8
     VvfpStoryProbeFirstMarks=_VvfpStoryProbeFirstMarks@0
+    VvfpStoryReviveFromGraves=_VvfpStoryReviveFromGraves@8
+    VvfpStoryReviveOffered=_VvfpStoryReviveOffered@4
+    VvfpStoryRevivePrice=_VvfpStoryRevivePrice@4
+    VvfpStoryProbeReviveLoad=_VvfpStoryProbeReviveLoad@12
+    VvfpStoryProbeReviveRow=_VvfpStoryProbeReviveRow@16
+    VvfpStoryProbeReviveBuy=_VvfpStoryProbeReviveBuy@8
+    VvfpStoryProbeReviveState=_VvfpStoryProbeReviveState@8
+    VvfpStoryProbeReviveOffered=_VvfpStoryProbeReviveOffered@4
+    VvfpStoryProbeReviveRefusal=_VvfpStoryProbeReviveRefusal@4
+    VvfpStoryProbeReviveRemoveGrave=_VvfpStoryProbeReviveRemoveGrave@8

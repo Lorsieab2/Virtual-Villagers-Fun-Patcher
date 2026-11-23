@@ -1248,6 +1248,17 @@
       ]
     },
     {
+      "ids": ["vv1_revive_from_graves", "vv2_revive_from_graves", "vv3_revive_from_graves", "vv4_revive_from_graves", "vv5_revive_from_graves"],
+      "guide": [
+        "Adds Revive Buried/Disappeared Villagers to the Tech screen's upgrades: 100,000 tech points each time.",
+        "It lists the village's buried and vanished villagers with what the logs and graves say about them.",
+        "The one you pick comes back as the same person, aged 5, and their grave is removed.",
+        "Not possible while the village is full; nothing is spent then. You can buy it again and again.",
+        "The list comes from the Deaths log: tick Write Births and Conceptions Log and Show Cause of Death.",
+        "Off by default; on in Owner's Defaults. Needs Story / Cheat Upgrades; ticking this ticks it for you."
+      ]
+    },
+    {
       "ids": ["vv1_cause_of_death"],
       "guide": [
         "Click a gravestone: it shows the cause of death under the age and an epitaph under the name.",
@@ -1485,7 +1496,8 @@
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
         "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted,",
-        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy."
+        "Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches,",
+        "Practicing Devotion Builds Faith and Divine Energy, Revive Buried/Disappeared Villagers."
       ]
     },
     "owners_defaults": {

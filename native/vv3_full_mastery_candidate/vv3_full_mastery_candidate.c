@@ -771,7 +771,7 @@ static vv3_story_recharge_fn vv3_story_recharge(void) {
 }
 
 static void vv3_story_add_recharge_button(HWND dialog) {
-    static const int column[] = { VVFP_STORY_CUSTOM_ID, VVFP_STORY_TIME_SKIP_ID };
+    static const int column[] = { VVFP_STORY_CUSTOM_ID, VVFP_STORY_TIME_SKIP_ID };   /* the Revive button comes after */
     HWND pick = GetDlgItem(dialog, VVFP_STORY_PICK_ID);
     RECT rc;
     RECT unit = { 0, 0, 4, 4 };
@@ -887,6 +887,8 @@ static INT_PTR CALLBACK upgrade_dialog(
         if (!villager_menu) {
             vvfp_story_add_pick_button(3, window);
             vv3_story_add_recharge_button(window);
+            /* Revive Buried/Disappeared Villagers: last, its place found among every story button. */
+            vvfp_story_add_revive_button(3, window);
         }
         center_topmost_on_owner(window);
         return TRUE;
@@ -895,6 +897,13 @@ static INT_PTR CALLBACK upgrade_dialog(
         if (command == VV3_STORY_RECHARGE_ID) {
             /* Recharge Chief Powers: not an island event, no lock. */
             if (vv3_story_recharge_clicked(window)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
+        if (command == VVFP_STORY_REVIVE_ID) {
+            /* Revive Buried/Disappeared Villagers: not an island event, no lock. */
+            if (vvfp_story_revive_clicked(3, window)) {
                 EndDialog(window, -1);
             }
             return TRUE;

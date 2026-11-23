@@ -437,6 +437,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
     + [DEVOTION_FAITH_ID]
+    # Revive Buried/Disappeared Villagers (all five games; the owner, 2026-11-22): off by default, "ON in Owner's Defaults"
+    # (it still costs 100,000 tech points); Owner's Defaults ticks it like every default-off patch it does not name.
+    + ["vv%d_revive_from_graves" % game for game in range(1, 6)]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]

@@ -199,7 +199,10 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   or p in ("vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions")
                   # Practicing Devotion Builds Faith and Divine Energy (New Believers, new 2026-11-21: off by
                   # default, on in Owner's Defaults and Select All).
-                  or p == "vv5_devotion_builds_faith"})
+                  or p == "vv5_devotion_builds_faith"
+                  # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
+                  # Owner's Defaults; it still costs 100,000 tech points).
+                  or p.endswith("_revive_from_graves")})
 
     def test_birth_control_is_on_by_default_in_all_five_games(self) -> None:
         """The owner (2026-11-19): the new The Tree of Life and New Believers Birth Control rows are ON BY DEFAULT,

@@ -127,8 +127,10 @@ FOUNDATION_OUTPUT = (
 # Recertified for a villager's sex change (native/shared/sex_change.h, the owner, 2026-11-15): the export
 # VvfpVillagerSexChanged stores a mask again under the fingerprint the villager has now, the save's "Sex Changes"
 # log is read once per load, and Change Appearance has the "Change sex..." button (native/shared/sex_change_ui.h).
-SOURCE_SHA256 = "1A4E95E5DCBE39AD82656165DD43E147F33C7105FFF6B558550B6316CD9AD41B"
-SOURCE_SIZE = 2020352
+# Recertified for Revive Buried/Disappeared Villagers (native/shared/story_bridge.h, the owner, 2026-11-22): the
+# Tech menu's Revive button, added last, and its click handed to "VVFP Story Upgrades.dll".
+SOURCE_SHA256 = "48A4D17586B4A51D52E70362B2E362BB7A310EC16FDBD4BBBFE11E96E4D5D0B2"
+SOURCE_SIZE = 2022400
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
 PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
