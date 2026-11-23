@@ -94,6 +94,8 @@ static int c5_demand(void) {
     return n;
 }
 
+static int cg_guardians_on(void);   /* story_graph.inc: Guardians of Isola Rewrite on */
+
 static const char *c5_arm_refusal(void) {
     int i;
     for (i = 0; i < C5_COUNT; ++i) {
@@ -102,7 +104,10 @@ static const char *c5_arm_refusal(void) {
             return NULL;
         }
     }
-    return ce_empty_refusal(5, "A question needs a living adult believer in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway.");
+    /* With Guardians of Isola Rewrite: "a living adult tribe member" (the owner, 2026-11-22). */
+    return ce_empty_refusal(5, cg_guardians_on()
+        ? "A question needs a living adult tribe member in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway."
+        : "A question needs a living adult believer in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway.");
 }
 
 /* The game's own room predicate 0x472BD0 (believers below the mode's cap,

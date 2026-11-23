@@ -175,6 +175,39 @@ What a collection event needs, and the warning before a purchase, name the villa
 |---|---|
 | not a chief, the Retired Chief or a puzzle's Heathen | not a chief, the Retired Chief or a puzzle's Isolan |
 | This event may choose a chief, the Retired Chief or a puzzle's Heathen, whom the game's story needs. | This event may choose a chief, the Retired Chief or a puzzle's Isolan, whom the game's story needs. |
+| (what a role needs) ..., a believer | ..., a tribe member |
+| (what an event needs) at least N believers / fewer than N believers | at least N tribe members / fewer than N tribe members |
+| "..." can not happen in this village right now: it needs at least N believers. | ... it needs at least N tribe members. |
+| (an outcome's automatic line, "status" and "apostasy") (Name) becomes a Heathen. | (Name) becomes an Isolan. |
+| (the Island Events log) (Name) became a Heathen. | (Name) became an Isolan. |
+
+The last five rows (v1.35.98) are the faction sense (the villagers an event can cast, as against the Isolans):
+"believers" -> "tribe members", "a believer" -> "a tribe member", "a Heathen" -> "an Isolan" (`cg_believers_word`,
+`cg_auto_guardians`).
+
+## Procedural events (v1.35.98)
+
+A procedural event (story_procedural.inc) is composed from pieces cut from the events above. Until v1.35.98 every
+piece kept the patch-off wording, so with the patch New Believers' composed events still said Heathen and believer(s).
+Now each piece New Believers can draw that says one of these words carries its Guardians form (VPCB piece flag 0x20:
+the form is the string right after the text and after the label): the text with its own event's pairs above made (a
+Living Engine bank piece: the bank's pairs), nothing else changed. `scripts/procedural_pieces.py` (guardians_forms)
+writes them and fails the build if a piece is left with such a word. One piece has wording of its own that no
+collection text has; the owner gave its pair (2026-11-22, procedural_pieces.py GUARDIANS_PIECE_PAIRS):
+
+- s027_isolan_fire's procedural setup: "...and sits on the very edge of the believers' circle with
+  (isolan.his/her) hands held out to the warmth." -> "...the faithful's circle...".
+
+## Other New Believers texts (the owner, 2026-11-22)
+
+| Where | Before | After |
+|---|---|---|
+| Custom Island Event, the refusal when nobody can ask the question (story_c5.inc) | A question needs a living adult believer in the village to ask it. | A question needs a living adult tribe member in the village to ask it. |
+| Deaths and Disappearances log, the Disappeared record of a believer who leaves (cod_arrivals.inc; vv_log_additions.py's added record) | What happened: Left the tribe: became a Heathen | What happened: Left the tribe: became an Isolan |
+
+The log record keeps its format; every reader takes both (vv_log_additions.LEFT_RECORDS, vv_genealogy). A record the
+patcher adds afterwards says "an Isolan" when the logs already hold one that does (the companion wrote it with the
+patch on), else "a Heathen".
 
 ## Judgement calls for the owner
 
