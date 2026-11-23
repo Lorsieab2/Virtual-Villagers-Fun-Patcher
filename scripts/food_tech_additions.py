@@ -189,6 +189,17 @@ EFFECT_ADDITIONS: list[tuple[str, str, dict, str]] = [
 ]
 
 
+# The rows the owner took out of ADDITIONS, kept in the log under the totals (write_log).
+REMOVED_NOTES = [
+    "(`all_v20_d2_no_such` a1's tech gain was removed: the owner, Q13 2026-11-19, keeps only the newer outcome pass's",
+    "gain there, normal and half the time.)",
+    "(The owner, 2026-11-22: 23 small tech gains were removed where the outcome pass already pays the normal one --",
+    "`vv2_cooking_contest` v13a_b5; `all_conundrums` a5, c1, c4; `all_invention_showcase` a4, c8; `all_secret_of_life`",
+    "a4_2, b5_2, c6_2; `all_v20_r1_should_not` a4, b1; `all_v24_revolutionary` a1_* and a4_* (food, sci, eng, trade, art)",
+    "and e1; `all_v27_24_explorer` a. A node pays one tech award, the normal one.)",
+]
+
+
 def _same(e: dict, add: dict) -> bool:
     """Whether existing effect e already gives what `add` gives (the same kind on the same role)."""
     return e.get("do") == add["do"] and e.get("role") == add.get("role")
@@ -570,7 +581,8 @@ def write_log(files: dict[str, Path], docs: dict[str, dict]) -> None:
         lines.append("")
     lines.insert(9, f"Totals: food gain {total[FG]}, food loss {total[FL]}, tech gain {total[TG]}, "
                     f"tech loss {total[TL]} ({len(ADDITIONS)} effects).")
-    lines.insert(10, "")
+    lines[10:10] = REMOVED_NOTES
+    lines.insert(10 + len(REMOVED_NOTES), "")
     lines += ["# Likes, skills, looks and new villagers where the text fits (second pass)", "",
               "The owner's second request (2026-11-15): a like or dislike from each game's own list, skill points,",
               "a new head or clothes, and the new effects of cie-v6-binary.md 38 (new villager, pregnancy, nursing,",
@@ -631,7 +643,12 @@ def main(argv=None) -> int:
             print(f"{eid}: node {node} is missing or has no src")
             bad += 1
             continue
-        for e in [e for n in ns for e in n.get("effects", []) or []]:
+        effects = [e for n in ns for e in n.get("effects", []) or []]
+        if any(_bare(e) == add for e in effects):
+            # already applied (apply()'s own test): on a 50% split the other copy's amount is the outcome pass's
+            # (scripts/outcome_effects.py), which apply() keeps -- not a conflict
+            continue
+        for e in effects:
             if _same(e, add) and {k: v for k, v in e.items() if k != "src"} != add:
                 print(f"{eid}: node {node} already has a {add['do']} effect on that role")
                 bad += 1
