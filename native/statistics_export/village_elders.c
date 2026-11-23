@@ -103,6 +103,20 @@ static void copy_name(char *dst, const unsigned char *src, unsigned int capacity
     dst[i] = '\0';
 }
 
+static int mastered_skills(const unsigned char *record, const struct elders_layout *l);
+
+/* Is the villager in `record` an elder: three or more mastered skills, or the game's own flag (never a
+   villager the layout says is no elder)? */
+static int record_is_elder(const unsigned char *record, const struct elders_layout *l) {
+    if (l->skip_flag != 0u && record[l->skip_flag] != 0) {
+        return 0;
+    }
+    if (l->elder_flag != 0u && record[l->elder_flag] != 0) {
+        return 1;
+    }
+    return l->skill_count != 0u && mastered_skills(record, l) >= 3;
+}
+
 static int mastered_skills(const unsigned char *record, const struct elders_layout *l) {
     unsigned int i;
     int mastered = 0;
@@ -383,7 +397,7 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
             is_elder[slot] = 0;
             taken[slot] = 0;
             if (record[l->active] != 1 || vv_lookalike(l->stride, record)
-                || mastered_skills(record, l) < 3 || slot_claimed((int)slot)) {
+                || !record_is_elder(record, l) || slot_claimed((int)slot)) {
                 continue;
             }
             /* Only the player's own villagers: New Believers keeps its
@@ -472,6 +486,25 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
         }
     }
 
+    /* The game's own lifetime count, on a new file (The Lost Children): its flagged elders who are not
+       alive now died or left before the file -- each one line, with no name (nothing else is certain). */
+    if (fresh && l->seed > 0 && l->elder_flag != 0u && l->villagers != NULL) {
+        int flagged = 0;
+        int n;
+        unsigned int slot;
+        unsigned int records = l->slots < ELDERS_RECORDS_MAX ? l->slots : ELDERS_RECORDS_MAX;
+        for (slot = 0; slot < records; ++slot) {
+            const unsigned char *record = l->villagers + l->record_base + slot * l->stride;
+            if (record[l->active] == 1 && !vv_lookalike(l->stride, record)
+                && (l->skip_flag == 0u || record[l->skip_flag] == 0) && record[l->elder_flag] != 0) {
+                ++flagged;
+            }
+        }
+        for (n = flagged; n < l->seed; ++n) {
+            add('G', -1, "", "", "", 1);
+        }
+    }
+
     /* 2./3. Graves the game flagged as elders. */
     if (l->graves != NULL && l->grave_elder_flag != 0u) {
         unsigned int first = fresh ? 0u : (unsigned int)g_graves_seen;
@@ -480,8 +513,9 @@ int vv_village_elders_file(int game_id, const wchar_t *path, const wchar_t *temp
             char name[NAME_MAX_CHARS];
             int i;
             int matched = 0;
-            if (grave[l->grave_elder_flag] == 0) {
-                continue;
+            if (grave[l->grave_elder_flag] == 0
+                || (l->grave_is_heathen != NULL && l->grave_is_heathen(index))) {
+                continue;                 /* not an elder, or a Heathen's grave (Heathens never count) */
             }
             copy_name(name, grave + l->grave_name, l->grave_name_capacity);
             if (!fresh) {

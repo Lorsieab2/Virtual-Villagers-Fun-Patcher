@@ -88,6 +88,8 @@ EXPORTS
     VvfpStoryProbeTimeSkipBox=_VvfpStoryProbeTimeSkipBox@4
     VvfpStoryProbeFaithNotice=_VvfpStoryProbeFaithNotice@4
     VvfpStoryProbeFaithNoticeTaken=_VvfpStoryProbeFaithNoticeTaken@0
+    VvfpStoryProbeFaithNoticeLines=_VvfpStoryProbeFaithNoticeLines@4
+    VvfpStoryProbeFaithNoticeLog=_VvfpStoryProbeFaithNoticeLog@8
     VvfpStoryProbeArmedNotice=_VvfpStoryProbeArmedNotice@8
     VvfpStoryProbeCharges=_VvfpStoryProbeCharges@8
     VvfpStoryProbeIslandEventOpen=_VvfpStoryProbeIslandEventOpen@4

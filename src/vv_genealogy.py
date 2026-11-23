@@ -179,9 +179,10 @@ STATUS_ORDER = ("Tribal Chief", "Retired Heathen Chief", "Heathen Chief", "Heath
                 "Converted Orange Mask Heathen", "Converted Blue Mask Heathen", "Former Heathen",
                 "Golden Child", "Esteemed Elder", "Scholar")
 # The statuses each game can give (the Family Tree's descriptor options shown for that game; a Custom title is
-# any game's).  Esteemed Elder in The Tree of Life and New Believers: their graves keep the elder byte.
+# any game's).  Esteemed Elder in New Believers: its graves keep the elder byte; A New Home's and The Tree of Life's
+# with Esteemed Elders in Every Game (the logs' Special villager line).
 GAME_STATUSES = {
-    1: ("Golden Child",),
+    1: ("Golden Child", "Esteemed Elder"),
     2: ("Esteemed Elder",),
     3: ("Tribal Chief", "Esteemed Elder"),
     4: ("Scholar", "Esteemed Elder"),
@@ -197,6 +198,7 @@ FORMER_FILE_TITLES = {0: "Former Heathen (blue mask)", 1: "Former Heathen (orang
                       3: "Former Heathen Master (purple mask)", 4: "Retired Heathen Chief"}
 CONVERTED_HOW = "Converted from the Heathens"
 LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"     # vv_log_additions.LEFT_FOR_THE_HEATHENS
+LEFT_RECORDS = (LEFT_FOR_THE_HEATHENS, "Left the tribe: became an Isolan")   # vv_log_additions.LEFT_RECORDS
 # Where the save keeps a status, from the villager's name in the saved entry (vv_last_names.FIELDS), as
 # special_title.h reads the record: The Lost Children's Esteemed Elder +0x7FC (name +0x564); The Secret
 # City's Tribal Chief +0xE80 and its five skills +0xEAC (name +0xDD4); The Tree of Life's five skills
@@ -657,9 +659,9 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         # "Left the tribe: became a Heathen" record.  A status ever held, as every other (_finish_statuses).
         if additions.is_heathen_faction(b.value("Faction")) \
                 or "yes" in [v.lower() for v in _values(b.value("Heathen"))] \
-                or (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+                or (b.value("What happened") or "").strip() in LEFT_RECORDS:
             _add_status(p, ["Heathen"])
-        if (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+        if (b.value("What happened") or "").strip() in LEFT_RECORDS:
             p.left_heathen = True
         if b.heading.startswith("Villager "):
             faction = additions.faction_side(b.value("Faction")) \

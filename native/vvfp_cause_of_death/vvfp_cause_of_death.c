@@ -197,14 +197,17 @@ enum {
     EPITAPH_NONE = 0, EPITAPH_CITIZEN, EPITAPH_FARMER1, EPITAPH_FARMER2,
     EPITAPH_PARENT1, EPITAPH_PARENT2, EPITAPH_HEALER1, EPITAPH_HEALER2,
     EPITAPH_RESEARCH1, EPITAPH_RESEARCH2, EPITAPH_BUILDER1, EPITAPH_BUILDER2,
-    EPITAPH_CHILD1, EPITAPH_CHILD2, EPITAPH_COUNT
+    EPITAPH_CHILD1, EPITAPH_CHILD2,
+    /* An Esteemed Elder's grave (A New Home, with "Esteemed Elders in Every Game": native/shared/
+       esteemed_elder.h); a Graves file holding it is version 4. */
+    EPITAPH_ELDER, EPITAPH_COUNT
 };
 static const char *const EPITAPHS[EPITAPH_COUNT] = {
     NULL, "Respected Citizen", "Child of the Earth", "Nature's Friend",
     "Parent, Teacher, Friend", "Dedicated to Children", "Guardian of Health",
     "Dedicated to Others", "Dedicated Student", "Inspired Inventor",
     "Inspired Architect", "Strong Arms, Big Heart", "Curious and Playful",
-    "Loving and Special"
+    "Loving and Special", "Esteemed Elder"
 };
 
 /* The longest epitaph the later games keep: char[0x20] in the grave. */

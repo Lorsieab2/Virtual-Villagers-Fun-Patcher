@@ -11,6 +11,7 @@
 #include "per_save_data.h"        /* one folder per save */
 #include "patcher_files.h"
 #include "village_elders.h"
+#include "esteemed_elder.h"     /* The Lost Children's Village Elders with Esteemed Elders in Every Game */
 #include "roster_match.h"
 #include "statistics_store.h"
 #include "vv3_villager_table.h"
@@ -305,6 +306,17 @@ static int g_elders_value;
    village_changed read (g_roster_was, rows in record order). */
 static void elders_ranks(struct elders_layout *l);
 
+/* New Believers: a grave "VVFP Heathen Aging.dll" wrote down as a Heathen's (VvfpHeathenAgingGrave) is never a
+   Village Elder.  Only when that companion is already loaded; without it no Heathen grows old and dies there. */
+typedef int (__stdcall *heathen_grave_fn)(int game, int entry);
+
+static int vv5_grave_is_heathen(unsigned int index) {
+    HMODULE aging = GetModuleHandleA("VVFP Heathen Aging.dll");
+    heathen_grave_fn is_heathen = aging != NULL
+        ? (heathen_grave_fn)(void *)GetProcAddress(aging, "VvfpHeathenAgingGrave") : NULL;
+    return is_heathen != NULL && is_heathen(GAME_VV5, (int)index) != 0;
+}
+
 static int village_elders_for(int game_id) {
     unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
     struct elders_layout l;
@@ -346,6 +358,7 @@ static int village_elders_for(int game_id) {
         l.skills = 0x1C5Cu; l.skill_count = 6u; l.skills_are_float = 1; l.master_float = 88.0f;
         l.tribe = 0x1CECu;              /* 0 = believer; heathens (the chief has all 100s) are not villagers */
         l.graves = module + 0x1481A8u; l.grave_stride = 0x5Cu; l.grave_elder_flag = 0x31u;
+        l.grave_is_heathen = vv5_grave_is_heathen;
     } else {
         return -1;
     }
@@ -399,6 +412,51 @@ static int vv1_village_elders(const unsigned char *manager) {
     l.master_int = 90;
     elders_ranks(&l);
     g_elders_value = vv_village_elders(GAME_VV1, g_save_id, &l);
+    g_elders_ready = 1;
+    return g_elders_value;
+}
+
+/* The Lost Children's Village Elders.  Without "Esteemed Elders in Every Game" it is the game's own lifetime
+   counter (+0x2E514: one for every villager the elder pass 0x44D4C0 flags, +1 at 0x44D55F, with the totem it
+   makes) -- which is every Esteemed Elder the stock game has.  With the row (its companion installed,
+   native/shared/esteemed_elder.h) an Esteemed Elder is also anyone with three or more skills at 88 or more the
+   game never flagged (past its 50 totems), so the row counts every one of them, lifetime, in the save's Village
+   Elders .dat (village_elders.c): the flagged (+0x7FC) and the three-mastered, never a totem statue (+0x558),
+   each followed by identity through renames, reloads and record reuse; a new file starts from the game's own
+   counter for the elders no longer alive (seed).  Elders who were never flagged and died before the file are
+   not counted: nothing kept proves them (a grave keeps no skills, the logs no title before the row). */
+static int vv2_village_elders(const unsigned char *manager) {
+    unsigned char *module = (unsigned char *)GetModuleHandleW(NULL);
+    struct elders_layout l;
+    if (!vv_elders_row_on()) {
+        return read_int(manager, 0x2E514);
+    }
+    if (g_elders_ready) {
+        return g_elders_value;
+    }
+    if (module == NULL) {
+        return -1;
+    }
+    memset(&l, 0, sizeof(l));
+    l.villagers = *(unsigned char *const *)(module + 0x99F24u);
+    l.record_base = 0u;
+    l.stride = 0xE48Cu;
+    l.slots = 256u;
+    l.active = 0x30u;
+    l.name = 0x564u;
+    l.name_capacity = 0x18u;
+    l.father_name = 0x57Du;
+    l.mother_name = 0x596u;
+    l.parent_name_capacity = 0x18u;
+    l.skills = 0x7E4u;
+    l.skill_count = 5u;
+    l.skills_are_float = 0;
+    l.master_int = 88;
+    l.elder_flag = 0x7FCu;
+    l.skip_flag = 0x558u;
+    l.seed = read_int(manager, 0x2E514);
+    elders_ranks(&l);
+    g_elders_value = vv_village_elders(GAME_VV2, g_save_id, &l);
     g_elders_ready = 1;
     return g_elders_value;
 }
@@ -555,7 +613,7 @@ static int write_vv2(
         read_int(manager, 0x2E508),
         read_int(manager, 0x2E50C),
         read_int(manager, 0x2E510),
-        read_int(manager, 0x2E514),
+        vv2_village_elders(manager),
         read_int(manager, 0x2E518),
         read_int(manager, 0x2E51C),
         read_int(manager, 0x2E500),
@@ -991,7 +1049,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     g_elders_ready = 0;
     if (game_id == GAME_VV1) {
         vv1_village_elders(manager);
-    } else if (game_id != GAME_VV2) {
+    } else if (game_id == GAME_VV2) {
+        vv2_village_elders(manager);
+    } else {
         village_elders_for(game_id);
     }
     /* After Repair: what the save and the logs prove, before the log is

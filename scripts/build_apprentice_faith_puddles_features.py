@@ -61,8 +61,10 @@ ill or loses health, so a believer the drift turns Heathen is out of reach of hu
 (2026-11-20, after believers left a small village far more than they died): once per villager PER CAUSE per
 crisis, and "too few believers" is a crisis too.  The rule, per villager: four causes -- starvation (food under
 10), hunger (food 10 to 250), sickness, too few believers (fewer than 12, carried babies counted).  The first time
-one of them would take a believer's last Faith, it is decided once for that cause: 1 in 10 the believer becomes a
-Heathen as before; 9 in 10 the believer is marked for that cause, which then never takes them below Faith 1.  Each
+one of them would take a believer's last Faith, it is decided once for that cause: the believer becomes a Heathen
+as before 1 in 20 for starvation, 1 in 25 for sickness, 1 in 50 for hunger or too few believers (the owner,
+2026-11-22; 1 in 10 for each before); otherwise the believer is marked for that cause, which then never takes them
+below Faith 1.  Each
 cause's crisis ends on its own (starvation and hunger: food above 250; sickness: cured; too few believers: 12 or
 more), so a later crisis of that kind is decided afresh.  The marks are kept by the row's companion, "VVFP Faith
 Loss.dll" (native/vvfp_faith_loss), in the save's own folder, by villager identity.
@@ -388,7 +390,8 @@ def faith_feature() -> dict:
         "stay and die rather than leave: a Heathen never eats, starves or falls ill. There are four crises, each "
         "with its own roll: starvation (food under 10), hunger (food 10 to 250), sickness, and too few believers "
         "(fewer than 12, the babies they carry counted). The first time one of them would take a believer's last "
-        "Faith, it is decided once for that believer and that crisis: 1 in 10 becomes a Heathen; the other 9 in 10 "
+        "Faith, it is decided once for that believer and that crisis: 1 in 20 becomes a Heathen for starvation, 1 in "
+        "25 for sickness, 1 in 50 for hunger and 1 in 50 for too few believers; the others "
         "stay believers, and that crisis never takes them below Faith 1 again, so they go on facing hunger and "
         "sickness as usual and can starve or die of illness. Each crisis ends on its own: starvation and hunger when "
         "food is above 250 again, sickness when the villager is cured, too few believers when there are 12 or more "
@@ -416,7 +419,8 @@ def faith_feature() -> dict:
             "which losses the drift made. VVFP Faith Loss.dll (at the tail cave's call 0x494F14, before the "
             "FAITH_ADD 0x4681DB) takes the gains first and then the losses in the drift's order (food -- starvation "
             "under 10, hunger 10 to 250 -- then sickness, then too few believers); the loss that would take the last "
-            "Faith is that cause's: decided once on rand(10) < 1 (the fall is made, a Heathen), else the villager is "
+            "Faith is that cause's: decided once on rand(N) < 1 -- N 20 for starvation, 25 for sickness, 50 for hunger "
+            "and 50 for too few believers (the owner, 2026-11-22) -- (the fall is made, a Heathen), else the villager is "
             "marked for that cause; a cause the villager is marked for never takes them below Faith 1. The life tick "
             "goes on with its hunger and sickness (0x472D66 on) as for any believer.",
             "Each cause's mark clears on its own at the villager's next drift: starvation and hunger when food is "
@@ -433,7 +437,7 @@ def faith_feature() -> dict:
         "explicit_non_changes": [
             "Thirteen immediates and branches inside the routine, its entry, four loss sites, its last call and its "
             "epilogue; three caves in the .text tail (0x494F00, 0x494F14, 0x494F28). The routine's rolls, their "
-            "order and the Faith they move are the stock ones but for the 1-in-10 decision added after them. No "
+            "order and the Faith they move are the stock ones but for the once-a-crisis decision added after them. No "
             "save or villager-record byte is written.",
             "Starting Faith, preaching, Spreading the Word, the Heathen Doctor's cure, The Heathen "
             "Chief, the Hydroponic Farm, the Heathen Mommy's puzzle and island events are unchanged.",

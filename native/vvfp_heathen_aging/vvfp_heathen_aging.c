@@ -84,6 +84,12 @@
    believer turned Heathen, and the Heathen Mommy's infant (her puzzle shows her carrying it), wait for them to
    rejoin the tribe, as in the stock game.
 
+   HEATHEN GRAVES AND START OVER.  A grave keeps no faction, so every Heathen body's Roster of the Dead entry is
+   written down at its burial (watch_graves) and kept in the file; "VVFP Statistics Export.dll" asks
+   VvfpHeathenAgingGrave so a Heathen's grave is never a Village Elder (Heathens never count).  "VVFP Save
+   Reset.dll" calls VvfpHeathenAgingVillageReset at Start Over or a deleted tribe, before it deletes the slot's
+   folder: everything kept for that village is forgotten, so none of it is written back into the next one.
+
    SAFETY.  Our steps run under structured exception handling; a fault leaves the stock behaviour for that
    villager.  No debug output; no text is shown. */
 #include <windows.h>
@@ -259,6 +265,7 @@ static int puzzle_done(int puzzle) {
 #define KIND_BORN 0u             /* born a Heathen (a baby this companion delivered) */
 #define KIND_FORMER 1u           /* a believer who turned Heathen */
 #define KIND_EXPECTING 2u        /* a Heathen woman expecting a Heathen baby this companion conceived */
+#define KIND_GRAVE 3u            /* a Roster of the Dead entry a Heathen's body was buried into (identity = entry + 1) */
 #define HA_RESERVE ((int)sizeof(".unreadable-4294967295-999"))
 #define HA_WRITE_MS 1000u
 #define HA_KEEP_MS 250u          /* the slot looked at, the file kept, at most this often */
@@ -327,7 +334,7 @@ static int valid_known(const unsigned char *data, DWORD len, void *ctx) {
         return 0;
     }
     for (i = 0; i < count; ++i) {
-        if (u[5 + i * 2] == 0u || u[6 + i * 2] > KIND_EXPECTING) {
+        if (u[5 + i * 2] == 0u || u[6 + i * 2] > KIND_GRAVE) {
             return 0;
         }
     }
@@ -449,6 +456,80 @@ static int former_villager(const unsigned char *record) {
     return record[R_FATHER_NAME] != 0 || record[R_MOTHER_NAME] != 0;
 }
 
+/* ---- Heathen graves (Heathens never count: the Village Statistics' Village Elders asks VvfpHeathenAgingGrave) --
+
+   A grave keeps no faction, so a Heathen's grave is written down here: every Heathen body lying in the camp
+   (present, health 0 or less, faction set -- this companion's old-age deaths and any other) is watched with the
+   number of Roster of the Dead entries there were then; once its presence byte is cleared (the burial, or the
+   game's removal of an unburied body), a new entry with its name and age is its grave.  The entries stay where
+   the writer put them (the first free of 500), so the entry number is kept in the file. */
+#define G_ROSTER 0x5481A8u              /* 500 entries of 0x5C: name +0, age +0x1C (0: free) */
+#define G_ROSTER_STRIDE 0x5Cu
+#define G_ROSTER_ENTRIES 500
+#define ROSTER_AGE 0x1Cu
+#define BODIES_MAX 32
+
+static struct { int index; unsigned int who; int age; int graves; char name[R_NAME_CAP + 1]; } g_bodies[BODIES_MAX];
+static int g_body_count;
+
+static int roster_used(void) {
+    int n = 0;
+    while (n < G_ROSTER_ENTRIES
+           && *(const volatile int *)(UINT_PTR)(G_ROSTER + (unsigned int)n * G_ROSTER_STRIDE + ROSTER_AGE) != 0) {
+        ++n;
+    }
+    return n;
+}
+
+static void watch_body(int index, const unsigned char *record) {
+    int i;
+    for (i = 0; i < g_body_count; ++i) {
+        if (g_bodies[i].index == index) {
+            return;
+        }
+    }
+    if (g_body_count >= BODIES_MAX) {
+        return;
+    }
+    g_bodies[g_body_count].index = index;
+    g_bodies[g_body_count].who = identity(record);
+    g_bodies[g_body_count].age = i32(record, R_AGE);
+    g_bodies[g_body_count].graves = roster_used();
+    lstrcpynA(g_bodies[g_body_count].name, (const char *)(record + R_NAME), R_NAME_CAP + 1);
+    ++g_body_count;
+}
+
+static void watch_graves(void) {
+    unsigned int i;
+    int b;
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r[R_PRESENT] != 0 && r[R_FACTION] != 0 && i32(r, R_HEALTH) <= 0) {
+            watch_body((int)i, r);
+        }
+    }
+    for (b = 0; b < g_body_count;) {
+        const unsigned char *r = rec_at(g_bodies[b].index);
+        if (r[R_PRESENT] != 0 && identity(r) == g_bodies[b].who) {
+            ++b;                                       /* still lying there */
+            continue;
+        }
+        {
+            int used = roster_used(), e;
+            for (e = g_bodies[b].graves; e < used; ++e) {
+                const unsigned char *entry = (const unsigned char *)(UINT_PTR)(G_ROSTER + (unsigned int)e * G_ROSTER_STRIDE);
+                if (i32(entry, ROSTER_AGE) == g_bodies[b].age
+                    && strncmp((const char *)entry, g_bodies[b].name, R_NAME_CAP) == 0
+                    && known_find((unsigned int)e + 1u, KIND_GRAVE) < 0) {
+                    known_put((unsigned int)e + 1u, KIND_GRAVE);
+                    break;
+                }
+            }
+        }
+        g_bodies[b] = g_bodies[--g_body_count];        /* buried, or removed unburied */
+    }
+}
+
 /* ---- who ages ---------------------------------------------------------------------------------------------- */
 
 static int ages(const unsigned char *record) {
@@ -479,6 +560,7 @@ static int __cdecl credit(unsigned char *record, int units) {
         if (GetTickCount() - g_kept_at >= HA_KEEP_MS) {
             g_kept_at = GetTickCount();
             keep_known();
+            watch_graves();
         }
         if (record[R_FACTION] == 0) {
             if (index >= 0) {
@@ -908,6 +990,31 @@ static void call_bytes(unsigned char *out, unsigned int va, unsigned int target)
     unsigned int rel = target - (va + 5u);
     out[0] = 0xE8;
     memcpy(out + 1, &rel, 4);
+}
+
+/* "VVFP Statistics Export.dll" (Village Elders): 1 when Roster of the Dead entry `entry` of `game` is a Heathen's
+   grave (written down above), else 0 -- a Heathen never counts. */
+int __stdcall VvfpHeathenAgingGrave(int game, int entry) {
+    if (game != HA_GAME || entry < 0 || entry >= G_ROSTER_ENTRIES) {
+        return 0;
+    }
+    return known_find((unsigned int)entry + 1u, KIND_GRAVE) >= 0;
+}
+
+/* "VVFP Save Reset.dll" (Start Over or a deleted tribe in `slot`, before it deletes the slot's folder): the former
+   villagers, Heathen babies, expecting mothers and Heathen graves kept for that village are forgotten, the owed
+   replacements and watched bodies with them, and the slot's file is read afresh when next seen (gone with the
+   folder), so none of it is written back into the new village.  Another slot's village is left alone. */
+void __stdcall VvfpHeathenAgingVillageReset(int game, int slot) {
+    if (game != HA_GAME || (g_file_slot != 0 && slot != g_file_slot)) {
+        return;
+    }
+    g_known_count = 0;
+    g_dirty = 0;
+    g_file_slot = 0;
+    g_owed_count = 0;
+    g_body_count = 0;
+    memset(g_seen, 0, sizeof g_seen);
 }
 
 /* 1 when every site is installed, else 0. */

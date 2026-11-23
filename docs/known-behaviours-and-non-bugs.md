@@ -521,8 +521,8 @@ was given.
   rows ("All Heathens Leave Skeletons", "Former Villagers Among the Heathens
   Leave Skeletons") leave their bodies for the believers' stock burial, which
   makes a normal grave. Heathens still never count in the statistics: the
-  companion puts the villager-death counter back; a buried Heathen's grave in
-  Villagers Buried is the open follow-up recorded in the PR.
+  companion puts the villager-death counter back, the Village Statistics skip a
+  Heathen's burial (Villagers Buried) and a Heathen's grave (Village Elders).
 - **Status:** non-bug (stock); changed by the owner's 2026-11-22 rows.
 
 ### S5. Babies Made, Twins Birthed and Triplets Birthed count at conception

@@ -158,6 +158,8 @@ FILES = [
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
     "assets/devotion_faith/VVFP Devotion Faith.dll",
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): the companion.
+    "assets/esteemed_elders/VVFP Esteemed Elders.dll",
     # The four Heathen aging rows (New Believers): the companion and each row's flag file.
     "assets/heathen_aging/VVFP Heathen Aging.dll",
     "assets/heathen_aging/VVFP Heathen Aging Former.txt",
@@ -365,6 +367,11 @@ FILES = [
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers).
     "data/vv5_devotion_builds_faith_feature.json",
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life).
+    "data/vv1_esteemed_elders_feature.json",
+    "data/vv2_esteemed_elders_feature.json",
+    "data/vv4_esteemed_elders_feature.json",
+    "data/vv5_esteemed_elders_feature.json",
     # The four Heathen aging rows (New Believers).
     "data/vv5_former_villagers_keep_aging_feature.json",
     "data/vv5_heathen_tribe_ages_feature.json",

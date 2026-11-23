@@ -68,6 +68,11 @@ static void bury(unsigned int grave, const char *name, int elder_flag) {
     g[0x29] = (unsigned char)(elder_flag ? 1 : 0);
 }
 
+/* New Believers: the graves "VVFP Heathen Aging.dll" wrote down as Heathens' (here: entry 1). */
+static int heathen_grave_1(unsigned int index) {
+    return index == 1u;
+}
+
 static struct elders_layout layout(int with_graves) {
     struct elders_layout l;
     memset(&l, 0, sizeof(l));
@@ -378,6 +383,71 @@ int wmain(int argc, wchar_t **argv) {
         DeleteFileW(dat);
     }
 
+    /* THE LOST CHILDREN WITH ESTEEMED ELDERS IN EVERY GAME (the owner, 2026-11-22: the row counts every Esteemed
+       Elder ever): the game's own flag (+0x7FC) makes an elder whatever the skills, a totem statue (+0x558) never
+       is, and a new file starts from the game's own lifetime counter for the flagged elders no longer alive. */
+    {
+        int s;
+        static int ranks2[SLOTS];
+        DeleteFileW(dat);
+        memset(villagers, 0, sizeof(villagers));
+        memset(graves, 0, sizeof(graves));
+        l = layout(0);
+        l.elder_flag = 0x3Au;
+        l.skip_flag = 0x3Bu;
+        l.seed = 5;
+        set_villager(0, "Ama", "", "", 0, 900);
+        rec(0)[0x3A] = 1;                                  /* flagged by the game, skills since lost */
+        set_villager(1, "Bo", "", "", 3, 900);             /* three mastered, never flagged (past 50 totems) */
+        set_villager(2, "Ama", "", "", 3, 900);
+        rec(2)[0x3A] = 0;
+        rec(2)[0x3B] = 1;                                  /* a totem statue: never an elder */
+        set_villager(3, "Cy", "", "", 2, 900);
+        check(vv_village_elders_file(2, dat, tmp, &l) == 6,
+              "VV2: a new file is the flagged and the three-mastered living (2) plus the game's counter's 4 others");
+        check(vv_village_elders_file(2, dat, tmp, &l) == 6, "VV2: the next save counts nobody twice");
+        /* A reload packs the records: Ama 0 -> 0, Bo 1 -> 1, the statue's record empty, Cy 3 -> 2. */
+        for (s = 0; s < (int)SLOTS; ++s) ranks2[s] = -1;
+        ranks2[0] = 0; ranks2[1] = 1; ranks2[3] = 2;
+        memset(rec(2), 0, STRIDE);
+        set_villager(2, "Cy", "", "", 2, 900);
+        memset(rec(3), 0, STRIDE);
+        l.rank_of_slot = ranks2; l.rank_slots = SLOTS;
+        check(vv_village_elders_file(2, dat, tmp, &l) == 6, "VV2: after a reload, still 6");
+        l.rank_of_slot = NULL; l.rank_slots = 0;
+        memset(rec(1), 0, STRIDE);                         /* Bo dies */
+        check(vv_village_elders_file(2, dat, tmp, &l) == 6, "VV2: a dead elder stays counted (lifetime)");
+        set_villager(1, "Bo", "", "", 0, 10);              /* a newborn in Bo's record, of his name */
+        check(vv_village_elders_file(2, dat, tmp, &l) == 6, "VV2: a reused record is not an elder again");
+        set_skill(1, 0, 90.0f); set_skill(1, 1, 90.0f); set_skill(1, 2, 90.0f);
+        check(vv_village_elders_file(2, dat, tmp, &l) == 7, "VV2: a new elder later in that record counts once more");
+        l.seed = 0;
+        DeleteFileW(dat);
+    }
+    /* New Believers (the owner: Heathens never count): a Heathen's grave the game flagged as an elder's -- the
+       Heathen Chief, every skill 100, buried after dying of old age -- is never a Village Elder; a believer's is. */
+    {
+        memset(villagers, 0, sizeof(villagers));
+        memset(graves, 0, sizeof(graves));
+        DeleteFileW(dat);
+        l = layout(1);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 0, "VV5 Heathen graves: an empty history");
+        bury(0, "Elder Believer", 1);
+        bury(1, "Mojo Mahuru", 1);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 2, "VV5 Heathen graves: without the check both flagged graves count");
+        DeleteFileW(dat);
+        memset(graves, 0, sizeof(graves));
+        l.grave_is_heathen = heathen_grave_1;
+        check(vv_village_elders_file(5, dat, tmp, &l) == 0, "VV5 Heathen graves: an empty history again");
+        bury(0, "Elder Believer", 1);
+        bury(1, "Mojo Mahuru", 1);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 1,
+              "VV5 Heathen graves: a Heathen's grave is never a Village Elder, the believer's still is");
+        DeleteFileW(dat);
+        check(vv_village_elders_file(5, dat, tmp, &l) == 1,
+              "VV5 Heathen graves: a new file counts the flagged graves without the Heathen's");
+        DeleteFileW(dat);
+    }
     printf("%d failure(s)\n", failures);
     return failures == 0 ? 0 : 1;
 }

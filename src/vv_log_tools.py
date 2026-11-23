@@ -281,6 +281,17 @@ def check_logs(folder: Path, slot: int, game: int, game_folders: list[Path] | No
             for note in kind.notes:
                 report.add(f"{LOGS} ({kind.label})", "NOTE", note)
             continue
+        if kind.id == "esteemed":
+            # The Esteemed Elder title, retroactively (src/vv_log_additions.py plan_esteemed).
+            graves = kind.context.get("graves_count", 0)
+            if kind.decided or graves:
+                report.add(f"{LOGS} (Esteemed Elder title)", "NOTE",
+                           f"{kind.decided} record line(s) and {graves} grave(s) of villagers who mastered three or "
+                           "more skills could be given the Esteemed Elder title (Esteemed Elders in Every Game): "
+                           "Repair Saves & Logs, Give the Esteemed Elder title retroactively")
+            for note in kind.notes:
+                report.add(f"{LOGS} (Esteemed Elder title)", "NOTE", note)
+            continue
         # "sex" and "born_arrived" the checker itself reports (the latter as WRONG); the reconciliation's
         # questions are listed above.
         if kind.id in ("sex", "born_arrived", "contradictions", "reconcile") or not (kind.decided or kind.asked):
@@ -562,6 +573,14 @@ def approve_repair(
         except LogToolError as exc:
             raise LogToolError(f"{exc} The logs were repaired; repair again to rewrite the graves. The backup "
                                f"is in {backup.backup_folder}.") from exc
+    # The graves given the Esteemed Elder epitaph (Esteemed Elders in Every Game), the same way: the save (or A New
+    # Home's Graves file) last, after its records' lines are in.
+    if "esteemed" in chosen:
+        try:
+            additions.write_elder_graves(folder, game, slot, kinds, chosen, now)
+        except LogToolError as exc:
+            raise LogToolError(f"{exc} The logs were repaired; repair again to give the graves the epitaph. The "
+                               f"backup is in {backup.backup_folder}.") from exc
     # "Retroactively edit records?" No: the log stays as it is and the verdict is remembered for the
     # readers (src/vv_log_decisions.py).
     kept = additions.resolve_decisions(kinds, chosen, answers or {})

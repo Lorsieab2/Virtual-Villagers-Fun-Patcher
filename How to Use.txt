@@ -1467,9 +1467,10 @@ tribe). A falling believer near 0 is no longer protected, so Faith can reach
 never eats, starves or falls ill. There are four crises: starvation (under
 10 food), hunger (10 to 250 food), sickness, and too few believers (fewer
 than 12). The first time one of them would make a believer a Heathen, it is
-decided once for that believer and that crisis: 1 in 10 becomes a Heathen;
-the other 9 in 10 stay believers at Faith 1 (that crisis never takes them
-lower) and can starve or die of illness as usual. Each crisis ends on its
+decided once for that believer and that crisis: 1 in 20 becomes a Heathen
+for starvation, 1 in 25 for sickness, 1 in 50 for hunger and 1 in 50 for
+too few believers; the others stay believers at Faith 1 (that crisis never
+takes them lower) and can starve or die of illness as usual. Each crisis ends on its
 own: starvation and hunger when there is more than 250 food, sickness when
 cured, too few believers at 12 or more; a later crisis is decided again. The
 patch keeps this in its own file in the save's folder, so saving and loading
@@ -1571,7 +1572,7 @@ Heathen Mommy never get it.
 
 FORMER VILLAGERS KEEP AGING AMONG THE HEATHENS (NEW BELIEVERS)
 
-Off by default; on in Owner's Defaults and Select All. A villager who leaves
+Off by default and in Select All; on in Owner's Defaults only. A villager who leaves
 your tribe and becomes a Heathen (losing Faith, The Spa, The Cracked Mask, a
 Custom Island Event, any way) keeps growing older among the Heathens: their
 age goes up, their hair greys at the usual age, and they can die of old age
@@ -1585,7 +1586,7 @@ parents on their record.
 
 HEATHEN TRIBE AGES, DIES AND HAS CHILDREN (NEW BELIEVERS)
 
-Off by default; on in Owner's Defaults and Select All. Every Heathen ages
+Off by default and in Select All; on in Owner's Defaults only. Every Heathen ages
 and can die of old age by the believers' own rule: the camp's Heathens,
 villagers who left you, and the puzzle Heathens too (the Heathen Doctor, the
 Heathen Chief, the three Masters and the Heathen Mommy). When a Heathen dies
@@ -1600,7 +1601,7 @@ Villagers Keep Aging Among the Heathens also ticked nobody ages twice.
 
 ALL HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
 
-Off by default; on in Owner's Defaults and Select All. Only matters with a
+Off by default and in Select All; on in Owner's Defaults only. Only matters with a
 Heathen aging patch ticked. Every Heathen who dies of old age leaves a
 skeleton; your believers bury it with Burying the dead (once The Buried
 Mausoleum is solved), which gives a normal grave. Cannot be ticked with
@@ -1749,6 +1750,30 @@ Mechanics page. The score is kept in the save's own Village Scores file and
 every change in its Village Solidarity log; Start Over clears both. Needs
 Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
 defaults and in Select All). Not yet seen in a running game.
+
+ESTEEMED ELDERS IN EVERY GAME (A NEW HOME, THE LOST CHILDREN, THE TREE OF LIFE, NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults only (off in Select All). Nothing to
+click: it works on its own. A villager who has mastered three or more skills
+(the level the Villager Details screen calls Master: 90 in A New Home, 88 in
+The Lost Children and The Tree of Life) is titled "Esteemed Elder" on the
+Villager Details screen, as in The Secret City and New Believers (which
+already do it). The Golden Child keeps his own title; a totem statue or a
+ghost never gets it; in The Tree of Life mastering all five is still the
+Scholar. A custom title still shows in its place. The logs' "Special
+villager" line says it too, and a new grave of such a villager (an adult)
+gets the epitaph "Esteemed Elder" (A New Home: with Show Cause of Death and
+Epitaphs on Graves, and Log Every Death). The Lost Children's own Esteemed
+Elders and their totems are unchanged. For villagers and graves from before:
+Repair Saves & Logs, "Give the Esteemed Elder title retroactively" lists who
+gets it first; a grave is changed only where the save still holds that
+villager's skills at death, the others are listed and left. Not yet seen in
+a running game. In New Believers (which gives the title already) a current
+Heathen is never an Esteemed Elder, on the Details screen or in the logs; a
+Former Heathen who has joined the tribe is, with three mastered skills (the
+logs keep their Former Heathen title). In The Lost Children the Village
+Statistics' Village Elders then counts every Esteemed Elder ever, kept in
+the save's Village Elders file.
 
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 

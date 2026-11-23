@@ -80,6 +80,9 @@ class Village(Machine):
         self.cod = cod
         self.api_handlers["GetModuleHandleA"] = self._module
         self.api_handlers["GetProcAddress"] = self._proc
+        # A clock that moves, so the companion's file and grave watch run at each age credit (every 250 ms live).
+        self.clock = 0
+        self.api_handlers["GetTickCount"] = self._clock
         stubs = self.alloc(0x40)
         self.cod_exports = {"VvfpCauseDiedAmongHeathens": stubs, "VvfpCauseHeathenArrived": stubs + 0x10,
                             "VvfpCauseNoteArrival": stubs + 0x20}
@@ -106,6 +109,10 @@ class Village(Machine):
         self.put32(MEDICINE, 1)
         self.installed = self.export("VvfpStartup", 5, 0)
         self.installed = self.export("VvfpHeathenAgingInstalled")
+
+    def _clock(self, p):
+        self.clock += 1000
+        return self.clock, 0
 
     # ---- stand-ins ----------------------------------------------------------------------------------------
     def _module(self, p):
@@ -565,6 +572,62 @@ class Babies(unittest.TestCase):
         self.assertEqual(v.created, [])
 
 
+ROSTER, ROSTER_STRIDE = 0x5481A8, 0x5C
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class GravesAndStartOver(unittest.TestCase):
+    """Heathens never count: a Heathen's grave is written down for the Village Statistics' Village Elders
+    (VvfpHeathenAgingGrave), and Start Over (VvfpHeathenAgingVillageReset, from VVFP Save Reset.dll) forgets the
+    village's former villagers and graves."""
+
+    def _bury(self, v: Village, record: int, entry: int) -> None:
+        """The burial step 0x473F50: the presence byte cleared, then the Roster of the Dead writer's entry (name +0,
+        age +0x1C) in the first free place."""
+        v.write(record + PRESENT, b"\x00")
+        at = ROSTER + entry * ROSTER_STRIDE
+        v.write(at, v.read(record + NAME, 0x19))
+        v.put32(at + 0x1C, v.u32(record + AGE))
+
+    def test_a_buried_heathens_grave_is_written_down_and_a_believers_is_not(self):
+        v = Village((TRIBE, BONES_ALL))
+        believer = v.villager(9, heathen=False, name="Ana")
+        v.put32(ROSTER + 0x1C, 700)                     # an older believer's grave in entry 0
+        v.write(ROSTER, b"Old Believer\0")
+        h = v.villager(1, heathen=True, role=13, name="Mojo Mahuru")
+        _due_to_die(v, h)
+        v.life_tick()
+        self.assertEqual(v.i32(h, HEALTH), 0, "a skeleton")
+        v.credit(believer, 1)                           # the watch sees the body lying
+        self._bury(v, h, 1)
+        v.credit(believer, 1)                           # ...and then its grave
+        self.assertEqual(v.export("VvfpHeathenAgingGrave", 5, 1), 1, "the Heathen's grave")
+        self.assertEqual(v.export("VvfpHeathenAgingGrave", 5, 0), 0, "a believer's grave")
+        self.assertEqual(v.export("VvfpHeathenAgingGrave", 4, 1), 0, "another game")
+
+    def test_an_unburied_body_the_game_removes_leaves_no_grave(self):
+        v = Village((TRIBE, BONES_ALL))
+        believer = v.villager(9, heathen=False)
+        h = v.villager(1, heathen=True)
+        _due_to_die(v, h)
+        v.life_tick()
+        v.credit(believer, 1)
+        v.write(h + PRESENT, b"\x00")                   # the 240-unit removal: no Roster entry
+        v.credit(believer, 1)
+        self.assertEqual(v.export("VvfpHeathenAgingGrave", 5, 0), 0)
+
+    def test_start_over_forgets_the_former_villagers_and_graves(self):
+        v = Village((FORMER, BONES_ALL))
+        r = v.villager(3, heathen=False)
+        v.credit(r, 1)
+        v.turn_heathen(r)
+        v.credit(r, 2)
+        self.assertEqual(v.i32(r, AGE), 603, "a former villager ages")
+        v.export("VvfpHeathenAgingVillageReset", 5, 1)
+        v.credit(r, 2)
+        self.assertEqual(v.i32(r, AGE), 603, "forgotten at Start Over: the new village's Heathen never was ours")
+        v.export("VvfpHeathenAgingVillageReset", 4, 1)  # another game: nothing
+
 ROWS = {
     "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
     "vv5_heathen_tribe_ages": ("Heathen Tribe Ages, Dies and Has Children", TRIBE, True),
@@ -584,7 +647,7 @@ class TheRows(unittest.TestCase):
         how_to = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
         log = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
         ids = {p.id for p in patcher.load_public_fun_patches()}
-        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3.index("VVFP Heathen Aging.dll"), 14)
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3.index("VVFP Heathen Aging.dll"), 15)
         self.assertIn('"VVFP Heathen Aging.dll"',
                       (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8"))
         self.assertIn('"assets/heathen_aging/VVFP Heathen Aging.dll"', release)
@@ -620,7 +683,8 @@ class TheRows(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathenAgingInstalled", "VvfpStartup"])
+        self.assertEqual(names, ["VvfpHeathenAgingGrave", "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset",
+                                 "VvfpStartup"])
         for _, (name, flag, _) in ROWS.items():
             text = (ROOT / "assets" / "heathen_aging" / flag).read_bytes()
             self.assertTrue(text.startswith(f'Virtual Villagers Fun Patcher: "{name}" (New Believers).\n'.encode()))

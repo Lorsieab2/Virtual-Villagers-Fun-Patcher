@@ -86,7 +86,11 @@ class VillageEldersHarnessTests(unittest.TestCase):
                      "a reload that moves both elders down a record still counts two elders",
                      "... each line follows its own elder (Bo does not take over Ana's line)",
                      "a renamed elder moved by a reload keeps his line: still two elders",
-                     "... the lines are Ana [1] and Bob [2]"):
+                     "... the lines are Ana [1] and Bob [2]",
+                     # New Believers (2026-11-22): a Heathen's grave is never a Village Elder.
+                     "VV5 Heathen graves: without the check both flagged graves count",
+                     "VV5 Heathen graves: a Heathen's grave is never a Village Elder, the believer's still is",
+                     "VV5 Heathen graves: a new file counts the flagged graves without the Heathen's"):
             with self.subTest(case=case):
                 self.assertIn("PASS " + case, out)
 
@@ -100,7 +104,7 @@ class ReloadRanksReachTheEldersTests(unittest.TestCase):
     def test_the_dll_passes_the_reload_ranks(self):
         source = (NATIVE / "statistics_export.c").read_text(encoding="utf-8")
         calls = re.findall(r"(\n[^\n]*\n)\s*g_elders_value = vv_village_elders\(", source)
-        self.assertEqual(len(calls), 2, "both elder layouts (VV1 and VV3-VV5)")
+        self.assertEqual(len(calls), 3, "every elder layout (VV1, VV2 with Esteemed Elders in Every Game, VV3-VV5)")
         for before in calls:
             self.assertIn("elders_ranks(&l);", before)
         changed = source[source.index("static int village_changed("):]

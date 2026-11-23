@@ -98,7 +98,7 @@ class NativeHarness(unittest.TestCase):
                 self.assertEqual(uses, 1 if (kind, path.name) in allowed else 0,
                                  f"{path.name} writes {kind} itself")
         arrivals = (COD / "cod_arrivals.inc").read_text(encoding="utf-8")
-        self.assertIn("Left the tribe: became a Heathen", arrivals)
+        self.assertIn("Left the tribe: became %s", arrivals)      # a Heathen / an Isolan (Guardians of Isola)
         main = (COD / "vvfp_cause_of_death.c").read_text(encoding="utf-8")
         self.assertEqual(main.count("cod_write(LOG_DEATH"), 1)
         self.assertIn('lost_record(record, babies, "died")', main)

@@ -1067,7 +1067,8 @@
       "guide": [
         "Off by default. Believers lose Faith twice as often and gain it half as often, every age unit.",
         "A believer whose Faith falls to 0 becomes a Heathen, as in the normal game, and now nothing slows a fall near 0.",
-        "When hunger or sickness first would make a believer a Heathen, it is decided once: 1 in 10 leaves; the others stay believers at Faith 1 and can starve or die of illness.",
+        "When hunger or sickness first would make a believer a Heathen, it is decided once; the others stay believers at Faith 1 and can starve or die of illness.",
+        "Who leaves: 1 in 20 for starvation, 1 in 25 for sickness, 1 in 50 for hunger and 1 in 50 for too few believers.",
         "They stay until fed (more than 250 food) and well; a later crisis is decided again. Saving and loading keeps this.",
         "Keep food high, keep everyone healthy and preach to win them back. Good Luck!"
       ]
@@ -1126,6 +1127,17 @@
       ]
     },
     {
+      "ids": ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"],
+      "guide": [
+        "Off by default; on in Owner's Defaults; Select All does not tick it. Nothing to click: it works on its own.",
+        "Three or more mastered skills (90 in A New Home, 88 in the others) give the title \"Esteemed Elder\" on the Details screen.",
+        "Never the Golden Child, a totem statue or a ghost; The Tree of Life's Scholar (all five) still wins; a custom title wins.",
+        "The logs' Special villager line says it, and a new adult's grave gets the epitaph \"Esteemed Elder\".",
+        "For older villagers and graves: Repair Saves & Logs, \"Give the Esteemed Elder title retroactively\".",
+        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running."
+      ]
+    },
+    {
       "ids": ["vv5_devotion_builds_faith"],
       "guide": [
         "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
@@ -1139,7 +1151,7 @@
     {
       "ids": ["vv5_former_villagers_keep_aging"],
       "guide": [
-        "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
         "A villager who leaves your tribe and becomes a Heathen keeps growing older among the Heathens, as believers do:",
         "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
         "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
@@ -1152,7 +1164,7 @@
     {
       "ids": ["vv5_heathen_tribe_ages"],
       "guide": [
-        "Off by default; on in Owner's Defaults and Select All. Nothing to click: it works on its own.",
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
         "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
         "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
         "When a Heathen dies a new one joins at once: a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
@@ -1166,7 +1178,7 @@
     {
       "ids": ["vv5_all_heathens_leave_skeletons"],
       "guide": [
-        "Off by default; on in Owner's Defaults and Select All. Only matters with a Heathen aging patch ticked:",
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Only matters with a Heathen aging patch ticked:",
         "Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children.",
         "Every Heathen who dies of old age leaves a skeleton; your believers bury it with Burying the dead (once The Buried",
         "Mausoleum is solved), which gives a normal grave. Cannot be ticked with Former Villagers Among the Heathens Leave Skeletons."
@@ -1175,7 +1187,7 @@
     {
       "ids": ["vv5_former_villager_heathens_leave_skeletons"],
       "guide": [
-        "Off by default and in Owner's Defaults. Select All does not tick it (it ticks All Heathens Leave Skeletons).",
+        "Off by default, in Owner's Defaults and in Select All: Select All does not tick it.",
         "Only matters with Former Villagers Keep Aging Among the Heathens or Heathen Tribe Ages, Dies and Has Children ticked.",
         "Only villagers who had left your tribe leave a skeleton when they die among the Heathens; your believers bury it",
         "(once The Buried Mausoleum is solved). Other Heathens leave nothing. Cannot be ticked with All Heathens Leave Skeletons."
@@ -1514,8 +1526,9 @@
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
         "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
         "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
-        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Among the Heathens Leave Skeletons,",
-        "the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
+        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Esteemed Elders in Every Game,",
+        "Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons,",
+        "Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1528,9 +1541,9 @@
         "More Frequent Island Events, Science Collectibles Only Count When Complete, Collectible Spawn Timing works like VV1-3, Yellow Fruit Trees are No Longer Unlimited,",
         "Up to 99 Cutting Tools/Soap/Cloth, The Golden Child May Be Born Female (50:50), Yellow Breadfruit Refills Partially Every Time, Picked Up Collectibles Stay Collected When Dropped,",
         "Scrolling Popups, More Island Events, Isola Grand Event Collection, Every Island Event Can Happen, both Island Events Scale patches, One-Time Collectibles Appear Again,",
-        "Birth Control in The Tree of Life and New Believers, the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola,",
-        "Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel, Shrine to the Ancestors, both Fog of Doom patches,",
-        "Practicing Devotion Builds Faith and Divine Energy, the four Heathen aging patches."
+        "the 0.1-10x sliders and the island event controls. Respecting the Legacy of Isola, Heathens Keep Their Masks When Converted, Memorial Actions Can Also Occur at the Heathen Hovel,",
+        "Shrine to the Ancestors, both Fog of Doom patches, Practicing Devotion Builds Faith and Divine Energy, Esteemed Elders in Every Game,",
+        "the four Heathen aging patches."
       ]
     },
     "owners_defaults": {

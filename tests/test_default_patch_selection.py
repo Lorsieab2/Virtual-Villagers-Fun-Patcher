@@ -200,6 +200,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Practicing Devotion Builds Faith and Divine Energy (New Believers, new 2026-11-21: off by
                   # default, on in Owner's Defaults and Select All).
                   or p == "vv5_devotion_builds_faith"
+                  # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; new 2026-11-22: on
+                  # in Owner's Defaults only).
+                  or p.endswith("_esteemed_elders")
                   # The four Heathen aging rows (New Believers, new 2026-11-22: off by default; three on in
                   # Owner's Defaults, the alternative skeleton row off there too).
                   or p in ("vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages",
@@ -262,8 +265,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
 
     def test_the_heathen_aging_rows_defaults_and_the_exclusive_skeleton_pair(self) -> None:
         """The owner (2026-11-22): Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has
-        Children and All Heathens Leave Skeletons are off by default and on in Owner's Defaults (and, as normal rows,
-        in Select All); Former Villagers Among the Heathens Leave Skeletons is off by default, in Owner's Defaults
+        Children and All Heathens Leave Skeletons are off by default and in Select All, on in Owner's Defaults only; Former Villagers Among the Heathens Leave Skeletons is off by default, in Owner's Defaults
         and in Select All.  The two skeleton rows untick each other and no preset ticks both."""
         from vv_fun_patcher_gui import UNTICKING_CONFLICT_IDS, owners_default_fun_patch_selection
 
@@ -274,7 +276,7 @@ class DefaultPatchSelectionTests(unittest.TestCase):
             with self.subTest(patch_id):
                 self.assertFalse(default_fun_patch_selection(patch_id))
                 self.assertTrue(owners_default_fun_patch_selection(patch_id))
-                self.assertTrue(select_all_fun_patch_selection(patch_id))
+                self.assertFalse(select_all_fun_patch_selection(patch_id))
         for pick in (default_fun_patch_selection, owners_default_fun_patch_selection, select_all_fun_patch_selection):
             with self.subTest(selection=pick.__name__):
                 self.assertFalse(pick(former_bones))
@@ -470,9 +472,13 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and Fog of Doom Lets Red and Orange Heathens Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
         # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
         held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
+        # ...and Esteemed Elders in Every Game (the owner, 2026-11-22: on in Owner's Defaults, off otherwise).
+        held_back |= {f"vv{n}_esteemed_elders" for n in (1, 2, 4, 5)}
         # ...and Former Villagers Among the Heathens Leave Skeletons, the alternative of All Heathens Leave Skeletons
         # (the owner, 2026-11-22: Select All picks the Owner's Defaults one).
         held_back |= {"vv5_former_villager_heathens_leave_skeletons"}
+        # ...and the other three Heathen aging rows: on in Owner's Defaults only (the owner, 2026-11-22).
+        held_back |= {"vv5_former_villagers_keep_aging", "vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons"}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

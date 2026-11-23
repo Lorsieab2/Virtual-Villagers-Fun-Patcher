@@ -12617,6 +12617,17 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.14",
+   "english": "Esteemed Elder",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Cause of Death.dll",
+   "notes": "a patcher message shown by the game",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s0",
    "english": "Listening to a story",
    "games": [
@@ -73020,6 +73031,84 @@
    "mechanism": "b",
    "context": "vvfp_more_island_events",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_c5.c5_arm_refusal.s2",
+   "english": "A question needs a living adult tribe member in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s7",
+   "english": " became an Isolan.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_GUARDIANS_BECOMES.s0",
+   "english": "<R> becomes an Isolan.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s17",
+   "english": ", a tribe member",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_believers_word.s0",
+   "english": "tribe members",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.esteemed_elders/vvfp_esteemed_elders.ee_text.s1",
+   "english": "Esteemed Elder",
+   "games": [
+    "vv1",
+    "vv4"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Esteemed Elders.dll",
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   },
   {
    "stem": "vvfp.gui/rename_tribe.long_name_note",

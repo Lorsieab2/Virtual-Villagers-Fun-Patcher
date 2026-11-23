@@ -2160,6 +2160,27 @@ class NewBelieversLeaveForTheHeathens(unittest.TestCase):
             self.assertEqual(g.of_kind(UNACCOUNTED), [], mode)
             self.assertEqual(len(g.of_kind(DISAPPEARED)), 1, mode)
 
+    def test_with_guardians_of_isola_the_record_says_an_isolan(self):
+        """The owner (2026-11-22): with Guardians of Isola Rewrite the record says "Left the tribe: became an
+        Isolan".  The rewrite is seen as the Faith popup sees it: the game's own eSayStoppedBelieving (string
+        0x48 in the table at 0x5240A8: { id, name, built-in, loaded }) says "left the tribe"."""
+        for words, what in (("A villager has left the tribe!", "Left the tribe: became an Isolan"),
+                            ("A villager has stopped believing!", "Left the tribe: became a Heathen")):
+            g = Game("vv5", rendered("vv5", "stock", True), 1)
+            w = Later(g)
+            self.assertEqual(g.install(), 1)
+            text = g.p.alloc(64)
+            g.p.write(text, words.encode("ascii") + b"\0")
+            entry = g.p.alloc(16)
+            for k, v in enumerate((0x48, 0, text, 0)):
+                g.p.put32(entry + 4 * k, v)
+            g.p.put32(0x5240A8 + 4 * 0x48, entry)
+            leaver = w.villager(4, "Leaver", 900, 80)
+            g.tick()
+            g.p.write(leaver + self.FACTION, b"\x01")
+            g.tick()
+            self.assertEqual([e["What happened"] for e in g.of_kind(DISAPPEARED)], [what], words)
+
     def test_an_arrival_not_yet_written_is_written_before_the_leaving(self):
         g = Game("vv5", rendered("vv5", "stock", True), 1)
         w = Later(g)
