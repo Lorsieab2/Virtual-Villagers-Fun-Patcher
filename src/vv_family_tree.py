@@ -5294,8 +5294,9 @@ def is_founder(village: gen.Village, p: gen.Person) -> bool:
 
 def arrival_words(village: gen.Village, p: gen.Person) -> str:
     """ "Arrived: <how>" for a villager an Arrived record says came later (an island event, a visitor, a Custom
-    Island Event...); "" for a founder, a birth, or a backfilled "How: unknown"."""
-    how = (p.how or "").strip()
+    Island Event...); "" for a founder, a birth, or a backfilled "How: unknown".  One of the tribe who left for
+    the Heathens and came back is said as they first came, never "Converted from the Heathens" (gen.arrival_how)."""
+    how = gen.arrival_how(p).strip()
     if p.upcoming or not p.arrived or not how or how.lower() in ("founder", "unknown", "golden child"):
         return ""
     return f"Arrived: {how}"
