@@ -908,7 +908,7 @@ def check_tokens(doc: dict, row: dict | None, rep: Report) -> None:
                                         f"{len(roles)} roles)")
                 else:
                     used_roles.add("subject")
-            elif inner in ("award", "award_unit") or inner.lower() in ("made1", "made2", "renamed"):
+            elif inner in ("award", "award_unit", "award2") or inner.lower() in ("made1", "made2", "renamed"):
                 pass                # the engine's own (cie-v6-binary.md: the villagers the event made, a new name)
             else:
                 rep.add("d TOKENS", f"{f.where}: ({inner}) is not a placeholder (a literal parenthesis is \\( \\))")

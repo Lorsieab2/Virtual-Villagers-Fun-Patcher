@@ -135,8 +135,17 @@ here before per-node titles, and nothing with that shipped)**. The loader refuse
     uncle, boy, gentleman), with the optional `role.` prefix, the capital form and ALL CAPS, exactly as the pronouns
     (worst case: the longer word). E.g. The Lullaby's nursing parent: `(parent.mother/father)`. In the engine they
     are `CG_PH_MOTHER` .. `CG_PH_LADY`, after `CG_PH_SON`;
+  - **`(award2)`** (the owner, 2026-11-22: a second award slot): the amount of the node's own food / tech change --
+    the node's first `food` or `tech` effect that is not the award (no `defer`; `cg_award2_effect` /
+    `award2_effect`) -- never signed (the author's verb says which way), the amount the page states and then makes
+    (section 25: `cg_applied_fx`). It is filled with the award, in the node's own text (`CG_PH_AWARD2`, after
+    `CG_PH_HEADMAN`; the word follows `headman/headwoman` in `cg_parse_ph_in`), so a node that tells two kinds says
+    each its own amount: `Your village loses (award2) food. Your villagers gain (award) tech points.` No role prefix;
+    never in a label or a title; a node with no such change refuses it (the compiler). Worst case: as `(award)`'s
+    (`AWARD_WIDEST` digits for a scaled amount, else the widest of its range). Format: text only (no new bytes); a
+    graph that uses it needs an engine that knows the word (an older one refuses the text).
   - role shorthand `(roleid)` / `(Roleid)`: that role's name (role ids are matched ignoring case). A keyword
-    (`name`, `name1`, `name2`, `award`, `award_unit`, a pronoun) always wins; the compiler refuses a role id that
+    (`name`, `name1`, `name2`, `award`, `award_unit`, `award2`, a pronoun) always wins; the compiler refuses a role id that
     equals a keyword ignoring case, and two role ids that differ only by case.
   - **All caps** (for the owner's ALL-CAPS button labels and text): any placeholder written entirely in capitals
     -- `(NAME)`, `(NAME1)`, `(NAME2)`, `(GARDENER1)`, `(HE/SHE)`, `(HIM/HER)`, `(HIS/HER)`, `(MAN/WOMAN)`,
@@ -835,7 +844,9 @@ Lines with no amount keep their words: `R dies.`, `R celebrates.` (a good mood),
 
 No line: `action`; a deferred food or tech (its `pay_award` gives it); a `pay_award` on a node whose own words say
 `(award)` (any case: the text already states the amount paid, filled in as it is really given -- the line would say
-it twice; `cg_says_award` / `says_award`); a change that changes nothing (an amount of 0, or one the limits take
+it twice; `cg_says_word` / `says_award`); the node's own food or tech change on a node whose own words say
+`(award2)` (section 5: the text states its amount; `says_award2`) -- only these same-amount food / tech lines are
+hidden, every other effect's line stays (the owner); a change that changes nothing (an amount of 0, or one the limits take
 wholly away); a skill the game does not have (roll -1); a random preference with no candidate. Identical lines are
 all kept.
 
@@ -844,7 +855,7 @@ all kept.
   as the page is shown (`cg_fix_lines`), and the page's "N changes could not be made" line says so.
 - **Hand-written amounts.** An author's text that names a number the limits may cut (`"Your village loses 50
   food."`) is story: the automatic line after it states what was really made, and is the one to trust; with
-  `(award)` the author's text itself shows the amount paid.
+  `(award)` the author's text itself shows the amount paid, and with `(award2)` the node's own change.
 - **Fit (Python, `walk`):** each effect's line at its widest -- of the lines it can give (each listed skill the game
   has, each sign of a range, every word of the game's list for a random preference), the one whose worst case is
   the longest (the first on a tie) -- so whatever Python accepts the engine can show.

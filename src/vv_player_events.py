@@ -1061,7 +1061,7 @@ def placeholder_roles(text: str) -> list[str]:
             out.append("")
         elif not dot and word.lower() == "name2":
             out.append("friend")
-        elif not dot and word.lower() in ("award", "award_unit") + tuple(cie.MADE_PLACEHOLDERS):
+        elif not dot and word.lower() in ("award", "award_unit", "award2") + tuple(cie.MADE_PLACEHOLDERS):
             continue
         elif dot or "/" not in low:
             out.append(low)

@@ -331,7 +331,9 @@ enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, C
        /* the standalone possessive (the owner's files, 2026-11-16): "his" / "hers" */
        CG_PH_HIS_HERS,
        /* 35: the chief's title "headman" / "headwoman" */
-       CG_PH_HEADMAN };
+       CG_PH_HEADMAN,
+       /* 25: (award2), the amount of the node's own food / tech change (cg_award2_effect), filled like (award) */
+       CG_PH_AWARD2 };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
 
 /* ---- The .cieg (src/vv_cie_graph.py THE BINARY .cieg) ----------------------------------------------------- */
@@ -624,8 +626,8 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter",
                                          "mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle",
-                                         "girl/boy", "lady/gentleman", "his/hers", "headman/headwoman" };
-    int words = g->version >= 6 ? 20 : 7;
+                                         "girl/boy", "lady/gentleman", "his/hers", "headman/headwoman", "award2" };
+    int words = g->version >= 6 ? 21 : 7;
     int dot = -1;
     int i;
     int role = -1;
@@ -681,7 +683,7 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
             i = CG_PH_NAME;
         }
         ph->what = i;
-        if (i == CG_PH_AWARD || i == CG_PH_UNIT) {
+        if (i == CG_PH_AWARD || i == CG_PH_UNIT || i == CG_PH_AWARD2) {
             if (dot > 0) {
                 return 0;
             }
@@ -4534,6 +4536,11 @@ static unsigned int cg_late_roles(void) {
     return mask;
 }
 
+/* (award2) as cg_group fills a node's text (CG_EXPAND_AWARD): the node's own food / tech change, never signed (the
+   author's verb says which way); off: nothing, as (award) with no award. */
+static int cg_award2_on;
+static int cg_award2_amount;
+
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
     static char cased[CG_POOL_DEPTH + 2][CG_RAW_BYTES];
@@ -4698,6 +4705,11 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         if (ph.what == CG_PH_AWARD) {
             if (award_kind >= 0) {
                 wsprintfA(word, "%d", award);
+                put = word;
+            }
+        } else if (ph.what == CG_PH_AWARD2) {
+            if (cg_award2_on) {
+                wsprintfA(word, "%d", cg_award2_amount);
                 put = word;
             }
         } else if (ph.what == CG_PH_UNIT) {
@@ -7785,38 +7797,53 @@ static void cg_auto_one(int game, const cg_history *h, const unsigned char *e, i
     }
 }
 
-/* Whether a node's own words `text` say the award's amount: "(award)" in any case (cg_parse_ph_in's word). */
-static int cg_says_award(const char *text) {
-    static const char WORD[] = "(award)";
+/* Whether a node's own words `text` hold the placeholder `word` ("(award)", "(award2)") in any case (cg_parse_ph_in's
+   words): src/vv_cie_graph.py says_award / says_award2. */
+static int cg_says_word(const char *text, const char *word) {
     int i, k;
     for (i = 0; text != NULL && text[i] != '\0'; ++i) {
-        for (k = 0; WORD[k] != '\0'; ++k) {
+        for (k = 0; word[k] != '\0'; ++k) {
             char c = text[i + k];
             if (c >= 'A' && c <= 'Z') {
                 c = (char)(c - 'A' + 'a');
             }
-            if (c != WORD[k]) {
+            if (c != word[k]) {
                 break;
             }
         }
-        if (WORD[k] == '\0') {
+        if (word[k] == '\0') {
             return 1;
         }
     }
     return 0;
 }
 
+/* The index among node `n`'s effects of the change its (award2) states: its first food or tech effect that is not
+   the award (not deferred); -1 none (src/vv_cie_graph.py award2_effect). */
+static int cg_award2_effect(const unsigned char *n) {
+    int k;
+    for (k = 0; k < cg_fx_count(n); ++k) {
+        const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+        if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && !(e[2] & 2u)) {
+            return k;
+        }
+    }
+    return -1;
+}
+
 /* Node `n`'s automatic lines after `out` (its text, the award filled in): one for each effect that has one, from the
    walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options).  A
    pay_award on a node whose own words say "(award)" has no line: the author's text already states the amount paid
    (filled in as it is really given), so the line would only say it twice ("Your village gains 590 food.\nThe village
-   gains 590 food.", The Cooking Contest, v1.35.97).  `says_award`: cg_says_award of the node's words. */
+   gains 590 food.", The Cooking Contest, v1.35.97).  `says_award`: cg_says_word(.., "(award)") of the node's words.
+   Likewise the node's own change its "(award2)" states (`award2`: its index, cg_award2_effect, when the words say
+   "(award2)"; else -1) -- the owner, 2026-11-22: a node that tells two kinds shows each its own amount, once. */
 static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n, int fx, int award_kind, int award,
-                          int says_award, char *out, int cap) {
+                          int says_award, int award2, char *out, int cap) {
     int k;
     for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
         const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
-        if (says_award && e[0] == CGE_PAY) {
+        if ((says_award && e[0] == CGE_PAY) || k == award2) {
             continue;
         }
         cg_auto_one(game, h, e, fx, award_kind, award, out, cap);
@@ -7981,10 +8008,22 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_popup *p = NULL;
             int start = 0;
             unsigned short nt = cg_node_title(node);
-            int says_award = cg_says_award(cg_node_text(node, game));
+            int says_award = cg_says_word(cg_node_text(node, game), "(award)");
+            int award2 = cg_award2_effect(n);
+            /* (award2): the node's own change as the page states it and then makes it (cg_applied_fx) */
+            cg_award2_on = award2 >= 0;
+            cg_award2_amount = 0;
+            if (award2 >= 0 && fx0 + award2 < CG_MAX_FX) {
+                cg_award2_amount = cg_applied_fx[fx0 + award2] < 0 ? -cg_applied_fx[fx0 + award2]
+                                                                   : cg_applied_fx[fx0 + award2];
+            }
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
+            cg_award2_on = 0;
+            if (award2 >= 0 && !cg_says_word(cg_node_text(node, game), "(award2)")) {
+                award2 = -1;           /* the words do not state it: its line stays */
+            }
             if (n[3] & CG_NODE_AUTO_TEXT) {
-                cg_auto_lines(game, h, n, fx0, award_kind, shown, says_award, text, sizeof text);   /* 25 */
+                cg_auto_lines(game, h, n, fx0, award_kind, shown, says_award, award2, text, sizeof text);   /* 25 */
             }
             if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
                 && !(n[3] & CG_NODE_NEW_PAGE)) {
