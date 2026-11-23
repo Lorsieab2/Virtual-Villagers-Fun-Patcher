@@ -183,6 +183,44 @@ class DeleteTests(Base):
         self.assertTrue(all(not p.exists() for p in result.recycled))
 
 
+class LongPathPictureTests(Base):
+    """Codex review on #847: a backup keeps a long file under a short name in its Long Paths folder, and that
+    name can lose the extension: a picture there is told by its own place, and stays."""
+
+    def test_a_long_picture_in_a_backup_stays_and_a_long_sidecar_goes(self) -> None:
+        for tag, number, suffix in tc.CASES[:5]:
+            with self.subTest(game=number):
+                game, folder, _old = self.make(tag, number, suffix)
+                (snapshot,) = [p for p in (folder / "Backups").iterdir()
+                               if p.is_dir() and not p.name.endswith(("S1", "S2"))]
+                long = snapshot / backup.LONG_PATHS
+                long.mkdir(exist_ok=True)                 # a backup may already keep long files
+                picture = long / "91 Genealogy - Save 1 - Page 2 of a very lo"
+                sidecar = long / "92 Graves - Save 1 kept under a long name s"
+                picture.write_bytes(b"a picture")
+                sidecar.write_bytes(b"graves")
+                index = long / backup.LONG_PATHS_INDEX
+                index.write_bytes((index.read_bytes() if index.exists() else b"") + (
+                    f"{picture.name}\t{TREES}\\Reports\\Virtual Villagers {number} Genealogy - Save 1 - Page 2 of a "
+                    f"very long report.png\r\n"
+                    f"{sidecar.name}\t{OWN}\\Save 1\\Data\\Graves\\Virtual Villagers {number} Graves kept under a "
+                    f"long name - Save 1.dat\r\n").encode())
+                plan = ds.plan_delete(game, folder, 1)
+                self.assertIn(f"Kept (pictures):  {picture.relative_to(folder)}", plan.preview())
+                bin_ = FakeBin(Path(self._tmp.name) / f"bin{number}")
+                result = ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+                self.assertIsNone(result.problem)
+                self.assertTrue(picture.is_file())
+                self.assertFalse(sidecar.exists())
+                self.assertIn(str(sidecar).casefold(), {str(p).casefold() for p in bin_.sent})
+                self.assertNotIn(str(picture).casefold(), {str(p).casefold() for p in bin_.sent})
+
+    def test_a_kept_copy_of_a_picture_is_a_picture(self) -> None:
+        self.assertTrue(ds.is_picture(Path("Genealogy - Save 1.png.bak1")))
+        self.assertTrue(ds.is_picture(Path("x - Save 1.png.before-repair")))
+        self.assertFalse(ds.is_picture(Path("Genealogy - Save 1.txt.bak1")))
+
+
 class ConfirmationTests(Base):
     def test_no_at_either_question_changes_nothing(self) -> None:
         for preview_says, final_says in ((False, True), (True, False)):

@@ -204,13 +204,20 @@ def moved_relative(game: rename.GameSaves, relative: Path, source: int, target: 
 
 
 def _kept_copy(name: str) -> bool:
-    """A copy kept beside or before a file (".before-...", a set-aside or unreadable one, a ".tmp")."""
+    """A copy kept beside or before a file (".before-...", a set-aside or unreadable one, a repair copy
+    "<short name>.bak<n>" (vv_repair_copies), a ".tmp")."""
     low = name.casefold()
-    return any(mark in low for mark in _KEPT_MARKS) or low.endswith(".tmp") or ".vvfp-" in low
+    return (any(mark in low for mark in _KEPT_MARKS) or low.endswith(".tmp") or ".vvfp-" in low
+            or bool(repair_copies.BAK.match(name)))
 
 
 def _base_name(name: str) -> str:
-    """The name of the file a kept copy is of (``X - Save 1.dat.before-repair`` -> ``X - Save 1.dat``)."""
+    """The name of the file a kept copy is of (``X - Save 1.dat.before-repair`` -> ``X - Save 1.dat``;
+    a repair copy ``Births and Conceptions Log 1.txt.bak2`` -> ``Births and Conceptions Log 1.txt``, Codex
+    review on #847: its type, so a log copy gets the log's slot changes, not a binary file's)."""
+    bak = repair_copies.BAK.match(name)
+    if bak:
+        name = bak.group("short")
     low = name.casefold()
     cut = len(name)
     for mark in _KEPT_MARKS:
@@ -219,6 +226,9 @@ def _base_name(name: str) -> str:
             cut = min(cut, at)
     base = name[:cut]
     return base[:-4] if base.casefold().endswith(".tmp") else base
+
+
+_WORDS_NAME = re.compile(r"^(?:Virtual Villagers [1-5] )?Log Words\.dat$", re.I)   # a repair copy drops the game
 
 
 # ---------------------------------------------------------------------------
@@ -408,14 +418,15 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
             continue                                             # half-written, or a picture: as it is
         if path.name.casefold() == repair_copies.INDEX.casefold():
             indexes.append(move)                                 # below, once every copy's new name is known
-        elif layout.is_words_file(Path(base)) and relative.parts[0].casefold() == SAVES.casefold():
+        elif (layout.is_words_file(Path(base)) or (_kept_copy(path.name) and _WORDS_NAME.match(base))) \
+                and relative.parts[0].casefold() == SAVES.casefold():
             words_own.append(move)
         elif low.endswith(".txt"):
             if _kept_copy(path.name):
                 move.data, _map = cs.rewrite_log(raw, mapped, new_header, None, recon, note)
             else:
                 add_text(new_relative, 2, cs.Piece(relative, raw, [(0, len(raw))]))
-        elif re.search(r" Log Decisions - Save \d\.json$", base, re.I):
+        elif re.search(r"(?:^| )Log Decisions - Save \d\.json$", base, re.I):
             move.data = cs.transform_decisions(raw, mapped, new_header, None)
         elif low.endswith(".vvtree"):
             move.data = _new_tree(raw, game.number, source, target)

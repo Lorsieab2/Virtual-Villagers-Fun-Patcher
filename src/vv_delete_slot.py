@@ -61,7 +61,8 @@ class GameRunning(DeleteError):
 
 
 def is_picture(path: Path) -> bool:
-    return Path(path).name.casefold().endswith(PICTURES)
+    """A picture -- or a kept copy of one ("x.png.bak1", "x.png.before-...") -- by the name of what it is."""
+    return ms._base_name(Path(path).name).casefold().endswith(PICTURES)
 
 
 @dataclass
@@ -149,11 +150,15 @@ def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Grou
     """Slot ``slot``'s files in the save folder (or the backup) ``root``."""
     group = Group(where)
     found = {str(p).casefold(): p for p in ms.slot_everything(game, root, slot)}
+    # A backup's long file is kept under a short name that can lose its extension (Codex review on #847):
+    # what it IS comes from its own place in the save folder; the stored path is only where to recycle it.
+    logical: dict[str, Path] = {}
     if where:
         long = vv_save_backup.long_places(root)
         for relative, stored in long.items():
             if _slot_of_relative(game, relative, slot):
                 found.setdefault(str(stored).casefold(), stored)
+                logical[str(stored).casefold()] = relative
     relatives = {str(p.relative_to(root)).casefold() for p in found.values()
                  if vv_save_backup.LONG_PATHS not in p.relative_to(root).parts}
     relatives |= {str(r).casefold() for r, s in (vv_save_backup.long_places(root).items() if where else ())
@@ -164,7 +169,7 @@ def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Grou
             if kept.original.casefold() in relatives and lp.is_file(kept.copy):
                 found.setdefault(str(kept.copy).casefold(), kept.copy)
     for path in sorted(found.values(), key=lambda p: str(p).casefold()):
-        (group.pictures if is_picture(path) else group.files).append(path)
+        (group.pictures if is_picture(logical.get(str(path).casefold(), path)) else group.files).append(path)
     going = {str(p).casefold() for p in group.files}
     for index in _copies_indexes(root):
         if str(index).casefold() in going:

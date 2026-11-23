@@ -332,6 +332,33 @@ class SignatureTests(Base):
                 self.assertEqual(self.backups(folder), [])
 
 
+class RepairCopyTypeTests(Base):
+    """Codex review on #847: a repair copy "<short name>.bak<n>" (vv_repair_copies.new_copy) is the file it is
+    a copy of: a log's copy gets the log's slot changes (Undo Revision restores it as that log), a Log
+    Decisions copy the decisions', a marker's copy the marker's."""
+
+    def test_a_repair_copy_gets_its_files_slot_changes(self) -> None:
+        for tag, number, suffix in tc.CASES[:5]:
+            with self.subTest(game=number):
+                game, folder, old = self.make(tag, number, suffix)
+                copies = f"{OWN}\\Save 1\\Data\\Copies Made Before Repairs"
+                header = f"Village: {old} (Save 1)"
+                self.put(folder, f"{copies}\\Births and Conceptions Log 1.txt.bak1",
+                         f"{header}\r\nBirth 3\r\n".encode("latin-1"))
+                self.put(folder, f"{copies}\\Log Decisions - Save 1.json.bak1",
+                         json.dumps({"version": 1, "decisions": [{"kind": "x", "village": header}]}).encode())
+                self.put(folder, f"{copies}\\Paid Purchases - Save 1.dat.bak2",
+                         b"VPP1" + struct.pack("<7I", 1, number, 1, 7, 0, 0, 0))
+                ms.move_slot(game, folder, 1, 3, processes=tc.FakeProcesses(), now=NOW)
+                moved = folder / OWN / "Save 3" / "Data" / "Copies Made Before Repairs"
+                self.assertEqual((moved / "Births and Conceptions Log 1.txt.bak1").read_bytes(),
+                                 f"Village: {old} (Save 3)\r\nBirth 3\r\n".encode("latin-1"))
+                decisions = json.loads((moved / "Log Decisions - Save 3.json.bak1").read_bytes())["decisions"]
+                self.assertEqual(decisions[0]["village"], f"Village: {old} (Save 3)")
+                paid = (moved / "Paid Purchases - Save 3.dat.bak2").read_bytes()
+                self.assertEqual(struct.unpack_from("<I", paid, 12)[0], 3)
+
+
 class NameTests(unittest.TestCase):
     def test_every_slot_mark_in_a_name(self) -> None:
         game = rename.GAMES[4]
