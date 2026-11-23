@@ -444,6 +444,9 @@ class Edits:
     canvas_w: int = 0
     canvas_h: int = 0
     page_generations: int = 6           # the most generations on one page (the owner: 6, up to 10)
+    # A page's own view (page_view): the tree's pages, worked out from the tree's own edits before the page's
+    # were laid over them, so a villager hidden on one page never moves the pages (Codex, PR #844).  Never saved.
+    tree_spans: list | None = field(default=None, compare=False, repr=False)
     diagonal_lines: bool = False        # a dragged line piece may move any way (else only across itself)
     show_units: bool = True             # "<age> game units" in the portraits
     show_years: bool = True             # "<years> years old" in the portraits
@@ -1401,6 +1404,7 @@ def page_view(edits: Edits, village: gen.Village, page: int) -> Edits:
     if not part:
         return edits
     view = replace(edits)
+    view.tree_spans = page_spans(edits, village)     # the tree's pages, before this page's own hides
     entries = {k: dict(v) for k, v in edits.entries.items()}
     for ekey, fields in part.get("entries", {}).items():
         merged = entries.setdefault(ekey, {})
@@ -1458,7 +1462,7 @@ def page_village(edits: Edits, village: gen.Village, page: int) -> gen.Village:
     out.people = {pid: _copy(p) for pid, p in village.people.items()}
     for pid, g in changed.items():
         out.people[pid].generation = g
-    out.span_generations = sorted({p.generation for p in village.people.values()}) or [1]
+    out.span_generations = shown_generations(edits, village) or [1]
     _renumber(out, replace(edits, entries=entries))
     return out
 
@@ -2128,21 +2132,97 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     with the generation the next one starts at, and that page shows it again as its founders (the
     owner: "page 1 has generations 1-6.  The second page should have generations 6-12, with the 6th
     generation on the second page being treated as "founders" on the second page")."""
+    if edits.tree_spans is not None:            # a page's view keeps the tree's pages (page_view)
+        return list(edits.tree_spans)
     # (a page laid out with generations of its own keeps the tree's pages: page_village)
-    gens = getattr(village, "span_generations", None) or sorted({p.generation for p in village.people.values()}) or [1]
+    gens = getattr(village, "span_generations", None) or shown_generations(edits, village) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
     # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
     # say, 10 at most, so every page stays legible): a longer span goes on over the next pages, each
-    # starting with the generation the one before ends with.
+    # starting with the generation the one before ends with.  Counted in the generations someone is in,
+    # never in generation numbers: a tree whose numbers jump (VII, then XLI) made a page for every six
+    # numbers between, each one blank (the owner, 2026-11-22: "why are there 9 pages with blank ones").
     most = edits.page_generations
     out = []
     for lo, hi in spans:
-        while hi - lo + 1 > most:
-            out.append((lo, lo + most - 1))
-            lo += most - 1
-        out.append((lo, hi))
-    return out
+        run = [g for g in gens if lo <= g <= hi]
+        while len(run) > most:
+            out.append((run[0], run[most - 1]))
+            run = run[most - 1:]
+        out.append((run[0], run[-1]))
+    # A page of nobody the tree shows -- its villagers all hidden on the tree (a generation hidden on the tree
+    # and restored only on another page) -- is no page at all: the owner never wants a blank page.  A page the
+    # player emptied on that page alone (Delete there) stays, so Deleted items -> Restore can bring them back.
+    kept = [(lo, hi) for lo, hi in out if _page_keeps_someone(edits, village, lo, hi)]
+    return kept or out[:1]
+
+
+def _page_keeps_someone(edits: Edits, village: gen.Village, lo: int, hi: int) -> bool:
+    """Whether the page from `lo` to `hi` (its name in page_edits: `lo`, page_key) has anyone: someone there
+    the tree does not hide, or whom the page itself shows or hides (the player's doing on that page)."""
+    part = edits.page_edits.get(str(lo))
+    own = part.get("entries", {}) if isinstance(part, dict) else {}
+    if not own and not any(isinstance(f, dict) and f.get("hidden") for f in edits.entries.values()):
+        return any(lo <= p.generation <= hi for p in village.people.values())
+    for p in village.people.values():
+        if lo <= p.generation <= hi:
+            key = entry_key(village, p)
+            here = own.get(key)
+            if not (edits.entries.get(key) or {}).get("hidden") or isinstance(here, dict) and "hidden" in here:
+                return True
+    return False
+
+
+def _merge_page_part(into: dict, part: dict) -> None:
+    """One page's own edits added to another's; what the page already keeps wins (nothing is overwritten)."""
+    for name, value in part.items():
+        if isinstance(value, dict):
+            have = into.setdefault(name, {})
+            for k, v in value.items():
+                if isinstance(v, dict) and isinstance(have.get(k), dict):
+                    for f, x in v.items():
+                        have[k].setdefault(f, x)
+                else:
+                    have.setdefault(k, v)
+        elif isinstance(value, list):
+            have = into.setdefault(name, [])
+            have.extend(x for x in value if x not in have)
+        else:
+            into.setdefault(name, value)
+
+
+def rekey_pages(edits: Edits, village: gen.Village) -> bool:
+    """A page's own edits are kept under its first generation (page_key).  When the pages are cut differently
+    (a tree that once had a page for every six generation numbers -- the owner's 36 and 41 -- now has pages of
+    the generations someone is in), each page's edits a page no longer starts at go to the page that now holds
+    that generation (the first or last page past either end), added to what it keeps, so nothing the player
+    placed disappears.  True when the edits changed (to be saved)."""
+    spans = page_spans(edits, village)
+    starts = {lo for lo, _hi in spans}
+    orphans = sorted(int(k) for k in edits.page_edits if str(k).isdigit() and int(k) not in starts)
+    if not orphans:
+        return False
+    for g in orphans:
+        part = edits.page_edits.pop(str(g))
+        to = next((lo for lo, hi in spans if lo <= g <= hi), spans[0][0] if g < spans[0][0] else spans[-1][0])
+        _merge_page_part(edits.page_edits.setdefault(str(to), {}), part)
+    edits.page_edits = clean_page_edits(edits.page_edits)
+    return True
+
+
+def shown_generations(edits: Edits, village: gen.Village) -> list[int]:
+    """The generations the tree shows someone in (a villager the player hid shows nowhere), lowest first --
+    the generations its pages are made of, so no page is ever blank."""
+    hidden = {k for k, f in edits.entries.items() if isinstance(f, dict) and f.get("hidden")}
+    # A villager hidden on the tree but brought back on a page (Deleted items -> Restore on that page) is shown
+    # there, so the generation keeps its place in the pages (Codex, PR #844).
+    for part in edits.page_edits.values():
+        for k, f in (part.get("entries", {}) if isinstance(part, dict) else {}).items():
+            if isinstance(f, dict) and "hidden" in f and not f["hidden"]:
+                hidden.discard(k)
+    return sorted({p.generation for p in village.people.values()
+                   if not hidden or entry_key(village, p) not in hidden})
 
 
 def layout(village: gen.Village, edits: Edits | None = None, page: int = 0) -> Layout:
@@ -8807,6 +8887,7 @@ def build(folder: Path, game: int, slot: int, edits: Edits | None = None) -> tup
     if edits.hide_heathens:                     # "Hide unconverted Heathens": the pictures as the editor shows it
         village = gen.without_heathens(village)
     arrange(village, edits)
+    rekey_pages(edits, village)                 # each page's own edits on the page that holds them now
     return village, edits, layout(village, edits)
 
 
