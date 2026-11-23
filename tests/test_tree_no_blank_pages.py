@@ -139,6 +139,22 @@ class NoBlankPagesTests(unittest.TestCase):
                 self.assertEqual(ft.page_view(edits, v, 0).tree_spans, tree)
                 self.assertNotIn("tree_spans", ft.page_view(edits, v, 0).to_data())
 
+    def test_villagers_restored_on_a_page_bring_their_generation_back_onto_it(self) -> None:
+        # Codex, PR #844: a generation hidden on the tree, then Deleted items -> Restore all on the page (a
+        # page-local hidden: None), stayed off the pages: 2 generations, the second hidden, gave (1, 1).
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = chain_village(game, [1, 2])
+                edits = ft.Edits()
+                ft.arrange(v, edits)
+                keys = [ft.entry_key(v, p) for p in v.people.values() if p.generation == 2]
+                for k in keys:
+                    edits.entries[k] = {"hidden": True}
+                self.assertEqual(ft.page_spans(edits, v), [(1, 1)])
+                edits.page_edits = ft.clean_page_edits({"1": {"entries": {k: {"hidden": None} for k in keys}}})
+                self.assertEqual(ft.page_spans(edits, v), [(1, 2)])
+                self.assertIn(2, page_generations(ft.layout(v, edits, 0)))
+
     def test_the_window_refuses_a_page_break_at_a_generation_of_nobody(self) -> None:
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
         body = source[source.index("    def _add_page_break("):source.index("    def _remove_page_break(")]

@@ -2158,6 +2158,12 @@ def shown_generations(edits: Edits, village: gen.Village) -> list[int]:
     """The generations the tree shows someone in (a villager the player hid shows nowhere), lowest first --
     the generations its pages are made of, so no page is ever blank."""
     hidden = {k for k, f in edits.entries.items() if isinstance(f, dict) and f.get("hidden")}
+    # A villager hidden on the tree but brought back on a page (Deleted items -> Restore on that page) is shown
+    # there, so the generation keeps its place in the pages (Codex, PR #844).
+    for part in edits.page_edits.values():
+        for k, f in (part.get("entries", {}) if isinstance(part, dict) else {}).items():
+            if isinstance(f, dict) and "hidden" in f and not f["hidden"]:
+                hidden.discard(k)
     return sorted({p.generation for p in village.people.values()
                    if not hidden or entry_key(village, p) not in hidden})
 
