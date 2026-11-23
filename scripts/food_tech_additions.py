@@ -93,41 +93,18 @@ ADDITIONS: list[tuple[str, str, tuple[str, bool], str, str]] = [
     ("rm07_fisher_restraint", "a1", FG, "small", "The fisher returns with a modest catch and leaves the remaining fish undisturbed."),
     ("rm18_tree_fruit", "d1", FG, "small", "Several families enjoy a small portion of fresh fruit."),
     # ---- Grand collection (V28) -------------------------------------------------------------------------------------
-    ("all_conundrums", "a5", TG, "small", "the villagers learn to ask better questions and to record what happened rather than what they hoped would happen."),
-    ("all_conundrums", "c1", TG, "small", "The single proposal is a simple tool for lifting hot cooking pots without burning one's hands. The cook tests it and approves."),
-    ("all_conundrums", "c4", TG, "small", "\"You rediscovered something worth remembering,\""),
     ("all_inexplicable_idea", "a1", TG, "small", "The idea solves a practical problem with ordinary materials ... (Inventor) is offered a chance to teach the method."),
     ("all_inexplicable_idea", "c1", TG, "small", "(Inventor) returns weeks later with a smaller, more practical design. The council approves it."),
     ("all_invention", "t2", TG, "small", "The invention fails, but the observations reveal something useful about material strength."),
-    ("all_invention_showcase", "a4", TG, "small", "a particular knot holds far more weight than the others. The builders test the knot, improve it, and teach"),
-    ("all_invention_showcase", "c8", TG, "small", "\"what if we used the same arrangement of vines to lift a heavy stone?\" ... The builders try it."),
     ("all_physics_defying", "b1_more", TG, "small", "the village adopts the new technique after independent testing."),
-    ("all_secret_of_life", "a4_2", TG, "small", "The healers test the fibers safely and discover a useful way to bind splints."),
-    ("all_secret_of_life", "b5_2", TG, "small", "the discovery of a way to extinguish flames. (Subject) begins taking notes"),
-    ("all_secret_of_life", "c6_2", TG, "small", "discovers an ingenious tensioned-vine mechanism. \"It doesn't live,\" the builder says, \"but it could lift water.\""),
     # all_v20_d2_no_such a1: the owner (Q13, 2026-11-19) keeps only the newer outcome pass's tech gain (normal, half
     # the time; data/event_collection/outcome_effects/base.txt), so this 100% row is gone.
     ("all_v20_r1_should_not", "a1", TL, "small", "The object is smashed. Researchers lament the lost evidence"),
-    ("all_v20_r1_should_not", "a4", TG, "small", "A useful component inspires a new island-made tool."),
-    ("all_v20_r1_should_not", "b1", TG, "small", "(Finder) discovers a practical function; craftspeople attempt to imitate it using island materials."),
     ("all_v20_r3_isola", "c2", TG, "small", "A researcher records the discovery despite an order of silence."),
     ("all_v21_c1_potters", "a5", TG, "small", "a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator."),
     ("all_v22_4_parents", "d2", FL, "small", "(Child) gives away all the family's prepared snacks, including the portion meant for (Parent)."),
-    ("all_v24_revolutionary", "a1_food", TG, "small", "Within days nearly everyone adopts the invention or celebrates the discovery."),
-    ("all_v24_revolutionary", "a1_sci", TG, "small", "Within days nearly everyone adopts the invention or celebrates the discovery."),
-    ("all_v24_revolutionary", "a1_eng", TG, "small", "Within days nearly everyone adopts the invention or celebrates the discovery."),
-    ("all_v24_revolutionary", "a1_trade", TG, "small", "Within days nearly everyone adopts the invention or celebrates the discovery."),
-    ("all_v24_revolutionary", "a1_art", TG, "small", "Within days nearly everyone adopts the invention or celebrates the discovery."),
-    ("all_v24_revolutionary", "a4_food", TG, "small", "The innovation solves a longstanding village problem."),
-    ("all_v24_revolutionary", "a4_sci", TG, "small", "The innovation solves a longstanding village problem."),
-    ("all_v24_revolutionary", "a4_eng", TG, "small", "The innovation solves a longstanding village problem."),
-    ("all_v24_revolutionary", "a4_trade", TG, "small", "The innovation solves a longstanding village problem."),
-    ("all_v24_revolutionary", "a4_art", TG, "small", "The innovation solves a longstanding village problem."),
     ("all_v24_revolutionary", "c3", TL, "small", "destroys the demonstration apparatus. Nearby villagers retreat; damaged equipment must be replaced."),
     ("all_v24_revolutionary", "d4", TL, "small", "The only record is damaged or misplaced. The innovation vanishes from village memory."),
-    ("all_v24_revolutionary", "e1", TG, "small", "The elders approve practical use, training, or preservation of the discovery in the village records."),
-    ("all_v27_24_explorer", "a", TG, "small", "They return with a new map and a chastened attitude."),
-    ("vv2_cooking_contest", "v13a_b5", TG, "small", "(judge) listens, tastes, and asks for the method to be recorded so it is not lost."),
     ("vv2_hut_sharing_negotiation", "e2", TG, "small", "{@Chief} asks the builders to write down what they learned before the next group of newcomers arrives."),
     ("vv3_gardening_contest", "p1", TG, "small", "The villagers learn which designs suit which purposes."),
     ("vv3_v17_cooking", "b2", FG, "small", "Both meals are excellent and the Chief orders a shared feast."),
@@ -209,6 +186,17 @@ EFFECT_ADDITIONS: list[tuple[str, str, dict, str]] = [
     ("sss036_outsider_wants", "b", NEWCOMER, "A castaway asks to become part of the village ... The visitor agrees to shared rules but keeps personal history private."),
     ("lvppl12_tribe_someone", "a1", NEWCOMER, "The newcomer joins the tribe while retaining treasured customs."),
     ("lvppl12_tribe_someone", "a2", NEWCOMER, "Some villagers need time to adjust to the new neighbor."),
+]
+
+
+# The rows the owner took out of ADDITIONS, kept in the log under the totals (write_log).
+REMOVED_NOTES = [
+    "(`all_v20_d2_no_such` a1's tech gain was removed: the owner, Q13 2026-11-19, keeps only the newer outcome pass's",
+    "gain there, normal and half the time.)",
+    "(The owner, 2026-11-22: 23 small tech gains were removed where the outcome pass already pays the normal one --",
+    "`vv2_cooking_contest` v13a_b5; `all_conundrums` a5, c1, c4; `all_invention_showcase` a4, c8; `all_secret_of_life`",
+    "a4_2, b5_2, c6_2; `all_v20_r1_should_not` a4, b1; `all_v24_revolutionary` a1_* and a4_* (food, sci, eng, trade, art)",
+    "and e1; `all_v27_24_explorer` a. A node pays one tech award, the normal one.)",
 ]
 
 
@@ -593,7 +581,8 @@ def write_log(files: dict[str, Path], docs: dict[str, dict]) -> None:
         lines.append("")
     lines.insert(9, f"Totals: food gain {total[FG]}, food loss {total[FL]}, tech gain {total[TG]}, "
                     f"tech loss {total[TL]} ({len(ADDITIONS)} effects).")
-    lines.insert(10, "")
+    lines[10:10] = REMOVED_NOTES
+    lines.insert(10 + len(REMOVED_NOTES), "")
     lines += ["# Likes, skills, looks and new villagers where the text fits (second pass)", "",
               "The owner's second request (2026-11-15): a like or dislike from each game's own list, skill points,",
               "a new head or clothes, and the new effects of cie-v6-binary.md 38 (new villager, pregnancy, nursing,",
@@ -654,7 +643,12 @@ def main(argv=None) -> int:
             print(f"{eid}: node {node} is missing or has no src")
             bad += 1
             continue
-        for e in [e for n in ns for e in n.get("effects", []) or []]:
+        effects = [e for n in ns for e in n.get("effects", []) or []]
+        if any(_bare(e) == add for e in effects):
+            # already applied (apply()'s own test): on a 50% split the other copy's amount is the outcome pass's
+            # (scripts/outcome_effects.py), which apply() keeps -- not a conflict
+            continue
+        for e in effects:
             if _same(e, add) and {k: v for k, v in e.items() if k != "src"} != add:
                 print(f"{eid}: node {node} already has a {add['do']} effect on that role")
                 bad += 1

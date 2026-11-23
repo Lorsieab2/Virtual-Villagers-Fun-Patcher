@@ -454,7 +454,7 @@ static int c4_behave(int index, int behaviour) {
         return 0;
     }
     act = &C4_BEHAVIOURS[behaviour];
-    if (!ce_supply_value(act, index, c4_record, c4_listed, c4_skeleton, &value)) {
+    if (!ce_supply_value(act, index, c4_record, c4_listed, c4_skeleton, 0x50E568u, c4_manager(), &value)) {
         return 0;
     }
     if (act->kind == ACT_DROP) {
@@ -892,10 +892,11 @@ static int c4_rand_below(int n) {
     return ((c4_rand_fn)(uintptr_t)0x4036D0u)(n);
 }
 
-/* The Tree of Life's villager catch-up 0x468430 on the villager array 0x50E568 (its one caller, the update 0x420560,
-   right after the aging 0x466450). */
+/* The Tree of Life's villager catch-up 0x468430 on the villager manager (its one caller, the update 0x420560,
+   right after the aging 0x466450): the running table's -- 0x50E568 stock, 0x800000 with 256 Villagers
+   (Experimental), whose catch-up walks 256 records and would run past the stock object. */
 static void c4_catch_up(void) {
-    TC0(0x468430u, 0x50E568u);
+    TC0(0x468430u, c4_manager());
 }
 
 static const ce_birth_layout C4_BIRTH = { 0x1B8Cu, 0x1C3Cu, 0x1C4Cu, 0x1C40u, c4_catch_up };
