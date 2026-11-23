@@ -67,7 +67,10 @@ class Manifest(unittest.TestCase):
     def test_the_row_carries_the_fix_and_says_so(self) -> None:
         from vv_fun_patcher import load_fun_patches
         row = next(p for p in load_fun_patches() if p.id == FEATURE).raw
-        last = row["patches"][-1]
+        # The Clothing Hut click fix (tests/test_vv5_clothing_hut_click.py) comes after this one.
+        from test_vv5_clothing_hut_click import clothing_hut_click_fixes
+        later = len(clothing_hut_click_fixes())
+        last = row["patches"][-1 - later]
         self.assertEqual((int(last["offset"], 16), bytes.fromhex(last["before"]), bytes.fromhex(last["after"])), FIX)
         self.assertIn("sees a nursery school foundation", row["description"])
         self.assertTrue(row["description"].endswith("**Needs no other patch.**"))
