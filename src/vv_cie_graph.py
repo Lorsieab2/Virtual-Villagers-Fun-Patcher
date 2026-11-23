@@ -3490,8 +3490,6 @@ AUTO_LINES = {
     "group1_set": "<W>'s <S> skill is now <N>.",
     "group_health": "The health of <C> villagers is now <N>.",
     "group1_health": "<W>'s health is now <N>.",
-    # The owner (2026-11-23): an outcome that changes nothing ends with this line (with_no_effect).
-    "no_effect": "(no effect)",
     # 45 (the owner, 2026-11-23): the Heathens' own cast -- the tribe's effects are the Heathens' village's ("village,
     # NOT camp") and change nothing, so each ends "(no effect)" (story_graph.inc cg_flavor_only).  Guardians of Isola:
     # "the Isolans' village" (GUARDIANS_AUTO_LINES).
@@ -3509,6 +3507,9 @@ AUTO_LINES = {
     "hv_level": "The Heathens' village's technology changes. (no effect)",
     "hv_group": "The Heathens' village gathers together. (no effect)",
     "hv_celebrate_all": "Everyone in the Heathens' village celebrates. (no effect)",
+    # The owner (2026-11-23): an outcome that changes nothing ends with this line (with_no_effect).  Last, in the
+    # engine's order (story_graph.inc CG_AUTO_LINES; tests/test_exact_result_amounts.py).
+    "no_effect": "(no effect)",
 }
 GUARDIANS_AUTO_LINES.update({k: v.replace("Heathens'", "Isolans'") for k, v in AUTO_LINES.items()
                              if k.startswith("hv_")})
