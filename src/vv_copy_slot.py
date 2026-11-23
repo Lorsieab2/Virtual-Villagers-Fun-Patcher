@@ -113,6 +113,7 @@ _SLOT_FIELD = {
     b"VV3T": 12,    # The Secret City's Fruit Tree Timers (vv3_fruit_timers.h)
     b"VV2F": 12,    # The Secret City's Second Faction (vvfp_vv3_both_factions.c)
     b"VV4F": 12,    # The Tree of Life's Yellow Fruit Tree (vvfp_vv4_fruit_supply.c)
+    b"VHA1": 16,    # New Believers' Heathen Aging (vvfp_heathen_aging.c: magic, version, game, count, slot)
 }
 # Where a marker keeps its village id (FNV-1a of "Village: <name> (Save <S>)"), and its length then.
 _VILLAGE_ID = {b"VXC1": (44, 48), b"VCA1": (16, 20), b"VCB1": (16, 20)}

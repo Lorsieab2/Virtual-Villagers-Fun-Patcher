@@ -885,6 +885,24 @@ class SelfReview(unittest.TestCase):
 
 
 class OfflineRenames(unittest.TestCase):
+    def test_a_moved_slots_file_is_retagged_and_read_there(self):
+        # Codex (#850): Copy / Move Player Slot retag the file's slot (offset 16) through vv_copy_slot, so the
+        # companion accepts it in the new slot.
+        if _skip():
+            self.skipTest(_skip())
+        import vv_copy_slot
+        v = Village((FORMER,))
+        OwedReplacements._slot(None, v, 3)
+        r = v.villager(1, heathen=True, name="Moved")       # no parents: only the file says she left the tribe
+        made = (struct.pack("<5I", 0x31414856, 2, 5, 1, 1) + struct.pack("<II", _identity(v, r), 1))
+        moved = vv_copy_slot.transform_binary(made, 1, 3, {}, "Tribe", "Tribe")
+        self.assertEqual(struct.unpack_from("<I", moved, 16)[0], 3, "the slot field retagged")
+        self.assertEqual(moved[:16] + moved[20:], made[:16] + made[20:], "nothing else changed")
+        path = "C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher\\Save 3\\Data\\Heathen Aging\\Heathen Aging - Save 3.dat"
+        v.files[path] = moved
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 602, "read in the new slot: a former villager who ages")
     def test_the_rename_planner_rekeys_the_heathen_aging_file(self):
         import tempfile
         import inspect
