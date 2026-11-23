@@ -251,7 +251,7 @@ def confirm_and_delete(
     run: Callable[[Callable[[], vv_delete_slot.DeleteResult]], vv_delete_slot.DeleteResult],
     game: vv_tribe_rename.GameSaves,
     folder: Path,
-    source: vv_tribe_rename.SlotInfo,
+    source,
     parent=None,
     processes=None,
     now: datetime | None = None,
@@ -259,16 +259,17 @@ def confirm_and_delete(
 ) -> vv_delete_slot.DeleteResult | None:
     """Refused at once while the game runs.  Every file is listed first; then a second question names the
     village.  Only Yes to both sends exactly what was listed to the Recycle Bin.  None when the player said
-    No: then nothing at all changed."""
+    No: then nothing at all changed.  ``source``: the slot number (or a SlotInfo)."""
+    slot = getattr(source, "slot", source)
     vv_delete_slot._refuse_if_running(Path(folder), processes if processes is not None
                                       else vv_save_backup.WindowsProcesses())
-    plan = vv_delete_slot.plan_delete(game, folder, source.slot)
+    plan = vv_delete_slot.plan_delete(game, folder, slot)
     if not preview(parent, DELETE_TITLE, delete_text(folder, plan), plan.preview(), "Delete it?"):
         return None
     if not ask(parent, DELETE_TITLE, delete_final_text(plan)):
         return None
     shown = plan.signature()
-    return run(lambda: vv_delete_slot.delete_slot(game, folder, source.slot, processes=processes, now=now,
+    return run(lambda: vv_delete_slot.delete_slot(game, folder, slot, processes=processes, now=now,
                                                   expected=shown, recycle=recycle))
 
 
@@ -400,6 +401,10 @@ def open_copy_slot(app, build) -> None:
         if slots is None or not state["folders"]:
             return None, None
         s, t = source_box.current(), target_box.current()
+        if deleting():
+            # Delete's own list: every slot with any file Delete finds (vv_delete_slot.deletable_slots).
+            listed = state.get("delete_slots") or []
+            return (listed[s][0] if 0 <= s < len(listed) else None), None
         source = slots.sources[s] if 0 <= s < len(slots.sources) else None
         target = state["targets"][t] if 0 <= t < len(state["targets"]) else None
         return source, target
@@ -427,6 +432,8 @@ def open_copy_slot(app, build) -> None:
         problem = None
         if not state["folders"]:
             problem = "No save folder was found for this game."
+        elif source is None and delete:
+            problem = "No slot of this save folder has any file to delete."
         elif source is None:
             problem = f"This save folder has no player to {verb} (no slot has a save the game can load)."
         elif delete:
@@ -447,7 +454,8 @@ def open_copy_slot(app, build) -> None:
         """Every slot but the source: an empty one, or the village it would overwrite."""
         slots = state["slots"]
         source = chosen()[0]
-        state["targets"] = [s for s in vv_copy_slot.SLOTS if source is None or s != source.slot] if slots else []
+        state["targets"] = [s for s in vv_copy_slot.SLOTS
+                            if source is None or s != getattr(source, "slot", source)] if slots else []
         labels = [slots.label(s) for s in state["targets"]] if slots else []
         target_box.configure(values=labels)
         empty = next((n for n, s in enumerate(state["targets"]) if s in slots.targets), 0) if slots else 0
@@ -461,10 +469,16 @@ def open_copy_slot(app, build) -> None:
         index = folder_box.current()
         state["slots"] = None
         state["taken"] = {}
+        state["delete_slots"] = []
         if 0 <= index < len(state["folders"]):
             state["slots"] = vv_copy_slot.read_slots(game(), state["folders"][index])
+            if deleting():
+                state["delete_slots"] = vv_delete_slot.deletable_slots(game(), state["folders"][index])
         slots = state["slots"]
-        sources = [info.label for info in slots.sources] if slots else []
+        if deleting():
+            sources = [label for _slot, label in state["delete_slots"]]
+        else:
+            sources = [info.label for info in slots.sources] if slots else []
         source_box.configure(values=sources)
         source_var.set(sources[0] if sources else "")
         if sources:
@@ -599,7 +613,7 @@ def open_copy_slot(app, build) -> None:
     source_box.bind("<<ComboboxSelected>>", load_targets)
     target_box.bind("<<ComboboxSelected>>", refresh)
     name_var.trace_add("write", refresh)
-    mode_var.trace_add("write", refresh)
+    mode_var.trace_add("write", load_slots)      # Copy/Move list readable saves; Delete every slot with files
     frame.columnconfigure(1, weight=1)
     load_folders()
     dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)

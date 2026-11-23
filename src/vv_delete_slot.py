@@ -206,6 +206,32 @@ def _snapshots(folder: Path) -> list[Path]:
     return out
 
 
+NO_SAVE = "(no save -- leftover files)"
+UNREADABLE = "(unreadable save)"
+
+
+def deletable_slots(game: rename.GameSaves, folder: Path) -> list[tuple[int, str]]:
+    """Every slot Delete can be used on -- any slot with a file plan_delete finds (its save, its leftovers, its
+    files in a backup, a set-aside folder of it), not only a slot with a readable save (Codex review on #847:
+    after a delete that stopped part-way, or for an empty slot's leftovers or an unreadable save, the slot
+    must still be offered) -- with its label: "Save 2: <village>", "Save 2: (no save -- leftover files)",
+    "Save 2: (unreadable save)"."""
+    out: list[tuple[int, str]] = []
+    for slot in cs.SLOTS:
+        try:
+            plan = plan_delete(game, folder, slot)
+        except (DeleteError, OSError):
+            continue
+        if plan.name is not None:
+            what = plan.name
+        elif game.save_path(Path(folder), slot).is_file():
+            what = UNREADABLE
+        else:
+            what = NO_SAVE
+        out.append((slot, f"Save {slot}: {what}"))
+    return out
+
+
 def plan_delete(game: rename.GameSaves, folder: Path, slot: int) -> Plan:
     folder = Path(folder)
     if slot not in cs.SLOTS:
@@ -237,7 +263,7 @@ def plan_delete(game: rename.GameSaves, folder: Path, slot: int) -> Plan:
         plan.groups += _set_aside_groups(folder, slot)
     except OSError as exc:
         raise DeleteError(f"Could not list the save folder: {exc}") from exc
-    if not plan.files and not plan.pictures:
+    if not plan.files:                       # nothing at all, or only pictures (which always stay)
         raise DeleteError(f"Save {slot} has no files to delete.")
     prints = []
     for path in plan.files + list(plan.pictures):

@@ -326,6 +326,80 @@ class OwnershipTests(Base):
         self.assertEqual((aside / "x - Save 2.dat").read_bytes(), b"slot two's")
 
 
+class DeletableSlotsTests(Base):
+    """Codex review on #847: Delete lists every slot with any file it would find -- not only readable saves --
+    so a delete that stopped part-way can be finished, and leftovers or an unreadable save can be deleted."""
+
+    def test_every_slot_with_files_is_listed_with_its_label(self) -> None:
+        for tag, number, suffix in tc.CASES:
+            with self.subTest(game=number, build=tag):
+                game, folder, old = self.make(tag, number, suffix)
+                self.put(folder, game.save_path(folder, 4).name, b"not a save")
+                self.assertEqual(ds.deletable_slots(game, folder), [
+                    (1, f"Save 1: {old}"), (2, "Save 2: (no save -- leftover files)"), (4, "Save 4: (unreadable save)")])
+
+    def test_a_stopped_delete_can_be_finished(self) -> None:
+        game, folder, _old = self.make("huttest", 5, "Modded 256")
+        bin_ = FakeBin(Path(self._tmp.name) / "bin", fail_on=2)          # the backup's batch refused
+        result = ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+        self.assertTrue(result.not_recycled)
+        self.assertNotIn(1, [s.slot for s in cs.read_slots(game, folder).sources])   # Copy/Move no longer list it
+        self.assertIn((1, "Save 1: (no save -- leftover files)"), ds.deletable_slots(game, folder))
+        again = FakeBin(Path(self._tmp.name) / "bin2")
+        source = dict(ds.deletable_slots(game, folder))
+        self.assertIn(1, source)
+        result = window.confirm_and_delete(lambda *a: True, lambda *a: True, lambda work: work(), game, folder, 1,
+                                           processes=tc.FakeProcesses(), now=NOW, recycle=again)
+        self.assertIsNone(result.problem)
+        self.assertTrue(all(not p.exists() for p in result.recycled))
+        self.assertNotIn(1, dict(ds.deletable_slots(game, folder)))
+
+
+class WindowListTests(Base):
+    """The real window: switching to Delete lists Delete's own slots; switching back lists readable saves."""
+
+    def setUp(self) -> None:
+        super().setUp()
+        self.root = tc._tk_root()
+        if self.root is None:
+            self.skipTest("no Tk display")
+
+    def tearDown(self) -> None:
+        self.root.destroy()
+        super().tearDown()
+
+    def test_the_delete_choice_lists_every_slot_with_files(self) -> None:
+        import tkinter as tk
+        from tkinter import ttk
+        from unittest import mock
+        game, folder, old = self.make("huttest", 5, "Modded")
+        root = self.root
+        root.builds = [type("B", (), {"title": g.title})() for g in rename.GAMES]
+        root.status_var = tk.StringVar(master=root)
+        root._run_with_wait = lambda text, work: work()
+        with mock.patch.object(backup, "documents_folder", return_value=self.documents):
+            window.open_copy_slot(root, root.builds[4])
+        dialog = [w for w in root.winfo_children() if isinstance(w, tk.Toplevel)][-1]
+
+        def find(widget, cls):
+            out = []
+            for child in widget.winfo_children():
+                out += ([child] if isinstance(child, cls) else []) + find(child, cls)
+            return out
+
+        root.update()
+        source_box = [c for c in find(dialog, ttk.Combobox)][2]
+        self.assertEqual(list(source_box.cget("values")), [f"Save 1: {old}"])
+        find(dialog, ttk.Radiobutton)[2].invoke()                          # Delete
+        root.update()
+        self.assertEqual(list(source_box.cget("values")),
+                         [f"Save 1: {old}", "Save 2: (no save -- leftover files)"])
+        find(dialog, ttk.Radiobutton)[0].invoke()                          # back to Copy
+        root.update()
+        self.assertEqual(list(source_box.cget("values")), [f"Save 1: {old}"])
+        dialog.destroy()
+
+
 class ConfirmationTests(Base):
     def test_no_at_either_question_changes_nothing(self) -> None:
         for preview_says, final_says in ((False, True), (True, False)):
