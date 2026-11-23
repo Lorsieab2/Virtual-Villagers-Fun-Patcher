@@ -282,6 +282,9 @@ class Evidence:
     # The "How:" line of each of those records, in the same order (None: none, a Birth, an island event's
     # newcomer): New Believers logs a Heathen's conversion as an Arrived record of a villager already known.
     own_hows: list[str | None] = field(default_factory=list)
+    # Every name a Deaths / Unaccounted record gives a villager who is gone for good (died, disappeared, lost) --
+    # not one who left for the Heathens: a namesake there may be whoever a record of that name was about.
+    gone: set[str] = field(default_factory=set)
     names: set[str] = field(default_factory=set)                   # every villager name the logs know
     sex_changed: set[str] = field(default_factory=set)             # names whose sex changed (vv_sex_changes)
 
@@ -407,6 +410,8 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
         for b in additions.blocks(p):
             if b.of(slot, game, villages) and b.value("Name"):
                 out.names.add(b.value("Name"))
+                if "became a heathen" not in (b.value("What happened") or "").lower():
+                    out.gone.add(b.value("Name"))
     # The renames the patcher itself made (Last Names, Number Duplicate Names, a name given back...).
     for d in decisions.load(folder, game, slot):
         if d.get("kind") == decisions.ALIAS_KIND and isinstance(d.get("name"), str) \
@@ -577,7 +582,10 @@ def _converted(how: str | None) -> bool:
 def _believer_record(ev: Evidence, names: set[str], s) -> tuple[tuple, int] | None:
     """(looks, mask) of a villager's own first record when they were a believer then and have joined the tribe
     from the Heathens since: exactly one record of their own that is not a conversion, it is their first, it
-    is of their sex, and a conversion record follows it.  None otherwise."""
+    is of their sex, and a conversion record follows it -- and no villager of one of their names is gone for
+    good (a dead namesake's records cannot be told from theirs: Codex, #841).  None otherwise."""
+    if names & ev.gone:
+        return None
     mine = [k for k, o in enumerate(ev.own) if o[0] in names]
     hows = [ev.own_hows[k] if k < len(ev.own_hows) else None for k in mine]
     first = [k for k, how in zip(mine, hows) if not _converted(how)]
@@ -616,8 +624,8 @@ def correction(v: Living, kept: Entry, ev: Evidence, f: Found, others: set[str] 
     if f.kind not in (KNOWN, None):
         return None
     names = _names(s.name, ev.renames)
-    if names & set(others):
-        return None
+    if names & set(others) or names & ev.gone:
+        return None                             # a namesake, living or gone, could be whom a record was about
     mine = [k for k, o in enumerate(ev.own) if o[0] in names]
     first = [k for k in mine if not _converted(ev.own_hows[k] if k < len(ev.own_hows) else None)]
     if len(first) != 1 or first[0] != mine[0]:

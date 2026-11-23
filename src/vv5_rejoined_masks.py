@@ -17,7 +17,10 @@ WHO.  A living believer now (the save's faction byte 0) of one identity, whose n
 has, whose nibble in the Village Masks file is 0 (no mask) while the file names them at their record, and
 whose LAST conversion record in the logs -- an Arrived record "How: Converted from the Heathens" of their name
 and sex -- names the mask they wore: "Special villager: Former Heathen (blue / orange / red mask)", "Former
-Heathen Master (purple mask)" or "Retired Heathen Chief".  Anything less is listed with why, never guessed.
+Heathen Master (purple mask)" or "Retired Heathen Chief" -- and only when the logs know ONE villager of that
+name and sex (Codex, #841): no villager of the name died, vanished or was lost, no island event brought a
+newcomer of it, and at most one Birth / Arrived record of their own, which comes before that conversion.
+Anything less is listed with why, never guessed.
 
 Run by approve_repair (src/vv_log_tools.py) after the original looks, with the game closed and the save folder
 already backed up: the file is copied into "Copies Made Before Repairs" first, written through a temporary
@@ -58,23 +61,72 @@ class Survey:
     listed: list[Found] = field(default_factory=list)
 
 
-def _conversions(folder: Path, slot: int) -> dict[tuple[str, str], list[str | None]]:
-    """(name, sex) -> the "Special villager" line of each of their conversion records, oldest first."""
+@dataclass
+class _Lives:
+    """What the logs say of the villagers of one name and sex."""
+    events: dict[tuple[str, str], list[tuple[str, str | None]]] = field(default_factory=dict)
+    # ("own", None) a Birth / Arrived record that is not a conversion, ("conv", Special villager line), in order
+    newcomers: set[tuple[str, str]] = field(default_factory=set)   # an island event's newcomer of that name, sex
+    gone: set[str] = field(default_factory=set)                    # a villager of that name died, vanished, lost
+
+
+def _sex(value: str | None) -> str:
+    return (value or "").strip().lower()
+
+
+def _lives(folder: Path, slot: int) -> _Lives:
+    """Every record that tells one villager of a name from another (Codex, #841: a dead convert's record is
+    never a living namesake's)."""
     import vv_log_additions as additions
     import vv_original_look as ol
     import vv_log_tools as tools
+    import vv_reconcile as rc
     villages = additions.current_villages(folder, GAME, slot)
-    files = [p for p in tools.load_checker().log_files(folder) if "Births and Conceptions" in p.name]
-    out: dict[tuple[str, str], list[str | None]] = {}
-    for p in ol._in_order(files):
+    files = tools.load_checker().log_files(folder)
+    out = _Lives()
+    for p in ol._in_order([p for p in files if "Births and Conceptions" in p.name]):
         for b in additions.blocks(p):
-            if not b.of(slot, GAME, villages) or not b.heading.startswith("Arrived"):
+            if not b.of(slot, GAME, villages):
                 continue
-            if not ol._converted(b.value("How")) or not b.value("Name"):
-                continue
-            out.setdefault((b.value("Name"), (b.value("Sex") or "").strip().lower()), []).append(
-                b.value("Special villager"))
+            if rc.BIRTH.match(b.heading):
+                child = ol._sub_lines(b.lines, "Child")
+                if child and child["Name"]:
+                    out.events.setdefault((child["Name"], _sex(child.get("Sex"))), []).append(("own", None))
+            elif b.heading.startswith("Arrived") and b.value("Name"):
+                key = (b.value("Name"), _sex(b.value("Sex")))
+                if ol._converted(b.value("How")):
+                    out.events.setdefault(key, []).append(("conv", b.value("Special villager")))
+                else:
+                    out.events.setdefault(key, []).append(("own", None))
+    for p in [p for p in files if "Island Events" in p.name]:
+        for b in additions.blocks(p):
+            if b.of(slot, GAME, villages) and (b.value("New villager") or "").lower().startswith("yes") \
+                    and b.value("Name"):
+                out.newcomers.add((b.value("Name"), _sex(b.value("Sex"))))
+    for p in [p for p in files if "Deaths" in p.name or "Unaccounted" in p.name]:
+        for b in additions.blocks(p):
+            if b.of(slot, GAME, villages) and b.value("Name") \
+                    and "became a heathen" not in (b.value("What happened") or "").lower():
+                out.gone.add(b.value("Name"))
     return out
+
+
+def _rejoined_title(lives: _Lives, name: str, sex: str) -> tuple[str | None, str]:
+    """(the Special villager line of the conversion that is this living villager's, why not) -- only when the
+    logs know one villager of this name and sex: no namesake gone for good, no island event's newcomer of it,
+    at most one record of their own, and that one before their last conversion."""
+    events = lives.events.get((name, sex), [])
+    convs = [k for k, e in enumerate(events) if e[0] == "conv"]
+    owns = [k for k, e in enumerate(events) if e[0] == "own"]
+    if not convs:
+        return None, ""
+    if name in lives.gone:
+        return None, "a villager of their name is gone; whose conversion it was cannot be told"
+    if (name, sex) in lives.newcomers or len(owns) > 1:
+        return None, "the logs know more than one villager of their name"
+    if owns and owns[0] > convs[-1]:
+        return None, "their own record comes after the conversion: it was another villager's"
+    return events[convs[-1]][1] or "", ""
 
 
 def survey(folder: Path, slot: int) -> Survey:
@@ -94,10 +146,10 @@ def survey(folder: Path, slot: int) -> Survey:
         return out
     alive, _ = rc.read_save(save, GAME)
     names = [a.name for a in alive]
-    conversions = _conversions(folder, slot)
+    lives = _lives(folder, slot)
     for a in alive:
-        titles = conversions.get((a.name, str(a.sex or "").strip().lower()))
-        if not titles or a.record is None:
+        title, why = _rejoined_title(lives, a.name, _sex(str(a.sex or "")))
+        if (title is None and not why) or a.record is None:
             continue
         at = a.at
         if data[at + FACTION] != 0:
@@ -113,7 +165,10 @@ def survey(folder: Path, slot: int) -> Survey:
         if names.count(a.name) != 1:
             out.listed.append(Found(a.name, index, None, "another living villager has their name"))
             continue
-        mask = TITLE_MASK.get((titles[-1] or "").strip())
+        if title is None:
+            out.listed.append(Found(a.name, index, None, why))
+            continue
+        mask = TITLE_MASK.get(title.strip())
         if mask is None:
             out.listed.append(Found(a.name, index, None, "their last conversion record does not name a mask"))
             continue

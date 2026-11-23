@@ -654,6 +654,23 @@ class Backfill(unittest.TestCase):
                          (ol.KNOWN, now[0], now[1], 0))
         self.assertEqual((got[b.name].kind, got[b.name].mask), (ol.KNOWN, 3))
 
+    def test_a_gone_namesakes_records_never_decide_the_original(self):
+        """Codex, #841: a villager of the same name died; whose founder record, conversion and Reset these were
+        cannot be told, so the believer-founder rule (and the correction) say nothing of the living one."""
+        v = self.village(5)
+        a = v.people[0].seen
+        now = (a.head, a.body)
+        converted = arrived(9, a.name, a.sex, now).replace(
+            "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n")
+        v.births(arrived(1, a.name, a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                 + change(a.name, now, now, ("Blue Mask", "none")) + converted)
+        v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
+              f"Died\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: Old age\n\n")
+        ol.backfill(v.folder, 5, 1)
+        got = v.logged().get(a.name)
+        self.assertFalse(got is not None and got.kind == ol.KNOWN and got.mask == 0,
+                         "the founder rule is not applied over a gone namesake")
+
     def test_idempotent(self):
         v = self.village(3)
         a = v.people[2].seen

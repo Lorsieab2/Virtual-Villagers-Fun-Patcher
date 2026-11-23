@@ -106,6 +106,23 @@ class RejoinedMasks(unittest.TestCase):
         self.assertEqual(survey.restore, [])
         self.assertEqual([f.name for f in survey.listed], [a.name])
 
+    def test_a_namesakes_conversion_is_never_given_to_the_living_villager(self):
+        """Codex, #841: a converted villager died, and a later villager of the same name and sex lives now.  The
+        dead one's conversion is not the living one's: nothing is given back, and they are listed."""
+        a, b = self.p[0], self.p[1]
+        self.masks_file({})
+        self.v.births(
+            # a: the conversion was an earlier namesake's; the living a was born after it.
+            converted(1, a.name, a.sex, (1, 1), "Former Heathen (blue mask)")
+            + arrived(2, a.name, a.sex, (a.head, a.body))
+            # b: rejoined, but a villager of their name died since.
+            + converted(3, b.name, b.sex, (b.head, b.body), "Former Heathen (red mask)"))
+        self.v.log("Deaths and Disappearances", "Virtual Villagers 5 Deaths Log 1.txt",
+                   f"Died\n  Name: {b.name}\n  Sex: {b.sex}\n  What happened: Old age\n\n")
+        survey = rm.survey(self.v.folder, 1)
+        self.assertEqual(survey.restore, [])
+        self.assertEqual(sorted(f.name for f in survey.listed), sorted([a.name, b.name]))
+
     def test_repair_saves_and_logs_runs_it(self):
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
         self.assertIn("vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)", source)
