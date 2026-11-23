@@ -671,6 +671,28 @@ class Backfill(unittest.TestCase):
         self.assertFalse(got is not None and got.kind == ol.KNOWN and got.mask == 0,
                          "the founder rule is not applied over a gone namesake")
 
+    def test_the_founder_rule_follows_a_rename_and_never_an_old_name_another_villager_had(self):
+        """Codex, #841: renamed since they rejoined, their records are under the old name and are followed; an
+        old name another living villager also had is never taken for theirs."""
+        results = []
+        for shared in (False, True):
+            v = Village(self.root / f"r{int(shared)}", 5)
+            a, b = v.people[0].seen, v.people[1].seen
+            now = (a.head, a.body)
+            text = (arrived(1, "Oldname", a.sex, now).replace("\n\n", "\n  How: Founder\n\n")
+                    + change("Oldname", now, now, ("Blue Mask", "none"))
+                    + arrived(9, "Oldname", a.sex, now).replace(
+                        "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n")
+                    + f"Name changed\n  Name: {a.name}\n  Old name: Oldname\n\n")
+            if shared:
+                text += f"Name changed\n  Name: {b.name}\n  Old name: Oldname\n\n"
+            v.births(text)
+            ol.backfill(v.folder, 5, 1)
+            got = v.logged().get(a.name)
+            results.append(None if got is None else (got.kind, got.mask))
+        self.assertEqual(results[0], (ol.KNOWN, 0), "the rename is followed: the founder's look, no mask")
+        self.assertNotEqual(results[1], (ol.KNOWN, 0), "an old name two villagers had: the rule says nothing")
+
     def test_idempotent(self):
         v = self.village(3)
         a = v.people[2].seen

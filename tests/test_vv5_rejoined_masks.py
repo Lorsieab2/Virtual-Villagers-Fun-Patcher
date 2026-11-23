@@ -73,7 +73,9 @@ class RejoinedMasks(unittest.TestCase):
             + arrived(6, d.name, d.sex, (d.head, d.body)))
         survey = rm.survey(self.v.folder, 1)
         self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 1)])
-        self.assertEqual([f.name for f in survey.listed], [c.name])
+        self.assertEqual(sorted(f.name for f in survey.listed), sorted([b.name, c.name]),
+                         "every villager who rejoined and is not given a mask is listed with why")
+        self.assertTrue(all(f.why for f in survey.listed))
         before = path.read_bytes()
         result = rm.restore(self.v.folder, 1, "Backup test", datetime(2026, 11, 22, 21, 0))
         self.assertEqual([f.name for f in result.restored], [a.name])
@@ -122,6 +124,27 @@ class RejoinedMasks(unittest.TestCase):
         survey = rm.survey(self.v.folder, 1)
         self.assertEqual(survey.restore, [])
         self.assertEqual(sorted(f.name for f in survey.listed), sorted([a.name, b.name]))
+
+    def test_a_villager_renamed_since_they_rejoined_is_found_under_their_old_name(self):
+        """Codex, #841: renamed in the game after converting, so the conversion is logged under the old name.
+        The "Name changed" record is followed: the mask is given back; an old name another living villager has
+        is never followed."""
+        a, b = self.p[0], self.p[1]
+        self.masks_file({})
+        rename = f"Name changed\n  Name: {a.name}\n  Old name: Oldname\n  Sex: {a.sex}\n  Head: {a.head}\n" \
+                 f"  Body: {a.body}\n\n"
+        self.v.births(arrived(1, "Oldname", a.sex, (a.head, a.body))
+                      + converted(2, "Oldname", a.sex, (a.head, a.body), "Former Heathen (red mask)") + rename)
+        survey = rm.survey(self.v.folder, 1)
+        self.assertEqual([(f.name, f.mask) for f in survey.restore], [(a.name, 3)])
+        # Now b once had that old name too: whose conversion it was cannot be told.
+        self.v.births(arrived(1, "Oldname", a.sex, (a.head, a.body))
+                      + converted(2, "Oldname", a.sex, (a.head, a.body), "Former Heathen (red mask)") + rename
+                      + f"Name changed\n  Name: {b.name}\n  Old name: Oldname\n  Sex: {b.sex}\n  Head: {b.head}\n"
+                        f"  Body: {b.body}\n\n")
+        survey = rm.survey(self.v.folder, 1)
+        self.assertEqual(survey.restore, [])
+        self.assertIn(a.name, [f.name for f in survey.listed])
 
     def test_repair_saves_and_logs_runs_it(self):
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")

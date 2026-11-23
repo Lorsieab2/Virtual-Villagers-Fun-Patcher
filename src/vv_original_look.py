@@ -444,9 +444,13 @@ class Found:
     chain: tuple = ()                      # the indices of the Appearance changed records followed
 
 
-def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0) -> Found:
+def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0,
+         others_ever: set[str] | None = None) -> Found:
     """The original look the logs prove for one villager (see THE RULES); `others` are the names of the
-    other living villagers."""
+    other living villagers, `others_ever` every name they have had (by the recorded renames; `others` when
+    not given), which the believer-founder rule never shares."""
+    if others_ever is None:
+        others_ever = set(others)
     s = v.seen
     names = _names(s.name, ev.renames)
     # The game's own change is kept (the owner, 2026-10-28): a Secret City chief's robe was given by the game
@@ -490,7 +494,7 @@ def find(v: Living, ev: Evidence, others: set[str] = frozenset(), game: int = 0)
     # look, no mask).  A New Believers villager who joined the tribe from the Heathens since their own Birth or
     # Arrived record: their original is that record's look with no mask -- never the mask an "Appearance
     # changed" record's Old mask names once they had been a Heathen (or had rejoined wearing it).
-    believer_first = _believer_record(ev, names, s) if game == 5 and not names & set(others) else None
+    believer_first = _believer_record(ev, names, s) if game == 5 and not names & set(others_ever) else None
     if believer_first is not None and believer_first[1] == 0 and same(believer_first[0], state):
         return Found(KNOWN, state[0], state[1], 0, chain=tuple(chain))
     if not chain or ev.changes[chain[0]].old_mask is not None:
@@ -723,7 +727,12 @@ def backfill(folder: Path, game: int, slot: int) -> Result:
     holders: dict[int, int] = {}
     for v in people:
         holders[v.id] = holders.get(v.id, 0) + 1
-    found = {v.id: find(v, ev, {o.seen.name for o in people if o is not v}, game)
+    ever = {id(v): _names(v.seen.name, ev.renames) for v in people}
+
+    def ever_of_others(v: Living) -> set[str]:
+        """Every name the other living villagers have had (Codex, #841: an old name is a namesake too)."""
+        return set().union(*(ever[id(o)] for o in people if o is not v))
+    found = {v.id: find(v, ev, {o.seen.name for o in people if o is not v}, game, ever_of_others(v))
              for v in people if holders[v.id] == 1}
     claims: dict[int, list[int]] = {}
     for ident, f in found.items():
@@ -742,7 +751,7 @@ def backfill(folder: Path, game: int, slot: int) -> Result:
             entries = [e for e in looks.entries if e.source and e.id == v.id]
             if v.id not in found or len(entries) != 1:
                 continue
-            fixed = correction(v, entries[0], ev, found[v.id], {o.seen.name for o in people if o is not v}, game)
+            fixed = correction(v, entries[0], ev, found[v.id], ever_of_others(v), game)
             if fixed is not None:
                 found[v.id] = fixed
                 corrected += 1

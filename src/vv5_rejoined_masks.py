@@ -64,10 +64,12 @@ class Survey:
 @dataclass
 class _Lives:
     """What the logs say of the villagers of one name and sex."""
-    events: dict[tuple[str, str], list[tuple[str, str | None]]] = field(default_factory=dict)
-    # ("own", None) a Birth / Arrived record that is not a conversion, ("conv", Special villager line), in order
+    events: dict[tuple[str, str], list[tuple[int, str, str | None]]] = field(default_factory=dict)
+    # (order, "own", None) a Birth / Arrived record that is not a conversion, (order, "conv", Special villager
+    # line) a conversion; order counts every such record of the logs, so two names' records merge in order
     newcomers: set[tuple[str, str]] = field(default_factory=set)   # an island event's newcomer of that name, sex
     gone: set[str] = field(default_factory=set)                    # a villager of that name died, vanished, lost
+    renames: list[tuple[str, str]] = field(default_factory=list)   # (old name, new name): every recorded rename
 
 
 def _sex(value: str | None) -> str:
@@ -84,20 +86,25 @@ def _lives(folder: Path, slot: int) -> _Lives:
     villages = additions.current_villages(folder, GAME, slot)
     files = tools.load_checker().log_files(folder)
     out = _Lives()
+    order = 0
     for p in ol._in_order([p for p in files if "Births and Conceptions" in p.name]):
         for b in additions.blocks(p):
             if not b.of(slot, GAME, villages):
                 continue
+            order += 1
             if rc.BIRTH.match(b.heading):
                 child = ol._sub_lines(b.lines, "Child")
                 if child and child["Name"]:
-                    out.events.setdefault((child["Name"], _sex(child.get("Sex"))), []).append(("own", None))
+                    out.events.setdefault((child["Name"], _sex(child.get("Sex"))), []).append((order, "own", None))
             elif b.heading.startswith("Arrived") and b.value("Name"):
                 key = (b.value("Name"), _sex(b.value("Sex")))
                 if ol._converted(b.value("How")):
-                    out.events.setdefault(key, []).append(("conv", b.value("Special villager")))
+                    out.events.setdefault(key, []).append((order, "conv", b.value("Special villager")))
                 else:
-                    out.events.setdefault(key, []).append(("own", None))
+                    out.events.setdefault(key, []).append((order, "own", None))
+    # The names a villager has had (Codex, #841): "Name changed" records, island events' renames and the
+    # patcher's own renames -- the same list the original looks follow (src/vv_original_look.py evidence).
+    out.renames = list(ol.evidence(folder, GAME, slot).renames)
     for p in [p for p in files if "Island Events" in p.name]:
         for b in additions.blocks(p):
             if b.of(slot, GAME, villages) and (b.value("New villager") or "").lower().startswith("yes") \
@@ -111,22 +118,28 @@ def _lives(folder: Path, slot: int) -> _Lives:
     return out
 
 
-def _rejoined_title(lives: _Lives, name: str, sex: str) -> tuple[str | None, str]:
-    """(the Special villager line of the conversion that is this living villager's, why not) -- only when the
-    logs know one villager of this name and sex: no namesake gone for good, no island event's newcomer of it,
-    at most one record of their own, and that one before their last conversion."""
-    events = lives.events.get((name, sex), [])
-    convs = [k for k, e in enumerate(events) if e[0] == "conv"]
-    owns = [k for k, e in enumerate(events) if e[0] == "own"]
+def _rejoined_title(lives: _Lives, name: str, sex: str, others: set[str] = frozenset()) -> tuple[str | None, str]:
+    """(the Special villager line of the conversion that is this living villager's, why not) -- under any name
+    they have had (a rename since is followed: Codex, #841), and only when the logs know one villager of those
+    names and this sex: no other living villager has one of them, no namesake gone for good, no island event's
+    newcomer of one, at most one record of their own, and that one before their last conversion.  ("", "")
+    when the logs show no conversion of them at all."""
+    import vv_original_look as ol
+    names = ol._names(name, lives.renames)
+    events = sorted(e for n in names for e in lives.events.get((n, sex), []))
+    convs = [k for k, e in enumerate(events) if e[1] == "conv"]
+    owns = [k for k, e in enumerate(events) if e[1] == "own"]
     if not convs:
         return None, ""
-    if name in lives.gone:
+    if names & set(others):
+        return None, "another living villager has (or had) one of their names; whose conversion it was cannot be told"
+    if names & lives.gone:
         return None, "a villager of their name is gone; whose conversion it was cannot be told"
-    if (name, sex) in lives.newcomers or len(owns) > 1:
+    if any((n, sex) in lives.newcomers for n in names) or len(owns) > 1:
         return None, "the logs know more than one villager of their name"
     if owns and owns[0] > convs[-1]:
         return None, "their own record comes after the conversion: it was another villager's"
-    return events[convs[-1]][1] or "", ""
+    return events[convs[-1]][2] or "", ""
 
 
 def survey(folder: Path, slot: int) -> Survey:
@@ -142,26 +155,41 @@ def survey(folder: Path, slot: int) -> Survey:
     original = path.read_bytes() if path.is_file() else None
     out = Survey(path if original is not None else None, original)
     masks = checker.read_mask_file(GAME, original) if original is not None else None
-    if masks is None or masks.weak:
-        return out
     alive, _ = rc.read_save(save, GAME)
     names = [a.name for a in alive]
     lives = _lives(folder, slot)
+    import vv_original_look as ol
     for a in alive:
-        title, why = _rejoined_title(lives, a.name, _sex(str(a.sex or "")))
-        if (title is None and not why) or a.record is None:
+        others: set[str] = set()
+        for o in alive:
+            if o is not a:
+                others |= ol._names(o.name, lives.renames)
+        title, why = _rejoined_title(lives, a.name, _sex(str(a.sex or "")), others)
+        if title is None and not why:
+            continue                                # never rejoined from the Heathens, by the logs
+        index = a.record if a.record is not None else -1
+        # Every villager the logs show rejoined is either given their mask back or listed with why.
+        if a.record is None:
+            out.listed.append(Found(a.name, index, None, "their record in the save cannot be told"))
             continue
-        at = a.at
-        if data[at + FACTION] != 0:
-            continue                                # a Heathen now: src/vv5_heathen_masks_restore.py's
-        index = a.record
-        ident = checker._villager(data, at, checker.LAYOUTS[GAME], index, GAME).ident
+        if data[a.at + FACTION] != 0:
+            out.listed.append(Found(a.name, index, None, "a Heathen now (Restore Heathen Masks is for them)"))
+            continue
+        if masks is None or masks.weak:
+            out.listed.append(Found(a.name, index, None, "there is no Village Masks file the game reads by "
+                                                         "identity yet (play the village and save once)"))
+            continue
+        ident = checker._villager(data, a.at, checker.LAYOUTS[GAME], index, GAME).ident
         if index >= len(masks.values) or masks.stored[index] != ident:
             out.listed.append(Found(a.name, index, None, "the Village Masks file does not name them at their "
                                                          "record yet (play and save once)"))
             continue
         if masks.values[index] != 0:
-            continue                                # wearing a mask: theirs
+            worn = masks.values[index]
+            out.listed.append(Found(a.name, index, None, f"they wear the "
+                                    f"{MASK_NAMES[worn] if worn < len(MASK_NAMES) else f'mask {worn}'} now: "
+                                    "left as it is"))
+            continue
         if names.count(a.name) != 1:
             out.listed.append(Found(a.name, index, None, "another living villager has their name"))
             continue
