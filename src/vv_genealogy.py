@@ -129,6 +129,12 @@ class Person:
     # and came back is still a founder).  Where a converted Heathen goes on the tree (conversion_snapshot).
     factions: list = field(default_factory=list)
     founder_record: bool = False
+    # New Believers: how an Arrived record that is not a conversion (nor a backfilled "unknown", nor a Heathen's
+    # own record) says they first came -- "Founder", an island event, a barrel... -- and the History snapshots
+    # that listed them with a former Heathen's title.  Whether a "Converted from the Heathens" is their return
+    # to the tribe or their joining it (joined_the_tribe_first).
+    joined_how: str = ""
+    former_seen: list = field(default_factory=list)
     # The jobs they are a Master of ("Farmer", "Doctor"...): the living by the save's skills now (save_masters),
     # the dead by their grave's line (its job: the best skill, or the checked preference with Checked Skill
     # Preferences are listed as Jobs on Graves).  Current, not ever held: the save keeps no history.
@@ -286,6 +292,8 @@ def _merge_faction(p: Person, q: Person) -> None:
     q.converted = q.converted or p.converted
     q.left_heathen = q.left_heathen or p.left_heathen
     q.founder_record = q.founder_record or p.founder_record
+    q.joined_how = p.joined_how or q.joined_how         # the older record's: how they first came
+    q.former_seen = sorted(set(q.former_seen) | set(p.former_seen))
     q.factions = sorted(set(q.factions) | set(p.factions))
     if p.faction_seen and (q.faction_seen is None or p.faction_seen[0] > q.faction_seen[0]):
         q.faction_seen = p.faction_seen
@@ -296,6 +304,34 @@ def converted_heathen(p: Person) -> bool:
     Heathen Chief title (the logs, or New Believers' Former Heathens file)."""
     return getattr(p, "converted", False) or any(s.startswith(("Converted ", "Former Heathen"))
                                                  or s == "Retired Heathen Chief" for s in getattr(p, "statuses", ()))
+
+
+def joined_the_tribe_first(p: Person) -> bool:
+    """New Believers: a record says they were one of the tribe before they were ever a Heathen, so a later
+    "Converted from the Heathens" is their RETURN, not their joining (the owner, 2026-11-22: "converted
+    villagers turned heathens reconverted into villagers should keep their original positions in the family
+    tree").  An Arrived record of how they first came that is not a conversion ("Founder", an island event, a
+    barrel...; never a backfilled "unknown" nor a Heathen's own record: joined_how), or their first History
+    snapshot listing them a Believer -- with no former Heathen's title then -- and a later one a Heathen or a
+    "Left the tribe" record (a Believer first, then a Heathen: a convert from before the logs began never shows
+    that).  A Birth record too, unless their first snapshot lists them a Heathen (a Heathen's baby)."""
+    if getattr(p, "founder_record", False) or getattr(p, "joined_how", ""):
+        return True
+    seen = sorted(getattr(p, "factions", ()))
+    if getattr(p, "birth_record", None) is not None and not (seen and seen[0][1] == "Heathen"):
+        return True
+    if not seen or seen[0][1] != "Believer" or seen[0][0] in getattr(p, "former_seen", ()):
+        return False
+    return getattr(p, "left_heathen", False) or any(faction == "Heathen" for _date, faction in seen[1:])
+
+
+def arrival_how(p: Person) -> str:
+    """How they came, as the tree says it: for a villager who left for the Heathens and came back
+    (joined_the_tribe_first), how they FIRST came -- "Founder", an island event, or "" for one the logs knew
+    before any Arrived record -- never "Converted from the Heathens"; else their Arrived record's."""
+    if converted_heathen(p) and joined_the_tribe_first(p):
+        return getattr(p, "joined_how", "") or ""
+    return p.how or ""
 
 
 def is_unconverted_heathen(p: Person) -> bool:
@@ -317,10 +353,12 @@ def without_heathens(village: Village) -> Village:
     """The tree's village without its unconverted Heathens (the Family Tree Maker's "Hide unconverted Heathens",
     the owner, 2026-10-22): living, dead and titled Heathens and the babies a hidden Heathen carries left out --
     the tree only; nothing is changed in any file, and the tree's edits for them are kept.  A converted villager
-    stays, with their whole history.  A parent so hidden is no longer drawn (no line); the child keeps their
+    stays, with their whole history, and so does one of the tribe who left for the Heathens and is one now
+    (joined_the_tribe_first): they keep their place.  A parent so hidden is no longer drawn (no line); the child keeps their
     name in `hidden_parents` ("Father: <name> (Heathen)" in Villager Info)."""
     import dataclasses
-    hidden = {pid for pid, p in village.people.items() if is_unconverted_heathen(p)}
+    # One of the tribe who left for the Heathens keeps their place while a Heathen (the owner, 2026-11-22).
+    hidden = {pid for pid, p in village.people.items() if is_unconverted_heathen(p) and not joined_the_tribe_first(p)}
     hidden |= {pid for pid, p in village.people.items() if p.upcoming and p.mother in hidden}
     if not hidden:
         return village
@@ -628,6 +666,16 @@ def is_backfilled_arrival(b) -> bool:
     return b.heading.startswith("Arrived") and (b.value("How") or "").strip().lower() == "unknown"
 
 
+def _heathen_marked(b) -> bool:
+    """A record that says it is a Heathen's (New Believers: "Faction: Heathen", an Island Events "Heathen: yes",
+    a Heathen role title): never evidence they were one of the tribe (joined_the_tribe_first)."""
+    import vv_log_additions as additions
+    heathen = _values(b.value("Heathen"))
+    titles = _values(b.value("Special villager"))
+    return ((b.value("Faction") or "").strip() == "Heathen" or (bool(heathen) and heathen[-1].lower() == "yes")
+            or (bool(titles) and additions._faction_of_title(titles[-1]) == "Heathen"))
+
+
 def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
     """The dead and departed, and every parent a snapshot names."""
     import vv_log_additions as additions
@@ -671,6 +719,10 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             if faction in ("Heathen", "Believer") and b.date and not additions.is_population(b.path) \
                     and (b.date, faction) not in p.factions:
                 p.factions.append((b.date, faction))
+            if b.date and not additions.is_population(b.path) and b.date not in p.former_seen \
+                    and any(s.startswith(("Converted ", "Former Heathen")) or s == "Retired Heathen Chief"
+                            for t in _values(b.value("Special villager")) for s in status_marks(t)):
+                p.former_seen.append(b.date)     # a former Heathen's title then (joined_the_tribe_first)
         else:
             # Any other record (a Death, a Disappeared, an Island Events change) whose title -- the one held
             # after it, the last of an "old -> new" -- is a Heathen role (Heathen Doctor, Heathen Mommy, ...)
@@ -698,8 +750,12 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
-            if (b.value("How") or "").strip() == "Founder":
-                p.founder_record = True
+            if (b.value("How") or "").strip() == "Founder" and not _heathen_marked(b):
+                p.founder_record = True         # a Heathen's own "Founder" record is one of the island's Heathens
+            how =(b.value("How") or "").strip()
+            if how and how != CONVERTED_HOW and not is_backfilled_arrival(b) and not p.joined_how \
+                    and not _heathen_marked(b):
+                p.joined_how = how      # how they first came (a later conversion is a return: arrival_how)
             # A backfilled "How: unknown" never replaces how a real Arrived record says they came.
             if not (is_backfilled_arrival(b) and p.how):
                 p.how = b.value("How") or p.how
@@ -1630,9 +1686,21 @@ def _unrecorded_looks(reg: _Registry, answers: dict | None = None) -> list[Ident
     def said(p: Person, q: Person) -> str | None:
         return aq.identity_said(answers, p.key, q.key)
 
+    def left_for_the_heathens(p: Person) -> bool:
+        # New Believers: "Left the tribe: became a Heathen" is no leaving of the island -- they live on as a
+        # Heathen and may come back (the owner, 2026-11-22: the same person, never a new one).  Only someone
+        # the records show a Heathen or converted since can be them.
+        return p.gone == "disappeared" and p.left_heathen
+
     def older_records() -> list[Person]:
         return [p for p in reg.people.values()
-                if not (p.alive or p.gone or p.upcoming or p.head is None or p.body is None or p.key in reg.bodies)]
+                if not (p.alive or (p.gone and not left_for_the_heathens(p)) or p.upcoming or p.head is None
+                        or p.body is None or p.key in reg.bodies)]
+
+    def heathen_since(p: Person, q: Person) -> bool:
+        # A conversion a snapshot's title alone shows ("Former Heathen (blue mask)", "Retired Heathen Chief")
+        # counts as much as a conversion Arrived record (converted_heathen; Codex, #846).
+        return not left_for_the_heathens(p) or q.heathen or converted_heathen(q) or "Heathen" in q.statuses
 
     changed = True
     while changed:
@@ -1643,7 +1711,7 @@ def _unrecorded_looks(reg: _Registry, answers: dict | None = None) -> list[Ident
             by_name.setdefault(unnumbered(q.name), []).append(q)
         for p in older_records():
             fits = [q for q in by_name.get(unnumbered(p.name), []) if _could_be_same(reg, p, q, together, seen_on)
-                    and said(p, q) != aq.DIFFERENT]
+                    and heathen_since(p, q) and said(p, q) != aq.DIFFERENT]
             same = [q for q in fits if said(p, q) == aq.SAME]
             if len(same) == 1:
                 target = same[0]
@@ -1651,7 +1719,8 @@ def _unrecorded_looks(reg: _Registry, answers: dict | None = None) -> list[Ident
                 target = fits[0]
                 # ...and no other older record is tied to them the same way (two gone, one new: not certain).
                 rivals = [o for o in older_records() if o.id != p.id
-                          and _could_be_same(reg, o, target, together, seen_on) and said(o, target) != aq.DIFFERENT
+                          and _could_be_same(reg, o, target, together, seen_on) and heathen_since(o, target)
+                          and said(o, target) != aq.DIFFERENT
                           and _certain(reg, o, target, seen_on, dates) and o.id not in together.get(p.id, ())]
                 if rivals:
                     continue
@@ -1664,7 +1733,7 @@ def _unrecorded_looks(reg: _Registry, answers: dict | None = None) -> list[Ident
     questions: list[IdentityQuestion] = []
     for p in older_records():
         fits = [q for q in reg.people.values() if _could_be_same(reg, p, q, together, seen_on)
-                and said(p, q) is None]
+                and heathen_since(p, q) and said(p, q) is None]
         if len(fits) > 3:
             continue                                # a name many villagers had: nothing to go on
         for q in fits:
@@ -1974,9 +2043,13 @@ def is_arrival(p: Person, first_snapshot: str | None) -> bool:
         return False
     if is_converted_newcomer(p):
         return True                     # a converted Heathen joined the tribe: never a founder (the owner, 2026-11-21)
-    if getattr(p, "founder_record", False) and converted_heathen(p):
-        return False                    # a founder who left for the Heathens and came back is still a founder
-    if p.arrived and p.how:
+    if converted_heathen(p) and joined_the_tribe_first(p):
+        # One of the tribe who left for the Heathens and came back: as they FIRST came (the owner, 2026-11-22) --
+        # a founder is still a founder, an island event's villager still that event's.
+        how = getattr(p, "joined_how", "")
+        if how:
+            return how != "Founder"
+    elif p.arrived and p.how:
         return p.how != "Founder"
     return p.first_seen is not None and first_snapshot is not None and p.first_seen[:16] > first_snapshot[:16]
 
@@ -1985,16 +2058,18 @@ def is_converted_newcomer(p: Person) -> bool:
     """New Believers: a Heathen with no recorded parent whom a record says converted and joined the tribe
     (converted_heathen) -- never one of the founders (the owner, 2026-11-21: "heathens that are converted should
     not be founders in Family Tree Maker.  When converted they should go under the generation they were converted
-    at").  A founder ("How: Founder") who left for the Heathens and came back is still a founder."""
+    at").  One of the tribe who left for the Heathens and came back (joined_the_tribe_first: a founder, an island
+    event's villager...) is no newcomer: they keep their place (the owner, 2026-11-22)."""
     return (p.father is None and p.mother is None and not p.upcoming and not getattr(p, "placeholder", False)
-            and not getattr(p, "founder_record", False) and converted_heathen(p))
+            and converted_heathen(p) and not joined_the_tribe_first(p))
 
 
 def heathen_not_founder(p: Person) -> bool:
     """New Believers: a Heathen with no recorded parent -- one now, or one who converted -- is never called a
     founder (the owner, 2026-11-21: "I would prefer they aren't labeled as founders").  They may still share the
-    founders' generation.  A founder ("How: Founder") who left for the Heathens and came back is still a founder."""
-    if p.father is not None or p.mother is not None or p.upcoming or getattr(p, "founder_record", False):
+    founders' generation.  One of the tribe who left for the Heathens (and came back, or not yet:
+    joined_the_tribe_first) keeps what they were -- a founder is still a founder (the owner, 2026-11-22)."""
+    if p.father is not None or p.mother is not None or p.upcoming or joined_the_tribe_first(p):
         return False
     return getattr(p, "heathen", False) or converted_heathen(p) or (isinstance(p, Person) and is_unconverted_heathen(p))
 
@@ -2020,7 +2095,9 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
 
     A converted Heathen (is_converted_newcomer; the owner, 2026-11-21) goes in the generation the tribe was on
     when they converted: the newest generation among the believers the snapshot of their conversion lists
-    (conversion_snapshot; the snapshot they first appear in when none shows the change).  A conversion while
+    (conversion_snapshot; the snapshot they first appear in when none shows the change) -- counting only the
+    village's own families, never a convert or a convert's descendant (the owner, 2026-11-22: "Only real
+    families"), nor an arrival who came at the same time or later.  A conversion while
     only the founders lived puts them in generation I (the owner, 2026-11-21: "heathens can share the founders
     row"); they are still never called founders (heathen_not_founder)."""
     people = village.people
@@ -2063,7 +2140,22 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
         snap = next((d for d in dates if when is not None and d[:16] >= when[:16]), None)
         converted_at = conversion_snapshot(people[pid]) if pid in converts else None
         same_time[pid] = converted_at if converted_at in snapshots else snap
-    later = {pid: descendants(pid) for pid in arrivals}
+    # Who may set an arrival's generation: never themselves or a descendant of their own, nor any arrival who came (or
+    # converted) at the same time or later.  Each arrival then rests only on the founders and on EARLIER
+    # arrivals, so nothing feeds back: two converts each with a child in the other's conversion snapshot (a
+    # Heathen father's believer child) used to push each other one generation down every round, to generation
+    # XLI and on in the owner's 256 village (2026-11-22, "WHY ARE THERE 41 GENERATIONS").
+    # ONLY REAL FAMILIES (the owner, 2026-11-22: "Only real families: I-VI"): the tribe's own family lines
+    # place them -- never a convert nor a convert's descendant (a child with one convert parent too: counting
+    # them stacks the converts generation on generation again, I-X in the owner's village) -- so converts do
+    # not stack.  When the snapshot holds nobody of the tribe's own lines (they all died, and only converts'
+    # families are left), the newest generation it lists is taken instead: never generation I by default.
+    own = {pid: descendants(pid) for pid in arrivals}
+    not_tribe = set().union(*(own[q] | {q} for q in converts))
+    later ={pid: set().union(*(own[q] | {q} for q in arrivals
+                                if q == pid or (same_time[q] is not None and same_time[pid] is not None
+                                                and same_time[q] >= same_time[pid])))
+             for pid in arrivals}
     gens = compute()
     for _round in range(len(arrivals) + 1):
         changed = False
@@ -2075,6 +2167,7 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
             present = snapshots[snap] - joined - later[pid]
             if pid in converts:         # the tribe then: not the Heathens that snapshot lists
                 present = {q for q in present if (snap, "Heathen") not in people[q].factions}
+            present = (present - not_tribe) or present
             value = max(max((gens[q] for q in present), default=1), floor[pid])
             if base[pid] != value:
                 base[pid] = value
@@ -2655,10 +2748,13 @@ def report(village: Village, game_title: str) -> str:
     lines = [f"{game_title} -- Genealogy",
              f"Village: {village.tribe} (Save {village.slot})" if village.tribe else f"Save {village.slot}",
              "",
-             "Generation I is everyone no record gives a parent: the first villagers, island-event "
-             "arrivals and villagers born before the patcher's logs began.  A child is one generation "
-             "below the later of its parents.  Relatedness counts only the family the save and the logs "
-             "record, so ancestry from before the logs began is unknown.",
+             "Generation I is the first villagers and the villagers born before the patcher's logs began.  "
+             "A villager who arrived later with no recorded parent (an island event, a barrel"
+             + (", a Heathen who converted" if village.game == 5 else "") + ") is in the newest generation "
+             "of the village's own families when they "
+             + ("arrived or converted -- never a founder" if village.game == 5 else "arrived")
+             + ".  A child is one generation below the later of its parents.  Relatedness counts only the "
+             "family the save and the logs record, so ancestry from before the logs began is unknown.",
              ""]
     for note in village.notes:
         lines.append(f"Note: {note}")
@@ -2693,7 +2789,7 @@ def report(village: Village, game_title: str) -> str:
         elif is_converted_newcomer(p):
             how = f"arrived ({CONVERTED_HOW})"
         elif is_arrival(p, min(snapshot_dates(village), default=None)):
-            how = f"arrived ({p.how})" if p.how else "arrived"
+            how = f"arrived ({arrival_how(p)})" if arrival_how(p) else "arrived"
         elif heathen_not_founder(p):
             how = "a Heathen"
         else:

@@ -183,7 +183,7 @@
    "src": "L2907"
   },
   "c2o1": {
-   "text": "The researchers spend all day cutting away the bad parts, slicing the good parts thin, and laying them out on hot rocks in the sun until they're dry and hard as bark. It's a new method, and they write down every step. The dried yam isn't tasty. It's leathery and chewy and tastes of nothing very much. But it's food, and it keeps for months, and that's more than anyone expected. Your village loses (award) food. Your villagers gain (award) tech points.",
+   "text": "The researchers spend all day cutting away the bad parts, slicing the good parts thin, and laying them out on hot rocks in the sun until they're dry and hard as bark. It's a new method, and they write down every step. The dried yam isn't tasty. It's leathery and chewy and tastes of nothing very much. But it's food, and it keeps for months, and that's more than anyone expected. Your village loses (award2) food. Your villagers gain (award) tech points.",
    "effects": [
     {
      "do": "food",
