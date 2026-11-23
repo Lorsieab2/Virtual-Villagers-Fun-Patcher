@@ -1138,6 +1138,10 @@ CONVERTED = "Converted from the Heathens"
 ARRIVED_HEADING = re.compile(r"^Arrived( \d+)?$")
 DISAPPEARED_HEADING = re.compile(r"^Disappeared( \d+)?$")
 LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"
+# With Guardians of Isola Rewrite the companion writes this instead (the owner, 2026-11-22; cod_arrivals.inc):
+# every reader takes both.
+LEFT_FOR_THE_ISOLANS = "Left the tribe: became an Isolan"
+LEFT_RECORDS = (LEFT_FOR_THE_HEATHENS, LEFT_FOR_THE_ISOLANS)
 
 
 def _faction_of_title(title: str | None) -> str | None:
@@ -1164,7 +1168,7 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
                 continue
             if ARRIVED_HEADING.match(b.heading):
                 (converted if b.value("How") == CONVERTED else believer).add(b.identity)
-            elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") == LEFT_FOR_THE_HEATHENS:
+            elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") in LEFT_RECORDS:
                 left.add(b.identity)
             elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
                 child = _sub_identity(b, "Child")
@@ -1233,7 +1237,8 @@ LEFT_YES = "Yes: add the record"
 RANK_LEFT = 9
 
 
-def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None) -> dict[tuple, list[int]]:
+def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None,
+                 seen: set[str] | None = None) -> dict[tuple, list[int]]:
     """Per (name, head, body): [came as a believer (a Birth's child, an Arrived record that is not a
     conversion), converted from the Heathens, left for the Heathens, any other Death or Disappeared
     record] -- how many records of each the logs hold for this slot's village."""
@@ -1253,13 +1258,16 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None) 
                 if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
                     add(_sub_identity(b, "Child"), 0)
             elif DISAPPEARED_HEADING.match(b.heading):
-                add(b.identity, 2 if b.value("What happened") == LEFT_FOR_THE_HEATHENS else 3)
+                what = b.value("What happened")
+                if seen is not None and what in LEFT_RECORDS:
+                    seen.add(what)
+                add(b.identity, 2 if what in LEFT_RECORDS else 3)
             elif b.heading.startswith("Death"):
                 add(b.identity, 3)
     return out
 
 
-def _left_record(person: Block) -> str:
+def _left_record(person: Block, what: str = LEFT_FOR_THE_HEATHENS) -> str:
     """A "Left the tribe" Disappeared record, laid out as "VVFP Parentage Export.dll" writes one
     (native/parentage_export WriteVillageRecord, detail 1), from the villager's Village Population
     entry.  When she left is not known: the age is "(unknown)", never guessed; titles and masks she
@@ -1268,8 +1276,9 @@ def _left_record(person: Block) -> str:
         value = person.value(label)
         return f"  {label}: {value if value is not None else '(unknown)'}"
     return "\n".join(["Disappeared", line("Name"), "  Age: (unknown)", line("Sex"),
-                      f"  What happened: {LEFT_FOR_THE_HEATHENS}", line("Head"), line("Body"),
-                      line("Likes"), line("Dislikes"), LEFT_NOTE])
+                      f"  What happened: {what}", line("Head"), line("Body"),
+                      line("Likes"), line("Dislikes"),
+                      LEFT_NOTE if what == LEFT_FOR_THE_HEATHENS else LEFT_NOTE.replace("a Heathen", "an Isolan", 1)])
 
 
 def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
@@ -1301,7 +1310,10 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
     stem = f"Virtual Villagers {game} Deaths Log"
     if not checker.game_logs(folder, layout.DEATHS_LOGS, stem, slot):
         return kind
-    counts = _side_counts(folder, game, slot, villages)
+    seen: set[str] = set()
+    counts = _side_counts(folder, game, slot, villages, seen)
+    # The companion's own words for this village: "an Isolan" once it has written one (Guardians of Isola Rewrite on).
+    what = LEFT_FOR_THE_ISOLANS if LEFT_FOR_THE_ISOLANS in seen else LEFT_FOR_THE_HEATHENS
     # Appended to the slot's OWN Deaths log ("...Logs\Save <slot>\Deaths and Disappearances", made
     # when it has none; never the shared one an older build wrote, src/vv_save_layout.py), after
     # everything in the file, as the companion appends a record, with the blank line of its own.
@@ -1319,7 +1331,7 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
             continue
         # Under the village's own header when the file's last record is another village's: each
         # record added (whichever the player's answers keep) names it.
-        text = lead + "\n\n".join([_left_record(person)] * missing) + "\n"
+        text = lead + "\n\n".join([_left_record(person, what)] * missing) + "\n"
         name, head, body = person.identity
         why = ("another villager now has the same name, head and body" if population_count.get(person.identity, 0) > 1
                else "a Death or Disappeared record has the same name, head and body (a namesake's records may be "
@@ -1332,7 +1344,7 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
         key = f"left_tribe|{name}|{head}|{body}|{n}"
         kind.questions[key] = Question(
             key, f"{name} (head {head}, body {body}) is a Heathen now, and the logs show them a believer "
-                 f"with no \"{LEFT_FOR_THE_HEATHENS}\" record after it; {why}. Add "
+                 f"with no \"{what}\" record after it; {why}. Add "
                  f"{'a record' if missing == 1 else f'{missing} records'} of their leaving the tribe "
                  "(when is not known)?", [LEFT_YES, DONT_KNOW], DONT_KNOW,
             # A Heathen now with a leaving missing: never their place on the page ("|{n}" in the key), which

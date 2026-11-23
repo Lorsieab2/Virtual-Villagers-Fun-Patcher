@@ -32,6 +32,7 @@ PF_BELIEVERS = 2
 PF_AUTO_LINES = 4                       # an outcome: its effects told in automatic lines (cie-v6-binary.md 25)
 PF_SOLIDARITY_SHIFT = 3                 # an outcome: its Village Solidarity tag, bits 3-4 (1 raise, 2 lower, 3 neutral;
 PF_SOLIDARITY_MASK = 0x18               # the composed page's node flags bits 2-3: story_procedural.inc)
+PF_GUARDIANS = 0x20                     # its text and label each have a Guardians of Isola form, written right after it
 SOLIDARITY_CODES = {"raise": 1, "lower": 2, "neutral": 3}
 
 
@@ -115,6 +116,15 @@ class Piece:
     age_band: int = 0
     links: list[Link] = field(default_factory=list)
     src: str = ""                       # authoring only (never written): where the piece came from
+    gtext: str | None = None            # PF_GUARDIANS: the text's and the label's Guardians of Isola forms
+    glabel: str | None = None
+
+    def words(self, guardians: bool = False) -> tuple[str | None, str | None]:
+        """(text, label) as New Believers shows them: with Guardians of Isola's rewrite on (`guardians`), a
+        PF_GUARDIANS piece's own forms."""
+        if guardians and self.flags & PF_GUARDIANS:
+            return self.gtext, self.glabel
+        return self.text, self.label
 
 
 @dataclass
@@ -145,6 +155,22 @@ def write_pcb(pieces: list[Piece]) -> bytes:
             sidx[text] = len(strings)
             strings.extend(raw + b"\0")
         return sidx[text]
+
+    pairs: dict[tuple[str, str], int] = {}
+
+    def s2(text: str | None, form: str | None) -> int:
+        """`text` with its Guardians form right after it (PF_GUARDIANS): a pair of its own, never shared with a lone
+        string, so the form is always the next string."""
+        if text is None:
+            return NONE32
+        form = text if form is None else form
+        if (text, form) not in pairs:
+            raw = text.encode("ascii") + b"\0" + form.encode("ascii") + b"\0"
+            if raw.count(b"\0") != 2:
+                raise ValueError("a NUL in a string")
+            pairs[(text, form)] = len(strings)
+            strings.extend(raw)
+        return pairs[(text, form)]
 
     ids = [p.id for p in pieces]
     if len(set(ids)) != len(ids):
@@ -181,7 +207,9 @@ def write_pcb(pieces: list[Piece]) -> bytes:
             lrec += _LINK.pack(s(lk.approach), lk.weight)
             nl += 1
         prec += _PIECE.pack(s(p.id), p.kind, p.mood, p.flags, p.games, p.topic, p.family, p.filters, p.notes,
-                            p.never, p.tags, s(p.text), s(p.label), fs, len(p.slots), p.weight, fe,
+                            p.never, p.tags,
+                            s2(p.text, p.gtext) if p.flags & PF_GUARDIANS else s(p.text),
+                            s2(p.label, p.glabel) if p.flags & PF_GUARDIANS else s(p.label), fs, len(p.slots), p.weight, fe,
                             len(p.effects), p.age_band, fl, len(p.links), 0)
     off_p = HEADER_BYTES
     off_s = off_p + len(prec)
@@ -239,8 +267,18 @@ def read_pcb(data: bytes, group: str = "") -> PieceFile:
         effects = [Effect(c, sl, fg, a, b, s(st)) for c, sl, fg, _z, a, b, st in
                    (_EFFECT.unpack_from(data, off_e + 16 * j) for j in range(fe, fe + ce))]
         links = [Link(s(ap), w) for ap, w in (_LINK.unpack_from(data, off_l + 8 * j) for j in range(fl, fl + cl))]
-        pieces.append(Piece(s(pid), kind, mood, flags, pgames, topic, family, filters, notes, never, tags, s(text),
-                            s(label), slots, weight, effects, band, links))
+        pc = Piece(s(pid), kind, mood, flags, pgames, topic, family, filters, notes, never, tags, s(text),
+                   s(label), slots, weight, effects, band, links)
+        if flags & PF_GUARDIANS:
+            def g(off: int) -> str | None:
+                if off == NONE32:
+                    return None
+                nxt = off + len(s(off).encode("ascii")) + 1
+                if nxt >= n_str:
+                    raise PcbError("guardians string")
+                return s(nxt)
+            pc.gtext, pc.glabel = g(text), g(label)
+        pieces.append(pc)
     return PieceFile(group, games, pieces)
 
 
@@ -677,17 +715,26 @@ def role_json(m: Merged) -> dict:
     return r
 
 
-def graph_of(comp: Composition, game: int, notes: bool = False) -> dict:
+def graph_of(comp: Composition, game: int, notes: bool = False, guardians: bool = False) -> dict:
     """Spec 3 step 7: the version 6 graph the engine writes in memory (as JSON, for vv_cie_graph's checks).  The
-    collection block ({"procedural": ...}) is left out here: vv_cie_graph's collection checks are for files."""
+    collection block ({"procedural": ...}) is left out here: vv_cie_graph's collection checks are for files.
+    `guardians`: New Believers with Guardians of Isola's rewrite on (each PF_GUARDIANS piece's own forms)."""
+    g5 = guardians and game == 5
+
+    def text(p: Piece) -> str | None:
+        return p.words(g5)[0]
+
+    def label(p: Piece) -> str | None:
+        return p.words(g5)[1]
+
     paras = []
     if notes and comp.note_bits:
         paras.append(note_line(comp.note_bits))
-    if comp.flavour is not None and comp.flavour.text:
-        paras.append(comp.flavour.text)
-    paras.append(comp.setup.text or "")
-    if comp.frame is not None and comp.frame.text:
-        paras.append(comp.frame.text)
+    if comp.flavour is not None and text(comp.flavour):
+        paras.append(text(comp.flavour))
+    paras.append(text(comp.setup) or "")
+    if comp.frame is not None and text(comp.frame):
+        paras.append(text(comp.frame))
     # the first role: the first needed villager role, else the first stranger (2.4)
     order = list(comp.roles)
     first = next((r for r in order if comp.roles[r].kind == 0 and not comp.roles[r].optional),
@@ -699,7 +746,7 @@ def graph_of(comp: Composition, game: int, notes: bool = False) -> dict:
     # the start popup and its question are one node (a v6 question shows its text above its buttons)
     nodes: dict = {"q": {"type": "question", "text": "\n\n".join(p for p in paras if p), "choices": []}}
     for i, (a, os) in enumerate(zip(comp.approaches, comp.outcomes), 1):
-        nodes["q"]["choices"].append({"label": a.label or "", "next": f"a{i}"})
+        nodes["q"]["choices"].append({"label": label(a) or "", "next": f"a{i}"})
         kids = []
         for j, o in enumerate(os, 1):
             nid = f"o{i}_{j}"
@@ -711,7 +758,7 @@ def graph_of(comp: Composition, game: int, notes: bool = False) -> dict:
             kids.append(kid)
             names = [sl.name for sl in o.slots]
             node: dict = {"type": "popup", "popup": "append" if a.text else "new", "join": "paragraph",
-                          "text": o.text or ""}
+                          "text": text(o) or ""}
             fx = [effect_json(e, names) for e in o.effects]
             if fx:
                 node["effects"] = fx
@@ -722,11 +769,11 @@ def graph_of(comp: Composition, game: int, notes: bool = False) -> dict:
             nodes[nid] = node
         if a.text:
             # its own popup after the question's (nothing is open to append to once an answer is clicked)
-            nodes[f"a{i}"] = {"type": "popup", "popup": "new", "join": "paragraph", "text": a.text,
+            nodes[f"a{i}"] = {"type": "popup", "popup": "new", "join": "paragraph", "text": text(a),
                               "children": kids}
         else:
             nodes[f"a{i}"] = {"type": "branch", "children": kids}
-    return {"format": "vvfp-cie-graph", "version": 6, "title": comp.setup.label or "",
+    return {"format": "vvfp-cie-graph", "version": 6, "title": label(comp.setup) or "",
             "games": [game], "roles": roles, "start": "q", "nodes": nodes}
 
 
