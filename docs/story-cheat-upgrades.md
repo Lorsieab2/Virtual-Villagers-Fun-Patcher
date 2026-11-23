@@ -429,10 +429,13 @@ byte is written.
 Upgrades cost Tech Points is ticked, free while it is not (the button and the window say which); taken only
 once the villager is back; with fewer the purchase is refused, so tech points never go below 0.
 
-**Who is listed.** The save slot's own Deaths and Disappearances logs (`Virtual Villagers Fun Patcher Logs\Save
-<S>\` and `Virtual Villagers Fun Patcher\Save <S>\Logs\`, both "Deaths" and "Deaths and Disappearances"; Start Over
-wipes them with the village, so every record there is this village's; the older shared logs of builds before the
-per-slot folders are not read). Every `Death <n>` and `Disappeared` record, the newest record of each person (name,
+**Who is listed.** The village's Deaths and Disappearances logs, in the logs' own reading order (`native/shared/log_slot.h`
+vv_log_read_folders_w): the older builds' shared folders first (`Virtual Villagers Fun Patcher Logs\Deaths` and`
+...\Deaths and Disappearances`, never moved), each record taken only under this village's own header -- read from
+the slot's save by "VVFP Save Reset.dll" (SavedVillageHeader); none when it can not be read -- then the slot's own
+folders (`Virtual Villagers Fun Patcher Logs\Save <S>\` and `Virtual Villagers Fun Patcher\Save <S>\Logs\`; Start Over
+wipes them with the village). The skills come from the Tribe History the same way. Read only: nothing is written or
+moved. Every `Death <n>` and `Disappeared` record, the newest record of each person (name,
 sex, head, body, likes and dislikes the same), newest first. A person with that whole identity in the village now
 -- living, or a body awaiting burial (Custom Island Event's Revive is the way for a body) -- is not listed. Listed
 and refused, with the reason: a record without the sex, looks or likes and dislikes (a "Recorded afterwards"

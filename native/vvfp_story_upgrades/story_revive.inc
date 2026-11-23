@@ -76,6 +76,8 @@
    Upgrades cost Tech Points is ticked (the Story companion's `charges`), free while it is not.  Taken
    only once the villager is back; never more than the village has (with fewer it is refused). */
 
+#include "../shared/log_slot.h"      /* the logs' folders, in their reading order */
+
 #define RV_PRICE 100000               /* with Story / Cheat Upgrades cost Tech Points ticked; else 0 (rv_price) */
 #define RV_AGE 100                    /* five years */
 #define RV_MAX 4096                   /* people kept: past it the OLDEST record goes (the newest always show) */
@@ -327,6 +329,20 @@ static void rv_copy(char *out, int size, const char *text) {
 
 /* ---- The Deaths and Disappearances log ----------------------------------------- */
 
+/* The older builds' SHARED logs ("...Logs\<sub>\", never moved or split: native/shared/log_slot.h) hold every
+   village's records, each under its village's header ("Village: <name> (Save <S>)"); while one is read,
+   rv_filter is 1 and only the records under rv_village -- this village's header, as "VVFP Save Reset.dll"
+   (SavedVillageHeader) reads it from the slot's save -- are taken, as every log reader keeps a record only
+   under its own village's header (statistics_reconcile.inc rc_visit_deaths).  The slot's own folders hold only
+   this village (Start Over wipes them): rv_filter 0.  Read only: nothing is written or moved. */
+static char rv_village[256];
+static int rv_filter;
+
+/* Whether the records that follow a "Village:" line are this village's. */
+static int rv_header_is_ours(const char *line) {
+    return lstrcmpA(line, rv_village) == 0;
+}
+
 static void rv_begin(rv_person *p, int kind, int number) {
     memset(p, 0, sizeof *p);
     p->kind = kind;
@@ -362,6 +378,7 @@ static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
     rv_person *p = NULL;
     int parent = 0;                   /* 1 father, 2 mother: the "Head:" / "Body:" under it */
     int likes_seen = 0, dislikes_seen = 0, likes_ok = 1;
+    int ours = !rv_filter;            /* a shared file: nothing before this village's header */
     while (rv_line(&cursor, end, line, (int)sizeof line)) {
         const char *v;
         if (line[0] != ' ') {
@@ -372,6 +389,13 @@ static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
             parent = 0;
             likes_seen = dislikes_seen = 0;
             likes_ok = 1;
+            if (strncmp(line, "Village:", 8) == 0) {
+                ours = !rv_filter || rv_header_is_ours(line);
+                continue;
+            }
+            if (!ours) {
+                continue;
+            }
             if (strncmp(line, "Death ", 6) == 0 && line[6] >= '0' && line[6] <= '9') {
                 int number = 0;
                 (void)rv_number(line + 6, &number);
@@ -480,6 +504,7 @@ static void rv_parse_history(const ce_adapter *a, const char *text, int length) 
     const char *cursor = text, *end = text + length;
     char line[300], name[RV_NAME];
     int open = 0, age = -1, sex = 0, head = -1, body = -1, skills_seen = 0, in_skills = 0;
+    int ours = !rv_filter;
     int skills[CE_SKILLS];
     memset(skills, 0, sizeof skills);
     name[0] = '\0';
@@ -493,7 +518,10 @@ static void rv_parse_history(const ce_adapter *a, const char *text, int length) 
             if (!more) {
                 break;
             }
-            open = strncmp(line, "Villager ", 9) == 0;
+            if (strncmp(line, "Village:", 8) == 0) {
+                ours = !rv_filter || rv_header_is_ours(line);
+            }
+            open = ours && strncmp(line, "Villager ", 9) == 0;
             name[0] = '\0';
             age = -1;
             sex = 0;
@@ -962,19 +990,49 @@ static void rv_each_file(const ce_adapter *a, const wchar_t *folder, void (*visi
     }
 }
 
-/* This save slot's folders of the log `sub`, older layout first ("...Logs\Save <S>\<sub>", then the save's own
-   "Virtual Villagers Fun Patcher\Save <S>\Logs\<sub>"). */
-static void rv_each_slot_log(const ce_adapter *a, int slot, const wchar_t *sub,
-                             void (*visit)(const ce_adapter *, const char *, int)) {
-    wchar_t root[MAX_PATH], older[MAX_PATH], newer[MAX_PATH];
+/* Every folder of the log `sub` (`old_sub` an older build's name for its shared folder, or NULL), in the logs'
+   own reading order (native/shared/log_slot.h vv_log_read_folders_w): the shared folders first, each record
+   taken only under this village's header (none when it is not known), then the slot's older and newer folders,
+   whole.  The newest record of each person wins (rv_close), so a record a later folder repeats is one entry. */
+static void rv_each_log(const ce_adapter *a, int slot, const wchar_t *sub, const wchar_t *old_sub,
+                        void (*visit)(const ce_adapter *, const char *, int)) {
+    static wchar_t folders[VV_LOG_READ_MAX][MAX_PATH];
+    wchar_t root[MAX_PATH];
+    int n, k, shared;
     if (slot < 1 || slot > 5 || !vv_save_folder_w(root, 120)) {
         return;
     }
-    /* the save folder leaves 120 characters: these tails (at most 75) always fit */
-    wsprintfW(older, L"%s\\Virtual Villagers Fun Patcher Logs\\Save %d\\%s", root, slot, sub);
-    rv_each_file(a, older, visit);
-    wsprintfW(newer, L"%s\\Virtual Villagers Fun Patcher\\Save %d\\Logs\\%s", root, slot, sub);
-    rv_each_file(a, newer, visit);
+    n = vv_log_read_folders_w(root, sub, old_sub, slot, folders, VV_LOG_READ_MAX);
+    shared = old_sub != NULL ? 2 : 1;
+    for (k = 0; k < n; ++k) {
+        if (k < shared && rv_village[0] == '\0') {
+            continue;                 /* the village is not known: another village's records could be taken */
+        }
+        rv_filter = k < shared;
+        rv_each_file(a, folders[k], visit);
+    }
+    rv_filter = 0;
+}
+
+/* This village's header, from the slot's save ("VVFP Save Reset.dll" SavedVillageHeader), its line end taken
+   off; "" when it can not be read. */
+static void rv_village_header(int game, int slot) {
+    typedef int (__stdcall *saved_header_fn)(int, int, char *, int);
+    HMODULE reset = vvfp_load_patcher_dll("VVFP Save Reset.dll");
+    saved_header_fn header = reset != NULL ? (saved_header_fn)GetProcAddress(reset, "SavedVillageHeader") : NULL;
+    int n;
+    rv_village[0] = '\0';
+    if (header == NULL || !header(game, slot, rv_village, (int)sizeof rv_village)) {
+        rv_village[0] = '\0';
+        return;
+    }
+    n = lstrlenA(rv_village);
+    while (n > 0 && (rv_village[n - 1] == '\n' || rv_village[n - 1] == '\r')) {
+        rv_village[--n] = '\0';
+    }
+    if (strncmp(rv_village, "Village:", 8) != 0) {
+        rv_village[0] = '\0';
+    }
 }
 
 static int rv_slot(int game) {
@@ -991,10 +1049,10 @@ static void rv_load(int game) {
     if (a == NULL || slot <= 0) {
         return;
     }
-    rv_each_slot_log(a, slot, L"Deaths", rv_parse_deaths);
-    rv_each_slot_log(a, slot, L"Deaths and Disappearances", rv_parse_deaths);
+    rv_village_header(game, slot);
+    rv_each_log(a, slot, L"Deaths and Disappearances", L"Deaths", rv_parse_deaths);
     if (rv_count > 0) {
-        rv_each_slot_log(a, slot, L"Tribe History", rv_parse_history);
+        rv_each_log(a, slot, L"Tribe History", NULL, rv_parse_history);
     }
     rv_settle(game, a);
 }
@@ -1530,6 +1588,33 @@ __declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoad(int game, const cha
     rv_game = game;
     if (a == NULL) {
         return -1;
+    }
+    if (deaths != NULL) {
+        rv_parse_deaths(a, deaths, lstrlenA(deaths));
+    }
+    if (history != NULL && rv_count > 0) {
+        rv_parse_history(a, history, lstrlenA(history));
+    }
+    rv_settle(game, a);
+    rv_make_rows();
+    return rv_rows;
+}
+
+/* TEST build: a shared log `shared` (each record taken only under `village`, a "Village: ..." header) read
+   before the slot's own `deaths`, then `history` (may be NULL), as rv_load reads the folders.  The rows. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeReviveLoadShared(int game, const char *shared, const char *village,
+                                                                   const char *deaths, const char *history) {
+    const ce_adapter *a = ce_adapter_for(game);
+    rv_clear();
+    rv_game = game;
+    if (a == NULL) {
+        return -1;
+    }
+    lstrcpynA(rv_village, village != NULL ? village : "", (int)sizeof rv_village);
+    if (shared != NULL && rv_village[0] != '\0') {
+        rv_filter = 1;
+        rv_parse_deaths(a, shared, lstrlenA(shared));
+        rv_filter = 0;
     }
     if (deaths != NULL) {
         rv_parse_deaths(a, deaths, lstrlenA(deaths));

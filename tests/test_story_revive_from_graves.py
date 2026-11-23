@@ -563,6 +563,53 @@ class LongTextTests(unittest.TestCase):
         self.assertEqual(r.v.name(made), name)
 
 @emulated
+class SharedLogTests(unittest.TestCase):
+    """Codex (#851): the older builds' shared Deaths logs ("...Logs/Deaths and Disappearances", never moved:
+    native/shared/log_slot.h) are read too -- only the records under this village's own header -- before the slot's
+    own folders, and a record the slot's log repeats is one entry, the newest."""
+
+    def test_this_villages_shared_records_are_listed_once(self):
+        for game in GAMES:
+            if not have_stock(game):
+                continue
+            r = Revive(game)
+            ours = "Village: Kahuna Tribe (Save 1)"
+            shared = (death(1, "Headless Who", 500, "Male", 1, 1)               # before any header: unknown village
+                      + "Village: Kahuna Tribe 2 (Save 1)\n"
+                      + death(2, "Stranger One", 700, "Female", 2, 2)          # another village in the same slot
+                      + ours + "\n"
+                      + death(3, "Old Friend", 900, "Male", 3, 3)
+                      + death(4, "Ana Rua", 1300, "Female", 5, 6))
+            slot_log = death(9, "Ana Rua", 1300, "Female", 5, 6)               # the same person, a newer record
+            for buf, text in ((DEATHS_BUF, shared), (HISTORY_BUF, slot_log), (LINE_BUF, ours)):
+                r.p.write(buf, text.encode("latin-1") + b"\0")
+            with self.subTest(game=game):
+                n = r.p.export("VvfpStoryProbeReviveLoadShared", r.s.n, DEATHS_BUF, LINE_BUF, HISTORY_BUF, 0)
+                self.assertEqual(n, 2)
+                names = [r.row(k)[1].split(",")[0] for k in range(n)]
+                self.assertEqual(names, ["Ana Rua", "Old Friend"])
+                self.assertIn("Death record: Death 9", r.row(0)[2])
+                # without this village's header nothing of the shared log is taken
+                r.p.write(LINE_BUF, b"\0")
+                self.assertEqual(r.p.export("VvfpStoryProbeReviveLoadShared", r.s.n, DEATHS_BUF, LINE_BUF,
+                                            HISTORY_BUF, 0), 1)
+
+    def test_the_list_reads_the_logs_in_log_slots_order(self):
+        source = SOURCE.read_text(encoding="utf-8")
+        self.assertIn('#include "../shared/log_slot.h"', source)
+        self.assertIn("vv_log_read_folders_w(root, sub, old_sub, slot, folders, VV_LOG_READ_MAX)", source)
+        self.assertIn('rv_each_log(a, slot, L"Deaths and Disappearances", L"Deaths", rv_parse_deaths);', source)
+        self.assertIn('rv_each_log(a, slot, L"Tribe History", NULL, rv_parse_history);', source)
+        self.assertIn('"SavedVillageHeader"', source)
+        body = source[source.index("static void rv_each_log("):]
+        body = body[:body.index("\n}\n")]
+        self.assertNotIn("CreateFileW", body)       # read only: the folders are listed and each file read by rv_read
+        read = source[source.index("static int rv_read("):]
+        read = read[:read.index("\n}\n")]
+        self.assertIn("GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING", read)
+        self.assertNotIn("GENERIC_WRITE", source)
+
+@emulated
 class GraveyardTests(unittest.TestCase):
     def test_the_later_games_keep_their_graves_in_one_unbroken_run(self):
         for game in ("vv3", "vv4", "vv5"):
