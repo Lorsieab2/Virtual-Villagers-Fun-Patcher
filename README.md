@@ -769,6 +769,12 @@ Gives A New Home the grey hair of the later games. In the original game a villag
 
 - Patch ID: `vv1_grey_hair`
 
+**Esteemed Elders in Every Game**
+
+A villager who has mastered three or more skills (90 or more, the level the Villager Details screen calls "Master") gets the title "Esteemed Elder" on the Villager Details screen, as in The Secret City and New Believers. The Golden Child keeps his own title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too. When such a villager dies, their grave's epitaph is "Esteemed Elder". **The epitaph needs "Show Cause of Death and Epitaphs on Graves, and Log Every Death"** (A New Home's graves have an epitaph only with it). **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv1_esteemed_elders`
+
 **Sort by Age/Skill/Health in Details Screen**
 
 Adds The Lost Children's Sort By band to A New Home's Villager Detail screen, under the Age and Gender boxes: Age, Skill and Health, each with a radio. The left and right arrows then walk the villagers in that order the way the later games do -- ascending by age, by the villager's highest skill, or by health, with earlier villagers first among equals, and the place in the list is kept when the order is changed. Age is the default. **Runs on the Origins-exclusive base, which the patcher installs automatically with it**, so selecting this patch also adds the Origins Upgrades buttons to the Tech and Villager Details screens. That base's companion loads this patch's DLL, and the base's arrow hooks ask it which villager comes next.
@@ -1379,6 +1385,12 @@ In the stock game each Esteemed Elder's totem statue takes one of the village's 
 
 - Patch ID: `vv2_totems_out_of_entries`
 
+**Esteemed Elders in Every Game**
+
+A villager who has mastered three or more skills (88 or more) gets the title "Esteemed Elder" on the Villager Details screen even when the game has not made them an Esteemed Elder (the normal game stops making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their totems, are unchanged; this patch makes no totem. A totem statue never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too, and when such a villager dies as an adult their grave gets the game's own "Esteemed Elder" epitaph. **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv2_esteemed_elders`
+
 **VV1 Mushroom/Collectible Duplication Cheat**
 
 Multiple children can be dropped onto a single mushroom (and collectible) and it will be multiplied.
@@ -1749,6 +1761,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 Puts back the Options dialog's Difficulty choice -- Easy, Normal or Hard -- as A New Home, The Lost Children and The Secret City have it. The Tree of Life already plays by a difficulty level, saved with each village (a village starts on Normal), with The Secret City's rules, but its Options dialog never shows the choice. The Difficulty row is drawn where The Secret City has it, directly above Game Speed, with the game's own radio buttons, words and font; Game Speed moves down one row and the dialog grows by that row, so every row and the Done button stay in view. Easy: a new village starts with 300 more food, villagers never eat the extra food the other levels take, a fed, healthy villager tries to regain health on every check, and villagers fall sick about a quarter as often. Normal: above 8,000 food each villager's meal takes 2 more food three times in four, and a starving villager loses health on about three checks in four. Hard: a new village starts with 99 less food, the extra food is taken at any food level, and a starving villager loses health on every check. **The starting food only changes for a village made after you pick the level.** **Needs no other patch.** The companion is "VVFP Difficulty.dll", started by VVFP Startup.dll. On by default; **checked in a live game, windowed** (the row's layout, every button, and the chosen level after a save and reload); **clicks in fullscreen have not been tried in a live game**.
 
 - Patch ID: `vv4_difficulty_settings`
+
+**Esteemed Elders in Every Game**
+
+A villager who has mastered three or four skills (88 or more) gets the title "Esteemed Elder" on the Villager Details screen, as in The Secret City and New Believers. Mastering all five is still the game's own "Scholar", which wins. A ghost never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too, and when such a villager dies as an adult their grave's epitaph is "Esteemed Elder". **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+- Patch ID: `vv4_esteemed_elders`
 
 ### Virtual Villagers - New Believers
 

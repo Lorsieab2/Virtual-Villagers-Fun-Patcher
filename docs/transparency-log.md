@@ -667,6 +667,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Guarded executable edits: 89; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.vv1mc` (executable code), `.vv1md` (writable data) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
 
+#### Esteemed Elders in Every Game (`vv1_esteemed_elders`)
+
+A villager who has mastered three or more skills (90 or more, the level the Villager Details screen calls "Master") gets the title "Esteemed Elder" on the Villager Details screen, as in The Secret City and New Believers. The Golden Child keeps his own title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too. When such a villager dies, their grave's epitaph is "Esteemed Elder". **The epitaph needs "Show Cause of Death and Epitaphs on Graves, and Log Every Death"** (A New Home's graves have an epitaph only with it). **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Villager Details screen's title (0x41F9B0): "Esteemed Elder" for a villager, not the Golden Child, with three or more of the five skills at 90 or more, in place of the skill-and-job label; Story / Cheat Upgrades' custom title is applied after it (0x41FD75), so it still wins. The logs' "Special villager: Esteemed Elder" line (native/shared/special_title.h) while the companion is installed; the Cause of Death companion gives such a villager's new grave the epitaph "Esteemed Elder" (its Graves file, version 4).
+- Explicit non-changes/exclusions: No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were. No skill, flag, totem, job or save field is changed; the rule only reads the villager's record. The Secret City and New Believers are left as the stock game makes them (their own Esteemed Elder rule).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Every Island Event Can Happen (`vv1_every_island_event_can_happen`)
 
 The Trapped Whale (it needed Spirituality below level 3) and The Visitor (Medicine below level 3) can now happen at any technology level, even with everything researched. "Help free the whale" and "Allow him to gather samples" still raise that technology by 1 level, up to 3; at level 3 the event still happens, shows its own text, and the level stays at 3. Every other requirement (the villagers an event needs, puzzles, buildings, food, graves, room), how often events come and how one is chosen stay as in the normal game. **Needs no other patch.**
@@ -1832,6 +1844,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 36; every edit has an exact purpose and before/after guard in the manifest.
 - Appends 8192 bytes as 2 new PE sections -- `.mtab` (writable data), `.vvmk` (executable code) -- and rewrites 4 guarded header regions (86 bytes) of the PE headers to map them; the appended bytes and every header change carry an exact before/after guard in the manifest.
+
+#### Esteemed Elders in Every Game (`vv2_esteemed_elders`)
+
+A villager who has mastered three or more skills (88 or more) gets the title "Esteemed Elder" on the Villager Details screen even when the game has not made them an Esteemed Elder (the normal game stops making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their totems, are unchanged; this patch makes no totem. A totem statue never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too, and when such a villager dies as an adult their grave gets the game's own "Esteemed Elder" epitaph. **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Villager Details screen's title and an adult's grave epitaph: the game's own "Esteemed Elder" (strings 0x87 and 0x1F0) for a villager with the stock flag +0x7FC, as before, or with three or more of the five skills at 88 or more (never a totem statue, +0x558). The logs' "Special villager: Esteemed Elder" line follows the same rule while the companion is installed.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were. No skill, flag, totem, job or save field is changed; the rule only reads the villager's record. The Secret City and New Believers are left as the stock game makes them (their own Esteemed Elder rule). The stock elder pass (0x44D4C0), its flag, its totems and the Village Elders counter are unchanged.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Esteemed Elders' Totems Use No Villager Records (`vv2_totems_out_of_entries`)
 
@@ -4047,6 +4071,18 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 52; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Esteemed Elders in Every Game (`vv4_esteemed_elders`)
+
+A villager who has mastered three or four skills (88 or more) gets the title "Esteemed Elder" on the Villager Details screen, as in The Secret City and New Believers. Mastering all five is still the game's own "Scholar", which wins. A ghost never gets the title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' "Special villager" line says it too, and when such a villager dies as an adult their grave's epitaph is "Esteemed Elder". **Villagers and graves from before: Repair Saves & Logs > "Give the Esteemed Elder title retroactively".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is "VVFP Esteemed Elders.dll"; it never writes a save or a file.
+
+**Requires no other patch to be ticked.**
+
+- Behavior changes: The Villager Details screen's title: "Scholar" for all five skills at 88.0 or more, as before; "Esteemed Elder" for three or four (never a ghost, +0x1CC7). The Roster of the Dead: an adult's grave (age 360 or more), not a Scholar's, whose villager is an Esteemed Elder gets the epitaph "Esteemed Elder" in place of the job's; the grave's job, value and Scholar byte are the game's own. The logs' "Special villager: Esteemed Elder" line follows the same rule while the companion is installed.
+- Explicit non-changes/exclusions: No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were. No skill, flag, totem, job or save field is changed; the rule only reads the villager's record. The Secret City and New Believers are left as the stock game makes them (their own Esteemed Elder rule).
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Fix Vanilla Bugs (`vv4_fix_vanilla_bugs`)
 

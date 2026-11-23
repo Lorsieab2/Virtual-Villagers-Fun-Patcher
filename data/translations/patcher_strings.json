@@ -12617,6 +12617,17 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.14",
+   "english": "Esteemed Elder",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Cause of Death.dll",
+   "notes": "a patcher message shown by the game",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s0",
    "english": "Listening to a story",
    "games": [
@@ -73160,6 +73171,18 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.esteemed_elders/vvfp_esteemed_elders.ee_text.s1",
+   "english": "Esteemed Elder",
+   "games": [
+    "vv1",
+    "vv4"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Esteemed Elders.dll",
+   "notes": "a patcher message shown by the game",
+   "route": "key"
   }
  ]
 }

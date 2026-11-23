@@ -1665,6 +1665,25 @@ every change in its Village Solidarity log; Start Over clears both. Needs
 Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
 defaults and in Select All). Not yet seen in a running game.
 
+ESTEEMED ELDERS IN EVERY GAME (A NEW HOME, THE LOST CHILDREN, THE TREE OF LIFE)
+
+Off by default; on in Owner's Defaults only (off in Select All). Nothing to
+click: it works on its own. A villager who has mastered three or more skills
+(the level the Villager Details screen calls Master: 90 in A New Home, 88 in
+The Lost Children and The Tree of Life) is titled "Esteemed Elder" on the
+Villager Details screen, as in The Secret City and New Believers (which
+already do it). The Golden Child keeps his own title; a totem statue or a
+ghost never gets it; in The Tree of Life mastering all five is still the
+Scholar. A custom title still shows in its place. The logs' "Special
+villager" line says it too, and a new grave of such a villager (an adult)
+gets the epitaph "Esteemed Elder" (A New Home: with Show Cause of Death and
+Epitaphs on Graves, and Log Every Death). The Lost Children's own Esteemed
+Elders and their totems are unchanged. For villagers and graves from before:
+Repair Saves & Logs, "Give the Esteemed Elder title retroactively" lists who
+gets it first; a grave is changed only where the save still holds that
+villager's skills at death, the others are listed and left. Not yet seen in
+a running game.
+
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 
 Everything this patcher writes for a village sits beside that village's save,

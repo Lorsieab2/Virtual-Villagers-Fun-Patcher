@@ -86,7 +86,10 @@ NOT_RECORDED = "(not recorded"
 EPITAPHS = (None, "Respected Citizen", "Child of the Earth", "Nature's Friend", "Parent, Teacher, Friend",
             "Dedicated to Children", "Guardian of Health", "Dedicated to Others", "Dedicated Student",
             "Inspired Inventor", "Inspired Architect", "Strong Arms, Big Heart", "Curious and Playful",
-            "Loving and Special")
+            "Loving and Special",
+            # 14: an Esteemed Elder's grave (A New Home with Esteemed Elders in Every Game; Graves file version 4).
+            "Esteemed Elder")
+EPITAPH_ELDER = 14
 CHILD_AGE = 280                     # under 14 years: "Apprentice" (VV4 stock; the others with the patcher's row)
 
 
@@ -201,11 +204,12 @@ def grave_line(game: int, job: int, value: int, age: int) -> str:
     return f"{rank} {lay.jobs[job]}"
 
 
-def _title_of(lay: Layout, data, at: int) -> str:
+def _title_of(lay: Layout, data, at: int, game: int = 0) -> str:
     if lay.chief is not None and data[at + lay.chief]:
         return "Tribal Chief"
     if lay.elder is not None and data[at + lay.elder]:
-        return "Esteemed Elder"
+        # The Tree of Life's byte is the Scholar's: its writer stores 0x46AC70, all five skills (0x45D4F9).
+        return "Scholar" if game == 4 else "Esteemed Elder"
     return ""
 
 
@@ -245,7 +249,7 @@ def read_graves(game: int, data: bytes) -> list[Grave]:
             values["body"] = _i32(data, at + lay.body)
             values["sex"] = "Male" if data[at + lay.male] else "Female"
         if lay.elder is not None:
-            values["title"] = _title_of(lay, data, at)
+            values["title"] = _title_of(lay, data, at, game)
         fp = ln.grave_fingerprint(bytes(data[at:at + lay.name_cap]), ln.GRAVE_PRINT_CAP[game], age)
         out.append(Grave(place, at, values, fp, stone))
     return out
@@ -273,8 +277,9 @@ GOLDEN_LINE = "Golden Child"
 
 def _vcd1_entries(data: bytes, game: int) -> list[bytearray] | None:
     """The entries of a Graves file: version 1, version 2 (cause 5, the Custom Island Event's
-    "Dies", allowed), or version 3 (also the Golden Child's flag), as cod_vv12.inc reads them."""
-    if len(data) < 16 or data[:4] != b"VCD1" or _i32(data, 4) not in (1, 2, 3) or _i32(data, 8) != game:
+    "Dies", allowed), version 3 (also the Golden Child's flag) or version 4 (also epitaph 14, an
+    Esteemed Elder's), as cod_vv12.inc reads them."""
+    if len(data) < 16 or data[:4] != b"VCD1" or _i32(data, 4) not in (1, 2, 3, 4) or _i32(data, 8) != game:
         return None
     count = struct.unpack_from("<I", data, 12)[0]
     if len(data) != 16 + 44 * count:
@@ -282,16 +287,21 @@ def _vcd1_entries(data: bytes, game: int) -> list[bytearray] | None:
     entries = [bytearray(data[16 + 44 * k:16 + 44 * (k + 1)]) for k in range(count)]
     if _i32(data, 4) == 1 and any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries):
         return None                         # the companion sets such a file aside
-    if _i32(data, 4) != 3 and any(e[10] & FLAG_GOLDEN for e in entries):
+    if _i32(data, 4) < 3 and any(e[10] & FLAG_GOLDEN for e in entries):
+        return None
+    if _i32(data, 4) < 4 and any(e[9] == EPITAPH_ELDER for e in entries):
+        return None
+    if any(e[9] >= len(EPITAPHS) for e in entries):
         return None
     return entries
 
 
 def _vcd1_bytes(game: int, entries: list[bytearray]) -> bytes:
-    """Version 3 only when an entry holds the Golden Child's flag, else 2 only when one holds cause 5, as
-    the companion writes it: a file without either stays readable by every build."""
+    """Version 4 only when an entry holds an Esteemed Elder's epitaph, else 3 only when one holds the Golden
+    Child's flag, else 2 only when one holds cause 5, as the companion writes it: a file without any of them
+    stays readable by every build."""
     entries = sorted(entries, key=lambda e: (struct.unpack_from("<H", e, 0)[0], struct.unpack_from("<H", e, 2)[0]))
-    version = 3 if any(e[10] & FLAG_GOLDEN for e in entries) else         2 if any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries) else 1
+    version = 4 if any(e[9] == EPITAPH_ELDER for e in entries) else 3 if any(e[10] & FLAG_GOLDEN for e in entries) else         2 if any(struct.unpack_from("<b", e, 8)[0] == CAUSE_CUSTOM_EVENT for e in entries) else 1
     return struct.pack("<4sIII", b"VCD1", version, game, len(entries)) + b"".join(bytes(e) for e in entries)
 
 
@@ -499,6 +509,13 @@ def _title_differs(game: int, grave_title: str, record_title: str | None) -> boo
     City's grave keeps the Tribal Chief; a record names only the highest title, so a grave's Esteemed
     Elder agrees with any title above it (special-titles-and-masks-in-logs)."""
     record_title = record_title or ""
+    if game == 4:
+        # The Tree of Life's grave keeps only the Scholar (all five skills); its Esteemed Elder (three or four,
+        # Esteemed Elders in Every Game) is kept by the epitaph and the record alone.  A record names only the
+        # highest title, and every title is above the Scholar, so the grave's Scholar agrees with any of them.
+        if grave_title == "Scholar":
+            return next((k for k, t in enumerate(TITLE_RANK) if record_title.startswith(t)), None) is None
+        return record_title == "Scholar"
     if game == 3 and (grave_title == "Tribal Chief") != (record_title == "Tribal Chief"):
         return True
     if grave_title == "Tribal Chief":
@@ -1467,3 +1484,246 @@ def write_preferred(folder: Path, game: int, slot: int, plan: PreferredPlan, now
 
 
 PREFERRED_COPY_SUFFIX = ".before-grave-job-repair"
+
+
+# ---------------------------------------------------------------------------
+# Esteemed Elders in Every Game: the title for the villagers who died holding it
+# ---------------------------------------------------------------------------
+#
+# The owner (2026-11-22): "a repair logs thing to retroactively give villagers and graves that title/epitaph/skill
+# however it's represented on a grave".  With the row in the exe (A New Home, The Lost Children, The Tree of Life:
+# native/shared/esteemed_elder.h), a villager who died with three or more skills at the game's Master level (90 in A
+# New Home, 88 in the others; The Tree of Life three or four, all five being its Scholar) is an Esteemed Elder --
+# never the Golden Child or a totem statue.  How each game shows it on a grave:
+#
+#   A New Home        the grave keeps no title or epitaph; the patcher's Graves file keeps its epitaph, and the
+#                     row's burial gives an adult's "Esteemed Elder" (epitaph 14, version 4: cod_vv12.inc)
+#   The Lost Children the grave's own epitaph char[0x41]: the game gives an adult elder's grave its own "Esteemed
+#                     Elder" (0x465146, string 0x1F0), the row's rule too
+#   The Tree of Life  the grave's epitaph char[0x20] (the companion's burial splice, 0x45D611); its byte +0x31 is the
+#                     Scholar's alone
+#
+# and the Death record's "Special villager: Esteemed Elder" line (vv_log_additions plan_esteemed).  Only where it is
+# certain: the villager's own record is still in the save (a body's record is not cleared at burial; the next
+# birth reuses it), found by the grave's name and age at death, dead, with its skills -- which no longer change after
+# death.  Two such records that disagree, or none, and the grave is listed as unknown and left as it is.  An
+# epitaph is given only to an adult's grave (360 age units or more, the games' own child rule comes first) whose
+# epitaph is the one the burial gave for its job (never one the player typed -- an Epitaph changed record -- and
+# never one a game in another language wrote).
+
+ELDER_ROWS = {g: f"vv{g}_esteemed_elders" for g in (1, 2, 4)}
+ELDER_MASTER = {1: 90, 2: 88, 4: 88}
+ELDER_TITLE = "Esteemed Elder"
+ELDER_COPY_SUFFIX = ".before-esteemed-elder-repair"
+ADULT_AGE = 360
+# From the villager's name in the saved entry: A New Home's family number (199: the Golden Child), The Lost Children's
+# totem mark +0x558 and stock elder flag +0x7FC (the save keeps record +0x524..+0x7FF around the name at +0x564).
+_VV1_FAMILY = 0x36C - 0x370
+_VV2_TOTEM = 0x558 - 0x564
+_VV2_FLAG = 0x7FC - 0x564
+
+
+def elder_by_skills(game: int, skills: list) -> bool:
+    """The row's rule on a villager's own skills (esteemed_elder.h vv_elder_rule, without the special villagers)."""
+    if game not in ELDER_MASTER or len(skills) < 5:
+        return False
+    mastered = sum(1 for s in skills[:5] if s == s and s >= ELDER_MASTER[game])
+    return 3 <= mastered < 5 if game == 4 else mastered >= 3
+
+
+def _elder_at_death(game: int, data: bytes, g: Grave) -> str:
+    """"yes" / "no" (the villager's record at death, still in the save, says so) / "unknown"."""
+    lay = LAYOUTS[game]
+    return elder_at_death(game, data, g.name, g.age, (_i32(data, g.at + lay.job), _i32(data, g.at + lay.value)))
+
+
+def elder_at_death(game: int, data: bytes, name: str, age: int, have: tuple | None = None) -> str:
+    """"yes" / "no" / "unknown" for the villager who died at `age` named `name`: every dead record of the save with
+    that name and age (and, for a grave, whose skills give the grave's job and value `have`) must agree."""
+    lay = LAYOUTS[game]
+    checker = tools.load_checker()
+    health = _HEALTH_VV1 if game == 1 else checker.HEALTH[game]
+    age_at = -0x28 if game == 1 else checker.LAYOUTS[game].age
+    cap = ln.FIELDS[game].name_cap
+    found = set()
+    for at in _dead_records(game, data):
+        if at + min(health, age_at, _VV2_TOTEM) < 0 or _i32(data, at + age_at) != age \
+                or _i32(data, at + health) > 0:
+            continue
+        if _text(data, at, min(cap, lay.name_cap)) != name:
+            continue
+        if game == 2 and data[at + _VV2_TOTEM]:
+            continue                            # a totem statue, the elder's copy: never the villager
+        skills, pref = _skills_at(game, data, at)
+        if have is not None and have != stock_job(game, skills) and have != preferred_job(game, skills, pref):
+            continue                            # not this villager as they were at death (_pref_of's test)
+        if game == 1 and _i32(data, at + _VV1_FAMILY) == 199:
+            found.add("no")                     # the Golden Child keeps his own title
+        elif game == 2 and data[at + _VV2_FLAG]:
+            found.add("yes")                    # the game's own Esteemed Elder
+        else:
+            found.add("yes" if elder_by_skills(game, skills) else "no")
+    return next(iter(found)) if len(found) == 1 else "unknown"
+
+
+@dataclass
+class ElderGrave:
+    """A grave whose villager died an Esteemed Elder: its epitaph to give ((old, new), or None to keep it)."""
+    grave: Grave
+    epitaph: tuple[str, str] | None = None
+
+    @property
+    def in_save(self) -> bool:
+        return self.epitaph is not None
+
+
+@dataclass
+class ElderPlan:
+    graves: list[ElderGrave]
+    unknown: list[Grave]            # skills at death no longer in the save: left as they are
+    save_bytes: bytes
+    every_grave: list = field(default_factory=list)
+    kept: list = field(default_factory=list)       # (grave, why) an elder's epitaph left as it is
+
+    @property
+    def in_save(self) -> list:
+        return [p for p in self.graves if p.in_save]
+
+
+def _job_epitaph(text: str | None) -> bool:
+    """One of the burial's own job (or no-skill) epitaphs, in English."""
+    if not text:
+        return False
+    lowered = text.strip().lower()
+    return lowered == CITIZEN.lower() or lowered == "child of the earth" or any(
+        lowered in (a.lower(), b.lower()) for a, b in _PAIRS.values())
+
+
+def plan_elders(folder: Path, game: int, slot: int) -> ElderPlan:
+    """Every grave of the save whose villager died an Esteemed Elder by the row's rule, where that is certain, and
+    the epitaph each gets.  Reads only."""
+    data = ln.save_path(folder, game, slot).read_bytes()
+    graves = read_graves(game, data)
+    _load_sidecar(folder, game, slot, graves)
+    retyped = {(b.value("Name"), b.int_value("Age at death")) for b in _all_blocks(folder, game, slot)
+               if b.heading.startswith("Epitaph changed")}
+    out, unknown, kept = [], [], []
+    for g in graves:
+        state = _elder_at_death(game, data, g)
+        if state == "unknown":
+            # Only a grave whose best skill is mastered could be an elder's: the others are not worth asking about.
+            if _i32(data, g.at + LAYOUTS[game].value) >= ELDER_MASTER[game]:
+                unknown.append(g)
+            continue
+        if state != "yes":
+            continue
+        current = g.values.get("epitaph", g.sidecar.get("epitaph")) if game == 1 else g.values.get("epitaph")
+        epitaph = None
+        if g.age < ADULT_AGE:
+            kept.append((g, "a child's grave keeps the children's epitaph"))
+        elif current is not None and current.strip().lower() == ELDER_TITLE.lower():
+            pass                                # already the title's
+        elif (g.name, g.age) in retyped:
+            kept.append((g, "its epitaph was typed by the player"))
+        elif not _job_epitaph(current):
+            if current:
+                kept.append((g, f"its epitaph \"{current}\" is not one of the game's English job epitaphs"))
+            elif game == 1:
+                epitaph = ("", ELDER_TITLE)      # no entry yet: the Graves file is given one
+        else:
+            epitaph = (current, ELDER_TITLE)
+        out.append(ElderGrave(g, epitaph))
+    return ElderPlan(out, unknown, data, graves, kept)
+
+
+def elder_record_lines(folder: Path, game: int, slot: int, plan: ElderPlan) -> tuple[list, list]:
+    """(inserts, replaces) for the Death records of the plan's graves: ((path, line after, text) to add the
+    "Special villager: Esteemed Elder" line where the record has none, and (path, line, text) for the Epitaph line
+    of a grave whose epitaph the plan changes, when it says what the grave said)."""
+    if not plan.graves:
+        return [], []
+    import vv_log_additions as additions
+    blocks = _all_blocks(folder, game, slot)
+    paired, _g, _r = _pair(plan.every_grave or [p.grave for p in plan.graves], [b for b in blocks if _is_death(b)])
+    inserts, replaces = [], []
+    for p in plan.graves:
+        b = paired.get(p.grave.place)
+        if b is None:
+            continue
+        if b.value("Special villager") is None:
+            inserts.append((b.path, additions._after_name(b, "special"), f"  Special villager: {ELDER_TITLE}"))
+        if p.epitaph is not None:
+            at = b.index_of("Epitaph")
+            if at is not None and (b.value("Epitaph") or "") in (p.epitaph[0], "(none)" if not p.epitaph[0] else None):
+                replaces.append((b.path, at, f"  Epitaph: {p.epitaph[1]}"))
+    return inserts, replaces
+
+
+def write_elders(folder: Path, game: int, slot: int, plan: ElderPlan, now: datetime | None = None) -> int:
+    """Write the plan's epitaphs: The Lost Children's and The Tree of Life's into the save, A New Home's into its
+    Graves file.  The caller has refused a running game and backed the save folder up (vv_log_tools.approve_repair);
+    each file is copied into Copies Made Before Repairs first and put back on a failure; refused when the save
+    changed since the plan.  Returns the graves given the epitaph."""
+    if not plan.in_save:
+        return 0
+    save = ln.save_path(folder, game, slot)
+    original = save.read_bytes()
+    if original != plan.save_bytes:
+        raise GraveError(f"{save.name} changed since it was checked; its graves were not given the title.")
+    buf = bytearray(original)
+    by_place: dict[int, tuple] = {}
+    for p in plan.in_save:
+        g = p.grave
+        if game == 1 or not _apply_to_save(game, buf, g, "epitaph", p.epitaph[1]):
+            by_place[g.place] = (g.fingerprint, {"epitaph": p.epitaph[1]})
+    changes = []
+    if bytes(buf) != original:
+        changes.append(ln.Change(save, original, bytes(buf), "the save"))
+    _plan_sidecar(folder, game, slot, by_place, {}, changes)
+    for change in changes:
+        if change.original is None:
+            continue
+        for k in range(1, 1000):
+            target = tools.copy_before_repair(folder, change.path, ELDER_COPY_SUFFIX + ("" if k == 1 else f"-{k}"))
+            if not target.exists():
+                break
+        else:
+            raise GraveError(f"{change.path.name} has too many copies already; nothing was changed.")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with open(target, "xb") as copy:
+            copy.write(change.original)
+    done: list = []
+    try:
+        for change in changes:
+            current = change.path.read_bytes() if change.path.is_file() else None
+            if current != change.original:
+                raise GraveError(f"{change.path.name} changed while the graves were being given the title.")
+            done.append(change)
+            change.path.parent.mkdir(parents=True, exist_ok=True)
+            ln._write(change.path, change.updated)
+            if change.path.read_bytes() != change.updated:
+                raise GraveError(f"{change.path.name} did not read back as written.")
+    except (OSError, GraveError, ln.LastNamesError) as exc:
+        for change in reversed(done):
+            try:
+                if change.original is None:
+                    change.path.unlink(missing_ok=True)
+                elif change.path.read_bytes() != change.original:
+                    ln._write(change.path, change.original)
+            except (OSError, ln.LastNamesError):
+                pass
+        raise GraveError(f"Giving the graves the Esteemed Elder epitaph failed ({exc}); the files were put back as "
+                         "they were.") from exc
+    import vv_corrupt_skills
+    village = vv_corrupt_skills._village(folder, game, slot, original)
+    entries = [tools.WordFix(f"{p.grave.label()}: epitaph \"{p.epitaph[0]}\" -> \"{p.epitaph[1]}\"", -1,
+                             f"{(save.name if game != 1 else 'the Graves file')} (copy in Copies Made Before Repairs)")
+               for p in plan.in_save]
+    try:
+        tools.note_word_repair(folder, game, village, entries, now,
+                               checked="each grave against its villager's record still in the save, for three or "
+                                       "more skills mastered at death (Esteemed Elders in Every Game)",
+                               corrected="Esteemed Elder epitaph given", unit="grave(s)", slot=slot)
+    except OSError:
+        pass                                    # the graves stand; the save shows them
+    return len(plan.in_save)

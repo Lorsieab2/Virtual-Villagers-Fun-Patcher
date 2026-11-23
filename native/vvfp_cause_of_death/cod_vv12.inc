@@ -4,6 +4,8 @@
    epitaph's editing is in cod_epitaph_edit.inc.  Included by
    vvfp_cause_of_death.c. */
 
+#include "../shared/esteemed_elder.h"
+
 /* ---- The graves ------------------------------------------------------------
 
    A grave keeps only a name, a job and its skill value, and the age (VV1
@@ -175,8 +177,12 @@ static void cod_grave_title(const unsigned char *grave, char *out) {
    what the grave itself holds -- so it always agrees with the grave's own
    skill line: under 18 years (360 age units) one of "Curious and Playful" /
    "Loving and Special"; otherwise the line pair for the skill the grave
-   shows; no skill at all, "Respected Citizen".  The later games' Chief,
-   Esteemed Elder and Scholar lines have no counterpart in A New Home.  The
+   shows; no skill at all, "Respected Citizen".  The later games' Chief
+   and Scholar lines have no counterpart in A New Home; their Esteemed Elder
+   line does with "Esteemed Elders in Every Game" in the game (its companion
+   installed, native/shared/esteemed_elder.h): an adult who is an Esteemed
+   Elder by that row's rule when buried gets "Esteemed Elder" (cod_buried),
+   as The Secret City and New Believers choose it, before the job.  The
    Golden Child's grave always gets the child pair (the owner: "his epitaph
    should be either of the default child ones"), whatever its age.  The
    two-way choice uses this companion's own random numbers, never the
@@ -294,11 +300,16 @@ static struct {
 
    VERSION 3 is version 2 with flag 2 allowed on a grave (A New Home's Golden
    Child), written only when an entry holds it; a build from before it sets
-   a version 3 file aside the same way. */
+   a version 3 file aside the same way.
+
+   VERSION 4 is version 3 with epitaph 14 ("Esteemed Elder", Esteemed Elders
+   in Every Game) allowed on a grave, written only when an entry holds it; a
+   build from before it sets a version 4 file aside the same way. */
 #define COD_MAGIC 0x31444356u
 #define COD_VERSION 1u
 #define COD_VERSION_CUSTOM 2u
 #define COD_VERSION_GOLDEN 3u
+#define COD_VERSION_ELDER 4u
 #define COD_FLAG_CUSTOM 1u
 #define COD_FLAG_GOLDEN 2u
 #define COD_HEADER 16u
@@ -333,7 +344,8 @@ static int cod_entry_ok(const unsigned char *e, unsigned int version) {
         return 0;
     }
     if (e[9] >= EPITAPH_COUNT || e[11] != 0 || (kind == 1u && (e[9] != 0 || e[10] != 0))
-        || e[10] > (version == COD_VERSION_GOLDEN ? (COD_FLAG_CUSTOM | COD_FLAG_GOLDEN) : COD_FLAG_CUSTOM)) {
+        || (e[9] == EPITAPH_ELDER && version < COD_VERSION_ELDER)
+        || e[10] > (version >= COD_VERSION_GOLDEN ? (COD_FLAG_CUSTOM | COD_FLAG_GOLDEN) : COD_FLAG_CUSTOM)) {
         return 0;
     }
     return *(const unsigned int *)(e + 4) != 0u && cod_text_ok(e + 12, e[10] & COD_FLAG_CUSTOM);
@@ -350,7 +362,8 @@ static int cod_validate(const unsigned char *data, DWORD length, void *context) 
     count = *(const unsigned int *)(data + 12);
     version = *(const unsigned int *)(data + 4);
     if (*(const unsigned int *)data != COD_MAGIC
-        || (version != COD_VERSION && version != COD_VERSION_CUSTOM && version != COD_VERSION_GOLDEN)
+        || (version != COD_VERSION && version != COD_VERSION_CUSTOM && version != COD_VERSION_GOLDEN
+            && version != COD_VERSION_ELDER)
         || *(const unsigned int *)(data + 8) != (unsigned int)g_game
         || count > COD_MAX_ENTRIES
         || length != COD_HEADER + count * COD_ENTRY) {
@@ -405,8 +418,11 @@ static DWORD cod_serialise(void) {
             if (table[i].cause == CAUSE_CUSTOM_EVENT && version < COD_VERSION_CUSTOM) {
                 version = COD_VERSION_CUSTOM;
             }
-            if (pass == 0 && table[i].golden) {
+            if (pass == 0 && table[i].golden && version < COD_VERSION_GOLDEN) {
                 version = COD_VERSION_GOLDEN;
+            }
+            if (pass == 0 && table[i].epitaph == EPITAPH_ELDER) {
+                version = COD_VERSION_ELDER;
             }
             e[9] = pass == 0 ? table[i].epitaph : 0;
             e[10] = pass == 0 ? (unsigned char)((table[i].custom ? COD_FLAG_CUSTOM : 0u)
@@ -672,6 +688,12 @@ static void cod_buried(int index, int found, int slot) {
     e.entry.cause = (signed char)cause;
     e.entry.golden = (unsigned char)cod_record_golden(record);
     e.entry.epitaph = (unsigned char)(g_game == 1 ? cod_epitaph_for(grave, e.entry.golden) : EPITAPH_NONE);
+    /* An adult Esteemed Elder (Esteemed Elders in Every Game in the game): the title's line, as the later
+       games' burial chooses it before the job (the Golden Child keeps the child pair). */
+    if (g_game == 1 && !e.entry.golden && *(const int *)(grave + GRV[1].age) >= 360
+        && vv_elder_rule(1, record) && vv_elders_row_on()) {
+        e.entry.epitaph = EPITAPH_ELDER;
+    }
     e.entry.valid = 1;
     cod_event(&e);
     if (cause != CAUSE_NONE) {
