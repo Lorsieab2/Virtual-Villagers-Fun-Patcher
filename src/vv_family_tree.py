@@ -2135,7 +2135,7 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
     if edits.tree_spans is not None:            # a page's view keeps the tree's pages (page_view)
         return list(edits.tree_spans)
     # (a page laid out with generations of its own keeps the tree's pages: page_village)
-    gens =getattr(village, "span_generations", None) or shown_generations(edits, village) or [1]
+    gens = getattr(village, "span_generations", None) or shown_generations(edits, village) or [1]
     starts = [gens[0]] + sorted({g for g in edits.pages if g in gens and g > gens[0]})   # Codex, #557
     spans = [(lo, starts[k + 1] if k + 1 < len(starts) else gens[-1]) for k, lo in enumerate(starts)]
     # No page holds more than the player's number of generations (the owner, 2026-10-08: 6 until they
@@ -2151,7 +2151,29 @@ def page_spans(edits: Edits, village: gen.Village) -> list[tuple[int, int]]:
             out.append((run[0], run[most - 1]))
             run = run[most - 1:]
         out.append((run[0], run[-1]))
-    return out
+    # A page that would show nobody -- everyone on it hidden there, on the tree or by the page itself (a
+    # generation hidden on the tree and restored only on another page) -- is no page at all: the owner never
+    # wants a blank page.  Its generations are hidden there, so nothing shown is lost.
+    kept = [(lo, hi) for lo, hi in out if _page_shows_someone(edits, village, lo, hi)]
+    return kept or out[:1]
+
+
+def _page_shows_someone(edits: Edits, village: gen.Village, lo: int, hi: int) -> bool:
+    """Whether the page from `lo` to `hi` (its name in page_edits: `lo`, page_key) shows anyone: someone
+    there not hidden on it (that page's own hidden, when it has one, else the tree's)."""
+    part = edits.page_edits.get(str(lo))
+    own = part.get("entries", {}) if isinstance(part, dict) else {}
+    if not own and not any(isinstance(f, dict) and f.get("hidden") for f in edits.entries.values()):
+        return any(lo <= p.generation <= hi for p in village.people.values())
+    for p in village.people.values():
+        if lo <= p.generation <= hi:
+            key = entry_key(village, p)
+            here = own.get(key)
+            hidden = here["hidden"] if isinstance(here, dict) and "hidden" in here else \
+                (edits.entries.get(key) or {}).get("hidden")
+            if not hidden:
+                return True
+    return False
 
 
 def shown_generations(edits: Edits, village: gen.Village) -> list[int]:

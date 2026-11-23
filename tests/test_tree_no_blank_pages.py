@@ -155,6 +155,34 @@ class NoBlankPagesTests(unittest.TestCase):
                 self.assertEqual(ft.page_spans(edits, v), [(1, 2)])
                 self.assertIn(2, page_generations(ft.layout(v, edits, 0)))
 
+    def test_a_page_whose_only_generation_is_restored_elsewhere_is_no_page(self) -> None:
+        # The owner, 2026-11-22: never a blank page.  Generation II hidden on the tree, restored on page 1 only,
+        # and a page break at II: page 2 (II alone) would show nobody -- there is no such page, in the window,
+        # its picture export or the report (all made from page_spans).
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = chain_village(game, [1, 2])
+                edits = ft.Edits(pages=[2])
+                ft.arrange(v, edits)
+                self.assertEqual(ft.page_spans(edits, v), [(1, 2), (2, 2)])
+                keys = [ft.entry_key(v, p) for p in v.people.values() if p.generation == 2]
+                for k in keys:
+                    edits.entries[k] = {"hidden": True}
+                edits.page_edits = ft.clean_page_edits({"1": {"entries": {k: {"hidden": None} for k in keys}}})
+                self.assertEqual(self.assert_no_blank_page(v, edits), [(1, 2)])
+                self.assertEqual(ft.layout(v, edits, 0).pages, 1)
+                self.assertIn(2, page_generations(ft.layout(v, edits, 0)))
+
+    def test_a_page_whose_villagers_are_all_hidden_on_it_is_no_page(self) -> None:
+        for game in GAMES:
+            with self.subTest(game=game):
+                v = chain_village(game, list(range(1, 13)))
+                edits = ft.Edits()
+                ft.arrange(v, edits)
+                hide = {ft.entry_key(v, p): {"hidden": True} for p in v.people.values() if p.generation >= 11}
+                edits.page_edits = ft.clean_page_edits({"11": {"entries": hide}})
+                self.assertEqual(self.assert_no_blank_page(v, edits), [(1, 6), (6, 11)])
+
     def test_the_window_refuses_a_page_break_at_a_generation_of_nobody(self) -> None:
         source = (ROOT / "src" / "vv_genealogy_window.py").read_text(encoding="utf-8")
         body = source[source.index("    def _add_page_break("):source.index("    def _remove_page_break(")]
