@@ -190,6 +190,16 @@ class RejoinedMasks(unittest.TestCase):
                            f"Disappeared\n  Name: {a.name}\n  Sex: {a.sex}\n  What happened: {what}\n\n")
                 self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1).restore], [(a.name, 1)])
 
+    def test_a_record_written_afterwards_is_never_placed_after_the_conversion(self):
+        """Codex, #841: a backfilled Arrived record ("Note: Recorded afterwards") is written where the backfill
+        ran, not where they arrived: one after the conversion is still theirs, and the mask is given back."""
+        a = self.p[0]
+        self.masks_file({})
+        self.v.births(converted(1, a.name, a.sex, (a.head, a.body), "Former Heathen (blue mask)")
+                      + arrived(2, a.name, a.sex, (a.head, a.body)).replace(
+                          "\n\n", "\n  Note: Recorded afterwards (arrived before this log existed)\n\n"))
+        self.assertEqual([(f.name, f.mask) for f in rm.survey(self.v.folder, 1).restore], [(a.name, 1)])
+
     def test_repair_saves_and_logs_runs_it(self):
         source = (ROOT / "src" / "vv_log_tools.py").read_text(encoding="utf-8")
         self.assertIn("vv5_rejoined_masks.restore(folder, slot, backup.backup_folder.name, now)", source)

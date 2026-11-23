@@ -96,13 +96,14 @@ def _lives(folder: Path, slot: int) -> _Lives:
             if rc.BIRTH.match(b.heading):
                 child = ol._sub_lines(b.lines, "Child")
                 if child and child["Name"]:
-                    out.events.setdefault((child["Name"], _sex(child.get("Sex"))), []).append((order, "own", None))
+                    out.events.setdefault((child["Name"], _sex(child.get("Sex"))), []).append(
+                        (order, "late" if ol._late(b.lines) else "own", None))
             elif b.heading.startswith("Arrived") and b.value("Name"):
                 key = (b.value("Name"), _sex(b.value("Sex")))
                 if ol._converted(b.value("How")):
                     out.events.setdefault(key, []).append((order, "conv", b.value("Special villager")))
                 else:
-                    out.events.setdefault(key, []).append((order, "own", None))
+                    out.events.setdefault(key, []).append((order, "late" if ol._late(b.lines) else "own", None))
     # The names a villager has had (Codex, #841): "Name changed" records, island events' renames and the
     # patcher's own renames -- the same list the original looks follow (src/vv_original_look.py evidence).
     ev = ol.evidence(folder, GAME, slot)
@@ -134,7 +135,10 @@ def _rejoined_title(lives: _Lives, name: str, sex: str, others: set[str] = froze
     sexes = {sex} | ({"male", "female"} if names & lives.sex_changed else set())
     events = sorted(e for n in names for x in sexes for e in lives.events.get((n, x), []))
     convs = [k for k, e in enumerate(events) if e[1] == "conv"]
-    owns = [k for k, e in enumerate(events) if e[1] == "own"]
+    owns = [k for k, e in enumerate(events) if e[1] in ("own", "late")]
+    # A record written afterwards (the backfills: "Note: Recorded afterwards") stands where it was written, not
+    # where they were born or arrived: it counts as a villager, never for the order (Codex, #841).
+    timed = [k for k, e in enumerate(events) if e[1] == "own"]
     if not convs:
         return None, ""
     if names & set(others):
@@ -143,7 +147,7 @@ def _rejoined_title(lives: _Lives, name: str, sex: str, others: set[str] = froze
         return None, "a villager of their name is gone; whose conversion it was cannot be told"
     if any((n, x) in lives.newcomers for n in names for x in sexes) or len(owns) > 1:
         return None, "the logs know more than one villager of their name"
-    if owns and owns[0] > convs[-1]:
+    if timed and timed[0] > convs[-1]:
         return None, "their own record comes after the conversion: it was another villager's"
     return events[convs[-1]][2] or "", ""
 

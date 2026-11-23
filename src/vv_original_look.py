@@ -282,6 +282,10 @@ class Evidence:
     # The "How:" line of each of those records, in the same order (None: none, a Birth, an island event's
     # newcomer): New Believers logs a Heathen's conversion as an Arrived record of a villager already known.
     own_hows: list[str | None] = field(default_factory=list)
+    # Whether each of those records was written afterwards ("Note: Recorded afterwards ...": the arrival and birth
+    # backfills, native/shared/arrival_backfill.h): its looks are the villager's when it was written, never proof
+    # of their original (Codex, #841).
+    own_late: list[bool] = field(default_factory=list)
     # Every name a Deaths / Unaccounted record gives a villager who is gone for good (died, disappeared, lost) --
     # not one who left for the Heathens: a namesake there may be whoever a record of that name was about.
     gone: set[str] = field(default_factory=set)
@@ -371,6 +375,7 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                     out.own.append((child["Name"], child.get("Sex"), (_int(child.get("Head")), _int(child.get("Body"))),
                                     _mask(child.get("Mask"))))
                     out.own_hows.append(None)
+                    out.own_late.append(_late(b.lines))
                     if child.get("Mask") is not None:
                         out.own_masks.append((child["Name"], _mask(child.get("Mask"))))
                     out.names.add(child["Name"])
@@ -380,6 +385,7 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
                     out.own.append((name, b.value("Sex"), (b.int_value("Head"), b.int_value("Body")),
                                     _mask(b.value("Mask"))))
                     out.own_hows.append(b.value("How"))
+                    out.own_late.append(_late(b.lines))
                     if b.value("Mask") is not None:
                         out.own_masks.append((name, _mask(b.value("Mask"))))
                     out.names.add(name)
@@ -398,6 +404,7 @@ def evidence(folder: Path, game: int, slot: int) -> Evidence:
             if (b.value("New villager") or "").lower().startswith("yes"):
                 out.own.append((name, b.value("Sex"), (b.int_value("Head"), b.int_value("Body")), _mask(b.value("Mask"))))
                 out.own_hows.append(None)
+                out.own_late.append(_late(b.lines))
                 if b.value("Mask") is not None:
                     out.own_masks.append((name, _mask(b.value("Mask"))))
             for line in b.lines[1:]:
@@ -578,6 +585,15 @@ def _mask_origin(steps_c: list[tuple], steps_e: list[tuple], birth: int | None) 
     return mask, by_ca, ""
 
 
+def _late(lines: list[str]) -> bool:
+    """A record written afterwards ("Note: Recorded afterwards ..."): native/shared/arrival_backfill.h."""
+    return any(line.strip().startswith("Note: Recorded afterwards") for line in lines)
+
+
+def _is_late(ev: Evidence, k: int) -> bool:
+    return k < len(ev.own_late) and ev.own_late[k]
+
+
 def _converted(how: str | None) -> bool:
     """A New Believers Heathen's conversion, logged as an Arrived record of a villager already known."""
     return (how or "").strip().lower().startswith("converted")
@@ -593,7 +609,7 @@ def _believer_record(ev: Evidence, names: set[str], s) -> tuple[tuple, int] | No
     mine = [k for k, o in enumerate(ev.own) if o[0] in names]
     hows = [ev.own_hows[k] if k < len(ev.own_hows) else None for k in mine]
     first = [k for k, how in zip(mine, hows) if not _converted(how)]
-    if len(first) != 1 or first[0] != mine[0] or not any(_converted(h) for h in hows):
+    if len(first) != 1 or first[0] != mine[0] or not any(_converted(h) for h in hows) or _is_late(ev, first[0]):
         return None
     name, sex, looks, mask = ev.own[first[0]]
     if None in looks or mask is None or (sex is not None and s.sex is not None
@@ -632,8 +648,8 @@ def correction(v: Living, kept: Entry, ev: Evidence, f: Found, others: set[str] 
         return None                             # a namesake, living or gone, could be whom a record was about
     mine = [k for k, o in enumerate(ev.own) if o[0] in names]
     first = [k for k in mine if not _converted(ev.own_hows[k] if k < len(ev.own_hows) else None)]
-    if len(first) != 1 or first[0] != mine[0]:
-        return None
+    if len(first) != 1 or first[0] != mine[0] or _is_late(ev, first[0]):
+        return None                             # a record written afterwards holds a later look, no proof
     name, sex, looks, mask = ev.own[first[0]]
     if None in looks or (sex is not None and s.sex is not None and sex.strip().lower() != str(s.sex).strip().lower()
                          and name not in ev.sex_changed):

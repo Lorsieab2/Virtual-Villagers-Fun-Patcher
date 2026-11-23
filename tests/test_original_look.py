@@ -693,6 +693,34 @@ class Backfill(unittest.TestCase):
         self.assertEqual(results[0], (ol.KNOWN, 0), "the rename is followed: the founder's look, no mask")
         self.assertNotEqual(results[1], (ol.KNOWN, 0), "an old name two villagers had: the rule says nothing")
 
+    def test_a_record_written_afterwards_never_proves_an_original(self):
+        """Codex, #841: a backfilled Arrived or Birth record ("Note: Recorded afterwards", native/shared/
+        arrival_backfill.h) carries the look the villager had when it was written, so it never corrects a SEEN
+        original nor makes a founder's original."""
+        v = self.village(5)
+        a, b = v.people[0].seen, v.people[1].seen
+        late = "  Note: Recorded afterwards (arrived before this log existed)\n"
+        entries = [ol.Entry() for _ in range(150)]
+        for x in v.people:
+            entries[x.seen.record].roster = x.id
+        entries[a.record] = ol.Entry(v.people[0].id, v.people[0].id, 29, 22, 0, ol.SEEN)
+        path = ol.path(v.folder, 1)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(ol.build(ol.OriginalLooks(5, entries)))
+        nowb = (b.head, b.body)
+        v.births(arrived(1, a.name, a.sex, (a.head, a.body)).replace("\n\n", f"\n{late}\n")
+                 # b: the founder rule's own record written afterwards
+                 + arrived(2, b.name, b.sex, nowb).replace("\n\n", f"\n  How: Founder\n{late}\n")
+                 + change(b.name, nowb, nowb, ("Blue Mask", "none"))
+                 + arrived(9, b.name, b.sex, nowb).replace(
+                     "\n\n", "\n  Special villager: Former Heathen (blue mask)\n  How: Converted from the Heathens\n\n"))
+        result = ol.backfill(v.folder, 5, 1)
+        got = v.logged()
+        self.assertNotEqual(getattr(got.get(a.name), "kind", None), ol.CORRECTED, "the SEEN original stays")
+        self.assertEqual(result.corrected, 0)
+        self.assertNotEqual((getattr(got.get(b.name), "kind", None), getattr(got.get(b.name), "mask", None)),
+                            (ol.KNOWN, 0), "the founder rule takes no record written afterwards")
+
     def test_leaving_as_an_isolan_is_not_gone_for_good(self):
         """Codex, #841: "Left the tribe: became an Isolan" (Guardians of Isola) is the Heathens' leaving, never a
         death: the believer-founder rule still gives the founder look with no mask."""
