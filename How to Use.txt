@@ -482,6 +482,22 @@ With both settings off the game still loads and plays such a save and shows the 
 stored as UTF-8 (Western European letters keep their one byte), so older names read as before; the base
 game shows other characters as odd letters.
 
+CATCH UP HEATHEN AGES (New Believers)
+
+New Believers never ages a Heathen: a villager who goes to the Heathens, and
+every Heathen of the camp, stays as old as the day they left or the village
+began. In Repair Saves & Logs, "Catch up Heathen ages" (never ticked for you)
+adds that frozen time to their age: a Heathen who was a villager gets the time
+since they became one; a villager who rejoined, the time they spent as one; a
+Heathen of the camp (the puzzle Heathens too), the time since the village
+started. The time comes from the logs (the Founder records, every Village
+History snapshot) and the save, in the game's own age units. Where the logs do
+not make it certain, the villager is listed as not known and left as they
+are. The full time is added, even past old age: Repair first shows the whole
+list (age old -> new, and who goes past old age and may die soon after you
+load the village), and Cancel changes nothing. The save folder is backed up
+first and every change is listed in the Repairs Made log.
+
 OLDER LOGS' "?" NAMES
 
 Logs written before v1.35.89 hold each accented or other non-English letter of a

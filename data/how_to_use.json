@@ -1766,6 +1766,7 @@
       "guide": [
         "Quit the game first, then pick the game, save folder and tribe; the logs are checked.",
         "Tick what to do, then Repair (backed up first). Reset corrupted skill values, old \"?\" names, children's \"Apprentice\" Job lines.",
+        "New Believers: Catch up Heathen ages adds the time each villager spent among the Heathens to their age (the list is shown first).",
         "Older records get the Sex, Special villager, Custom title, Mask and Twin / Triplet lines they lack; you are asked what files cannot tell.",
         "Give villagers last names (Choose...): village rule, own rule or Random; in the game and every log.",
         "Number duplicate names: Soda I, Soda II..., oldest first (order of appearance), in game and logs.",

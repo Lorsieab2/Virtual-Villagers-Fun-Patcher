@@ -961,6 +961,8 @@ FILES = [
     # Repair Saves & Logs' Reset corrupted skill values (the GUI imports it).
     "src/vv_corrupt_skills.py",
     "src/vv_golden_child_revive.py",
+    # Repair Saves & Logs' New Believers Catch up Heathen ages (the GUI imports it).
+    "src/vv5_heathen_ages.py",
     # Repair Saves & Logs' The Lost Children totem rows: Give Esteemed Elders Totems Retroactively and Fix
     # Rare Villager Turning Into Totem (the GUI imports it).
     "src/vv_vv2_totems.py",
