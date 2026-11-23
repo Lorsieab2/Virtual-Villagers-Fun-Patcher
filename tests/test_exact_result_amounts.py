@@ -394,7 +394,7 @@ class GameSideAmounts(unittest.TestCase):
                 self.assertIn("Prize: 7 tech points", flat)
                 self.assertNotIn("(award", flat.lower())
                 self.assertNotIn("The village gains 25 food", flat)
-                self.assertEqual(self.side.food_tech(r), (525, 20))
+                self.assertEqual(self.side.food_tech(r), (525, 17), "both paid")
 
     def _moving(self, game, graph, food, tech, then):
         def setup(r):

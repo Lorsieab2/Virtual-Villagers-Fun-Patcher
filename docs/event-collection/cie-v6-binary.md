@@ -855,7 +855,13 @@ all kept.
   as the page is shown (`cg_fix_lines`), and the page's "N changes could not be made" line says so.
 - **Hand-written amounts.** An author's text that names a number the limits may cut (`"Your village loses 50
   food."`) is story: the automatic line after it states what was really made, and is the one to trust; with
-  `(award)` the author's text itself shows the amount paid, and with `(award2)` the node's own change.
+  `(award)` the author's text itself shows the amount paid, and with `(award2)` the node's own change. Those two
+  amounts are written marked (`cg_amount_word`: `\3` fx `\5` digits `\4`, measured as their digits) and put right
+  as the page is shown when the village moved between the layout and the showing (`cg_amounts_fill`: "loses 15
+  food", never the 40 laid out), and that change then has no added line (`cg_fix_lines`). `(award)` is marked only
+  on the node that pays it; amounts inside a count token's options are filled in the award pass, unmarked.
+- **The award as it stands:** each node's `(award)` / `(award_unit)` is the award its own effects leave (the last
+  one deferred up to and including that node), never a later one (`cg_group`; Python `simulate`'s `fill_award`).
 - **Fit (Python, `walk`):** each effect's line at its widest -- of the lines it can give (each listed skill the game
   has, each sign of a range, every word of the game's list for a random preference), the one whose worst case is
   the longest (the first on a tie) -- so whatever Python accepts the engine can show.
