@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(carver) has been carving masks out of driftwood all season, and lately (subject.he/she) has started saying that the masks are telling (subject.him/her) who they're for. Today (subject.he/she) comes to find (subject) with a new one, painted in red and white. \"This one's yours,\" (carver) says. \"It told me. Put it on. Just for a moment.\"\nThe elders say a carver's hands sometimes know things the carver doesn't. The mask's face looks a little like (subject), and a little like someone else entirely.\nShould (subject) put it on, or politely hand it back?",
+   "text": "(carver) has been carving masks out of driftwood all season, and lately (carver.he/she) has started saying that the masks are telling (carver.him/her) who they're for. Today (carver.he/she) comes to find (subject) with a new one, painted in red and white. \"This one's yours,\" (carver) says. \"It told me. Put it on. Just for a moment.\"\nThe elders say a carver's hands sometimes know things the carver doesn't. The mask's face looks a little like (subject), and a little like someone else entirely.\nShould (subject) put it on, or politely hand it back?",
    "choices": [
     {
      "label": "Put It On",
@@ -129,7 +129,7 @@
    "src": "L12492-12494"
   },
   "c1o1": {
-   "text": "When the mask comes off, everyone gasps. (subject)'s face has changed. It's still (subject), still the same eyes and the same smile, but the shape of it is different: like the mask, or like a cousin of (subject)'s that nobody has ever met. (carver) nods, satisfied. \"Told you,\" (subject.he/she) says. \"It was yours.\"",
+   "text": "When the mask comes off, everyone gasps. (subject)'s face has changed. It's still (subject), still the same eyes and the same smile, but the shape of it is different: like the mask, or like a cousin of (subject)'s that nobody has ever met. (carver) nods, satisfied. \"Told you,\" (carver.he/she) says. \"It was yours.\"",
    "effects": [
     {
      "do": "appearance",
@@ -166,7 +166,7 @@
    "src": "L12500"
   },
   "c2o1": {
-   "text": "In the morning, (carver) comes out of (subject.his/her) hut with a new face: (subject.he/she) put the mask on (subject.himself/herself) in the night, just to see. \"It must have been for me after all,\" (subject.he/she) says, a little sheepishly. Nobody can quite get used to it. (carver) loves it.",
+   "text": "In the morning, (carver) comes out of (carver.his/her) hut with a new face: (carver.he/she) put the mask on (carver.himself/herself) in the night, just to see. \"It must have been for me after all,\" (carver.he/she) says, a little sheepishly. Nobody can quite get used to it. (carver) loves it.",
    "effects": [
     {
      "do": "appearance",

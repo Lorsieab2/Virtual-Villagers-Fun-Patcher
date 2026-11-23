@@ -512,7 +512,9 @@ def new_heathen_feature() -> dict:
         "-55. With this patch a believer the Faith drift turns Heathen (with or without Faith Loss is "
         f"Doubled/Gains Halved) becomes an ordinary blue-mask Heathen with a random Faith from {low} to {high}, "
         "drawn exactly as the game draws a new village's ordinary Heathens, and needs as much preaching as any blue "
-        "Heathen to be won back. A Heathen's Faith never moves on its own in New Believers, so this is the Faith "
+        "Heathen to be won back. With Heathens Keep Their Masks When Converted, one who was a Heathen before wears "
+        "the mask they wore then (still treated as an ordinary blue-mask Heathen). A Heathen's Faith never moves on "
+        "its own in New Believers, so this is the Faith "
         "they keep until preached to. The game's own message \"A villager has stopped believing in you!\" is still "
         "shown. Island events that make a Heathen (The Spa, The Cracked Mask, the Custom Island Event) keep their "
         "own Faith (-10).")
@@ -536,7 +538,9 @@ def new_heathen_feature() -> dict:
             "14-16 the purple Masters' and the Doctor's, 13 the Chief's, through the table 0x472B60) and then the "
             "kind bytes +0x1CED (orange, the chasers) and +0x1CEE (red, the scary ones); anything else is the blue "
             "mask. Faith plays no part in it. So a drift convert is made role 0 (0x4669E0's own) with neither kind "
-            "byte: a blue-mask Heathen.",
+            "byte: a blue-mask Heathen. With \"Heathens Keep Their Masks When Converted\" (its own splices, "
+            "native/vvfp_heathens_keep_masks), a villager who was a Heathen before is drawn in the mask they wore "
+            "then; the bytes the game's behaviour reads stay the blue-mask Heathen's.",
             f"{low} to {high} is the ordinary Heathens' Faith: the new village's Heathens are made at -1 (the "
             "creator 0x46FD20's last argument at 0x424AC0's calls) and every one still at -1 is then set to -38 - "
             "rand(30) (0x471050..0x471099) -- but five blue ones, set to -5, -9, -16, -23 and -30 (0x470F1F.."

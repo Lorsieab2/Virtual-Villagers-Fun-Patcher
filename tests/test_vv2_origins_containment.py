@@ -41,6 +41,8 @@ REMAINING = {
     "vv2_totems_out_of_entries",
     # companion only: detours the island event trigger's three wait draws at run time, owns no bytes
     "vv2_more_frequent_island_events",
+    # companion only: detours the panel's and the burial's elder tests at run time, owns no bytes (Esteemed Elders)
+    "vv2_esteemed_elders",
     # companion only: detours the font constructor and SDL_TEXTINPUT at run time, owns no bytes
     "vv2_unicode_text",
     # companion only: writes the string table and its sites at run time, only while a language is chosen;
@@ -76,6 +78,8 @@ REMAINING = {
     "vv2_children_play",
     # companion only (the island event trigger's wait draws, at run time); owns no Origins bytes
     "vv2_more_frequent_island_events",
+    # companion only: detours the panel's and the burial's elder tests at run time, owns no bytes (Esteemed Elders)
+    "vv2_esteemed_elders",
     # the 0.1x-10x sliders: companion only (call sites, at run time); own no Origins bytes
     "vv2_collectible_frequency",
     "vv2_food_gain",

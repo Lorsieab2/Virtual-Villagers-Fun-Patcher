@@ -390,6 +390,7 @@ static const char *const VV_SEX_OWNERS[] = {
     "VVFP VV1 Parentage.dll",
     "VVFP Parentage Export.dll",
     "VVFP Population Export.dll",
+    "VVFP Heathens Keep Masks.dll",     /* New Believers' masks worn as Heathens */
 };
 
 /* Each loaded owner told; returns how many carried anything. */

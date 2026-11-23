@@ -195,7 +195,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "They leave the rest for the spirits, the way the old stories say, with a little bowl of the best fruit placed at the edge of each field. In the morning the bowls are empty. And in each one, where the fruit was, there's something left behind. A smooth river stone with a hole in it. A carved bone hook, finer than anyone in the village can make. A shell full of seeds nobody recognises. Nobody knows who left them. Everybody agrees not to ask. Your villagers gain (award) food and (award) tech points.",
+   "text": "They leave the rest for the spirits, the way the old stories say, with a little bowl of the best fruit placed at the edge of each field. In the morning the bowls are empty. And in each one, where the fruit was, there's something left behind. A smooth river stone with a hole in it. A carved bone hook, finer than anyone in the village can make. A shell full of seeds nobody recognises. Nobody knows who left them. Everybody agrees not to ask. Your villagers gain (award) food and (award2) tech points.",
    "effects": [
     {
      "do": "food",

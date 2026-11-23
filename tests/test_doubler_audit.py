@@ -404,9 +404,10 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # of v1.35.97 (round 5: the gender presentation; the Golden Child option 1 leaves it as it was), and again
         # when the integration rebuilt the companions its merges touched (181a51614), and again for the Tech menu's
         # Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
+        # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "5293CB692697733CD0DD74E413EFF29573FFD6A53BA51357EAD195CAD0C1DB61",
+            "5D4AE674504D471427BCAF7A27A7197DD8E296F6E6D66AC24F73FBC161F3F56D",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

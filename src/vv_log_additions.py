@@ -78,6 +78,7 @@ CHECKED = {
                   "\"Apprentice <job>\" on a child's grave, and the skill preference a villager had checked when "
                   "they died (Checked Skill Preferences are listed as Jobs on Graves), where the save still holds it; A New Home's Golden Child: \"Golden Child\", and the child "
                   "epitaph his grave holds where his record has none",
+    "esteemed": "the records with skills and no Special villager line, and each grave against its villager's record still in the save, for three or more skills at the game's Master level (Esteemed Elders in Every Game)",
 }
 ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Custom title added",
          "mask": "Mask added", "born_as": "Born as added", "golden": "Golden Child's Birth added",
@@ -91,6 +92,7 @@ ADDED = {"sex": "Sex added", "special": "Special villager added", "custom": "Cus
          "looks_numbers": "Number taken off",
          "misfiled": "Record moved to its own save's log",
          "apprentice": "Grave line rewritten as the game draws it",
+         "esteemed": "Esteemed Elder title given",
          "reconcile": "Answered"}
 REMOVE_IT = "Remove"
 KEEP_IT = "Keep it"
@@ -1138,6 +1140,10 @@ CONVERTED = "Converted from the Heathens"
 ARRIVED_HEADING = re.compile(r"^Arrived( \d+)?$")
 DISAPPEARED_HEADING = re.compile(r"^Disappeared( \d+)?$")
 LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"
+# With Guardians of Isola Rewrite the companion writes this instead (the owner, 2026-11-22; cod_arrivals.inc):
+# every reader takes both.
+LEFT_FOR_THE_ISOLANS = "Left the tribe: became an Isolan"
+LEFT_RECORDS = (LEFT_FOR_THE_HEATHENS, LEFT_FOR_THE_ISOLANS)
 
 
 def _faction_of_title(title: str | None) -> str | None:
@@ -1164,7 +1170,7 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
                 continue
             if ARRIVED_HEADING.match(b.heading):
                 (converted if b.value("How") == CONVERTED else believer).add(b.identity)
-            elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") == LEFT_FOR_THE_HEATHENS:
+            elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") in LEFT_RECORDS:
                 left.add(b.identity)
             elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
                 child = _sub_identity(b, "Child")
@@ -1233,7 +1239,8 @@ LEFT_YES = "Yes: add the record"
 RANK_LEFT = 9
 
 
-def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None) -> dict[tuple, list[int]]:
+def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None,
+                 seen: set[str] | None = None) -> dict[tuple, list[int]]:
     """Per (name, head, body): [came as a believer (a Birth's child, an Arrived record that is not a
     conversion), converted from the Heathens, left for the Heathens, any other Death or Disappeared
     record] -- how many records of each the logs hold for this slot's village."""
@@ -1253,13 +1260,16 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None) 
                 if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
                     add(_sub_identity(b, "Child"), 0)
             elif DISAPPEARED_HEADING.match(b.heading):
-                add(b.identity, 2 if b.value("What happened") == LEFT_FOR_THE_HEATHENS else 3)
+                what = b.value("What happened")
+                if seen is not None and what in LEFT_RECORDS:
+                    seen.add(what)
+                add(b.identity, 2 if what in LEFT_RECORDS else 3)
             elif b.heading.startswith("Death"):
                 add(b.identity, 3)
     return out
 
 
-def _left_record(person: Block) -> str:
+def _left_record(person: Block, what: str = LEFT_FOR_THE_HEATHENS) -> str:
     """A "Left the tribe" Disappeared record, laid out as "VVFP Parentage Export.dll" writes one
     (native/parentage_export WriteVillageRecord, detail 1), from the villager's Village Population
     entry.  When she left is not known: the age is "(unknown)", never guessed; titles and masks she
@@ -1268,8 +1278,9 @@ def _left_record(person: Block) -> str:
         value = person.value(label)
         return f"  {label}: {value if value is not None else '(unknown)'}"
     return "\n".join(["Disappeared", line("Name"), "  Age: (unknown)", line("Sex"),
-                      f"  What happened: {LEFT_FOR_THE_HEATHENS}", line("Head"), line("Body"),
-                      line("Likes"), line("Dislikes"), LEFT_NOTE])
+                      f"  What happened: {what}", line("Head"), line("Body"),
+                      line("Likes"), line("Dislikes"),
+                      LEFT_NOTE if what == LEFT_FOR_THE_HEATHENS else LEFT_NOTE.replace("a Heathen", "an Isolan", 1)])
 
 
 def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
@@ -1301,7 +1312,10 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
     stem = f"Virtual Villagers {game} Deaths Log"
     if not checker.game_logs(folder, layout.DEATHS_LOGS, stem, slot):
         return kind
-    counts = _side_counts(folder, game, slot, villages)
+    seen: set[str] = set()
+    counts = _side_counts(folder, game, slot, villages, seen)
+    # The companion's own words for this village: "an Isolan" once it has written one (Guardians of Isola Rewrite on).
+    what = LEFT_FOR_THE_ISOLANS if LEFT_FOR_THE_ISOLANS in seen else LEFT_FOR_THE_HEATHENS
     # Appended to the slot's OWN Deaths log ("...Logs\Save <slot>\Deaths and Disappearances", made
     # when it has none; never the shared one an older build wrote, src/vv_save_layout.py), after
     # everything in the file, as the companion appends a record, with the blank line of its own.
@@ -1319,7 +1333,7 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
             continue
         # Under the village's own header when the file's last record is another village's: each
         # record added (whichever the player's answers keep) names it.
-        text = lead + "\n\n".join([_left_record(person)] * missing) + "\n"
+        text = lead + "\n\n".join([_left_record(person, what)] * missing) + "\n"
         name, head, body = person.identity
         why = ("another villager now has the same name, head and body" if population_count.get(person.identity, 0) > 1
                else "a Death or Disappeared record has the same name, head and body (a namesake's records may be "
@@ -1332,7 +1346,7 @@ def plan_left_tribe(folder: Path, game: int, slot: int) -> Kind:
         key = f"left_tribe|{name}|{head}|{body}|{n}"
         kind.questions[key] = Question(
             key, f"{name} (head {head}, body {body}) is a Heathen now, and the logs show them a believer "
-                 f"with no \"{LEFT_FOR_THE_HEATHENS}\" record after it; {why}. Add "
+                 f"with no \"{what}\" record after it; {why}. Add "
                  f"{'a record' if missing == 1 else f'{missing} records'} of their leaving the tribe "
                  "(when is not known)?", [LEFT_YES, DONT_KNOW], DONT_KNOW,
             # A Heathen now with a leaving missing: never their place on the page ("|{n}" in the key), which
@@ -1741,6 +1755,157 @@ def write_preferred_graves(folder: Path, game: int, slot: int, kinds: list[Kind]
         raise tools.LogToolError(str(exc)) from exc
 
 
+# ---------------------------------------------------------------------------
+# The Esteemed Elder title, retroactively (Esteemed Elders in Every Game)
+# ---------------------------------------------------------------------------
+#
+# The owner (2026-11-22): "a repair logs thing to retroactively give villagers and graves that title/epitaph/skill
+# however it's represented on a grave", a separate option.  With "Esteemed Elders in Every Game" in the exe (A New
+# Home, The Lost Children, The Tree of Life; The Secret City and New Believers give the title in the stock game, and
+# the Special villager kind above already covers their older records):
+#   * every older record that shows the villager's skills (History snapshots, Arrived, Disappeared...) with three or
+#     more at the game's Master level (vv_graves.elder_by_skills) and no Special villager line gets "Special villager:
+#     Esteemed Elder" -- never the Golden Child's;
+#   * every grave whose villager died an Esteemed Elder, where the save still holds their record at death
+#     (vv_graves.plan_elders), gets the title's epitaph where the burial gave the job's (the save's grave, or A New
+#     Home's Graves file), and its Death record the Special villager line (and the Epitaph line that follows);
+#   * a Death record with no grave whose villager's record at death is still in the save gets the line too.
+# Where the skills at death are not known, nothing is given and the villager is listed.  Population pages are the
+# game's own each save and are left to it.
+
+ESTEEMED_LABEL = "Give the Esteemed Elder title retroactively (villagers who mastered three or more skills, and their graves)"
+ESTEEMED_TITLE = "Esteemed Elder"
+
+
+def plan_esteemed(folder: Path, game: int, slot: int, people: list[Block], current: dict,
+                  game_folders: list[Path] | None = None) -> Kind:
+    """The Esteemed Elder lines and graves (see above).  Reads only."""
+    import vv_graves
+    kind = Kind("esteemed", ESTEEMED_LABEL)
+    if game not in vv_graves.ELDER_ROWS:
+        return kind
+    installed = _row_in_game(_patch_source(folder, game, game_folders), game, vv_graves.ELDER_ROWS[game])
+    if installed is not True:
+        if installed is None and game_folders:
+            kind.notes.append("Whether this game has Esteemed Elders in Every Game could not be told (no game folder "
+                              "holding its exe was found, or its patches could not be read), so no villager was "
+                              "given the title.")
+        return kind
+    persons = _persons(current)
+    preview: dict[str, set] = {}
+    line = f"  Special villager: {ESTEEMED_TITLE}"
+    special = _special_villagers(folder, game, slot)
+    for b in people:
+        if is_population(b.path) or b.value("Name") is None or b.value("Special villager") is not None \
+                or re.match(r"^Death( \d+)?$", b.heading):
+            continue
+        if not vv_graves.elder_by_skills(game, b.skills):
+            continue
+        mine = _now_of(b, current, persons)
+        now = current.get(mine) if mine is not None else None
+        if game == 1 and now is not None and now.value("Special villager") == "Golden Child":
+            continue
+        # ...nor one any record of the logs names as the Golden Child -- a dead or gone one too (Codex, #839): by
+        # name and looks, or by name, likes and dislikes (what a Change Appearance leaves).
+        if b.identity in special or (b.person is not None and b.person in special):
+            continue
+        kind.inserts.append(Insert(b.path, _after_name(b, "special"), RANK["special"], line=line))
+        preview.setdefault(b.value("Name"), set()).add("records")
+    try:
+        planned = vv_graves.plan_elders(folder, game, slot)
+    except (OSError, ValueError, struct.error, vv_graves.GraveError) as exc:
+        kind.notes.append(f"The graves were not checked for Esteemed Elders: the save could not be read ({exc}).")
+        planned = None
+    if planned is not None:
+        inserts, replaces = vv_graves.elder_record_lines(folder, game, slot, planned)
+        for path, after, text in inserts:
+            kind.inserts.append(Insert(path, after, RANK["special"], line=text))
+        kind.replaces.extend(replaces)
+        for p in planned.graves:
+            preview.setdefault(p.grave.name, set()).add("grave" + (" and its epitaph" if p.in_save else ""))
+        if planned.in_save:
+            kind.context["graves"] = planned
+        for g in planned.unknown:
+            kind.notes.append(f"{g.label()}: whether they died an Esteemed Elder is not known (their record at death "
+                              "is no longer in the save), so the grave and its records are left as they are.")
+        for g, why in planned.kept:
+            kind.notes.append(f"{g.label()}: died an Esteemed Elder; the grave keeps its epitaph ({why}).")
+        # Deaths with no grave: their records only, where the save still holds the villager at death.
+        paired_heads = {(p.grave.name, p.grave.age) for p in planned.graves}
+        for b in people:
+            if not re.match(r"^Death( \d+)?$", b.heading) or b.value("Special villager") is not None:
+                continue
+            grave = b.value("Grave") or ""
+            name, age = b.value("Name"), b.int_value("Age at death")
+            if not grave.startswith("no grave") or name is None or age is None or (name, age) in paired_heads:
+                continue
+            state = vv_graves.elder_at_death(game, planned.save_bytes, name, age)
+            if state == "yes":
+                kind.inserts.append(Insert(b.path, _after_name(b, "special"), RANK["special"], line=line))
+                preview.setdefault(name, set()).add("Death record")
+            elif state == "unknown" and vv_graves.elder_by_skills(game, _last_skills(people, b)):
+                kind.notes.append(f"{name} (no grave, age at death {age}): their last record shows three or more "
+                                  "mastered skills, but their record at death is no longer in the save, so their "
+                                  "Death record is left as it is.")
+    kind.context["preview"] = [f"{name}: {', '.join(sorted(what))}" for name, what in sorted(preview.items())]
+    kind.context["graves_count"] = len(planned.in_save) if planned is not None else 0
+    return kind
+
+
+# The titles that keep a villager from ever being titled Esteemed Elder by the row (esteemed_elder.h vv_elder_rule).
+NEVER_ELDER_TITLES = ("Golden Child",)
+
+
+def _special_villagers(folder: Path, game: int, slot: int) -> set:
+    """Every villager the slot's logs ever name with a title that excludes them (A New Home's Golden Child), in any
+    record -- a Birth's child, an Arrived, a snapshot, a Death or Disappeared record: their (name, head, body) and
+    their (name, likes, dislikes).  Reads only."""
+    out: set = set()
+    villages = current_villages(folder, game, slot)
+    for path in tools.load_checker().log_files(Path(folder)):
+        for b in blocks(path):
+            if not b.of(slot, game, villages):
+                continue
+            if b.value("Special villager") in NEVER_ELDER_TITLES:
+                out.add(b.identity)
+                if b.person is not None:
+                    out.add(b.person)
+            child = _sub_identity(b, "Child") if is_birth(b.heading) else None
+            if child and any(line.strip() == "Special villager: Golden Child" for line in b.lines):
+                out.add(child)
+    return out
+
+
+def _last_skills(people: list[Block], death: Block) -> list[int]:
+    """The skills of the villager's latest record before the Death record, by name and looks."""
+    best: list[int] = []
+    for b in people:
+        if b is death or b.identity != death.identity:
+            continue
+        if b.skills:
+            best = b.skills
+    return best
+
+
+def write_elder_graves(folder: Path, game: int, slot: int, kinds: list[Kind], chosen: set[str], now=None) -> int:
+    """The save's (or A New Home's Graves file's) part of the "esteemed" kind, when it is ticked
+    (src/vv_graves.py write_elders)."""
+    import vv_graves
+    kind = next((k for k in kinds if k.id == "esteemed"), None)
+    if kind is None or "esteemed" not in chosen or not kind.context.get("graves"):
+        return 0
+    planned = kind.context["graves"]
+    preferred = next((k for k in kinds if k.id == "apprentice"), None)
+    try:
+        if preferred is not None and "apprentice" in chosen and preferred.context.get("graves"):
+            # Checked Skill Preferences just rewrote graves in the same save (write_preferred_graves, first): the
+            # graves are planned again from the save as it is now, so neither write undoes the other.
+            planned = vv_graves.plan_elders(Path(folder), game, slot)
+        return vv_graves.write_elders(Path(folder), game, slot, planned, now)
+    except (vv_graves.GraveError, OSError, ValueError) as exc:
+        raise tools.LogToolError(str(exc)) from exc
+
+
 def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = None, rec=None) -> list[Kind]:
     """Everything older records of this slot's village lack, kind by kind.  Reads only.  `game_folders`:
     where the game's exe may be (the repair window's), for what depends on its patches.  `rec`: a
@@ -1766,7 +1931,17 @@ def plan(folder: Path, game: int, slot: int, game_folders: list[Path] | None = N
         plan_born_arrived(folder, game, slot),
         plan_birth_numbers(folder, game, slot),
         plan_apprentice(folder, game, slot, game_folders),
+        plan_esteemed(folder, game, slot, people, current, game_folders),
     ]
+    # New Believers: the mask a villager wore when they rejoined the tribe, given back once (the owner,
+    # 2026-11-22; src/vv5_rejoined_masks.py) -- listed here, so the player sees who before approving.
+    if game == 5:
+        import vv5_rejoined_masks
+        kinds.append(vv5_rejoined_masks.plan_kind(folder, slot, game_folders))
+        # ...and the mask a villager who went back to the Heathens wore as a Heathen before (the owner,
+        # 2026-11-22; src/vv5_heathen_masks_restore.py): Heathens, where the row above is believers.
+        import vv5_heathen_masks_restore
+        kinds.append(vv5_heathen_masks_restore.plan_kind(folder, slot, game_folders))
     import vv_log_contradictions
     kinds.append(vv_log_contradictions.plan(folder, game, slot))
     # Unaccounted records an older build wrote by record number, contradicted by identity (v1.35.80).
@@ -1807,6 +1982,17 @@ def resolve(kinds: list[Kind], chosen: set[str],
                 line = ins.by_answer.get(answers.get(ins.question, ""))
             if line:
                 out.setdefault(ins.path, []).append((ins.after, ins.rank, line, kind.id))
+    # The Esteemed Elder title (plan_esteemed) never gives a record a second Special villager line: where another
+    # ticked kind adds one under the same name, or it is planned twice, that one stands.
+    for path, adds in out.items():
+        special = {a for a, _r, text, k in adds if k != "esteemed" and text.startswith("  Special villager:")}
+        kept, seen = [], set()
+        for add in adds:
+            if add[3] == "esteemed" and (add[0] in special or (add[0], add[2]) in seen):
+                continue
+            seen.add((add[0], add[2]))
+            kept.append(add)
+        out[path] = kept
     return out
 
 

@@ -180,7 +180,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "Halfway through the third chant, (subject)'s voice drops back into a rumble, mid-note. (friend) gasps softly, in (subject.his/her) own soft voice. Both voices have slipped back to their owners as if nothing happened, and there is nothing left to study. The children are very disappointed. (subject) and (friend) are not.",
+   "text": "Halfway through the third chant, (subject)'s voice drops back into a rumble, mid-note. (friend) gasps softly, in (friend.his/her) own soft voice. Both voices have slipped back to their owners as if nothing happened, and there is nothing left to study. The children are very disappointed. (subject) and (friend) are not.",
    "src": "L4926"
   },
   "c1": {
@@ -210,11 +210,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(Name3) lies there for about as long as it takes to hear an owl hoot twice, then picks up the mat and goes home. \"I like my voice,\" (subject.he/she) explains the next day. Nobody presses anyone else to try, and the spot between the huts gets a lot of nervous looks.",
+   "text": "(Name3) lies there for about as long as it takes to hear an owl hoot twice, then picks up the mat and goes home. \"I like my voice,\" (name3.he/she) explains the next day. Nobody presses anyone else to try, and the spot between the huts gets a lot of nervous looks.",
    "src": "L4933"
   },
   "c2": {
-   "text": "(Name3) is curious, and possibly a little bored. \"If something swapped them in the night, I want to see it.\" (subject.He/She) drags a sleeping mat to the spot between the two huts and lies down, grinning at the stars...",
+   "text": "(Name3) is curious, and possibly a little bored. \"If something swapped them in the night, I want to see it.\" (name3.He/She) drags a sleeping mat to the spot between the two huts and lies down, grinning at the stars...",
    "children": [
     {
      "next": "c2o1",
@@ -239,7 +239,7 @@
    ]
   },
   "c3o2": {
-   "text": "(elder) presses an ear to the hut floor. \"Spirits move through hollow places. Listen.\" (subject.He/She) teaches (subject) an old way of tapping and listening for echoes through the floor. They find no spirits, but they do find two hollow, rotting floor posts that nobody knew about. The builders start using the trick everywhere. The voices come home that night.",
+   "text": "(elder) presses an ear to the hut floor. \"Spirits move through hollow places. Listen.\" (elder.He/She) teaches (subject) an old way of tapping and listening for echoes through the floor. They find no spirits, but they do find two hollow, rotting floor posts that nobody knew about. The builders start using the trick everywhere. The voices come home that night.",
    "effects": [
     {
      "do": "tech",

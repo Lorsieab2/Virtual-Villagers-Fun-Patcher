@@ -1220,9 +1220,11 @@ class ManifestTests(unittest.TestCase):
         # no executable byte -- each companion writes its sites at run time; 87 with Every Island Event Can Happen
         # (vv2_every_island_event_can_happen), two technology tests and two raises re-encoded in place; 88 with Village
         # Solidarity (vv2_village_solidarity, #804), no executable byte -- its companion writes its sites at run time;
-        # 89 with Revive Buried/Disappeared Villagers (vv2_revive_from_graves), no executable byte -- its flag file the
-        # Story / Cheat Upgrades companion reads.
-        self.assertEqual(len(feature_ids), 89)
+        # 89 with Esteemed Elders in Every Game (vv2_esteemed_elders), no executable byte -- its companion writes the
+        # panel's and the burial's elder tests at run time; 90 with Revive Buried/Disappeared
+        # Villagers (vv2_revive_from_graves), no executable byte -- its flag file the Story / Cheat
+        # Upgrades companion reads.
+        self.assertEqual(len(feature_ids), 90)
         expected_safety_offsets = {
             # Unbounded slot-scan guards: trampoline + cave per site.
             0x4C82E, 0x73D30,   # scan at 0x44C823

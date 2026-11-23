@@ -214,7 +214,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(botanist) examines the fruit for a very long time, consults three books and an elder, and finally shakes (subject.his/her) head. \"I have no idea what this is,\" (subject.he/she) admits. \"It could be the most delicious thing on the island, or it could kill us all. I'm not willing to find out.\" The basket is set aside. Over the next week, the fruits slowly wrinkle and dry up, and the whole village sighs every time they walk past.",
+   "text": "(botanist) examines the fruit for a very long time, consults three books and an elder, and finally shakes (botanist.his/her) head. \"I have no idea what this is,\" (botanist.he/she) admits. \"It could be the most delicious thing on the island, or it could kill us all. I'm not willing to find out.\" The basket is set aside. Over the next week, the fruits slowly wrinkle and dry up, and the whole village sighs every time they walk past.",
    "src": "L15397"
   },
   "c1": {
@@ -269,7 +269,7 @@
    "src": "L15400"
   },
   "c3o1": {
-   "text": "It does not take long. (farmer), a farmer from the edge of the village, turns pink and admits it. \"I found the trees on the far side of the island last season, and I've been growing them in secret,\" (subject.he/she) confesses. \"I wanted to surprise everyone. I thought the note was funny.\" (farmer) is mildly scolded for the note, then enthusiastically thanked for the fruit, and spends the next month being followed around by children.",
+   "text": "It does not take long. (farmer), a farmer from the edge of the village, turns pink and admits it. \"I found the trees on the far side of the island last season, and I've been growing them in secret,\" (farmer.he/she) confesses. \"I wanted to surprise everyone. I thought the note was funny.\" (farmer) is mildly scolded for the note, then enthusiastically thanked for the fruit, and spends the next month being followed around by children.",
    "src": "L15409"
   },
   "c3o2": {

@@ -115,7 +115,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) loves honey more than anyone in the village. (subject.He/She) climbs trees for it, braves bees for it, and has been known to trade a week's fish for one small pot of it. So when (subject.he/she) finds a hive this morning in a hollow tree by the swamp, dripping with dark, almost black honey, (subject.he/she) can't believe (subject.his/her) luck.\n(gatherer), the oldest gatherer, takes one look at it and shakes (subject.his/her) head. \"Swamp bees,\" (subject.he/she) says. \"They feed on the grey flowers. That honey takes the sweetness out of things. Not just your mouth.\" (subject) has never heard of it. It smells wonderful.\nShould (subject) taste the dark honey?",
+   "text": "(subject) loves honey more than anyone in the village. (subject.He/She) climbs trees for it, braves bees for it, and has been known to trade a week's fish for one small pot of it. So when (subject.he/she) finds a hive this morning in a hollow tree by the swamp, dripping with dark, almost black honey, (subject.he/she) can't believe (subject.his/her) luck.\n(gatherer), the oldest gatherer, takes one look at it and shakes (gatherer.his/her) head. \"Swamp bees,\" (gatherer.he/she) says. \"They feed on the grey flowers. That honey takes the sweetness out of things. Not just your mouth.\" (subject) has never heard of it. It smells wonderful.\nShould (subject) taste the dark honey?",
    "choices": [
     {
      "label": "Taste It",

@@ -183,7 +183,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(researcher) picks the stone up with (subject.his/her) bare hands, before anyone can stop (subject.him/her). By evening (subject.he/she) has a fever and a rash all up (subject.his/her) arm in the shape of little stars. (healer) is not happy about being right, and says so all week while nursing (subject.him/her). The stone is buried at the bottom of the hole.",
+   "text": "(researcher) picks the stone up with (researcher.his/her) bare hands, before anyone can stop (researcher.him/her). By evening (researcher.he/she) has a fever and a rash all up (researcher.his/her) arm in the shape of little stars. (healer) is not happy about being right, and says so all week while nursing (researcher.him/her). The stone is buried at the bottom of the hole.",
    "effects": [
     {
      "do": "sick",

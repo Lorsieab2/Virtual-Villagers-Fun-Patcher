@@ -128,7 +128,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A new bush has sprung up all along the village paths after the rains, covered in fat yellow berries. They taste like nothing. Then, a moment later, like everything the eater has ever disliked. A few of the children have eaten them already and gone very quiet, and now won't touch their favourite foods.\n(subject) has been watching. (child) won't go near the swimming pool, which (subject.he/she) loves. (elder) has stopped going to the fire for stories. (healer) says (subject.he/she) thinks the berries take away what a person likes, the way a bitter taste takes away an appetite, and that the bushes came up from seeds a passing trader dropped.\nShould (subject) dig up every bush, or try eating one to understand them?",
+   "text": "A new bush has sprung up all along the village paths after the rains, covered in fat yellow berries. They taste like nothing. Then, a moment later, like everything the eater has ever disliked. A few of the children have eaten them already and gone very quiet, and now won't touch their favourite foods.\n(subject) has been watching. (child) won't go near the swimming pool, which (child.he/she) loves. (elder) has stopped going to the fire for stories. (healer) says (healer.he/she) thinks the berries take away what a person likes, the way a bitter taste takes away an appetite, and that the bushes came up from seeds a passing trader dropped.\nShould (subject) dig up every bush, or try eating one to understand them?",
    "choices": [
     {
      "label": "Dig Up Every Bush",

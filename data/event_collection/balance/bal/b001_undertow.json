@@ -129,7 +129,7 @@
    "src": "L26-28"
   },
   "c1o1": {
-   "text": "(friend) looks up from the nets and sees nothing but water. (subject.He/She) shouts, and the whole village comes running. The canoes go out before anyone has finished asking what happened, and they search until dark, and again at first light, calling (subject)'s name across the water until their voices give out. They find nothing, not even (subject.his/her) shell necklace. The sea has kept (subject.him/her). Every evening for a long time afterwards, someone sits on the beach and watches the place past the reef where the water turns blue.",
+   "text": "(friend) looks up from the nets and sees nothing but water. (friend.He/She) shouts, and the whole village comes running. The canoes go out before anyone has finished asking what happened, and they search until dark, and again at first light, calling (subject)'s name across the water until their voices give out. They find nothing, not even (subject.his/her) shell necklace. The sea has kept (subject.him/her). Every evening for a long time afterwards, someone sits on the beach and watches the place past the reef where the water turns blue.",
    "effects": [
     {
      "do": "vanish",

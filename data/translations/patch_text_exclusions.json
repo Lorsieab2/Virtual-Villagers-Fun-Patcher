@@ -29,7 +29,7 @@
   {
    "reason": "Log lines, sidecar file formats and save-folder names shared by the companions (logs and files stay English; the patcher reads them back).",
    "files": ["native/shared/appearance_log.h", "native/shared/arrival_backfill.h", "native/shared/data_subfolder.h",
-             "native/shared/former_heathens.h", "native/shared/former_heathens_read.h", "native/shared/special_title.h",
+             "native/shared/former_heathens.h", "native/shared/former_heathens_read.h", "native/shared/special_title.h", "native/shared/esteemed_elder.h",
              "native/shared/island_timer_keep.h", "native/shared/log_words.h", "native/shared/orphan_masks.h",
              "native/shared/paid_purchases.h", "native/shared/patcher_files.h", "native/shared/per_save.h",
              "native/shared/per_save_data.h", "native/shared/repairs_log.h", "native/shared/save_layout.h",
@@ -101,10 +101,10 @@
    "files": ["native/vvfp_unicode_text/*"]
   },
   {
-   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, Gender Presentation, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
+   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, Gender Presentation, Heathens Keep Masks, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
    "files": ["native/vvfp_last_names/*", "native/vvfp_number_names/*", "native/vvfp_original_look/*",
              "native/vvfp_head_look/*", "native/vvfp_vv2_totems/*", "native/vvfp_game_log/*",
-             "native/vvfp_gender_presentation/*"]
+             "native/vvfp_gender_presentation/*", "native/vvfp_heathens_keep_masks/*"]
   },
   {
    "reason": "Builders Fix Huts' log values (what a builder found: nothing / started).",

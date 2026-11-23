@@ -207,7 +207,7 @@
    "src": "L13774"
   },
   "c1o2": {
-   "text": "(subject) goes quiet for a moment. \"They just... keep me company,\" (subject.he/she) says. \"Everyone's always so busy. My friend isn't. They listen to me. I don't feel so alone when they're here.\" (friend)'s heart sinks a little. (subject.He/she) had not realized how lonely (subject) had been. From that day on, (friend) makes a point of sitting with (subject) at every meal, and slowly, there is a little less food saved on the leaf for the friend.",
+   "text": "(subject) goes quiet for a moment. \"They just... keep me company,\" (subject.he/she) says. \"Everyone's always so busy. My friend isn't. They listen to me. I don't feel so alone when they're here.\" (friend)'s heart sinks a little. (friend.He/she) had not realized how lonely (subject) had been. From that day on, (friend) makes a point of sitting with (subject) at every meal, and slowly, there is a little less food saved on the leaf for the friend.",
    "src": "L13776",
    "text_only": [
     {
@@ -240,7 +240,7 @@
    "src": "L13783"
   },
   "c2": {
-   "text": "(friend) decides not to argue. \"All right,\" (subject.he/she) says simply. \"I believe you.\" And (subject.he/she) listens as (subject) chatters on about everything the friend has said and done...",
+   "text": "(friend) decides not to argue. \"All right,\" (friend.he/she) says simply. \"I believe you.\" And (friend.he/she) listens as (subject) chatters on about everything the friend has said and done...",
    "children": [
     {
      "next": "c2o1",

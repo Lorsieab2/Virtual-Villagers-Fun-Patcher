@@ -1049,8 +1049,8 @@ static void rv_row_text(const rv_person *p, char *out, int size) {
                                     : vvfp_tr("vvfp.story/story_revive.rv_row_text.s3", "vanished at", 40),
                 p->age >= 0 ? years : vvfp_tr("vvfp.story/story_revive.rv_row_text.s4", "an unknown age", 60),
                 p->refusal != NULL ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s5", " - can not come back", 60)
-                : p->heathen ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - a Heathen", 40)
-                : p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - buried", 40) : "");
+                : p->heathen ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - a Heathen", 40)
+                : p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - buried", 40) : "");
     lstrcpynA(out, row, size);
 }
 
@@ -1119,63 +1119,63 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
         rv_add(out, size, line);
     }
     if (p->heathen) {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s26", "Faction: Heathen\r\n", 100));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s10", "Faction: Heathen\r\n", 100));
     }
     if (p->title[0] != '\0') {
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s10", "Custom title: %s\r\n", 400), p->title);
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s11", "Custom title: %s\r\n", 400), p->title);
         rv_add(out, size, line);
     }
     if (p->mask > 0) {
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s11", "Mask: %s\r\n", 400), STORY_MASK_NAMES[p->mask]);
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s12", "Mask: %s\r\n", 400), STORY_MASK_NAMES[p->mask]);
         rv_add(out, size, line);
     }
     if (p->head >= 0) {
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s12", "Head: %d\r\nBody: %d\r\n", 400), p->head, p->body);
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s13", "Head: %d\r\nBody: %d\r\n", 400), p->head, p->body);
     } else {
-        lstrcpyA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s13", "Head: unknown\r\nBody: unknown\r\n", 400));
+        lstrcpyA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s14", "Head: unknown\r\nBody: unknown\r\n", 400));
     }
     rv_add(out, size, line);
     if (p->prefs_known) {
         rv_pref_words(a, p->likes, p->like_count, words, (int)sizeof words);
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s14", "Likes: %s\r\n", 400), words);
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s15", "Likes: %s\r\n", 400), words);
         rv_add(out, size, line);
         rv_pref_words(a, p->dislikes, p->dislike_count, words, (int)sizeof words);
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s15", "Dislikes: %s\r\n", 400), words);
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s16", "Dislikes: %s\r\n", 400), words);
         rv_add(out, size, line);
     } else {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s16", "Likes and dislikes: unknown\r\n", 400));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s17", "Likes and dislikes: unknown\r\n", 400));
     }
     if (p->skills_known) {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s17", "Skills (the last Village History snapshot of them):\r\n", 400));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s18", "Skills (the last Village History snapshot of them):\r\n", 400));
         for (k = 0; k < a->skill_count && k < CE_SKILLS; ++k) {
             wsprintfA(line, "    %s %d\r\n", a->skill_names[k], p->skills[k]);
             rv_add(out, size, line);
         }
     } else {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s18", "Skills: unknown (no Village History snapshot of them): the game picks a child's\r\n", 400));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s19", "Skills: unknown (no Village History snapshot of them): the game picks a child's\r\n", 400));
     }
     if (p->father[0] != '\0' || p->mother[0] != '\0') {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s19", "Parents:\r\n", 400));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s20", "Parents:\r\n", 400));
         if (p->father[0] != '\0') {
-            wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s20", "    Father: %s\r\n", 400), p->father);
+            wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s21", "    Father: %s\r\n", 400), p->father);
             rv_add(out, size, line);
         }
         if (p->mother[0] != '\0') {
-            wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s21", "    Mother: %s\r\n", 400), p->mother);
+            wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s22", "    Mother: %s\r\n", 400), p->mother);
             rv_add(out, size, line);
         }
     } else {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s22", "Parents: unknown\r\n", 400));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s23", "Parents: unknown\r\n", 400));
     }
     if (game == 1 && !a->parents_supported() && (p->father[0] != '\0' || p->mother[0] != '\0')) {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s23", "(A New Home keeps parents only with Show Parents in Details Screen.)\r\n", 400));
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s24", "(A New Home keeps parents only with Show Parents in Details Screen.)\r\n", 400));
     }
     if (p->refusal != NULL) {
-        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s24", "\r\nCan not come back: %s.\r\n", 400), rv_why(p->refusal));
+        wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nCan not come back: %s.\r\n", 400), rv_why(p->refusal));
     } else {
         lstrcpyA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
-                           ? vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400)
-                           : vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nComes back as this same person at age 5.\r\n", 400));
+                           ? vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400)
+                           : vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age 5.\r\n", 400));
     }
     rv_add(out, size, line);
 }

@@ -158,6 +158,8 @@ FILES = [
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
     "assets/devotion_faith/VVFP Devotion Faith.dll",
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life): the companion.
+    "assets/esteemed_elders/VVFP Esteemed Elders.dll",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -360,6 +362,11 @@ FILES = [
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers).
     "data/vv5_devotion_builds_faith_feature.json",
+    # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life).
+    "data/vv1_esteemed_elders_feature.json",
+    "data/vv2_esteemed_elders_feature.json",
+    "data/vv4_esteemed_elders_feature.json",
+    "data/vv5_esteemed_elders_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",
@@ -769,6 +776,10 @@ FILES = [
     # Copy Player Slot and its window; the GUI imports the window.
     "src/vv_copy_slot.py",
     "src/vv_copy_slot_window.py",
+    # Move Player Slot (the Copy Player Slot window's Move choice).
+    "src/vv_move_slot.py",
+    # Delete Player Slot (the Copy Player Slot window's Delete choice).
+    "src/vv_delete_slot.py",
     # Backups (Tools tab, Restore Saves' Details..., Repair Saves & Logs): each backup's vital statistics, read-only.
     "src/vv_backup_details.py",
     "src/vv_backup_details_window.py",
@@ -786,6 +797,8 @@ FILES = [
     "src/vv_reconcile_view.py",
     # The original looks Repair Saves & Logs adds from the logs (Change Appearance's Reset to original).
     "src/vv_original_look.py",
+    # New Believers: the mask a villager wore when they rejoined the tribe, which Repair Saves & Logs gives back.
+    "src/vv5_rejoined_masks.py",
     # The games' fonts and the letters the patcher makes for them (shared with the Picture Studio Text tool),
     # and the games' own text bytes read as Windows-1252 with every byte kept.
     "src/vv_font_glyphs.py",
@@ -976,6 +989,8 @@ FILES = [
     "src/vv_history_revision.py",
     # Repair Saves & Logs' Restore A New Home Parents (the GUI imports it).
     "src/vv1_parents_restore.py",
+    # Repair Saves & Logs' Restore Heathen Masks (New Believers; the GUI imports it).
+    "src/vv5_heathen_masks_restore.py",
     # The save folder's folder and file names, old and new: the Family Tree Maker finds its edits and
     # writes its reports through it, and Repair Saves & Logs moves older builds' folders with it.
     "src/vv_save_layout.py",

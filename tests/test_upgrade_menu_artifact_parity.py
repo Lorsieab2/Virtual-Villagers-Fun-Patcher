@@ -426,10 +426,11 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # island-event timer (native/shared/island_timer_keep.h). Larger again when the
         # drawn (None) / No change labels were translated (audit R1). Larger again for the Tech menu's Revive
         # Buried/Disappeared Villagers button (native/shared/story_bridge.h).
+        # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         self.assertEqual(vv5_companion["size"], 1903104)
         self.assertEqual(
             vv5_companion["sha256"],
-            "96B44ADE9A829FAF63A1FE33FA0DE4AE6724AB474CD373E077B722FDD584CF12",
+            "14A8FA89BCFD0493FF755111D08572E62538C76A007B605E278D2D9B43B14C7B",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

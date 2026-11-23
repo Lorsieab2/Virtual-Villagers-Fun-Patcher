@@ -182,7 +182,7 @@
    "src": "L11274"
   },
   "c2o1": {
-   "text": "The sun comes out on the third day and stays. (builder) re-thatches every roof with dry, tight bundles, tied the way (subject.his/her) grandmother taught (subject.him/her), and the new roofs are better than the old ones ever were. People keep stopping to look up at them. \"That,\" says (builder), \"is what waiting gets you.\"",
+   "text": "The sun comes out on the third day and stays. (builder) re-thatches every roof with dry, tight bundles, tied the way (builder.his/her) grandmother taught (builder.him/her), and the new roofs are better than the old ones ever were. People keep stopping to look up at them. \"That,\" says (builder), \"is what waiting gets you.\"",
    "effects": [
     {
      "do": "repair",

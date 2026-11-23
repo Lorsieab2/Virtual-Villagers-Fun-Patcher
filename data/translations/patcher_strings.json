@@ -12617,6 +12617,17 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.cod/vvfp_cause_of_death.EPITAPHS.14",
+   "english": "Esteemed Elder",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Cause of Death.dll",
+   "notes": "a patcher message shown by the game",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.storytelling/vvfp_storytelling.x.s0",
    "english": "Listening to a story",
    "games": [
@@ -73022,6 +73033,84 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_c5.c5_arm_refusal.s2",
+   "english": "A question needs a living adult tribe member in the village to ask it. Untick \"Ask a question with two choices\" to send this event anyway.",
+   "games": [
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_effect_on.s7",
+   "english": " became an Isolan.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_GUARDIANS_BECOMES.s0",
+   "english": "<R> becomes an Isolan.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_role_words.s17",
+   "english": ", a tribe member",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_believers_word.s0",
+   "english": "tribe members",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.esteemed_elders/vvfp_esteemed_elders.ee_text.s1",
+   "english": "Esteemed Elder",
+   "games": [
+    "vv1",
+    "vv4"
+   ],
+   "mechanism": "d",
+   "context": "VVFP Esteemed Elders.dll",
+   "notes": "a patcher message shown by the game",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.storybridge/story_bridge.vvfp_story_add_revive_button.s0",
    "english": "Revive Buried/Disappeared Villagers",
    "games": [
@@ -73346,6 +73435,21 @@
   },
   {
    "stem": "vvfp.story/story_revive.rv_row_text.s6",
+   "english": " - a Heathen",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_row_text.s7",
    "english": " - buried",
    "games": [
     "vv1",
@@ -73511,6 +73615,21 @@
   },
   {
    "stem": "vvfp.story/story_revive.rv_details.s10",
+   "english": "Faction: Heathen\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s11",
    "english": "Custom title: %s\r\n",
    "games": [
     "vv1",
@@ -73525,7 +73644,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s11",
+   "stem": "vvfp.story/story_revive.rv_details.s12",
    "english": "Mask: %s\r\n",
    "games": [
     "vv1",
@@ -73540,7 +73659,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s12",
+   "stem": "vvfp.story/story_revive.rv_details.s13",
    "english": "Head: %d\r\nBody: %d\r\n",
    "games": [
     "vv1",
@@ -73555,7 +73674,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s13",
+   "stem": "vvfp.story/story_revive.rv_details.s14",
    "english": "Head: unknown\r\nBody: unknown\r\n",
    "games": [
     "vv1",
@@ -73570,7 +73689,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s14",
+   "stem": "vvfp.story/story_revive.rv_details.s15",
    "english": "Likes: %s\r\n",
    "games": [
     "vv1",
@@ -73585,7 +73704,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s15",
+   "stem": "vvfp.story/story_revive.rv_details.s16",
    "english": "Dislikes: %s\r\n",
    "games": [
     "vv1",
@@ -73600,7 +73719,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s16",
+   "stem": "vvfp.story/story_revive.rv_details.s17",
    "english": "Likes and dislikes: unknown\r\n",
    "games": [
     "vv1",
@@ -73615,7 +73734,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s17",
+   "stem": "vvfp.story/story_revive.rv_details.s18",
    "english": "Skills (the last Village History snapshot of them):\r\n",
    "games": [
     "vv1",
@@ -73630,7 +73749,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s18",
+   "stem": "vvfp.story/story_revive.rv_details.s19",
    "english": "Skills: unknown (no Village History snapshot of them): the game picks a child's\r\n",
    "games": [
     "vv1",
@@ -73645,7 +73764,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s19",
+   "stem": "vvfp.story/story_revive.rv_details.s20",
    "english": "Parents:\r\n",
    "games": [
     "vv1",
@@ -73660,7 +73779,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s20",
+   "stem": "vvfp.story/story_revive.rv_details.s21",
    "english": "    Father: %s\r\n",
    "games": [
     "vv1",
@@ -73675,7 +73794,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s21",
+   "stem": "vvfp.story/story_revive.rv_details.s22",
    "english": "    Mother: %s\r\n",
    "games": [
     "vv1",
@@ -73690,7 +73809,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s22",
+   "stem": "vvfp.story/story_revive.rv_details.s23",
    "english": "Parents: unknown\r\n",
    "games": [
     "vv1",
@@ -73705,7 +73824,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s23",
+   "stem": "vvfp.story/story_revive.rv_details.s24",
    "english": "(A New Home keeps parents only with Show Parents in Details Screen.)\r\n",
    "games": [
     "vv1",
@@ -73720,7 +73839,7 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s24",
+   "stem": "vvfp.story/story_revive.rv_details.s25",
    "english": "\r\nCan not come back: %s.\r\n",
    "games": [
     "vv1",
@@ -73735,7 +73854,22 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_revive.rv_details.s25",
+   "stem": "vvfp.story/story_revive.rv_details.s26",
+   "english": "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s27",
    "english": "\r\nComes back as this same person at age 5.\r\n",
    "games": [
     "vv1",
@@ -73867,51 +74001,6 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_row_text.s7",
-   "english": " - a Heathen",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_details.s26",
-   "english": "Faction: Heathen\r\n",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
-  },
-  {
-   "stem": "vvfp.story/story_revive.rv_details.s27",
-   "english": "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
   },
   {
    "stem": "vvfp.gui/rename_tribe.long_name_note",

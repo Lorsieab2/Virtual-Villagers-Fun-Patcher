@@ -258,7 +258,7 @@
    "src": "L9282"
   },
   "c3o1": {
-   "text": "(cook) narrows (subject.his/her) eyes. \"Did anyone look at the new well's water before it went in the stew pot? Or only after?\" There's a pause. Nobody had. The pot they always used for the new well's water was the old iron-stained one. The grey might come from the pot! It's a hidden assumption, exposed, and the village learns to always test things in a clean bowl first.",
+   "text": "(cook) narrows (cook.his/her) eyes. \"Did anyone look at the new well's water before it went in the stew pot? Or only after?\" There's a pause. Nobody had. The pot they always used for the new well's water was the old iron-stained one. The grey might come from the pot! It's a hidden assumption, exposed, and the village learns to always test things in a clean bowl first.",
    "effects": [
     {
      "do": "tech",

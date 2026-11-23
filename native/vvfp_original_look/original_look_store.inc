@@ -38,7 +38,10 @@
                                                                                           20 bytes each
        logged x { u32 id      the villager's identity in the save, by Repair Saves & Logs
                   i32 head, i32 body, u8 mask, u8 kind (1 the original is proven, 2 it is NOT known: the
-                  villager was seen changed with no record of it, so nothing is ever recorded for them),
+                  villager was seen changed with no record of it, so nothing is ever recorded for them,
+                  3 CORRECTED: the original is proven AND the one kept here is proven wrong -- their own
+                  Birth / Arrived record shows another look, which their records lead back to -- so it
+                  takes over even a SEEN original; a build before it reads 3 as nothing),
                   u8 0, u8 0 }                                                            16 bytes each
        u32 CRC-32 (zlib's) of every byte before it
 
@@ -71,13 +74,24 @@
    keeps the "logged" part as it read it.  When it binds a village and on every look after, each living
    villager with exactly one logged entry takes it over an original of source FIRST RUN or LOGS (a first
    sight is only a guess at history the logs may know better), and never over a SEEN one (seen at birth or
-   arrival: nothing can be earlier); a logged "not known" removes a FIRST RUN original and stops any first
-   sight.  So whichever runs first, the logs' original wins over a first-run snapshot and nothing proven is
-   ever replaced.
+   arrival: nothing can be earlier) -- unless the logs' entry is CORRECTED, the proof that the SEEN look was
+   not theirs (a founder candidate's look kept before the fix below); a logged "not known" removes a FIRST
+   RUN original and stops any first sight.  So whichever runs first, the logs' original wins over a
+   first-run snapshot and nothing proven is ever replaced.
+
+   THE FOUNDER SCREEN IS NO VILLAGE (The Tree of Life, New Believers; the owner, 2026-11-22: "it reset some of
+   my villagers to the wrong appearance").  Their "Select 5 villagers" screen shows each candidate in a real
+   record and a Reject makes the next candidate in that same record (native/vvfp_cause_of_death
+   cod_creation_save.inc).  Two candidates of one sex have the same stable part (no parents), so a Reject
+   read as a RENAME of that record and the rejected candidate's look stayed on as the chosen founder's
+   original (New Believers 256, a founder kept with head 29 / body 22 for his own 26 / 26; Reset to original
+   then gave him the candidate's look).  While that screen is open nothing is looked at, bound or kept; the
+   village is bound once the game has started, its founders seen as they were chosen.
 
    The includer defines, for its game: OL_MAX, ol_slots(), ol_record(i), ol_present(r), ol_named(r),
    ol_identity(r), ol_stable(r), ol_slot_now(), ol_game(), ol_look(r, &head, &body, &mask) (0 while the mask
-   cannot be told) and ol_save_written(slot, &time) (0 when it cannot be told). */
+   cannot be told), ol_save_written(slot, &time) (0 when it cannot be told) and ol_founder_screen() (1 while
+   The Tree of Life's or New Believers' "Select 5 villagers" screen is open). */
 
 #include "../shared/villager_rekey.h"   /* a rename at a load keeps the original (VvfpVillagersRenamed) */
 #include "../shared/sex_change.h"       /* ...and so does a sex change (VvfpVillagerSexChanged) */
@@ -95,7 +109,7 @@
 #define OL_KIND "Original Looks"
 
 enum { OL_NONE = 0, OL_FIRST_RUN = 1, OL_SEEN = 2, OL_LOGS = 3, OL_NOT_KNOWN = 4 };
-enum { OL_LOGGED_KNOWN = 1, OL_LOGGED_UNKNOWN = 2 };
+enum { OL_LOGGED_KNOWN = 1, OL_LOGGED_UNKNOWN = 2, OL_LOGGED_CORRECTED = 3 };
 enum { OL_UNBOUND = 0, OL_PENDING = 1, OL_BOUND = 2 };
 
 typedef struct {
@@ -398,7 +412,8 @@ static int ol_apply_logged(const unsigned int *live) {
         body = g_source[i] != OL_NONE && g_game_body[i] ? g_body[i] : e->body;
         /* ...and so is the mask a Heathen wore, kept when they joined the tribe (ol_converted). */
         mask = g_source[i] != OL_NONE && g_game_mask[i] ? g_mask[i] : e->mask;
-        if (e->kind != OL_LOGGED_KNOWN || g_source[i] == OL_SEEN
+        if ((e->kind != OL_LOGGED_KNOWN && e->kind != OL_LOGGED_CORRECTED)
+            || (g_source[i] == OL_SEEN && e->kind != OL_LOGGED_CORRECTED)
             || (g_source[i] == OL_LOGS && g_head[i] == e->head && g_body[i] == body && g_mask[i] == mask)) {
             continue;
         }
@@ -745,6 +760,13 @@ static int ol_sync(int now_please) {
     }
     g_synced = 1;
     g_sync_tick = now;
+    if (ol_founder_screen()) {
+        /* "Select 5 villagers": candidates, not a village (THE FOUNDER SCREEN IS NO VILLAGE).  Nothing is
+           kept; the village is bound afresh once it has started and held still. */
+        g_state = OL_UNBOUND;
+        g_candidate_slot = 0;
+        return 0;
+    }
     slot = ol_slot_now();
     if (slot <= 0 || ol_roster(cur, cur_stable) == 0) {
         return 0;                               /* no village known: nothing touched */

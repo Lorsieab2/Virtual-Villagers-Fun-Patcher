@@ -148,7 +148,7 @@
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "friend"
     }
    ],
    "children": [
@@ -231,7 +231,7 @@
     {
      "do": "preference",
      "dislike": "wood",
-     "role": "subject"
+     "role": "friend"
     }
    ]
   },

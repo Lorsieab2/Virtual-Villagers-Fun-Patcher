@@ -190,7 +190,7 @@
    "src": "L10522"
   },
   "c2o1": {
-   "text": "The stores are saved, every basket. (builder) and two others wade down for (elder) and get (subject.him/her) out, cold and bruised but alive. When the water goes down, the village rebuilds every flooded hut on higher posts, so the next flood will go underneath. (elder) gets the first new hut.",
+   "text": "The stores are saved, every basket. (builder) and two others wade down for (elder) and get (elder.him/her) out, cold and bruised but alive. When the water goes down, the village rebuilds every flooded hut on higher posts, so the next flood will go underneath. (elder) gets the first new hut.",
    "effects": [
     {
      "do": "repair",

@@ -200,6 +200,9 @@ class DefaultPatchSelectionTests(unittest.TestCase):
                   # Practicing Devotion Builds Faith and Divine Energy (New Believers, new 2026-11-21: off by
                   # default, on in Owner's Defaults and Select All).
                   or p == "vv5_devotion_builds_faith"
+                  # Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; new 2026-11-22: on
+                  # in Owner's Defaults only).
+                  or p.endswith("_esteemed_elders")
                   # Revive Buried/Disappeared Villagers (all five games, the owner 2026-11-22: off by default, on in
                   # Owner's Defaults; it still costs 100,000 tech points).
                   or p.endswith("_revive_from_graves")})
@@ -448,6 +451,8 @@ class DefaultPatchSelectionTests(unittest.TestCase):
         # ...and Fog of Doom Lets Red and Orange Heathens Listen (new 2026-11-19: on in Owner's Defaults only) and its option No
         # Restrictions on Fog of Doom Conversions (the owner: default off; off in Owner's Defaults too).
         held_back |= {"vv5_fog_of_doom_every_heathen_listens", "vv5_fog_of_doom_no_restrictions"}
+        # ...and Esteemed Elders in Every Game (the owner, 2026-11-22: on in Owner's Defaults, off otherwise).
+        held_back |= {f"vv{n}_esteemed_elders" for n in (1, 2, 4, 5)}
         self.assertEqual(set(SELECT_ALL_OFF_FUN_PATCH_IDS), held_back)
         ids = fun_patch_ids()
         self.assertTrue(held_back <= ids)

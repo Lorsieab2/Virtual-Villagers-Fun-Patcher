@@ -1461,7 +1461,9 @@ just below it, so one preaching brings them straight back. With this patch
 they become an ordinary blue-mask Heathen (never orange, red or a special
 Heathen) with a random Faith from -38 to -67, drawn the way the game draws
 its own new village's blue Heathens, so you win them back by preaching like
-any other Heathen. This covers the Faith drift with or without Faith Loss is
+any other Heathen. With Heathens Keep Their Masks When Converted, one who was
+a Heathen before wears the mask they wore then (still treated as an ordinary
+blue-mask Heathen). This covers the Faith drift with or without Faith Loss is
 Doubled/Gains Halved; island events (The Spa, The Cracked Mask) keep their
 own -10. Needs no other patch.
 
@@ -1504,8 +1506,14 @@ Chief). It is kept exactly as if you had chosen it with Change Appearance:
 Change Appearance shows it as their mask, and you can change it or choose No
 Mask whenever you like. Nothing is charged. Reset to original gives it back: a
 convert's original look is the head and body they had with the mask they wore.
-Heathens who joined before this patch keep the look they have now. Runs on the
-Origins upgrades, which the patcher adds with it.
+If a villager who was once a Heathen later loses their faith and goes back to
+the Heathens, they wear their own mask again (the one they wore as a Heathen
+before: blue, orange, red, purple or the Chief's) but act exactly like an
+ordinary Heathen in a blue mask: you can talk to them, they listen, and they can
+be converted again like any blue one (never a Master or the Chief again).
+Heathens who joined before this patch keep the look they have now; Repair Saves
+& Logs > Restore Heathen Masks... gives their own mask back to villagers who
+already went back. Runs on the Origins upgrades, which the patcher adds with it.
 
 FOG OF DOOM LETS RED AND ORANGE HEATHENS LISTEN (NEW BELIEVERS)
 
@@ -1589,7 +1597,8 @@ hovel's flower cover appears), the hovel is a memorial for good, even if
 Heathens come back later. Then a villager "Honoring the dead" on an
 ordinary day honors in front of the hovel a quarter of the time (flowers
 first, as usual), and a villager "Reflecting" reflects there a quarter of
-the time.
+the time. With "Shrine to the Ancestors" installed too, "Honoring the dead"
+goes to the hovel half the time instead (Reflecting stays a quarter).
 The Day of Honor island event and every other action are unchanged.
 Nothing is saved. The game never starts "Reflecting" by itself: only a
 Custom Island Event does.
@@ -1678,6 +1687,30 @@ Mechanics page. The score is kept in the save's own Village Scores file and
 every change in its Village Solidarity log; Start Over clears both. Needs
 Story / Cheat Upgrades. On in Owner's Defaults only (off in the normal
 defaults and in Select All). Not yet seen in a running game.
+
+ESTEEMED ELDERS IN EVERY GAME (A NEW HOME, THE LOST CHILDREN, THE TREE OF LIFE, NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults only (off in Select All). Nothing to
+click: it works on its own. A villager who has mastered three or more skills
+(the level the Villager Details screen calls Master: 90 in A New Home, 88 in
+The Lost Children and The Tree of Life) is titled "Esteemed Elder" on the
+Villager Details screen, as in The Secret City and New Believers (which
+already do it). The Golden Child keeps his own title; a totem statue or a
+ghost never gets it; in The Tree of Life mastering all five is still the
+Scholar. A custom title still shows in its place. The logs' "Special
+villager" line says it too, and a new grave of such a villager (an adult)
+gets the epitaph "Esteemed Elder" (A New Home: with Show Cause of Death and
+Epitaphs on Graves, and Log Every Death). The Lost Children's own Esteemed
+Elders and their totems are unchanged. For villagers and graves from before:
+Repair Saves & Logs, "Give the Esteemed Elder title retroactively" lists who
+gets it first; a grave is changed only where the save still holds that
+villager's skills at death, the others are listed and left. Not yet seen in
+a running game. In New Believers (which gives the title already) a current
+Heathen is never an Esteemed Elder, on the Details screen or in the logs; a
+Former Heathen who has joined the tribe is, with three mastered skills (the
+logs keep their Former Heathen title). In The Lost Children the Village
+Statistics' Village Elders then counts every Esteemed Elder ever, kept in
+the save's Village Elders file.
 
 THE PATCHER'S OWN FILES, AND HOW TO CLEAR THEM
 

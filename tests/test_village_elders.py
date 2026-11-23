@@ -100,7 +100,7 @@ class ReloadRanksReachTheEldersTests(unittest.TestCase):
     def test_the_dll_passes_the_reload_ranks(self):
         source = (NATIVE / "statistics_export.c").read_text(encoding="utf-8")
         calls = re.findall(r"(\n[^\n]*\n)\s*g_elders_value = vv_village_elders\(", source)
-        self.assertEqual(len(calls), 2, "both elder layouts (VV1 and VV3-VV5)")
+        self.assertEqual(len(calls), 3, "every elder layout (VV1, VV2 with Esteemed Elders in Every Game, VV3-VV5)")
         for before in calls:
             self.assertIn("elders_ranks(&l);", before)
         changed = source[source.index("static int village_changed("):]

@@ -33,7 +33,9 @@ enum { PC_SETUP = 1, PC_APPROACH = 2, PC_OUTCOME = 3, PC_FLAVOUR = 4, PC_FRAME =
 #define PC_F_SOLIDARITY 0x18u             /* an outcome: its Village Solidarity tag, bits 3-4 (1 raise, 2 lower, 3
                                              neutral): the composed page's node flags bits 2-3 (story_solidarity.inc) */
 #define PC_F_SOLIDARITY_SHIFT 3u
-#define PC_S_OPTIONAL 1u                  /* a slot's flags */
+#define PC_F_GUARDIANS 0x20u              /* its text and label each have a Guardians of Isola form: the string right
+                                             after it (docs/event-collection/guardians-wording.md, "Procedural events") */
+#define PC_S_OPTIONAL 1u                 /* a slot's flags */
 #define PC_S_BELIEVERS 2u
 #define PC_S_SPEAKS 4u
 #define PC_S_HARM 8u
@@ -110,6 +112,22 @@ static const char *pc_str(unsigned int off) {
     return off == PC_STR_NONE || off >= pc_f.n_str_bytes ? NULL : (const char *)pc_f.d + pc_f.o_str + off;
 }
 
+/* The Guardians of Isola form of the string at `off` (PC_F_GUARDIANS: the string right after it), NULL for none. */
+static const char *pc_str_guardians(unsigned int off) {
+    const char *s = pc_str(off);
+    return s == NULL ? NULL : pc_str(off + (unsigned int)lstrlenA(s) + 1u);
+}
+
+/* Piece `p`'s text (at 32) or label (at 36) as New Believers shows it in `game`: with Guardians of Isola's rewrite
+   on, a PC_F_GUARDIANS piece's own Guardians form. */
+static int cg_guardians_on(void);
+static const char *pc_words(int game, const unsigned char *p, unsigned int at) {
+    if (game == 5 && (p[6] & PC_F_GUARDIANS) && cg_guardians_on()) {
+        return pc_str_guardians(pc_u32(p + at));
+    }
+    return pc_str(pc_u32(p + at));
+}
+
 static int pc_range(unsigned int at, unsigned int count, unsigned int each, unsigned int size) {
     return at <= size && count <= (size - at) / each;
 }
@@ -154,7 +172,10 @@ static int pc_check(const unsigned char *data, unsigned int size) {
         unsigned int k, slots = pc_u16(p + 44), first_slot = pc_u32(p + 40);
         unsigned int first_fx = pc_u32(p + 48), fx = pc_u16(p + 52), first_link = pc_u32(p + 56), links = pc_u16(p + 60);
         if (pc_str(pc_u32(p)) == NULL || p[4] < PC_SETUP || p[4] > PC_FRAME || p[5] > 2u
-            || (p[6] & ~(PC_F_DEADLY | PC_F_BELIEVERS | PC_F_AUTO_LINES | PC_F_SOLIDARITY)) != 0u
+            || (p[6] & ~(PC_F_DEADLY | PC_F_BELIEVERS | PC_F_AUTO_LINES | PC_F_SOLIDARITY | PC_F_GUARDIANS)) != 0u
+            || ((p[6] & PC_F_GUARDIANS) && ((pc_u32(p + 32) != PC_STR_NONE && pc_str_guardians(pc_u32(p + 32)) == NULL)
+                                            || (pc_u32(p + 36) != PC_STR_NONE
+                                                && pc_str_guardians(pc_u32(p + 36)) == NULL)))
             || pc_u16(p + 46) < 1u
             || pc_u16(p + 46) > 1000u || pc_u16(p + 54) > 2u
             || (pc_u32(p + 32) != PC_STR_NONE && pc_str(pc_u32(p + 32)) == NULL)
@@ -813,9 +834,9 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
     }
     {
         const char *parts[3];
-        parts[0] = c->flavour >= 0 ? pc_str(pc_u32(pc_piece(c->flavour) + 32)) : NULL;
-        parts[1] = pc_str(pc_u32(setup + 32));
-        parts[2] = c->frame >= 0 ? pc_str(pc_u32(pc_piece(c->frame) + 32)) : NULL;
+        parts[0] = c->flavour >= 0 ? pc_words(pc_game, pc_piece(c->flavour), 32u) : NULL;
+        parts[1] = pc_words(pc_game, setup, 32u);
+        parts[2] = c->frame >= 0 ? pc_words(pc_game, pc_piece(c->frame), 32u) : NULL;
         if (parts[1] == NULL) {
             return 0;
         }
@@ -942,13 +963,13 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
             pc_put16(ch + 2, 1);
             pc_put16(ch + 4, CG_NONE);
             pc_put16(ch + 6, CG_NONE);
-            pc_put16(ch + 8, pc_s(&w, pc_str(pc_u32(a + 36))));
+            pc_put16(ch + 8, pc_s(&w, pc_words(pc_game, a, 36u)));
             pc_put16(ch + 10, CG_NONE);
             wsprintfA(node_id[a_node], "a%d", k + 1);
             /* an approach with no text of its own is a silent branch to its outcomes */
             an[0] = pc_str(pc_u32(a + 32)) != NULL ? (unsigned char)CG_POPUP : (unsigned char)CG_BRANCH;
             pc_put16(an + 4, pc_s(&w, node_id[a_node]));
-            pc_put16(an + 6, an[0] == CG_POPUP ? pc_s(&w, pc_str(pc_u32(a + 32))) : CG_NONE);
+            pc_put16(an + 6, an[0] == CG_POPUP ? pc_s(&w, pc_words(pc_game, a, 32u)) : CG_NONE);
             pc_put16(an + 12, (unsigned int)child);
             pc_put16(an + 14, (unsigned int)c->outcomes[kept[k]]);
             pc_put16(an + 16, CG_NONE);
@@ -1013,7 +1034,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
                                         /* its ending's Village Solidarity tag (story_solidarity.inc) */
                                         | (((o[6] & PC_F_SOLIDARITY) >> PC_F_SOLIDARITY_SHIFT) << 2));
                 pc_put16(on + 4, pc_s(&w, node_id[o_node_i]));
-                pc_put16(on + 6, pc_s(&w, pc_str(pc_u32(o + 32))));
+                pc_put16(on + 6, pc_s(&w, pc_words(pc_game, o, 32u)));
                 pc_put16(on + 12, 0);
                 pc_put16(on + 14, 0);
                 pc_put16(on + 16, CG_NONE);
@@ -1055,7 +1076,7 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
     pc_put16(h + 4, 6);
     pc_put16(h + 6, CG_HEADER_V6);
     pc_put32(h + 16, 1u << (pc_game - 1));
-    pc_put16(h + 20, pc_s(&w, pc_str(pc_u32(setup + 36))));
+    pc_put16(h + 20, pc_s(&w, pc_words(pc_game, setup, 36u)));
     pc_put16(h + 22, 0);
     pc_put16(h + 24, 0);
     pc_put16(h + 26, (unsigned int)pc_role_count);
@@ -1275,7 +1296,7 @@ static int pc_pick_fill(int game) {
             }
             pc_ref_group[pc_ref_count] = g;
             pc_ref_piece[pc_ref_count] = (int)i;
-            pc_varies(pc_str(pc_u32(p + 36)), sm_list.title[m], SM_TEXT);
+            pc_varies(pc_words(game, p, 36u), sm_list.title[m], SM_TEXT);
             lstrcpynA(sm_list.description[m],
                       vvfp_tr("vvfp.story/story_procedural.pc_pick_fill.s0",
                               "A new island event, put together each time from the collection's pieces.", 200), SM_TEXT);
@@ -1315,7 +1336,7 @@ static int pc_pick_buy(int game, HWND owner, int ref) {
         || pc_ref_piece[ref] >= (int)pc_f.n_piece) {
         return 0;
     }
-    lstrcpynA(pc_pick_title, pc_str(pc_u32(pc_piece(pc_ref_piece[ref]) + 36)), sizeof pc_pick_title);
+    lstrcpynA(pc_pick_title, pc_words(game, pc_piece(pc_ref_piece[ref]), 36u), sizeof pc_pick_title);
     wsprintfA(message,
               vvfp_tr("vvfp.story/vvfp_story_upgrades.story_pick_island_event.s6",
                       "Do you want to buy Pick Island Event (%s) for %s tech points?%s%s\r\n\r\nPress OK to confirm, or Cancel.",
@@ -1376,7 +1397,7 @@ static void pc_library_add(int game) {
                 continue;
             }
             wsprintfA(cg_lib.path[cg_lib.count], "%s%s/%s", PC_LIBRARY_TAG, pc_groups[g].name, pc_str(pc_u32(p)));
-            pc_varies(pc_str(pc_u32(p + 36)), title, SM_TEXT);
+            pc_varies(pc_words(game, p, 36u), title, SM_TEXT);
             wsprintfA(label,
                       vvfp_tr("vvfp.story/story_collection.sc_library_add.s0", "Isola Grand Event Collection: %s", 100),
                       title);

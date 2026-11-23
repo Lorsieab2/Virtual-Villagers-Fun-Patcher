@@ -331,7 +331,9 @@ enum { CG_PH_NAME = 0, CG_PH_HE, CG_PH_HIS, CG_PH_HIM, CG_PH_MAN, CG_PH_AWARD, C
        /* the standalone possessive (the owner's files, 2026-11-16): "his" / "hers" */
        CG_PH_HIS_HERS,
        /* 35: the chief's title "headman" / "headwoman" */
-       CG_PH_HEADMAN };
+       CG_PH_HEADMAN,
+       /* 25: (award2), the amount of the node's own food / tech change (cg_award2_effect), filled like (award) */
+       CG_PH_AWARD2 };
 enum { CG_EXPAND_AWARD = 0, CG_EXPAND_WORST = 1, CG_EXPAND_REAL = 2 };
 
 /* ---- The .cieg (src/vv_cie_graph.py THE BINARY .cieg) ----------------------------------------------------- */
@@ -624,8 +626,8 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
     static const char *const WORDS[] = { "name", "he/she", "his/her", "him/her", "man/woman", "award", "award_unit",
                                          "himself/herself", "woman/man", "boy/girl", "son/daughter",
                                          "mother/father", "father/mother", "mom/dad", "sister/brother", "aunt/uncle",
-                                         "girl/boy", "lady/gentleman", "his/hers", "headman/headwoman" };
-    int words = g->version >= 6 ? 20 : 7;
+                                         "girl/boy", "lady/gentleman", "his/hers", "headman/headwoman", "award2" };
+    int words = g->version >= 6 ? 21 : 7;
     int dot = -1;
     int i;
     int role = -1;
@@ -681,7 +683,7 @@ static int cg_parse_ph_in(const cg_graph *g, const char *tok, int n, cg_ph *ph) 
             i = CG_PH_NAME;
         }
         ph->what = i;
-        if (i == CG_PH_AWARD || i == CG_PH_UNIT) {
+        if (i == CG_PH_AWARD || i == CG_PH_UNIT || i == CG_PH_AWARD2) {
             if (dot > 0) {
                 return 0;
             }
@@ -1942,6 +1944,23 @@ static int cg_answering(int game) {
 
 static int cg_heathen(int game, const unsigned char *r) {
     return game == 5 && r[0x1CEC] != 0;
+}
+
+/* "Heathens Keep Their Masks When Converted" (New Believers; the owner, 2026-11-22: a villager who goes back to
+   the Heathens gets back the mask they wore as a Heathen and behaves as an ordinary blue Heathen; a Heathen who
+   joins keeps theirs).  The game's own conversions are spliced by "VVFP Heathens Keep Masks.dll"; the faction
+   setter 0x466880 that "Becomes a Heathen" / "Becomes a believer" call here directly -- when their SetFaith did
+   not convert, the Faith already past 0 -- is not, so the companion is told first (VvfpHeathensKeepMasksFaction).
+   Not loaded (the row is off): nothing, as before. */
+typedef int (__stdcall *cg_keep_masks_fn)(void *record, int faction);
+
+static void cg_keep_masks_faction(unsigned char *record, int faction) {
+    HMODULE keep = GetModuleHandleA("VVFP Heathens Keep Masks.dll");
+    cg_keep_masks_fn told = keep != NULL ? (cg_keep_masks_fn)GetProcAddress(keep, "VvfpHeathensKeepMasksFaction")
+                                         : NULL;
+    if (told != NULL) {
+        (void)told(record, faction);
+    }
 }
 
 /* The special villagers a role leaves out unless it allows them (the shipped Aspiring Adventurer's). */
@@ -4534,6 +4553,32 @@ static unsigned int cg_late_roles(void) {
     return mask;
 }
 
+/* (award2) as cg_group fills a node's text (CG_EXPAND_AWARD): the node's own food / tech change, never signed (the
+   author's verb says which way); off: nothing, as (award) with no award. */
+static int cg_award2_on;
+static int cg_award2_amount;
+
+/* The effect (fx index, -1 none) whose amount the node's (award) / (award2) states, as cg_group fills its text: the
+   number is written marked -- \3 fx \5 digits \4 -- so the page can put it right when the village moved between
+   the layout and the showing (cg_amounts_fill, as cg_fix_lines does a line).  (award) is marked only on the node
+   that pays it; a count option's amounts are never marked (its token is read again as the page is shown). */
+static int cg_award_fx = -1;
+static int cg_award2_fx = -1;
+static int cg_mark_off;
+static int cg_award_probe;          /* (award) / (award2) kept as written: what a node's words say, its pool items in */
+#define CG_MARK_ON '\x03'
+#define CG_MARK_MID '\x05'
+#define CG_MARK_OFF '\x04'
+
+/* An amount (`amount`, never signed for (award2)) into `word`, marked with effect `fx` when it may be put right. */
+static void cg_amount_word(char *word, int fx, int amount) {
+    if (fx >= 0 && !cg_mark_off) {
+        wsprintfA(word, "%c%d%c%d%c", CG_MARK_ON, fx, CG_MARK_MID, amount, CG_MARK_OFF);
+    } else {
+        wsprintfA(word, "%d", amount);
+    }
+}
+
 static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_room, int award_kind, int award,
                         int depth) {
     static char cased[CG_POOL_DEPTH + 2][CG_RAW_BYTES];
@@ -4553,6 +4598,18 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
         int repeat = 0, role;
         cg_ph ph;
         const char *e;
+        if (mode == CG_EXPAND_WORST && (*s == CG_MARK_ON || *s == CG_MARK_OFF)) {
+            /* a marked amount (cg_amount_word): measured as its digits */
+            if (*s == CG_MARK_ON) {
+                while (*s != '\0' && *s != CG_MARK_MID) {
+                    ++s;
+                }
+            }
+            if (*s != '\0') {
+                ++s;
+            }
+            continue;
+        }
         if (cg_g.version >= 6 && *s == '\\' && (s[1] == '(' || s[1] == ')')) {
             /* A literal parenthesis: kept escaped until the text is filled for the screen. */
             if (mode == CG_EXPAND_AWARD) {
@@ -4592,6 +4649,26 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
                     }
                     for (i = 0; wide[i] != '\0' && o < cap - 1; ++i) {
                         out[o++] = wide[i];
+                    }
+                } else if (mode == CG_EXPAND_AWARD && depth >= 0 && depth < CG_POOL_DEPTH + 2) {
+                    /* the award pass fills the options' (award) / (award_unit) / (award2) now, as the rest of the
+                       node's words (its award and own change are known only here); the rest kept for the page's
+                       pass (Codex, #842) */
+                    static char opt[CG_POOL_DEPTH + 2][CG_PAGE_BYTES], filled[CG_POOL_DEPTH + 2][CG_PAGE_BYTES];
+                    int c, len, was = cg_mark_off, head = (int)(opts - s);
+                    lstrcpynA(opt[depth], opts, olen + 1 < (int)sizeof opt[depth] ? olen + 1 : (int)sizeof opt[depth]);
+                    cg_mark_off = 1;
+                    len = cg_expand_in(opt[depth], filled[depth], (int)sizeof filled[depth], mode, name_room,
+                                       award_kind, award, depth + 1);
+                    cg_mark_off = was;
+                    for (c = 0; c < head && o < cap - 1; ++c) {
+                        out[o++] = s[c];
+                    }
+                    for (c = 0; c < len && o < cap - 1; ++c) {
+                        out[o++] = filled[depth][c];
+                    }
+                    for (c = head + olen; c < n && o < cap - 1; ++c) {
+                        out[o++] = s[c];
                     }
                 } else {
                     int c;
@@ -4695,9 +4772,16 @@ static int cg_expand_in(const char *raw, char *out, int cap, int mode, int name_
             s = e + 1;
             continue;
         }
-        if (ph.what == CG_PH_AWARD) {
+        if (cg_award_probe && (ph.what == CG_PH_AWARD || ph.what == CG_PH_AWARD2)) {
+            put = ph.what == CG_PH_AWARD ? "(award)" : "(award2)";
+        } else if (ph.what == CG_PH_AWARD) {
             if (award_kind >= 0) {
-                wsprintfA(word, "%d", award);
+                cg_amount_word(word, cg_award_fx, award);
+                put = word;
+            }
+        } else if (ph.what == CG_PH_AWARD2) {
+            if (cg_award2_on) {
+                cg_amount_word(word, cg_award2_fx, cg_award2_amount);
                 put = word;
             }
         } else if (ph.what == CG_PH_UNIT) {
@@ -5204,6 +5288,8 @@ static void cg_join(char *out, int cap, const char *a, const char *b, const char
 }
 static char cg_title_rest[CE_LONG_LINE_BYTES * 4];
 
+static const char *cg_amounts_fill(const char *text, int k);
+
 static const char *cg_display(int k) {
     static char wrapped[CG_PAGE_BYTES + CE_LONG_LINE_BYTES * 4 + 2];
     char title[CE_LONG_LINE_BYTES * 4];
@@ -5211,7 +5297,7 @@ static const char *cg_display(int k) {
     if (k < 0 || k >= cg.display_count) {
         return "";
     }
-    text = cg_count_fill(cg_late_fill(cg_renames_fill(cg.displays + cg.display_off[k], k), k));
+    text = cg_count_fill(cg_late_fill(cg_renames_fill(cg_amounts_fill(cg.displays + cg.display_off[k], k), k), k));
     cg_display_title(k, title, (int)sizeof title);
     if (cg_title_rest[0] == '\0') {
         return text;
@@ -5507,6 +5593,7 @@ static int cg_fx_now = -1;                  /* the effect being made (cg_make_ef
 static struct {
     const unsigned char *e;
     int fx, kind, actual;
+    int in_text;                            /* stated in the page's own words (cg_amounts_fill): no line */
 } cg_fixes[CG_FIXES];                       /* the display's lines to put right (cg_show) */
 static int cg_fix_count;
 #define CG_FAITH_OFF5 0x1CF0u               /* New Believers' Faith, -100..100 (src/vv_game_mechanics_faith_vv5.py) */
@@ -5551,9 +5638,62 @@ static void cg_told(const unsigned char *e, int kind, int actual) {
     cg_fixes[k].fx = cg_fx_now;
     cg_fixes[k].kind = kind;
     cg_fixes[k].actual = actual;
+    cg_fixes[k].in_text = 0;
     if (k == cg_fix_count) {
         ++cg_fix_count;
     }
+}
+
+/* Display `k`'s text with each marked amount (cg_amount_word: an (award) / (award2) the page's words state) as
+   digits: the amount really made when the village moved between the layout and the showing of the display whose
+   effects are being made (its fix, cg_told: never signed; that fix then needs no line, cg_fix_lines), else the
+   amount stated.  Codex, #842: "Your village loses 40 food." when 15 were lost. */
+static const char *cg_amounts_fill(const char *text, int k) {
+    static char out[CG_PAGE_BYTES];
+    const char *s;
+    int o = 0;
+    for (s = text; *s != '\0' && *s != CG_MARK_ON; ++s) {
+    }
+    if (*s == '\0') {
+        return text;
+    }
+    for (s = text; *s != '\0' && o < (int)sizeof out - 1;) {
+        int fx = 0, f;
+        const char *digits;
+        char word[16];
+        if (*s != CG_MARK_ON) {
+            out[o++] = *s++;
+            continue;
+        }
+        for (++s; *s >= '0' && *s <= '9'; ++s) {
+            fx = fx * 10 + (*s - '0');
+        }
+        if (*s == CG_MARK_MID) {
+            ++s;
+        }
+        digits = s;
+        while (*s != '\0' && *s != CG_MARK_OFF) {
+            ++s;
+        }
+        for (f = 0; k == cg_display_now && f < cg_fix_count && cg_fixes[f].fx != fx; ++f) {
+        }
+        if (k == cg_display_now && f < cg_fix_count) {
+            wsprintfA(word, "%d", cg_fixes[f].actual < 0 ? -cg_fixes[f].actual : cg_fixes[f].actual);
+            cg_fixes[f].in_text = 1;
+            for (f = 0; word[f] != '\0' && o < (int)sizeof out - 1; ++f) {
+                out[o++] = word[f];
+            }
+        } else {
+            for (; digits < s && o < (int)sizeof out - 1; ++digits) {
+                out[o++] = *digits;
+            }
+        }
+        if (*s == CG_MARK_OFF) {
+            ++s;
+        }
+    }
+    out[o] = '\0';
+    return out;
 }
 
 /* Food (`food` 1) or tech changed by `amount` (the one the page states), and what really changed told (cg_told). */
@@ -5780,6 +5920,8 @@ static int cg_sex_change_refusal(const ce_adapter *a, int game, const unsigned c
     }
     return -1;
 }
+
+static int cg_guardians_on(void);   /* below: New Believers with Guardians of Isola's rewrite on */
 
 /* One more line for the event's log entry ("  <text>\n"), when it fits. */
 static void cg_extra_add(const char *who, const char *what) {
@@ -7026,9 +7168,11 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                 TC1(0x468020u, record, amount);
             } else if (e[0] == CGE_JOIN) {
                 TC2(0x467F90u, record, 20, 1);
+                cg_keep_masks_faction(record, 0);
                 TC1(0x466880u, record, 0);
             } else {
                 TC2(0x467F90u, record, -10, 1);
+                cg_keep_masks_faction(record, 1);
                 TC1(0x466880u, record, 1);
             }
         } __except (EXCEPTION_EXECUTE_HANDLER) {
@@ -7043,7 +7187,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         }
         if (was != cg_heathen(game, record)) {
             cg_tell_faith(game, index);
-            cg_extra_add(name, was ? " joined the tribe." : " became a Heathen.");
+            cg_extra_add(name, was ? " joined the tribe." : cg_guardians_on() ? " became an Isolan." : " became a Heathen.");
         } else if (e[0] == CGE_FAITH) {
             cg_extra_add(name, "'s Faith grew.");
         }
@@ -7568,12 +7712,24 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "group1_health", "<W>'s health is now <N>." },
 };
 
+/* New Believers with Guardians of Isola's rewrite on (docs/event-collection/guardians-wording.md, "The branching
+   engine's own words"): "<R> becomes a Heathen." is "<R> becomes an Isolan." (the owner's pair a Heathen -> an
+   Isolan).  Pinned equal to src/vv_cie_graph.py GUARDIANS_AUTO_LINES by tests/test_guardians_wording_switches.py. */
+#define CG_GUARDIANS_BECOMES "<R> becomes an Isolan."
+
+static const char *cg_auto_guardians(const char *key, const char *t) {
+    if (t != NULL && (lstrcmpA(key, "status") == 0 || lstrcmpA(key, "apostasy") == 0) && cg_guardians_on()) {
+        return CG_GUARDIANS_BECOMES;
+    }
+    return t;
+}
+
 /* Line `key`'s words, NULL when the table has none. */
 static const char *cg_auto_text(const char *key) {
     int i;
     for (i = 0; i < (int)(sizeof CG_AUTO_LINES / sizeof CG_AUTO_LINES[0]); ++i) {
         if (lstrcmpA(CG_AUTO_LINES[i][0], key) == 0) {
-            return CG_AUTO_LINES[i][1];
+            return cg_auto_guardians(key, CG_AUTO_LINES[i][1]);
         }
     }
     return NULL;
@@ -7591,6 +7747,7 @@ static void cg_auto_add(char *out, int cap, const char *key, int role, const cha
             t = CG_AUTO_LINES[i][1];
         }
     }
+    t = cg_auto_guardians(key, t);
     if (t == NULL) {
         return;
     }
@@ -7785,38 +7942,53 @@ static void cg_auto_one(int game, const cg_history *h, const unsigned char *e, i
     }
 }
 
-/* Whether a node's own words `text` say the award's amount: "(award)" in any case (cg_parse_ph_in's word). */
-static int cg_says_award(const char *text) {
-    static const char WORD[] = "(award)";
+/* Whether a node's own words `text` hold the placeholder `word` ("(award)", "(award2)") in any case (cg_parse_ph_in's
+   words): src/vv_cie_graph.py says_award / says_award2. */
+static int cg_says_word(const char *text, const char *word) {
     int i, k;
     for (i = 0; text != NULL && text[i] != '\0'; ++i) {
-        for (k = 0; WORD[k] != '\0'; ++k) {
+        for (k = 0; word[k] != '\0'; ++k) {
             char c = text[i + k];
             if (c >= 'A' && c <= 'Z') {
                 c = (char)(c - 'A' + 'a');
             }
-            if (c != WORD[k]) {
+            if (c != word[k]) {
                 break;
             }
         }
-        if (WORD[k] == '\0') {
+        if (word[k] == '\0') {
             return 1;
         }
     }
     return 0;
 }
 
+/* The index among node `n`'s effects of the change its (award2) states: its first food or tech effect that is not
+   the award (not deferred); -1 none (src/vv_cie_graph.py award2_effect). */
+static int cg_award2_effect(const unsigned char *n) {
+    int k;
+    for (k = 0; k < cg_fx_count(n); ++k) {
+        const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
+        if ((e[0] == CGE_FOOD || e[0] == CGE_TECH) && !(e[2] & 2u)) {
+            return k;
+        }
+    }
+    return -1;
+}
+
 /* Node `n`'s automatic lines after `out` (its text, the award filled in): one for each effect that has one, from the
    walk's rolls (fx index `fx` its first), the award as it stands (src/vv_cie_graph.py auto_line_options).  A
    pay_award on a node whose own words say "(award)" has no line: the author's text already states the amount paid
    (filled in as it is really given), so the line would only say it twice ("Your village gains 590 food.\nThe village
-   gains 590 food.", The Cooking Contest, v1.35.97).  `says_award`: cg_says_award of the node's words. */
+   gains 590 food.", The Cooking Contest, v1.35.97).  `says_award`: cg_says_word(.., "(award)") of the node's words.
+   Likewise the node's own change its "(award2)" states (`award2`: its index, cg_award2_effect, when the words say
+   "(award2)"; else -1) -- the owner, 2026-11-22: a node that tells two kinds shows each its own amount, once. */
 static void cg_auto_lines(int game, const cg_history *h, const unsigned char *n, int fx, int award_kind, int award,
-                          int says_award, char *out, int cap) {
+                          int says_award, int award2, char *out, int cap) {
     int k;
     for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
         const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
-        if (says_award && e[0] == CGE_PAY) {
+        if ((says_award && e[0] == CGE_PAY) || k == award2) {
             continue;
         }
         cg_auto_one(game, h, e, fx, award_kind, award, out, cap);
@@ -7941,7 +8113,7 @@ static void cg_group(int game, const cg_history *h, int from) {
     for (i = from; i < h->nodes; ++i) {
         int node = h->node[i];
         const unsigned char *n = cg_node_at(&cg_g, node);
-        int villager = 0, fx0 = fx, paid = 0, paid_here = 0, shown;
+        int villager = 0, fx0 = fx, paid = 0, paid_here = 0, shown, pay_fx = -1;
         cg_visit(node);
         for (k = 0; k < cg_fx_count(n); ++k, ++fx) {
             const unsigned char *e = cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k);
@@ -7957,6 +8129,7 @@ static void cg_group(int game, const cg_history *h, int from) {
                 paid = va = ad != NULL && !(ad->caps & (award_kind == 0 ? CAP_FOOD : CAP_TECH)) ? 0
                             : cg_applied(&store[award_kind], award);
                 paid_here = 1;
+                pay_fx = fx < CG_MAX_FX ? fx : -1;
             } else if (e[0] == CGE_SKILL || e[0] == CGE_HEALTH_CHANGE || e[0] == CGE_FAITH) {
                 va = cg_predicted(ad, game, e, va, fx < CG_MAX_FX ? h->fx_b[fx] : 0);
             } else if (e[0] == CGE_DAMAGE) {
@@ -7981,10 +8154,31 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_popup *p = NULL;
             int start = 0;
             unsigned short nt = cg_node_title(node);
-            int says_award = cg_says_award(cg_node_text(node, game));
+            static char said[CG_RAW_BYTES];
+            int says_award, award2 = cg_award2_effect(n);
+            /* what the node's words say, its drawn pool items in (the award pass inlines them): Codex, #842 */
+            cg_award_probe = 1;
+            cg_expand(cg_node_text(node, game), said, sizeof said, CG_EXPAND_AWARD, 0, -1, 0);
+            cg_award_probe = 0;
+            says_award = cg_says_word(said, "(award)");
+            /* (award2): the node's own change as the page states it and then makes it (cg_applied_fx) */
+            cg_award2_on = award2 >= 0;
+            cg_award2_amount = 0;
+            if (award2 >= 0 && fx0 + award2 < CG_MAX_FX) {
+                cg_award2_amount = cg_applied_fx[fx0 + award2] < 0 ? -cg_applied_fx[fx0 + award2]
+                                                                   : cg_applied_fx[fx0 + award2];
+            }
+            /* the amounts the page states, marked so they can be put right as it is shown (cg_amounts_fill) */
+            cg_award_fx = paid_here ? pay_fx : -1;
+            cg_award2_fx = award2 >= 0 && fx0 + award2 < CG_MAX_FX ? fx0 + award2 : -1;
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
+            cg_award2_on = 0;
+            cg_award_fx = cg_award2_fx = -1;
+            if (award2 >= 0 && !cg_says_word(said, "(award2)")) {
+                award2 = -1;           /* the words do not state it: its line stays */
+            }
             if (n[3] & CG_NODE_AUTO_TEXT) {
-                cg_auto_lines(game, h, n, fx0, award_kind, shown, says_award, text, sizeof text);   /* 25 */
+                cg_auto_lines(game, h, n, fx0, award_kind, shown, says_award, award2, text, sizeof text);   /* 25 */
             }
             if (cg_one_popup() && cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0
                 && !(n[3] & CG_NODE_NEW_PAGE)) {
@@ -8431,6 +8625,9 @@ static void cg_fix_lines(const ce_adapter *a, int game, char *text, int cap) {
     int f;
     for (f = 0; f < cg_fix_count; ++f) {
         int fx = cg_fixes[f].fx, stated = cg_applied_fx[fx], n, len = lstrlenA(text), at = -1, i;
+        if (cg_fixes[f].in_text) {
+            continue;                  /* the page's own words state it, put right already (cg_amounts_fill) */
+        }
         raw[0] = '\0';
         cg_auto_one(game, &cg.path, cg_fixes[f].e, fx, cg_fixes[f].kind, stated, raw, (int)sizeof raw);
         cg_expand(raw, was, (int)sizeof was, CG_EXPAND_REAL, a->name_room, -1, 0);
@@ -9151,7 +9348,7 @@ static void cg_role_words(int game, int r, char *out, int size) {
         }
     }
     if ((spec[1] & CG_ROLE_BELIEVERS) && game == 5) {
-        lstrcatA(out, ", a believer");
+        lstrcatA(out, cg_guardians_on() ? ", a tribe member" : ", a believer");   /* guardians-wording.md */
     }
     if (cg_g.version >= 6) {
         const ce_adapter *a = ce_adapter_for(game);
@@ -9305,6 +9502,12 @@ static int cg_guardians_on(void) {
     return (cg_installed_state == 1 && cg_installed_has(5, "guardians_of_isola")) || faith_notice_left_the_tribe();
 }
 
+/* New Believers' word for the villagers an event can cast: "believers", with Guardians of Isola's rewrite on "tribe
+   members" (the faction sense: docs/event-collection/guardians-wording.md, "Believers"). */
+static const char *cg_believers_word(void) {
+    return cg_guardians_on() ? "tribe members" : "believers";
+}
+
 /* The loaded event's title in `game` (cie-v6-binary.md 18): the first title variant whose condition (game and patch
    conditions only) holds with the patches on now, else the file's own title.  Into cg_g.title, so every later use
    -- the popups, the log, the refusals -- shows it. */
@@ -9447,7 +9650,7 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
     part[0] = '\0';
     switch (c[0]) {
     case CGC_MIN_POPULATION:
-        wsprintfA(part, "at least %d %s", (int)a, game == 5 ? "believers" : "villagers");
+        wsprintfA(part, "at least %d %s", (int)a, game == 5 ? cg_believers_word() : "villagers");
         break;
     case CGC_MIN_CHILDREN:
         wsprintfA(part, "at least %d %s under 14", (int)a, a == 1u ? "child" : "children");
@@ -9488,7 +9691,7 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
         const unsigned char *n = cg_cond_at(&cg_g, (int)a);
         unsigned int na = cg_u16(n + 2);
         if (n[0] == CGC_MIN_POPULATION) {
-            wsprintfA(part, "fewer than %d %s", (int)na, game == 5 ? "believers" : "villagers");
+            wsprintfA(part, "fewer than %d %s", (int)na, game == 5 ? cg_believers_word() : "villagers");
         } else if (n[0] == CGC_MIN_CHILDREN) {
             wsprintfA(part, "fewer than %d children under 14", (int)na);
         } else if (n[0] == CGC_SPECIAL_PRESENT) {
@@ -9549,7 +9752,8 @@ static void cg_requirement_words(int game, unsigned int needed, char *out) {
     }
     if (needed == 0u) {
         wsprintfA(out, "\"%s\" can not happen in this village right now: it needs at least %d %s.", words,
-                  (int)cg_g.min_eligible, game == 5 ? "believers" : (cg_g.min_eligible == 1 ? "villager" : "villagers"));
+                  (int)cg_g.min_eligible, game == 5 ? cg_believers_word()
+                                                    : (cg_g.min_eligible == 1 ? "villager" : "villagers"));
         return;
     }
     for (r = 0; r < cg_g.n_role; ++r) {
@@ -10957,5 +11161,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphSession(const void *file
     test_graph_structures = -1;
     test_graph_unicode = -1;
     test_graph_nurse = -1;
+}
+#endif
+
+#ifdef VVFP_TEST
+/* Test probe: one New Believers Faith effect (38 faith, 39 join, 40 apostasy; mount its stated amount) made on
+   the villager in ecord as an event's effect makes it (cg_effect_on).  Returns how many changes were refused. */
+__declspec(dllexport) int __stdcall VvfpStoryProbeFaithEffect(unsigned char *record, int code, int amount) {
+    unsigned char e[32];
+    ce_result r;
+    memset(e, 0, sizeof e);
+    memset(&r, 0, sizeof r);
+    e[0] = (unsigned char)code;
+    memcpy(e + 4, &amount, 4);
+    cg_effect_on(ce_adapter_for(5), 5, e, 0, 0, &r, -1, record, 0, "");
+    return r.refused;
 }
 #endif

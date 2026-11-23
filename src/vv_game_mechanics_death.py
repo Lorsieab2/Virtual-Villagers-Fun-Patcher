@@ -332,6 +332,7 @@ def apprentice_line(village: gm.Village, jobs: str) -> str:
 
 
 PREFERRED_ROW = "vv{}_preferred_job_graves"
+ESTEEMED_ELDERS_VV4 = "vv4_esteemed_elders"     # Esteemed Elders in Every Game (The Tree of Life)
 # The titles each game picks as the epitaph before the job (a grave's Job line is never a title in any game).
 PREFERRED_TITLES = {
     1: "A New Home shows no title on a grave",
@@ -459,6 +460,12 @@ def _later(village: gm.Village, medicine: int | None, speed_value: int, base: in
         f"Architect\" or \"Strong Arms, Big Heart\"; {c['default']}. The player can type a new one (31 characters "
         "at most) on the grave.")
     add(preferred_line(village))
+    if game == 4 and village.has(ESTEEMED_ELDERS_VV4) is not False:
+        # native/vvfp_esteemed_elders: the Roster of the Dead writer's epitaph, after its copy (0x45D611).
+        add(gm.patch_words(village, ESTEEMED_ELDERS_VV4,
+                           "an adult (18 years or more) with three or four skills at 88 or more -- not a Scholar -- "
+                           "gets \"Esteemed Elder\" in place of the Job's epitaph, and the Villager Details screen "
+                           "titles them \"Esteemed Elder\""))
     if game == 4:
         add("The mausoleum's ghosts are not the dead coming back: each ghost visit makes a new ghost with no name and "
             "the sex, age at death, head and body of one grave picked at random from the Roster of the Dead (every "

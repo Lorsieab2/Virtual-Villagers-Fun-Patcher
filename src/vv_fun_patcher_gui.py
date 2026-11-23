@@ -292,6 +292,8 @@ FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
 # Practicing Devotion Builds Faith and Divine Energy (New Believers).
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
+# Esteemed Elders in Every Game (A New Home, The Lost Children, The Tree of Life; the owner, 2026-11-22).
+ESTEEMED_ELDERS_IDS = ["vv1_esteemed_elders", "vv2_esteemed_elders", "vv4_esteemed_elders", "vv5_esteemed_elders"]
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -437,6 +439,9 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
     + [DEVOTION_FAITH_ID]
+    # Esteemed Elders in Every Game (the owner, 2026-11-22: "ON in Owner's Defaults, off otherwise"): off here and
+    # in Select All.
+    + ESTEEMED_ELDERS_IDS
     # Revive Buried/Disappeared Villagers (all five games; the owner, 2026-11-22): off by default, "ON in Owner's Defaults"
     # (it still costs 100,000 tech points); Owner's Defaults ticks it like every default-off patch it does not name.
     + ["vv%d_revive_from_graves" % game for game in range(1, 6)]
@@ -518,6 +523,8 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # Fog of Doom Lets Red and Orange Heathens Listen and No Restrictions on Fog of Doom Conversions: on in Owner's
     # Defaults only (the owner, 2026-11-19 and 2026-11-20).
     + [FOG_LISTENING_ID, FOG_NO_RESTRICTIONS_ID]
+    # Esteemed Elders in Every Game: on in Owner's Defaults only (the owner, 2026-11-22).
+    + ESTEEMED_ELDERS_IDS
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS
@@ -5180,6 +5187,7 @@ class App(tk.Tk):
         move_button = None
         save_folders_button = None
         restore_button = None
+        heathen_masks_button = None
         if repair:
             # The owner, 2026-10-09: "Repair logs should have the move legacy files button!" -- for
             # the chosen save folder, whichever tribe is picked (src/vv_move_old_names.py).
@@ -5206,6 +5214,17 @@ class App(tk.Tk):
             )
             restore_button.pack(side="left", padx=(8, 0))
             self._help_button(buttons, "repair_logs").pack(side="left", padx=(2, 0))
+            # The owner, 2026-11-22: "an option in repair logs to restore the proper masks to heathens that
+            # reconverted into heathens" -- New Believers, the chosen tribe (src/vv5_heathen_masks_restore.py).
+            # On a row of its own, so the row above keeps its width.
+            more = ttk.Frame(frame)
+            more.grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
+            heathen_masks_button = ttk.Button(
+                more, text="Restore Heathen Masks...",
+                command=lambda: self._restore_heathen_masks(dialog, state["folders"][folder_box.current()], chosen())
+                if state["folders"] and chosen() is not None and game().number == 5 else None,
+            )
+            heathen_masks_button.pack(side="left")
         ttk.Button(buttons, text="Close", command=dialog.destroy).pack(side="left", padx=(8, 0))
 
         def game() -> vv_tribe_rename.GameSaves:
@@ -5240,6 +5259,9 @@ class App(tk.Tk):
             if restore_button is not None:
                 restore_button.configure(
                     state="normal" if problem is None and game().number == 1 else "disabled")
+            if heathen_masks_button is not None:
+                heathen_masks_button.configure(
+                    state="normal" if problem is None and game().number == 5 else "disabled")
 
         def load_slots(*_args) -> None:
             slot_list.delete(0, "end")
@@ -5491,6 +5513,50 @@ class App(tk.Tk):
         self.status_var.set(f"Restore A New Home Parents: {len(result.plan.restored)} villager(s) in {folder.name}.")
         messagebox.showinfo(title, f"{len(result.plan.restored)} villager(s) have their parents back. Each is listed "
                             "in the Repairs Made log.", parent=parent)
+
+    def _restore_heathen_masks(self, parent, folder: Path, info) -> None:
+        """Repair Saves & Logs' "Restore Heathen Masks..." (src/vv5_heathen_masks_restore.py): list who gets
+        their own mask back and who cannot (and why), ask, then write it with the game closed."""
+        import vv5_heathen_masks_restore
+        title = "Restore Heathen Masks"
+        try:
+            work = vv5_heathen_masks_restore.survey(folder, info.slot)
+        except (vv5_heathen_masks_restore.HeathenMasksError, OSError, ValueError) as exc:
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        lines = work.lines()
+        if len(lines) > 25:
+            lines = lines[:25] + [f"... and {len(lines) - 25} more"]
+        if not work.restore:
+            messagebox.showinfo(title, "Nothing to restore.\n\n" + ("\n".join(lines) or
+                                "No Heathen in this village is known to have joined the tribe and gone back "
+                                "with a mask other than blue."), parent=parent)
+            return
+        if not messagebox.askyesno(
+                title,
+                f"{folder.name}, Save {info.slot}: these Heathens joined the tribe once and went back. Each gets "
+                "back the mask they wore as a Heathen before and acts as an ordinary blue-masked Heathen. "
+                + ("The patcher's Village Masks file changes, and the save too: the orange or red Heathen "
+                   "behaviour an older build left is cleared. " if work.writes_save else
+                   "Only the patcher's Village Masks file changes, never the save. ")
+                + "The mask shows with \"Heathens Keep Their Masks When Converted\".\n\n" + "\n".join(lines)
+                + "\n\nThe save folder is backed up first, and each changed file is copied into Copies Made Before "
+                "Repairs. Restore them now?", parent=parent):
+            return
+        try:
+            result = self._run_with_wait(
+                "Restoring the masks…\n\nThe save folder is backed up first.",
+                lambda: vv5_heathen_masks_restore.restore(folder, info.slot),
+            )
+        except (vv5_heathen_masks_restore.HeathenMasksError, vv_log_tools.LogToolError, vv_save_backup.BackupError,
+                OSError) as exc:
+            _regrab(parent)
+            messagebox.showerror(title, str(exc), parent=parent)
+            return
+        _regrab(parent)
+        self.status_var.set(f"Restore Heathen Masks: {len(result.restored)} villager(s) in {folder.name}.")
+        messagebox.showinfo(title, f"{len(result.restored)} Heathen(s) have their own mask back. Each is listed in "
+                            "the Repairs Made log.", parent=parent)
 
     def _check_logs(self, parent, folder: Path, number: int, info) -> None:
         """Run the read-only checker off the main thread and show its report."""
@@ -5982,6 +6048,12 @@ class App(tk.Tk):
         if getattr(result, "kept_answers", None):
             lines.append(f"Answers kept, changed or cleared: {len(result.kept_answers)} (an answer is not asked again; "
                          "see Answered questions in Repair Saves & Logs; listed in the Repairs log).")
+        rejoined = getattr(result, "rejoined", None)
+        if rejoined is not None and rejoined.restored:
+            lines.append("Masks given back to villagers who rejoined the tribe (once; a later Repair never gives them "
+                         "again): " + "; ".join(f.line() for f in rejoined.restored) + ".")
+        elif rejoined is not None and rejoined.note:
+            lines.append(f"Masks of villagers who rejoined the tribe: {rejoined.note}")
         for (old, head, body), new in getattr(result, "renamed", {}).items():
             lines.append(f"{old} (head {head}, body {body}) has the name {new} back, in the save, the logs and the "
                          "patcher's files.")
@@ -6240,14 +6312,25 @@ class App(tk.Tk):
             unnumber = kind.id == vv_number_names.UNNUMBER_KIND and bool(kind.questions)
             preferred = kind.context.get("graves") if kind.id == "apprentice" else None
             preferred = preferred if preferred is not None and preferred.in_save else None
+            # New Believers' rejoined villagers' masks (src/vv5_rejoined_masks.py): each one listed, by name.
+            rejoined = kind.context.get("lines") if kind.id == "rejoined_masks" else None
+            # ...and the masks of Heathens who went back (src/vv5_heathen_masks_restore.py): listed the same way.
+            if kind.id == "heathen_masks":
+                rejoined = kind.context.get("lines")
+            # The Esteemed Elder title, retroactively (src/vv_log_additions.py plan_esteemed): its graves in the save.
+            elders = kind.context.get("graves") if kind.id == "esteemed" else None
             if not kind.inserts and not getattr(kind, "removes", None) and not getattr(kind, "replaces", None) \
-                    and not unnumber and not preferred:
+                    and not unnumber and not preferred and not elders and not rejoined:
                 for note in kind.notes:
                     ttk.Label(frame, text=f"{kind.label}: {note}", wraplength=600,
                               justify="left", foreground="#555555").pack(anchor="w", pady=(2, 0))
                 continue
             ticks[kind.id] = tk.BooleanVar(value=True)
-            text = (f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
+            text = (f"Give back the mask {len(rejoined)} Heathen(s) wore as a Heathen before they went back"
+                    if rejoined and kind.id == "heathen_masks"
+                    else f"Give back the mask {len(rejoined)} villager(s) wore when they rejoined the tribe (once)"
+                    if rejoined
+                    else f"Take off {kind.label[0].lower() + kind.label[1:]}: {len(kind.questions)} found" if unnumber
                     # Records moved, never removed (src/vv_misfiled_records.py): said so, in the player's words.
                     else f"Move {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if kind.id == "misfiled"
@@ -6258,9 +6341,22 @@ class App(tk.Tk):
                     f"{len(kind.removes) + len(kind.replaces)} found" if kind.id == "contradictions"
                     else f"Remove {kind.label[0].lower() + kind.label[1:]}: {len(kind.removes)} found"
                     if getattr(kind, "removes", None) else f"Add {kind.label.lower()}: {kind.decided} decided")
+            if kind.id == "esteemed":
+                text = (f"{kind.label}: {kind.decided} record line(s)"
+                        + (f", {len(elders.in_save)} grave epitaph(s)" if elders else "") + " found")
             if kind.asked:
                 text += f", {kind.asked} question(s) for you"
             ttk.Checkbutton(frame, variable=ticks[kind.id], text=text).pack(anchor="w")
+            if rejoined:
+                for line in list(rejoined) + list(kind.notes):
+                    ttk.Label(frame, text=f"    {line}", wraplength=600, justify="left",
+                              foreground="#555555").pack(anchor="w", pady=(1, 0))
+            if kind.id == "esteemed":
+                # Who it gives the title to, before anything is written (the owner: a list first), and who is
+                # left as they are and why.
+                for shown in ["Given to: " + "; ".join(kind.context.get("preview") or [])] + list(kind.notes):
+                    ttk.Label(frame, text=shown, wraplength=600, justify="left",
+                              foreground="#555555").pack(anchor="w", padx=(20, 0))
         # Names the Villager Details screen cut short: restored first, ticked by default.
         cuts_var = tk.BooleanVar(value=bool(cuts))
         if cuts:
@@ -7735,7 +7831,8 @@ class App(tk.Tk):
                 now = now or "(no title)"
                 var.set(now)
                 ttk.Combobox(frame, textvariable=var, state="readonly", width=40,
-                             values=["(no title)", "Esteemed Elder"] + (["Tribal Chief"] if number == 3 else [])
+                             # what the grave can keep (The Tree of Life's byte is the Scholar's)
+                             values=["(no title)"] + [t for t in vv_graves.grave_titles(number) if t]
                              ).grid(row=row, column=1, sticky="w")
             else:
                 ttk.Entry(frame, textvariable=var, width=42).grid(row=row, column=1, sticky="w")

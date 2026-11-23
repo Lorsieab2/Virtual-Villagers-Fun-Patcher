@@ -195,7 +195,7 @@
    "src": "L5112"
   },
   "c2o1": {
-   "text": "Blue light runs up (subject.his/her) arm like water up a reed, over (subject.his/her) shoulder and across (subject.his/her) face. The crowd screams. (friend) does not; (subject.he/she) just stands there with (subject.his/her) mouth open. When the light fades, (subject.he/she) is completely unhurt, but (subject.his/her) look has changed for good: new hair, new features, same grin. \"That,\" (friend) announces, \"was AMAZING.\"",
+   "text": "Blue light runs up (friend.his/her) arm like water up a reed, over (friend.his/her) shoulder and across (friend.his/her) face. The crowd screams. (friend) does not; (friend.he/she) just stands there with (friend.his/her) mouth open. When the light fades, (friend.he/she) is completely unhurt, but (friend.his/her) look has changed for good: new hair, new features, same grin. \"That,\" (friend) announces, \"was AMAZING.\"",
    "effects": [
     {
      "do": "appearance",
@@ -207,11 +207,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(friend)'s fingertips touch the edge of the flame, and it flares up tall and bright. (subject.He/She) yanks (subject.his/her) hand back with a yelp. It does not hurt. It just felt strange, like plunging into cold sea water. Nobody wants to test the \"cool\" fire any further after that, and the children are firmly walked home.",
+   "text": "(friend)'s fingertips touch the edge of the flame, and it flares up tall and bright. (friend.He/She) yanks (friend.his/her) hand back with a yelp. It does not hurt. It just felt strange, like plunging into cold sea water. Nobody wants to test the \"cool\" fire any further after that, and the children are firmly walked home.",
    "src": "L5123"
   },
   "c2": {
-   "text": "(friend) shoulders through the crowd. \"Children did it. How bad can it be?\" Before anyone can stop (subject.him/her), (subject.he/she) holds out a hand and passes it straight through the blue flame...",
+   "text": "(friend) shoulders through the crowd. \"Children did it. How bad can it be?\" Before anyone can stop (friend.him/her), (friend.he/she) holds out a hand and passes it straight through the blue flame...",
    "children": [
     {
      "next": "c2o1",

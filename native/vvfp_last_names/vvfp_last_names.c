@@ -1943,6 +1943,7 @@ static const char *const RENAME_OWNERS[] = {
     "VVFP Original Look.dll",
     "VVFP Gender Presentation.dll",
     "VVFP Cause of Death.dll",          /* Former Heathens */
+    "VVFP Heathens Keep Masks.dll",     /* New Believers' masks worn as Heathens */
 };
 
 static void tell_owners(int slot, int count, const void *const *records, const char *const *old_names) {

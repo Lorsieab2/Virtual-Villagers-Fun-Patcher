@@ -143,7 +143,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Every week for ten years, (subject) and (friend) have shared a pot of stew. Same day, same fire, same pot. It is the most dependable thing in either of their lives.\nTonight, halfway through the stew, (subject) puts down (subject.his/her) bowl, looks into the fire, and asks, very quietly, whether their friendship might become something more.\n(friend) drops the ladle.\nIt lands in the stew with a plop. Neither of them moves to fish it out. (friend) has no idea what to say. What should (subject.he/she) do?",
+   "text": "Every week for ten years, (subject) and (friend) have shared a pot of stew. Same day, same fire, same pot. It is the most dependable thing in either of their lives.\nTonight, halfway through the stew, (subject) puts down (subject.his/her) bowl, looks into the fire, and asks, very quietly, whether their friendship might become something more.\n(friend) drops the ladle.\nIt lands in the stew with a plop. Neither of them moves to fish it out. (friend) has no idea what to say. What should (friend.he/she) do?",
    "choices": [
     {
      "label": "Answer Honestly in Private",
@@ -172,7 +172,7 @@
    "src": "L7911"
   },
   "c1": {
-   "text": "(friend) fishes out the ladle, very slowly, buying time. Then (subject.he/she) sets it down and looks at (subject)...",
+   "text": "(friend) fishes out the ladle, very slowly, buying time. Then (friend.he/she) sets it down and looks at (subject)...",
    "children": [
     {
      "next": "c1o1",
@@ -208,11 +208,11 @@
    "src": "L7914"
   },
   "c3o1": {
-   "text": "(Name3) listens closely, asks a few careful questions, and leaves the decision where it belongs: with (subject) and (friend). \"Only you two know what's in that stew pot,\" (subject.he/she) says. (friend) goes home and thinks about it for a long time, and that week, at stew night, gives (subject.his/her) answer.",
+   "text": "(Name3) listens closely, asks a few careful questions, and leaves the decision where it belongs: with (subject) and (friend). \"Only you two know what's in that stew pot,\" (name3.he/she) says. (friend) goes home and thinks about it for a long time, and that week, at stew night, gives (friend.his/her) answer.",
    "src": "L7923"
   },
   "c3o2": {
-   "text": "(Name3)'s only response is to throw up (subject.his/her) hands and shout \"FINALLY!\", loud enough for the neighbours to hear. This is not much help. (friend) follows (subject.his/her) own judgment, but walks home grinning anyway.",
+   "text": "(Name3)'s only response is to throw up (name3.his/her) hands and shout \"FINALLY!\", loud enough for the neighbours to hear. This is not much help. (friend) follows (friend.his/her) own judgment, but walks home grinning anyway.",
    "src": "L7925"
   },
   "c3": {
