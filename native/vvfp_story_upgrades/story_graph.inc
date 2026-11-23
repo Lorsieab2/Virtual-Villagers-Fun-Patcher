@@ -7210,8 +7210,10 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         int now = cg_health_now(game, record);
         int value = now + (role >= 0 ? cg_told_amount(va) : va);   /* a cast villager: exactly what the page states */
         int restore = (e[2] & CG_HEALTH_RESTORE) != 0;
-        if (restore && !(role >= 0 && cg_told_known())) {
-            /* 25a with no stated amount (a run restored after a quit): va is the percent of this villager's last loss */
+        if (restore) {
+            /* 25a: va is the rolled percent, of the loss this villager's last health_change REALLY made -- not the
+               stated one: the village may have moved since the page was laid out (a loss clamped at 1).  The line is
+               put right from what really changed (cg_told, below). */
             value = now + (index == cg_lost_index ? cg_restored(cg_lost_health, va) : 0);
         }
         if (a->set_health == NULL) {

@@ -275,6 +275,33 @@ class GameSideAmounts(unittest.TestCase):
                     self.assertIn(back_line, text)
                     self.assertEqual(r.v.i32(0, r.v.L["health"]), end, "applied = shown, below the start")
 
+    def test_a_restore_follows_the_loss_when_health_moves_after_layout(self):
+        """25a (Codex, #840): laid out at 60 (lose 20, restore 50%: back 10); the villager is down to 9 when the page
+        is shown, so the loss really takes 8 -- the restore gives back 4 of THAT, never the 10 it was laid out with,
+        the line says so, and the villager ends below where the page began."""
+        fx = [{"do": "health_change", "min": -20, "max": -20},
+              {"do": "health_change", "restore": True, "min": 50, "max": 50}]
+        for game in self.games():
+            with self.subTest(game=game):
+                g = pages([[{"do": "tech", "amount": 3}], copy.deepcopy(fx)], game)
+
+                def setup(r):
+                    r.p.put32(r.v.record(0) + r.v.L["health"], 60)
+                    state = {"n": 0}
+
+                    def watch():
+                        state["n"] += 1
+                        if state["n"] == 1:
+                            r.p.put32(r.v.record(0) + r.v.L["health"], 9)
+                    r.watch = watch
+
+                r, shown = self.run_graph(game, g, setup)
+                text = one_line(shown)
+                self.assertIn("Adam loses 8 health.", text)
+                self.assertIn("Adam gains 4 health.", text)
+                self.assertNotIn("gains 10 health", text)
+                self.assertEqual(r.v.i32(0, r.v.L["health"]), 5, "a share of the real loss: below the 9")
+
     def test_a_groups_skill_line(self):
         for game in self.games():
             with self.subTest(game=game):
