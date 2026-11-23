@@ -176,6 +176,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_long_names", "vv_legacy_names",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
+               # Move Player Slot (the owner, 2026-11-22), the Copy Player Slot window's Move choice.
+               "vv_move_slot",
                # Backups (the owner, 2026-11-09): each backup's vital statistics and its window.
                "vv_backup_details", "vv_backup_details_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -263,8 +265,13 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
                               "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
             # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
-            ("vv_copy_slot_window", {"vv_copy_slot", "vv_save_backup", "vv_tribe_rename", "vv_fun_patcher_gui",
-                                     "vv_tree_editor_tools"}),
+            ("vv_copy_slot_window", {"vv_copy_slot", "vv_move_slot", "vv_save_backup", "vv_tribe_rename",
+                                     "vv_fun_patcher_gui", "vv_tree_editor_tools"}),
+            # Move Player Slot: Copy Player Slot's transforms, Back Up Saves, the per-save layout; function-
+            # level: the villagers as Last Names reads them, the Repairs log, the shared words boundaries, the
+            # Family Tree Maker's tree name.
+            ("vv_move_slot", {"vv_copy_slot", "vv_long_paths", "vv_save_backup", "vv_save_layout", "vv_tribe_rename",
+                              "vv_last_names", "vv_log_tools", "vv_move_to_save_folders", "vv_genealogy_window"}),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store", "vv_long_names"}),

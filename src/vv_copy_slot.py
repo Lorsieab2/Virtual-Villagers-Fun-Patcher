@@ -1269,18 +1269,20 @@ class _Done:
 SET_ASIDE_PREFIX = "Replaced by copy "
 
 
-def set_aside_folder(folder: Path, when: datetime, slot: int, village: str | None) -> Path:
+def set_aside_folder(folder: Path, when: datetime, slot: int, village: str | None,
+                     prefix: str = SET_ASIDE_PREFIX) -> Path:
     """A new folder in Backups for the target slot's files (never one that is there): a short name,
     "<yyyy-mm-dd hhmm> S<slot>" (the owner, 2026-11-20: no path-too-long errors), its full description --
-    "Replaced by copy <date> - Save <N> - <village>" -- one line of the Backups index (vv_save_backup;
-    never a backup Restore Saves offers).  Made here, empty."""
+    "Replaced by copy <date> - Save <N> - <village>" (Move Player Slot's ``prefix``: "Replaced by move ")
+    -- one line of the Backups index (vv_save_backup; never a backup Restore Saves offers).  Made here,
+    empty."""
     name = "".join(ch for ch in (village or "") if ch not in '\\/:*?"<>|').strip(" .") or "no village"
     backups = Path(folder) / vv_save_backup.BACKUPS_FOLDER
     try:
         made, order = vv_save_backup.new_short_folder(
             backups, when, lambda w, k: f"{w:%Y-%m-%d %H%M} S{slot}" + ("" if k == 1 else f" {k}"))
         vv_save_backup.note_in_backups_index(backups, made.name, vv_save_backup.KIND_REPLACED, when, order,
-                                             f"{SET_ASIDE_PREFIX}{when:%Y-%m-%d %H-%M-%S} - Save {slot} - {name}")
+                                             f"{prefix}{when:%Y-%m-%d %H-%M-%S} - Save {slot} - {name}")
     except (OSError, vv_save_backup.BackupError) as exc:
         raise CopyError(f"No folder could be made in {backups} for the replaced files ({exc}).") from exc
     return made

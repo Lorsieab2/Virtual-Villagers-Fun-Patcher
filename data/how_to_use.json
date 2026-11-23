@@ -1748,7 +1748,9 @@
         "The whole save folder is backed up first, as (before copy).",
         "The slot's old files are moved into Backups, Replaced by copy, never deleted; Restore Saves brings them back.",
         "The copy takes its logs, data and trees along, its record numbers after the game's highest.",
-        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time)."
+        "Not copied: a repair waiting to run, and the family tree reports and Matchmaker text (made again any time).",
+        "Choose Move instead to move the village itself to another slot, keeping its name: its save, the game's older copies of it, its logs, data, family trees and repair copies all go along, and its slot is left empty.",
+        "Move lists every file it will move before you say Yes, backs the folder up first, as (before move), and keeps the target slot's old files in Backups, Replaced by move."
       ]
     },
     "check_logs": {

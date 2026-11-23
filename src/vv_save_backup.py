@@ -840,6 +840,8 @@ BEFORE_RENAME = "(before rename)"
 BEFORE_REARM = "(before repair re-arm)"
 # Copy Player Slot (src/vv_copy_slot.py) backs the folder up first under this label.
 BEFORE_COPY = "(before copy)"
+# Move Player Slot (src/vv_move_slot.py, in the Copy Player Slot window) backs the folder up first under this label.
+BEFORE_MOVE = "(before move)"
 INCOMPLETE = " INCOMPLETE"
 # Every tool that backs the folder up first names its backup "Backup <date>[ (n)] (before <what it did>)"
 # (copy_save_folder's suffix): Last Names "(before last names)", Number Duplicate Names "(before numbering
