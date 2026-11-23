@@ -302,6 +302,30 @@ class GameSideAmounts(unittest.TestCase):
                 self.assertNotIn("gains 10 health", text)
                 self.assertEqual(r.v.i32(0, r.v.L["health"]), 5, "a share of the real loss: below the 9")
 
+    def test_a_restore_follows_its_own_villagers_loss(self):
+        """25a (Codex, #840): the subject loses 20, the friend loses 10, then the subject gets 50% back -- 10, a share
+        of the subject's own loss, not of the friend's loss that came between."""
+        fx = [{"do": "health_change", "role": "subject", "min": -20, "max": -20},
+              {"do": "health_change", "role": "friend", "min": -10, "max": -10},
+              {"do": "health_change", "role": "subject", "restore": True, "min": 50, "max": 50}]
+        people = [(0, "m", 30, "Adam", 0, False), (1, "f", 31, "Bea", 0, False)]
+        for game in self.games():
+            with self.subTest(game=game):
+                g = pages([copy.deepcopy(fx)], game)
+                g["roles"]["friend"] = {"kind": "villager", "min_age": 14}
+
+                def setup(r):
+                    for i in (0, 1):
+                        r.p.put32(r.v.record(i) + r.v.L["health"], 60)
+
+                r, shown = self.run_graph(game, g, setup, people=people)
+                text = one_line(shown)
+                self.assertIn(" loses 20 health.", text)
+                self.assertIn(" loses 10 health.", text)
+                self.assertIn(" gains 10 health.", text)
+                self.assertEqual(sorted(r.v.i32(i, r.v.L["health"]) for i in (0, 1)), [50, 50],
+                                 "the subject 60 - 20 + 10, the friend 60 - 10")
+
     def test_a_groups_skill_line(self):
         for game in self.games():
             with self.subTest(game=game):

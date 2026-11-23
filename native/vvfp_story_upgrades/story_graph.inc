@@ -6859,9 +6859,36 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
     cg_group_line(a, e, va);
 }
 
-/* 25a: the villager (record index, -1 none) whose health the last health_change made took `cg_lost_health`. */
-static int cg_lost_index = -1;
-static int cg_lost_health;
+/* 25a: what each villager's last health_change on the page really took (record index, health; as cg_predicted's
+   per-villager cg_sim), so a restore shares in its own villager's loss whatever came between.  Reset per page. */
+#define CG_LOST 24
+static struct {
+    int index, health;
+} cg_lost[CG_LOST];
+static int cg_lost_n;
+
+static int cg_lost_of(int index) {
+    int i;
+    for (i = 0; i < cg_lost_n; ++i) {
+        if (cg_lost[i].index == index) {
+            return cg_lost[i].health;
+        }
+    }
+    return 0;
+}
+
+static void cg_lost_set(int index, int health) {
+    int i;
+    for (i = 0; i < cg_lost_n && cg_lost[i].index != index; ++i) {
+    }
+    if (i == cg_lost_n) {
+        if (cg_lost_n == CG_LOST) {
+            return;                    /* a page of more villagers than that: their restores give nothing */
+        }
+        cg_lost[cg_lost_n++].index = index;
+    }
+    cg_lost[i].health = health;
+}
 
 /* What a health_change "restore" gives back: `percent` of the health `lost` (rounded; src/vv_cie_graph.py
    restored). */
@@ -7214,7 +7241,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
             /* 25a: va is the rolled percent, of the loss this villager's last health_change REALLY made -- not the
                stated one: the village may have moved since the page was laid out (a loss clamped at 1).  The line is
                put right from what really changed (cg_told, below). */
-            value = now + (index == cg_lost_index ? cg_restored(cg_lost_health, va) : 0);
+            value = now + cg_restored(cg_lost_of(index), va);
         }
         if (a->set_health == NULL) {
             ce_refuse(r, CE_WHY_OTHER);
@@ -7230,8 +7257,7 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         if (restore && value < now) {
             value = now;               /* a restore never takes */
         }
-        cg_lost_index = restore || value >= now ? -1 : index;   /* 25a: what a later "restore" gives a share of */
-        cg_lost_health = value < now ? now - value : 0;
+        cg_lost_set(index, restore || value >= now ? 0 : now - value);   /* 25a: this villager's, as cg_predicted */
         c->health = value;
         told_health = 1;
         told_before = now;
@@ -8522,7 +8548,7 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
     cg_count_page_any[0] = cg_count_page_any[1] = 0;
     cg_after[0] = '\0';
     cg_fix_count = 0;
-    cg_lost_index = -1;                /* 25a: a "restore" shares in a loss made with it, never an older one */
+    cg_lost_n = 0;                     /* 25a: a "restore" shares in a loss made with it, never an older one */
     cg.gone_at[k] = cg.gone;
     memcpy(cg.identity_at[k], cg.identity, sizeof cg.identity);
     {
