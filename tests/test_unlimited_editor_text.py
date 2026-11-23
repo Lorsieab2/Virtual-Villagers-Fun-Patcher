@@ -246,7 +246,7 @@ class TheQueueFile(unittest.TestCase):
                                          "Stay on the warm dry beach")
                         tick(again)
                         now = q.queue_file(again)
-                        self.assertEqual(struct.unpack_from("<I", now, 4)[0], 2, "rewritten as version 2")
+                        self.assertEqual(struct.unpack_from("<I", now, 4)[0], 3, "rewritten as version 3")
                         self.assertEqual(q.have(now, again) & (SQ_CUSTOM | SQ_ASKED), SQ_CUSTOM | SQ_ASKED)
 
     def test_a_long_question_survives_a_quit_whole(self):
@@ -266,7 +266,7 @@ class TheQueueFile(unittest.TestCase):
                 self.assertEqual(p.export("VvfpStoryProbeSetChoice", story.n, EVENT_BUF, at, p.tick), 1)
                 tick(story)
                 data = q.queue_file(story)
-                self.assertEqual(struct.unpack_from("<I", data, 4)[0], 2)
+                self.assertEqual(struct.unpack_from("<I", data, 4)[0], 3)
                 p.export("VvfpStoryProbeQueueSaved")
                 again = q.fresh(game)
                 again.proc.export("VvfpStoryProbeChoiceCap", 1)
@@ -288,7 +288,7 @@ class TheQueueFile(unittest.TestCase):
         data = bytearray(zlib.decompress(base64.b64decode(files[f"{game}_question"])))
         for name, bad in (("cut short", bytes(data[:-10])),
                           ("another layout", bytes(data[:20]) + struct.pack("<I", 1234) + bytes(data[24:])),
-                          ("an unknown version", bytes(data[:4]) + struct.pack("<I", 3) + bytes(data[8:]))):
+                          ("an unknown version", bytes(data[:4]) + struct.pack("<I", 4) + bytes(data[8:]))):
             with self.subTest(name=name):
                 again = q.fresh(game)
                 again.proc.export("VvfpStoryProbeChoiceCap", 1)

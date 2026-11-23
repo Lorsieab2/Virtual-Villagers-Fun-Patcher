@@ -5,3 +5,4 @@ EXPORTS
     VvfpFaithLossMarked
     VvfpFaithLossVillageReset
     VvfpVillagerSexChanged
+    VvfpFaithLossDecided
