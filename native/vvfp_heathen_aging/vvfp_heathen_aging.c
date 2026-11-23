@@ -267,7 +267,11 @@ static int puzzle_done(int puzzle) {
 
 #define HA_MAGIC 0x31414856u     /* 'VHA1' */
 #define HA_VERSION 2u          /* 2: magic, version, game, count, slot (v1 never shipped) */
-#define HA_MAX 1024
+/* Room for every live entry with room to spare: at most 256 records' born / former / expecting entries (768),
+   500 Heathen graves (the Roster of the Dead) and the owed replacements (at most one a record, 256): 1,524.
+   Entries of villagers no longer in the village are pruned when the list is full (known_prune), never a
+   living villager's, a grave or an owed replacement. */
+#define HA_MAX 2048
 #define HA_HEADER 20u
 #define KIND_BORN 0u             /* born a Heathen (a baby this companion delivered) */
 #define KIND_FORMER 1u           /* a believer who turned Heathen */
@@ -368,13 +372,46 @@ static void known_drop(unsigned int who, unsigned int kind) {
     }
 }
 
+static unsigned int identity(const unsigned char *record);
+static unsigned char *rec_at(int index);
+
+/* A full list: the born, former and expecting entries of identities no record of the village holds now (dead and
+   gone, buried, left) are dropped.  Graves and owed replacements always stay. */
+static void known_prune(void) {
+    static unsigned int present[256];
+    unsigned int i;
+    int n = 0, k;
+    for (i = 0; i < g_slots && i < 256u; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        if (r[R_PRESENT] != 0) {
+            present[n++] = identity(r);
+        }
+    }
+    for (k = g_known_count; k-- > 0;) {
+        int j, alive = 0;
+        if (g_known[k].kind == KIND_GRAVE || g_known[k].kind == KIND_OWED) {
+            continue;
+        }
+        for (j = 0; j < n && !alive; ++j) {
+            alive = present[j] == g_known[k].identity;
+        }
+        if (!alive) {
+            memmove(&g_known[k], &g_known[k + 1], sizeof g_known[0] * (size_t)(g_known_count - k - 1));
+            --g_known_count;
+            g_dirty = 1;
+        }
+    }
+}
+
 static void known_put(unsigned int who, unsigned int kind) {
     if (known_find(who, kind) >= 0) {
         return;
     }
     if (g_known_count >= HA_MAX) {
-        memmove(&g_known[0], &g_known[1], sizeof g_known[0] * (HA_MAX - 1));   /* the oldest goes */
-        g_known_count = HA_MAX - 1;
+        known_prune();
+    }
+    if (g_known_count >= HA_MAX) {
+        return;                            /* (cannot happen: see HA_MAX) -- never a live entry evicted */
     }
     g_known[g_known_count].identity = who;
     g_known[g_known_count].kind = kind;
@@ -583,6 +620,16 @@ static void rekey(const unsigned int *was, int n, unsigned int from, unsigned in
     }
 }
 
+/* The believer the age credit last saw in record index is the same villager under the new identity: one whose
+   likes or name changed and who turned Heathen before the next look (a Custom Island Event's change, then its
+   "Becomes a Heathen") is still seen turning, so a founder or newcomer with no parents is still a former villager.
+   (A look, a title or a mask is no part of the identity.) */
+static void follow_seen(int index, unsigned int from, unsigned int to) {
+    if (index >= 0 && index < 256 && from != 0u && g_seen[index] == from) {
+        g_seen[index] = to;
+    }
+}
+
 static void follow_identities(void) {
     static unsigned int now[256], now_stable[256], now_keep[256];
     static int now_age[256];
@@ -609,11 +656,13 @@ static void follow_identities(void) {
         }
         if (renames == 1 && g_roster_stable[at] != 0u && g_roster_stable[at] == now_stable[at]) {
             rekey(g_roster, n, g_roster[at], now[at]);
+            follow_seen(at, g_roster[at], now[at]);
         } else if (vv_roster_changed_in_place(n, g_roster, g_roster_keep, g_roster_age, now, now_keep, now_age,
                                               same) > 0) {
             for (i = 0; i < n; ++i) {
                 if (same[i]) {
                     rekey(g_roster, n, g_roster[i], now[i]);
+                    follow_seen(i, g_roster[i], now[i]);
                 }
             }
         }
@@ -997,8 +1046,8 @@ static void deliver(unsigned char *mother) {
     } else if (litter > 3) {
         litter = 3;
     }
-    if (free_records() < litter) {
-        return;                                                /* waits for room */
+    if (free_records() < litter + HA_ROOM_KEPT) {
+        return;                     /* waits until the village's own births keep their HA_ROOM_KEPT records */
     }
     for (i = 0; i < litter; ++i) {
         int fh = i32(mother, R_BABY_FATHER_HEAD), mh = i32(mother, R_HEAD);
@@ -1199,7 +1248,7 @@ int __stdcall VvfpHeathenAgingEventGone(int game, int index, int how, int cause)
 /* An island event's pregnancy of the ordinary Heathen in record `mother` -- only ever with a Heathen father (the
    owner: never a Heathen and a believer): `father` a Heathen's record, or -1 for a random adult Heathen man of the
    camp.  The game's own conception 0x465E00 (the twins counters put back: Heathens never count), the litter as the
-   event asks (1-3, as many as there is room for), and the mother kept as expecting a Heathen baby this companion
+   event asks (1-3, as many as there is room for beside the village's own HA_ROOM_KEPT), and the mother kept as expecting a Heathen baby this companion
    delivers 40 units later (she ages until then); `now` 1: born at once (a nursing baby).  Nothing once The Last
    Heathen is solved (no Heathen baby is born then), with no room, no father or a pregnancy already.  The babies on
    their way (or born), 0 none. */
@@ -1211,7 +1260,7 @@ int __stdcall VvfpHeathenAgingEventPregnancy(int game, int mother, int father, i
     }
     woman = rec_at(mother);
     if (woman[R_FACTION] == 0 || !living(woman) || i32(woman, R_PREGNANT) != 0 || puzzle_done(LAST_HEATHEN)
-        || free_records() <= 0) {
+        || free_records() <= HA_ROOM_KEPT) {      /* the village's own births keep their records, as for the tribe's */
         return 0;
     }
     man = father >= 0 && (unsigned int)father < g_slots ? rec_at(father) : random_man(woman);
@@ -1229,8 +1278,8 @@ int __stdcall VvfpHeathenAgingEventPregnancy(int game, int mother, int father, i
             *(int *)(woman + R_PREGNANT) = i32(woman, R_PROCESSED) > 0 ? i32(woman, R_PROCESSED) : 1;
         }
         babies = litter < 1 ? 1 : litter > 3 ? 3 : litter;
-        if (babies > free_records()) {
-            babies = free_records();
+        if (babies > free_records() - HA_ROOM_KEPT) {
+            babies = free_records() - HA_ROOM_KEPT;
         }
         *(int *)(woman + R_LITTER) = babies;
         known_put(identity(woman), KIND_EXPECTING);

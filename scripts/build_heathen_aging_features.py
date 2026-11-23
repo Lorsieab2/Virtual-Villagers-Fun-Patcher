@@ -181,7 +181,7 @@ TRIBE_CHANGES = [
     "(role 17), with a living adult Heathen man, conceives on rand(400) == 0 each unit through 0x465E00 forced "
     "(father a random adult Heathen man), only while more than 10 records are free and The Last Heathen (puzzle 25) "
     "is unsolved; the twins and triplets counters "
-    "0x51D380 / 0x51D384 are put back. 40 units later (+0x1C4C + 0x28 < processed age, the stock birth's rule) each "
+    "0x51D380 / 0x51D384 are put back. 40 units later (+0x1C4C + 0x28 < processed age, the stock birth's rule), once the litter still leaves 10 records free (else the birth waits, the pregnancy kept), each "
     "baby is made by 0x46FD20 at age 40, a Heathen, with the parents' names, heads and bodies on its record "
     "(+0x1BC0, +0x1BD9, +0x1BF4..+0x1C00; the head the stock birth's rule, the parents' average +-1 on 95%), then "
     "the pregnancy and the carry (0x466420(-1)) are cleared. A pregnancy from before a woman turned Heathen, and the "

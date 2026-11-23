@@ -614,6 +614,27 @@ class Babies(unittest.TestCase):
         self.assertEqual((bargs[2], bargs[4], bargs[7], bargs[10], bargs[11]), (15, 0, 0, baby, 1),
                          "the child's head, no parents given (read from the record), the record, one baby")
 
+    def test_a_birth_waits_until_the_villages_reserve_stays_free(self):
+        # Codex (#850): delivery keeps HA_ROOM_KEPT (10) records free for the village's own births, as conception does.
+        v = Village((TRIBE,))
+        man = v.villager(1, heathen=True, sex=0, name="Kalo")
+        woman = v.villager(2, heathen=True, sex=1, name="Mele")
+        v.put32(woman + AGE, 601)
+        v.rand_answers.extend([0, 0])
+        v.life_tick()
+        self.assertEqual(len(v.conceived), 1)
+        for i in [0] + list(range(3, 140)):              # 10 records free: the baby would leave only 9
+            v.villager(i, heathen=False)
+        conceived = v.i32(woman, PREGNANT)
+        v.put32(woman + AGE, conceived + 42)
+        v.life_tick()
+        self.assertEqual(v.created, [], "deferred: the believers' reserve stays")
+        self.assertEqual(v.i32(woman, PREGNANT), conceived, "the pregnancy kept")
+        v.write(v.record(139) + PRESENT, b"\x00")        # one more free: 11
+        v.put32(woman + AGE, conceived + 43)
+        v.life_tick()
+        self.assertEqual(len(v.created), 1, "born once the reserve stays free")
+        _ = man
     def test_no_babies_with_the_former_row_alone_or_without_a_man(self):
         for flags, with_man in (((FORMER,), True), ((TRIBE,), False)):
             with self.subTest(flags=flags, man=with_man):
@@ -812,6 +833,15 @@ class SelfReview(unittest.TestCase):
         self.assertEqual(v.i32(woman, PREGNANT), 700)
         _ = man
 
+    def test_a_parentless_founder_whose_likes_change_as_she_turns_heathen_is_still_a_former_villager(self):
+        # Codex (#850): a Custom Island Event changes her dislikes, then makes her a Heathen, before the next look.
+        v = Village((FORMER,))
+        r = self._seen_then(v, name="Founder")           # no parents: only the turning says she was ours
+        v.write(r + DISLIKES, struct.pack("<3I", 9, 9, 9))
+        v.write(r + FACTION, b"\x01")
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 603, "seen turning under her new identity: she ages")
     def test_a_former_villager_whose_dislikes_change_in_place_still_ages(self):
         v = Village((FORMER,))
         r = self._seen_then(v)
@@ -864,6 +894,24 @@ class SelfReview(unittest.TestCase):
 
 
 class OfflineRenames(unittest.TestCase):
+    def test_a_moved_slots_file_is_retagged_and_read_there(self):
+        # Codex (#850): Copy / Move Player Slot retag the file's slot (offset 16) through vv_copy_slot, so the
+        # companion accepts it in the new slot.
+        if _skip():
+            self.skipTest(_skip())
+        import vv_copy_slot
+        v = Village((FORMER,))
+        OwedReplacements._slot(None, v, 3)
+        r = v.villager(1, heathen=True, name="Moved")       # no parents: only the file says she left the tribe
+        made = (struct.pack("<5I", 0x31414856, 2, 5, 1, 1) + struct.pack("<II", _identity(v, r), 1))
+        moved = vv_copy_slot.transform_binary(made, 1, 3, {}, "Tribe", "Tribe")
+        self.assertEqual(struct.unpack_from("<I", moved, 16)[0], 3, "the slot field retagged")
+        self.assertEqual(moved[:16] + moved[20:], made[:16] + made[20:], "nothing else changed")
+        path = "C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher\\Save 3\\Data\\Heathen Aging\\Heathen Aging - Save 3.dat"
+        v.files[path] = moved
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 602, "read in the new slot: a former villager who ages")
     def test_the_rename_planner_rekeys_the_heathen_aging_file(self):
         import tempfile
         import inspect
@@ -1031,6 +1079,46 @@ class CodexQueueAndBodies(unittest.TestCase):
             v.put32(at + 0x1C, v.u32(r + AGE))
         v.credit(v.record(5), 1)
         self.assertEqual(sum(v.export("VvfpHeathenAgingGrave", 5, e) for e in range(40)), 40)
+
+def _identity(v: Village, record: int) -> int:
+    """native/shared/custom_titles.h vv_title_identity: the name (0x19), the likes and dislikes (3 dwords each)."""
+    h = 2166136261
+    for b in v.read(record + NAME, 0x19).split(b"\0")[0]:
+        h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+    h = ((h ^ 0xFF) * 16777619) & 0xFFFFFFFF
+    for b in v.read(record + LIKES, 12) + v.read(record + DISLIKES, 12):
+        h = ((h ^ b) * 16777619) & 0xFFFFFFFF
+    return h or 1
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class AFullFile(unittest.TestCase):
+    """Codex (#850): a full file never loses a living villager's entry -- the entries of villagers no longer in the
+    village are pruned first."""
+
+    def test_a_full_file_prunes_the_gone_and_keeps_the_living(self):
+        v = Village((FORMER,))
+        OwedReplacements._slot(None, v, 1)
+        born = v.villager(1, heathen=True, parents=True, name="Born Here")   # born a Heathen (the file says so)
+        path = "C:\\Docs\\LDW\\Game\\Virtual Villagers Fun Patcher\\Save 1\\Data\\Heathen Aging\\Heathen Aging - Save 1.dat"
+        entries = [(_identity(v, born), 0)] + [(0x10000 + k, 1) for k in range(2047)]   # the oldest is the living one
+        v.files[path] = (struct.pack("<5I", 0x31414856, 2, 5, len(entries), 1)
+                         + b"".join(struct.pack("<II", who, kind) for who, kind in entries))
+        v.credit(born, 1)                                # the file read
+        self.assertEqual(v.i32(born, AGE), 600, "born a Heathen: not a former villager")
+        r = v.villager(3, heathen=False, name="Leaver")
+        v.credit(r, 1)
+        v.write(r + FACTION, b"\x01")                    # turns Heathen: a new entry into a full list
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 603, "the new former villager is written down")
+        v.credit(born, 1)
+        self.assertEqual(v.i32(born, AGE), 600, "...and the living born Heathen's entry was kept")
+        data = v.files.get(path, b"")
+        count = struct.unpack_from("<I", data, 12)[0]
+        kept = [struct.unpack_from("<II", data, 20 + 8 * k) for k in range(count)]
+        self.assertIn((_identity(v, born), 0), kept)
+        self.assertLess(count, 2048, "the gone villagers' entries pruned")
 
 ROWS = {
     "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
