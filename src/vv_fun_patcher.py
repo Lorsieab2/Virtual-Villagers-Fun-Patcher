@@ -13315,7 +13315,7 @@ STARTUP_LOADER_COMPANIONS_2 = (
     # and why, for VVFP Story Upgrades.dll's popup.
     "VVFP Faith Notice.dll",
     # Faith Loss is Doubled/Gains Halved (New Believers): starving and sick believers are decided once a crisis,
-    # 1 in 10 a Heathen, the rest kept at Faith 1 until fed and well.
+    # a Heathen 1 in 20 (starvation), 25 (sickness), 50 (hunger, too few believers), the rest kept at Faith 1.
     "VVFP Faith Loss.dll",
     # Yellow Fruit Trees are No Longer Unlimited (The Tree of Life): the Cooking Pit's fruit tree has a limited supply.
     "VVFP VV4 Fruit Supply.dll",

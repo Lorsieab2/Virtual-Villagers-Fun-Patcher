@@ -72,7 +72,12 @@
    ce_event's text is CE_TEXT_STORE bytes and ce_choice's labels CE_LABEL_STORE, so the record is larger; every field
    is otherwise where it was.  A version 1 file (written before) is still read -- its event, its question and its
    labels put into this layout (sq_from_v1) -- so an event queued before the upgrade is never lost. */
-#define SQ_VERSION 2u
+/* Version 3 (Codex, #836): the Breaking Point's Island Events log entry, who left (story_faith_notice.inc
+   faith_notice_log), follows the record -- an armed popup put back after a quit logs its names, never "Changes:
+   none".  Version 2's record is this one's beginning, up to `log_len` (SQ_V2_BYTES): a version 2 file is still read,
+   with no entry. */
+#define SQ_VERSION 3u
+#define SQ_VERSION_2 2u
 #define SQ_VERSION_1 1u
 #define SQ_PICK   1u
 #define SQ_CUSTOM 2u
@@ -115,7 +120,13 @@ typedef struct {
     int skip_remaining;
     int skip_done;
     int skip_notice;                        /* years the closing popup is to tell, when no step is left */
+    /* Version 3: with an armed Breaking Point (SQ_CUSTOM, ce_is_notice), its log entry (0: none) */
+    unsigned int log_len;
+    char log[FAITH_LOG_BYTES];
 } sq_file;
+
+/* Version 2's record: this one up to log_len, padded as that struct was (it ended with ints after 8-byte fields). */
+#define SQ_V2_BYTES ((unsigned int)((offsetof(sq_file, log_len) + 7u) & ~(size_t)7u))
 
 /* ---- Version 1 (read only) ----------------------------------------------------------------------------------
    The layout before the simple editor's text grew: ce_event's text was CE_TEXT_BYTES (600) bytes and ce_choice's
@@ -244,6 +255,32 @@ static int sq_parse(const unsigned char *data, unsigned int size, sq_file *f, ce
         }
         return 1;
     }
+    if (version == SQ_VERSION_2) {
+        /* Version 2: this record's beginning, with no log entry; its header made this build's. */
+        const sq_file *old = (const sq_file *)data;
+        if (size < SQ_V2_BYTES || old->layout[0] != sizeof(oc_settings) || old->layout[1] != sizeof(ce_event)
+            || old->layout[2] != sizeof(ce_choice) || old->layout[3] != SQ_V2_BYTES) {
+            return 2;
+        }
+        memset(f, 0, sizeof *f);
+        memcpy(f, data, offsetof(sq_file, log_len));
+        if (size == SQ_V2_BYTES + sizeof *choice) {
+            memcpy(choice, data + SQ_V2_BYTES, sizeof *choice);
+        } else if (size != SQ_V2_BYTES) {
+            return 2;
+        }
+        if ((f->have & SQ_CUSTOM) && f->ce_is_choice && size != SQ_V2_BYTES + sizeof *choice) {
+            return 2;
+        }
+        {
+            unsigned int magic = f->magic;
+            sq_header(f, (int)f->game, (int)f->slot);
+            if (magic != SQ_MAGIC) {
+                f->magic = 0u;              /* (refused by the caller's header check) */
+            }
+        }
+        return 1;
+    }
     if (size < sizeof *f) {
         return 2;
     }
@@ -252,6 +289,9 @@ static int sq_parse(const unsigned char *data, unsigned int size, sq_file *f, ce
         memcpy(choice, data + sizeof *f, sizeof *choice);
     } else if (size != sizeof *f) {
         return 2;
+    }
+    if (f->log_len >= sizeof f->log || f->log[f->log_len] != '\0') {
+        return 2;                           /* its log entry is not one string */
     }
     if ((f->have & SQ_CUSTOM) && f->ce_is_choice && size != sizeof *f + sizeof *choice) {
         return 2;                           /* its question is missing */
@@ -481,6 +521,16 @@ static void sq_capture(int game, sq_file *f) {
         f->ce = ce_armed_event;
         f->ce_is_choice = ce_armed_is_choice;
         f->ce_is_notice = ce_armed_is_notice;
+        if (ce_armed_is_notice && faith_notice_log_armed && game == FAITH_NOTICE_GAME
+            && lstrcmpA(ce_armed_event.title, faith_notice_event.title) == 0) {
+            /* the armed Breaking Point's log entry, who left (story_faith_notice.inc) */
+            f->log_len = (unsigned int)lstrlenA(faith_notice_log);
+            if (f->log_len >= sizeof f->log) {
+                f->log_len = sizeof f->log - 1u;
+            }
+            memcpy(f->log, faith_notice_log, f->log_len);
+            f->log[f->log_len] = '\0';
+        }
     } else if (ce_asked && ce_asked_game == game && ce_asked_event.game == game
                && story_village_is(game, &ce_asked_village) && !cg_owns_asked(game)) {
         f->have |= SQ_CUSTOM | SQ_ASKED;    /* the question waiting for a click */
@@ -529,7 +579,8 @@ static int sq_item_differs(const sq_file *a, const sq_file *b, unsigned int bit)
     case SQ_CUSTOM:
         return (a->have & SQ_ASKED) != (b->have & SQ_ASKED)
             || a->ce_is_choice != b->ce_is_choice || a->ce_is_notice != b->ce_is_notice
-            || memcmp(&a->ce, &b->ce, sizeof a->ce) != 0;
+            || memcmp(&a->ce, &b->ce, sizeof a->ce) != 0
+            || a->log_len != b->log_len || memcmp(a->log, b->log, a->log_len) != 0;
     case SQ_GONG:
         return memcmp(&a->gong, &b->gong, sizeof a->gong) != 0;
     default:
@@ -602,6 +653,12 @@ static unsigned int sq_restore(int game, int slot, sq_file *f, const ce_choice *
         ce_armed_event = f->ce;
         ce_armed_is_choice = f->ce_is_choice;
         ce_armed_is_notice = f->ce_is_notice;
+        if (f->ce_is_notice && f->log_len > 0u && f->log_len < sizeof f->log && game == FAITH_NOTICE_GAME) {
+            /* The Breaking Point put back: its log entry, who left, waits for its showing again. */
+            memcpy(faith_notice_log, f->log, (size_t)f->log_len + 1u);
+            lstrcpynA(faith_notice_event.title, f->ce.title, sizeof faith_notice_event.title);
+            faith_notice_log_armed = 1;
+        }
         if (f->ce_is_choice) {
             ce_armed_store = ce_asked ? 1 - ce_asked_store : 0;
             ce_choice_store[ce_armed_store] = *choice;
