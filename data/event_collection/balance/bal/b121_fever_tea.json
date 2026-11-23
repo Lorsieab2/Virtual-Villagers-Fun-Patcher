@@ -199,7 +199,7 @@
    "src": "L5545"
   },
   "c2": {
-   "text": "(subject) sets the leaves down carefully on a flat stone. \"Think,\" (subject.he/she) says. \"Fevers or warts?\" (healer) sits down, closes (subject.his/her) eyes, and thinks for so long that (subject) wonders if (subject.he/she) has fallen asleep...",
+   "text": "(subject) sets the leaves down carefully on a flat stone. \"Think,\" (subject.he/she) says. \"Fevers or warts?\" (healer) sits down, closes (healer.his/her) eyes, and thinks for so long that (subject) wonders if (healer.he/she) has fallen asleep...",
    "children": [
     {
      "next": "c2o1",

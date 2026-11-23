@@ -995,7 +995,7 @@
     {
       "source": "assets/event_collection/vv4/living-st_balance.pak",
       "destination": "Events/st_balance.pak",
-      "sha256": "2BD5881BE2F8B707775427FB12DAB085F638CF4B337F16D95578E7754887DAA2"
+      "sha256": "493BFDBC635F75DC1EF11141F582B4049DDB39AF3FEAD9754C896865D3600374"
     },
     {
       "source": "assets/event_collection/vv4/living-st_companio.pak",
@@ -1265,7 +1265,7 @@
     {
       "source": "assets/event_collection/vv4/living-st_rewrites.pak",
       "destination": "Events/st_rewrites.pak",
-      "sha256": "FDED56BF6FC5A3CFB9ED8955FEEEBD38D5FED43E8BDA5B7F9C397ADBC08C7FAC"
+      "sha256": "D46E098821E5DC1D4A50ED3748C3E0D6F24179449FDE7C555BD9A0C939B60027"
     },
     {
       "source": "assets/event_collection/vv4/living-st_rolemode.pak",
@@ -5185,7 +5185,7 @@
     {
       "source": "assets/event_collection/b121_fever_tea.cieg",
       "destination": "Events/782.cieg",
-      "sha256": "AF79BBC7E46B29F0928320DEDF58F37649C7EE6F6AA58DC9F00AEB339BFA73E8"
+      "sha256": "6FEA2897780C58C0DA9D8BC867C900F5A2FC1AD57F1785D6F3B60AD4321EC953"
     },
     {
       "source": "assets/event_collection/b122_night_roofs_flew.cieg",
@@ -5225,7 +5225,7 @@
     {
       "source": "assets/event_collection/b129_weaver_last_mat.cieg",
       "destination": "Events/790.cieg",
-      "sha256": "444E0A23EDC86E3299A4A72EDFD4DDA95E19EF5CD8D2C09848CAB07A4866A553"
+      "sha256": "860FF793E8239632993AC3A0F0E4525312A60AA047738C7DD8C1E4E716A0C662"
     },
     {
       "source": "assets/event_collection/b130_raft_dawn.cieg",
@@ -5235,7 +5235,7 @@
     {
       "source": "assets/event_collection/b131_knock_after.cieg",
       "destination": "Events/792.cieg",
-      "sha256": "018DF8CA6E28EB4DFA4FE429FA19FD16A1AEC404285D8967A11F6BF88D4710A7"
+      "sha256": "524AA00A51431690D40A9334229F7F523573D196F43BFEB6482018CC9AF9A0D7"
     },
     {
       "source": "assets/event_collection/b132_builders_wager.cieg",
@@ -5270,7 +5270,7 @@
     {
       "source": "assets/event_collection/b138_fisher_trip.cieg",
       "destination": "Events/799.cieg",
-      "sha256": "EC5305FA0E6252468FB5C7E73A58E25B6DE4993862D135C172A86EC792B76D8E"
+      "sha256": "6FC672BDFC36C2A4128D589CB6F6906B3F074F7C0B64422A6126D665890BBC3D"
     },
     {
       "source": "assets/event_collection/b139_bitter_berry_week.cieg",
@@ -5300,7 +5300,7 @@
     {
       "source": "assets/event_collection/b144_painter_pot.cieg",
       "destination": "Events/805.cieg",
-      "sha256": "3863AC7C2CDC9CE26B119EBE80AA0F9D38CEF1E3690EA55F9BD52E633DE8EFBE"
+      "sha256": "A8229F9301CAF05DB7EFCB7530CB42570283FD9D9D4DA0BC1D0356C13F95A33F"
     },
     {
       "source": "assets/event_collection/b145_rope_bridge.cieg",
@@ -5315,7 +5315,7 @@
     {
       "source": "assets/event_collection/b147_children_spring.cieg",
       "destination": "Events/808.cieg",
-      "sha256": "4A3994DBDF9AB230812E21E076F89FF57748CCD008D1B1B22CAD91BE731D31D4"
+      "sha256": "7D65B63758016727232B770DA45ED380184F4389F47ED90BC93F62D22B09610A"
     },
     {
       "source": "assets/event_collection/b148_termite_year.cieg",
@@ -5405,7 +5405,7 @@
     {
       "source": "assets/event_collection/b165_salve_clay_jar.cieg",
       "destination": "Events/826.cieg",
-      "sha256": "7CB2884FFEDC460633FDA20EF60247774B37A9833A515188D0B07F6C66EDF57E"
+      "sha256": "555CAFABF6DF6F45990B58F8DA0355A97720E22CE6A65983910CF466B0B6C261"
     },
     {
       "source": "assets/event_collection/b166_after_big_wave.cieg",
@@ -5415,7 +5415,7 @@
     {
       "source": "assets/event_collection/b167_elders_dance.cieg",
       "destination": "Events/828.cieg",
-      "sha256": "DA2F252EC09EFA43E9F6E0793A93B089F7BFDAAA5F90BF2169A168DFADC9B352"
+      "sha256": "A957D693E2E0446E38F813E427D0AB2AEA945D7C74D478020BC60F1387F5C22B"
     },
     {
       "source": "assets/event_collection/b168_race_reef.cieg",
@@ -5515,7 +5515,7 @@
     {
       "source": "assets/event_collection/b187_elder_hat.cieg",
       "destination": "Events/848.cieg",
-      "sha256": "B72A0878151DA5A1F20BE6ED3BF3700D6920FB89F6C3E001A9CDA3590E7BDE77"
+      "sha256": "6DEAFA456D494A7510B366C434FB5E958FD7534D826186076867AF750711E432"
     },
     {
       "source": "assets/event_collection/b188_thatcher_ladder.cieg",
@@ -5535,7 +5535,7 @@
     {
       "source": "assets/event_collection/b191_big_canoe.cieg",
       "destination": "Events/852.cieg",
-      "sha256": "05DB28B7317A07B935E3D2449287039DFB15152C0F8862D6ADF3008736611D83"
+      "sha256": "B42EEECC6EE59F699DF7D1DC2CCC832786B6F366AF26887E14B33D79A6BE7D28"
     },
     {
       "source": "assets/event_collection/b192_burning_fever.cieg",
@@ -5585,7 +5585,7 @@
     {
       "source": "assets/event_collection/b201_rain_drinker.cieg",
       "destination": "Events/862.cieg",
-      "sha256": "D909E807299FCF0325B1E8D4066A73FE49748898E976EA52F9AAC5FFB4D40DFD"
+      "sha256": "80A12233EF83ACA48D103AFCF68A7B1FBE71990EBD56FADDB94224F505A7D90B"
     },
     {
       "source": "assets/event_collection/b202_tag_champion.cieg",
@@ -5595,7 +5595,7 @@
     {
       "source": "assets/event_collection/b203_sleepy_spell.cieg",
       "destination": "Events/864.cieg",
-      "sha256": "E99ED79E6913BE3E4B9152A0764460CF825FCA9CE38F2196701A4B259818E048"
+      "sha256": "9DBCF2B65BD13801E1AB62CF10C32F7578373EC8AEA3DA57A14FF5084717C493"
     },
     {
       "source": "assets/event_collection/b204_scroll_bit.cieg",
@@ -5635,12 +5635,12 @@
     {
       "source": "assets/event_collection/b211_frog_dance.cieg",
       "destination": "Events/872.cieg",
-      "sha256": "1B61E04CDB726849B8142978939B9DF13AD2FD5D1141170F23E82B9474CA0CB5"
+      "sha256": "5E9EF7488F8DE2F227C62E21A3119F63EE79E9ADBCD032E2CD8F0CB55762580F"
     },
     {
       "source": "assets/event_collection/b212_last_canoe.cieg",
       "destination": "Events/873.cieg",
-      "sha256": "F433262E1C7F02E2F340AE2A8D6FC96E60B86A5DB59715CF5192DCE883796F34"
+      "sha256": "95806D98597D487E2F0AADC7FF2B0DC3D29C2C2456E957759C993C042BE8A49C"
     },
     {
       "source": "assets/event_collection/b213_seed_copy_tree.cieg",
@@ -5660,7 +5660,7 @@
     {
       "source": "assets/event_collection/b216_apprentice.cieg",
       "destination": "Events/877.cieg",
-      "sha256": "5EEA8D23F39AEC677E58E288934B67F1D40884B8D20DE2575C7BD9FB6E30F7AF"
+      "sha256": "B38BD7B50B0DE5D2A0E2BD453AF02499737AB2BFD738664356E5C2E069ADD390"
     },
     {
       "source": "assets/event_collection/b217_swapping_shells.cieg",
@@ -5770,7 +5770,7 @@
     {
       "source": "assets/event_collection/b238_island_wedding.cieg",
       "destination": "Events/899.cieg",
-      "sha256": "CFC786A0D52E071EF1D387C0A2D92BAE8D90F84E625EE848983071B365B062F2"
+      "sha256": "59471315C53EFF79B887A150A41838D46AD071A69C2BEA6E24843E8220969FCA"
     },
     {
       "source": "assets/event_collection/b239_long_night_fire.cieg",
@@ -5825,7 +5825,7 @@
     {
       "source": "assets/event_collection/b249_grandchild_spell.cieg",
       "destination": "Events/910.cieg",
-      "sha256": "6C443C2D6504F9C1E681FD0ADF4B84B82DE80D0E32F844C5A929848CEC51D664"
+      "sha256": "4F221FC5C5276A8432648BBED67D7D94C1CC15F03528E8F175B8DD7BD5515C05"
     },
     {
       "source": "assets/event_collection/b250_contest_best.cieg",
@@ -5870,7 +5870,7 @@
     {
       "source": "assets/event_collection/b258_game_went_too_far.cieg",
       "destination": "Events/919.cieg",
-      "sha256": "1047349A1FA049A4C04AC33BF0D2646690CA68C8621B0CE6FFC2D1D47B47526C"
+      "sha256": "C486ECF6013B0E4F78A1B8E1964696A9709CC21F81D887D86E1F9D7B02C9A3F3"
     },
     {
       "source": "assets/event_collection/b259_elder_wandered.cieg",
@@ -5950,17 +5950,17 @@
     {
       "source": "assets/event_collection/b274_hammock_built_two.cieg",
       "destination": "Events/935.cieg",
-      "sha256": "F5FFEF2D8DBE60B58454C8D3A131AC0ABC88956052E138D87C041C307651DF94"
+      "sha256": "8DAF13D407144D95CCD2ED1D2C5BDF73F82CBB498F5309FBAFC808EF2BD5D24F"
     },
     {
       "source": "assets/event_collection/b275_lights_reef.cieg",
       "destination": "Events/936.cieg",
-      "sha256": "952B509768B9513B24AF205B3B4E6E3641C4B6C2EAFA821419199A82DF574262"
+      "sha256": "57FD682A3177950DC6313FC95AF03022D7D65137A8C24A81E7CBFD1FBB0E5BD8"
     },
     {
       "source": "assets/event_collection/b276_swamp_fever.cieg",
       "destination": "Events/937.cieg",
-      "sha256": "69F182F35DF7CCE7834222199F4B3B591C8B7454C6742631DABEAC56984AF4C5"
+      "sha256": "C2DEBD6C3322649366C23DAB7A941541BC15D59579B118CEB1F7387FCE1BE0EC"
     },
     {
       "source": "assets/event_collection/b277_name_carved.cieg",
@@ -5975,7 +5975,7 @@
     {
       "source": "assets/event_collection/b279_hermit_children.cieg",
       "destination": "Events/940.cieg",
-      "sha256": "18F8FF3BF370B7EB2A1FA2FB6C7D2F2879E9F2ABEE1A49F40720FE52ED0C949F"
+      "sha256": "A5D95922180D78101762129D2A5B2985C6331403611F5F338183687EE9D27FB4"
     },
     {
       "source": "assets/event_collection/b280_two_carved_totems.cieg",
@@ -5985,7 +5985,7 @@
     {
       "source": "assets/event_collection/b281_lotus_opened_dawn.cieg",
       "destination": "Events/942.cieg",
-      "sha256": "3B68F79D283DCD6E1C5D7F2D85FBEFC500A8C00240B04F6EAA3E07BFCAA4BD46"
+      "sha256": "F4AE719D475557BD6A37766456229C4E447B4BFBC36984671BA6B0932A9E37DA"
     },
     {
       "source": "assets/event_collection/b282_grey_fog_off.cieg",
@@ -6045,7 +6045,7 @@
     {
       "source": "assets/event_collection/b293_potter_clay.cieg",
       "destination": "Events/954.cieg",
-      "sha256": "EFF0A361D0EF3A6B36856292CA29B8F35869E6DA5CA17E6B44EFD75A9C2E5CA3"
+      "sha256": "83CFEAFA1B15D5D81A9622EF2D1E10365DDA9A7D486C867523B30F1CB394FAFA"
     },
     {
       "source": "assets/event_collection/b294_eel_twin_pools.cieg",
@@ -6315,12 +6315,12 @@
     {
       "source": "assets/event_collection/b347_smoked_fish.cieg",
       "destination": "Events/1008.cieg",
-      "sha256": "781A2E881314D7C20E32FDC63A7A0AFFCE1AC221F54AE23D6B40331B43E5F64F"
+      "sha256": "D8D077D131FB848C5C5EEFC475DAD96FDCA886031FF2EB01D266698AAAC752BD"
     },
     {
       "source": "assets/event_collection/b348_map_wrinkles.cieg",
       "destination": "Events/1009.cieg",
-      "sha256": "5791D55BBD8EFE99F12597D6FC3AA4A21C4878821ABA1C5149DEE5737D4C08AE"
+      "sha256": "0A5AE668B30DA16463C8BF33CA53311CAD309E81DCEA98F9138E5ACF41A577E3"
     },
     {
       "source": "assets/event_collection/b349_teenagers_cave.cieg",
@@ -6330,7 +6330,7 @@
     {
       "source": "assets/event_collection/b350_second_naming.cieg",
       "destination": "Events/1011.cieg",
-      "sha256": "0B9BEE27F9AC945D8C038F09A5197EB8EA1F965D793D8F4E1796F69DF5A001C8"
+      "sha256": "517DC4D8B8762A82A9F0E060F095D657CD59B8E84332395B09D841BEE8B9F356"
     },
     {
       "source": "assets/event_collection/b351_bundle_breadfruit.cieg",
@@ -18960,7 +18960,7 @@
     {
       "source": "assets/event_collection/my062_flower_bloomed.cieg",
       "destination": "Events/3561.cieg",
-      "sha256": "8805D2C35FBB50A4D159222E96F44F888B7584019EDB3001B3BFB835542F993E"
+      "sha256": "C3EE11B3174C54154549C0B818CFBE366FC46D8B6E01092234AE71658651CA05"
     },
     {
       "source": "assets/event_collection/my063_bargain_hidden.cieg",
@@ -18985,7 +18985,7 @@
     {
       "source": "assets/event_collection/my067_hidden_companion.cieg",
       "destination": "Events/3566.cieg",
-      "sha256": "169DA46FAF57A91D409F71414DF863124CF3707E91349DF63C9DDEA6699B2E16"
+      "sha256": "EFA2FAFDB740F6B891C8F514334A9D208C5A610398F25A3285C03B0D32BD6B56"
     },
     {
       "source": "assets/event_collection/my068_box_last_word.cieg",
@@ -18995,7 +18995,7 @@
     {
       "source": "assets/event_collection/my069_watcher_cliff.cieg",
       "destination": "Events/3568.cieg",
-      "sha256": "5ACF2D1BA8373D6AFA4A90DC877EC9437F63FFE10A87DF85FA42082B9C661589"
+      "sha256": "94679F0839667CE0DAD16A82005C7CD79C87115AF843B4CDD3251FF36B1A2A9F"
     },
     {
       "source": "assets/event_collection/my070_beggar_returned.cieg",
@@ -19010,7 +19010,7 @@
     {
       "source": "assets/event_collection/my072_jar_two_sunrises.cieg",
       "destination": "Events/3571.cieg",
-      "sha256": "3747E25EEB24B215F5E8986FC23297E4DE35287C8853E757C51953E3C4BAD862"
+      "sha256": "D8A14CEA25F3E52CA44931B7EF864BB9E6ABC8F799FCAE58BA3A445A9E58F1EE"
     },
     {
       "source": "assets/event_collection/my073_dreamer_stranger.cieg",
@@ -19075,7 +19075,7 @@
     {
       "source": "assets/event_collection/my085_box_storms.cieg",
       "destination": "Events/3584.cieg",
-      "sha256": "10B1824A1A7B6A408E2E7D8C382458B0935E7F83955310B988ACCE052A1DAB24"
+      "sha256": "6706632C9B12CF24DABB3EEFD03EFFE5C46ADFF4F81B810D1DDCB43330848057"
     },
     {
       "source": "assets/event_collection/my086_last_lamp_ruins.cieg",
@@ -19140,7 +19140,7 @@
     {
       "source": "assets/event_collection/my098_stranger_funeral.cieg",
       "destination": "Events/3597.cieg",
-      "sha256": "7A839680D7E38B09372C621091B26D7428715089E65EA16EA8E17CF146C892EB"
+      "sha256": "D97E55EBF2A33145C5722A6C06EB8609A5D416811A2878BD4C259BC920B7FC8E"
     },
     {
       "source": "assets/event_collection/my099_hidden_cup_rain.cieg",
@@ -19160,7 +19160,7 @@
     {
       "source": "assets/event_collection/my102_god_garden.cieg",
       "destination": "Events/3601.cieg",
-      "sha256": "2D5E24F9571972ACF6B8FC07D8021592E7A26F964923AE81E1D14FD9446B57C8"
+      "sha256": "3A1DC002BFE3840746C6B1876E273709E0FE288640F32FDCED2D2E81400ED349"
     },
     {
       "source": "assets/event_collection/my103_jar_silent.cieg",
@@ -19500,7 +19500,7 @@
     {
       "source": "assets/event_collection/new105_night_exchanged.cieg",
       "destination": "Events/3669.cieg",
-      "sha256": "2BDFAF6217190AC07183122F26449B85E3F845242034798C7FDF3B0B78FE933B"
+      "sha256": "0E9B264BDF058CF317A2FA8D2BB59D51C8AD79037EDB074B3F0459AF261D1C92"
     },
     {
       "source": "assets/event_collection/new106_blessing_tree.cieg",
@@ -19515,7 +19515,7 @@
     {
       "source": "assets/event_collection/new108_spirit.cieg",
       "destination": "Events/3672.cieg",
-      "sha256": "C998E7B7F2EB6C04A1711306E98E3101280A9DBFF43A3FCE445C1619FD7CC373"
+      "sha256": "80152D66C8C8FD22AAB5A974BE038AB18A128EFAA40D14E19CF4E43CC643C5C2"
     },
     {
       "source": "assets/event_collection/new109_blue_flame.cieg",
@@ -19530,7 +19530,7 @@
     {
       "source": "assets/event_collection/new111_fishing_line.cieg",
       "destination": "Events/3675.cieg",
-      "sha256": "DDB9CC9D2F526C6E1E13F5AC1C87E3AD550716DD236595C4C677955CF70251C5"
+      "sha256": "FD58B4C729F7A9B6552AACBBED68FCF0BCA9C4D9159264BDFE00DA1ADB4EC5C6"
     },
     {
       "source": "assets/event_collection/new112_watch_night.cieg",
@@ -19595,7 +19595,7 @@
     {
       "source": "assets/event_collection/new124_teacher.cieg",
       "destination": "Events/3688.cieg",
-      "sha256": "1712BB00AFA4E43A14BBF63A8FA69368C38F1ED3AAF63BDCDEB585245CE5D6BE"
+      "sha256": "F7DBD17E3D759E96CF445D7192700720E4B93C5CBFF09A4A6911DE9D9C1FC084"
     },
     {
       "source": "assets/event_collection/new125_broken_toy_boat.cieg",
@@ -19630,12 +19630,12 @@
     {
       "source": "assets/event_collection/new131_elder_garden.cieg",
       "destination": "Events/3695.cieg",
-      "sha256": "D7035210F21FB122528D8F7E8E1BDCA6DA43A3670C5106F27296ED33BC570B11"
+      "sha256": "2FC7F083C61DBF134E4DFB27BC4114F3B1BB083342A1C7953803EC9C268C39FD"
     },
     {
       "source": "assets/event_collection/new132_forgotten_path.cieg",
       "destination": "Events/3696.cieg",
-      "sha256": "05C1E8A7E065EE11CEBFFBF7766A0A0371ADEAAE151B27C2182E2AF11F128403"
+      "sha256": "19E1C491C853C201F71946E7C91BA486B8772C49A7392B681B668B7F2B0D8E1B"
     },
     {
       "source": "assets/event_collection/new133_fisher_hands.cieg",
@@ -19650,12 +19650,12 @@
     {
       "source": "assets/event_collection/new135_teacher_retired.cieg",
       "destination": "Events/3699.cieg",
-      "sha256": "5D22877CCA845E6129199D7A7221240A2347FD45201562FFEBC0CFA03632ED84"
+      "sha256": "00D054845F7AFAFD3805EEB5C3E6002A9815B7E8F05D7DD248788E7F9B02E434"
     },
     {
       "source": "assets/event_collection/new136_letter_never.cieg",
       "destination": "Events/3700.cieg",
-      "sha256": "B0DC211DDE655919FC8DE1175670B5CF54B45068F246042506875BF9BA46BB86"
+      "sha256": "CBDEC3B92C52B4E123C52E9786AFD7261600F4C172442A7C52D14A3DF7240CC5"
     },
     {
       "source": "assets/event_collection/new137_last_dance.cieg",
@@ -19790,12 +19790,12 @@
     {
       "source": "assets/event_collection/new163_proposal.cieg",
       "destination": "Events/3727.cieg",
-      "sha256": "F85CEC562B97EDC259BF66368534445BDBD1DD2B2DDDE24EB7E0693BE736E8F3"
+      "sha256": "940A40E84C0278C6B602ED0B6C3BFE0A859D107C78E2CA4A02094FCD8CE8253F"
     },
     {
       "source": "assets/event_collection/new164_love_letter.cieg",
       "destination": "Events/3728.cieg",
-      "sha256": "C5DEF336E5A433B754EBCE0714519DAB77D6FD8410D7219E9DF8E99C5814191F"
+      "sha256": "389C57E4BB42EB4AFF5737F6FA42E203BE8CE17B9C589F027B854299EDBC7FBE"
     },
     {
       "source": "assets/event_collection/new165_couple_chose.cieg",
@@ -19815,7 +19815,7 @@
     {
       "source": "assets/event_collection/new168_friendship.cieg",
       "destination": "Events/3732.cieg",
-      "sha256": "E189CCA057CE2E4CEED3D5DD9DF2F9D671A64C484F2596E056EDC26353FE6A29"
+      "sha256": "6D5A60713C16B310E4D0F32771D459F14CFCB761814CB1E41BB36B5659A6B414"
     },
     {
       "source": "assets/event_collection/new169_old_couple_walk.cieg",
@@ -19825,7 +19825,7 @@
     {
       "source": "assets/event_collection/new170_newcomer_choice.cieg",
       "destination": "Events/3734.cieg",
-      "sha256": "085D3264BC9D5A75FA4B37D6EA75339D72FE50BEEB80EC2667015261BF53B454"
+      "sha256": "E7EAA834354A178C7D95D08CD2DF97DDF756A892E8643881015E3D4ACB2F0A62"
     },
     {
       "source": "assets/event_collection/new171_record_washed.cieg",
@@ -19880,7 +19880,7 @@
     {
       "source": "assets/event_collection/new181_apprentice.cieg",
       "destination": "Events/3745.cieg",
-      "sha256": "D529D111DC3E64DAFED45F97CA45398E35953BC9036CE01F42B92E76523E6048"
+      "sha256": "D3FEE852C27F8A7F48A887A030BACF7486A0843B4868B7EF73A0E4844A824265"
     },
     {
       "source": "assets/event_collection/new182_overworked.cieg",
@@ -19905,7 +19905,7 @@
     {
       "source": "assets/event_collection/new186_misunderstood.cieg",
       "destination": "Events/3750.cieg",
-      "sha256": "C161720D4064ED6DA84F3EE68DCAED49CDF7138BE36438B786AA61F1A325068F"
+      "sha256": "7F26F37B2873875FE8E9FC665C69B9429017DD1E9233D5282B2C1E5BE28D3627"
     },
     {
       "source": "assets/event_collection/new187_shared_harvest.cieg",

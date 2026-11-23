@@ -202,7 +202,7 @@
    ]
   },
   "c2o2": {
-   "text": "\"Good answer,\" says (elder). \"Here's something for free, then.\" And (subject.he/she) talks for an hour, not about fishing, but about (subject)'s own work, things (subject.he/she) has noticed watching (subject) over the years: what (subject) does well, what (subject) does badly, and why. It is the most useful hour of advice (subject) has ever had.",
+   "text": "\"Good answer,\" says (elder). \"Here's something for free, then.\" And (elder.he/she) talks for an hour, not about fishing, but about (subject)'s own work, things (elder.he/she) has noticed watching (subject) over the years: what (subject) does well, what (subject) does badly, and why. It is the most useful hour of advice (subject) has ever had.",
    "effects": [
     {
      "do": "skill",

@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) works harder than anyone in the village. First up, last to bed, never takes a day off, and can't understand people who do. (subject.His/her) family worry. (subject.He/She) has stopped coming to the fire in the evenings, and (subject.his/her) hands shake when (subject.he/she) eats.\n(apprentice), the healers' youngest apprentice, has made something to help: a little cake of crushed sleeping-flowers and honey, which (apprentice.he/she) says will \"slow (subject.him/her) down a bit.\" (apprentice.He/She) hasn't tested it. (subject.He/She) is very hopeful. (subject)'s family have hidden it in (subject)'s supper.\n(subject) has noticed the supper tastes of honey. Should (subject.he/she) eat it anyway, or push it away?",
+   "text": "(subject) works harder than anyone in the village. First up, last to bed, never takes a day off, and can't understand people who do. (subject.His/her) family worry. (subject.He/She) has stopped coming to the fire in the evenings, and (subject.his/her) hands shake when (subject.he/she) eats.\n(apprentice), the healers' youngest apprentice, has made something to help: a little cake of crushed sleeping-flowers and honey, which (apprentice.he/she) says will \"slow (subject.him/her) down a bit.\" (apprentice.He/She) hasn't tested it. (apprentice.He/She) is very hopeful. (subject)'s family have hidden it in (subject)'s supper.\n(subject) has noticed the supper tastes of honey. Should (subject.he/she) eat it anyway, or push it away?",
    "choices": [
     {
      "label": "Eat It Anyway",

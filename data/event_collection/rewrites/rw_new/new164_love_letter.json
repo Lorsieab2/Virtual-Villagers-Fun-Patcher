@@ -171,7 +171,7 @@
    "src": "L7947-7950"
   },
   "c1o1": {
-   "text": "(subject) explains that the poem was meant for (subject.him/her), and why, and admits every embarrassing bit of it, without demanding an answer. (friend) has heard the poem three times by now. \"It was very good,\" (friend.he/she) says, struggling not to laugh. \"The bit about the eyes. All four bits.\" Then (subject.he/she) asks if (subject) wants to walk with (subject.him/her) tomorrow.",
+   "text": "(subject) explains that the poem was meant for (subject.him/her), and why, and admits every embarrassing bit of it, without demanding an answer. (friend) has heard the poem three times by now. \"It was very good,\" (friend.he/she) says, struggling not to laugh. \"The bit about the eyes. All four bits.\" Then (friend.he/she) asks if (subject) wants to walk with (friend.him/her) tomorrow.",
    "src": "L7958"
   },
   "c1o2": {
@@ -215,7 +215,7 @@
    "src": "L7963"
   },
   "c3o1": {
-   "text": "(elder) listens with great interest to the whole story, and then, surprisingly, gives no orders at all. \"Go and tell (subject.him/her) yourself,\" (elder.he/she) says. \"And do it before I read it at the next feast.\" (subject) goes immediately.",
+   "text": "(elder) listens with great interest to the whole story, and then, surprisingly, gives no orders at all. \"Go and tell (friend.him/her) yourself,\" (elder.he/she) says. \"And do it before I read it at the next feast.\" (subject) goes immediately.",
    "src": "L7972"
   },
   "c3o2": {

@@ -166,11 +166,11 @@
    "src": "L6401"
   },
   "c1o2": {
-   "text": "(subject) holds out the bark. \"Will you sit and read it with me?\" (subject.His/Her) relatives, who were sure (subject.he/she) would want to be alone, are surprised. (young) reads it aloud, slowly, and (subject) says the faded words along with (subject.him/her). When they finish, (subject) tells (subject.him/her) all about (subject.his/her) friend, for hours.",
+   "text": "(subject) holds out the bark. \"Will you sit and read it with me?\" (subject.His/Her) relatives, who were sure (subject.he/she) would want to be alone, are surprised. (young) reads it aloud, slowly, and (subject) says the faded words along with (young.him/her). When they finish, (subject) tells (subject.him/her) all about (subject.his/her) friend, for hours.",
    "src": "L6403"
   },
   "c1": {
-   "text": "(young) sits down quietly on the floor beside (subject), and waits. After a while, (subject.he/she) asks gently what (subject) would like to do with the letter...",
+   "text": "(young) sits down quietly on the floor beside (subject), and waits. After a while, (young.he/she) asks gently what (subject) would like to do with the letter...",
    "children": [
     {
      "next": "c1o1",

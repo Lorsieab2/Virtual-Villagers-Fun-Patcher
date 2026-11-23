@@ -230,7 +230,7 @@
    "src": "L8791"
   },
   "c3o1": {
-   "text": "(mentor) doesn't say anything about the rack. Instead (subject.he/she) picks up two sticks and starts showing (subject) the cross-lashing: over, under, around, pull, the knot that keeps a rack standing for years. They practise until it's dark. The next morning, they build a new rack together, and (mentor) doesn't touch a single lashing.",
+   "text": "(mentor) doesn't say anything about the rack. Instead (mentor.he/she) picks up two sticks and starts showing (subject) the cross-lashing: over, under, around, pull, the knot that keeps a rack standing for years. They practise until it's dark. The next morning, they build a new rack together, and (mentor) doesn't touch a single lashing.",
    "effects": [
     {
      "do": "skill",

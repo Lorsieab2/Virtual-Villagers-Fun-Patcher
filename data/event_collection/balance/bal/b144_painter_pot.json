@@ -121,7 +121,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A visiting painter has set up on the beach: a cheerful, paint-stained stranger with a pot of colour made from crushed shells and the ink of a certain squid that, (painter) says, lives only in the deepest water off (subject.his/her) own island. \"What I paint in this,\" (painter) says, \"stays painted. Very long-lasting.\"\n(painter) wants to paint (subject). (subject.He/She) says (subject) has an interesting face. It's not clear whether (subject.he/she) means it as a compliment. (subject.He/She) has a wide flat stone ready, and a brush made of (subject.his/her) own hair.\nShould (subject) sit for the portrait, or ask for something else?",
+   "text": "A visiting painter has set up on the beach: a cheerful, paint-stained stranger with a pot of colour made from crushed shells and the ink of a certain squid that, (painter) says, lives only in the deepest water off (painter.his/her) own island. \"What I paint in this,\" (painter) says, \"stays painted. Very long-lasting.\"\n(painter) wants to paint (subject). (painter.He/She) says (subject) has an interesting face. It's not clear whether (painter.he/she) means it as a compliment. (painter.He/She) has a wide flat stone ready, and a brush made of (painter.his/her) own hair.\nShould (subject) sit for the portrait, or ask for something else?",
    "choices": [
     {
      "label": "Sit for the Portrait",
@@ -192,7 +192,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(painter) paints (subject)'s face, then the faces of half the village, then all the canoes, then the {@chief}'s door. By the end of the week (subject.he/she) has run out of paint and doesn't want to leave. \"I like it here,\" (subject.he/she) says. \"People sit still.\" (subject.He/She) stays, and the village is a great deal more colourful from then on.",
+   "text": "(painter) paints (subject)'s face, then the faces of half the village, then all the canoes, then the {@chief}'s door. By the end of the week (painter.he/she) has run out of paint and doesn't want to leave. \"I like it here,\" (painter.he/she) says. \"People sit still.\" (painter.He/She) stays, and the village is a great deal more colourful from then on.",
    "effects": [
     {
      "do": "new_villager",

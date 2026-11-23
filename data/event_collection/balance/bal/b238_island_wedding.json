@@ -160,7 +160,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "\"Three,\" says (friend), before (subject) can stop (subject.him/her). The village roars with laughter. (elder) ties the three-shell string round both their wrists, and it rattles...",
+   "text": "\"Three,\" says (friend), before (subject) can stop (friend.him/her). The village roars with laughter. (elder) ties the three-shell string round both their wrists, and it rattles...",
    "children": [
     {
      "next": "c1o1",

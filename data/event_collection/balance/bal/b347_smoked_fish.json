@@ -128,7 +128,7 @@
    "src": "L16024-16025"
   },
   "c1o1": {
-   "text": "The village tastes both, and chooses (subject)'s, by a lot. (cook) tastes it too, and goes very quiet. \"It's better,\" (cook.he/she) says, at last. From then on (subject) smokes the fish, and (cook), who has cooked for the village for twenty years, finds the cooking fire has lost its joy for (subject.him/her). (subject.He/She) doesn't say so. Everyone can see it.",
+   "text": "The village tastes both, and chooses (subject)'s, by a lot. (cook) tastes it too, and goes very quiet. \"It's better,\" (cook.he/she) says, at last. From then on (subject) smokes the fish, and (cook), who has cooked for the village for twenty years, finds the cooking fire has lost its joy for (cook.him/her). (cook.He/She) doesn't say so. Everyone can see it.",
    "effects": [
     {
      "do": "skill",

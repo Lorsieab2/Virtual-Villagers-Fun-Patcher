@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "For three nights now, small green lights have been bobbing out on the reef after dark, too steady for fireflies and too low for stars. The elders say they are the lanterns of the drowned, looking for a way home, and that nobody must ever row out to them. The children say the elders just want them in bed.\nTonight the lights are closer than ever. (subject) and (friend) are on the beach. (friend) is already pushing a canoe into the water. \"Come on,\" (friend.he/she) says. \"Don't you want to know?\"\nShould (subject) go with (subject.him/her), or try to talk (subject.him/her) out of it?",
+   "text": "For three nights now, small green lights have been bobbing out on the reef after dark, too steady for fireflies and too low for stars. The elders say they are the lanterns of the drowned, looking for a way home, and that nobody must ever row out to them. The children say the elders just want them in bed.\nTonight the lights are closer than ever. (subject) and (friend) are on the beach. (friend) is already pushing a canoe into the water. \"Come on,\" (friend.he/she) says. \"Don't you want to know?\"\nShould (subject) go with (friend.him/her), or try to talk (friend.him/her) out of it?",
    "choices": [
     {
      "label": "Go With (friend)",

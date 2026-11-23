@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(weaver) has woven every sleeping mat in the village for longer than anyone can remember. (weaver.His/her) fingers are knotted like old roots now, and (weaver.he/she) can't see the pattern any more, only feel it. (subject.He/She) has called (subject) to (subject.his/her) hut, and patted the mat beside (subject.him/her).\n\"I've one more in me,\" (weaver) says. \"One more mat. I'd like to teach you while I make it. Or I could make you something to wear instead, and you can learn the rest the hard way, like I did.\" (subject.His/her) hands are already reaching for the reeds.\nShould (subject) ask to be taught, or ask for something to wear?",
+   "text": "(weaver) has woven every sleeping mat in the village for longer than anyone can remember. (weaver.His/her) fingers are knotted like old roots now, and (weaver.he/she) can't see the pattern any more, only feel it. (weaver.He/She) has called (subject) to (weaver.his/her) hut, and patted the mat beside (subject.him/her).\n\"I've one more in me,\" (weaver) says. \"One more mat. I'd like to teach you while I make it. Or I could make you something to wear instead, and you can learn the rest the hard way, like I did.\" (subject.His/her) hands are already reaching for the reeds.\nShould (subject) ask to be taught, or ask for something to wear?",
    "choices": [
     {
      "label": "Ask to Be Taught",

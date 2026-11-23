@@ -171,7 +171,7 @@
    "src": "L11641"
   },
   "c2o1": {
-   "text": "(child) is so delighted to be listened to that (subject.he/she) presents (subject) with the seashell from the bundle, and starts calling (subject.him/her) by the name of the hero in the spell-keeper's shell story: \"Ponui\" for a man, \"Tonga\" for a woman. The other children pick it up within a day. Within a week, the adults are doing it too. (subject) pretends to be annoyed about it, and wears the shell on a string around (subject.his/her) neck for the rest of (subject.his/her) life.",
+   "text": "(child) is so delighted to be listened to that (child.he/she) presents (subject) with the seashell from the bundle, and starts calling (subject.him/her) by the name of the hero in the spell-keeper's shell story: \"Ponui\" for a man, \"Tonga\" for a woman. The other children pick it up within a day. Within a week, the adults are doing it too. (subject) pretends to be annoyed about it, and wears the shell on a string around (subject.his/her) neck for the rest of (subject.his/her) life.",
    "effects": [
     {
      "do": "change_name",

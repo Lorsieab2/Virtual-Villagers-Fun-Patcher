@@ -144,7 +144,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(subject)'s partner, (partner), is waiting at the edge of the pond and gives a little cry when (subject.he/she) sees what (subject) is carrying. They take the baby home together and spend the first night just looking at it. (friend) brings them a basket of yellow petals in the morning, a little wistfully, to line the sleeping basket.",
+   "text": "(subject)'s partner, (partner), is waiting at the edge of the pond and gives a little cry when (partner.he/she) sees what (subject) is carrying. They take the baby home together and spend the first night just looking at it. (friend) brings them a basket of yellow petals in the morning, a little wistfully, to line the sleeping basket.",
    "effects": [
     {
      "do": "nursing",

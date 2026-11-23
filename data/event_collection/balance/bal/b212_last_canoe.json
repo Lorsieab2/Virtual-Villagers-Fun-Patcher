@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(carver) has carved every canoe in the village for fifty years. (carver.His/her) eyes are going now, and (carver.his/her) hands shake, and (carver.he/she) says this canoe will be (carver.his/her) last. It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.\n(carver) has asked (subject) to help (subject.him/her) finish it. It will take all season. Or (subject) could ask (carver) to teach (subject.him/her) to carve while they work, which will take longer, and might mean it isn't finished at all.\nShould (subject) help finish the canoe, or ask to learn?",
+   "text": "(carver) has carved every canoe in the village for fifty years. (carver.His/her) eyes are going now, and (carver.his/her) hands shake, and (carver.he/she) says this canoe will be (carver.his/her) last. It is half carved, a great log on the beach, with the shape of the hull just coming out of the wood.\n(carver) has asked (subject) to help (carver.him/her) finish it. It will take all season. Or (subject) could ask (carver) to teach (subject.him/her) to carve while they work, which will take longer, and might mean it isn't finished at all.\nShould (subject) help finish the canoe, or ask to learn?",
    "choices": [
     {
      "label": "Help Finish It",

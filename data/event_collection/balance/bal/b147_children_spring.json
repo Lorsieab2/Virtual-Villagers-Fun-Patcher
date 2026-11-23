@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(child) has found a spring in the jungle that no grown-up knows about. (child.He/She) says the water tastes like sugarcane, and that anyone who drinks from it feels like running all day. (subject.He/She) has told no one else, except now (subject.he/she) has told (subject), because (subject) is (subject.his/her) favourite grown-up and has a bad back.\n\"Come and see,\" (child) says, pulling at (subject)'s hand. \"It'll fix your back. I promise.\" The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree. A ring of very small footprints goes all the way round it.\nShould (subject) drink from the children's spring?",
+   "text": "(child) has found a spring in the jungle that no grown-up knows about. (child.He/She) says the water tastes like sugarcane, and that anyone who drinks from it feels like running all day. (child.He/She) has told no one else, except now (child.he/she) has told (subject), because (subject) is (subject.his/her) favourite grown-up and has a bad back.\n\"Come and see,\" (child) says, pulling at (subject)'s hand. \"It'll fix your back. I promise.\" The spring, when they get there, is tiny, clear and bubbling, in a nest of roots under a fig tree. A ring of very small footprints goes all the way round it.\nShould (subject) drink from the children's spring?",
    "choices": [
     {
      "label": "Drink",

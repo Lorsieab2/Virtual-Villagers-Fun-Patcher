@@ -422,8 +422,91 @@ _AFTER_ANOTHER: dict[tuple[str, str], list[tuple[str, str]]] = {
     ("new186_misunderstood", "c3"): [("(subject.He/She) walks all the way around the canopy", "master")],
     ("new187_shared_harvest", "c3o2"): [('"My first channel," (subject.he/she) admits', "builder")],
 }
-for _k, _v in _AFTER_ANOTHER.items():
-    PRONOUNS[_k] = PRONOUNS.get(_k, []) + _v
+# The self-review's pass (2026-11-23): "(subject.he/she) ... (subject)" (the main villager's pronoun acting on the main
+# villager), "(subject) ... beside / with / to (subject.him/her)", and sentences opening with a word before the name.
+_REVIEW_3: dict[tuple[str, str], list[tuple[str, str]]] = {
+    ("b121_fever_tea", "c2"): [("closes (subject.his/her) eyes, and thinks for so long that (subject) wonders if "
+                                "(subject.he/she) has fallen asleep", "healer")],
+    ("b129_weaver_last_mat", "ask"): [("(subject.He/She) has called (subject) to (subject.his/her) hut", "weaver")],
+    ("b131_knock_after", "c2o2"): [("a baby of (subject.his/her) own", "healer")],
+    ("b138_fisher_trip", "ask"): [('one more time," (subject.he/she) says when (subject) runs down to stop '
+                                   "(subject.him/her)", "fisher"),
+                                  ("Should (subject) go with (subject.him/her), or try to talk (subject.him/her)",
+                                   "fisher")],
+    ("b138_fisher_trip", "c1o1"): [("(subject.He/She) just watches, and talks, and tells (subject) everything "
+                                    "(subject.he/she) knows", "fisher")],
+    ("b144_painter_pot", "ask"): [("off (subject.his/her) own island", "painter"),
+                                  ("(subject.He/She) says (subject) has an interesting face. It's not clear whether "
+                                   "(subject.he/she) means it as a compliment. (subject.He/She) has a wide flat stone "
+                                   "ready, and a brush made of (subject.his/her) own hair", "painter")],
+    ("b144_painter_pot", "c2o2"): [("By the end of the week (subject.he/she) has run out of paint and doesn't want to "
+                                    "leave. \"I like it here,\" (subject.he/she) says. \"People sit still.\" "
+                                    "(subject.He/She) stays", "painter")],
+    ("b147_children_spring", "ask"): [("(subject.He/She) has told no one else, except now (subject.he/she) has told "
+                                       "(subject)", "child")],
+    ("b165_salve_clay_jar", "c2o2"): [("(friend) gets better slowly, on (subject.his/her) own, and so does", "friend")],
+    ("b167_elders_dance", "c2o2"): [("Then (subject.he/she) asks (subject) to show (subject.him/her)", "elder")],
+    ("b187_elder_hat", "c2o1"): [("everything (subject.he/she) has learned in a lifetime", "elder"),
+                                 ("At the end of the month, (subject.he/she) gives (subject) the hat", "elder")],
+    ("b191_big_canoe", "c1o1"): [("Then (subject.he/she) takes (subject) by both shoulders", "builder")],
+    ("b201_rain_drinker", "c1o1"): [("(researcher) is so grateful (subject.he/she) brings", "researcher")],
+    ("b203_sleepy_spell", "ask"): [("(subject.He/She) is very hopeful", "apprentice")],
+    ("b211_frog_dance", "c2o1"): [("The healers say (subject.his/her) hip will mend", "elder")],
+    ("b212_last_canoe", "ask"): [("to help (subject.him/her) finish it", "carver")],
+    ("b216_apprentice", "c1o1"): [("When (healer) gets back, (subject.he/she) looks at (friend)", "healer")],
+    ("b238_island_wedding", "c1"): [("before (subject) can stop (subject.him/her)", "friend")],
+    ("b249_grandchild_spell", "c2o1"): [("that (subject.he/she) presents (subject)", "child")],
+    ("b258_game_went_too_far", "ask"): [("while (subject.he/she) was looking at the sunset", "friend")],
+    ("b274_hammock_built_two", "c2o1"): [("(subject) sits down beside (subject.him/her) and they retie it", "friend"),
+                                         ("With (subject) beside (subject.him/her)", "friend")],
+    ("b275_lights_reef", "ask"): [("Should (subject) go with (subject.him/her), or try to talk (subject.him/her)",
+                                   "friend")],
+    ("b276_swamp_fever", "c2o2"): [("(subject) sits with (subject.him/her) until morning", "sick")],
+    ("b279_hermit_children", "ask"): [("Today (subject.he/she) comes early", "hermit"),
+                                      ("(subject.He/She) looks at (subject) as if", "hermit"),
+                                      ("Should (subject) tell (subject.him/her)", "hermit")],
+    ("b281_lotus_opened_dawn", "c1o2"): [("gives a little cry when (subject.he/she) sees", "partner")],
+    ("b293_potter_clay", "ask"): [("Today (subject.he/she) has made one of (subject), sitting on (subject.his/her) shelf",
+                                   "potter")],
+    ("b347_smoked_fish", "c1o1"): [("lost its joy for (subject.him/her). (subject.He/She) doesn't say so", "cook")],
+    ("b348_map_wrinkles", "c2o2"): [("And (subject.he/she) talks for an hour", "elder"),
+                                    ("things (subject.he/she) has noticed", "elder")],
+    ("b350_second_naming", "ask"): [("the first person (subject.he/she) chooses", "elder")],
+    ("my062_flower_bloomed", "c2o2"): [("sits back on (subject.his/her) heels, baffled. \"I don't know what this is,\" "
+                                        "(subject.he/she) admits", "botanist"),
+                                       ("(subject.He/she) never finds it in any record, and though (subject.he/she) "
+                                        "searches", "botanist")],
+    ("my067_hidden_companion", "c1o2"): [("(subject.He/she) had not realized how lonely", "friend")],
+    ("my067_hidden_companion", "c2"): [("And (subject.he/she) listens as (subject) chatters", "friend")],
+    ("my069_watcher_cliff", "c3o1"): [("(subject.He/she) does not say who", "elder")],
+    ("my072_jar_two_sunrises", "c2o1"): [("(subject.He/she) hands the jar back to (subject) very gently", "elder")],
+    ("my085_box_storms", "c4"): [("(subject.He/she) promises (subject)", "friend")],
+    ("my098_stranger_funeral", "c3o1"): [("Then (subject.he/she) looks at (subject)'s pale face, and does not argue. "
+                                          "Instead (subject.he/she) takes", "friend")],
+    ("my098_stranger_funeral", "c3o2"): [('great-grandmother," (subject.he/she) says', "friend"),
+                                         ("(subject.He/she) takes (subject) to see the painting", "friend")],
+    ("my102_god_garden", "c4"): [("(subject.he/she) and (subject) start fixing", "friend")],
+    ("new105_night_exchanged", "c3o2"): [("(subject.He/She) teaches (subject) an old way", "elder")],
+    ("new108_spirit", "c3"): [("(elder) stops what (subject.he/she) is doing", "elder")],
+    ("new111_fishing_line", "c1o2"): [("at a gathering in (subject.his/her) life", "name3")],
+    ("new124_teacher", "c1o2"): [("just to (subject.him/her)", "teacher")],
+    ("new131_elder_garden", "c2"): [("asks if (subject.he/she) can watch", "young")],
+    ("new132_forgotten_path", "c1"): [("(subject.He/She) just asks (subject) to show (subject.him/her)", "young")],
+    ("new135_teacher_retired", "c2o1"): [("teaches (subject.his/her) first lesson", "young")],
+    ("new136_letter_never", "c1o2"): [("along with (subject.him/her)", "young")],
+    ("new136_letter_never", "c1"): [("After a while, (subject.he/she) asks gently", "young")],
+    ("new163_proposal", "c1"): [("Then (subject.he/she) sets it down", "friend")],
+    ("new164_love_letter", "c1o1"): [("Then (subject.he/she) asks if (subject) wants to walk with (subject.him/her)",
+                                      "friend")],
+    ("new164_love_letter", "c3o1"): [('"Go and tell (subject.him/her) yourself', "friend")],
+    ("new168_friendship", "c3o2"): [("(subject) thanks (subject.him/her)", "name3")],
+    ("new170_newcomer_choice", "c3o1"): [("(subject.He/She) leaves the decision to (subject)", "name3")],
+    ("new181_apprentice", "c3o1"): [("Instead (subject.he/she) picks up two sticks", "mentor")],
+    ("new186_misunderstood", "c3o1"): [("(subject.He/She) teaches (subject) how to anchor", "master")],
+}
+for _table in (_AFTER_ANOTHER, _REVIEW_3):
+    for _k, _v in _table.items():
+        PRONOUNS[_k] = PRONOUNS.get(_k, []) + _v
 
 ALL = "*all*"
 _HURT = ("preference", "old_look")     # "(X) has a PERMANENT DISABILITY ...; now dislikes Y; "old" head look"
@@ -469,9 +552,11 @@ def apply(event_id: str, nodes: dict) -> None:
             continue
         node = nodes[nid]
         for snippet, role in pairs:
-            assert "(subject." in snippet, (eid, nid, snippet)
+            if "(subject." not in snippet:
+                raise ValueError(f"{eid} {nid}: {snippet!r} holds no (subject. pronoun")
             n = node["text"].count(snippet)
-            assert n == 1, f"{eid} {nid}: {snippet!r} found {n} times"
+            if n != 1:
+                raise ValueError(f"{eid} {nid}: {snippet!r} found {n} times (a stale entry)")
             node["text"] = node["text"].replace(snippet, snippet.replace("(subject.", f"({role}."))
     for (eid, nid), moves in EFFECTS.items():
         if eid != event_id:
@@ -489,4 +574,5 @@ def apply(event_id: str, nodes: dict) -> None:
                             e["target"] = {"all": True}
                         else:
                             e["role"] = new
-            assert hits, f"{eid} {nid}: no {do} on {old}"
+            if not hits:
+                raise ValueError(f"{eid} {nid}: no {do} on {old} (a stale entry)")

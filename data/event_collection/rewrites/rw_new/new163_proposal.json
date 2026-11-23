@@ -172,7 +172,7 @@
    "src": "L7911"
   },
   "c1": {
-   "text": "(friend) fishes out the ladle, very slowly, buying time. Then (subject.he/she) sets it down and looks at (subject)...",
+   "text": "(friend) fishes out the ladle, very slowly, buying time. Then (friend.he/she) sets it down and looks at (subject)...",
    "children": [
     {
      "next": "c1o1",

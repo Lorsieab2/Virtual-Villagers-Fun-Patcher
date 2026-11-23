@@ -239,7 +239,7 @@
    ]
   },
   "c3o2": {
-   "text": "(elder) presses an ear to the hut floor. \"Spirits move through hollow places. Listen.\" (subject.He/She) teaches (subject) an old way of tapping and listening for echoes through the floor. They find no spirits, but they do find two hollow, rotting floor posts that nobody knew about. The builders start using the trick everywhere. The voices come home that night.",
+   "text": "(elder) presses an ear to the hut floor. \"Spirits move through hollow places. Listen.\" (elder.He/She) teaches (subject) an old way of tapping and listening for echoes through the floor. They find no spirits, but they do find two hollow, rotting floor posts that nobody knew about. The builders start using the trick everywhere. The voices come home that night.",
    "effects": [
     {
      "do": "tech",

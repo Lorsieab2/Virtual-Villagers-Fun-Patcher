@@ -175,7 +175,7 @@
    "src": "L8682"
   },
   "c2o1": {
-   "text": "(elder) spends the next month with (subject), every morning, teaching (subject.him/her) everything (subject.he/she) has learned in a lifetime about (subject)'s own work. At the end of the month, (subject.he/she) gives (subject) the hat anyway, and tells (subject.him/her) to put it in a basket until (subject.he/she) is ready.",
+   "text": "(elder) spends the next month with (subject), every morning, teaching (subject.him/her) everything (elder.he/she) has learned in a lifetime about (subject)'s own work. At the end of the month, (elder.he/she) gives (subject) the hat anyway, and tells (subject.him/her) to put it in a basket until (subject.he/she) is ready.",
    "effects": [
     {
      "do": "skill",

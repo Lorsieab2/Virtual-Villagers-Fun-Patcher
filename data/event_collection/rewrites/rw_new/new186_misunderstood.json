@@ -217,7 +217,7 @@
    "src": "L9035"
   },
   "c3o1": {
-   "text": "Finally (master) says, \"It's good. But it'll come down in the first storm.\" (subject.He/She) teaches (subject) how to anchor a canopy so it can stand up to the wind: guy ropes, deep-set poles, angled bracing. They rebuild it together, smaller, over the seedlings. It survives three storms. (subject) learns more about building in those few days than in a whole year.",
+   "text": "Finally (master) says, \"It's good. But it'll come down in the first storm.\" (master.He/She) teaches (subject) how to anchor a canopy so it can stand up to the wind: guy ropes, deep-set poles, angled bracing. They rebuild it together, smaller, over the seedlings. It survives three storms. (subject) learns more about building in those few days than in a whole year.",
    "effects": [
     {
      "do": "skill",

@@ -131,7 +131,7 @@
    "src": "L10042-10044"
   },
   "c1o1": {
-   "text": "The fever breaks at midnight. By morning the spots are fading. When (healer) gets back, (subject.he/she) looks at (friend), and at (subject), and nods once. That's all. It is the proudest moment of (subject)'s life, and (subject.he/she) is a much better healer for having done it alone.",
+   "text": "The fever breaks at midnight. By morning the spots are fading. When (healer) gets back, (healer.he/she) looks at (friend), and at (subject), and nods once. That's all. It is the proudest moment of (subject)'s life, and (subject.he/she) is a much better healer for having done it alone.",
    "effects": [
     {
      "do": "cure",

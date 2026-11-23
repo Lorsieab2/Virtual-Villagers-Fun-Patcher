@@ -3560,16 +3560,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3607,16 +3613,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3666,16 +3678,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3709,16 +3727,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3756,16 +3780,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3799,16 +3829,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3837,16 +3873,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3901,16 +3943,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3939,16 +3987,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -3988,16 +4042,22 @@
          "visited": "a1_h"
         },
         {
-         "visited": "a1_i"
-        },
-        {
          "visited": "d_out"
         },
         {
          "visited": "a1_25_dq"
         },
         {
-         "visited": "f14"
+         "all": [
+          {
+           "visited": "a1_24_win"
+          },
+          {
+           "not": {
+            "visited": "a1_18_2"
+           }
+          }
+         ]
         }
        ]
       }
@@ -4022,16 +4082,22 @@
          "visited": "a1_h"
         },
         {
-         "visited": "a1_i"
-        },
-        {
          "visited": "d_out"
         },
         {
          "visited": "a1_25_dq"
         },
         {
-         "visited": "f14"
+         "all": [
+          {
+           "visited": "a1_24_win"
+          },
+          {
+           "not": {
+            "visited": "a1_18_2"
+           }
+          }
+         ]
         }
        ]
       }
@@ -4063,16 +4129,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -4106,16 +4178,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }
@@ -4149,16 +4227,22 @@
            "visited": "a1_h"
           },
           {
-           "visited": "a1_i"
-          },
-          {
            "visited": "d_out"
           },
           {
            "visited": "a1_25_dq"
           },
           {
-           "visited": "f14"
+           "all": [
+            {
+             "visited": "a1_24_win"
+            },
+            {
+             "not": {
+              "visited": "a1_18_2"
+             }
+            }
+           ]
           }
          ]
         }

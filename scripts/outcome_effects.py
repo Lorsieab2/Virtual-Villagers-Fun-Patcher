@@ -147,10 +147,13 @@ INJURIES = re.compile(r"\b(falls?|fell|fallen|injur\w*|wound\w*|accident\w*|crus
                       r"|slips?|slipped|collaps\w*|landslide|rockfall|broken|gored|mauled|burn(?:s|ed|t)?)\b", re.I)
 
 
-# A page that tells of a peaceful death ("dies peacefully in (his/her) sleep", "sitting peacefully against the rocks")
-# never says "suffers fatal injuries", whatever else it mentions (a knot "that never slips", a torch "burnt out"): it
-# keeps the plain "<R> dies." (the lines audit, 2026-11-22).
-PEACEFUL = re.compile(r"\b(peacefully|in (?:\([^()]*\)|his|her|their) sleep)", re.I)
+# A page whose death itself is told as peaceful ("dies peacefully in (his/her) sleep", "is found in the morning,
+# sitting peacefully against the rocks") never says "suffers fatal injuries", whatever else it mentions (a knot "that
+# never slips", a torch "burnt out"): it keeps the plain "<R> dies." (the lines audit, 2026-11-22).  Only the death
+# verb followed closely by the peaceful words counts, so a violent death that mentions sleep ("the tree falls on the
+# hut where (name) is sleeping") keeps its injury line.
+PEACEFUL = re.compile(r"\b(?:dies|died|is found|was found|passes away|passed away|slips away)\b[^.!?]{0,40}?"
+                      r"\b(?:peacefully|in (?:\([^()]*\)|his|her|their) sleep)", re.I)
 
 
 def _page_words(node: dict) -> str:

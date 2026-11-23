@@ -166,7 +166,7 @@
    "src": "L5825"
   },
   "c1o2": {
-   "text": "(subject) opens (subject.his/her) mouth, looks at all the faces staring at (subject.him/her), and goes completely red. \"...I'll say it tomorrow,\" (subject.he/she) whispers. Nobody pushes. The next morning, (subject) shuffles up to (teacher) before lessons and explains it all, very quietly, just to (subject.him/her).",
+   "text": "(subject) opens (subject.his/her) mouth, looks at all the faces staring at (subject.him/her), and goes completely red. \"...I'll say it tomorrow,\" (subject.he/she) whispers. Nobody pushes. The next morning, (subject) shuffles up to (teacher) before lessons and explains it all, very quietly, just to (teacher.him/her).",
    "src": "L5827"
   },
   "c1": {

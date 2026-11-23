@@ -171,7 +171,7 @@
    "src": "L12771"
   },
   "c2o1": {
-   "text": "(subject) sits down beside (subject.him/her) and they retie it together, properly this time, with the knot (subject)'s mother taught her. It takes all afternoon, and it's the best afternoon they've spent together in months. (friend) has always hated the fiddly side of building, the knots and the lashings that never sit right. With (subject) beside (subject.him/her), they stop being fiddly and start being satisfying.",
+   "text": "(subject) sits down beside (friend.him/her) and they retie it together, properly this time, with the knot (subject)'s mother taught her. It takes all afternoon, and it's the best afternoon they've spent together in months. (friend) has always hated the fiddly side of building, the knots and the lashings that never sit right. With (subject) beside (friend.him/her), they stop being fiddly and start being satisfying.",
    "effects": [
     {
      "do": "skill",

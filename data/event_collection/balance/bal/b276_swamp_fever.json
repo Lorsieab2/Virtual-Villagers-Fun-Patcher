@@ -194,7 +194,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "On the third night, (sick) goes quiet, and then still. (subject) sits with (subject.him/her) until morning. The village buries (sick) on the hill, away from the swamp. That season, the healers cut a path through the reeds to the fever trees, so that next time nobody has to choose.",
+   "text": "On the third night, (sick) goes quiet, and then still. (subject) sits with (sick.him/her) until morning. The village buries (sick) on the hill, away from the swamp. That season, the healers cut a path through the reeds to the fever trees, so that next time nobody has to choose.",
    "effects": [
     {
      "do": "kill",

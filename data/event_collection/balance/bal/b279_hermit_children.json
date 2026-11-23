@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(hermit) has lived alone in a hut on the far side of the island for as long as anyone can remember. (hermit.He/She) comes to the village twice a year to trade dried fish for salt and doesn't talk to anybody. Today (subject.he/she) comes early, out of season, and finds (subject).\n\"My children,\" (hermit) says. \"They left for another island when they were young. A trader says they're coming back to find me. But I don't know if I want them to.\" (subject.He/She) looks at (subject) as if (subject) will know the answer.\nShould (subject) tell (subject.him/her) to welcome them, or offer to meet them first and see how things stand?",
+   "text": "(hermit) has lived alone in a hut on the far side of the island for as long as anyone can remember. (hermit.He/She) comes to the village twice a year to trade dried fish for salt and doesn't talk to anybody. Today (hermit.he/she) comes early, out of season, and finds (subject).\n\"My children,\" (hermit) says. \"They left for another island when they were young. A trader says they're coming back to find me. But I don't know if I want them to.\" (hermit.He/She) looks at (subject) as if (subject) will know the answer.\nShould (subject) tell (hermit.him/her) to welcome them, or offer to meet them first and see how things stand?",
    "choices": [
     {
      "label": "Tell (subject.Him/Her) to Welcome Them",

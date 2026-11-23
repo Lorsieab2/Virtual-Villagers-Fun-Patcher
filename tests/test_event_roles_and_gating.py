@@ -45,9 +45,17 @@ GRACIOUS_LOSER = ("vows to beat (cook2.him/her) next year", "congratulates them 
                   "gives words of encouragement", "is thankful (cook1.he/she) got to compete with (cook2.him/her)",
                   "challenges (cook2.him/her) to another cook-off soon!")
 # The pages after which Cook 1 did not lose a fair contest: sabotage caught (sab1, sab2), Cook 1's own sabotage
-# (end_f), confession (a1_h), ruining the dish on purpose (a1_i), disqualification (d_out, a1_25_dq), and Cook 1's
-# dish making the judges ill (f14; the judges then "judge the other dish instead" or declare Cook 2 the winner).
-NOT_A_FAIR_LOSS = ("sab1", "sab2", "end_f", "a1_h", "a1_i", "d_out", "a1_25_dq", "f14")
+# (end_f), confession (a1_h), disqualification (d_out, a1_25_dq), and the judges handing Cook 2 the win after Cook 1
+# ruined the dish on purpose (a1_24_win) -- unless the reason was that Cook 1 "secretly wanted (cook2) to win" (a1_18_2).
+# An honest accident (f14: the judges fell ill from Cook 1's dish) is a fair loss: every gracious line fits.
+NOT_A_FAIR_LOSS = ("sab1", "sab2", "end_f", "a1_h", "d_out", "a1_25_dq")
+WATCH = NOT_A_FAIR_LOSS + ("a1_24_win", "a1_18_2", "f14", "a1_i")
+
+
+def unfair(vis: frozenset) -> bool:
+    return bool(vis & set(NOT_A_FAIR_LOSS)) or ("a1_24_win" in vis and "a1_18_2" not in vis)
+
+
 # Every page that leads straight to win2, and Cook 1's two first choices
 ROADS = ("d_out", "a1_25_dq", "f11_pretend", "a1_17_1", "a1_17_2b", "a1_17_3a", "a1_17_4a", "a1_24_win", "f14_other",
          "six1", "f15_other", "one2_2", "one3_2", "one4_2", "one5_2", "win_either", "v13a_a2", "sab1", "stick", "new")
@@ -121,8 +129,8 @@ class CookingContest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.doc = json.loads((COLLECTION / "original" / "vv2_cooking_contest.json").read_text(encoding="utf-8"))
-        cls.win2 = walk(cls.doc, "win2", ROADS + NOT_A_FAIR_LOSS)
-        cls.win1 = walk(cls.doc, "win1", NOT_A_FAIR_LOSS)
+        cls.win2 = walk(cls.doc, "win2", ROADS + WATCH)
+        cls.win1 = walk(cls.doc, "win1", WATCH)
 
     def test_the_walk_reaches_every_road_to_win2(self):
         reached = set().union(*self.win2)
@@ -146,18 +154,20 @@ class CookingContest(unittest.TestCase):
             self.assertIn(item, [it["text"] for it in self.doc["pools"]["Q2"]["items"]])
         bad = []
         for vis in self.win2:
-            hit = vis & set(NOT_A_FAIR_LOSS)
-            if not hit:
+            if not unfair(vis):
                 continue
             got = set(eligible(self.doc, "Q2", vis)) & set(GRACIOUS_LOSER)
             if got:
-                bad.append((sorted(hit), sorted(got)[:3]))
+                bad.append((sorted(vis & set(WATCH)), sorted(got)[:3]))
         self.assertFalse(bad, bad[:5])
 
     def test_a_fair_loss_keeps_every_line(self):
-        fair = [v for v in self.win2 if not v & set(NOT_A_FAIR_LOSS) and "seven" not in v]
-        self.assertTrue(fair)
-        self.assertTrue(set(GRACIOUS_LOSER) <= set(eligible(self.doc, "Q2", fair[0])))
+        """Every fair road to win2 (an honest accident, f14; Cook 1 wanting Cook 2 to win, a1_18_2; a plain loss)
+        keeps all the gracious lines."""
+        fair = [v for v in self.win2 if not unfair(v) and "seven" not in v]
+        self.assertTrue(any("f14" in v for v in fair) and any("a1_18_2" in v for v in fair))
+        for vis in fair:
+            self.assertTrue(set(GRACIOUS_LOSER) <= set(eligible(self.doc, "Q2", vis)), sorted(vis & set(WATCH)))
 
 
 # ---- A peaceful death never "suffers fatal injuries" ----------------------------------------------------------------
@@ -178,6 +188,11 @@ class PeacefulDeath(unittest.TestCase):
                         "slips."}
         self.assertIsNone(oe.wording(page, {"do": "kill"}))
         self.assertEqual(oe.wording({"text": "(Name) slips on the rocks and falls."}, {"do": "kill"}), "injuries")
+        # a violent death that mentions sleep keeps its injury line
+        violent = {"text": "In the night the old tree falls on the hut, crushing (name) in (his/her) sleep."}
+        self.assertEqual(oe.wording(violent, {"do": "kill"}), "injuries")
+        self.assertEqual(oe.wording({"text": "(Name) was sleeping peacefully when the cliff collapsed."},
+                                    {"do": "kill"}), "injuries")
 
     def test_no_file_says_fatal_injuries_for_a_peaceful_death(self):
         bad = []
@@ -268,7 +283,6 @@ def allowed(stem: str, nid: str, sentence: str, table=ALLOWED) -> bool:
 # someone the event does not cast.
 ALLOWED_AFTER = {
     ("b186_dolphin_waits", "ask", "(subject.His/her) grandmother said dolphins"),
-    ("b203_sleepy_spell", "ask", "(subject.He/She) is very hopeful"),
     ("b210_grandchild_wish", "c1o1", "The storyteller sits down heavily"),
     ("b258_game_went_too_far", "c2o2", "(subject.He/She) gives the bag of stones"),
     ("b261_dream_sharing_tea", "c2o1", '"Your knees,"'),
@@ -305,10 +319,103 @@ def after_another_suspects(doc: dict, stem: str) -> list[tuple[str, str, str]]:
     return out
 
 
+# Three more shapes, in events that cast two or more villagers:
+#  A  the main villager's he/she / his/her acting on the main villager by name: "(subject.He/She) takes (subject) by
+#     both shoulders" -- the pronoun is someone else's;
+#  B  the main villager by name, then "stop / tell / help / with / to / beside / thanks" the main villager's him/her:
+#     "(subject) sits with (subject.him/her) until morning";
+#  C  a sentence that opens with a word or two before another villager's name ("Before (friend) can start, (name3) ...
+#     in (subject.his/her) life"), with the main villager not named.
+# Each hit is listed below as read and right, or about someone the event does not cast.  (stem, node, words of the hit)
+SHAPE_A = re.compile(r"\(subject\.(?:he/she|his/her)\)[^.!?\"]{0,40}?\(subject\)(?!')", re.I)
+SHAPE_B = re.compile(r"\(subject\)[^.!?\"]{0,30}?\b(?:stop|tell|help|with|to|beside|thanks)\s\(subject\.him/her\)")
+LEAD_WORDS = re.compile(r"^(?:[A-Z][a-z]+,?\s+){1,3}\((\w+)\)")
+ALLOWED_SHAPES = {
+    ("b017_child_followed", "c2o1", "(subject.his/her) name to check, (subject)"),
+    ("b026_sleepwalker", "c2o2", "where (subject.he/she) was standing, (subject)"),
+    ("b137_red_fish_supper", "ask", "But (fisher)'s grandmother, (subject.he/she) remembers"),
+    ("b142_fig_fruits_once", "c2o1", "tell (subject.him/her) to expect"),
+    ("b174_falling_star", "c1o2", "settle beside (subject.him/her)"),
+    ("b192_burning_fever", "c2", "sit with (subject.him/her) all night"),
+    ("b194_canoe_shed_baby", "c1o1", "will show it to (subject.him/her)"),
+    ("b199_chief_bad_day", "c1o2", "laughs so hard (subject.he/she) has to sit down, and says (subject)"),
+    ("b203_sleepy_spell", "c2o1", "just tell (subject.him/her) why"),
+    ("b256_traveller", "ask", "(subject.He/She) looks straight at (subject)"),
+    ("b270_festival_floating", "c1o2", "for (subject.his/her) own family, (subject)"),
+    ("b287_fever_burns_away", "c1o1", "asks how (subject.he/she) feels, (subject)"),
+    ("b290_sleepwalker", "ask", "Should (friend) wake (subject.him/her)"),
+    ("b310_carver_masks", "c2o1", "(subject.his/her) face has changed: still (subject)"),
+    ("b320_sister_hills", "c2o2", "(subject.He/She) sits by (subject)"),
+    ("my003_second_footprint", "c3o2", "(subject.he/she) spots (subject)"),
+    ("my017_woman_last_house", "c1", "courage (subject.he/she) has, (subject)"),
+    ("my058_beggar_request", "c2o1", "(subject.He/She) tells (subject)"),
+    ("my062_flower_bloomed", "ask", "On (subject.his/her) morning walk"),
+    ("my063_bargain_hidden", "c3o1", "Then (subject.he/she) tells (subject) the way"),
+    ("my072_jar_two_sunrises", "c3o2", "(subject.He/she) and (subject) talk until sunset"),
+    ("my073_dreamer_stranger", "c4o2", "(subject.He/she) just looks at (subject)"),
+    ("my073_dreamer_stranger", "c4o2", "as though (subject.he/she) knows (subject)"),
+    ("my075_stone_boat", "c4o1", "(subject.He/she) shows (subject)"),
+    ("my091_unfinished", "c3o1", "(subject.He/she) looks at (subject) thoughtfully"),
+    ("my098_stranger_funeral", "c1o1", "(subject.He/she) bows to (subject)"),
+    ("my100_stranger_two", "c3o2", "where (subject.he/she) sat, (subject)"),
+    ("my111_wandering", "ask", "(subject.he/she) is gone up the road before (subject)"),
+    ("new114_council_empty", "c1o1", "Once (subject.he/she) understands, (subject)"),
+    ("new121_scientist", "ask", "(subject.his/her) family's hut, little (subject)"),
+    ("new124_teacher", "c1o1", "thanks (subject.him/her) in front of everyone"),
+    ("new126_child_feared", "c3", "sits with (subject.him/her) in the doorway"),
+    ("new140_bench_sun", "c1o2", "With (young) on one side"),
+    ("new162_farmer_shy", "ask", "looks (subject.his/her) way, (subject)"),
+    ("new181_apprentice", "c3", "beside (subject.him/her)"),
+    ("new182_overworked", "ask", "(subject.his/her) table, (subject)"),
+    ("new186_misunderstood", "c1", "The head builder clears (subject.his/her) throat"),
+    ("new189_night_shift", "c1o1", "(subject.his/her) mat and looking at the walls, (subject)"),
+    ("new190_worker_said", "ask", "listen to (subject.him/her)"),
+    ("s030_fisher_tide", "c1o2", "happened to (subject.him/her) three times"),
+    ("s090_baby_ferns", "c2o1", "(subject.his/her) heartbeat, and (subject)"),
+}
+
+
+def shape_suspects(doc: dict, stem: str) -> list[tuple[str, str, str]]:
+    roles = doc.get("roles") or {}
+    villagers = [r for r, v in roles.items() if v.get("kind") == "villager"]
+    if len(villagers) < 2:
+        return []
+    main = next(iter(roles))
+    others = {r for r in villagers if r != main}
+    out = []
+    for nid, n in doc["nodes"].items():
+        t = n.get("text") or ""
+        for rx in (SHAPE_A, SHAPE_B):
+            out += [(stem, nid, t[max(0, m.start() - 60):m.end() + 40]) for m in rx.finditer(t)]
+        for s in (x.strip() for x in SENT.split(t)):
+            m = LEAD_WORDS.match(s)
+            if not m or m.group(1).lower() not in others:
+                continue
+            names = {x.group(1).lower() for x in PH.finditer(s) if not x.group(2)}
+            prons = {x.group(1).lower() for x in PH.finditer(s) if x.group(2) and x.group(2).lower() in SUBJECT_FORMS}
+            if main not in names and main in prons:
+                out.append((stem, nid, s))
+    return out
+
+
+def shape_allowed(stem: str, nid: str, words: str) -> bool:
+    return any(stem == a and nid == b and c in words for a, b, c in ALLOWED_SHAPES)
+
+
 class GoPronouns(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.docs = {p.stem: d for p, d in go_files()}
+
+    def test_no_main_pronoun_in_the_other_shapes(self):
+        bad = []
+        for stem, d in self.docs.items():
+            bad += [x for x in shape_suspects(d, stem) if not shape_allowed(*x)]
+        self.assertFalse(bad, "\n".join(f"{a} {b}: {c[-140:]}" for a, b, c in bad[:40]))
+
+    def test_every_allowed_shape_is_still_there(self):
+        found = {(a, b) for stem, d in self.docs.items() for a, b, c in shape_suspects(d, stem) if shape_allowed(a, b, c)}
+        self.assertEqual({(a, b) for a, b, _ in ALLOWED_SHAPES} - found, set())
 
     def test_no_main_pronoun_in_another_villagers_sentence(self):
         bad = []

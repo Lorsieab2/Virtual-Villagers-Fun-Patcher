@@ -204,7 +204,7 @@
    "src": "L6168"
   },
   "c2": {
-   "text": "(young) asks if (subject.he/she) can watch and learn how (subject) does it. (subject) snorts, but (subject.his/her) eyes light up. \"Well, first, you don't just stick it in any old dirt...\"",
+   "text": "(young) asks if (young.he/she) can watch and learn how (subject) does it. (subject) snorts, but (subject.his/her) eyes light up. \"Well, first, you don't just stick it in any old dirt...\"",
    "children": [
     {
      "next": "c2o1",

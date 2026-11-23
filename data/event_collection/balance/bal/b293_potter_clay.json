@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(potter), the village potter, has found a new bank of clay up the river, red and very smooth. (potter.He/She) has been making little figures of people from it, and they are so lifelike that everyone wants one. Today (subject.he/she) has made one of (subject), sitting on (subject.his/her) shelf to dry. It looks so much like (subject) that it's unsettling.\nThe trouble is, the old potters used to say that red river clay remembers what it was shaped into, and given enough heat, tries to become it. (potter) laughs about that. Should (subject) let the figure be fired in the kiln tonight, or ask (potter) to squash it back into a lump?",
+   "text": "(potter), the village potter, has found a new bank of clay up the river, red and very smooth. (potter.He/She) has been making little figures of people from it, and they are so lifelike that everyone wants one. Today (potter.he/she) has made one of (subject), sitting on (potter.his/her) shelf to dry. It looks so much like (subject) that it's unsettling.\nThe trouble is, the old potters used to say that red river clay remembers what it was shaped into, and given enough heat, tries to become it. (potter) laughs about that. Should (subject) let the figure be fired in the kiln tonight, or ask (potter) to squash it back into a lump?",
    "choices": [
     {
      "label": "Fire It in the Kiln",
