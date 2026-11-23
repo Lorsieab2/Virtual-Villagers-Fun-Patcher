@@ -63,7 +63,12 @@ class AutoLinePronouns(unittest.TestCase):
                     text = render(key, who)
                     self.assertNotRegex(text, WRONG, f"{who}: {text!r}")
                     self.assertNotIn("<", text)
-                    self.assertNotIn("(", text)
+                    if key == "no_effect":
+                        # the owner's literal line (2026-11-23, cie-v6-binary.md 45): its parentheses are the
+                        # words themselves, never a placeholder left unfilled
+                        self.assertEqual(text, "(no effect)")
+                        continue
+                    self.assertNotIn("(", text, "no placeholder left unfilled")
 
     def test_the_best_skill_lines(self):
         self.assertEqual(render("skill_best", "he"), "Bo gains 5 skill in what he does best.")
