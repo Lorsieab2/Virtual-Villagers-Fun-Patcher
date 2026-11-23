@@ -240,8 +240,9 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             where = "in this game" if has else UNTOLD
             add(f"With \"{gm.feature_name(row)}\" ({where}) {who} ages as believers do and can die of old age by the "
                 "believers' own rule (each whole year past 1,100 age units, 55 years, or later with Medicine: 10% for "
-                "each year over); they still never eat, starve or fall sick. Each one who dies is replaced at once by a "
-                "new Heathen (a puzzle Heathen in the same role while the puzzle is unsolved).", sub=True)
+                "each year over); they still never eat, starve or fall sick. A camp Heathen who dies is replaced at once, "
+                "a puzzle Heathen in the same role while the puzzle is unsolved; a villager who left the tribe is "
+                "never replaced, and nobody is once The Last Heathen is solved.", sub=True)
             break
     # The drop handler 0x443BF0's mask test 0x443D4D (orange +0x1CED, red +0x1CEE turned away at 0x44402D; the rest
     # get Heathen action 6 and believer action 0x27); the sermon's end, the work event 0x468DA0.

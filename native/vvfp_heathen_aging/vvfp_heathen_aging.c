@@ -60,11 +60,12 @@
    byte is cleared (as the game's own removals do) and the Cause of Death companion writes the Death record, Old
    age, "no grave (died among the Heathens: nothing was left)" (VvfpCauseDiedAmongHeathens).  Either way the
    statistics' villager-death counter is put back (Heathens never count: the owner).
-   A REPLACEMENT is made at once, in the same tick, by the game's one Heathen creator 0x46FD20 as the stock camp
-   makes one: an ordinary Heathen keeps the dead one's camp role (0..11) and mask (blue, orange or red), age 400,
+   A REPLACEMENT (the owner, 2026-11-23: only for a camp Heathen, or a puzzle Heathen while its puzzle is unsolved;
+   never for a former villager, and for nobody once The Last Heathen, puzzle 25, is solved -- the camp then
+   empties over time) is made at once, in the same tick, by the game's one Heathen creator 0x46FD20 as the stock
+   camp makes one: an ordinary Heathen keeps the dead one's camp role (0..11) and mask (blue, orange or red), age 400,
    random sex, the stock camp's Faith (0x470E60: -38 - rand(30), or the dead one's own when it was one of the
-   five easy blue Faiths -5, -9, -16, -23, -30); a former villager is replaced by an ordinary blue, orange or red (13 : 7 : 3,
-   the camp's own mix) with role 0; a puzzle Heathen whose puzzle is not solved yet by a new one in the same role,
+   five easy blue Faiths -5, -9, -16, -23, -30); a puzzle Heathen whose puzzle is not solved yet by a new one in the same role,
    set up exactly as the stock camp sets that role up (the Doctor, Chief with every skill 100, the three Masters;
    the Heathen Mommy with her infant, its father an adult Heathen man when there is one).  Its Faith is written
    after the creator (the creator's own SetFaith would run to-a-Heathen on a record still a believer: its "stopped
@@ -72,7 +73,7 @@
    writes its Arrived record (VvfpCauseHeathenArrived).  A full table: the replacement waits (kept per save slot),
    and is made by the age credit's throttled pass as soon as a record is free.
 
-   HEATHEN BABIES (the tribe row only).  An adult Heathen woman (14 to 45 years), not expecting, not the Heathen
+   HEATHEN BABIES (the tribe row only; no new conception once The Last Heathen is solved).  An adult Heathen woman (14 to 45 years), not expecting, not the Heathen
    Mommy, with a living adult Heathen man in the camp, conceives on 1 age unit in 400 (about 1 year in 20) through
    the game's conception routine 0x465E00 forced (father: a random adult Heathen man), only while at least
    HA_ROOM_KEPT records stay free for the village's own births.  The Village Statistics' twins and triplets are put
@@ -256,6 +257,8 @@ static int puzzle_of_role(int role) {
     default: return 0;
     }
 }
+
+#define LAST_HEATHEN 25                /* The Last Heathen (CConvertLastHeathenPuzzle) */
 
 static int puzzle_done(int puzzle) {
     return *(const volatile int *)(UINT_PTR)(G_PUZZLE_PROGRESS + (unsigned int)puzzle * 8u)
@@ -803,6 +806,10 @@ static void owe(int role, unsigned char orange, unsigned char red) {
 }
 
 static void pay_owed(void) {
+    if (puzzle_done(LAST_HEATHEN)) {
+        OWED_COUNT = 0;                    /* solved since: nobody is replaced any more */
+        return;
+    }
     while (OWED_COUNT > 0 && free_records() > 0) {
         --OWED_COUNT;
         if (!replace(OWED[OWED_COUNT].role, OWED[OWED_COUNT].orange, OWED[OWED_COUNT].red)) {
@@ -852,15 +859,14 @@ static void died(unsigned char *record) {
             tell_died(index);
         }
     }
+    /* The owner (2026-11-23): once The Last Heathen is solved nobody is replaced (the camp empties over time);
+       otherwise a camp Heathen is, and a puzzle Heathen while its puzzle is unsolved (replace), never a former
+       villager -- a defection must not grow the camp. */
+    if (puzzle_done(LAST_HEATHEN) || (former && puzzle_of_role(role) == 0)) {
+        return;
+    }
     if (puzzle_of_role(role) != 0) {
         /* the same role (replace: a new one while the puzzle is unsolved) */
-    } else if (former) {
-        role = 0;                                              /* a former villager: an ordinary newcomer */
-        switch (ha_rand(23)) {
-        default: orange = 0; red = 0; break;
-        case 13: case 14: case 15: case 16: case 17: case 18: case 19: orange = 1; red = 0; break;
-        case 20: case 21: case 22: orange = 0; red = 1; break;
-        }
     } else if (role < 0 || role > 11) {
         role = 0;
     }
@@ -958,7 +964,7 @@ static void maybe_conceive(unsigned char *woman) {
     int twins, triplets;
     if (i32(woman, R_SEX) != 1 || i32(woman, R_ROLE) == 17 || i32(woman, R_PREGNANT) != 0
         || i32(woman, R_AGE) < ADULT || i32(woman, R_AGE) > BIRTH_LAST || ha_rand(CONCEIVE_IN) != 0
-        || free_records() <= HA_ROOM_KEPT || (father = random_man(woman)) == NULL) {
+        || free_records() <= HA_ROOM_KEPT || puzzle_done(LAST_HEATHEN) || (father = random_man(woman)) == NULL) {
         return;
     }
     twins = *(volatile int *)(UINT_PTR)G_TWINS;

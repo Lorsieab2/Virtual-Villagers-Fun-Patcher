@@ -1155,7 +1155,7 @@
         "A villager who leaves your tribe and becomes a Heathen keeps growing older among the Heathens, as believers do:",
         "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
         "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
-        "When one dies, a new Heathen joins the camp at once in their place, so the camp keeps its number.",
+        "A former villager who dies is not replaced, so leaving your tribe never grows the camp.",
         "What is left is decided by All Heathens Leave Skeletons or Former Villagers Among the Heathens Leave Skeletons;",
         "with neither, they disappear from the camp, no grave. Deaths are logged; Heathens never count in the Village Statistics.",
         "Villagers who left before this patch are recognised by the parents on their record. Not yet seen in a running game."
@@ -1167,10 +1167,10 @@
         "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
         "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
         "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
-        "When a Heathen dies a new one joins at once: a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
+        "A camp Heathen who dies is replaced at once; a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
         "set up as the game sets that role up, so every puzzle can still be solved. A solved puzzle's Heathen never comes back.",
         "Heathen couples now and then have children (about one year in 20 for each woman from 14 to 45), only while room is",
-        "left for your own village's babies. What is left when a Heathen dies is decided by the two skeleton patches.",
+        "left for your own village's babies. Villagers who left you are not replaced; after The Last Heathen, no replacements or babies.",
         "With Former Villagers Keep Aging Among the Heathens also ticked, nobody ages twice. Heathens never count in statistics.",
         "Not yet seen in a running game."
       ]

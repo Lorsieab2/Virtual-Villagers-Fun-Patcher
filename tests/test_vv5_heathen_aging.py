@@ -107,6 +107,8 @@ class Village(Machine):
         self.mu.mem_map(GAME_OBJECT, 0x20000)
         self.put32(GAME_OBJECT + 0x17D7C, 6)
         self.put32(MEDICINE, 1)
+        for puzzle in range(32):                         # every puzzle unsolved unless a test solves it
+            self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
         self.installed = self.export("VvfpStartup", 5, 0)
         self.installed = self.export("VvfpHeathenAgingInstalled")
 
@@ -348,7 +350,7 @@ class FormerVillagers(unittest.TestCase):
         v.credit(r, 3)
         self.assertEqual(v.i32(r, AGE), 600)
 
-    def test_dies_of_old_age_with_a_skeleton_and_is_replaced_at_once(self):
+    def test_dies_of_old_age_with_a_skeleton_and_is_never_replaced(self):
         v = Village((FORMER, BONES_FORMER))
         r = self._converted(v)
         v.put32(DEATHS_STAT, 17)
@@ -357,13 +359,8 @@ class FormerVillagers(unittest.TestCase):
         self.assertEqual((v.i32(r, HEALTH), v.i32(r, CAUSE)), (0, 2), "Old age, by SetHealth")
         self.assertEqual(v.read(r + PRESENT, 1), b"\x01", "the body stays for the believers to bury")
         self.assertEqual(v.u32(DEATHS_STAT), 17, "Heathens never count in the statistics")
-        self.assertEqual(len(v.created), 1, "replaced in the same tick")
-        index, args = v.created[0]
-        self.assertEqual(args[7], 0, "an ordinary Heathen")
-        self.assertGreater(args[8], 0, "the creator never runs to-a-Heathen on a believer record")
-        new = v.record(index)
-        self.assertTrue(-67 <= v.i32(new, FAITH) <= -38)
-        self.assertEqual(v.arrived, [(index, "Replaced a Heathen who died of old age")])
+        self.assertEqual(v.created, [], "the owner (2026-11-23): a former villager is never replaced")
+        self.assertEqual(v.arrived, [])
         self.assertEqual(v.died, [], "a body: the Death record comes at the burial")
 
     def test_without_a_skeleton_row_nothing_is_left_and_the_death_is_logged(self):
@@ -375,7 +372,7 @@ class FormerVillagers(unittest.TestCase):
         self.assertEqual(v.i32(r, HEALTH), 90, "no body: health untouched, as the game's own removals")
         self.assertEqual(v.stopped[-1], r, "the activity stopped first (the conversion stopped it once too)")
         self.assertEqual(v.died, [(5, 3, 2)], "Death record: Old age, no grave")
-        self.assertEqual(len(v.created), 1)
+        self.assertEqual(v.created, [], "never replaced")
 
     def test_the_all_heathens_skeleton_row_covers_a_former_villager_too(self):
         v = Village((FORMER, BONES_ALL))
@@ -638,14 +635,15 @@ class OwedReplacements(unittest.TestCase):
     Heathen ages then, and only in the village it is owed to (kept per save slot across a Change Tribe)."""
 
     def _full_with_one_former(self, v: Village) -> int:
+        """A full table of camp Heathens (none with an age unit due) and one camp Heathen dying of old age."""
         for i in range(150):
-            v.villager(i, heathen=True)                 # camp Heathens: with the former row alone, none ages
-        former = v.villager(7, heathen=True, parents=True, name="Tane")
-        _due_to_die(v, former)
+            v.villager(i, heathen=True)
+        dying = v.villager(7, heathen=True, role=3, name="Tane")
+        _due_to_die(v, dying)
         v.life_tick()
-        self.assertEqual(v.i32(former, HEALTH), 0, "a skeleton keeps the table full")
+        self.assertEqual(v.i32(dying, HEALTH), 0, "a skeleton keeps the table full")
         self.assertEqual(v.created, [], "owed: no room")
-        return former
+        return dying
 
     def _slot(self, v: Village, slot: int) -> None:
         if not getattr(v, "save_manager", 0):
@@ -654,14 +652,14 @@ class OwedReplacements(unittest.TestCase):
         v.put32(v.save_manager + SLOT_FIELD, slot)
 
     def test_paid_when_room_comes_though_no_heathen_ages(self):
-        v = Village((FORMER, BONES_ALL))
+        v = Village((TRIBE, BONES_ALL))
         self._full_with_one_former(v)
         v.write(v.record(40) + PRESENT, b"\x00")        # room at last
         v.credit(v.record(41), 1)                        # a camp Heathen's age credit: it does not age
         self.assertEqual([i for i, _ in v.created], [40])
 
     def test_a_change_of_tribe_never_takes_the_owed_replacement_along(self):
-        v = Village((FORMER, BONES_ALL))
+        v = Village((TRIBE, BONES_ALL))
         self._slot(v, 1)
         v.credit(v.record(0), 0)                         # village 1 is the one in play
         self._full_with_one_former(v)
@@ -674,7 +672,7 @@ class OwedReplacements(unittest.TestCase):
         self.assertEqual([i for i, _ in v.created], [40], "...and still owed there")
 
     def test_start_over_drops_that_villages_owed_replacement(self):
-        v = Village((FORMER, BONES_ALL))
+        v = Village((TRIBE, BONES_ALL))
         self._slot(v, 3)
         v.credit(v.record(0), 0)
         self._full_with_one_former(v)
@@ -806,6 +804,65 @@ class OfflineRenames(unittest.TestCase):
             after = plan.changes[0].updated
             self.assertEqual(struct.unpack_from("<6I", after, 20), (0xBBBB0002, 1, 0xBBBB0002, 2, 7, 3),
                              "former and expecting carried; the grave entry 7 left alone")
+
+@unittest.skipIf(_skip(), _skip() or "")
+class OnlyCampHeathensAreReplaced(unittest.TestCase):
+    """The owner (2026-11-23): only camp Heathens (and puzzle Heathens while their puzzle is unsolved) are replaced;
+    once The Last Heathen (puzzle 25) is solved nobody is, and no new Heathen baby is conceived."""
+
+    def test_a_camp_heathen_is_replaced_and_a_former_villager_is_not(self):
+        v = Village((TRIBE,))
+        camp = v.villager(1, heathen=True, role=4)
+        former = v.villager(2, heathen=True, parents=True)
+        _due_to_die(v, camp)
+        _due_to_die(v, former)
+        v.life_tick()
+        self.assertEqual(len(v.created), 1, "the camp Heathen's replacement only")
+        self.assertEqual(v.created[0][1][7], 4)
+
+    def test_a_former_villager_in_a_puzzle_role_is_still_replaced_in_that_role(self):
+        v = Village((FORMER,))
+        r = v.villager(2, heathen=True, parents=True, role=12)
+        _due_to_die(v, r)
+        v.life_tick()
+        self.assertEqual([a[7] for _, a in v.created], [12], "the puzzle keeps working")
+
+    def test_after_the_last_heathen_nobody_is_replaced(self):
+        for role, puzzle in ((4, None), (13, 16), (17, 17)):
+            with self.subTest(role=role):
+                v = Village((TRIBE,))
+                v.solve(25)
+                h = v.villager(1, heathen=True, role=role)
+                _due_to_die(v, h)
+                v.life_tick()
+                self.assertEqual(v.created, [])
+                self.assertEqual(v.read(h + PRESENT, 1), b"\x00", "gone: the camp empties")
+
+    def test_an_owed_replacement_is_dropped_once_the_last_heathen_is_solved(self):
+        v = Village((TRIBE, BONES_ALL))
+        for i in range(150):
+            v.villager(i, heathen=True)
+        dying = v.villager(7, heathen=True, role=3)
+        _due_to_die(v, dying)
+        v.life_tick()
+        self.assertEqual(v.created, [])
+        v.solve(25)
+        v.write(v.record(40) + PRESENT, b"\x00")
+        v.credit(v.record(41), 1)
+        v.unsolve(25)                                    # (never happens in the game: proves it was dropped)
+        v.credit(v.record(41), 1)
+        self.assertEqual(v.created, [])
+
+    def test_no_heathen_baby_is_conceived_after_the_last_heathen(self):
+        v = Village((TRIBE,))
+        v.solve(25)
+        v.villager(1, heathen=True, sex=0)
+        woman = v.villager(2, heathen=True, sex=1)
+        v.put32(woman + AGE, 601)
+        v.rand_answers.extend([0, 0])
+        v.life_tick()
+        self.assertEqual(v.conceived, [])
+
 
 ROWS = {
     "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
