@@ -27,8 +27,9 @@ What is copied, and what changes in the copy
     names the slot or the village, the copy is made to name the target (src/vv_copy_slot.py
     `_transform`): the slot field of every binary file that keeps one (Parentage Records, the logs'
     cross-check and repair-approval markers, the arrival and birth markers, Paid Purchases, Story
-    Purchases, the Island Event Timer, The Secret City's Fruit Tree Timers and Second Faction, The Tree of
-    Life's Yellow Fruit Tree, The Lost Children's Elder Totems files, with their own checksums made again);
+    Purchases and the Story Purchases Graph, the Island Event Timer, The Secret City's Fruit Tree Timers and
+    Second Faction, The Tree of Life's Yellow Fruit Tree, New Believers' Faith Notice and Faith Loss files,
+    The Lost Children's Elder Totems files, with their own checksums made again);
     the village ids those markers
     keep (FNV-1a of the "Village: <name> (Save <S>)" line); the logs' "Village: <name> (Save <S>)" lines of
     this village; Log Decisions; and the Like and Dislike Words boundaries of every copied log.  Files the
@@ -113,7 +114,17 @@ _SLOT_FIELD = {
     b"VV3T": 12,    # The Secret City's Fruit Tree Timers (vv3_fruit_timers.h)
     b"VV2F": 12,    # The Secret City's Second Faction (vvfp_vv3_both_factions.c)
     b"VV4F": 12,    # The Tree of Life's Yellow Fruit Tree (vvfp_vv4_fruit_supply.c)
+    b"VFN1": 12,    # New Believers' Faith Notice waiting popup (vvfp_faith_notice.c)
+    b"VFK1": 12,    # New Believers' Faith Loss believers kept (vvfp_faith_loss.c)
 }
+# The Story Purchases Graph, a bought or picked event's run (story_graph.inc cg_file_head): 'VCG1', u32 version,
+# game, slot, the state's bytes, the graph's bytes, 256 roster u32; then the run's state, whose third int is the
+# slot again (cg_state.slot: the run's file is written only while it is the slot's); then the graph.  Exactly
+# _GRAPH_HEAD + state + graph bytes.  Cause of Death's Graves Logged (cod_backfill.inc) is 'VCG1' too, with a
+# count at +12 and 16 + 8 * count bytes: never that length, so it is never touched here.
+GRAPH_MAGIC = b"VCG1"
+_GRAPH_HEAD = 24 + 256 * 4
+_GRAPH_STATE_SLOT = _GRAPH_HEAD + 8
 # Where a marker keeps its village id (FNV-1a of "Village: <name> (Save <S>)"), and its length then.
 _VILLAGE_ID = {b"VXC1": (44, 48), b"VCA1": (16, 20), b"VCB1": (16, 20)}
 TOTEMS_MAGIC = b"VVFP VV2 TOTEMS\0"
@@ -574,6 +585,21 @@ def _patch_dword(data: bytearray, at: int, old: int, new: int) -> bool:
     return False
 
 
+def _story_graph(out: bytearray, source: int, target: int) -> bool:
+    """A whole Story Purchases Graph of the source slot made the target's (both of its slot fields); False,
+    and nothing changed, for anything else."""
+    if len(out) < _GRAPH_STATE_SLOT + 4:
+        return False
+    version, _game, slot, state, graph = struct.unpack_from("<5I", out, 4)
+    if version < 2 or state < 12 or len(out) != _GRAPH_HEAD + state + graph:
+        return False
+    if slot != source or struct.unpack_from("<I", out, _GRAPH_STATE_SLOT)[0] != source:
+        return False
+    struct.pack_into("<I", out, 12, target)
+    struct.pack_into("<I", out, _GRAPH_STATE_SLOT, target)
+    return True
+
+
 def transform_binary(data: bytes, source: int, target: int, ids: dict[int, int],
                      old_name: str, new_name: str) -> bytes:
     """A binary sidecar made the target's: its slot field, its village id, The Lost Children's Elder
@@ -582,6 +608,8 @@ def transform_binary(data: bytes, source: int, target: int, ids: dict[int, int],
 
     out = bytearray(data)
     head = bytes(out[:4])
+    if head == GRAPH_MAGIC:
+        return bytes(out) if _story_graph(out, source, target) else data
     if head in _SLOT_FIELD:
         if not _patch_dword(out, _SLOT_FIELD[head], source, target):
             return data                              # another slot's file kept here: left as it is
