@@ -4450,18 +4450,26 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
             _check_text(f"node {nid}", n["text"], problems, g["version"], g)
             for i, v in enumerate(n["variants"]):
                 _check_text(f"node {nid} variant {i + 1}", v["text"], problems, g["version"], g)
-        # 25a: a restore shares in its villager's loss made earlier on its OWN node (the engine keeps nothing longer)
+        # 25a: a restore shares in its villager's loss made earlier on its OWN node (the engine keeps nothing longer),
+        # with no other health_change that may reach that villager in between: a group's (it may include them -- the
+        # engine then keeps the group's loss, cg_effect_on) or another one of theirs (the engine keeps the latest)
         losses: set = set()
         for e in n.get("effects") or ():
             if e.get("do") != "health_change":
                 continue
             r = effect_role(e)
+            if e.get("target") is not None or r is None or r in NEW_ROLES:
+                losses.clear()                 # a group's change: any villager's loss before it no longer counts
+                continue
             if e.get("restore"):
                 if r not in losses:
-                    problems.append(f"node {nid}: a health_change \"restore\" needs a health loss of {r} before it "
-                                    "on the same node")
+                    problems.append(f"node {nid}: a health_change \"restore\" needs a health loss of {r} right before "
+                                    "it on the same node (no group health_change between them)")
+                losses.discard(r)
             elif e.get("min", 0) < 0:
                 losses.add(r)
+            else:
+                losses.discard(r)              # a gain: the engine keeps no loss for them
     if v6:
         _validate_v6(g, problems)
     if problems:
@@ -5716,7 +5724,9 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
             roll = fx[k]
             if e["do"] == "health_change" and roll:
                 r = aliases.get(e.get("role"), e.get("role"))
-                if e.get("restore"):
+                if e.get("target") is not None or effect_role(e) is None or effect_role(e) in NEW_ROLES:
+                    lost.clear()               # a group's change may reach anyone: the engine keeps ITS loss then
+                elif e.get("restore"):
                     roll = [restored(lost.pop(r, 0), roll[0])] + list(roll[1:])
                 else:
                     lost[r] = -roll[0] if roll[0] < 0 else 0

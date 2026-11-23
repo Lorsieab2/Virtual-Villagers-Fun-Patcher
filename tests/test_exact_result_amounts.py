@@ -134,6 +134,11 @@ class PatcherSide(unittest.TestCase):
         cases = (([[loss], [restore]], False),                                   # the loss on page 1
                  ([[restore, loss]], False),                                     # the restore before the loss
                  ([[{"do": "health_change", "min": 5, "max": 5}, restore]], False),  # a gain, not a loss
+                 # a group's change between the loss and the restore (Codex, #840): it may reach the villager, and the
+                 # engine then keeps the group's loss -- refused, so no preview can differ from the game
+                 ([[loss, {"do": "health_change", "min": -10, "max": -10, "target": {"all": True}}, restore]], False),
+                 ([[{"do": "health_change", "min": -10, "max": -10, "target": {"all": True}}, loss, restore]], True),
+                 ([[loss, {"do": "health_change", "min": 5, "max": 5}, restore]], False),    # their own gain between
                  ([[loss, restore]], True))
         for pages_fx, ok in cases:
             with self.subTest(pages=pages_fx):
