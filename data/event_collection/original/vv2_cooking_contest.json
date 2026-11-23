@@ -8617,12 +8617,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L6967-6968"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L6967-6968"

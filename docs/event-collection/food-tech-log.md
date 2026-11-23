@@ -7,48 +7,29 @@ changed. The table is `scripts/food_tech_additions.py` ADDITIONS (generated into
 it as they write, and the Grand collection's files carry it directly.
 
 Sizes: small food is the collection's small scaled amount (design A3); a loss is the same range negated.
-Totals: food gain 19, food loss 2, tech gain 114, tech loss 7 (142 effects).
+Totals: food gain 19, food loss 2, tech gain 91, tech loss 7 (119 effects).
 (`all_v20_d2_no_such` a1's tech gain was removed: the owner, Q13 2026-11-19, keeps only the newer outcome pass's
 gain there, normal and half the time.)
+(The owner, 2026-11-22: 23 small tech gains were removed where the outcome pass already pays the normal one --
+`vv2_cooking_contest` v13a_b5; `all_conundrums` a5, c1, c4; `all_invention_showcase` a4, c8; `all_secret_of_life`
+a4_2, b5_2, c6_2; `all_v20_r1_should_not` a4, b1; `all_v24_revolutionary` a1_* and a4_* (food, sci, eng, trade, art)
+and e1; `all_v27_24_explorer` a. A node pays one tech award, the normal one.)
 
 
-## Grand collection (V28) (39)
+## Grand collection (V28) (16)
 
 | Event | Node | Effect | Why (the outcome's text) |
 |---|---|---|---|
-| `all_conundrums` | a5 | tech gain small (scaled) | the villagers learn to ask better questions and to record what happened rather than what they hoped would happen. |
-| `all_conundrums` | c1 | tech gain small (scaled) | The single proposal is a simple tool for lifting hot cooking pots without burning one's hands. The cook tests it and approves. |
-| `all_conundrums` | c4 | tech gain small (scaled) | "You rediscovered something worth remembering," |
 | `all_inexplicable_idea` | a1 | tech gain small (scaled) | The idea solves a practical problem with ordinary materials ... (Inventor) is offered a chance to teach the method. |
 | `all_inexplicable_idea` | c1 | tech gain small (scaled) | (Inventor) returns weeks later with a smaller, more practical design. The council approves it. |
 | `all_invention` | t2 | tech gain small (scaled) | The invention fails, but the observations reveal something useful about material strength. |
-| `all_invention_showcase` | a4 | tech gain small (scaled) | a particular knot holds far more weight than the others. The builders test the knot, improve it, and teach |
-| `all_invention_showcase` | c8 | tech gain small (scaled) | "what if we used the same arrangement of vines to lift a heavy stone?" ... The builders try it. |
 | `all_physics_defying` | b1_more | tech gain small (scaled) | the village adopts the new technique after independent testing. |
-| `all_secret_of_life` | a4_2 | tech gain small (scaled) | The healers test the fibers safely and discover a useful way to bind splints. |
-| `all_secret_of_life` | b5_2 | tech gain small (scaled) | the discovery of a way to extinguish flames. (Subject) begins taking notes |
-| `all_secret_of_life` | c6_2 | tech gain small (scaled) | discovers an ingenious tensioned-vine mechanism. "It doesn't live," the builder says, "but it could lift water." |
 | `all_v20_r1_should_not` | a1 | tech loss small (scaled) | The object is smashed. Researchers lament the lost evidence |
-| `all_v20_r1_should_not` | a4 | tech gain small (scaled) | A useful component inspires a new island-made tool. |
-| `all_v20_r1_should_not` | b1 | tech gain small (scaled) | (Finder) discovers a practical function; craftspeople attempt to imitate it using island materials. |
 | `all_v20_r3_isola` | c2 | tech gain small (scaled) | A researcher records the discovery despite an order of silence. |
 | `all_v21_c1_potters` | a5 | tech gain small (scaled) | a healer discovers it is useful for measuring small amounts of water. (Potter) becomes an unexpectedly celebrated innovator. |
 | `all_v22_4_parents` | d2 | food loss small (scaled) | (Child) gives away all the family's prepared snacks, including the portion meant for (Parent). |
-| `all_v24_revolutionary` | a1_food | tech gain small (scaled) | Within days nearly everyone adopts the invention or celebrates the discovery. |
-| `all_v24_revolutionary` | a1_sci | tech gain small (scaled) | Within days nearly everyone adopts the invention or celebrates the discovery. |
-| `all_v24_revolutionary` | a1_eng | tech gain small (scaled) | Within days nearly everyone adopts the invention or celebrates the discovery. |
-| `all_v24_revolutionary` | a1_trade | tech gain small (scaled) | Within days nearly everyone adopts the invention or celebrates the discovery. |
-| `all_v24_revolutionary` | a1_art | tech gain small (scaled) | Within days nearly everyone adopts the invention or celebrates the discovery. |
-| `all_v24_revolutionary` | a4_food | tech gain small (scaled) | The innovation solves a longstanding village problem. |
-| `all_v24_revolutionary` | a4_sci | tech gain small (scaled) | The innovation solves a longstanding village problem. |
-| `all_v24_revolutionary` | a4_eng | tech gain small (scaled) | The innovation solves a longstanding village problem. |
-| `all_v24_revolutionary` | a4_trade | tech gain small (scaled) | The innovation solves a longstanding village problem. |
-| `all_v24_revolutionary` | a4_art | tech gain small (scaled) | The innovation solves a longstanding village problem. |
 | `all_v24_revolutionary` | c3 | tech loss small (scaled) | destroys the demonstration apparatus. Nearby villagers retreat; damaged equipment must be replaced. |
 | `all_v24_revolutionary` | d4 | tech loss small (scaled) | The only record is damaged or misplaced. The innovation vanishes from village memory. |
-| `all_v24_revolutionary` | e1 | tech gain small (scaled) | The elders approve practical use, training, or preservation of the discovery in the village records. |
-| `all_v27_24_explorer` | a | tech gain small (scaled) | They return with a new map and a chastened attitude. |
-| `vv2_cooking_contest` | v13a_b5 | tech gain small (scaled) | (judge) listens, tastes, and asks for the method to be recorded so it is not lost. |
 | `vv2_hut_sharing_negotiation` | e2 | tech gain small (scaled) | {@Chief} asks the builders to write down what they learned before the next group of newcomers arrives. |
 | `vv3_gardening_contest` | p1 | tech gain small (scaled) | The villagers learn which designs suit which purposes. |
 | `vv3_v17_cooking` | b2 | food gain small (scaled) | Both meals are excellent and the Chief orders a shared feast. |

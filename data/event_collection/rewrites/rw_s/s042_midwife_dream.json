@@ -118,7 +118,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Just after dawn, the village's best healer, (healer), walks straight through the village in \\(healer: his/her\\) sleeping wrap, barefoot, with a feather from \\(healer: his/her\\) pillow still stuck in one ear. \\(Healer: He/She\\) doesn't stop to greet anyone. \\(Healer: He/She\\) walks right up to (subject)'s hut and knocks on the doorpost.\n\"I had a dream,\" (healer) says, when (subject) opens the door, yawning. \"A very clear one. You're going to have a baby.\"\n(subject) laughs. Then (subject) waits for the healer to laugh too.\n(Healer) does not laugh. (Healer) has delivered half the babies in the village and has a way of knowing things, and is looking at (subject) with complete, calm certainty. Behind (subject), (friend) has gone very still. Should (subject) believe (healer), or laugh it off?",
+   "text": "Just after dawn, the village's best healer, (healer), walks straight through the village in (healer.his/her) sleeping wrap, barefoot, with a feather from (healer.his/her) pillow still stuck in one ear. (healer.He/She) doesn't stop to greet anyone. (healer.He/She) walks right up to (subject)'s hut and knocks on the doorpost.\n\"I had a dream,\" (healer) says, when (subject) opens the door, yawning. \"A very clear one. You're going to have a baby.\"\n(subject) laughs. Then (subject) waits for the healer to laugh too.\n(Healer) does not laugh. (Healer) has delivered half the babies in the village and has a way of knowing things, and is looking at (subject) with complete, calm certainty. Behind (subject), (friend) has gone very still. Should (subject) believe (healer), or laugh it off?",
    "choices": [
     {
      "label": "Believe the Healer",
@@ -134,7 +134,7 @@
    "src": "L1984-1987"
   },
   "c1o1": {
-   "text": "(Healer) is right, as usual. Within a couple of weeks, (subject) is feeling sick in the mornings and tired in the afternoons and very, very hungry for pickled fish, and there's no doubt about it. (subject) and (friend) are thrilled. And also a little nervous. And then thrilled again. (Healer) visits every week, checks on (subject), and never once says \"I told you so,\" which (subject) thinks is very generous of \\(healer: him/her\\).",
+   "text": "(Healer) is right, as usual. Within a couple of weeks, (subject) is feeling sick in the mornings and tired in the afternoons and very, very hungry for pickled fish, and there's no doubt about it. (subject) and (friend) are thrilled. And also a little nervous. And then thrilled again. (Healer) visits every week, checks on (subject), and never once says \"I told you so,\" which (subject) thinks is very generous of (healer.him/her).",
    "effects": [
     {
      "do": "pregnant",
@@ -147,7 +147,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "They wait. Nothing happens. A month goes by. Then another. (Healer) gets quieter and quieter, and starts avoiding (subject)'s side of the village. \"I was so sure,\" \\(healer: he/she\\) says, to anyone who'll listen. Then, a whole season later, just when everybody has stopped thinking about it, (subject) wakes up one morning feeling very strange, and very sick, and suddenly wants pickled fish more than anything in the world. The dream was true after all. It was just a season early. (Healer) is so relieved \\(healer: he/she\\) cries.",
+   "text": "They wait. Nothing happens. A month goes by. Then another. (Healer) gets quieter and quieter, and starts avoiding (subject)'s side of the village. \"I was so sure,\" (healer.he/she) says, to anyone who'll listen. Then, a whole season later, just when everybody has stopped thinking about it, (subject) wakes up one morning feeling very strange, and very sick, and suddenly wants pickled fish more than anything in the world. The dream was true after all. It was just a season early. (Healer) is so relieved (healer.he/she) cries.",
    "effects": [
     {
      "do": "pregnant",
@@ -160,7 +160,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "(subject) stops laughing. (subject.He/She) looks at (friend), and (friend) looks back, and then they both look at the healer. \"Are you sure?\" (subject) whispers. (Healer) just pulls the feather out of \\(healer: his/her\\) ear and nods...",
+   "text": "(subject) stops laughing. (subject.He/She) looks at (friend), and (friend) looks back, and then they both look at the healer. \"Are you sure?\" (subject) whispers. (Healer) just pulls the feather out of (healer.his/her) ear and nods...",
    "children": [
     {
      "next": "c1o1",

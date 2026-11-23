@@ -137,12 +137,6 @@
     },
     {
      "do": "tech",
-     "size": "small",
-     "scaled": true,
-     "src": "L10676"
-    },
-    {
-     "do": "tech",
      "size": "normal",
      "scaled": true,
      "src": "L10676"
