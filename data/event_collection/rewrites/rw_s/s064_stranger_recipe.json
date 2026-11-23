@@ -164,7 +164,7 @@
    "src": "L3043"
   },
   "c2o1": {
-   "text": "(Name) writes down every word, and copies the scrap neatly onto good bark in the research hut, and pins it to the wall of the cooking hut. The next feast day, the cooks try it. It works perfectly. Within a season, fish in leaves on hot stones has become the village's favourite dish, the one they make for weddings and festivals and visitors, and the cooks are very proud of it. Nobody remembers it came from a stranger, except (name). Your villagers gain (award) tech points and (award) food.",
+   "text": "(Name) writes down every word, and copies the scrap neatly onto good bark in the research hut, and pins it to the wall of the cooking hut. The next feast day, the cooks try it. It works perfectly. Within a season, fish in leaves on hot stones has become the village's favourite dish, the one they make for weddings and festivals and visitors, and the cooks are very proud of it. Nobody remembers it came from a stranger, except (name). Your villagers gain (award) tech points and (award2) food.",
    "effects": [
     {
      "do": "tech",
