@@ -160,7 +160,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "(subject) starts at the beginning, the way (subject.he/she) was taught: slowly, carefully, every step explained twice. (young) yawns. Then, despite (subject.himself/herself), (young.he/she) starts to watch...",
+   "text": "(subject) starts at the beginning, the way (subject.he/she) was taught: slowly, carefully, every step explained twice. (young) yawns. Then, despite (young.himself/herself), (young.he/she) starts to watch...",
    "children": [
     {
      "next": "c1o1",

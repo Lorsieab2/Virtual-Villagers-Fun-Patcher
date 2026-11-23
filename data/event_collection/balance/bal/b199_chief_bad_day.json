@@ -164,7 +164,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "\"It's only a saying,\" says (subject), and the {@chief} laughs too, tiredly. (elder) shakes (subject.his/her) head and goes back to the fire, muttering. That night the full moon comes up huge and white over the sea...",
+   "text": "\"It's only a saying,\" says (subject), and the {@chief} laughs too, tiredly. (elder) shakes (elder.his/her) head and goes back to the fire, muttering. That night the full moon comes up huge and white over the sea...",
    "children": [
     {
      "next": "c1o1",

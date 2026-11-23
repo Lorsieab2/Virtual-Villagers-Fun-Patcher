@@ -90,7 +90,10 @@
   ],
   "description": "Somebody, and nobody will say who, has washed the Chief's robe in hot water.",
   "label_case": "title",
-  "exact_amounts": true
+  "exact_amounts": true,
+  "cast_only": [
+   "chief"
+  ]
  },
  "requirement": {
   "min_eligible": 2
@@ -128,7 +131,7 @@
    "effects": [
     {
      "do": "appearance",
-     "role": "chief",
+     "role": "subject",
      "body": "random"
     }
    ],

@@ -230,7 +230,10 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Chief's for the Heathen Chief, else orange, red or blue) as their Change Appearance mask, kept by the "
             "Origins upgrades. Change Appearance can change it or take it off, and Reset to original gives it back "
             "(their original look is the one they had as a Heathen, mask and all). Heathens who joined before the "
-            "patch are not given one.", sub=True)
+            "patch are not given one. One who later goes back to the Heathens wears the mask they wore as a Heathen "
+            "before (blue, orange, red, purple or the Chief's) but is treated as an ordinary Heathen in the blue "
+            "mask: a believer dropped on them preaches, they can be converted again, and they are never a Master or "
+            "the Chief again.", sub=True)
     # The Heathen aging rows (native/vvfp_heathen_aging): the age credit's Heathen test 0x470077 and the life tick's
     # skip 0x472CB7, the believers' old-age rule 0x472FC6..0x47304A.
     for row, who in ((TRIBE_AGES, "every Heathen, the puzzle Heathens too,"),

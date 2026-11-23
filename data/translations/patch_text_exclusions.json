@@ -113,10 +113,10 @@
    "files": ["native/vvfp_unicode_text/*"]
   },
   {
-   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, Gender Presentation, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
+   "reason": "Sidecar file headers, folder names and log lines of these companions (Last Names, Number Duplicate Names, Original Look, Head Look, Gender Presentation, Heathens Keep Masks, VV2 totems' store, Game Log); \"`s totem\" is the game's own text, compared with it.",
    "files": ["native/vvfp_last_names/*", "native/vvfp_number_names/*", "native/vvfp_original_look/*",
              "native/vvfp_head_look/*", "native/vvfp_vv2_totems/*", "native/vvfp_game_log/*",
-             "native/vvfp_gender_presentation/*"]
+             "native/vvfp_gender_presentation/*", "native/vvfp_heathens_keep_masks/*"]
   },
   {
    "reason": "Builders Fix Huts' log values (what a builder found: nothing / started).",

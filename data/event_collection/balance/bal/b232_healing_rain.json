@@ -115,7 +115,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A soft, warm rain has started falling from a clear sky, and it smells of crushed mint. (healer), the head healer, comes running out of the healers' hut with (subject.his/her) arms up, shouting. (subject.His/her) grandmother told (subject.him/her) about this: a rain that comes once in a lifetime, when a sky spirit passes over and weeps for the sick. \"Anyone who stands in it is healed,\" (subject.he/she) says. \"But only while it lasts.\"\nThe sick villagers are lying in their huts. Some can't walk. The rain is already thinning. (subject) is standing in the middle of the village, getting wet.\nShould (subject) carry the sickest out into the rain, or gather the rain in pots to take to them?",
+   "text": "A soft, warm rain has started falling from a clear sky, and it smells of crushed mint. (healer), the head healer, comes running out of the healers' hut with (healer.his/her) arms up, shouting. (healer.His/her) grandmother told (healer.him/her) about this: a rain that comes once in a lifetime, when a sky spirit passes over and weeps for the sick. \"Anyone who stands in it is healed,\" (healer.he/she) says. \"But only while it lasts.\"\nThe sick villagers are lying in their huts. Some can't walk. The rain is already thinning. (subject) is standing in the middle of the village, getting wet.\nShould (subject) carry the sickest out into the rain, or gather the rain in pots to take to them?",
    "choices": [
     {
      "label": "Carry the Sick Out",

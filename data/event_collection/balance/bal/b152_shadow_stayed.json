@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "It is midday, and everyone's shadow is a small dark puddle under their feet. Except (subject)'s. (subject)'s shadow is lying a few steps away, on its own, on the grass by the cooking fire, and it looks as if it is resting.\n(subject) noticed it this morning. The shadow was slow to get up when (subject.he/she) got out of bed, and it has been lagging behind all day, like a tired child. Now it has stopped altogether. (healer) says (subject.his/her) grandmother told a story about a shadow that was worked so hard it decided to live a life of its own.\nShould (subject) go and pick up (subject.his/her) shadow, or let it rest?",
+   "text": "It is midday, and everyone's shadow is a small dark puddle under their feet. Except (subject)'s. (subject)'s shadow is lying a few steps away, on its own, on the grass by the cooking fire, and it looks as if it is resting.\n(subject) noticed it this morning. The shadow was slow to get up when (subject.he/she) got out of bed, and it has been lagging behind all day, like a tired child. Now it has stopped altogether. (healer) says (healer.his/her) grandmother told a story about a shadow that was worked so hard it decided to live a life of its own.\nShould (subject) go and pick up (subject.his/her) shadow, or let it rest?",
    "choices": [
     {
      "label": "Pick Up the Shadow",

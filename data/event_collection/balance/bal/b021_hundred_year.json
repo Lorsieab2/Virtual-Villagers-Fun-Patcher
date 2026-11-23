@@ -140,7 +140,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(friend) comes running when (subject.he/she) hears, and stops dead at the edge of the pond. Then (friend.he/she) wades straight in, clothes and all, and takes the baby's other foot in (friend.his/her) hand, and that's that. They carry the baby home between them. The lotus closes behind them, and the pond goes back to smelling of mud.",
+   "text": "(friend) comes running when (friend.he/she) hears, and stops dead at the edge of the pond. Then (friend.he/she) wades straight in, clothes and all, and takes the baby's other foot in (friend.his/her) hand, and that's that. They carry the baby home between them. The lotus closes behind them, and the pond goes back to smelling of mud.",
    "effects": [
     {
      "do": "nursing",

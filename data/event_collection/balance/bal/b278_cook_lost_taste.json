@@ -118,7 +118,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(cook), the head cook, burned (subject.his/her) tongue on a pot of boiling stew a week ago and still can't taste a thing. Since then, the food has been terrible. Too much salt one day, no salt the next, and yesterday a stew with so much chilli in it that two fishers had to lie down.\nToday (cook) asks (subject) to taste everything for (subject.him/her). (subject) loves food. (subject.He/She) also saw what happened to the fishers. Should (subject) agree to be the taster, or offer to do the cooking instead?",
+   "text": "(cook), the head cook, burned (cook.his/her) tongue on a pot of boiling stew a week ago and still can't taste a thing. Since then, the food has been terrible. Too much salt one day, no salt the next, and yesterday a stew with so much chilli in it that two fishers had to lie down.\nToday (cook) asks (subject) to taste everything for (cook.him/her). (subject) loves food. (subject.He/She) also saw what happened to the fishers. Should (subject) agree to be the taster, or offer to do the cooking instead?",
    "choices": [
     {
      "label": "Be the Taster",

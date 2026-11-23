@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) has had a fever for three days, the worst the healers have seen in years. (subject.He/She) is talking to people who aren't there, and calling the healers by the wrong names. (healer) has tried every brew (subject.he/she) knows. Tonight (subject.he/she) says there is one thing left: the old way, which is to carry the sick person down to the sea at midnight and dip them three times in the cold water, \"to shock the fever out.\"\n(healer) has done it twice before. Once it worked. Once it didn't. The other choice is to keep (subject) in the hut, wrapped in wet leaves, and wait.\nShould they take (subject) to the sea, or wait?",
+   "text": "(subject) has had a fever for three days, the worst the healers have seen in years. (subject.He/She) is talking to people who aren't there, and calling the healers by the wrong names. (healer) has tried every brew (healer.he/she) knows. Tonight (healer.he/she) says there is one thing left: the old way, which is to carry the sick person down to the sea at midnight and dip them three times in the cold water, \"to shock the fever out.\"\n(healer) has done it twice before. Once it worked. Once it didn't. The other choice is to keep (subject) in the hut, wrapped in wet leaves, and wait.\nShould they take (subject) to the sea, or wait?",
    "choices": [
     {
      "label": "Take (subject.Him/Her) to the Sea",
@@ -128,7 +128,7 @@
    "src": "L8910-8912"
   },
   "c1o1": {
-   "text": "On the third dip, (subject) comes up gasping and shouting at them to stop, in (subject.his/her) own voice, using all their right names. The fever is gone by morning. (subject) is weak for a week, and very cross about being dunked, and doesn't remember any of it. (healer) adds a mark to the post by (subject.his/her) door: two out of three.",
+   "text": "On the third dip, (subject) comes up gasping and shouting at them to stop, in (subject.his/her) own voice, using all their right names. The fever is gone by morning. (subject) is weak for a week, and very cross about being dunked, and doesn't remember any of it. (healer) adds a mark to the post by (healer.his/her) door: two out of three.",
    "effects": [
     {
      "do": "cure",

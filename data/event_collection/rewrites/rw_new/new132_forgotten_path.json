@@ -170,7 +170,7 @@
    "src": "L6209"
   },
   "c1": {
-   "text": "(young) doesn't argue. (subject.He/She) just asks (subject) to show (subject.him/her)...",
+   "text": "(young) doesn't argue. (young.He/She) just asks (subject) to show (young.him/her)...",
    "children": [
     {
      "next": "c1o1",

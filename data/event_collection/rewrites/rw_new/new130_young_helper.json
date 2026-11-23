@@ -241,7 +241,7 @@
    "src": "L6126"
   },
   "c3": {
-   "text": "(adult) doesn't help. Instead, (subject.he/she) leaves a row of short, round sticks lying on the ground near the log, and walks away whistling...",
+   "text": "(adult) doesn't help. Instead, (adult.he/she) leaves a row of short, round sticks lying on the ground near the log, and walks away whistling...",
    "children": [
     {
      "next": "c3o1",

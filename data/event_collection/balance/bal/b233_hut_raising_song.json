@@ -199,7 +199,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "While everyone works, (elder) sits on the stump and sings the old song by (subject.himself/herself), the half of it (subject.he/she) remembers, over and over, in a cracked old voice. It's not loud. But the posts go up, one by one, and the huts are all finished by sunset. Nobody knows whether it was the song.",
+   "text": "While everyone works, (elder) sits on the stump and sings the old song by (elder.himself/herself), the half of it (elder.he/she) remembers, over and over, in a cracked old voice. It's not loud. But the posts go up, one by one, and the huts are all finished by sunset. Nobody knows whether it was the song.",
    "effects": [
     {
      "do": "repair",

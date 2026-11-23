@@ -232,7 +232,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(subject)'s things are saved. The food store isn't. The roof gives way under the ice, and by the time it stops, half the baskets are full of icy water. (builder) doesn't say anything. (subject.He/She) doesn't need to. (subject) helps dry what's left, and feels it for a long time.",
+   "text": "(subject)'s things are saved. The food store isn't. The roof gives way under the ice, and by the time it stops, half the baskets are full of icy water. (builder) doesn't say anything. (builder.He/She) doesn't need to. (subject) helps dry what's left, and feels it for a long time.",
    "effects": [
     {
      "do": "food",

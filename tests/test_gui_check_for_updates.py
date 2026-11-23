@@ -161,6 +161,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_number_names", "vv_cut_names", "vv_save_layout", "vv_long_paths", "vv_repair_copies", "vv_move_old_names", "vv_move_to_save_folders", "vv_villager_info", "vv_relationships",
                "vv_log_decisions", "vv_log_contradictions", "vv_answered_questions",
                "vv_startup_questions", "vv_graves", "vv_lost_titles", "vv1_parents_restore",
+               # Restore Heathen Masks (New Believers, the owner, 2026-11-22).
+               "vv5_heathen_masks_restore",
                "vv_corrupt_skills", "vv_golden_child_revive", "vv5_heathen_ages", "vv_reconcile", "vv_reconcile_view", "vv_titles_file", "vv_history_revision",
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # The mask a Former Heathen rejoined with, given back by Repair (v1.35.98).
@@ -178,6 +180,10 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_long_names", "vv_legacy_names",
                # Copy Player Slot (the owner, 2026-10-31) and its window.
                "vv_copy_slot", "vv_copy_slot_window",
+               # Move Player Slot (the owner, 2026-11-22), the Copy Player Slot window's Move choice.
+               "vv_move_slot",
+               # Delete Player Slot (the owner, 2026-11-23), its Delete choice.
+               "vv_delete_slot",
                # Backups (the owner, 2026-11-09): each backup's vital statistics and its window.
                "vv_backup_details", "vv_backup_details_window",
                "vv_vv2_totems", "vv_vv2_totem_store", "vv_tool_fonts",
@@ -265,8 +271,19 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_log_tools", "vv_move_to_save_folders", "vv_vv2_totem_store",
                               "vv_genealogy_window"}),   # a copied tree named as the Family Tree Maker names it
             # Its window: the copy, the slot reading, and the GUI's grab and scrolled page (function-level).
-            ("vv_copy_slot_window", {"vv_copy_slot", "vv_save_backup", "vv_tribe_rename", "vv_fun_patcher_gui",
-                                     "vv_tree_editor_tools"}),
+            ("vv_copy_slot_window", {"vv_copy_slot", "vv_delete_slot", "vv_move_slot", "vv_save_backup",
+                                     "vv_tribe_rename", "vv_fun_patcher_gui", "vv_tree_editor_tools"}),
+            # Delete Player Slot: Move's discovery, the repair copies' index, Back Up Saves; function-level: the
+            # Recycle Bin call it shares with the translations.
+            ("vv_delete_slot", {"vv_copy_slot", "vv_long_paths", "vv_move_slot", "vv_repair_copies", "vv_save_backup",
+                                "vv_tribe_rename", "vv_translations"}),
+            # Move Player Slot: Copy Player Slot's transforms, Back Up Saves, the per-save layout; function-
+            # level: the villagers as Last Names reads them, the Repairs log, the shared words boundaries, the
+            # Family Tree Maker's tree name.
+            # The repair copies' index too (its lines follow a moved copy).
+            ("vv_move_slot", {"vv_copy_slot", "vv_long_paths", "vv_repair_copies", "vv_save_backup", "vv_save_layout",
+                              "vv_tribe_rename",
+                              "vv_last_names", "vv_log_tools", "vv_move_to_save_folders", "vv_genealogy_window"}),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.
             ("vv_tribe_rename", {"vv_save_backup", "vv_log_additions", "vv_log_decisions", "vv_vv2_totem_store", "vv_long_names"}),
@@ -285,6 +302,8 @@ class ReleasesLinkTests(unittest.TestCase):
                               "vv_original_look",
                               # Repair gives back the mask a Former Heathen rejoined with (v1.35.98).
                               "vv5_rejoined_masks",
+                              # ...and a Heathen's own mask, the checklist's next row (v1.35.98).
+                              "vv5_heathen_masks_restore",
                               # PATCHER_VERSION: the repair copies are named for the running build.
                               "transparency"}),
             # The original looks behind Change Appearance's Reset to original (v1.35.85): the per-save
@@ -304,7 +323,9 @@ class ReleasesLinkTests(unittest.TestCase):
                                   "vv_number_names",           # numbers a looks change gave (v1.35.80 update)
                                   "vv_misfiled_records",       # records moved to their own save's log (2026-10-31)
                                   # the rejoined villagers' masks, listed in Repair's checklist (v1.35.98)
-                                  "vv5_rejoined_masks"}),
+                                  "vv5_rejoined_masks",
+                                  # ...and the Heathens' own masks, the row after it (v1.35.98)
+                                  "vv5_heathen_masks_restore"}),
             # Records written into another save's log (2026-10-31): the logs and every slot's village as Repair
             # reads them (function-level imports).
             ("vv_misfiled_records", {"vv_log_additions", "vv_save_layout", "vv_reconcile",
@@ -370,6 +391,11 @@ class ReleasesLinkTests(unittest.TestCase):
             # Restore A New Home Parents: the copies of the parents file, the Repairs Made note.
             ("vv1_parents_restore", {"vv_log_tools", "vv_save_backup", "vv_save_layout", "vv_long_paths",
                                      "vv_repair_copies"}),
+            # Restore Heathen Masks (the owner, 2026-11-22): the save and its files through Last Names' reader and
+            # writer, the logs as Repair reads them (function-level), the Repairs Made note.
+            ("vv5_heathen_masks_restore", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
+                                           "vv_log_additions", "vv_game_text",
+                                           "vv5_rejoined_masks"}),   # whether the game has Keep Masks
             # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
             ("vv_corrupt_skills", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_tribe_rename",
                                    "vv_save_layout"}),

@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(polisher) has spent the whole wet season polishing the inside of a giant clam shell with sand and water until it shines like still water. It's the best mirror anyone in the village has ever seen. (subject.He/She) says the trick came from an old song about a clam that kept the faces of everyone who looked into it, which (subject.he/she) always thought was just a song.\n(subject) is the first to look. (subject.His/her) face in the shell is very clear. Too clear. It blinks a moment after (subject) does.\nShould (subject) keep looking, or turn the shell face-down on the mat?",
+   "text": "(polisher) has spent the whole wet season polishing the inside of a giant clam shell with sand and water until it shines like still water. It's the best mirror anyone in the village has ever seen. (polisher.He/She) says the trick came from an old song about a clam that kept the faces of everyone who looked into it, which (polisher.he/she) always thought was just a song.\n(subject) is the first to look. (subject.His/her) face in the shell is very clear. Too clear. It blinks a moment after (subject) does.\nShould (subject) keep looking, or turn the shell face-down on the mat?",
    "choices": [
     {
      "label": "Keep Looking",
@@ -172,7 +172,7 @@
    "src": "L12636"
   },
   "c2o1": {
-   "text": "That night (polisher) can't resist turning the shell back over for one last look at (subject.his/her) work. In the morning there are two of (subject.him/her): one who polished the shell, and one who looks exactly like (subject.him/her) and thinks polishing shells is the most boring thing in the world. The second one takes the name (made1), and goes fishing.",
+   "text": "That night (polisher) can't resist turning the shell back over for one last look at (polisher.his/her) work. In the morning there are two of (polisher.him/her): one who polished the shell, and one who looks exactly like (polisher.him/her) and thinks polishing shells is the most boring thing in the world. The second one takes the name (made1), and goes fishing.",
    "effects": [
     {
      "do": "new_villager",

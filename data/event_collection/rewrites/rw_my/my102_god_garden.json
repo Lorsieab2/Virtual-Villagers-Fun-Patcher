@@ -166,7 +166,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Little (subject) has been insisting for weeks that a tiny person lives under the leaves of the vegetable garden and protects it from slugs. Nobody believed (subject.him/her). Then, one morning, (friend) goes out to water the beans and stops.\nIn the soft soil between the rows are footprints. Tiny ones, no bigger than a fingertip, pressed neatly into the earth and walking in a line between the beans, all the way to the water barrel. (subject) is standing at the end of the row, arms folded, looking extremely smug. (friend) doesn't know what to believe. How should (subject.he/she) respond?",
+   "text": "Little (subject) has been insisting for weeks that a tiny person lives under the leaves of the vegetable garden and protects it from slugs. Nobody believed (subject.him/her). Then, one morning, (friend) goes out to water the beans and stops.\nIn the soft soil between the rows are footprints. Tiny ones, no bigger than a fingertip, pressed neatly into the earth and walking in a line between the beans, all the way to the water barrel. (subject) is standing at the end of the row, arms folded, looking extremely smug. (friend) doesn't know what to believe. How should (friend.he/she) respond?",
    "choices": [
     {
      "label": "Watch Quietly",
@@ -196,7 +196,7 @@
    "src": "L15801"
   },
   "c1o2": {
-   "text": "They watch until the stars come out. Nothing appears. But in the morning, the tiny footprints are back, and this time they stop at the foot of the water barrel, beside a minute clay cup, no bigger than a thumbnail, filled to the brim with water. Neither of them has ever seen it before. Neither of them made it. (subject) is beside (subject.himself/herself) with joy. (friend) is not quite sure what (subject.he/she) is feeling.",
+   "text": "They watch until the stars come out. Nothing appears. But in the morning, the tiny footprints are back, and this time they stop at the foot of the water barrel, beside a minute clay cup, no bigger than a thumbnail, filled to the brim with water. Neither of them has ever seen it before. Neither of them made it. (subject) is beside (subject.himself/herself) with joy. (friend) is not quite sure what (friend.he/she) is feeling.",
    "src": "L15803"
   },
   "c1": {
@@ -226,7 +226,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "In the morning, the offering is still there, untouched, except for one ant investigating the honey cake. (subject)'s lip trembles. (friend) kneels down beside (subject.him/her). \"Maybe the little god just wasn't hungry,\" (subject.he/she) says. \"Or maybe the little god doesn't need proof that we're grateful. Maybe just knowing is enough.\" (subject) thinks about this for a very long time. Then (subject.he/she) decides it is a very good answer, and gives the berry to the ant.",
+   "text": "In the morning, the offering is still there, untouched, except for one ant investigating the honey cake. (subject)'s lip trembles. (friend) kneels down beside (subject.him/her). \"Maybe the little god just wasn't hungry,\" (friend.he/she) says. \"Or maybe the little god doesn't need proof that we're grateful. Maybe just knowing is enough.\" (subject) thinks about this for a very long time. Then (subject.he/she) decides it is a very good answer, and gives the berry to the ant.",
    "src": "L15810"
   },
   "c2": {
@@ -282,7 +282,7 @@
    "src": "L15824"
   },
   "c4": {
-   "text": "Little god or no little god, the footprints have reminded (friend) that the garden fence is falling apart. The next morning, (subject.he/she) and (subject) start fixing it, post by post...",
+   "text": "Little god or no little god, the footprints have reminded (friend) that the garden fence is falling apart. The next morning, (friend.he/she) and (subject) start fixing it, post by post...",
    "children": [
     {
      "next": "c4o1",

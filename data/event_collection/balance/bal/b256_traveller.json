@@ -164,7 +164,7 @@
    "src": "L11958"
   },
   "c2o1": {
-   "text": "The traveller shrugs and walks back down the beach path. In the morning, (friend)'s hut is empty, and (subject.his/her) footprints lead down to the beach beside the traveller's and out across the sand to the water's edge. Nobody saw (subject.him/her) go. Some say (friend) was always restless. Others go very quiet whenever a stranger comes up the beach at dusk.",
+   "text": "The traveller shrugs and walks back down the beach path. In the morning, (friend)'s hut is empty, and (friend.his/her) footprints lead down to the beach beside the traveller's and out across the sand to the water's edge. Nobody saw (friend.him/her) go. Some say (friend) was always restless. Others go very quiet whenever a stranger comes up the beach at dusk.",
    "effects": [
     {
      "do": "vanish",

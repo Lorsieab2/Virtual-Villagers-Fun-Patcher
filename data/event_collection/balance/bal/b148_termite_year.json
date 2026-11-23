@@ -209,7 +209,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "On the last day, a great hardwood tree falls the wrong way. (builder) pushes two young villagers out of the way, and doesn't get out of the way (subject.himself/herself). The village finishes the posts in silence. Every hut in the village stands on new posts now, and the last one, in the middle of the village, has (builder)'s name carved on it.",
+   "text": "On the last day, a great hardwood tree falls the wrong way. (builder) pushes two young villagers out of the way, and doesn't get out of the way (builder.himself/herself). The village finishes the posts in silence. Every hut in the village stands on new posts now, and the last one, in the middle of the village, has (builder)'s name carved on it.",
    "effects": [
     {
      "do": "repair",

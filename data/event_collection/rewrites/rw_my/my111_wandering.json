@@ -204,7 +204,7 @@
    ]
   },
   "c1o2": {
-   "text": "The healers try a dark, bitter powder they do not recognize, and it is a mistake. (friend) becomes dizzy and sick on top of the fever, and spends several miserable days unable to keep anything down. (subject.He/she) recovers in the end, thanks to the healers' care. The healers put the rest of that powder away for good, and write a large warning on its compartment. (subject) feels awful, and spends a lot of time sitting at (friend)'s bedside apologizing.",
+   "text": "The healers try a dark, bitter powder they do not recognize, and it is a mistake. (friend) becomes dizzy and sick on top of the fever, and spends several miserable days unable to keep anything down. (friend.He/she) recovers in the end, thanks to the healers' care. The healers put the rest of that powder away for good, and write a large warning on its compartment. (subject) feels awful, and spends a lot of time sitting at (friend)'s bedside apologizing.",
    "effects": [
     {
      "do": "sick",
@@ -233,7 +233,7 @@
    "src": "L16330"
   },
   "c2o2": {
-   "text": "The full moon rises, and sets. No herbalist comes. Nor the next night, nor the one after. (friend) slowly recovers on (subject.his/her) own with the healers' help, weak but alive. The box sits on (subject)'s shelf, sealed, still smelling of camphor and ginger. (subject) keeps it there for years. Every full moon, (subject.he/she) glances at the door. The herbalist never does come back for it.",
+   "text": "The full moon rises, and sets. No herbalist comes. Nor the next night, nor the one after. (friend) slowly recovers on (friend.his/her) own with the healers' help, weak but alive. The box sits on (subject)'s shelf, sealed, still smelling of camphor and ginger. (subject) keeps it there for years. Every full moon, (subject.he/she) glances at the door. The herbalist never does come back for it.",
    "src": "L16332"
   },
   "c2": {
@@ -251,7 +251,7 @@
    "src": "L16328"
   },
   "c3o1": {
-   "text": "The labels are a revelation, not for what is inside, but for how it is arranged. The herbalist has sorted every remedy by what it treats, how strong it is, and how it should be taken, with little coloured marks that the healers can read at a glance. The healers immediately reorganize their own herb store the same way. They are faster and make fewer mistakes from then on. (friend) recovers on (subject.his/her) own, and the remedies stay untouched.",
+   "text": "The labels are a revelation, not for what is inside, but for how it is arranged. The herbalist has sorted every remedy by what it treats, how strong it is, and how it should be taken, with little coloured marks that the healers can read at a glance. The healers immediately reorganize their own herb store the same way. They are faster and make fewer mistakes from then on. (friend) recovers on (friend.his/her) own, and the remedies stay untouched.",
    "effects": [
     {
      "do": "tech",

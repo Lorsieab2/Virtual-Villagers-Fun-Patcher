@@ -115,7 +115,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(keeper), the spell-keeper, has been trying to make a spell that doubles things: one fish into two, one basket of yams into two. After a month of trying, (subject.he/she) has made a pink shell that does it. Put one coconut under it, lift it, and there are two. (keeper) is very excited and wants to try it on something bigger.\n(subject) has come by to borrow a basket and finds (keeper) looking at (subject.him/her) thoughtfully. \"Would you sit under the big one?\" (subject.he/she) asks. \"Just for a moment. I want to see if it works on a person.\" Should (subject) agree, or say no and take the basket?",
+   "text": "(keeper), the spell-keeper, has been trying to make a spell that doubles things: one fish into two, one basket of yams into two. After a month of trying, (keeper.he/she) has made a pink shell that does it. Put one coconut under it, lift it, and there are two. (keeper) is very excited and wants to try it on something bigger.\n(subject) has come by to borrow a basket and finds (keeper) looking at (subject.him/her) thoughtfully. \"Would you sit under the big one?\" (keeper.he/she) asks. \"Just for a moment. I want to see if it works on a person.\" Should (subject) agree, or say no and take the basket?",
    "choices": [
     {
      "label": "Agree",
@@ -194,7 +194,7 @@
    "auto_text": true
   },
   "c2": {
-   "text": "\"Not a chance,\" says (subject). (keeper) sighs and puts the big shell down on the mat. Then (subject.his/her) apprentice, (apprentice), wanders in, and sits down on it to rest...",
+   "text": "\"Not a chance,\" says (subject). (keeper) sighs and puts the big shell down on the mat. Then (keeper.his/her) apprentice, (apprentice), wanders in, and sits down on it to rest...",
    "children": [
     {
      "next": "c2o1",

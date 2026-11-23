@@ -184,7 +184,7 @@
    "src": "L6350"
   },
   "c2o1": {
-   "text": "(subject) shows (young) how to teach counting with pebbles and shells: pebbles for ones, shells for tens, a coconut for a hundred. It's simple, but it works on even the most fidgety children. (young) learns a useful skill to pass on, and teaches (subject.his/her) first lesson the next day, with (subject) watching from the back, nodding.",
+   "text": "(subject) shows (young) how to teach counting with pebbles and shells: pebbles for ones, shells for tens, a coconut for a hundred. It's simple, but it works on even the most fidgety children. (young) learns a useful skill to pass on, and teaches (young.his/her) first lesson the next day, with (subject) watching from the back, nodding.",
    "effects": [
     {
      "do": "skill",

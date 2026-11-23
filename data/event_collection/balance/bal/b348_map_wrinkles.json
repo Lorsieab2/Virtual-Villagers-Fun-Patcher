@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(elder), the eldest villager, has a face so lined that the children say it's a map. (elder) says it is: every line is a place (subject.he/she) has been and a thing (subject.he/she) has learned. Today (subject.he/she) offers to give (subject) one of (subject.his/her) lines, the one that holds the way to the best fishing grounds, which (subject.he/she) has never told anyone.\n\"It'll cost you, mind,\" (elder) says. \"Lines aren't free. You'll carry some of my years with it.\" Should (subject) take the line, or politely say no?",
+   "text": "(elder), the eldest villager, has a face so lined that the children say it's a map. (elder) says it is: every line is a place (elder.he/she) has been and a thing (elder.he/she) has learned. Today (elder.he/she) offers to give (subject) one of (elder.his/her) lines, the one that holds the way to the best fishing grounds, which (elder.he/she) has never told anyone.\n\"It'll cost you, mind,\" (elder) says. \"Lines aren't free. You'll carry some of my years with it.\" Should (subject) take the line, or politely say no?",
    "choices": [
     {
      "label": "Take the Line",
@@ -191,7 +191,7 @@
    "src": "L16076"
   },
   "c2o1": {
-   "text": "(elder) never tells anyone else about the fishing grounds. When (subject.he/she) dies, years later, (subject) remembers the offer, and wonders. Then (subject.he/she) goes out in the canoe and starts looking, line by line, the way (elder) must have done, and finds the place at last when (subject.his/her) own face is lined. \"Earned it,\" (subject.he/she) says to nobody.",
+   "text": "(elder) never tells anyone else about the fishing grounds. When (elder.he/she) dies, years later, (subject) remembers the offer, and wonders. Then (subject.he/she) goes out in the canoe and starts looking, line by line, the way (elder) must have done, and finds the place at last when (subject.his/her) own face is lined. \"Earned it,\" (subject.he/she) says to nobody.",
    "src": "L16088",
    "text_only": [
     {
@@ -202,7 +202,7 @@
    ]
   },
   "c2o2": {
-   "text": "\"Good answer,\" says (elder). \"Here's something for free, then.\" And (subject.he/she) talks for an hour, not about fishing, but about (subject)'s own work, things (subject.he/she) has noticed watching (subject) over the years: what (subject) does well, what (subject) does badly, and why. It is the most useful hour of advice (subject) has ever had.",
+   "text": "\"Good answer,\" says (elder). \"Here's something for free, then.\" And (elder.he/she) talks for an hour, not about fishing, but about (subject)'s own work, things (elder.he/she) has noticed watching (subject) over the years: what (subject) does well, what (subject) does badly, and why. It is the most useful hour of advice (subject) has ever had.",
    "effects": [
     {
      "do": "skill",

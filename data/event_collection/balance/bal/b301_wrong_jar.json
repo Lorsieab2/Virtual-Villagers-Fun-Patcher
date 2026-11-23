@@ -129,11 +129,11 @@
    "src": "L13972-13973"
   },
   "c1o1": {
-   "text": "It's bitterleaf. Within the hour (sick)'s stomach has settled and (subject.he/she) is asking for food. (subject) goes straight back to the shelf and scratches a deep mark on both lids, then scratches the word NIGHTSHADE on the second one in letters as big as (subject.his/her) thumb, for good measure. (subject.His/her) hands shake for the rest of the afternoon.",
+   "text": "It's bitterleaf. Within the hour (sick)'s stomach has settled and (sick.he/she) is asking for food. (subject) goes straight back to the shelf and scratches a deep mark on both lids, then scratches the word NIGHTSHADE on the second one in letters as big as (subject.his/her) thumb, for good measure. (subject.His/her) hands shake for the rest of the afternoon.",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     }
    ],
    "src": "L13982",
@@ -147,11 +147,11 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "It's nightshade. (sick) sleeps for two days, so deeply that the healers take turns sitting with (subject.him/her) and listening to (subject.his/her) breathing. When (subject.he/she) finally wakes, the stomach is fine. But (subject.his/her) hands are numb, and (subject.his/her) legs don't do what (subject.he/she) tells them, and they never fully come back. (subject) visits every day for a year, as a friend and never with (subject.his/her) healer's bag. (sick) never lets anyone treat (subject.him/her) again.",
+   "text": "It's nightshade. (sick) sleeps for two days, so deeply that the healers take turns sitting with (sick.him/her) and listening to (sick.his/her) breathing. When (sick.he/she) finally wakes, the stomach is fine. But (sick.his/her) hands are numb, and (sick.his/her) legs don't do what (sick.he/she) tells them, and they never fully come back. (subject) visits every day for a year, as a friend and never with (subject.his/her) healer's bag. (sick) never lets anyone treat (sick.him/her) again.",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "health_change",
@@ -162,11 +162,11 @@
     {
      "do": "preference",
      "dislike": "medicine",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "old_look",
-     "role": "subject"
+     "role": "sick"
     }
    ],
    "src": "L13985",
@@ -191,7 +191,7 @@
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "skill",

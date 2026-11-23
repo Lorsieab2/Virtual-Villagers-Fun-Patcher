@@ -141,7 +141,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(subject)'s mask comes off clean. (dancer)'s doesn't come off at all until long after moonrise, and when it finally does, (dancer) has a completely different face. (subject.His/Her) own mother needs a moment to recognise (subject.him/her). (dancer), looking at (subject.himself/herself) in the water, decides (subject.he/she) likes it better than the old one.",
+   "text": "(subject)'s mask comes off clean. (dancer)'s doesn't come off at all until long after moonrise, and when it finally does, (dancer) has a completely different face. (dancer.His/Her) own mother needs a moment to recognise (dancer.him/her). (dancer), looking at (dancer.himself/herself) in the water, decides (dancer.he/she) likes it better than the old one.",
    "effects": [
     {
      "do": "appearance",

@@ -194,7 +194,7 @@
    "src": "L4723"
   },
   "c2o1": {
-   "text": "(friend) stares down for a long, long moment. Then (subject.he/she) straightens up, blinking, and someone in the crowd shrieks. (subject.His/Her) face and hair have changed for good, as if the water lent (subject.him/her) a little of whoever was looking back. (subject.He/She) still sounds the same and still laughs the same, but (subject.his/her) own friends need a long moment, and several confused questions, before they are sure it is really (subject.him/her).",
+   "text": "(friend) stares down for a long, long moment. Then (friend.he/she) straightens up, blinking, and someone in the crowd shrieks. (friend.His/Her) face and hair have changed for good, as if the water lent (friend.him/her) a little of whoever was looking back. (friend.He/She) still sounds the same and still laughs the same, but (friend.his/her) own friends need a long moment, and several confused questions, before they are sure it is really (friend.him/her).",
    "effects": [
     {
      "do": "appearance",
@@ -206,11 +206,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Just as (friend) bends over the spring, (subject.he/she) remembers an urgent net that needs mending. So does everyone else, all at once. The crowd melts away into the trees with remarkable speed. Nobody is pushed to look, nobody is teased for running, and the spring is left alone to reflect the sky.",
+   "text": "Just as (friend) bends over the spring, (friend.he/she) remembers an urgent net that needs mending. So does everyone else, all at once. The crowd melts away into the trees with remarkable speed. Nobody is pushed to look, nobody is teased for running, and the spring is left alone to reflect the sky.",
    "src": "L4734"
   },
   "c2": {
-   "text": "Nobody wants to go first. Finally (friend) rolls up (subject.his/her) sleeves. \"If it shows me with no teeth, I don't want to hear about it.\" (subject.He/She) leans out over the water, and the whole crowd leans with (subject.him/her)...",
+   "text": "Nobody wants to go first. Finally (friend) rolls up (friend.his/her) sleeves. \"If it shows me with no teeth, I don't want to hear about it.\" (friend.He/She) leans out over the water, and the whole crowd leans with (friend.him/her)...",
    "children": [
     {
      "next": "c2o1",

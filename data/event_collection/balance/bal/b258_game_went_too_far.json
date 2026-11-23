@@ -112,7 +112,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) and (friend) have been playing the same game of stones on the same flat rock every evening for a year. They are very evenly matched. Lately, though, the games have been getting louder. Last night (friend) accused (subject) of moving a stone while (subject.he/she) was looking at the sunset, and (subject) accused (friend) of looking at the sunset on purpose.\nTonight half the village has gathered to watch, and the two of them are glaring at each other across the rock. Somebody has to say something. Should (subject) offer to call the whole game off, or play one last game, winner takes all?",
+   "text": "(subject) and (friend) have been playing the same game of stones on the same flat rock every evening for a year. They are very evenly matched. Lately, though, the games have been getting louder. Last night (friend) accused (subject) of moving a stone while (friend.he/she) was looking at the sunset, and (subject) accused (friend) of looking at the sunset on purpose.\nTonight half the village has gathered to watch, and the two of them are glaring at each other across the rock. Somebody has to say something. Should (subject) offer to call the whole game off, or play one last game, winner takes all?",
    "choices": [
     {
      "label": "Call It Off",

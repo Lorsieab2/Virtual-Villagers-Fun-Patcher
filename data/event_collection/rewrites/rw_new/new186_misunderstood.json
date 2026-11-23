@@ -217,7 +217,7 @@
    "src": "L9035"
   },
   "c3o1": {
-   "text": "Finally (master) says, \"It's good. But it'll come down in the first storm.\" (subject.He/She) teaches (subject) how to anchor a canopy so it can stand up to the wind: guy ropes, deep-set poles, angled bracing. They rebuild it together, smaller, over the seedlings. It survives three storms. (subject) learns more about building in those few days than in a whole year.",
+   "text": "Finally (master) says, \"It's good. But it'll come down in the first storm.\" (master.He/She) teaches (subject) how to anchor a canopy so it can stand up to the wind: guy ropes, deep-set poles, angled bracing. They rebuild it together, smaller, over the seedlings. It survives three storms. (subject) learns more about building in those few days than in a whole year.",
    "effects": [
     {
      "do": "skill",
@@ -233,11 +233,11 @@
    "auto_text": true
   },
   "c3o2": {
-   "text": "(master) starts laughing, and can't stop. When (subject.he/she) finally does, (subject.he/she) admits that, as an apprentice, (subject.he/she) once built a door on the wrong side of a hut. Facing the cliff. Nobody noticed for a year, because the family just climbed in through the window. (subject) feels much better.",
+   "text": "(master) starts laughing, and can't stop. When (master.he/she) finally does, (master.he/she) admits that, as an apprentice, (master.he/she) once built a door on the wrong side of a hut. Facing the cliff. Nobody noticed for a year, because the family just climbed in through the window. (subject) feels much better.",
    "src": "L9046"
   },
   "c3": {
-   "text": "(master) is fetched. (subject.He/She) walks all the way around the canopy, slowly, in silence, looking up at it...",
+   "text": "(master) is fetched. (master.He/She) walks all the way around the canopy, slowly, in silence, looking up at it...",
    "children": [
     {
      "next": "c3o1",
