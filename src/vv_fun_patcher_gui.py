@@ -448,11 +448,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Esteemed Elders in Every Game (the owner, 2026-11-22: "ON in Owner's Defaults, off otherwise"): off here and
     # in Select All.
     + ESTEEMED_ELDERS_IDS
-    # Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has Children and All Heathens
-    # Leave Skeletons (New Believers; the owner, 2026-11-22): off by default and in Select All, on in Owner's
-    # Defaults only.  Their alternative Former Villagers Among the Heathens Leave Skeletons is off through
-    # ALTERNATIVE_OFF_FUN_PATCH_IDS and off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
-    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, ALL_SKELETONS_ID]
+    # The Heathen aging rows (New Believers; the owner, 2026-11-23): Former Villagers Keep Aging Among the Heathens
+    # and Former Villagers Among the Heathens Leave Skeletons off by default and in Select All, on in Owner's
+    # Defaults; Heathen Tribe Ages, Dies and Has Children off everywhere (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS too);
+    # All Heathens Leave Skeletons, the skeleton rows' alternative, off through ALTERNATIVE_OFF_FUN_PATCH_IDS.
+    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, FORMER_SKELETONS_ID]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
@@ -499,9 +499,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
     # No Safeguards for Island Events (and Additional Events too).
     + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
-    # The owner (2026-11-22): of the two exclusive skeleton rows, All Heathens Leave Skeletons is on in Owner's
-    # Defaults and Former Villagers Among the Heathens Leave Skeletons off.
-    + [FORMER_SKELETONS_ID]
+    # The owner (2026-11-23): Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off
+    # in Owner's Defaults too (Former Villagers Among the Heathens Leave Skeletons is ticked there).
+    + [HEATHEN_TRIBE_AGES_ID, ALL_SKELETONS_ID]
     # (No Restrictions on Fog of Doom Conversions is NOT here: the owner, 2026-11-20, turned it on in Owner's
     # Defaults; it stays off by default and in Select All.)
 )
@@ -537,7 +537,7 @@ SELECT_ALL_OFF_FUN_PATCH_IDS = frozenset(
     # Esteemed Elders in Every Game: on in Owner's Defaults only (the owner, 2026-11-22).
     + ESTEEMED_ELDERS_IDS
     # The Heathen aging rows (New Believers): on in Owner's Defaults only (the owner, 2026-11-22).
-    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, ALL_SKELETONS_ID]
+    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, FORMER_SKELETONS_ID]
     # (Memorial Actions Can Also Occur at the Heathen Hovel is NOT here: the owner (2026-11-08), "must be ticked
     # by Select All too" -- off in the normal defaults, on in Owner's Defaults and Select All.)
 ) | ALTERNATIVE_OFF_FUN_PATCH_IDS

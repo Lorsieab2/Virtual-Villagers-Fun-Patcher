@@ -47,8 +47,9 @@ def _owner_keeps_off(patch_id: str) -> bool:
             # The owner (2026-11-12): Island Events Scale With Stored Food and Tech Points is the alternative, off in
             # Owner's Defaults (Island Events Scale With Population is ticked there).
             or patch_id.endswith("_island_events_scale_with_stored_amounts")
-            # The owner (2026-11-22): of the two exclusive skeleton rows, All Heathens Leave Skeletons is ticked there.
-            or patch_id == "vv5_former_villager_heathens_leave_skeletons"
+            # The owner (2026-11-23): Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are
+            # off there (Former Villagers Among the Heathens Leave Skeletons is ticked).
+            or patch_id in ("vv5_heathen_tribe_ages", "vv5_all_heathens_leave_skeletons")
             # The owner (2026-11-15): the island events' content filters and No Safeguards for Island Events are
             # off everywhere, Owner's Defaults too (Content Notes is ticked there).
             or "_island_event_filter_f" in patch_id or patch_id.endswith("_island_events_any_time"))

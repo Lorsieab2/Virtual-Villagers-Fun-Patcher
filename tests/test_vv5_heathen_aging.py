@@ -83,6 +83,16 @@ class Village(Machine):
         # A clock that moves, so the companion's file and grave watch run at each age credit (every 250 ms live).
         self.clock = 0
         self.api_handlers["GetTickCount"] = self._clock
+        # Files in memory (the companion's per-save file), so what it keeps across a Change Tribe is real.
+        self.files: dict[str, bytes] = {}
+        self.handles: dict[int, list] = {}
+        self.last_error = 0
+        for name, fn in (("CreateFileA", self._create_file), ("ReadFile", self._read_file),
+                         ("WriteFile", self._write_file), ("FlushFileBuffers", lambda p: (1, 4)),
+                         ("CloseHandle", self._close), ("MoveFileExA", self._move_file),
+                         ("DeleteFileA", self._delete_file), ("GetLastError", lambda p: (p.last_error, 0)),
+                         ("CreateDirectoryA", lambda p: (1, 8)), ("SHGetSpecialFolderPathA", self._documents)):
+            self.api_handlers[name] = fn
         stubs = self.alloc(0x40)
         self.cod_exports = {"VvfpCauseDiedAmongHeathens": stubs, "VvfpCauseHeathenArrived": stubs + 0x10,
                             "VvfpCauseNoteArrival": stubs + 0x20}
@@ -111,6 +121,47 @@ class Village(Machine):
             self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
         self.installed = self.export("VvfpStartup", 5, 0)
         self.installed = self.export("VvfpHeathenAgingInstalled")
+
+    def _documents(self, p):
+        p.write(p.arg(1), b"C:\\Docs\0")
+        return 1, 16
+
+    def _create_file(self, p):
+        name, disposition = p.cstring(p.arg(0)), p.arg(4)
+        if disposition == 3 and name not in self.files:              # OPEN_EXISTING
+            self.last_error = 2
+            return 0xFFFFFFFF, 28
+        if disposition != 3:
+            self.files[name] = b""
+        handle = 0x500 + len(self.handles) * 4
+        self.handles[handle] = [name, 0]
+        return handle, 28
+
+    def _read_file(self, p):
+        name, pos = self.handles[p.arg(0)]
+        data = self.files[name][pos:pos + p.arg(2)]
+        p.write(p.arg(1), data)
+        p.put32(p.arg(3), len(data))
+        self.handles[p.arg(0)][1] = pos + len(data)
+        return 1, 20
+
+    def _write_file(self, p):
+        name = self.handles[p.arg(0)][0]
+        self.files[name] += p.read(p.arg(1), p.arg(2))
+        p.put32(p.arg(3), p.arg(2))
+        return 1, 20
+
+    def _close(self, p):
+        self.handles.pop(p.arg(0), None)
+        return 1, 4
+
+    def _move_file(self, p):
+        src, dst = p.cstring(p.arg(0)), p.cstring(p.arg(1))
+        self.files[dst] = self.files.pop(src)
+        return 1, 12
+
+    def _delete_file(self, p):
+        return int(self.files.pop(p.cstring(p.arg(0)), None) is not None), 4
 
     def _clock(self, p):
         self.clock += 1000
@@ -401,6 +452,7 @@ class Tribe(unittest.TestCase):
     def test_every_heathen_ages_and_the_camp_one_is_replaced_in_kind(self):
         v = Village((TRIBE,))
         camp = v.villager(1, heathen=True, role=6, orange=1)
+        v.villager(9, heathen=True, name="Other")          # another Heathen alive: never from nothing
         v.credit(camp, 2)
         self.assertEqual(v.i32(camp, AGE), 602)
         _due_to_die(v, camp)
@@ -410,6 +462,21 @@ class Tribe(unittest.TestCase):
         self.assertEqual((args[5], args[6], args[7]), (1, 0, 6), "the same camp role and mask")
         self.assertEqual(args[4], 400)
 
+    def test_old_age_follows_the_villages_medicine_for_camp_heathens_too(self):
+        """The believers' threshold, 1,100 + 160 x (Medicine - 1) units, read from the village's own tech level: at
+        Medicine 1 a camp Heathen of 1,120 units is rolled for; at Medicine 3 (1,420) not yet; past 1,420 again."""
+        for medicine, at, rolled in ((1, OLD + 20, True), (3, OLD + 20, False), (3, OLD + 340, True)):
+            with self.subTest(medicine=medicine, at=at):
+                v = Village((TRIBE,))
+                v.put32(MEDICINE, medicine)
+                v.villager(9, heathen=True, name="Other")
+                h = v.villager(1, heathen=True, role=4)
+                v.put32(h + AGE, at + 1)
+                v.put32(h + PROCESSED, at)
+                v.rand_answers.extend([0])
+                v.life_tick()
+                self.assertEqual(v.rand_calls[:1] == [100], rolled)
+                self.assertEqual(v.read(h + PRESENT, 1) == b"\x00", rolled, "gone of old age (no skeleton)")
     def test_with_both_aging_rows_there_is_no_double_aging(self):
         v = Village((FORMER, TRIBE))
         r = v.villager(1, heathen=True, parents=True)
@@ -603,6 +670,17 @@ class GravesAndStartOver(unittest.TestCase):
         self.assertEqual(v.export("VvfpHeathenAgingGrave", 5, 0), 0, "a believer's grave")
         self.assertEqual(v.export("VvfpHeathenAgingGrave", 4, 1), 0, "another game")
 
+    def test_a_save_right_after_the_burial_already_knows_the_grave(self):
+        # Codex (#850): the Village Statistics ask at the save, before the throttled look has seen the burial.
+        v = Village((TRIBE, BONES_ALL))
+        believer = v.villager(9, heathen=False, name="Ana")
+        v.villager(8, heathen=True, name="Other")
+        h = v.villager(1, heathen=True, role=4, name="Old One")
+        _due_to_die(v, h)
+        v.life_tick()
+        v.credit(believer, 1)                           # the body watched
+        self._bury(v, h, 0)
+        self.assertEqual(v.export("VvfpHeathenAgingGrave", 5, 0), 1, "no age credit in between")
     def test_an_unburied_body_the_game_removes_leaves_no_grave(self):
         v = Village((TRIBE, BONES_ALL))
         believer = v.villager(9, heathen=False)
@@ -772,6 +850,7 @@ class SelfReview(unittest.TestCase):
             with self.subTest(faith=faith):
                 v = Village((TRIBE,))
                 h = v.villager(1, heathen=True, role=2)
+                v.villager(9, heathen=True, name="Other")      # another Heathen alive: never from nothing
                 v.put32(h + FAITH, faith & 0xFFFFFFFF)
                 _due_to_die(v, h)
                 v.life_tick()
@@ -823,6 +902,7 @@ class OnlyCampHeathensAreReplaced(unittest.TestCase):
     def test_a_former_villager_in_a_puzzle_role_is_still_replaced_in_that_role(self):
         v = Village((FORMER,))
         r = v.villager(2, heathen=True, parents=True, role=12)
+        v.villager(9, heathen=True, name="Other")          # another Heathen alive: never from nothing
         _due_to_die(v, r)
         v.life_tick()
         self.assertEqual([a[7] for _, a in v.created], [12], "the puzzle keeps working")
@@ -863,6 +943,93 @@ class OnlyCampHeathensAreReplaced(unittest.TestCase):
         v.life_tick()
         self.assertEqual(v.conceived, [])
 
+
+@unittest.skipIf(_skip(), _skip() or "")
+class NeverFromNothing(unittest.TestCase):
+    """The owner (2026-11-23): with no Heathen alive this companion never makes one, and after The Last Heathen it
+    makes none at all -- no replacement, no birth (a pregnancy conceived before waits, never delivered among the
+    Heathens)."""
+
+    def test_the_last_heathen_alive_dying_is_not_replaced(self):
+        for role in (4, 13):
+            with self.subTest(role=role):
+                v = Village((TRIBE,))
+                h = v.villager(1, heathen=True, role=role)
+                _due_to_die(v, h)
+                v.life_tick()
+                self.assertEqual(v.created, [])
+
+    def test_an_owed_replacement_is_never_made_once_no_heathen_is_alive(self):
+        v = Village((TRIBE, BONES_ALL))
+        for i in range(150):
+            v.villager(i, heathen=False)                # believers fill the table
+        h = v.villager(7, heathen=True, role=3)
+        other = v.villager(8, heathen=True, role=3)
+        _due_to_die(v, h)
+        v.life_tick()
+        self.assertEqual(v.created, [], "owed")
+        v.write(other + PRESENT, b"\x00")             # the other Heathen gone too
+        v.write(v.record(40) + PRESENT, b"\x00")
+        v.credit(v.record(41), 1)
+        self.assertEqual(v.created, [])
+
+    def test_no_birth_after_the_last_heathen(self):
+        v = Village((TRIBE,))
+        v.villager(1, heathen=True, sex=0, name="Kalo")
+        woman = v.villager(2, heathen=True, sex=1, name="Mele")
+        v.put32(woman + AGE, 601)
+        v.rand_answers.extend([0, 0])
+        v.life_tick()
+        self.assertEqual(len(v.conceived), 1)
+        v.solve(25)
+        conceived = v.i32(woman, PREGNANT)
+        v.put32(woman + AGE, conceived + 60)
+        v.life_tick()
+        self.assertEqual(v.created, [], "no Heathen baby after The Last Heathen")
+        self.assertEqual(v.i32(woman, PREGNANT), conceived, "the pregnancy waits, as in the stock game")
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class CodexQueueAndBodies(unittest.TestCase):
+    """Codex (#850): more than 32 owed replacements, each keeping its Faith, kept in the village's own file; more
+    than 32 Heathen bodies watched for their graves."""
+
+    def _many_die(self, v: Village, n: int, faith: int = -50) -> list[int]:
+        for i in range(150):
+            v.villager(i, heathen=True)
+        dying = []
+        for i in range(10, 10 + n):
+            r = v.record(i)
+            v.put32(r + ROLE, 3)
+            v.put32(r + FAITH, faith & 0xFFFFFFFF)
+            _due_to_die(v, r)
+            dying.append(r)
+        v.rand_answers.clear()
+        v.rand_answers.extend([0] * 1000)              # every roll takes them (and every other draw is 0)
+        v.life_tick()
+        return dying
+
+    def test_forty_owed_replacements_are_all_made_each_with_its_faith(self):
+        v = Village((TRIBE, BONES_ALL))
+        self._many_die(v, 40, faith=-9)
+        self.assertEqual(v.created, [], "a full table: all owed")
+        for i in range(100, 140):
+            v.write(v.record(i) + PRESENT, b"\x00")
+        v.credit(v.record(5), 1)
+        self.assertEqual(len(v.created), 40)
+        self.assertEqual({v.i32(v.record(i), FAITH) for i, _ in v.created}, {-9}, "the easy Faith kept while owed")
+
+    def test_forty_buried_heathens_all_have_their_graves_written_down(self):
+        v = Village((TRIBE, BONES_ALL))
+        dying = self._many_die(v, 40)
+        v.credit(v.record(5), 1)                       # every body watched
+        for entry, r in enumerate(dying):
+            at = ROSTER + entry * ROSTER_STRIDE
+            v.write(r + PRESENT, b"\x00")
+            v.write(at, v.read(r + NAME, 0x19))
+            v.put32(at + 0x1C, v.u32(r + AGE))
+        v.credit(v.record(5), 1)
+        self.assertEqual(sum(v.export("VvfpHeathenAgingGrave", 5, e) for e in range(40)), 40)
 
 ROWS = {
     "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),

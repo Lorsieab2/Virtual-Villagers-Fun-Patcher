@@ -204,17 +204,10 @@ static int g_tick_result;
 /* Living believers the age credit has seen, by slot. */
 static unsigned int g_seen[256];
 
-/* Replacements still owed (a full table): the kind, and the role / masks. */
-#define OWED_MAX 32
-/* Kept per save slot (0: the slot not known yet), so a replacement owed in one village is never made in another
-   after a Change Tribe; the current village's queue is OWED / OWED_COUNT (g_file_slot, below). */
-static struct { int role; unsigned char orange, red; } g_owed_by_slot[6][OWED_MAX];
-static int g_owed_counts[6];
-#define OWED g_owed_by_slot[g_file_slot]
-#define OWED_COUNT g_owed_counts[g_file_slot]
 static int g_body_count;                   /* the Heathen bodies watched (watch_graves, below) */
 static int g_roster_known;                 /* the last roster look (follow_identities, below) */
 static void pay_owed(void);
+static int owed_count(void);
 
 /* ---- the game, called ------------------------------------------------------------------------------------- */
 
@@ -275,6 +268,7 @@ static int puzzle_done(int puzzle) {
 #define KIND_FORMER 1u           /* a believer who turned Heathen */
 #define KIND_EXPECTING 2u        /* a Heathen woman expecting a Heathen baby this companion conceived */
 #define KIND_GRAVE 3u            /* a Roster of the Dead entry a Heathen's body was buried into (identity = entry + 1) */
+#define KIND_OWED 4u             /* a replacement owed (a full table): owed_pack's role, masks, Faith, a number */
 #define HA_RESERVE ((int)sizeof(".unreadable-4294967295-999"))
 #define HA_WRITE_MS 1000u
 #define HA_KEEP_MS 250u          /* the slot looked at, the file kept, at most this often */
@@ -343,7 +337,7 @@ static int valid_known(const unsigned char *data, DWORD len, void *ctx) {
         return 0;
     }
     for (i = 0; i < count; ++i) {
-        if (u[5 + i * 2] == 0u || u[6 + i * 2] > KIND_GRAVE) {
+        if (u[5 + i * 2] == 0u || u[6 + i * 2] > KIND_OWED) {
             return 0;
         }
     }
@@ -442,15 +436,12 @@ static void keep_known(void) {
         return;
     }
     if (slot != g_file_slot) {
-        if (g_file_slot == 0) {
-            int i;
-            for (i = 0; i < g_owed_counts[0] && g_owed_counts[slot] < OWED_MAX; ++i) {
-                g_owed_by_slot[slot][g_owed_counts[slot]++] = g_owed_by_slot[0][i];
-            }
-            g_owed_counts[0] = 0;
-        }
-        g_known_count = 0;
-        g_dirty = 0;
+        if (g_file_slot != 0) {
+            g_synced_at = GetTickCount() - HA_WRITE_MS;
+            write_known();                 /* the last village's file first */
+            g_known_count = 0;             /* ...and nothing of it here */
+        }                                  /* (noted before any slot was known: this village's, kept) */
+        g_dirty = g_known_count > 0;
         g_file_slot = slot;
         g_body_count = 0;                  /* another village's bodies, believers and roster */
         g_roster_known = 0;
@@ -486,7 +477,7 @@ static int former_villager(const unsigned char *record) {
 #define G_ROSTER_STRIDE 0x5Cu
 #define G_ROSTER_ENTRIES 500
 #define ROSTER_AGE 0x1Cu
-#define BODIES_MAX 32
+#define BODIES_MAX 256                 /* every record (the 256 build) */
 
 static struct { int index; unsigned int who; int age; int graves; char name[R_NAME_CAP + 1]; } g_bodies[BODIES_MAX];
 static int g_body_count;
@@ -577,7 +568,7 @@ static void rekey(const unsigned int *was, int n, unsigned int from, unsigned in
         return;
     }
     for (i = 0; i < g_known_count;) {
-        if (g_known[i].kind != KIND_GRAVE && g_known[i].identity == from) {
+        if (g_known[i].kind != KIND_GRAVE && g_known[i].kind != KIND_OWED && g_known[i].identity == from) {
             unsigned int kind = g_known[i].kind;
             known_drop(from, kind);
             known_put(to, kind);
@@ -649,7 +640,7 @@ static int __cdecl credit(unsigned char *record, int units) {
             keep_known();
             follow_identities();
             watch_graves();
-            if (OWED_COUNT > 0) {
+            if (owed_count() > 0) {
                 pay_owed();
             }
         }
@@ -677,6 +668,16 @@ static int __cdecl credit(unsigned char *record, int units) {
 }
 
 /* ---- the Heathen creator ----------------------------------------------------------------------------------- */
+
+static int living_heathens(void) {
+    unsigned int i;
+    int n = 0;
+    for (i = 0; i < g_slots; ++i) {
+        const unsigned char *r = rec_at((int)i);
+        n += r[R_FACTION] != 0 && living(r);
+    }
+    return n;
+}
 
 static int free_records(void) {
     unsigned int i;
@@ -776,7 +777,6 @@ static int g_replace_faith;
 
 static int create_ordinary(int role, int orange, int red) {
     int faith = g_replace_faith;
-    g_replace_faith = 0;
     return create(0, ha_rand(6), 5 + ha_rand(5), -1, 400, orange, red, role, faith != 0 ? faith : camp_faith());
 }
 
@@ -796,25 +796,60 @@ static int replace(int role, unsigned char orange, unsigned char red) {
     return 1;
 }
 
-static void owe(int role, unsigned char orange, unsigned char red) {
-    if (OWED_COUNT < OWED_MAX) {
-        OWED[OWED_COUNT].role = role;
-        OWED[OWED_COUNT].orange = orange;
-        OWED[OWED_COUNT].red = red;
-        ++OWED_COUNT;
+/* An owed replacement, packed into a file entry: bit 31 set, a number 0..255 (bits 20-27) keeping two alike
+   apart, the Faith kept (its negation, bits 8-15; 0: the camp's -38 - rand(30)), red (7), orange (6), the role (0-5). */
+static unsigned int owed_pack(int role, int orange, int red, int faith, int number) {
+    return 0x80000000u | ((unsigned int)(number & 0xFF) << 20) | ((unsigned int)(-faith & 0xFF) << 8)
+        | ((unsigned int)(red != 0) << 7) | ((unsigned int)(orange != 0) << 6) | (unsigned int)(role & 0x3F);
+}
+
+static int owed_count(void) {
+    int i, n = 0;
+    for (i = 0; i < g_known_count; ++i) {
+        n += g_known[i].kind == KIND_OWED;
+    }
+    return n;
+}
+
+static void owe(int role, unsigned char orange, unsigned char red, int faith) {
+    int number;
+    for (number = 0; number < 256; ++number) {
+        unsigned int packed = owed_pack(role, orange, red, faith, number);
+        if (known_find(packed, KIND_OWED) < 0) {
+            known_put(packed, KIND_OWED);  /* in the slot's file: kept across a quit and a Change Tribe */
+            return;
+        }
     }
 }
 
+static void drop_owed(void) {
+    int i;
+    for (i = g_known_count; i-- > 0;) {
+        if (g_known[i].kind == KIND_OWED) {
+            known_drop(g_known[i].identity, KIND_OWED);
+        }
+    }
+}
+
+static int living_heathens(void);
+
 static void pay_owed(void) {
-    if (puzzle_done(LAST_HEATHEN)) {
-        OWED_COUNT = 0;                    /* solved since: nobody is replaced any more */
+    int i;
+    if (puzzle_done(LAST_HEATHEN) || living_heathens() == 0) {
+        drop_owed();                       /* nobody is replaced any more, and never from nothing */
         return;
     }
-    while (OWED_COUNT > 0 && free_records() > 0) {
-        --OWED_COUNT;
-        if (!replace(OWED[OWED_COUNT].role, OWED[OWED_COUNT].orange, OWED[OWED_COUNT].red)) {
-            ++OWED_COUNT;
-            return;
+    for (i = g_known_count; i-- > 0 && free_records() > 0;) {
+        if (g_known[i].kind == KIND_OWED) {
+            unsigned int packed = g_known[i].identity;
+            g_replace_faith = -(int)((packed >> 8) & 0xFF);
+            if (!replace((int)(packed & 0x3F), (unsigned char)((packed >> 6) & 1), (unsigned char)((packed >> 7) & 1))) {
+                g_replace_faith = 0;
+                return;
+            }
+            g_replace_faith = 0;
+            known_drop(packed, KIND_OWED);
+            i = g_known_count;             /* the list moved */
         }
     }
 }
@@ -862,8 +897,8 @@ static void died(unsigned char *record) {
     /* The owner (2026-11-23): once The Last Heathen is solved nobody is replaced (the camp empties over time);
        otherwise a camp Heathen is, and a puzzle Heathen while its puzzle is unsolved (replace), never a former
        villager -- a defection must not grow the camp. */
-    if (puzzle_done(LAST_HEATHEN) || (former && puzzle_of_role(role) == 0)) {
-        return;
+    if (puzzle_done(LAST_HEATHEN) || (former && puzzle_of_role(role) == 0) || living_heathens() == 0) {
+        return;                            /* (the last Heathen: none is ever made from nothing) */
     }
     if (puzzle_of_role(role) != 0) {
         /* the same role (replace: a new one while the puzzle is unsolved) */
@@ -873,7 +908,7 @@ static void died(unsigned char *record) {
     g_replace_faith = !former && (faith == -5 || faith == -9 || faith == -16 || faith == -23 || faith == -30)
         ? faith : 0;
     if (!replace(role, orange, red)) {
-        owe(role, orange, red);
+        owe(role, orange, red, g_replace_faith);
     }
     g_replace_faith = 0;
 }
@@ -989,7 +1024,7 @@ static int __cdecl unit(unsigned char *record) {
         if (!ages(record) || i32(record, R_PROCESSED) >= i32(record, R_AGE)) {
             return 0;
         }
-        if (OWED_COUNT > 0) {
+        if (owed_count() > 0) {
             pay_owed();
         }
         processed = i32(record, R_PROCESSED);
@@ -1004,7 +1039,7 @@ static int __cdecl unit(unsigned char *record) {
         if (g_tribe_row) {
             int conceived = i32(record, R_PREGNANT);
             if (conceived != 0 && i32(record, R_ROLE) != 17 && conceived + DELIVERY < processed
-                && known_find(identity(record), KIND_EXPECTING) >= 0) {
+                && known_find(identity(record), KIND_EXPECTING) >= 0 && !puzzle_done(LAST_HEATHEN)) {
                 deliver(record);
             } else if (conceived == 0) {
                 maybe_conceive(record);
@@ -1074,6 +1109,10 @@ int __stdcall VvfpHeathenAgingGrave(int game, int entry) {
     if (game != HA_GAME || entry < 0 || entry >= G_ROSTER_ENTRIES) {
         return 0;
     }
+    __try {
+        watch_graves();                    /* a burial since the last throttled look (a save right after it) */
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    }
     return known_find((unsigned int)entry + 1u, KIND_GRAVE) >= 0;
 }
 
@@ -1085,11 +1124,9 @@ void __stdcall VvfpHeathenAgingVillageReset(int game, int slot) {
     if (game != HA_GAME || slot < 1 || slot > 5) {
         return;
     }
-    g_owed_counts[slot] = 0;               /* that village's owed replacements, loaded or not */
     if (g_file_slot != 0 && slot != g_file_slot) {
         return;
     }
-    g_owed_counts[0] = 0;
     g_known_count = 0;
     g_dirty = 0;
     g_file_slot = 0;

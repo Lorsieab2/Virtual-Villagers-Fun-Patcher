@@ -703,10 +703,10 @@ EXPERIMENTAL_FUN_PATCH_IDS = POPULATION_256_FEATURE_IDS
 # 2026-11-08: the spot patch is off by default, in Owner's Defaults and in Select All).  Island Events Scale With
 # Stored Food and Tech Points is the alternative to Island Events Scale With Population (like The Lost Children) in
 # A New Home, The Tree of Life and New Believers (the owner, 2026-11-12: off by default and in Owner's Defaults).
-# New Believers' Former Villagers Among the Heathens Leave Skeletons is the alternative to All Heathens Leave
-# Skeletons (the owner, 2026-11-22: off by default and in Owner's Defaults; Select All picks All Heathens).
+# New Believers' All Heathens Leave Skeletons is the alternative to Former Villagers Among the Heathens Leave
+# Skeletons (the owner, 2026-11-23: off by default, in Owner's Defaults and in Select All).
 ALTERNATIVE_FUN_PATCH_IDS = frozenset({"vv3_fruit_trees_take_turns", "vv5_playing_in_the_dirt_spot",
-                                       "vv5_former_villager_heathens_leave_skeletons"}
+                                       "vv5_all_heathens_leave_skeletons"}
                                       | {f"vv{game}_unicode_font" for game in range(1, 6)}
                                       | {f"vv{game}_island_events_scale_with_stored_amounts" for game in (1, 4, 5)})
 VV2_PLAYTEST_DISABLED_FEATURE_ID = "vv2_enable_origins_exclusive_features"

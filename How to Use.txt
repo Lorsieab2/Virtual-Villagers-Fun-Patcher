@@ -1587,7 +1587,7 @@ parents on their record.
 
 HEATHEN TRIBE AGES, DIES AND HAS CHILDREN (NEW BELIEVERS)
 
-Off by default and in Select All; on in Owner's Defaults only. Every Heathen ages
+Off by default, in Owner's Defaults and in Select All. Every Heathen ages
 and can die of old age by the believers' own rule: the camp's Heathens,
 villagers who left you, and the puzzle Heathens too (the Heathen Doctor, the
 Heathen Chief, the three Masters and the Heathen Mommy). When a camp Heathen
@@ -1596,7 +1596,9 @@ Heathen whose puzzle is not solved is replaced in the same role, set up as
 the game sets it up (the Heathen Mommy with her infant), so every puzzle can
 still be solved; a solved puzzle's Heathen never comes back. A villager who
 left your tribe is not replaced. Once The Last Heathen is solved nobody is
-replaced and no new Heathen baby is conceived: the camp empties over time.
+replaced and no Heathen baby is conceived or born: the camp empties over
+time. With no Heathen alive none is ever made; island events and Barrel
+O' Babies still add Heathens as in the game.
 Heathen couples
 now and then have children (about one year in 20 for each woman from 14 to
 45 with a man in the camp), only while at least 10 places stay free for your
@@ -1605,7 +1607,7 @@ Villagers Keep Aging Among the Heathens also ticked nobody ages twice.
 
 ALL HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
 
-Off by default and in Select All; on in Owner's Defaults only. Only matters with a
+Off by default, in Owner's Defaults and in Select All. Only matters with a
 Heathen aging patch ticked. Every Heathen who dies of old age leaves a
 skeleton; your believers bury it with Burying the dead (once The Buried
 Mausoleum is solved), which gives a normal grave. Cannot be ticked with
@@ -1614,7 +1616,7 @@ other.
 
 FORMER VILLAGERS AMONG THE HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
 
-Off by default and in Owner's Defaults; Select All does not tick it. Only
+Off by default and in Select All; on in Owner's Defaults only. Only
 matters with a Heathen aging patch ticked. Only villagers who had left your
 tribe leave a skeleton when they die among the Heathens; your believers bury
 it. Other Heathens leave nothing. Cannot be ticked with All Heathens Leave
