@@ -5184,7 +5184,8 @@ def words(lay: Layout, key: str) -> str:
 
 FOOTER = ("Each unrelated villager has a colour of their own and full brothers and sisters share one; each "
           "pairing has its own connector; a triangle joins twins and triplets.  Generation I is the founders; a "
-          "villager who arrived later is in the generation they first appear in.  Made by the Virtual Villagers "
+          "later arrival is in the newest generation of the village's own families when they came.  Made by the "
+          "Virtual Villagers "
           "Fun Patcher's Family Tree Maker from the save and the patcher's logs.")
 
 
