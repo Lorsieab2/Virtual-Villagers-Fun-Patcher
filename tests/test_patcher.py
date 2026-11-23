@@ -4246,6 +4246,8 @@ class StockIntegrationTests(unittest.TestCase):
             "vv2_age_speed",
             # Village Solidarity (#804): companion only, needs Story / Cheat Upgrades (selected above).
             "vv2_village_solidarity",
+            # Esteemed Elders in Every Game: companion only, no executable bytes.
+            "vv2_esteemed_elders",
             }
             | {f"vv2_island_event_filter_f{n:02d}" for n in range(1, 29)},
         )
