@@ -129,7 +129,7 @@
    "src": "L5904-5906"
   },
   "c1o1": {
-   "text": "It takes all week. (subject)'s fingers are raw by the end of it, and the mat is lumpy at one corner where (subject.he/she) got distracted. (weaver) runs (subject.his/her) hands over it and says it's the best first mat (subject.he/she) has ever felt. Something about the patience of it, the over and under, sticks with (subject) in everything (subject.he/she) does after. Even (subject.his/her) own work goes better, and (subject.he/she) can't explain why.",
+   "text": "It takes all week. (subject)'s fingers are raw by the end of it, and the mat is lumpy at one corner where (subject.he/she) got distracted. (weaver) runs (weaver.his/her) hands over it and says it's the best first mat (weaver.he/she) has ever felt. Something about the patience of it, the over and under, sticks with (subject) in everything (subject.he/she) does after. Even (subject.his/her) own work goes better, and (subject.he/she) can't explain why.",
    "effects": [
     {
      "do": "skill",

@@ -157,7 +157,7 @@
    "auto_text": true
   },
   "c1": {
-   "text": "The elders put their heads together and whisper for a long time. Then (elder) stands up, clears (subject.his/her) throat, and announces it...",
+   "text": "The elders put their heads together and whisper for a long time. Then (elder) stands up, clears (elder.his/her) throat, and announces it...",
    "children": [
     {
      "next": "c1o1",

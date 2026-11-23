@@ -206,11 +206,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Just as (friend) bends over the spring, (subject.he/she) remembers an urgent net that needs mending. So does everyone else, all at once. The crowd melts away into the trees with remarkable speed. Nobody is pushed to look, nobody is teased for running, and the spring is left alone to reflect the sky.",
+   "text": "Just as (friend) bends over the spring, (friend.he/she) remembers an urgent net that needs mending. So does everyone else, all at once. The crowd melts away into the trees with remarkable speed. Nobody is pushed to look, nobody is teased for running, and the spring is left alone to reflect the sky.",
    "src": "L4734"
   },
   "c2": {
-   "text": "Nobody wants to go first. Finally (friend) rolls up (subject.his/her) sleeves. \"If it shows me with no teeth, I don't want to hear about it.\" (subject.He/She) leans out over the water, and the whole crowd leans with (subject.him/her)...",
+   "text": "Nobody wants to go first. Finally (friend) rolls up (friend.his/her) sleeves. \"If it shows me with no teeth, I don't want to hear about it.\" (friend.He/She) leans out over the water, and the whole crowd leans with (friend.him/her)...",
    "children": [
     {
      "next": "c2o1",

@@ -49,6 +49,9 @@ import collection_lib as lib  # noqa: E402
 import vv_owner_layout as owner  # noqa: E402
 import vv_player_events as pe  # noqa: E402
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import go_role_fixes as role_fixes  # noqa: E402
+
 PIECES_OUT = ROOT / "data" / "procedural_pieces" / "go_seeds.json"
 GRAMMAR_MARK = ("<!-- GO grammar fixes: written by scripts/go_events/gen_go.py -->",
                 "<!-- end of GO grammar fixes -->")
@@ -687,6 +690,8 @@ class Build:
                 if e.get("do") == "skill" and "size" in e:
                     lo, hi = cc.SKILL_SIZES[e.pop("size")]
                     e["min"], e["max"] = lo, hi
+        # who a pronoun or an effect is about, where the main villager's is the wrong one (go_role_fixes.py)
+        role_fixes.apply(self.row["id"], nodes)
         g.pop("title_variants", None)
         if "patches" in g:
             g["patches"] = [p for p in g["patches"] if p != pe.GUARDIANS_PATCH]

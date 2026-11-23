@@ -143,7 +143,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "For three days now, (subject) and (friend) have been arguing about the great fire of long ago, the one that burned down half the old village.\n(subject) says the records are right: lightning started it. It's written down. It's official.\n(friend) says (subject.his/her) grandfather swore, on his deathbed, that it was a cooking pot left on the coals by someone who went for a swim.\nThey have been arguing at breakfast. At lunch. At the well. In the middle of the night, from their separate huts, shouting across the village. Both of them are getting very loud, and (scholar) is being asked, increasingly desperately, to settle it. How should (scholar) settle it?",
+   "text": "For three days now, (subject) and (friend) have been arguing about the great fire of long ago, the one that burned down half the old village.\n(subject) says the records are right: lightning started it. It's written down. It's official.\n(friend) says (friend.his/her) grandfather swore, on his deathbed, that it was a cooking pot left on the coals by someone who went for a swim.\nThey have been arguing at breakfast. At lunch. At the well. In the middle of the night, from their separate huts, shouting across the village. Both of them are getting very loud, and (scholar) is being asked, increasingly desperately, to settle it. How should (scholar) settle it?",
    "choices": [
     {
      "label": "Copy the Old Fire Record",

@@ -198,7 +198,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "The moss makes the spots much worse. (friend)'s whole skin comes up in a red, itching rash on top of the fever. (subject) washes it off in a panic and does it (healer)'s way, and (friend) gets better, slowly, over a week. When (healer) gets back, (subject.he/she) doesn't say anything at all, which is worse than anything (subject.he/she) could have said.",
+   "text": "The moss makes the spots much worse. (friend)'s whole skin comes up in a red, itching rash on top of the fever. (subject) washes it off in a panic and does it (healer)'s way, and (friend) gets better, slowly, over a week. When (healer) gets back, (healer.he/she) doesn't say anything at all, which is worse than anything (healer.he/she) could have said.",
    "effects": [
     {
      "do": "health_change",

@@ -289,7 +289,7 @@
    "src": "L9701"
   },
   "c4o1": {
-   "text": "(subject) teaches (novice) how to repeat the floating test with a new basket of stones: one stone at a time, dry stones only, same bucket, write down what happens. (novice) is surprised to find (subject.himself/herself) learning a great deal from a small child, and runs the test perfectly.",
+   "text": "(subject) teaches (novice) how to repeat the floating test with a new basket of stones: one stone at a time, dry stones only, same bucket, write down what happens. (novice) is surprised to find (novice.himself/herself) learning a great deal from a small child, and runs the test perfectly.",
    "effects": [
     {
      "do": "skill",

@@ -113,7 +113,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Every few years, when the swamp grows warm and still, a fever comes out of it with the mosquitoes. This year it has found (sick), who went to cut reeds there and came back shaking. Now (subject.he/she) is burning up, and talking to people who aren't in the hut.\n(subject), the healer, knows two cures. One is the bark of the fever tree, which grows on the far side of the swamp, among the mosquitoes. The other is to keep (sick) cool with wet cloths and river water, day and night, and hope.\nShould (subject) go into the swamp for the bark, or stay and nurse (sick)?",
+   "text": "Every few years, when the swamp grows warm and still, a fever comes out of it with the mosquitoes. This year it has found (sick), who went to cut reeds there and came back shaking. Now (sick.he/she) is burning up, and talking to people who aren't in the hut.\n(subject), the healer, knows two cures. One is the bark of the fever tree, which grows on the far side of the swamp, among the mosquitoes. The other is to keep (sick) cool with wet cloths and river water, day and night, and hope.\nShould (subject) go into the swamp for the bark, or stay and nurse (sick)?",
    "choices": [
     {
      "label": "Go for the Bark",
@@ -157,7 +157,7 @@
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     },
     {
      "do": "kill",
@@ -187,7 +187,7 @@
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "role": "sick"
     }
    ],
    "src": "L12875",

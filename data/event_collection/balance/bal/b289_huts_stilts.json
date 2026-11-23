@@ -187,7 +187,7 @@
    "src": "L13444"
   },
   "c2o1": {
-   "text": "The king tides calm down after the next full moon, and the patched huts stay dry. (chief) is very pleased with (subject.himself/herself). (subject) is quietly a little sorry, and keeps (subject.his/her) drawings of the stilt huts rolled up in (subject.his/her) hut, just in case.",
+   "text": "The king tides calm down after the next full moon, and the patched huts stay dry. (chief) is very pleased with (chief.himself/herself). (subject) is quietly a little sorry, and keeps (subject.his/her) drawings of the stilt huts rolled up in (subject.his/her) hut, just in case.",
    "effects": [
     {
      "do": "repair",

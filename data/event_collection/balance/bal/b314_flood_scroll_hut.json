@@ -117,7 +117,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "The stream behind the scroll hut has burst its banks in the night, and when (subject) comes past at dawn, water is pouring in under the door. Inside are the village's records: every recipe, every building trick, every healing tea, written on bark and leaf by generations of scroll-keepers. (keeper) is still asleep in (subject.his/her) hut on the other side of the village.\nThe water is rising fast. Should (subject) start carrying scrolls out now, alone, or run and wake (keeper), who knows which ones matter most?",
+   "text": "The stream behind the scroll hut has burst its banks in the night, and when (subject) comes past at dawn, water is pouring in under the door. Inside are the village's records: every recipe, every building trick, every healing tea, written on bark and leaf by generations of scroll-keepers. (keeper) is still asleep in (keeper.his/her) hut on the other side of the village.\nThe water is rising fast. Should (subject) start carrying scrolls out now, alone, or run and wake (keeper), who knows which ones matter most?",
    "choices": [
     {
      "label": "Start Carrying Them Out",
@@ -133,7 +133,7 @@
    "src": "L14553-14554"
   },
   "c1o1": {
-   "text": "(subject) saves a great pile of scrolls, but they turn out to be mostly old lists of who owed whom how many fish. The important ones, on the bottom shelf at the back, are soaked through by the time (keeper) arrives. (keeper) sits up night after night by lamplight, copying out every smeared word (subject.he/she) can still make out and filling the gaps from memory, until the whole record is whole again. It costs (subject.him/her) a month of sleep, and (subject.he/she) is ill for weeks after.",
+   "text": "(subject) saves a great pile of scrolls, but they turn out to be mostly old lists of who owed whom how many fish. The important ones, on the bottom shelf at the back, are soaked through by the time (keeper) arrives. (keeper) sits up night after night by lamplight, copying out every smeared word (keeper.he/she) can still make out and filling the gaps from memory, until the whole record is whole again. It costs (keeper.him/her) a month of sleep, and (keeper.he/she) is ill for weeks after.",
    "effects": [
     {
      "do": "health_change",
@@ -194,7 +194,7 @@
    "auto_text": true
   },
   "c2": {
-   "text": "(subject) runs across the village and shakes (keeper) awake. (keeper) comes out at a stumbling run in (subject.his/her) sleeping wrap...",
+   "text": "(subject) runs across the village and shakes (keeper) awake. (keeper) comes out at a stumbling run in (keeper.his/her) sleeping wrap...",
    "children": [
     {
      "next": "c2o1",

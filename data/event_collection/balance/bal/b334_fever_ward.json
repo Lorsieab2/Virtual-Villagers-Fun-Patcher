@@ -156,7 +156,9 @@
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "target": {
+      "all": true
+     }
     }
    ],
    "children": [
@@ -186,7 +188,9 @@
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "target": {
+      "all": true
+     }
     },
     {
      "do": "skill",
@@ -200,11 +204,13 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "Everyone recovers, except (sick), who was the sickest from the start and never got better. The healers sit with (subject.him/her) on the last night. The village buries (subject.him/her) on the hill. The next time a fever comes, the healers move the sick out into the shade, just to try, and nobody says anything about the elders being wrong.",
+   "text": "Everyone recovers, except (sick), who was the sickest from the start and never got better. The healers sit with (sick.him/her) on the last night. The village buries (sick.him/her) on the hill. The next time a fever comes, the healers move the sick out into the shade, just to try, and nobody says anything about the elders being wrong.",
    "effects": [
     {
      "do": "cure",
-     "role": "subject"
+     "target": {
+      "all": true
+     }
     },
     {
      "do": "kill",

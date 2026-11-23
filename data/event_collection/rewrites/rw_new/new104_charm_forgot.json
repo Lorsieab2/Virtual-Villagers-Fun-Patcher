@@ -241,7 +241,7 @@
    "auto_text": true
   },
   "c3": {
-   "text": "(elder) turns the charm over in (subject.his/her) knobbly fingers, frowning at the carved bead. \"Hmm. The old charm makers... they made things that sometimes got ideas.\"",
+   "text": "(elder) turns the charm over in (elder.his/her) knobbly fingers, frowning at the carved bead. \"Hmm. The old charm makers... they made things that sometimes got ideas.\"",
    "children": [
     {
      "next": "c3o1",

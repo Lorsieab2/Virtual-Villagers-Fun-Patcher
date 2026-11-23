@@ -141,7 +141,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(subject) tied half the nets on this island. (subject.His/Her) knots are famous. Young fishers used to watch (subject.his/her) fingers fly and try to copy them, and fail.\nLately, those fingers fumble. Knots that used to take a blink now take a long, painful minute. (subject.His/Her) knuckles ache in the mornings and swell in the damp. And (subject) has started hiding the knotting work under a mat whenever anyone walks past, pretending to be doing something else.\n(young) noticed today. (subject.He/She) saw the half-finished net, and the mat, and (subject)'s face when (subject.he/she) realized (subject.he/she) had been seen. (young) doesn't want to embarrass (subject.him/her), but (subject.he/she) can't pretend (subject.he/she) didn't see it either. What should (young) do?",
+   "text": "(subject) tied half the nets on this island. (subject.His/Her) knots are famous. Young fishers used to watch (subject.his/her) fingers fly and try to copy them, and fail.\nLately, those fingers fumble. Knots that used to take a blink now take a long, painful minute. (subject.His/Her) knuckles ache in the mornings and swell in the damp. And (subject) has started hiding the knotting work under a mat whenever anyone walks past, pretending to be doing something else.\n(young) noticed today. (young.He/She) saw the half-finished net, and the mat, and (subject)'s face when (subject.he/she) realized (subject.he/she) had been seen. (young) doesn't want to embarrass (subject.him/her), but (young.he/she) can't pretend (young.he/she) didn't see it either. What should (young) do?",
    "choices": [
     {
      "label": "Ask How They Want to Fish",
@@ -184,7 +184,7 @@
    "src": "L6253"
   },
   "c2o1": {
-   "text": "(subject) teaches (young) seven net knots, slowly, and the reason behind each one: this one for deep water, this one so a torn net doesn't unravel, this one to hold a weight. (young)'s head is spinning by sunset, but (subject.he/she) can tie all seven. (subject) watches (subject.him/her) do it, nods once, and says nothing, which from (subject) is the highest praise.",
+   "text": "(subject) teaches (young) seven net knots, slowly, and the reason behind each one: this one for deep water, this one so a torn net doesn't unravel, this one to hold a weight. (young)'s head is spinning by sunset, but (young.he/she) can tie all seven. (subject) watches (young.him/her) do it, nods once, and says nothing, which from (subject) is the highest praise.",
    "effects": [
     {
      "do": "skill",

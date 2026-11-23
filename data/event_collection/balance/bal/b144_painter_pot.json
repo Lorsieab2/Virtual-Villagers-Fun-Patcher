@@ -148,7 +148,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "The painted face climbs out of the stone, looks (subject) up and down, and says, \"I don't like your clothes.\" It has (subject)'s face, and nothing else of (subject)'s: different likes, different dislikes, a different laugh. (painter) admits (subject.he/she) got bored halfway through and painted the inside \"from imagination.\" The copy takes the name (made1), and moves in with the painter's other mistakes, which is to say, into the village.",
+   "text": "The painted face climbs out of the stone, looks (subject) up and down, and says, \"I don't like your clothes.\" It has (subject)'s face, and nothing else of (subject)'s: different likes, different dislikes, a different laugh. (painter) admits (painter.he/she) got bored halfway through and painted the inside \"from imagination.\" The copy takes the name (made1), and moves in with the painter's other mistakes, which is to say, into the village.",
    "effects": [
     {
      "do": "new_villager",

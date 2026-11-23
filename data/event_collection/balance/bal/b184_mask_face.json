@@ -176,7 +176,7 @@
    "src": "L8540"
   },
   "c2o1": {
-   "text": "It takes four days of fishing from dawn to dusk. By the end of it the canoe is full, (subject) is sunburnt and exhausted, and (subject.he/she) has learned more about patience and hard work than in the rest of (subject.his/her) life. (fisher) is so impressed that (subject.he/she) gives half the fish back. They become good friends.",
+   "text": "It takes four days of fishing from dawn to dusk. By the end of it the canoe is full, (subject) is sunburnt and exhausted, and (subject.he/she) has learned more about patience and hard work than in the rest of (subject.his/her) life. (fisher) is so impressed that (fisher.he/she) gives half the fish back. They become good friends.",
    "effects": [
     {
      "do": "skill",

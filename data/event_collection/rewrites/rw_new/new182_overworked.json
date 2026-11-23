@@ -240,7 +240,7 @@
    "auto_text": true
   },
   "c3o2": {
-   "text": "(builder) admits, somewhat sheepishly, that (subject.he/she) fainted the one time (subject.he/she) tried to help a healer, at the sight of a cut. \"Went down like a felled tree.\" It shouldn't make (subject) feel better, but somehow it does, and (subject.he/she) laughs for the first time all week.",
+   "text": "(builder) admits, somewhat sheepishly, that (builder.he/she) fainted the one time (builder.he/she) tried to help a healer, at the sight of a cut. \"Went down like a felled tree.\" It shouldn't make (subject) feel better, but somehow it does, and (subject.he/she) laughs for the first time all week.",
    "src": "L8850"
   },
   "c3": {

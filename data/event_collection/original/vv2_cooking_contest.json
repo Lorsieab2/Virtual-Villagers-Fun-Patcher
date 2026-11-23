@@ -2958,21 +2958,48 @@
      "text": "willingness to improvise",
      "src": "L443",
      "if": {
-      "visited": "new"
+      "all": [
+       {
+        "visited": "new"
+       },
+       {
+        "not": {
+         "visited": "win2"
+        }
+       }
+      ]
      }
     },
     {
      "text": "devotion to family recipes",
      "src": "L444",
      "if": {
-      "visited": "stick"
+      "all": [
+       {
+        "visited": "stick"
+       },
+       {
+        "not": {
+         "visited": "win2"
+        }
+       }
+      ]
      }
     },
     {
      "text": "sticking to well-known dishes",
      "src": "L445",
      "if": {
-      "visited": "stick"
+      "all": [
+       {
+        "visited": "stick"
+       },
+       {
+        "not": {
+         "visited": "win2"
+        }
+       }
+      ]
      }
     },
     {
@@ -3003,7 +3030,16 @@
      "text": "willingness to try flavor combinations that aren't normally paired together",
      "src": "L452",
      "if": {
-      "visited": "new"
+      "all": [
+       {
+        "visited": "new"
+       },
+       {
+        "not": {
+         "visited": "win2"
+        }
+       }
+      ]
      }
     },
     {
@@ -3030,7 +3066,16 @@
      "text": "willingness to think outside the box",
      "src": "L458",
      "if": {
-      "visited": "new"
+      "all": [
+       {
+        "visited": "new"
+       },
+       {
+        "not": {
+         "visited": "win2"
+        }
+       }
+      ]
      }
     },
     {
@@ -3507,6 +3552,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3536,6 +3599,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3577,6 +3658,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3602,6 +3701,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3631,6 +3748,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3656,6 +3791,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3676,6 +3829,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3722,6 +3893,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3742,6 +3931,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3773,6 +3980,24 @@
         },
         {
          "visited": "sab2"
+        },
+        {
+         "visited": "end_f"
+        },
+        {
+         "visited": "a1_h"
+        },
+        {
+         "visited": "a1_i"
+        },
+        {
+         "visited": "d_out"
+        },
+        {
+         "visited": "a1_25_dq"
+        },
+        {
+         "visited": "f14"
         }
        ]
       }
@@ -3789,6 +4014,24 @@
         },
         {
          "visited": "sab2"
+        },
+        {
+         "visited": "end_f"
+        },
+        {
+         "visited": "a1_h"
+        },
+        {
+         "visited": "a1_i"
+        },
+        {
+         "visited": "d_out"
+        },
+        {
+         "visited": "a1_25_dq"
+        },
+        {
+         "visited": "f14"
         }
        ]
       }
@@ -3812,6 +4055,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3837,6 +4098,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }
@@ -3862,6 +4141,24 @@
           },
           {
            "visited": "sab2"
+          },
+          {
+           "visited": "end_f"
+          },
+          {
+           "visited": "a1_h"
+          },
+          {
+           "visited": "a1_i"
+          },
+          {
+           "visited": "d_out"
+          },
+          {
+           "visited": "a1_25_dq"
+          },
+          {
+           "visited": "f14"
           }
          ]
         }

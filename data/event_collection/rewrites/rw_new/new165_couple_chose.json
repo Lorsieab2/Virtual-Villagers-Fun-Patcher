@@ -216,7 +216,7 @@
    "src": "L8023"
   },
   "c3": {
-   "text": "They go together to (parent), who has raised a whole hut full of children, and ask what (subject.he/she) thinks...",
+   "text": "They go together to (parent), who has raised a whole hut full of children, and ask what (parent.he/she) thinks...",
    "children": [
     {
      "next": "c3o1",

@@ -115,7 +115,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "Clearing out the back of the healers' hut, (subject) finds a little clay jar sealed with wax, with a fish scratched on the lid. Inside is a thick green salve that smells of crushed leaves and honey. (healer), the oldest healer, says it was made by the healer before (subject.him/her), who used to rub it on anyone who was sick \"and on (subject.his/her) own face, every night. Never had a wrinkle.\"\n(friend) has been sick for weeks with a rash and a fever that the healers can't shift. The jar is old, maybe forty years old. Nobody knows what's in it.\nShould (subject) try the salve on (friend), or try it on (subject.himself/herself) first?",
+   "text": "Clearing out the back of the healers' hut, (subject) finds a little clay jar sealed with wax, with a fish scratched on the lid. Inside is a thick green salve that smells of crushed leaves and honey. (healer), the oldest healer, says it was made by the healer before (healer.him/her), who used to rub it on anyone who was sick \"and on (subject.his/her) own face, every night. Never had a wrinkle.\"\n(friend) has been sick for weeks with a rash and a fever that the healers can't shift. The jar is old, maybe forty years old. Nobody knows what's in it.\nShould (subject) try the salve on (friend), or try it on (subject.himself/herself) first?",
    "choices": [
     {
      "label": "Try It on (friend)",

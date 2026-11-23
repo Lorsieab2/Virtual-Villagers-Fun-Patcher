@@ -147,13 +147,19 @@ INJURIES = re.compile(r"\b(falls?|fell|fallen|injur\w*|wound\w*|accident\w*|crus
                       r"|slips?|slipped|collaps\w*|landslide|rockfall|broken|gored|mauled|burn(?:s|ed|t)?)\b", re.I)
 
 
+# A page that tells of a peaceful death ("dies peacefully in (his/her) sleep", "sitting peacefully against the rocks")
+# never says "suffers fatal injuries", whatever else it mentions (a knot "that never slips", a torch "burnt out"): it
+# keeps the plain "<R> dies." (the lines audit, 2026-11-22).
+PEACEFUL = re.compile(r"\b(peacefully|in (?:\([^()]*\)|his|her|their) sleep)", re.I)
+
+
 def _page_words(node: dict) -> str:
     return " ".join([node.get("text") or ""] + [v.get("text") or "" for v in node.get("variants") or []])
 
 
 def wording(node: dict, e: dict) -> str | None:
     """The other wording a kill / vanish on this page takes from the page's own words, or None."""
-    if e.get("do") == "kill" and INJURIES.search(_page_words(node)):
+    if e.get("do") == "kill" and INJURIES.search(_page_words(node)) and not PEACEFUL.search(_page_words(node)):
         return "injuries"
     if e.get("do") == "vanish" and LEAVES.search(_page_words(node)) and \
             not re.search(r"\b(missing|lost|taken|swept|never found)\b", _page_words(node), re.I):

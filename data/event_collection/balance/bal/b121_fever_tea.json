@@ -115,7 +115,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A fever has been going round the village for a week. It starts with a scratchy throat and ends with three days on a mat, sweating through every blanket in the hut. (friend) has had it the longest, and the healers have run out of ideas and most of their patience.\nLate one night, (subject) finds a plant growing beside the healers' hut that was not there yesterday: a little purple herb with leaves shaped like spoons. (healer), the oldest healer, squints at it and says (subject.his/her) grandmother used to brew it for fevers, \"or possibly for warts. One or the other.\" Nobody else has ever seen it. It smells like pepper and wet stone.\n(subject) holds the leaves over the boiling pot. Should (subject.he/she) brew the tea and try it, or wait until (healer) remembers which one it was?",
+   "text": "A fever has been going round the village for a week. It starts with a scratchy throat and ends with three days on a mat, sweating through every blanket in the hut. (friend) has had it the longest, and the healers have run out of ideas and most of their patience.\nLate one night, (subject) finds a plant growing beside the healers' hut that was not there yesterday: a little purple herb with leaves shaped like spoons. (healer), the oldest healer, squints at it and says (healer.his/her) grandmother used to brew it for fevers, \"or possibly for warts. One or the other.\" Nobody else has ever seen it. It smells like pepper and wet stone.\n(subject) holds the leaves over the boiling pot. Should (subject.he/she) brew the tea and try it, or wait until (healer) remembers which one it was?",
    "choices": [
     {
      "label": "Brew the Tea",
@@ -182,7 +182,7 @@
    "src": "L5530"
   },
   "c2o1": {
-   "text": "At last (healer) opens (subject.his/her) eyes and starts to hum a song (subject.his/her) grandmother sang while she brewed: two handfuls of leaves, boil it twice, let it cool under the moon. They do it exactly as the song says. Every sick villager in the village gets a cup, and by the end of the week the fever has gone from every hut. The purple herb is never seen beside the healers' hut again, though they look for it every spring.",
+   "text": "At last (healer) opens (healer.his/her) eyes and starts to hum a song (healer.his/her) grandmother sang while she brewed: two handfuls of leaves, boil it twice, let it cool under the moon. They do it exactly as the song says. Every sick villager in the village gets a cup, and by the end of the week the fever has gone from every hut. The purple herb is never seen beside the healers' hut again, though they look for it every spring.",
    "effects": [
     {
      "do": "cure",
@@ -195,7 +195,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "By the time (healer) has remembered, the leaves have wilted on the stone and turned black and slimy. \"Fevers,\" (subject.he/she) says triumphantly, and then looks at the stone. \"Oh.\" The fever runs its course the slow way. (friend) gets better on (subject.his/her) own, one long week later, and tells everyone (subject.he/she) would have tried anything, even wart tea.",
+   "text": "By the time (healer) has remembered, the leaves have wilted on the stone and turned black and slimy. \"Fevers,\" (healer.he/she) says triumphantly, and then looks at the stone. \"Oh.\" The fever runs its course the slow way. (friend) gets better on (friend.his/her) own, one long week later, and tells everyone (friend.he/she) would have tried anything, even wart tea.",
    "src": "L5545"
   },
   "c2": {

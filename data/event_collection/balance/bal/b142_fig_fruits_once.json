@@ -117,7 +117,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "There is an old fig tree on the edge of the garden that flowers once every seven years. It flowered this spring, and now it has exactly one fig on it, fat and purple and so heavy it bends the branch. The old saying is that the couple who share the seven-year fig will have a baby before the next rains.\n(subject) and (friend) were the first to see it, early this morning. But (farmer) and (subject.his/her) partner have been hoping for a baby too, for longer than anyone, and (farmer) has been watering that fig tree every day for seven years.\nShould (subject) and (friend) pick the fig, or leave it for (farmer)?",
+   "text": "There is an old fig tree on the edge of the garden that flowers once every seven years. It flowered this spring, and now it has exactly one fig on it, fat and purple and so heavy it bends the branch. The old saying is that the couple who share the seven-year fig will have a baby before the next rains.\n(subject) and (friend) were the first to see it, early this morning. But (farmer) and (farmer.his/her) partner have been hoping for a baby too, for longer than anyone, and (farmer) has been watering that fig tree every day for seven years.\nShould (subject) and (friend) pick the fig, or leave it for (farmer)?",
    "choices": [
     {
      "label": "Pick the Fig",
@@ -185,7 +185,7 @@
    "src": "L6536"
   },
   "c2o1": {
-   "text": "(farmer) and (subject.his/her) partner share the fig under the tree, crying. The next morning, there are two more figs on the tree, side by side, where there was only one. (farmer) gives them both to (subject) and (friend). By the rains, both families are expecting, and the healers, feeling (subject)'s belly, tell (subject.him/her) to expect {#babies:a baby|twins|triplets}. \"The tree pays its debts,\" says (farmer).",
+   "text": "(farmer) and (farmer.his/her) partner share the fig under the tree, crying. The next morning, there are two more figs on the tree, side by side, where there was only one. (farmer) gives them both to (subject) and (friend). By the rains, both families are expecting, and the healers, feeling (subject)'s belly, tell (subject.him/her) to expect {#babies:a baby|twins|triplets}. \"The tree pays its debts,\" says (farmer).",
    "effects": [
     {
      "do": "pregnant",
@@ -199,11 +199,11 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(farmer) and (subject.his/her) partner share the fig under the tree, and before the rains they are expecting a baby, the first in seven years of hoping. They are so happy that the whole village is happy for them. (subject) and (friend) say they are happy too, and mostly mean it. (farmer) promises to save them the next fig, in seven years.",
+   "text": "(farmer) and (farmer.his/her) partner share the fig under the tree, and before the rains they are expecting a baby, the first in seven years of hoping. They are so happy that the whole village is happy for them. (subject) and (friend) say they are happy too, and mostly mean it. (farmer) promises to save them the next fig, in seven years.",
    "src": "L6551"
   },
   "c2": {
-   "text": "They walk away from the tree without touching it, and tell (farmer) about the fig. (farmer) runs out of (subject.his/her) hut so fast (subject.he/she) forgets (subject.his/her) sandals...",
+   "text": "They walk away from the tree without touching it, and tell (farmer) about the fig. (farmer) runs out of (farmer.his/her) hut so fast (farmer.he/she) forgets (farmer.his/her) sandals...",
    "children": [
     {
      "next": "c2o1",

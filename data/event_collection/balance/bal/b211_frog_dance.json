@@ -167,7 +167,7 @@
    "src": "L9815"
   },
   "c2o1": {
-   "text": "The young ones love it. The old ones try to keep up. Halfway round, (elder) hops once too often and comes down badly. The healers say (subject.his/her) hip will mend. (elder) says from (subject.his/her) mat, \"It was your dance. And it was worth it.\" (subject) dances slow at the next harvest.",
+   "text": "The young ones love it. The old ones try to keep up. Halfway round, (elder) hops once too often and comes down badly. The healers say (subject.his/her) hip will mend. (elder) says from (elder.his/her) mat, \"It was your dance. And it was worth it.\" (subject) dances slow at the next harvest.",
    "effects": [
     {
      "do": "health_change",

@@ -172,7 +172,7 @@
    "src": "L12636"
   },
   "c2o1": {
-   "text": "That night (polisher) can't resist turning the shell back over for one last look at (subject.his/her) work. In the morning there are two of (subject.him/her): one who polished the shell, and one who looks exactly like (subject.him/her) and thinks polishing shells is the most boring thing in the world. The second one takes the name (made1), and goes fishing.",
+   "text": "That night (polisher) can't resist turning the shell back over for one last look at (polisher.his/her) work. In the morning there are two of (polisher.him/her): one who polished the shell, and one who looks exactly like (polisher.him/her) and thinks polishing shells is the most boring thing in the world. The second one takes the name (made1), and goes fishing.",
    "effects": [
     {
      "do": "new_villager",

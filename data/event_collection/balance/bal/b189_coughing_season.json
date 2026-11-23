@@ -115,7 +115,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "A dry, barking cough has gone through the village, and half of everyone has it. The healers are run off their feet. (healer), the head healer, has it too, and is giving orders from (subject.his/her) mat between coughs. The usual brew isn't working.\n(subject) has two ideas. One is an old cure (subject.his/her) mother used: steam from boiled eucalyptus leaves, breathed under a blanket. The other is a new thing (subject.he/she) heard from a trader: honey mixed with crushed ginger root, which nobody in the village has ever tried. There is only enough time and firewood to try one properly.\nWhich cure should (subject) try?",
+   "text": "A dry, barking cough has gone through the village, and half of everyone has it. The healers are run off their feet. (healer), the head healer, has it too, and is giving orders from (healer.his/her) mat between coughs. The usual brew isn't working.\n(subject) has two ideas. One is an old cure (subject.his/her) mother used: steam from boiled eucalyptus leaves, breathed under a blanket. The other is a new thing (subject.he/she) heard from a trader: honey mixed with crushed ginger root, which nobody in the village has ever tried. There is only enough time and firewood to try one properly.\nWhich cure should (subject) try?",
    "choices": [
     {
      "label": "The Old Steam Cure",
@@ -188,7 +188,7 @@
    "src": "L8776"
   },
   "c2o1": {
-   "text": "The honey soothes the throats and the ginger clears the chests, and in a week the cough is gone. (healer) gets up off (subject.his/her) mat, eats three spoonfuls just to be sure, and declares it the best medicine (subject.he/she) has ever tasted. The bees are less pleased. The village needs a lot more honey now.",
+   "text": "The honey soothes the throats and the ginger clears the chests, and in a week the cough is gone. (healer) gets up off (healer.his/her) mat, eats three spoonfuls just to be sure, and declares it the best medicine (healer.he/she) has ever tasted. The bees are less pleased. The village needs a lot more honey now.",
    "effects": [
     {
      "do": "cure",

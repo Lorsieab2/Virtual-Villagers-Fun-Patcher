@@ -258,7 +258,7 @@
    "src": "L14599"
   },
   "c3": {
-   "text": "(subject) runs back to the village and drags (researcher), the village's most learned researcher, protesting, up the hill and into the little cave. (researcher) squeezes in, knees up to (subject.his/her) chin, and listens...",
+   "text": "(subject) runs back to the village and drags (researcher), the village's most learned researcher, protesting, up the hill and into the little cave. (researcher) squeezes in, knees up to (researcher.his/her) chin, and listens...",
    "children": [
     {
      "next": "c3o1",

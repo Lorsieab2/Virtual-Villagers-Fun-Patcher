@@ -122,7 +122,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(elder) is retiring from the council, and the custom is that a retiring elder gives away (subject.his/her) hat to a younger villager, a tall woven hat with shells round the brim, shaped by a lifetime of being worn. Whoever receives it is supposed to wear it on festival days, and in time to take a seat on the council.\n(elder) has picked (subject). (subject) is honoured, and also very aware that the hat smells strongly of (elder), and that everyone who has ever worn one of these hats for long has ended up looking quite a lot like an elder (subject.himself/herself). \"It's the weight of the wisdom,\" the elders say.\nShould (subject) accept the hat, or politely ask for something else?",
+   "text": "(elder) is retiring from the council, and the custom is that a retiring elder gives away (elder.his/her) hat to a younger villager, a tall woven hat with shells round the brim, shaped by a lifetime of being worn. Whoever receives it is supposed to wear it on festival days, and in time to take a seat on the council.\n(elder) has picked (subject). (subject) is honoured, and also very aware that the hat smells strongly of (elder), and that everyone who has ever worn one of these hats for long has ended up looking quite a lot like an elder (subject.himself/herself). \"It's the weight of the wisdom,\" the elders say.\nShould (subject) accept the hat, or politely ask for something else?",
    "choices": [
     {
      "label": "Accept the Hat",
@@ -189,7 +189,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(elder) gives the hat to (friend) instead, who accepts it at once, and within a season looks fifteen years older and much more pleased with (subject.himself/herself). (subject) is relieved, mostly. (friend) tells (subject.him/her), rather often, what the council thinks about things.",
+   "text": "(elder) gives the hat to (friend) instead, who accepts it at once, and within a season looks fifteen years older and much more pleased with (friend.himself/herself). (subject) is relieved, mostly. (friend) tells (subject.him/her), rather often, what the council thinks about things.",
    "src": "L8697",
    "effects": [
     {

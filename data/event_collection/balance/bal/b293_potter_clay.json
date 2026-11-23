@@ -128,7 +128,7 @@
    "src": "L13615-13616"
   },
   "c1o1": {
-   "text": "In the morning, when (potter) opens the kiln, a full-sized person climbs out of it, dusting ash off (subject.his/her) shoulders. It is (subject), exactly: same face, same scar, same laugh. (potter) drops the pot (subject.he/she) is holding. The new (subject) catches it. The village names (subject.him/her) (made1), and (potter) never touches red clay again.",
+   "text": "In the morning, when (potter) opens the kiln, a full-sized person climbs out of it, dusting ash off (subject.his/her) shoulders. It is (subject), exactly: same face, same scar, same laugh. (potter) drops the pot (potter.he/she) is holding. The new (subject) catches it. The village names (subject.him/her) (made1), and (potter) never touches red clay again.",
    "effects": [
     {
      "do": "clone",
@@ -180,7 +180,7 @@
    "src": "L13637"
   },
   "c2": {
-   "text": "\"Squash it,\" says (subject). (potter) sighs, picks up the figure and squeezes it in (subject.his/her) fist. The clay is warm. It squirms...",
+   "text": "\"Squash it,\" says (subject). (potter) sighs, picks up the figure and squeezes it in (potter.his/her) fist. The clay is warm. It squirms...",
    "children": [
     {
      "next": "c2o1",

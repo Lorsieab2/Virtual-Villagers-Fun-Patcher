@@ -141,7 +141,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(teacher) is in the middle of a lesson about the tides, pointing at a drawing in the sand with a long stick, when (subject), a quiet pupil who almost never speaks, raises a hand.\n\"Excuse me,\" (subject) says, very softly. \"I think you have the time of the high tide wrong.\"\nThe other children gasp. Someone drops a shell. Everyone turns to see what the teacher will do.\n(teacher), to (subject.his/her) credit, slowly puts down the pointing stick. How should (teacher) respond?",
+   "text": "(teacher) is in the middle of a lesson about the tides, pointing at a drawing in the sand with a long stick, when (subject), a quiet pupil who almost never speaks, raises a hand.\n\"Excuse me,\" (subject) says, very softly. \"I think you have the time of the high tide wrong.\"\nThe other children gasp. Someone drops a shell. Everyone turns to see what the teacher will do.\n(teacher), to (teacher.his/her) credit, slowly puts down the pointing stick. How should (teacher) respond?",
    "choices": [
     {
      "label": "Let the Pupil Explain",

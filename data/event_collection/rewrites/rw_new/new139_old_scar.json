@@ -141,7 +141,7 @@
  "nodes": {
   "ask": {
    "type": "question",
-   "text": "(young) has always wondered about the long, pale scar on (subject)'s forearm. It runs from wrist almost to elbow, crooked, like a river on a map.\nTonight, by the fire, (subject.he/she) finally asks.\nUsually (subject) changes the subject. Usually (subject.he/she) makes a joke about wrestling a shark, or says \"Oh, that old thing,\" and starts talking about the weather.\nThis time, (subject) goes quiet. (subject.He/She) turns (subject.his/her) arm over in the firelight, looking at the scar as if seeing it for the first time in years. (young) wonders if (subject.he/she) should have asked at all. Should (subject.he/she) let (subject) decide how much to share, or find somewhere quieter to talk?",
+   "text": "(young) has always wondered about the long, pale scar on (subject)'s forearm. It runs from wrist almost to elbow, crooked, like a river on a map.\nTonight, by the fire, (young.he/she) finally asks.\nUsually (subject) changes the subject. Usually (subject.he/she) makes a joke about wrestling a shark, or says \"Oh, that old thing,\" and starts talking about the weather.\nThis time, (subject) goes quiet. (subject.He/She) turns (subject.his/her) arm over in the firelight, looking at the scar as if seeing it for the first time in years. (young) wonders if (young.he/she) should have asked at all. Should (young.he/she) let (subject) decide how much to share, or find somewhere quieter to talk?",
    "choices": [
     {
      "label": "Let the Elder Decide What to Share",

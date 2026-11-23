@@ -1,0 +1,318 @@
+"""The v1.35.98 lines audit: event data that named the wrong villager or drew a line that could not follow.
+
+* The Cooking Contest (data/event_collection/original/vv2_cooking_contest.json, the owner's event; only conditions
+  change): the judges' praise {O} items that describe Cook 1's own choice ("devotion to family recipes" after "stick",
+  "willingness to improvise" after "new") are never drawn when Cook 2 wins (win2), and Cook 1's gracious loser lines
+  in Q2 ("stands proud at having gotten second place", "congratulates them for the win" ...) never follow a page
+  where Cook 1 cheated, confessed, ruined the dish, was disqualified or poisoned the judges.  Both are checked on
+  every path the graph can take (a walk of the whole graph, the visited set at each page).
+* A kill on a page that tells of a peaceful death ("dies peacefully in (his/her) sleep") never says "suffers fatal
+  injuries" (scripts/outcome_effects.py PEACEFUL), on every collection file.
+* Pronouns in the GO events (the balance and rewritten events, scripts/go_events/gen_go.py): a sentence whose subject
+  is another villager's name ("(fisher) shakes (subject.his/her) head") does not use the main villager's pronoun,
+  unless the sentence is listed as read and right (ALLOWED: "(friend) grabs for (subject.him/her)").  The fixes
+  themselves (scripts/go_events/go_role_fixes.py) are pinned against the written files.
+
+Static: no game, no save.
+"""
+from __future__ import annotations
+
+import json
+import re
+import sys
+import unittest
+from collections import deque
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path[:0] = [str(ROOT / "scripts"), str(ROOT / "scripts" / "go_events")]
+
+import go_role_fixes as fixes  # noqa: E402
+import outcome_effects as oe  # noqa: E402
+
+COLLECTION = ROOT / "data" / "event_collection"
+GO_DIRS = ("balance", "rewrites")
+
+# ---- The Cooking Contest ---------------------------------------------------------------------------------------------
+
+COOK1_CHOICE_ITEMS = ("willingness to improvise", "devotion to family recipes", "sticking to well-known dishes",
+                      "willingness to try flavor combinations that aren't normally paired together",
+                      "willingness to think outside the box")
+GRACIOUS_LOSER = ("vows to beat (cook2.him/her) next year", "congratulates them for the win", "pats them on the back",
+                  "gives them a thumbs up", "celebrates with (cook2.him/her) in joy", "claps for them",
+                  "stands proud at having gotten second place", "hugs (cook2.him/her)", "tearfully concedes",
+                  "humbly takes the loss in stride", "pretends (cook1.he/she) did not lose",
+                  "gives words of encouragement", "is thankful (cook1.he/she) got to compete with (cook2.him/her)",
+                  "challenges (cook2.him/her) to another cook-off soon!")
+# The pages after which Cook 1 did not lose a fair contest: sabotage caught (sab1, sab2), Cook 1's own sabotage
+# (end_f), confession (a1_h), ruining the dish on purpose (a1_i), disqualification (d_out, a1_25_dq), and Cook 1's
+# dish making the judges ill (f14; the judges then "judge the other dish instead" or declare Cook 2 the winner).
+NOT_A_FAIR_LOSS = ("sab1", "sab2", "end_f", "a1_h", "a1_i", "d_out", "a1_25_dq", "f14")
+# Every page that leads straight to win2, and Cook 1's two first choices
+ROADS = ("d_out", "a1_25_dq", "f11_pretend", "a1_17_1", "a1_17_2b", "a1_17_3a", "a1_17_4a", "a1_24_win", "f14_other",
+         "six1", "f15_other", "one2_2", "one3_2", "one4_2", "one5_2", "win_either", "v13a_a2", "sab1", "stick", "new")
+
+
+def _holds(c, visited: frozenset) -> bool:
+    """A pool item's or a child's condition, with every role bound (the walk is over the graph's shape)."""
+    if c is None:
+        return True
+    (op, arg), = c.items()
+    if op == "visited":
+        return arg in visited
+    if op == "not":
+        return not _holds(arg, visited)
+    if op == "all":
+        return all(_holds(x, visited) for x in arg)
+    if op == "any":
+        return any(_holds(x, visited) for x in arg)
+    return True          # role / game / patch: either way; the walk takes both
+
+
+def _next(node: dict, visited: frozenset) -> list[str]:
+    out = []
+    for c in node.get("children") or []:
+        if _holds(c.get("if"), visited) and _holds(c.get("guard"), visited):
+            out.append(c["next"])
+        elif c.get("else"):
+            out.append(c["else"])
+    out += [c["next"] for c in node.get("choices") or [] if c.get("next")]
+    return out
+
+
+def _refs(c, out: set) -> set:
+    if isinstance(c, dict):
+        for k, v in c.items():
+            if k == "visited":
+                out.add(v)
+            else:
+                _refs(v, out)
+    elif isinstance(c, list):
+        for x in c:
+            _refs(x, out)
+    return out
+
+
+def walk(doc: dict, at: str, watch=()) -> list[frozenset]:
+    """Every visited set the graph can have on reaching page `at` (that page included), kept to the pages a condition
+    reads (and `watch`): a walk of (page, visited) -- the visited set is all any condition reads, so the walk covers
+    every path the game can take."""
+    nodes = doc["nodes"]
+    keep = _refs(doc["nodes"], set()) | _refs(doc["pools"], set()) | {at, *watch}
+    seen, found = set(), set()
+    todo = deque([(doc["start"], frozenset({doc["start"]} & keep))])
+    while todo:
+        nid, vis = todo.popleft()
+        if (nid, vis) in seen:
+            continue
+        seen.add((nid, vis))
+        if nid == at:
+            found.add(vis)
+        for nxt in _next(nodes[nid], vis):
+            todo.append((nxt, vis | ({nxt} & keep)))
+    return sorted(found, key=sorted)
+
+
+def eligible(doc: dict, pool: str, visited: frozenset) -> list[str]:
+    return [it["text"] for it in doc["pools"][pool]["items"] if _holds(it.get("if"), visited)]
+
+
+class CookingContest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.doc = json.loads((COLLECTION / "original" / "vv2_cooking_contest.json").read_text(encoding="utf-8"))
+        cls.win2 = walk(cls.doc, "win2", ROADS + NOT_A_FAIR_LOSS)
+        cls.win1 = walk(cls.doc, "win1", NOT_A_FAIR_LOSS)
+
+    def test_the_walk_reaches_every_road_to_win2(self):
+        reached = set().union(*self.win2)
+        for nid in ROADS:
+            self.assertIn(nid, reached, nid)
+
+    def test_win2_never_praises_cook1s_choice(self):
+        for vis in self.win2:
+            got = set(eligible(self.doc, "O", vis)) & set(COOK1_CHOICE_ITEMS)
+            self.assertFalse(got, f"win2 after {sorted(vis & {'stick', 'new'})}: {sorted(got)}")
+
+    def test_cook1s_choice_is_still_praised_when_cook1_wins(self):
+        stick = [v for v in self.win1 if "stick" in v]
+        new = [v for v in self.win1 if "new" in v]
+        self.assertTrue(stick and new)
+        self.assertIn("devotion to family recipes", eligible(self.doc, "O", stick[0]))
+        self.assertIn("willingness to improvise", eligible(self.doc, "O", new[0]))
+
+    def test_no_gracious_second_place_after_cheating_or_disqualification(self):
+        for item in GRACIOUS_LOSER:
+            self.assertIn(item, [it["text"] for it in self.doc["pools"]["Q2"]["items"]])
+        bad = []
+        for vis in self.win2:
+            hit = vis & set(NOT_A_FAIR_LOSS)
+            if not hit:
+                continue
+            got = set(eligible(self.doc, "Q2", vis)) & set(GRACIOUS_LOSER)
+            if got:
+                bad.append((sorted(hit), sorted(got)[:3]))
+        self.assertFalse(bad, bad[:5])
+
+    def test_a_fair_loss_keeps_every_line(self):
+        fair = [v for v in self.win2 if not v & set(NOT_A_FAIR_LOSS) and "seven" not in v]
+        self.assertTrue(fair)
+        self.assertTrue(set(GRACIOUS_LOSER) <= set(eligible(self.doc, "Q2", fair[0])))
+
+
+# ---- A peaceful death never "suffers fatal injuries" ----------------------------------------------------------------
+
+def _event_files():
+    for p in sorted(COLLECTION.rglob("*.json")):
+        try:
+            d = json.loads(p.read_text(encoding="utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            continue
+        if isinstance(d, dict) and isinstance(d.get("nodes"), dict):
+            yield p, d
+
+
+class PeacefulDeath(unittest.TestCase):
+    def test_the_rule(self):
+        page = {"text": "That night (subject) dies peacefully in (subject.his/her) sleep, by the knot that never "
+                        "slips."}
+        self.assertIsNone(oe.wording(page, {"do": "kill"}))
+        self.assertEqual(oe.wording({"text": "(Name) slips on the rocks and falls."}, {"do": "kill"}), "injuries")
+
+    def test_no_file_says_fatal_injuries_for_a_peaceful_death(self):
+        bad = []
+        for p, d in _event_files():
+            for nid, n in d["nodes"].items():
+                words = " ".join([n.get("text") or ""] + [v.get("text") or "" for v in n.get("variants") or []])
+                for e in n.get("effects") or []:
+                    if e.get("do") == "kill" and e.get("line") == "injuries" and oe.PEACEFUL.search(words):
+                        bad.append(f"{p.relative_to(COLLECTION)} {nid}")
+        self.assertFalse(bad, bad)
+
+    def test_the_two_pages(self):
+        for rel, nid in (("balance/bal/b317_visitor_door.json", "c1o2"), ("rewrites/rw_s/s030_fisher_tide.json", "c1o1")):
+            d = json.loads((COLLECTION / rel).read_text(encoding="utf-8"))
+            kills = [e for e in d["nodes"][nid]["effects"] if e["do"] == "kill"]
+            self.assertEqual(len(kills), 1)
+            self.assertNotIn("line", kills[0], rel)
+
+
+# ---- Pronouns of the GO events ---------------------------------------------------------------------------------------
+
+PH = re.compile(r"\((\w+)(\.[^()]*)?\)")
+SENT = re.compile(r"(?<=[.!?])\s+|\n")
+# A sentence that starts with another villager's name and still says the main villager's pronoun, read and right:
+# the pronoun is the main villager's (the object of the sentence: "(friend) grabs for (subject.him/her)"), or is about
+# someone the event does not cast (a remembered ancestor), where no role name can say it.  (file stem, node, the
+# sentence's start)
+ALLOWED = {
+    ("b026_sleepwalker", "c1o2", "(friend) grabs for (subject.him/her)"),
+    ("b156_old_well", "c1o2", "(child) brings (subject.him/her) a cup"),
+    ("b165_salve_clay_jar", "ask", "(healer), the oldest healer, says it was made by the healer before"),
+    ("b186_dolphin_waits", "ask", "(fisher) says (subject.his/her) grandmother said a lot of things"),
+    ("b210_grandchild_wish", "c1", "(child) scatters the dried flowers over (subject.his/her) head"),
+    ("b225_fishing_contest", "c1o1", "(fisher) shakes (subject.his/her) hand"),
+    ("b249_grandchild_spell", "c1", "(child) waves the bundle around (subject.his/her) head"),
+    ("b287_fever_burns_away", "c2o2", "(healer) sits with (subject.him/her) until dawn, holding (subject.his/her) hand"),
+    ("my115_stranger_season", "c2o1", "(grave2) used to sing me awake"),
+    ("new133_fisher_hands", "c3o2", "(young) sits with (subject.him/her) while (subject.he/she) does"),
+    ("b244_fisher_tide", "c1o2", "(young) carves (subject.his/her) name"),
+    ("b258_game_went_too_far", "c2o2", "(friend) stands up, shakes (subject.his/her) hand"),
+    ("b259_elder_wandered", "ask", "(friend) found (subject.his/her) basket"),
+    ("b276_swamp_fever", "c1o2", "(sick) plants a fever tree beside (subject.his/her) grave"),
+    ("b290_sleepwalker", "ask", "(friend) followed (subject.him/her) last night"),
+    ("my072_jar_two_sunrises", "c2o2", "(storyteller), the village storyteller, grabs the jar"),
+    ("my102_god_garden", "c4o1", "(friend) is starting to think (subject.he/she) might be right"),
+    ("new169_old_couple_walk", "c1o1", "(friend) is quiet for a moment, then takes (subject.his/her) arm"),
+    ("s078_second_name_day", "c1", "(elder), the oldest elder, lifts the feather staff high over (subject.his/her) head"),
+}
+
+
+def go_files():
+    for sub in GO_DIRS:
+        for p in sorted((COLLECTION / sub).glob("*/*.json")):
+            yield p, json.loads(p.read_text(encoding="utf-8"))
+
+
+def pronoun_suspects(doc: dict, stem: str) -> list[tuple[str, str, str]]:
+    """(stem, node, sentence) for each sentence that opens with another villager's name, never names the main
+    villager, and uses the main villager's he/she, his/her or himself/herself."""
+    roles = doc.get("roles") or {}
+    main = next(iter(roles), None)
+    others = {r for r, v in roles.items() if r != main and v.get("kind") == "villager"}
+    out = []
+    if not others:
+        return out
+    for nid, n in doc["nodes"].items():
+        for s in SENT.split(n.get("text") or ""):
+            s = s.strip()
+            m = PH.match(s)
+            if not m or m.group(1).lower() not in others or m.group(2):
+                continue
+            names = {x.group(1).lower() for x in PH.finditer(s) if not x.group(2)}
+            # "him/her" is most often the other villager acting on the main one ("(friend) carries (subject.him/her)
+            # home"); he/she, his/her and himself/herself are what a sentence says of its own subject
+            prons = {x.group(1).lower() for x in PH.finditer(s)
+                     if x.group(2) and x.group(2).lower() in (".he/she", ".his/her", ".himself/herself")}
+            if main not in names and main in prons:
+                out.append((stem, nid, s))
+    return out
+
+
+def allowed(stem: str, nid: str, sentence: str) -> bool:
+    return any(stem == a and nid == b and sentence.startswith(c) for a, b, c in ALLOWED)
+
+
+class GoPronouns(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.docs = {p.stem: d for p, d in go_files()}
+
+    def test_no_main_pronoun_in_another_villagers_sentence(self):
+        bad = []
+        for stem, d in self.docs.items():
+            bad += [x for x in pronoun_suspects(d, stem) if not allowed(*x)]
+        self.assertFalse(bad, "\n".join(f"{a} {b}: {c[:120]}" for a, b, c in bad[:30]))
+
+    def test_every_allowed_sentence_is_still_there(self):
+        found = {(a, b) for stem, d in self.docs.items() for a, b, c in pronoun_suspects(d, stem) if allowed(a, b, c)}
+        self.assertEqual(found, {(a, b) for a, b, _ in ALLOWED})
+
+    def test_the_pronoun_fixes_are_in_the_files(self):
+        for (stem, nid), pairs in fixes.PRONOUNS.items():
+            text = self.docs[stem]["nodes"][nid]["text"]
+            for snippet, role in pairs:
+                self.assertIn(snippet.replace("(subject.", f"({role}."), text, (stem, nid))
+                self.assertIn(role, self.docs[stem]["roles"], (stem, role))
+
+    def test_the_effect_fixes_are_in_the_files(self):
+        for (stem, nid), moves in fixes.EFFECTS.items():
+            nodes = self.docs[stem]["nodes"]
+            mine = [e for k, n in nodes.items() if k == nid or k.startswith(nid + "_") for e in n.get("effects") or []]
+            for do, old, new in moves:
+                if new == fixes.ALL:
+                    self.assertTrue(any(e["do"] == do and e.get("target") == {"all": True} and "role" not in e
+                                        for e in mine), (stem, nid, do))
+                else:
+                    self.assertTrue(any(e["do"] == do and e.get("role") == new for e in mine), (stem, nid, do))
+                self.assertFalse(any(e["do"] == do and e.get("role") == old for e in mine), (stem, nid, do, old))
+
+    def test_the_named_pages(self):
+        """The audit's own examples, page by page."""
+        d = self.docs
+        n = d["s026_chief_bad_idea"]["nodes"]["c2o2"]["effects"]
+        self.assertEqual({(e["do"], e["role"]) for e in n}, {("preference", "subject"), ("skill", "subject")})
+        n = d["s071_robe_shrank"]["nodes"]["c1o1"]["effects"]
+        self.assertEqual([(e["do"], e["role"]) for e in n], [("appearance", "subject")])
+        n = d["s037_coughing_season"]["nodes"]["c2o2"]
+        self.assertNotIn("(subject.", n["text"])
+        self.assertEqual({e["role"] for e in n["effects"]}, {"elder"})
+        n = d["b334_fever_ward"]["nodes"]["c2o2"]
+        self.assertNotIn("(subject.", n["text"])
+        self.assertIn("buries (sick.him/her)", n["text"])
+        self.assertEqual([e.get("role") for e in n["effects"] if e["do"] == "kill"], ["sick"])
+        self.assertFalse([e for e in n["effects"] if e["do"] == "cure" and e.get("role")])
+
+
+if __name__ == "__main__":
+    unittest.main()

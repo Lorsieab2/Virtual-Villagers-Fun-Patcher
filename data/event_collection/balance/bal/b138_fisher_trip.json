@@ -152,7 +152,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "They find the shoal. (fisher) watches it for a long time, smiling, with (subject.his/her) hand trailing in the water. Then (subject.he/she) leans back against the side of the canoe, closes (subject.his/her) eyes, and doesn't open them again. (subject) paddles home very slowly. The village buries (fisher) on the headland, looking out at the far rocks, and every year after, when the silverfish come in, someone goes out to watch them.",
+   "text": "They find the shoal. (fisher) watches it for a long time, smiling, with (fisher.his/her) hand trailing in the water. Then (fisher.he/she) leans back against the side of the canoe, closes (fisher.his/her) eyes, and doesn't open them again. (subject) paddles home very slowly. The village buries (fisher) on the headland, looking out at the far rocks, and every year after, when the silverfish come in, someone goes out to watch them.",
    "effects": [
     {
      "do": "kill",
@@ -197,7 +197,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "(fisher) gives in, and is so cross about it that (subject.he/she) sits by the fire that night and tells every fisher in the village exactly what they've been doing wrong for the last ten years. It takes all night. The younger fishers listen, at first politely and then with their mouths open. By the end of the season they are catching more fish than they have in years. (fisher) says nothing about it, very smugly.",
+   "text": "(fisher) gives in, and is so cross about it that (fisher.he/she) sits by the fire that night and tells every fisher in the village exactly what they've been doing wrong for the last ten years. It takes all night. The younger fishers listen, at first politely and then with their mouths open. By the end of the season they are catching more fish than they have in years. (fisher) says nothing about it, very smugly.",
    "effects": [
     {
      "do": "skill",

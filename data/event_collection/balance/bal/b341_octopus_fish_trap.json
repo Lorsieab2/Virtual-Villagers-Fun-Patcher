@@ -181,7 +181,7 @@
    "auto_text": true
   },
   "c2o2": {
-   "text": "On the beach, the octopus squeezes through a gap in the trap no bigger than a coconut and pours itself back into the sea, leaving a cloud of ink over (friend)'s face. (friend) spends the evening scrubbing, and can't get the taste of ink out of (subject.his/her) mouth for a week. After that, fish of any kind just tastes of ink to (subject.him/her).",
+   "text": "On the beach, the octopus squeezes through a gap in the trap no bigger than a coconut and pours itself back into the sea, leaving a cloud of ink over (friend)'s face. (friend) spends the evening scrubbing, and can't get the taste of ink out of (friend.his/her) mouth for a week. After that, fish of any kind just tastes of ink to (friend.him/her).",
    "effects": [
     {
      "do": "preference",

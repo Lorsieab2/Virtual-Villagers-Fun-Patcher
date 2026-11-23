@@ -214,7 +214,7 @@
    "auto_text": true
   },
   "c1o2": {
-   "text": "(botanist) examines the fruit for a very long time, consults three books and an elder, and finally shakes (subject.his/her) head. \"I have no idea what this is,\" (subject.he/she) admits. \"It could be the most delicious thing on the island, or it could kill us all. I'm not willing to find out.\" The basket is set aside. Over the next week, the fruits slowly wrinkle and dry up, and the whole village sighs every time they walk past.",
+   "text": "(botanist) examines the fruit for a very long time, consults three books and an elder, and finally shakes (botanist.his/her) head. \"I have no idea what this is,\" (botanist.he/she) admits. \"It could be the most delicious thing on the island, or it could kill us all. I'm not willing to find out.\" The basket is set aside. Over the next week, the fruits slowly wrinkle and dry up, and the whole village sighs every time they walk past.",
    "src": "L15397"
   },
   "c1": {
