@@ -425,10 +425,11 @@ ROLE_HEATHEN_MAY = 0x20
 ROLE_HEATHEN_ONLY = 0x10
 HEATHENS_MODES = {"never": 0, "allowed": ROLE_HEATHEN_MAY, "only": ROLE_HEATHEN_ONLY}
 HEATHENS_ROW = "heathens_in_island_events"
-# What can not yet happen to a Heathen cast through the row (story_graph.inc cg_heathen_barred_effect): a death, a
-# disappearance, a lost baby, a pregnancy or a nursing baby (either parent), a copy or a double, becoming a Heathen.
-HEATHEN_BARRED_EFFECTS = ("kill", "vanish", "die_unrecovered", "birth_then_die", "baby_lost", "pregnant", "nursing",
-                          "deliver_early", "clone", "new_villager", "status", "apostasy")
+# What never happens to a Heathen cast through the row (story_graph.inc cg_heathen_never_effect): a birth that kills
+# its parent, a lost baby, a baby born early, a copy or a double, becoming a Heathen.  A death, a disappearance, a
+# pregnancy or a nursing baby happen by the Heathens' own rules ("VVFP Heathen Aging.dll", the owner 2026-11-23).
+HEATHEN_BARRED_EFFECTS = ("birth_then_die", "baby_lost", "deliver_early", "clone", "new_villager", "status",
+                          "apostasy")
 EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change": 14, "skill_set": 15, "damage": 16,
                      "appearance": 17, "die_unrecovered": 18, "baby_lost": 19,
                      "birth_then_die": 20, "old_look": 21,
@@ -4628,14 +4629,14 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
                 elif g["roles"][p.role].get("optional"):
                     problems.append(f"node {nid}: the label's {raw} names {p.role}, who may not be bound")
 
-    # 45: a Heathens-only role never takes what can not yet happen to a Heathen (it could never be cast: the engine's
-    # loader refuses it too, story_graph.inc cg_heathen_barred_effect).
+    # 45: a Heathens-only role never takes what never happens to a Heathen (it could never be cast: the engine's
+    # loader refuses it too, story_graph.inc cg_heathen_never_effect).
     only = {rid for rid, r in g["roles"].items() if r.get("heathens") == "only"}
     for nid, n in nodes.items():
         for e in n.get("effects") or []:
             if e.get("do") in HEATHEN_BARRED_EFFECTS and ({e.get("role"), e.get("partner"), e.get("copy_of")} & only):
-                problems.append(f"node {nid}: {e['do']} can not happen to a Heathen yet, so a role with heathens "
-                                f"only may not take it")
+                problems.append(f"node {nid}: {e['do']} never happens to a Heathen, so a role with heathens only "
+                                f"may not take it")
 
     # Every history in every context.
     for ctx in contexts(g):

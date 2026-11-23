@@ -1125,22 +1125,87 @@ static int cg_heathen_effect_ok(const unsigned char *e) {
     }
 }
 
-/* cie-v6-binary.md 45: what can not yet happen to a Heathen cast through the row (everything else happens to them as
-   to a villager, the owner 2026-11-23: "Everything that happens to our villagers happens to heathens too").  A
-   death, a disappearance or a lost baby (the Heathens' deaths, graves and statistics are another companion's: "VVFP
-   Heathen Aging.dll", PR #850); a pregnancy or a nursing baby, either parent (a Heathen pregnancy is delivered only
-   by that companion, and only for the mothers it conceived: one from an event would never be born); a copy or a
-   double (New Believers' Heathens are never copied); becoming a Heathen (one already).  A pregnancy's partner (the
-   role in its first value) counts as named too (cg_heathen_barred_roles). */
-static int cg_heathen_barred_effect(const unsigned char *e) {
+/* cie-v6-binary.md 45: what never happens to a Heathen cast through the row (everything else happens to them as to a
+   villager, the owner 2026-11-23: "Everything that happens to our villagers happens to heathens too"): a birth that
+   kills its parent, a lost baby or a baby born early (a Heathen's births are "VVFP Heathen Aging.dll"'s own); a copy
+   or a double (New Believers' Heathens are never copied); becoming a Heathen (one already). */
+static int cg_heathen_never_effect(const unsigned char *e) {
     switch (e[0]) {
-    case CGE_KILL: case CGE_VANISH: case CGE_DIE_UNRECOVERED: case CGE_BIRTH_THEN_DIE: case CGE_BABY_LOST:
-    case CGE_PREGNANT: case CGE_NURSING: case CGE_DELIVER_EARLY: case CGE_CLONE: case CGE_NEW_VILLAGER:
+    case CGE_BIRTH_THEN_DIE: case CGE_BABY_LOST: case CGE_DELIVER_EARLY: case CGE_CLONE: case CGE_NEW_VILLAGER:
     case CGE_STATUS: case CGE_APOSTASY:
         return 1;
     default:
         return 0;
     }
+}
+
+/* What "VVFP Heathen Aging.dll" carries for a Heathen (the owner, 2026-11-23, "Heathens CAN die, vanish and get
+   pregnant from events"): a death (a body only with a skeleton row, else nothing left and a Death record), a
+   disappearance, a death with no body, a pregnancy or a nursing baby (two Heathens' only) -- each by the Heathens'
+   own rules (cg_heathen_aging_gone / cg_heathen_aging_pregnancy).  Without that companion's exports they never
+   happen to a Heathen. */
+static int cg_heathen_aging_effect(const unsigned char *e) {
+    switch (e[0]) {
+    case CGE_KILL: case CGE_VANISH: case CGE_DIE_UNRECOVERED: case CGE_PREGNANT: case CGE_NURSING:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+typedef int (__stdcall *cg_ha_gone_fn)(int game, int index, int how, int cause);
+typedef int (__stdcall *cg_ha_pregnancy_fn)(int game, int mother, int father, int litter, int now);
+#ifdef VVFP_TEST
+static int test_graph_heathen_aging = -1;   /* -1 the real companion; 0 none; 1 the test build's own (story_graph's
+                                                emulated stand-ins, VvfpStoryProbeHeathenAging) */
+static int __stdcall cg_test_ha_gone(int game, int index, int how, int cause);
+static int __stdcall cg_test_ha_pregnancy(int game, int mother, int father, int litter, int now);
+#endif
+
+static FARPROC cg_heathen_aging_export(const char *name) {
+    HMODULE dll;
+#ifdef VVFP_TEST
+    if (test_graph_heathen_aging >= 0) {
+        if (test_graph_heathen_aging == 0) {
+            return NULL;
+        }
+        return lstrcmpA(name, "VvfpHeathenAgingEventGone") == 0 ? (FARPROC)(void *)cg_test_ha_gone
+                                                                 : (FARPROC)(void *)cg_test_ha_pregnancy;
+    }
+#endif
+    dll = GetModuleHandleA("VVFP Heathen Aging.dll");
+    return dll != NULL ? GetProcAddress(dll, name) : NULL;
+}
+
+/* A Heathen's death (`how` 0, the effect's cause words) or disappearance (1) through "VVFP Heathen Aging.dll": 2 a
+   body was made (the event tells its cause as for any villager), 1 taken with nothing left, 0 not made.  The Death
+   record of a death with nothing left is the companion's: "Unknown causes" for the stock events' "unknown", else
+   Cause of Death's "Died in a custom island event" (5; the author's own words need a body to be kept). */
+static int cg_heathen_aging_gone(int game, int index, int how, const char *cause) {
+    cg_ha_gone_fn gone = (cg_ha_gone_fn)(void *)cg_heathen_aging_export("VvfpHeathenAgingEventGone");
+    if (gone == NULL) {
+        return 0;
+    }
+    return gone(game, index, how, cause != NULL && lstrcmpA(cause, "unknown") == 0 ? -1 : 5);
+}
+
+/* An event's pregnancy (`now` 1: a nursing baby, born at once) of the Heathen in record `mother` with the Heathen in
+   `father` (-1: a Heathen man of the camp) through "VVFP Heathen Aging.dll": the babies on their way, 0 none. */
+static int cg_heathen_aging_pregnancy(int game, int mother, int father, int litter, int now) {
+    cg_ha_pregnancy_fn conceive = (cg_ha_pregnancy_fn)(void *)cg_heathen_aging_export("VvfpHeathenAgingEventPregnancy");
+    return conceive != NULL ? conceive(game, mother, father, litter, now) : 0;
+}
+
+/* The effect can not happen to a Heathen cast through the row, here and now. */
+static int cg_heathen_barred_effect(const unsigned char *e) {
+    if (cg_heathen_never_effect(e)) {
+        return 1;
+    }
+    if (cg_heathen_aging_effect(e)) {
+        return cg_heathen_aging_export(e[0] == CGE_PREGNANT || e[0] == CGE_NURSING ? "VvfpHeathenAgingEventPregnancy"
+                                                                                   : "VvfpHeathenAgingEventGone") == NULL;
+    }
+    return 0;
 }
 
 /* A group effect (role byte 254): the effects a group may take, and its selector. */
@@ -1586,7 +1651,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             /* a Heathen's role: vanilla's own list only, whatever is ticked (No Safeguards too) */
             return cg_bad("an effect is not one a Heathen may have");
         }
-        if (g->version >= 6 && cg_heathen_barred_effect(e)
+        if (g->version >= 6 && cg_heathen_never_effect(e)
             && ((e[1] < (unsigned int)g->n_role && (cg_role_at(g, e[1])[13] & CG_ROLE_HEATHEN_ONLY))
                 || ((e[0] == CGE_PREGNANT || e[0] == CGE_NURSING) && (unsigned int)a < (unsigned int)g->n_role
                     && (cg_role_at(g, a)[13] & CG_ROLE_HEATHEN_ONLY)))) {
@@ -2286,6 +2351,22 @@ static unsigned int cg_heathen_barred_roles(void) {
         mask |= cg_role_reach((int)e[1]);
         if (e[0] == CGE_PREGNANT || e[0] == CGE_NURSING) {
             mask |= cg_role_reach((int)cg_u32(e + 4));
+        }
+    }
+    /* Never a Heathen and a believer (the owner): a pregnancy whose other parent's role can never be a Heathen's (no
+       Heathen bit) keeps Heathens out of this one's. */
+    for (i = 0; cg_g.d != NULL && i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        int carrier = (int)e[1], partner = (int)cg_u32(e + 4);
+        if ((e[0] != CGE_PREGNANT && e[0] != CGE_NURSING) || partner == 0xFF || carrier >= cg_g.n_role
+            || partner >= cg_g.n_role) {
+            continue;
+        }
+        if (!(cg_role_at(&cg_g, partner)[13] & (CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN))) {
+            mask |= cg_role_reach(carrier);
+        }
+        if (!(cg_role_at(&cg_g, carrier)[13] & (CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN))) {
+            mask |= cg_role_reach(partner);
         }
     }
     return mask;
@@ -6717,7 +6798,19 @@ static void cg_life_effect(const ce_adapter *a, int game, const unsigned char *e
             }
         }
         if (cg_heathen(game, record)) {
-            return;                    /* 45: a Heathen pregnancy is never delivered from an event (cg_heathen_barred_effect) */
+            /* 45: two Heathens' baby, conceived, carried and born by the Heathens' own rules ("VVFP Heathen
+               Aging.dll": born a Heathen 40 units later, or at once for a nursing baby); the litter as below */
+            unsigned int kind = e[2] & (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS);
+            int babies = kind == (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS) ? 3 : kind == CG_FX_LITTER_TWINS ? 2 : 1;
+            if (kind == CG_FX_LITTER_ROLL && ce_random_below(a, 100) < 7) {
+                babies = ce_random_below(a, 100) < 25 ? 3 : 2;
+            }
+            babies = cg_heathen_aging_pregnancy(game, index, partner, babies, e[0] == CGE_NURSING);
+            cg_count_add(0, babies);
+            if (babies > 0) {
+                cg_carrier_line(a, record, partner, swapped, e[0] == CGE_NURSING);
+            }
+            return;
         }
         {
             unsigned int kind = e[2] & (CG_FX_LITTER_ROLL | CG_FX_LITTER_TWINS);
@@ -7139,6 +7232,29 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
     }
     if (cg_effect_harmful(a, game, e) && cg_never_harmed(game, record)) {
         ce_refuse(r, CE_WHY_OTHER);    /* never harmed, whatever the role allows (cg_never_harmed) */
+        return;
+    }
+    if ((e[0] == CGE_KILL || e[0] == CGE_VANISH || e[0] == CGE_DIE_UNRECOVERED) && cg_heathen(game, record)) {
+        /* 45: a Heathen's death or disappearance by the Heathens' own rules ("VVFP Heathen Aging.dll"): a body only
+           with a skeleton row (then told as any villager's), else nothing left -- the companion's Death record for a
+           death, the event's own for a disappearance or a body not recovered -- and the camp Heathen replaced. */
+        int got = cg_heathen_aging_gone(game, index, e[0] == CGE_KILL ? 0 : 1, cg_s(&cg_g, cg_u16(e + 12)));
+        if (got == 0) {
+            ce_refuse_as(r, CE_WHY_OTHER);
+        } else if (e[0] == CGE_KILL) {
+            ++r->died;
+            if (got == 2) {
+                cg_tell_killed(game, index, cg_s(&cg_g, cg_u16(e + 12)));
+            }
+        } else if (e[0] == CGE_VANISH) {
+            ++r->vanished;
+            cg_tell_vanished(game, index);
+        } else {
+            ++r->died;
+            cg_tell_died_unrecovered(game, index);
+            cg_extra_add(name, " died (Unknown causes); the body was not recovered.");
+        }
+        cg_gone_role(role);
         return;
     }
     if (e[0] == CGE_KILL || e[0] == CGE_VANISH || e[0] == CGE_DIE_UNRECOVERED) {
@@ -8296,6 +8412,39 @@ static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, i
     return after - now;
 }
 
+/* 45 (the owner, 2026-11-23): the Heathens' own cast -- the words that make the tribe the event's home and people
+   are swapped automatically, never hand-reworded: "your villagers" -> "the Heathens", "your village" -> "the
+   Heathens' village" (with Guardians of Isola Rewrite "the Isolans"), each with its capital.  Nothing else of the
+   owner's words changes. */
+static void cg_swap_words(char *s, int cap, const char *from, const char *to) {
+    static char out[CG_RAW_BYTES];
+    int n = 0, f = lstrlenA(from), k;
+    const char *p = s;
+    while (*p != '\0' && n < (int)sizeof out - 1) {
+        for (k = 0; k < f && p[k] == from[k]; ++k) {
+        }
+        if (k == f) {
+            const char *q;
+            for (q = to; *q != '\0' && n < (int)sizeof out - 1; ++q) {
+                out[n++] = *q;
+            }
+            p += f;
+        } else {
+            out[n++] = *p++;
+        }
+    }
+    out[n] = '\0';
+    lstrcpynA(s, out, cap);
+}
+
+static void cg_heathens_words(char *s, int cap) {
+    int isolans = cg_guardians_on();
+    cg_swap_words(s, cap, "Your villagers", isolans ? "The Isolans" : "The Heathens");
+    cg_swap_words(s, cap, "your villagers", isolans ? "the Isolans" : "the Heathens");
+    cg_swap_words(s, cap, "Your village", isolans ? "The Isolans' village" : "The Heathens' village");
+    cg_swap_words(s, cap, "your village", isolans ? "the Isolans' village" : "the Heathens' village");
+}
+
 static void cg_group(int game, const cg_history *h, int from) {
     static char text[CG_RAW_BYTES];
     int award_kind = -1, award = 0, fx, k, i, first_text = -1;
@@ -8393,6 +8542,9 @@ static void cg_group(int game, const cg_history *h, int from) {
             cg_award_fx = paid_here ? pay_fx : -1;
             cg_award2_fx = award2 >= 0 && fx0 + award2 < CG_MAX_FX ? fx0 + award2 : -1;
             cg_expand(cg_node_text(node, game), text, sizeof text, CG_EXPAND_AWARD, 0, award_kind, shown);
+            if (cg.heathen_cast) {
+                cg_heathens_words(text, sizeof text);   /* 45: the Heathens' village, never yours */
+            }
             cg_award2_on = 0;
             cg_award_fx = cg_award2_fx = -1;
             if (award2 >= 0 && !cg_says_word(said, "(award2)")) {
@@ -8972,8 +9124,12 @@ static void cg_make_effects(const ce_adapter *a, int game, int k, ce_result *r) 
             cg_fx_now = -1;
         }
         /* Village Solidarity: once per run (its purchase time) and page (its place on the path, its node). */
-        cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
-                       (unsigned int)i << 16 | (unsigned int)(unsigned short)h->node[i]);
+        if (!cg.heathen_cast) {
+            /* 45 (Codex on #852): the Heathens' own cast never moves the village's solidarity -- flavor only, as
+               the tribe's other effects (cg_flavor_only) */
+            cg_sol_reached(game, n, cg_s(&cg_g, (unsigned int)cg_g.base_title), cg.when,
+                           (unsigned int)i << 16 | (unsigned int)(unsigned short)h->node[i]);
+        }
     }
     if (cg.job_count[k] > 0) {
         cg.applied_when[k] = sq_clock();
@@ -11162,6 +11318,55 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeGraphVv1Parent(int record, in
 /* The run file's layout: out[0] a version 3 file's state bytes, [1] the header's bytes, [2] the whole state's, [3] where
    the displays' words start in it, [4] their bytes, [5] the bytes versions 2 to 4 kept for them, [6] where version
    3's state ends now (the third and fourth answers' segments end), [7] a version 4 file's state bytes. */
+/* 45: "VVFP Heathen Aging.dll" stood in for (cg_heathen_aging_export): `mode` -1 the real one, 0 none, 1 the stand-ins
+   below; `body` 1: a death leaves a body (a skeleton row).  The calls are kept: out[0] the deaths' count, then each
+   (index, how, cause); out[16] the pregnancies' count, then each (mother, father, litter, now). */
+static int test_ha_body;
+static int test_ha_calls[32];
+
+static int __stdcall cg_test_ha_gone(int game, int index, int how, int cause) {
+    unsigned char *r = (unsigned char *)c5_record(index);
+    int n = test_ha_calls[0];
+    (void)game;
+    if (n < 5) {
+        test_ha_calls[1 + 3 * n] = index;
+        test_ha_calls[2 + 3 * n] = how;
+        test_ha_calls[3 + 3 * n] = cause;
+        test_ha_calls[0] = n + 1;
+    }
+    if (how == 0 && test_ha_body) {
+        *(int *)(r + 0x1C40) = 0;          /* the body (SetHealth) */
+        return 2;
+    }
+    r[0x1CD4] = 0;                         /* nothing left */
+    return 1;
+}
+
+static int __stdcall cg_test_ha_pregnancy(int game, int mother, int father, int litter, int now) {
+    unsigned char *r = (unsigned char *)c5_record(mother);
+    (void)game;
+    test_ha_calls[16] = 1;
+    test_ha_calls[17] = mother;
+    test_ha_calls[18] = father;
+    test_ha_calls[19] = litter;
+    test_ha_calls[20] = now;
+    if (!now) {
+        *(int *)(r + 0x1C4C) = 1;
+    }
+    return litter;
+}
+
+__declspec(dllexport) void __stdcall VvfpStoryProbeHeathenAging(int mode, int body, int *out) {
+    if (mode >= -1) {
+        test_graph_heathen_aging = mode;
+        test_ha_body = body;
+        memset(test_ha_calls, 0, sizeof test_ha_calls);
+    }
+    if (out != NULL) {
+        memcpy(out, test_ha_calls, sizeof test_ha_calls);
+    }
+}
+
 __declspec(dllexport) void __stdcall VvfpStoryProbeGraphFileLayout(int *out) {
     out[0] = (int)CG_FILE_V3_STATE;
     out[1] = (int)sizeof(cg_file_head);

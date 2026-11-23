@@ -71,14 +71,16 @@ class Compiler(unittest.TestCase):
         g["roles"]["isolan"]["heathen_ok"] = True
         _, problems = cg.validate(g, scrolling=True)
         self.assertTrue(any("not both" in p for p in problems), problems)
-        for do in ({"do": "kill", "role": "isolan", "cause": "unknown"}, {"do": "vanish", "role": "isolan"},
-                   {"do": "pregnant", "role": "isolan"}):
+        for do in ({"do": "clone", "role": "isolan"}, {"do": "status", "role": "isolan", "status": "heathen"}):
             with self.subTest(do=do["do"]):
                 _, problems = cg.validate(graph("only", [do]), scrolling=True)
-                self.assertTrue(any("can not happen to a Heathen yet" in p for p in problems), problems)
-        _, problems = cg.validate(graph("allowed", [{"do": "kill", "role": "isolan", "cause": "unknown"}]),
-                                  scrolling=True)
-        self.assertFalse([p for p in problems if "Heathen" in p], "allowed: the engine casts a believer there")
+                self.assertTrue(any("never happens to a Heathen" in p for p in problems), problems)
+        # the owner (2026-11-23): Heathens can die, disappear and have babies ("VVFP Heathen Aging.dll" carries them)
+        for do in ({"do": "kill", "role": "isolan", "cause": "unknown"}, {"do": "vanish", "role": "isolan"},
+                   {"do": "pregnant", "role": "isolan", "any_birth_sex": True}):
+            with self.subTest(do=do["do"]):
+                _, problems = cg.validate(graph("only", [do]), scrolling=True)
+                self.assertFalse([p for p in problems if "Heathen" in p], problems)
 
     def test_the_lines(self):
         hv = {k: v for k, v in cg.AUTO_LINES.items() if k.startswith("hv_")}
@@ -102,8 +104,9 @@ class Engine(unittest.TestCase):
         if not have_stock("vv5"):
             self.skipTest("no New Believers")
 
-    def run_with(self, people, heathens=(), puzzle=None, patches=(ROW,), rolls=0):
+    def run_with(self, people, heathens=(), puzzle=None, patches=(ROW,), rolls=0, aging=1, body=0):
         r = V6("vv5", people)
+        r.p.export("VvfpStoryProbeHeathenAging", aging, body, 0)    # "VVFP Heathen Aging.dll" stood in for (1)
         for i in heathens:
             r.p.write(r.v.record(i) + FACTION, b"\1")
             r.p.write(r.v.record(i) + SICK, b"\0")
@@ -145,13 +148,83 @@ class Engine(unittest.TestCase):
                 r = self.run_with(self.ONE, heathens=(0,), puzzle=0, patches=patches)
                 self.assertIsNotNone(r.queue6(data, strict=True, origin=2), "a Master is never cast")
 
-    def test_never_where_a_death_or_a_pregnancy_names_the_role(self):
+    def calls(self, r) -> list[int]:
+        buf = r.p.alloc(128)
+        r.p.export("VvfpStoryProbeHeathenAging", -2, 0, buf)
+        return list(struct.unpack("<32i", r.p.read(buf, 128)))
+
+    def test_without_the_aging_companion_never_where_a_death_or_a_pregnancy_names_the_role(self):
         for fx in ({"do": "kill", "role": "isolan", "cause": "unknown"}, {"do": "vanish", "role": "isolan"},
                    {"do": "pregnant", "role": "isolan", "any_birth_sex": True}):
             with self.subTest(fx=fx["do"]):
                 data = compiled(graph("allowed", [fx]))
-                r = self.run_with(self.ONE, heathens=(0,))
+                r = self.run_with(self.ONE, heathens=(0,), aging=0)
                 self.assertIsNotNone(r.queue6(data, strict=True), "only a Heathen there: nobody may be cast")
+                r = self.run_with(self.ONE, heathens=(0,))
+                self.assertIsNone(r.queue6(data, strict=True), "with the companion: the Heathen is cast")
+
+    def test_a_heathens_death_and_disappearance_go_by_the_heathens_rules(self):
+        for fx, how, cause in (({"do": "kill", "role": "isolan", "cause": "unknown"}, 0, -1),
+                               ({"do": "kill", "role": "isolan", "cause": "custom"}, 0, 5),
+                               ({"do": "vanish", "role": "isolan"}, 1, 5),
+                               ({"do": "die_unrecovered", "role": "isolan"}, 1, None)):
+            with self.subTest(fx=fx["do"], cause=fx.get("cause")):
+                r = self.run_with(self.ONE, heathens=(0,))
+                deaths = r.p.u32(0x51D3A0)
+                self.assertIsNone(r.queue6(compiled(graph("only", [fx]))))
+                r.walk_through()
+                c = self.calls(r)
+                self.assertEqual(c[0:3], [1, 0, how])
+                if cause is not None:            # (a disappearance's record is the event's own)
+                    self.assertEqual(c[3], cause)
+                self.assertEqual(r.p.read(r.v.record(0) + r.v.L["active"], 1), b"\0", "taken: nothing left")
+                self.assertEqual(r.p.u32(0x51D3A0), deaths, "never counted")
+
+    def test_a_heathen_couples_baby_and_never_with_a_believer(self):
+        roles = {"isolan": {"kind": "villager", "min_age": 18, "sex": "female", "heathens": "only"},
+                 "mate": {"kind": "villager", "min_age": 18, "sex": "male", "heathens": "only"}}
+        fx = [{"do": "pregnant", "role": "isolan", "partner": "mate"}]
+        people = [(0, "f", 28, "Lani", 0, False), (1, "m", 30, "Tama", 0, False)]
+        r = self.run_with(people, heathens=(0, 1))
+        self.assertIsNone(r.queue6(compiled(graph("only", fx, roles=roles))))
+        r.walk_through()
+        self.assertEqual(self.calls(r)[16:21], [1, 0, 1, 1, 0], "the mother, the father, one baby, not yet born")
+        # a believer father: never (the role that pairs with a believer's keeps Heathens out)
+        roles["mate"].pop("heathens")
+        r = self.run_with(people, heathens=(0,))
+        self.assertIsNotNone(r.queue6(compiled(graph("only", fx, roles=roles)), strict=True))
+        self.assertEqual(self.calls(r)[16], 0)
+
+    def test_the_heathens_own_cast_moves_no_solidarity(self):
+        from test_village_solidarity import fake_solidarity
+        g = graph("only")
+        g["nodes"]["p"]["solidarity"] = "raise"
+        tags: list = []
+        r = self.run_with(self.ONE, heathens=(0,))
+        fake_solidarity(r.p, 1000, 1000, tags)
+        self.assertIsNone(r.queue6(compiled(g)))
+        words = " ".join(s[1] for s in r.walk_through())
+        self.assertEqual(tags, [], "Codex on #852: the Heathens' own cast never moves the village's score")
+        self.assertNotIn("Village Solidarity", words)
+        # a mixed cast still does
+        roles = {"isolan": {"kind": "villager", "min_age": 14, "heathens": "only"},
+                 "host": {"kind": "villager", "min_age": 14}}
+        g = graph("only", roles=roles)
+        g["nodes"]["p"]["solidarity"] = "raise"
+        tags = []
+        r = self.run_with(self.TWO, heathens=(1,))
+        fake_solidarity(r.p, 1000, 1000, tags)
+        self.assertIsNone(r.queue6(compiled(g)))
+        r.walk_through()
+        self.assertEqual(len(tags), 1)
+
+    def test_your_village_becomes_the_heathens_village(self):
+        g = graph("only", [])
+        g["nodes"]["p"]["text"] = "(isolan.Name) brings your villagers a gift for your village."
+        r = self.run_with(self.ONE, heathens=(0,))
+        self.assertIsNone(r.queue6(compiled(g)))
+        words = " ".join(" ".join(s[1] for s in r.walk_through()).split())
+        self.assertIn("brings the Heathens a gift for the Heathens' village.", words)
 
     def flavor(self, guardians: bool):
         patches = (ROW, "vv5_guardians_of_isola_rewrite") if guardians else (ROW,)
@@ -242,14 +315,15 @@ class Engine(unittest.TestCase):
         again = self.resumed(bytes(old))
         self.assertNotEqual(again.state()["phase"], IDLE, "a version 6 file is put back")
 
-    def test_no_heathen_pregnancy_and_never_with_a_believer(self):
+    def test_never_a_heathen_partner_for_a_believer(self):
         roles = {"isolan": {"kind": "villager", "min_age": 18, "heathens": "allowed"},
                  "mate": {"kind": "villager", "min_age": 18}}
         fx = [{"do": "pregnant", "role": "mate", "partner": "isolan", "any_birth_sex": True}]
         r = self.run_with(self.TWO, heathens=(0,))
-        # the Heathen may not be the partner (barred): with only a Heathen and a believer, the cast fails
+        # the believer's role pairs with the Heathen's: Heathens stay out of it, so with one believer the cast fails
         self.assertIsNotNone(r.queue6(compiled(graph("allowed", fx, roles=roles)), strict=True))
         self.assertEqual(r.v.i32(1, r.v.L["pregnant"]), 0)
+        self.assertEqual(self.calls(r)[16], 0)
 
 
 if __name__ == "__main__":

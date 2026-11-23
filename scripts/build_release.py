@@ -164,6 +164,7 @@ FILES = [
     "assets/heathen_aging/VVFP Heathen Aging.dll",
     "assets/heathen_aging/VVFP Heathen Aging Former.txt",
     "assets/heathen_aging/VVFP Heathen Aging Tribe.txt",
+    "assets/heathen_aging/VVFP Heathen Aging Events.txt",
     "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
     "assets/heathen_aging/VVFP Heathen Skeletons All.txt",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).

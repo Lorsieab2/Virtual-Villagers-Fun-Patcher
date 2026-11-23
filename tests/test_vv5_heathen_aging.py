@@ -1094,7 +1094,8 @@ class TheRows(unittest.TestCase):
         self.assertEqual(sorted(a for a, _ in mine), [0x470077, 0x472CB7])
         others = {}
         for path in (ROOT / "data").glob("vv5_*_feature.json"):
-            if path.name in {f"{r}_feature.json" for r in ROWS}:
+            # (Heathens can be selected in Island Events ships this very companion: its sites are these two)
+            if path.name in {f"{r}_feature.json" for r in ROWS} | {"vv5_heathens_in_island_events_feature.json"}:
                 continue
             others[path.name] = ranges(json.loads(path.read_text(encoding="utf-8")))
         shown = subprocess.run(["git", "show", "origin/feat/98-reverted-heathens-keep-mask-look:"
@@ -1113,12 +1114,133 @@ class TheRows(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathenAgingGrave", "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset",
-                                 "VvfpStartup"])
+        self.assertEqual(names, ["VvfpHeathenAgingEventGone", "VvfpHeathenAgingEventPregnancy", "VvfpHeathenAgingGrave",
+                                 "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset", "VvfpStartup"])
         for _, (name, flag, _) in ROWS.items():
             text = (ROOT / "assets" / "heathen_aging" / flag).read_bytes()
             self.assertTrue(text.startswith(f'Virtual Villagers Fun Patcher: "{name}" (New Believers).\n'.encode()))
             self.assertNotIn(b"\r", text)
+
+
+EVENTS = "VVFP Heathen Aging Events.txt"
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class IslandEvents(unittest.TestCase):
+    """"Heathens can be selected in Island Events/Heathen-Exclusive Events" (the owner, 2026-11-23: "Heathens CAN die,
+    vanish and get pregnant from events"): the Story engine hands an event's death, disappearance or pregnancy of an
+    ordinary Heathen to this companion (VvfpHeathenAgingEventGone / VvfpHeathenAgingEventPregnancy), which follows the
+    Heathens' own rules -- with no aging row ticked too."""
+
+    def test_the_events_flag_alone_installs_and_nobody_ages(self):
+        v = Village((EVENTS,))
+        self.assertEqual(v.installed, 1)
+        camp = v.villager(1, heathen=True)
+        v.credit(camp, 3)
+        self.assertEqual(v.i32(camp, AGE), 600, "no aging row: a Heathen still never ages")
+
+    def test_without_the_events_flag_the_exports_do_nothing(self):
+        v = Village((TRIBE,))
+        v.villager(1, heathen=True)
+        v.villager(9, heathen=True)
+        self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 0, 5), 0)
+        self.assertEqual(v.read(v.record(1) + PRESENT, 1), b"\x01")
+
+    def test_a_death_leaves_nothing_is_logged_and_the_camp_heathen_is_replaced(self):
+        v = Village((EVENTS,))
+        camp = v.villager(1, heathen=True, role=4, red=1)
+        v.villager(9, heathen=True, name="Other")
+        v.put32(DEATHS_STAT, 7)
+        self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 0, 5), 1)
+        self.assertEqual(v.read(camp + PRESENT, 1), b"\x00", "no skeleton row: nothing left")
+        self.assertEqual(v.i32(camp, HEALTH), 90)
+        self.assertEqual(v.died, [(5, 1, 5)], "a Death record, the event's cause (Cause of Death's 5), no grave")
+        self.assertEqual(v.u32(DEATHS_STAT), 7, "never counted")
+        index, args = v.created[0]
+        self.assertEqual((args[6], args[7]), (1, 4), "the same camp role and mask")
+        self.assertEqual(v.arrived[-1], (index, "Replaced a Heathen lost in an island event"))
+
+    def test_with_a_skeleton_row_a_body_is_left_and_the_statistics_put_back(self):
+        v = Village((EVENTS, BONES_ALL))
+        camp = v.villager(1, heathen=True)
+        v.villager(9, heathen=True)
+        v.put32(DEATHS_STAT, 7)
+        self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 0, 5), 2)
+        self.assertEqual((v.i32(camp, HEALTH), v.i32(camp, CAUSE)), (0, -1), "a body: the event tells its cause")
+        self.assertEqual(v.read(camp + PRESENT, 1), b"\x01")
+        self.assertEqual(v.u32(DEATHS_STAT), 7)
+        self.assertEqual(v.died, [])
+
+    def test_a_disappearance_is_the_events_own_record(self):
+        v = Village((EVENTS, BONES_ALL))
+        camp = v.villager(1, heathen=True)
+        v.villager(9, heathen=True)
+        self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 1, 5), 1)
+        self.assertEqual(v.read(camp + PRESENT, 1), b"\x00", "taken with no body, skeleton row or not")
+        self.assertEqual(v.died, [], "the event writes the Disappeared record")
+        self.assertEqual(len(v.created), 1)
+
+    def test_never_a_replacement_for_a_former_villager_after_the_last_heathen_or_from_nothing(self):
+        for case in ("former", "last", "nothing"):
+            with self.subTest(case=case):
+                v = Village((EVENTS,))
+                r = v.villager(1, heathen=True, parents=case == "former")
+                if case != "nothing":
+                    v.villager(9, heathen=True)
+                if case == "last":
+                    v.solve(25)
+                self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 0, -1), 1)
+                self.assertEqual(v.read(r + PRESENT, 1), b"\x00")
+                self.assertEqual(v.created, [])
+
+    def test_a_believer_is_never_this_companions(self):
+        v = Village((EVENTS,))
+        r = v.villager(1, heathen=False)
+        self.assertEqual(v.export("VvfpHeathenAgingEventGone", 5, 1, 0, 5), 0)
+        self.assertEqual(v.read(r + PRESENT, 1), b"\x01")
+        woman = v.villager(2, heathen=True, sex=1)
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 2, 1, 1, 0), 0, "never with a believer father")
+        self.assertEqual(v.i32(woman, PREGNANT), 0)
+
+    def test_a_pregnancy_is_carried_and_born_a_heathen_with_no_aging_row(self):
+        v = Village((EVENTS,))
+        man = v.villager(1, heathen=True, sex=0, name="Kalo")
+        woman = v.villager(2, heathen=True, sex=1, name="Mele")
+        v.put32(TWINS, 3)
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 2, 1, 1, 0), 1)
+        self.assertEqual(v.cstring(v.conceived[0][1][3]), "Kalo")
+        self.assertEqual(v.u32(TWINS), 3, "never counted")
+        at = v.i32(woman, PREGNANT)
+        self.assertNotEqual(at, 0)
+        v.credit(woman, 42)
+        self.assertEqual(v.i32(woman, AGE), 642, "she ages while she carries, as a believer")
+        v.credit(man, 41)
+        self.assertEqual(v.i32(man, AGE), 600, "nobody else ages")
+        v.rand_answers.extend([0, 0, 1])
+        v.life_tick()
+        self.assertEqual(len(v.created), 1, "born 40 units after the conception")
+        baby = v.record(v.created[0][0])
+        self.assertEqual(v.read(baby + FACTION, 1), b"\x01")
+        self.assertEqual(v.cstring(baby + FATHER_NAME), "Kalo")
+        self.assertEqual(v.i32(woman, PREGNANT), 0)
+        before = v.i32(woman, AGE)
+        v.credit(woman, 5)
+        self.assertEqual(v.i32(woman, AGE), before, "born: she stops aging again")
+
+    def test_a_nursing_baby_is_born_at_once_and_none_after_the_last_heathen(self):
+        v = Village((EVENTS,))
+        v.villager(1, heathen=True, sex=0)
+        woman = v.villager(2, heathen=True, sex=1)
+        v.rand_answers.extend([0, 0, 1])
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 2, -1, 1, 1), 1)
+        self.assertEqual(len(v.created), 1)
+        self.assertEqual(v.i32(woman, PREGNANT), 0)
+        v = Village((EVENTS,))
+        v.villager(1, heathen=True, sex=0)
+        v.villager(2, heathen=True, sex=1)
+        v.solve(25)
+        self.assertEqual(v.export("VvfpHeathenAgingEventPregnancy", 5, 2, 1, 1, 0), 0)
+        self.assertEqual(v.conceived, [])
 
 
 if __name__ == "__main__":

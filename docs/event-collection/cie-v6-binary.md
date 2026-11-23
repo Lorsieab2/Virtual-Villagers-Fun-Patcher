@@ -1533,14 +1533,21 @@ villagers and life happens to them too."
 - **Who:** an ordinary Heathen -- faction +0x1CEC set, role +0x1CFC not 12-17 (never the chief, the Retired Chief or a
   puzzle's Heathen, No Safeguards or not), never sick (+0x1C48), health above 0, listed -- as the game's own picker
   0x471870 takes one. The role's own ages, sex, skills and safety rules still apply.
-- **What may happen to them:** everything a villager may have (the vanilla list of section 33c does not apply), except
-  what can not yet happen to a Heathen (`cg_heathen_barred_effect`): `kill`, `vanish`, `die_unrecovered`,
-  `birth_then_die`, `baby_lost`, `pregnant` and `nursing` (either parent), `deliver_early`, `clone`, a `new_villager`
-  copied from the role, `status`, `apostasy`. A Heathen is never cast in a role such an effect names (with an alias's
-  or an "other"'s members, and a pregnancy's partner), and a Heathens-only role naming one is refused when the file is
-  loaded (the compiler too). Why: a Heathen's death, grave and statistics are "VVFP Heathen Aging.dll"'s (PR #850), a
-  Heathen pregnancy is delivered only for the mothers that companion conceived, and Heathens are never copied. A
-  Heathen and a believer never conceive together.
+- **What may happen to them:** everything a villager may have (the vanilla list of section 33c does not apply).
+  **Never** (`cg_heathen_never_effect`): `birth_then_die`, `baby_lost`, `deliver_early`, `clone`, a `new_villager`
+  copied from the role, `status`, `apostasy` -- a Heathens-only role naming one is refused when the file is loaded
+  (the compiler too). **By the Heathens' own rules** (the owner, 2026-11-23: "Heathens CAN die, vanish and get
+  pregnant from events"), through "VVFP Heathen Aging.dll", which this row ships with its flag file "VVFP Heathen
+  Aging Events.txt" (it then splices its two sites even with no aging row ticked): `kill`, `vanish`,
+  `die_unrecovered` go to `VvfpHeathenAgingEventGone(5, index, how, cause)` -- a body only with a skeleton row (then
+  told as any villager's death; the statistics' death counter put back), else nothing left and a Death record
+  ("no grave"), a disappearance's record the event's own; then a camp Heathen is replaced as for an old-age death
+  (never a former villager, nobody once The Last Heathen is solved, never from nothing). `pregnant` / `nursing` go to
+  `VvfpHeathenAgingEventPregnancy(5, mother, father, litter, now)` -- two Heathens only (never a Heathen and a
+  believer: a pregnancy whose other role has no Heathen bit keeps Heathens out of this one's; a believer partner is
+  refused), the game's conception, the mother kept as expecting and aging until the companion's Heathen birth 40
+  units later (at once for a nursing baby), none once The Last Heathen is solved. Without that companion these never
+  reach a Heathen: such a role does not cast one.
 - **The Heathens' own cast:** decided once when the roles are bound (`cg.heathen_cast`, run file version 7): the row
   installed, a role of this section in the event, at least one villager cast and every villager cast a Heathen. Then
   the tribe's effects -- `food`, `tech`, `pay_award`, `damage`, `repair`, `supply`, `trade`, a `village` tech level,
@@ -1552,6 +1559,15 @@ villagers and life happens to them too."
   `CG_HV_ISOLAN`). The amounts are the rolls; the village's stores are untouched (the statistics never see them). The
   weather and the next island event's time are the island's and are made as always. A mixed cast makes every effect
   as always.
+- **The Heathens' own cast, words and solidarity:** the page's words are swapped automatically, never hand-reworded:
+  "your villagers" -> "the Heathens", "your village" -> "the Heathens' village" (with capitals; "the Isolans" with
+  Guardians of Isola Rewrite). A page's Village Solidarity tag moves nothing (Codex on #852). A mixed cast is as
+  always.
+- **More Island Events, The Aspiring Adventurer** (the owner, 2026-11-23): the adventurer may be an ordinary Heathen
+  (with this row and "VVFP Heathen Aging.dll"); lost ending 2 is then "... seems to have joined another tribe." and
+  they disappear (the Deaths log's Disappeared record); a death or disappearance by the Heathens' own rules; a find
+  nobody of the tribe shares (A1, A5) is the Heathens' own -- its words swapped as above, "(no effect)", no award --
+  and the village's solidarity is not moved.
 - **The collection:** `data/event_collection/heathen_roles.json` (`{"events": {id: {"roles": {role: mode},
   "exclusive": true}}}`) is applied to each event before it is validated (`scripts/build_event_collection_features.py
   apply_heathen_roles`); empty until the owner approves the Heathen audit's rows. More Island Events: the table

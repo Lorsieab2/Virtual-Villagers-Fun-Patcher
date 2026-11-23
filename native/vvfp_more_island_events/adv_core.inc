@@ -194,7 +194,12 @@ typedef struct {
     int mode;                                         /* ADV_HEATHEN_* */
 } adv_heathen_role;
 static const adv_heathen_role ADV_HEATHEN_ROLES[] = {
-    { "", -1, ADV_HEATHEN_NEVER }                     /* (none approved yet: the audit's rows go above this one) */
+    /* The owner, 2026-11-23: "The Aspiring Adventurer MAY cast a Heathen as the adventurer" -- lost ending 2 is then
+       "(Name) seems to have joined another tribe." and they disappear (logged); a death or a disappearance by the
+       Heathens' own rules ("VVFP Heathen Aging.dll", adv_heathen_gone); the find, when nobody else shares it, is the
+       Heathens' own (no effect). */
+    { "aspiring_adventurer", ADV_ROLE_ADVENTURER, ADV_HEATHEN_ALLOWED },
+    { "", -1, ADV_HEATHEN_NEVER }                     /* (the audit's further rows go above this one) */
 };
 static const char *adv_event_now = "aspiring_adventurer";   /* the event and role being cast */
 static int adv_role_now = ADV_ROLE_ADVENTURER;
@@ -209,6 +214,21 @@ static int adv_heathen_mode(const char *event, int role) {
     return ADV_HEATHEN_NEVER;
 }
 
+/* "VVFP Heathen Aging.dll"'s island-event deaths and disappearances (its row ships it with this one): a Heathen's
+   death leaves a body only with a skeleton row, the camp Heathen is replaced, nothing counts in the statistics.
+   `how` 0 a death, 1 a disappearance; 2 a body was made, 1 taken, 0 not made (no companion). */
+typedef int (__stdcall *adv_ha_gone_fn)(int game, int index, int how, int cause);
+
+static adv_ha_gone_fn adv_heathen_aging(void) {
+    HMODULE ha = GetModuleHandleA("VVFP Heathen Aging.dll");
+    return ha != NULL ? (adv_ha_gone_fn)(void *)GetProcAddress(ha, "VvfpHeathenAgingEventGone") : NULL;
+}
+
+static int adv_heathen_gone(int index, int how) {
+    adv_ha_gone_fn gone = adv_heathen_aging();
+    return gone != NULL ? gone(5, index, how, -1) : 0;
+}
+
 /* New Believers: whether record `r`'s faction fits the role being cast -- a believer unless the role is Heathens
    only; a Heathen only when the role allows one and the row is installed, and never a sick one (the protected
    villagers, the puzzles' Heathens among them, are the caller's own test). */
@@ -220,7 +240,9 @@ static int adv_vv5_faction_ok(const unsigned char *r) {
     return mode != ADV_HEATHEN_NEVER && r[0x1C48] == 0
         && !(*(const int *)(r + 0x1CFC) >= 12 && *(const int *)(r + 0x1CFC) <= 17)   /* never a puzzle's, No
                                                                                        Safeguards or not */
-        && adv_story_int("VvfpStoryHeathensRow", 5, 0) != 0;
+        && adv_story_int("VvfpStoryHeathensRow", 5, 0) != 0
+        && (adv_role_now != ADV_ROLE_ADVENTURER || adv_heathen_aging() != NULL);   /* the adventurer's endings
+                                                                                       can kill or take them */
 }
 
 static struct {
@@ -238,6 +260,7 @@ static struct {
     int award_kind, award;                            /* the find's kind and the amount it gives */
     int effect[2];                                    /* ADV_FX_* of each choice */
     int effects_made;                                 /* the answer's effects are made (once) */
+    int hero_heathen;                                 /* New Believers: the adventurer is an ordinary Heathen */
     adv_pages intro;
     adv_pages result[2];
     int tallest;                                      /* the page with the most lines: [0] intro, 1/2 result */
@@ -740,6 +763,44 @@ static int adv_award_key(void) {
     return adv.award_kind == ADV_KIND_FOOD ? ADV_AWARD_FOOD : ADV_AWARD_TECH;
 }
 
+/* The Heathens' own find (the owner, 2026-11-23): a Heathen adventurer's award that nobody of the tribe shares (A1,
+   A5) is the Heathens' village's -- the owner's words with the automatic swaps ("Your villagers" -> "The Heathens",
+   "The Isolans" with Guardians of Isola Rewrite; "your village" -> "the Heathens' village") -- and changes nothing,
+   so it ends "(no effect)". */
+static int adv_heathens_find(void) {
+    return adv.hero_heathen && (adv.a_end == 1 || adv.a_end == 5);
+}
+
+static void adv_swap_words(char *s, int cap, const char *from, const char *to) {
+    char out[ADV_PIECE_BYTES];
+    int n = 0, f = adv_len(from), k;
+    const char *p = s;
+    while (*p != '\0' && n < (int)sizeof out - 1) {
+        for (k = 0; k < f && p[k] == from[k]; ++k) {
+        }
+        if (k == f) {
+            const char *q;
+            for (q = to; *q != '\0' && n < (int)sizeof out - 1; ++q) {
+                out[n++] = *q;
+            }
+            p += f;
+        } else {
+            out[n++] = *p++;
+        }
+    }
+    out[n] = '\0';
+    adv_copy(s, cap, out);
+}
+
+static void adv_heathens_words(const adv_game *g, char *s, int cap) {
+    int isolans = g->joins_key != NULL && g->joins_key() == ADV_L2_ISOLANS;
+    adv_swap_words(s, cap, "Your villagers", isolans ? "The Isolans" : "The Heathens");
+    adv_swap_words(s, cap, "your villagers", isolans ? "the Isolans" : "the Heathens");
+    adv_swap_words(s, cap, "Your village", isolans ? "The Isolans' village" : "The Heathens' village");
+    adv_swap_words(s, cap, "your village", isolans ? "the Isolans' village" : "the Heathens' village");
+    adv_cat(s, cap, " (no effect)");
+}
+
 static void adv_compose_a(const adv_game *g) {
     static const int FINDS[3] = { ADV_FIND_1, ADV_FIND_2, ADV_FIND_3 };
     const char *p[6];
@@ -749,11 +810,24 @@ static void adv_compose_a(const adv_game *g) {
     p[1] = NULL;
     adv_popup(g, pages, p);
     switch (adv.a_end) {
-    case 1: p[0] = adv_join(1, ADV_A1, adv_award_key(), adv.award); p[1] = NULL; break;
+    case 1:
+        p[0] = adv_join(1, ADV_A1, adv_award_key(), adv.award);
+        if (adv_heathens_find()) {
+            adv_heathens_words(g, adv_buf[1], sizeof adv_buf[1]);
+        }
+        p[1] = NULL;
+        break;
     case 2: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_one(2, ADV_BEAST); p[2] = adv_one(3, ADV_A2_END); p[3] = NULL; break;
     case 3: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_one(2, ADV_BEAST); p[2] = adv_one(3, ADV_A3_END); p[3] = NULL; break;
     case 4: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_one(2, ADV_STRANGER); p[2] = adv_one(3, ADV_A4_END); p[3] = NULL; break;
-    case 5: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_join(2, ADV_A5_END, adv_award_key(), adv.award); p[2] = NULL; break;
+    case 5:
+        p[0] = adv_one(1, ADV_TRAP);
+        p[1] = adv_join(2, ADV_A5_END, adv_award_key(), adv.award);
+        if (adv_heathens_find()) {
+            adv_heathens_words(g, adv_buf[2], sizeof adv_buf[2]);
+        }
+        p[2] = NULL;
+        break;
     case 6: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_one(2, ADV_STRANGER); p[2] = adv_one(3, ADV_A6_END); p[3] = NULL; break;
     case 7: p[0] = adv_one(1, ADV_A7); p[1] = NULL; break;
     case 8: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_join(2, ADV_A8_END, adv_award_key(), adv.award); p[2] = NULL; break;
@@ -780,7 +854,11 @@ static void adv_compose_b(const adv_game *g) {
         adv_popup(g, pages, p);
         p[0] = adv_one(6, HEALERS[adv.healer - 1]);
         break;
-    case 2: p[0] = adv_one(5, g->joins_key != NULL ? g->joins_key() : ADV_L2_OTHER); p[1] = NULL; break;
+    case 2:
+        /* a Heathen adventurer: "... seems to have joined another tribe." (the owner, 2026-11-23) */
+        p[0] = adv_one(5, adv.hero_heathen || g->joins_key == NULL ? ADV_L2_OTHER : g->joins_key());
+        p[1] = NULL;
+        break;
     case 3: p[0] = adv_one(5, ADV_L3); p[1] = NULL; break;
     case 4: p[0] = adv_one(5, ADV_L4); p[1] = NULL; break;
     case 5: p[0] = adv_one(5, ADV_L5); p[1] = NULL; break;
@@ -861,6 +939,7 @@ static int adv_begin(const adv_game *g) {
         return 0;
     }
     adv.hero_id = adv_identity(g, adv.hero);
+    adv.hero_heathen = g->game == 5 && g->record(adv.hero)[0x1CEC] != 0;
     adv.female = g->female(g->record(adv.hero)) ? 1 : 0;
     g->name(g->record(adv.hero), adv.name, sizeof adv.name);
     adv_role_now = ADV_ROLE_FRIEND;    /* New Believers: the friend's own Heathen rule (ADV_HEATHEN_ROLES) */
@@ -1009,13 +1088,19 @@ static void adv_make_effects(void) {
     }
     switch (adv.effect[choice]) {
     case ADV_FX_AWARD:
-        g->award(adv.award_kind, adv.award);
+        if (!(choice == 0 && adv_heathens_find())) {
+            g->award(adv.award_kind, adv.award);
+        }
         break;
     case ADV_FX_DIES:
-        g->kill(adv.hero);
+        if (!adv.hero_heathen || adv_heathen_gone(adv.hero, 0) == 0) {
+            g->kill(adv.hero);
+        }
         break;
     case ADV_FX_DISAPPEARS:
-        g->vanish(adv.hero);
+        if (!adv.hero_heathen || adv_heathen_gone(adv.hero, 1) == 0) {
+            g->vanish(adv.hero);
+        }
         adv_tell_vanished(g->game, adv.hero,
                           choice == 0 ? (adv.a_end == 3 ? "Disappeared in The Aspiring Adventurer (taken by a beast)"
                                                         : "Disappeared in The Aspiring Adventurer (taken by a stranger)")
@@ -1028,7 +1113,13 @@ static void adv_make_effects(void) {
         g->skill(adv.hero, adv.skill_which, adv.skill_amount);
         break;
     case ADV_FX_JOINS:
-        if (g->convert != NULL) {
+        if (adv.hero_heathen) {
+            /* a Heathen joins another tribe: taken by the Heathens' own rules, logged as a disappearance */
+            if (adv_heathen_gone(adv.hero, 1) == 0) {
+                g->vanish(adv.hero);
+            }
+            adv_tell_vanished(g->game, adv.hero, "Disappeared in The Aspiring Adventurer (joined another tribe)");
+        } else if (g->convert != NULL) {
             g->convert(adv.hero);
         } else {
             g->vanish(adv.hero);
@@ -1040,6 +1131,10 @@ static void adv_make_effects(void) {
     }
     /* Village Solidarity: an award raises; a death, a disappearance or a villager leaving for another tribe (VV5:
        turning Heathen) lowers; the injury, a skill or nothing is the adventurer's own (neutral). */
+    if (adv.hero_heathen && !(adv.effect[choice] == ADV_FX_AWARD && !adv_heathens_find())) {
+        return;                        /* the Heathens' own: the village's solidarity unchanged (as a Heathen-only
+                                          branching event, story_graph.inc cg_flavor_only) */
+    }
     adv_solidarity(g->game, adv.effect[choice] == ADV_FX_AWARD ? ADV_SOL_RAISE
                             : (adv.effect[choice] == ADV_FX_DIES || adv.effect[choice] == ADV_FX_DISAPPEARS
                                || adv.effect[choice] == ADV_FX_JOINS) ? ADV_SOL_LOWER : ADV_SOL_NEUTRAL);
