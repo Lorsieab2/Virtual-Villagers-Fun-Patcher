@@ -1267,6 +1267,15 @@ class _Done:
 # enters it), and named so Restore Saves never offers it as a backup (only "Backup <date>..." folders are
 # backups, vv_save_backup._BACKUP_NAME; vv3_second_faction looks only in those too).
 SET_ASIDE_PREFIX = "Replaced by copy "
+# The label's own fields: "Replaced by copy|move <yyyy-mm-dd hh-mm-ss> - Save <N> - <village>" -- only the
+# FIRST "- Save <N> -" is the slot (a village may be named "A - Save 1 - B"; Codex review on #847).
+_SET_ASIDE_LABEL = re.compile(r"^Replaced by (?:copy|move) \d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2} - Save ([1-5]) - ")
+
+
+def set_aside_slot(label: str) -> int | None:
+    """The slot whose files a "Replaced by copy/move ..." folder holds, from its Backups index label."""
+    match = _SET_ASIDE_LABEL.match(label or "")
+    return int(match.group(1)) if match else None
 
 
 def set_aside_folder(folder: Path, when: datetime, slot: int, village: str | None,

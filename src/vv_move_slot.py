@@ -153,10 +153,48 @@ def slot_everything(game: rename.GameSaves, folder: Path, slot: int) -> list[Pat
         top = cs._TOP_STATISTICS.match(entry.name)
         if (legacy and int(legacy.group(2)) == slot) or (top and int(top.group(1)) == slot):
             out.append(entry)
+    # A repair copy is the slot's when the file it is a copy of is (Codex review on #847): a copy of an older
+    # layout's "...Logs\Save <S>\..." log sits in the shared Copies Made Before Repairs with no slot in its
+    # name ("Deaths Log 1.txt.bak1"); its Copies Index line names the file.
+    owned = {str(p.relative_to(folder)).casefold() for p in out}
+    for copies in repair_copies._all_copies_folders(folder):
+        for kept in repair_copies.entries(copies):
+            if not kept.original or not lp.is_file(kept.copy):
+                continue
+            if kept.original.casefold() in owned or slot_of_relative(game, Path(kept.original), slot):
+                out.append(kept.copy)
     unique: dict[str, Path] = {}
     for path in out:
         unique.setdefault(str(path).casefold(), path)
     return sorted(unique.values(), key=lambda p: str(p).casefold())
+
+
+def slot_of_relative(game: rename.GameSaves, relative: Path, slot: int) -> bool:
+    """Whether a file at ``relative`` in a save folder is slot ``slot``'s, by its path alone (a file a Copies
+    Index names, which may be gone; a backup's long file kept under a short name)."""
+    parts = relative.parts
+    if not parts:
+        return False
+    if len(parts) == 1:
+        here = Path()
+        names = [game.save_path(here, slot).name] + [game.generation_path(here, g, slot).name
+                                                      for g in rename.GENERATIONS]
+        if parts[0].casefold() in (n.casefold() for n in names):
+            return True
+        legacy = cs._LEGACY_TOP.match(parts[0])
+        top = cs._TOP_STATISTICS.match(parts[0])
+        return bool((legacy and int(legacy.group(2)) == slot) or (top and int(top.group(1)) == slot))
+    top = parts[0].casefold()
+    if top in (SAVES.casefold(), LOGS.casefold()) and parts[1].casefold() == f"save {slot}":
+        return True
+    if top in (SAVES.casefold(), LOGS.casefold()) and _SLOT_FOLDER.fullmatch(parts[1]):
+        return False
+    if top not in (SAVES.casefold(), DATA.casefold(), LOGS.casefold(), TREES.casefold(), LEGACY_LOGS.casefold()):
+        return False
+    if cs._name_game(parts[-1]) not in (0, game.number):
+        return False
+    trees = top == TREES.casefold() or (top == LOGS.casefold() and parts[1].casefold() == "genealogy")
+    return cs._name_slot(parts[-1], trees=trees) == slot
 
 
 # ---------------------------------------------------------------------------

@@ -221,6 +221,42 @@ class LongPathPictureTests(Base):
         self.assertFalse(ds.is_picture(Path("Genealogy - Save 1.txt.bak1")))
 
 
+class OwnershipTests(Base):
+    """Codex review on #847: a repair copy with no slot in its name is the slot's by its original; a
+    set-aside folder is the slot's by its label's own slot field, never by a village named "A - Save 1 - B"."""
+
+    def test_an_index_only_copy_goes_and_another_slots_stays(self) -> None:
+        game, folder, old = self.make("huttest", 1, "Modded")
+        shared = folder / OLD_DATA / "Copies Made Before Repairs"
+        mine = f"{tc.OLD_LOGS}\\Save 1\\Deaths and Disappearances\\Virtual Villagers 1 Deaths Log 1.txt"
+        theirs = f"{tc.OLD_LOGS}\\Save 2\\Deaths and Disappearances\\Virtual Villagers 1 Deaths Log 1.txt"
+        (shared / "Deaths Log 1.txt.bak1").write_bytes(b"mine")
+        (shared / "Deaths Log 1.txt.bak2").write_bytes(b"theirs")
+        with open(shared / rc.INDEX, "ab") as index:
+            index.write(f"Deaths Log 1.txt.bak1\t{mine}\tbefore-x\t2026-11-20 10:00:00\r\n"
+                        f"Deaths Log 1.txt.bak2\t{theirs}\tbefore-x\t2026-11-20 10:00:00\r\n".encode())
+        bin_ = FakeBin(Path(self._tmp.name) / "bin")
+        ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+        self.assertFalse((shared / "Deaths Log 1.txt.bak1").exists())
+        self.assertEqual((shared / "Deaths Log 1.txt.bak2").read_bytes(), b"theirs")
+        self.assertIn("Deaths Log 1.txt.bak2", [e.copy.name for e in rc.entries(shared)])
+        self.assertNotIn("Deaths Log 1.txt.bak1", [e.copy.name for e in rc.entries(shared)])
+
+    def test_a_village_named_like_a_slot_never_claims_another_slots_set_aside_folder(self) -> None:
+        game, folder, _old = self.make("huttest", 3, "Modded")
+        later = NOW.replace(minute=5)
+        aside = cs.set_aside_folder(folder, later, 2, "A - Save 1 - B")
+        (aside / "x - Save 2.dat").write_bytes(b"slot two's")
+        self.assertEqual(cs.set_aside_slot("Replaced by copy 2026-10-31 12-05-00 - Save 2 - A - Save 1 - B"), 2)
+        self.assertEqual(cs.set_aside_slot("Replaced by move 2026-10-31 12-05-00 - Save 1 - X"), 1)
+        self.assertIsNone(cs.set_aside_slot("Something - Save 1 - else"))
+        plan = ds.plan_delete(game, folder, 1)
+        self.assertNotIn(aside, [g.aside for g in plan.groups])
+        bin_ = FakeBin(Path(self._tmp.name) / "bin")
+        ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+        self.assertEqual((aside / "x - Save 2.dat").read_bytes(), b"slot two's")
+
+
 class ConfirmationTests(Base):
     def test_no_at_either_question_changes_nothing(self) -> None:
         for preview_says, final_says in ((False, True), (True, False)):

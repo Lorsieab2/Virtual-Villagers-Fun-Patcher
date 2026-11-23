@@ -112,33 +112,7 @@ class Plan:
 # ---------------------------------------------------------------------------
 
 
-def _slot_of_relative(game: rename.GameSaves, relative: Path, slot: int) -> bool:
-    """Whether a file at ``relative`` in a save folder is slot ``slot``'s, by its path alone (a backup's long
-    file, kept under a short name: slot_everything cannot walk to it)."""
-    parts = relative.parts
-    if not parts:
-        return False
-    if len(parts) == 1:
-        here = Path()
-        names = [game.save_path(here, slot).name] + [game.generation_path(here, g, slot).name
-                                                      for g in rename.GENERATIONS]
-        if parts[0].casefold() in (n.casefold() for n in names):
-            return True
-        legacy = cs._LEGACY_TOP.match(parts[0])
-        top = cs._TOP_STATISTICS.match(parts[0])
-        return bool((legacy and int(legacy.group(2)) == slot) or (top and int(top.group(1)) == slot))
-    top = parts[0].casefold()
-    if top in (cs.SAVES.casefold(), cs.LOGS.casefold()) and parts[1].casefold() == f"save {slot}":
-        return True
-    if top in (cs.SAVES.casefold(), cs.LOGS.casefold()) and re.fullmatch(r"(?i)save [1-5]", parts[1]):
-        return False
-    if top not in (cs.SAVES.casefold(), cs.DATA.casefold(), cs.LOGS.casefold(), cs.TREES.casefold(),
-                   cs.LEGACY_LOGS.casefold()):
-        return False
-    if cs._name_game(parts[-1]) not in (0, game.number):
-        return False
-    trees = top == cs.TREES.casefold() or (top == cs.LOGS.casefold() and parts[1].casefold() == "genealogy")
-    return cs._name_slot(parts[-1], trees=trees) == slot
+_slot_of_relative = ms.slot_of_relative            # one rule for Move and Delete
 
 
 def _copies_indexes(root: Path) -> list[Path]:
@@ -166,7 +140,8 @@ def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Grou
     # A repair copy whose short name lost the slot: found by the file it is a copy of.
     for index in _copies_indexes(root):
         for kept in repair_copies.entries(index.parent):
-            if kept.original.casefold() in relatives and lp.is_file(kept.copy):
+            if (kept.original.casefold() in relatives or _slot_of_relative(game, Path(kept.original), slot)) \
+                    and lp.is_file(kept.copy):
                 found.setdefault(str(kept.copy).casefold(), kept.copy)
     for path in sorted(found.values(), key=lambda p: str(p).casefold()):
         (group.pictures if is_picture(logical.get(str(path).casefold(), path)) else group.files).append(path)
@@ -193,7 +168,7 @@ def _set_aside_groups(folder: Path, slot: int) -> list[Group]:
     backups = folder / vv_save_backup.BACKUPS_FOLDER
     out = []
     for name, (kind, _when, _order, label) in sorted(vv_save_backup.backups_index(backups).items()):
-        if kind != vv_save_backup.KIND_REPLACED or not re.search(rf" - Save {slot} - ", label):
+        if kind != vv_save_backup.KIND_REPLACED or cs.set_aside_slot(label) != slot:
             continue
         place = next((p for p in backups.iterdir() if p.name.casefold() == name), None) if backups.is_dir() else None
         if place is None or not place.is_dir() or vv_save_backup._is_link(place):

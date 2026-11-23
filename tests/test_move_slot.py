@@ -358,6 +358,31 @@ class RepairCopyTypeTests(Base):
                 paid = (moved / "Paid Purchases - Save 3.dat.bak2").read_bytes()
                 self.assertEqual(struct.unpack_from("<I", paid, 12)[0], 3)
 
+    def test_an_older_layout_logs_copy_is_found_by_its_original(self) -> None:
+        """Codex review on #847: a copy of an older-layout "...Logs\\Save 1\\" log sits in the shared Copies
+        Made Before Repairs with no slot in its name; it is the slot's by the file its index line names --
+        moved (headers Save 3) from the source, set aside from the target."""
+        import vv_repair_copies as rc
+        for tag, number, suffix in tc.CASES[:5]:
+            with self.subTest(game=number):
+                game, folder, old = self.make(tag, number, suffix)
+                shared = f"{OLD_DATA}\\Copies Made Before Repairs"
+                deaths1 = f"{OLD_LOGS}\\Save 1\\Deaths and Disappearances\\Virtual Villagers {number} Deaths Log 1.txt"
+                deaths3 = f"{OLD_LOGS}\\Save 3\\Deaths and Disappearances\\Virtual Villagers {number} Deaths Log 1.txt"
+                self.put(folder, f"{shared}\\Deaths Log 1.txt.bak1", f"Village: {old} (Save 1)\r\nDeath 1\r\n".encode("latin-1"))
+                self.put(folder, f"{shared}\\Deaths Log 1.txt.bak2", b"Village: Earlier (Save 3)\r\nDeath 9\r\n")
+                self.put(folder, f"{shared}\\{rc.INDEX}", (
+                    f"# head\r\nDeaths Log 1.txt.bak1\t{deaths1}\tbefore-x\t2026-11-20 10:00:00\r\n"
+                    f"Deaths Log 1.txt.bak2\t{deaths3}\tbefore-x\t2026-11-01 10:00:00\r\n").encode())
+                self.assertIn(folder / shared / "Deaths Log 1.txt.bak1", ms.slot_everything(game, folder, 1))
+                self.assertIn(folder / shared / "Deaths Log 1.txt.bak2", ms.slot_everything(game, folder, 3))
+                result = ms.move_slot(game, folder, 1, 3, processes=tc.FakeProcesses(), now=NOW)
+                self.assertEqual((folder / shared / "Deaths Log 1.txt.bak1").read_bytes(),
+                                 f"Village: {old} (Save 3)\r\nDeath 1\r\n".encode("latin-1"))
+                self.assertEqual((result.set_aside / shared / "Deaths Log 1.txt.bak2").read_bytes(),
+                                 b"Village: Earlier (Save 3)\r\nDeath 9\r\n")
+                self.assertEqual([p.name for p in rc.kept_copies(folder, folder / deaths3)], ["Deaths Log 1.txt.bak1"])
+
 
 class NameTests(unittest.TestCase):
     def test_every_slot_mark_in_a_name(self) -> None:
