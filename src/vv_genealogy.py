@@ -198,6 +198,7 @@ FORMER_FILE_TITLES = {0: "Former Heathen (blue mask)", 1: "Former Heathen (orang
                       3: "Former Heathen Master (purple mask)", 4: "Retired Heathen Chief"}
 CONVERTED_HOW = "Converted from the Heathens"
 LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"     # vv_log_additions.LEFT_FOR_THE_HEATHENS
+LEFT_RECORDS = (LEFT_FOR_THE_HEATHENS, "Left the tribe: became an Isolan")   # vv_log_additions.LEFT_RECORDS
 # Where the save keeps a status, from the villager's name in the saved entry (vv_last_names.FIELDS), as
 # special_title.h reads the record: The Lost Children's Esteemed Elder +0x7FC (name +0x564); The Secret
 # City's Tribal Chief +0xE80 and its five skills +0xEAC (name +0xDD4); The Tree of Life's five skills
@@ -658,9 +659,9 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         # "Left the tribe: became a Heathen" record.  A status ever held, as every other (_finish_statuses).
         if (b.value("Faction") or "").strip() == "Heathen" \
                 or "yes" in [v.lower() for v in _values(b.value("Heathen"))] \
-                or (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+                or (b.value("What happened") or "").strip() in LEFT_RECORDS:
             _add_status(p, ["Heathen"])
-        if (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
+        if (b.value("What happened") or "").strip() in LEFT_RECORDS:
             p.left_heathen = True
         if b.heading.startswith("Villager "):
             faction = (b.value("Faction") or "").strip() or additions._faction_of_title(b.value("Special villager"))
