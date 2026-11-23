@@ -1,0 +1,37 @@
+{
+  "id": "vv1_esteemed_elders",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv1",
+  "name": "Esteemed Elders in Every Game",
+  "description": "A villager who has mastered three or more skills (90 or more, the level the Villager Details screen calls \"Master\") gets the title \"Esteemed Elder\" on the Villager Details screen, as in The Secret City and New Believers. The Golden Child keeps his own title, and a custom title (Story / Cheat Upgrades) still shows in its place. The logs' \"Special villager\" line says it too. When such a villager dies, their grave's epitaph is \"Esteemed Elder\". **The epitaph needs \"Show Cause of Death and Epitaphs on Graves, and Log Every Death\"** (A New Home's graves have an epitaph only with it). **Villagers and graves from before: Repair Saves & Logs > \"Give the Esteemed Elder title retroactively\".** **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Esteemed Elders.dll\"; it never writes a save or a file.",
+  "output_tag": "Esteemed Elders",
+  "dependencies": [],
+  "behavior_changes": [
+    "The Villager Details screen's title (0x41F9B0): \"Esteemed Elder\" for a villager, not the Golden Child, with three or more of the five skills at 90 or more, in place of the skill-and-job label; Story / Cheat Upgrades' custom title is applied after it (0x41FD75), so it still wins.",
+    "The logs' \"Special villager: Esteemed Elder\" line (native/shared/special_title.h) while the companion is installed; the Cause of Death companion gives such a villager's new grave the epitaph \"Esteemed Elder\" (its Graves file, version 4)."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were.",
+    "No skill, flag, totem, job or save field is changed; the rule only reads the villager's record.",
+    "The Secret City is left as the stock game makes it (its own Esteemed Elder rule)."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/esteemed_elders/VVFP Esteemed Elders.dll",
+      "destination": "VVFP Esteemed Elders.dll",
+      "sha256": "14DFAC15F1D1F8A0EC2B971C50CBE8F758A77644A72F6A7C1F244A058132F24C"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x41FBDC",
+      "stock_bytes": "81B96C030000C70000007515",
+      "written_bytes": "E9XXXXXXXX90909090909090",
+      "routine": "the villager panel 0x41F9B0's Golden Child test (`cmp dword [ecx+0x36C], 0xC7 / jne 0x41FBFD`, ecx the record): the Golden Child goes on to his string 0x5F (0x41FBE8) as before; otherwise a villager with three or more of the five skills +0x3BC..+0x3CC at 90 or more (the panel's own Master, 0x41FC16) gets \"Esteemed Elder\" (pushed and copied by 0x44B23D at 0x41FD6D, as the Golden Child's string is); anyone else goes on to the rank at 0x41FBFD with every register as it was",
+      "installed_by": "VVFP Esteemed Elders.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

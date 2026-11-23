@@ -179,9 +179,10 @@ STATUS_ORDER = ("Tribal Chief", "Retired Heathen Chief", "Heathen Chief", "Heath
                 "Converted Orange Mask Heathen", "Converted Blue Mask Heathen", "Former Heathen",
                 "Golden Child", "Esteemed Elder", "Scholar")
 # The statuses each game can give (the Family Tree's descriptor options shown for that game; a Custom title is
-# any game's).  Esteemed Elder in The Tree of Life and New Believers: their graves keep the elder byte.
+# any game's).  Esteemed Elder in New Believers: its graves keep the elder byte; A New Home's and The Tree of Life's
+# with Esteemed Elders in Every Game (the logs' Special villager line).
 GAME_STATUSES = {
-    1: ("Golden Child",),
+    1: ("Golden Child", "Esteemed Elder"),
     2: ("Esteemed Elder",),
     3: ("Tribal Chief", "Esteemed Elder"),
     4: ("Scholar", "Esteemed Elder"),
