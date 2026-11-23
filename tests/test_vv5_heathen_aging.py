@@ -578,8 +578,9 @@ class Babies(unittest.TestCase):
         v.put32(man + HEAD, 10)
         v.put32(woman + HEAD, 20)
         v.put32(woman + AGE, 601)
-        v.rand_answers.extend([0, 0])                  # conceive (1 in 400), pick the man
+        v.rand_answers.extend([0, 0])                  # conceive (1 in 2,000), pick the man
         v.life_tick()
+        self.assertEqual(v.rand_calls[0], 2000, "the owner (2026-11-23): 1 age unit in 2,000")
         self.assertEqual(len(v.conceived), 1)
         carrier, args = v.conceived[0]
         self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, "Kalo", 1))

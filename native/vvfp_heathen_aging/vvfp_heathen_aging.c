@@ -74,7 +74,7 @@
    and is made by the age credit's throttled pass as soon as a record is free.
 
    HEATHEN BABIES (the tribe row only; no new conception once The Last Heathen is solved).  An adult Heathen woman (14 to 45 years), not expecting, not the Heathen
-   Mommy, with a living adult Heathen man in the camp, conceives on 1 age unit in 400 (about 1 year in 20) through
+   Mommy, with a living adult Heathen man in the camp, conceives on 1 age unit in CONCEIVE_IN, 2,000 (about once in 100 years) through
    the game's conception routine 0x465E00 forced (father: a random adult Heathen man), only while at least
    HA_ROOM_KEPT records stay free for the village's own births.  The Village Statistics' twins and triplets are put
    back as the Story upgrades' Custom Island Event does for a Heathen carrier.  The birth comes as a believer's
@@ -154,7 +154,8 @@
 #define ADULT 280                /* 14 years */
 #define BIRTH_LAST 900           /* 45 years */
 #define DELIVERY 40              /* units from conception to birth (0x4730AF: +0x28) */
-#define CONCEIVE_IN 400          /* 1 age unit in 400 */
+#define CONCEIVE_IN 2000         /* 1 age unit in 2,000: about one baby a woman in 100 years (the owner,
+                                    2026-11-23: the camp starts with many men and women in their 20s) */
 #define HA_ROOM_KEPT 10          /* records left free for the village's own births */
 
 /* The game. */
