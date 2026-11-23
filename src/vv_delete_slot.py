@@ -115,9 +115,27 @@ class Plan:
 _slot_of_relative = ms.slot_of_relative            # one rule for Move and Delete
 
 
-def _copies_indexes(root: Path) -> list[Path]:
-    return [p / repair_copies.INDEX for p in repair_copies._all_copies_folders(root)
-            if lp.is_file(p / repair_copies.INDEX)]
+def _index_lines(root: Path, long: dict[str, Path]) -> list[tuple[Path, str]]:
+    """(the copy at its own place, the file it is a copy of) for every line of every Copies Index under
+    ``root`` (a name given twice: the later line, as vv_repair_copies.entries reads them) -- an index a backup
+    keeps under a short name in its Long Paths folder read there (Codex review on #847)."""
+    out: list[tuple[Path, str]] = []
+    for copies in repair_copies._all_copies_folders(root):
+        own = copies / repair_copies.INDEX
+        place = long.get(str(own.relative_to(root)).casefold(), own)
+        try:
+            text = lp.read_bytes(place).decode("utf-8", "replace")
+        except OSError:
+            continue
+        latest: dict[str, tuple[Path, str]] = {}
+        for line in text.splitlines():
+            parts = line.split("\t")
+            if not line.strip() or line.startswith("#") or len(parts) < 2 or not parts[0] \
+                    or "\\" in parts[0] or "/" in parts[0]:
+                continue
+            latest[parts[0].casefold()] = (copies / parts[0], parts[1])
+        out += latest.values()
+    return out
 
 
 def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Group:
@@ -127,22 +145,24 @@ def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Grou
     # A backup's long file is kept under a short name that can lose its extension (Codex review on #847):
     # what it IS comes from its own place in the save folder; the stored path is only where to recycle it.
     logical: dict[str, Path] = {}
+    long: dict[str, Path] = {}                     # its own place (relative, casefolded) -> where it is stored
     if where:
-        long = vv_save_backup.long_places(root)
-        for relative, stored in long.items():
+        for relative, stored in vv_save_backup.long_places(root).items():
+            long[str(relative).casefold()] = stored
             if _slot_of_relative(game, relative, slot):
                 found.setdefault(str(stored).casefold(), stored)
                 logical[str(stored).casefold()] = relative
-    relatives = {str(p.relative_to(root)).casefold() for p in found.values()
-                 if vv_save_backup.LONG_PATHS not in p.relative_to(root).parts}
-    relatives |= {str(r).casefold() for r, s in (vv_save_backup.long_places(root).items() if where else ())
-                  if str(s).casefold() in found}
-    # A repair copy whose short name lost the slot: found by the file it is a copy of.
-    for index in _copies_indexes(root):
-        for kept in repair_copies.entries(index.parent):
-            if (kept.original.casefold() in relatives or _slot_of_relative(game, Path(kept.original), slot)) \
-                    and lp.is_file(kept.copy):
-                found.setdefault(str(kept.copy).casefold(), kept.copy)
+    stored_at = {str(s).casefold(): r for r, s in long.items()}
+    relatives = {stored_at.get(str(p).casefold(), str(p.relative_to(root)).casefold()) for p in found.values()}
+    # A repair copy whose short name lost the slot: found by the file it is a copy of -- its index and the copy
+    # itself possibly kept under short names in a backup's Long Paths folder.
+    for copy, original in _index_lines(root, long):
+        relative = str(copy.relative_to(root)).casefold()
+        stored = long.get(relative, copy)
+        if (original.casefold() in relatives or _slot_of_relative(game, Path(original), slot)) and lp.is_file(stored):
+            found.setdefault(str(stored).casefold(), stored)
+            if stored is not copy:
+                logical[str(stored).casefold()] = copy.relative_to(root)
     for path in sorted(found.values(), key=lambda p: str(p).casefold()):
         (group.pictures if is_picture(logical.get(str(path).casefold(), path)) else group.files).append(path)
     # Every Copies Index keeps its lines for the recycled copies (Codex review on #847): its readers skip a

@@ -228,6 +228,41 @@ class LongPathPictureTests(Base):
                 self.assertIn(str(sidecar).casefold(), {str(p).casefold() for p in bin_.sent})
                 self.assertNotIn(str(picture).casefold(), {str(p).casefold() for p in bin_.sent})
 
+    def test_a_backups_long_copies_and_long_index_are_followed(self) -> None:
+        """Codex review on #847: in a backup, an indexed repair copy kept under a short name in Long Paths --
+        and the Copies Index itself kept there -- are read where they are stored."""
+        for tag, number, suffix in tc.CASES[:5]:
+            with self.subTest(game=number):
+                game, folder, _old = self.make(tag, number, suffix)
+                (snapshot,) = [p for p in (folder / "Backups").iterdir()
+                               if p.is_dir() and not p.name.endswith(("S1", "S2"))]
+                long = snapshot / backup.LONG_PATHS
+                long.mkdir(exist_ok=True)
+                copies = f"{OLD_DATA}\\Copies Made Before Repairs"
+                mine = f"{tc.OLD_LOGS}\\Save 1\\Deaths and Disappearances\\Virtual Villagers {number} Deaths Log 1.txt"
+                theirs = f"{tc.OLD_LOGS}\\Save 2\\Deaths and Disappearances\\Virtual Villagers {number} Deaths Log 1.txt"
+                index_here = snapshot / copies / rc.INDEX
+                lines = index_here.read_bytes() + (
+                    f"Deaths Log 1.txt.bak1\t{mine}\tbefore-x\t2026-11-20 10:00:00\r\n"
+                    f"Deaths Log 1.txt.bak2\t{mine}\tbefore-x\t2026-11-20 10:00:00\r\n"
+                    f"Deaths Log 1.txt.bak3\t{theirs}\tbefore-x\t2026-11-20 10:00:00\r\n").encode()
+                index_here.unlink()                                 # the index too is kept under a short name
+                (long / "93 Copies Index.txt").write_bytes(lines)
+                (long / "94 Deaths Log 1.txt.bak1").write_bytes(b"mine, long")
+                (snapshot / copies / "Deaths Log 1.txt.bak2").write_bytes(b"mine, at its place")
+                (snapshot / copies / "Deaths Log 1.txt.bak3").write_bytes(b"theirs")
+                places = long / backup.LONG_PATHS_INDEX
+                places.write_bytes((places.read_bytes() if places.exists() else b"") + (
+                    f"93 Copies Index.txt\t{copies}\\{rc.INDEX}\r\n"
+                    f"94 Deaths Log 1.txt.bak1\t{copies}\\Deaths Log 1.txt.bak1\r\n").encode())
+                bin_ = FakeBin(Path(self._tmp.name) / f"bin{number}")
+                result = ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+                self.assertIsNone(result.problem)
+                self.assertFalse((long / "94 Deaths Log 1.txt.bak1").exists())
+                self.assertFalse((snapshot / copies / "Deaths Log 1.txt.bak2").exists())
+                self.assertEqual((snapshot / copies / "Deaths Log 1.txt.bak3").read_bytes(), b"theirs")
+                self.assertEqual((long / "93 Copies Index.txt").read_bytes(), lines)     # kept as it was
+
     def test_a_kept_copy_of_a_picture_is_a_picture(self) -> None:
         self.assertTrue(ds.is_picture(Path("Genealogy - Save 1.png.bak1")))
         self.assertTrue(ds.is_picture(Path("x - Save 1.png.before-repair")))
