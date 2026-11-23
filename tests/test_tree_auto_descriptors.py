@@ -117,7 +117,8 @@ class TheMarkAndItsWordsAreOne(unittest.TestCase):
         self.assertIn("Tribal Chief", gen.GAME_STATUSES[3])
         self.assertNotIn("Tribal Chief", gen.GAME_STATUSES[5])
         self.assertIn("Heathen", gen.GAME_STATUSES[5])
-        self.assertEqual(gen.GAME_STATUSES[1], ("Golden Child",))
+        # A New Home's Esteemed Elder: Esteemed Elders in Every Game titles them (the logs' Special villager line).
+        self.assertEqual(gen.GAME_STATUSES[1], ("Golden Child", "Esteemed Elder"))
         v = hand_village()                                            # The Secret City, with a Custom title
         self.assertIn("Keeper of Shells", [label for label, _on in ft.status_options(ft.Edits(), v)])
         renamed = ft.Edits(mark_names={"Tribal Chief": "Big Chief"})

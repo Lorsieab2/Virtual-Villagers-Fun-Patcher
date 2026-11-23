@@ -139,6 +139,114 @@ class SpecialTitleRules(unittest.TestCase):
         self.assertEqual(self.title(5, r), "Esteemed Elder", "another Heathen: the skill title")
 
 
+STAND_IN = r'''
+#include <windows.h>
+static int installed = 1;
+__declspec(dllexport) int __stdcall VvfpEsteemedEldersInstalled(void) { return installed; }
+__declspec(dllexport) void SetInstalled(int value) { installed = value; }
+'''
+
+
+class EsteemedEldersInEveryGame(unittest.TestCase):
+    """The owner (2026-11-22): with "Esteemed Elders in Every Game" in the game, the logs' Special villager line
+    follows its title -- three or more skills at the game's Master level in A New Home (90), The Lost Children and
+    The Tree of Life (88; three or four there, all five being the Scholar) -- never the Golden Child, a totem statue
+    or a ghost.  Without the row (its companion not loaded, or loaded but not installed) nothing changes.  The
+    companion is stood in for by a DLL of its name answering VvfpEsteemedEldersInstalled."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._tmp = tempfile.mkdtemp()
+        folder = Path(cls._tmp)
+        dll = _build(folder)
+        if dll is None:
+            raise unittest.SkipTest("needs the Visual C++ tools")
+        name = "vcvars32.bat" if struct.calcsize("P") == 4 else "vcvars64.bat"
+        vcvars = None
+        for base in (r"C:\Program Files\Microsoft Visual Studio", r"C:\Program Files (x86)\Microsoft Visual Studio"):
+            for candidate in sorted(Path(base).glob(f"*/*/VC/Auxiliary/Build/{name}")):
+                vcvars = candidate
+        (folder / "elders.c").write_text(STAND_IN, encoding="utf-8")
+        subprocess.run(f'call "{vcvars}" >nul && cl /nologo /LD elders.c "/Fe:VVFP Esteemed Elders.dll" '
+                       '/link /NOLOGO >nul', shell=True, cwd=folder, capture_output=True, text=True)
+        cls.dll = ctypes.CDLL(str(dll))
+        cls.dll.Title.restype = ctypes.c_char_p
+        cls.dll.Title.argtypes = [ctypes.c_int, ctypes.c_char_p]
+        cls.stand_in_path = folder / "VVFP Esteemed Elders.dll"
+        cls.stand_in = None
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        if cls.stand_in is not None:
+            ctypes.windll.kernel32.FreeLibrary(ctypes.c_void_p(cls.stand_in._handle))
+        shutil.rmtree(cls._tmp, ignore_errors=True)
+
+    def title(self, game: int, record: bytearray):
+        value = self.dll.Title(game, bytes(record))
+        return value.decode() if value else None
+
+    def records(self):
+        vv1 = bytearray(0x3D8)
+        struct.pack_into("<5i", vv1, 0x3BC, 90, 95, 100, 10, 0)
+        vv2 = bytearray(0x800)
+        struct.pack_into("<5i", vv2, 0x7E4, 88, 88, 88, 0, 0)
+        vv4 = bytearray(0x2000)
+        struct.pack_into("<5f", vv4, 0x1C5C, 88, 90, 100, 87.9, 0)
+        return vv1, vv2, vv4
+
+    def test_without_the_row_the_stock_titles(self):
+        """Before (and without the companion): no title for these villagers."""
+        if type(self).stand_in is not None:
+            self.skipTest("the stand-in is loaded in this process already")
+        vv1, vv2, vv4 = self.records()
+        self.assertIsNone(self.title(1, vv1))
+        self.assertIsNone(self.title(2, vv2))
+        self.assertIsNone(self.title(4, vv4))
+        self.assertEqual(self.title(5, self.heathen()), "Esteemed Elder", "the stock panel's rule titles a Heathen")
+
+    def heathen(self, faction=1, orange=0):
+        r = bytearray(0x2000)
+        struct.pack_into("<6f", r, 0x1C5C, 88, 90, 100, 0, 0, 0)
+        r[0x1CEC], r[0x1CED] = faction, orange
+        struct.pack_into("<i", r, 0x1CFC, 3)
+        return r
+
+    def test_with_the_row(self):
+        if not self.stand_in_path.is_file():
+            self.skipTest("the stand-in companion could not be built")
+        self.test_without_the_row_the_stock_titles()
+        type(self).stand_in = ctypes.CDLL(str(self.stand_in_path))
+        vv1, vv2, vv4 = self.records()
+        self.assertEqual(self.title(1, vv1), "Esteemed Elder")
+        self.assertEqual(self.title(2, vv2), "Esteemed Elder")
+        self.assertEqual(self.title(4, vv4), "Esteemed Elder")
+        struct.pack_into("<i", vv1, 0x3BC + 8, 89)
+        self.assertIsNone(self.title(1, vv1), "89 is not a Master in A New Home")
+        struct.pack_into("<i", vv1, 0x3BC + 8, 100)
+        struct.pack_into("<i", vv1, 0x36C, 0xC7)
+        self.assertEqual(self.title(1, vv1), "Golden Child")
+        vv2[0x558] = 1
+        self.assertIsNone(self.title(2, vv2), "never a totem statue")
+        vv2[0x558] = 0
+        struct.pack_into("<5f", vv4, 0x1C5C, 88, 88, 88, 88, 88)
+        self.assertEqual(self.title(4, vv4), "Scholar")
+        vv4b = bytearray(0x2000)
+        struct.pack_into("<5f", vv4b, 0x1C5C, 88, 90, 100, 0, 0)
+        vv4b[0x1CC7] = 1
+        self.assertIsNone(self.title(4, vv4b), "never a ghost")
+        # Loaded but not installed (its sites refused): the stock titles.
+        # New Believers (the owner, 2026-11-22): a current Heathen never; a believer yes; a Former Heathen keeps the
+        # Former Heathen title in the logs (the priority list).
+        self.assertIsNone(self.title(5, self.heathen()), "a current Heathen is never an Esteemed Elder")
+        self.assertEqual(self.title(5, self.heathen(faction=0)), "Esteemed Elder")
+        self.assertEqual(self.title(5, self.heathen(faction=0, orange=1)), "Former Heathen (orange mask)")
+        self.stand_in.SetInstalled(0)
+        self.assertEqual(self.title(5, self.heathen()), "Esteemed Elder", "not installed: the stock rule")
+        vv1, vv2, vv4 = self.records()
+        self.assertIsNone(self.title(1, vv1))
+        self.assertIsNone(self.title(2, vv2))
+        self.stand_in.SetInstalled(1)
+
 class TheLogsPrintIt(unittest.TestCase):
     def test_both_exporters_print_the_line(self):
         population = (ROOT / "native/population_export/population_export.c").read_text(encoding="utf-8")
