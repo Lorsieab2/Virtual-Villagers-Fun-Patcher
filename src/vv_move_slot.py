@@ -65,6 +65,7 @@ from types import SimpleNamespace
 
 import vv_copy_slot as cs
 import vv_long_paths as lp
+import vv_repair_copies as repair_copies
 import vv_save_backup
 import vv_save_layout as layout
 import vv_tribe_rename as rename
@@ -248,12 +249,16 @@ class Plan:
     removals: list[Path] = field(default_factory=list)          # the target's files, set aside
     overwritten: str | None = None                              # the village replaced ("" unreadable)
     source_villagers: list = field(default_factory=list)
+    fingerprints: tuple = ()                                    # what each file was when planned
 
     def signature(self) -> tuple:
-        """What the player was shown: every move and every file set aside."""
+        """What the player was shown: every move and every file set aside, and what each of those files
+        and the slot list WERE (Codex review on #847: a path-only list missed a file changed in place while
+        the question was open -- a save the game wrote, a sidecar a companion rewrote)."""
         return (tuple(sorted((str(m.source).casefold(), str(m.target).casefold()) for m in self.moves)),
                 tuple(sorted(str(f.path).casefold() for f in self.files)),
-                tuple(sorted(str(p).casefold() for p in self.removals)))
+                tuple(sorted(str(p).casefold() for p in self.removals)),
+                self.fingerprints)
 
     def preview(self) -> list[str]:
         """Every change, one line each: "<from>  ->  <to>" (a file whose name keeps no slot: "(updated)")."""
@@ -268,6 +273,19 @@ class Plan:
         for f in self.files:
             lines.append(f"(the village's records in the older shared logs)  ->  {rel(f.path)}")
         return lines
+
+
+def _fingerprint(path: Path, data: bytes | None = None) -> tuple:
+    """A file's identity now: its path, size, modification time and (when its bytes are in hand) their
+    SHA-256; a file that is not there says so."""
+    import hashlib
+
+    try:
+        info = lp.stat(path)
+    except OSError:
+        return (str(path).casefold(), None)
+    digest = hashlib.sha256(data).hexdigest() if data is not None else ""
+    return (str(path).casefold(), info.st_size, info.st_mtime_ns, digest)
 
 
 def _refuse_if_running(folder: Path, processes) -> None:
@@ -365,6 +383,7 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
     moves: dict[str, Move] = {}
     texts: dict[str, tuple[Path, list[tuple[int, cs.Piece]]]] = {}
     words_own: list[Move] = []
+    indexes: list[Move] = []          # the Copies Index files of the slot's Copies Made Before Repairs folders
 
     def add_text(destination: Path, rank: int, piece: cs.Piece) -> None:
         key = cs._relative_key(destination).casefold()
@@ -387,7 +406,9 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
             continue                                             # the save and its generations: as they are
         if path.name.casefold().endswith(".tmp") or low.endswith(_PICTURES):
             continue                                             # half-written, or a picture: as it is
-        if layout.is_words_file(Path(base)) and relative.parts[0].casefold() == SAVES.casefold():
+        if path.name.casefold() == repair_copies.INDEX.casefold():
+            indexes.append(move)                                 # below, once every copy's new name is known
+        elif layout.is_words_file(Path(base)) and relative.parts[0].casefold() == SAVES.casefold():
             words_own.append(move)
         elif low.endswith(".txt"):
             if _kept_copy(path.name):
@@ -432,6 +453,21 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
             plan.words += cs._shared_boundary(folder, game.number, checker, dest, pieces, mapping)
     for move in words_own:
         move.data = cs.transform_words(move.original, source, target, maps)
+    # The repair copies' indexes (src/vv_repair_copies.py, Codex review on #847): each line of a copy that
+    # moves names its new name and the new place of the file it is a copy of, or the copy is lost to every
+    # reader of the index.  The slot's own index moves with it; the shared one (the older layout's
+    # "Virtual Villagers Fun Patcher Data\Copies Made Before Repairs") is rewritten where it is.
+    for move in indexes:
+        move.data = _reindexed(move.original, move.source.parent, moves, game, source, target, folder)
+    shared_index = folder / DATA / layout.COPIES / repair_copies.INDEX
+    if str(shared_index).casefold() not in moves and lp.is_file(shared_index):
+        try:
+            raw = lp.read_bytes(shared_index)
+        except OSError as exc:
+            raise MoveError(f"Could not read {shared_index.relative_to(folder)}: {exc}") from exc
+        rewritten = _reindexed(raw, shared_index.parent, moves, game, source, target, folder)
+        if rewritten != raw:
+            moves[str(shared_index).casefold()] = Move(shared_index, shared_index, raw, rewritten)
     for move in moves.values():
         if move.data is not None and move.data == move.original:
             move.data = None
@@ -459,7 +495,47 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
     names = [str(p).casefold() for p in places]
     if len(names) != len(set(names)):
         raise MoveError("Two of the slot's files would go to the same place, so nothing was moved.")
+    plan.fingerprints = tuple(sorted(
+        [_fingerprint(m.source, m.original) for m in plan.moves]
+        + [_fingerprint(p) for p in plan.removals]
+        + [_fingerprint(game.index_path(folder), index)]
+        + [_fingerprint(Path(p)) for p in sorted({str(w.path) for w in plan.words})],
+        key=lambda f: f[0]))
     return plan
+
+
+def _reindexed(raw: bytes, copies: Path, moves: dict, game: rename.GameSaves, source: int, target: int,
+               folder: Path) -> bytes:
+    """A Copies Index (vv_repair_copies) with each line of a copy in ``copies`` that moves given the copy's
+    new name and the moved place of the file it is a copy of.  Those lines go last (the later line of a name
+    is the one: a set-aside copy of the target's of the same name never wins), every other line as it was."""
+    kept: list[bytes] = []
+    moved: list[bytes] = []
+    for line in raw.splitlines(keepends=True):
+        body = line.decode("utf-8", "replace").rstrip("\r\n")
+        parts = body.split("\t")
+        if body.startswith("#") or len(parts) < 2 or not parts[0] or "\\" in parts[0] or "/" in parts[0]:
+            kept.append(line)
+            continue
+        move = moves.get(str(copies / parts[0]).casefold())
+        # A copy whose short name lost the slot (SHORT_MAX) stays where it is, but the file it is a copy of
+        # moves: its line follows that file.
+        original = moves.get(str(folder / parts[1]).casefold()) if parts[1] else None
+        if move is None and original is None:
+            kept.append(line)
+            continue
+        if move is not None:
+            parts[0] = move.target.name
+        if original is not None:
+            parts[1] = str(original.target.relative_to(folder))
+        elif parts[1]:
+            parts[1] = str(moved_relative(game, Path(parts[1]), source, target))
+        moved.append(("\t".join(parts) + "\r\n").encode("utf-8"))
+    if not moved:
+        return raw
+    if kept and not kept[-1].endswith(b"\n"):
+        kept[-1] += b"\r\n"
+    return b"".join(kept + moved)
 
 
 def _source_boundaries(folder: Path, game: int, checker, plan: Plan) -> list[cs.WordsAppend]:

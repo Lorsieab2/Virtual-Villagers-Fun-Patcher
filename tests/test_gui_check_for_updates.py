@@ -270,7 +270,9 @@ class ReleasesLinkTests(unittest.TestCase):
             # Move Player Slot: Copy Player Slot's transforms, Back Up Saves, the per-save layout; function-
             # level: the villagers as Last Names reads them, the Repairs log, the shared words boundaries, the
             # Family Tree Maker's tree name.
-            ("vv_move_slot", {"vv_copy_slot", "vv_long_paths", "vv_save_backup", "vv_save_layout", "vv_tribe_rename",
+            # The repair copies' index too (its lines follow a moved copy).
+            ("vv_move_slot", {"vv_copy_slot", "vv_long_paths", "vv_repair_copies", "vv_save_backup", "vv_save_layout",
+                              "vv_tribe_rename",
                               "vv_last_names", "vv_log_tools", "vv_move_to_save_folders", "vv_genealogy_window"}),
             # The patcher's data that names the village moves with a rename (function-level imports):
             # the answered questions' decisions, and The Lost Children's ElderTotems.dat.

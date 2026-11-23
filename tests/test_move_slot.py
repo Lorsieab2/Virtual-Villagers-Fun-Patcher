@@ -258,6 +258,80 @@ class MoveTests(Base):
         self.assertEqual((folder / OWN / "Save 5" / "Data" / "x - Save 5.dat").read_bytes(), b"slot five")
 
 
+class RepairCopiesIndexTests(Base):
+    """Codex review on #847: the copies kept before repairs are found through "Copies Index.txt"
+    (src/vv_repair_copies.py); a moved copy must still be found, by its new name, as a copy of the file's
+    new place."""
+
+    def test_the_moved_copies_are_still_indexed(self) -> None:
+        import vv_repair_copies as rc
+        for tag, number, suffix in tc.CASES[:5]:
+            with self.subTest(game=number):
+                game, folder, _old = self.make(tag, number, suffix)
+                own = f"{OWN}\\Save 1\\Data\\Copies Made Before Repairs"
+                graves = f"{OWN}\\Save 1\\Data\\Graves\\Virtual Villagers {number} Graves - Save 1.dat"
+                self.put(folder, f"{own}\\Graves - Save 1.dat.bak1", b"graves copy")
+                self.put(folder, f"{own}\\{rc.INDEX}",
+                         f"# head\r\nGraves - Save 1.dat.bak1\t{graves}\tbefore-x\t2026-11-20 10:00:00\r\n".encode())
+                shared = f"{OLD_DATA}\\Copies Made Before Repairs"
+                titles = f"{OLD_DATA}\\Custom Titles\\Custom Titles - Save 1.dat"
+                long_name = "A very long sidecar name that is cut sh.dat.bak1"     # the slot cut off (SHORT_MAX)
+                self.put(folder, f"{shared}\\Custom Titles - Save 1.dat.bak1", b"titles copy")
+                self.put(folder, f"{shared}\\{long_name}", b"long copy")
+                self.put(folder, f"{shared}\\Custom Titles - Save 3.dat.bak1", b"an earlier village's")
+                self.put(folder, f"{shared}\\Graves - Save 2.dat.bak1", b"slot two's")
+                self.put(folder, f"{shared}\\{rc.INDEX}", (
+                    f"# head\r\nCustom Titles - Save 3.dat.bak1\t{OLD_DATA}\\Custom Titles\\Custom Titles - Save 3.dat"
+                    f"\tbefore-y\t2026-11-01 10:00:00\r\n"
+                    f"Custom Titles - Save 1.dat.bak1\t{titles}\tbefore-y\t2026-11-20 10:00:00\r\n"
+                    f"{long_name}\t{titles}\tbefore-z\t2026-11-20 10:00:00\r\n"
+                    f"Graves - Save 2.dat.bak1\t{OLD_DATA}\\Graves\\Virtual Villagers {number} Graves - Save 2.dat"
+                    f"\tbefore-y\t2026-11-20 10:00:00\r\n").encode())
+                ms.move_slot(game, folder, 1, 3, processes=tc.FakeProcesses(), now=NOW)
+                new_graves = folder / OWN / "Save 3" / "Data" / "Graves" / f"Virtual Villagers {number} Graves - Save 3.dat"
+                new_titles = folder / OLD_DATA / "Custom Titles" / "Custom Titles - Save 3.dat"
+                self.assertEqual([p.name for p in rc.kept_copies(folder, new_graves)], ["Graves - Save 3.dat.bak1"])
+                self.assertEqual([p.read_bytes() for p in rc.kept_copies(folder, new_titles)],
+                                 [b"titles copy", b"long copy"])
+                kept = {(k.copy.name, k.original) for k in rc.all_kept(folder)}
+                self.assertIn(("Graves - Save 2.dat.bak1",
+                               f"{OLD_DATA}\\Graves\\Virtual Villagers {number} Graves - Save 2.dat"), kept)
+                self.assertFalse(any("Save 1" in name or "Save 1" in original for name, original in kept))
+                # Every indexed copy is there, and no line names a copy that is not.
+                for copies in rc._all_copies_folders(folder):
+                    for entry in rc.entries(copies):
+                        self.assertTrue(entry.copy.is_file(), entry.copy)
+
+
+class SignatureTests(Base):
+    """Codex review on #847: what the player confirmed includes what each file WAS, so a file changed in place
+    (same name, even the same size) while the question was open refuses the move."""
+
+    def test_an_in_place_change_refuses_the_move(self) -> None:
+        game, folder, _old = self.make("huttest", 5, "Modded")
+        self.occupy(game, folder, 2, "Old Village")
+        graves = folder / OWN / "Save 1" / "Data" / "Graves" / "Virtual Villagers 5 Graves - Save 1.dat"
+        changes = {
+            "a source sidecar": lambda: graves.write_bytes(bytes(b ^ 1 for b in graves.read_bytes())),
+            "the source save": lambda: game.save_path(folder, 1).write_bytes(
+                game.save_path(folder, 1).read_bytes()[:-1] + b"\x07"),
+            "the target's save": lambda: game.save_path(folder, 2).write_bytes(
+                game.save_path(folder, 2).read_bytes()[:-1] + b"\x07"),
+            "the slot list": lambda: game.index_path(folder).write_bytes(
+                game.index_path(folder).read_bytes()[:-1] + b"\x07"),
+        }
+        for what, change in changes.items():
+            with self.subTest(what=what):
+                shown = ms.plan_move(game, folder, 1, 2).signature()
+                self.assertEqual(ms.plan_move(game, folder, 1, 2).signature(), shown)   # nothing changed: same
+                change()
+                before = self.every_file(folder)
+                with self.assertRaisesRegex(ms.MoveError, "changed after you confirmed"):
+                    ms.move_slot(game, folder, 1, 2, processes=tc.FakeProcesses(), now=NOW, expected=shown)
+                self.assertEqual(self.every_file(folder), before)
+                self.assertEqual(self.backups(folder), [])
+
+
 class NameTests(unittest.TestCase):
     def test_every_slot_mark_in_a_name(self) -> None:
         game = rename.GAMES[4]
