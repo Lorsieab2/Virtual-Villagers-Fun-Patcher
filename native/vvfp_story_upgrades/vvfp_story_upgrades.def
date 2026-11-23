@@ -35,3 +35,6 @@ EXPORTS
     VvfpPopupWholeText=_VvfpPopupWholeText@4
     VvfpVillagerSexChanged=_VvfpVillagerSexChanged@16
     VvfpStoryTraitsOf=_VvfpStoryTraitsOf@8
+    VvfpStoryReviveFromGraves=_VvfpStoryReviveFromGraves@8
+    VvfpStoryReviveOffered=_VvfpStoryReviveOffered@4
+    VvfpStoryRevivePrice=_VvfpStoryRevivePrice@4

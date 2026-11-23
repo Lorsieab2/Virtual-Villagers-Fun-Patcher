@@ -249,6 +249,8 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 "vv2_story_cheat_upgrades",
                 # ...and its tech-point prices, which require it.
                 "vv2_story_cheat_upgrades_cost_tech_points",
+                # Revive Buried/Disappeared Villagers: requires Story / Cheat Upgrades too.
+                "vv2_revive_from_graves",
                 # More Island Events and the Isola Grand Event Collection: both require Story / Cheat
                 # Upgrades (the separate rare roll runs them), so selecting them resolves the Origins base in.
                 "vv2_more_island_events",

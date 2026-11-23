@@ -424,11 +424,13 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # upgrades learned to reset corrupted skill values (v1.35.70). Larger
         # again when bought island events learned to keep the game's own
         # island-event timer (native/shared/island_timer_keep.h). Larger again when the
-        # drawn (None) / No change labels were translated (audit R1).
-        self.assertEqual(vv5_companion["size"], 1902080)
+        # drawn (None) / No change labels were translated (audit R1). Larger again for the Tech menu's Revive
+        # Buried/Disappeared Villagers button (native/shared/story_bridge.h).
+        # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
+        self.assertEqual(vv5_companion["size"], 1903104)
         self.assertEqual(
             vv5_companion["sha256"],
-            "6CBC20CA02C52680897484D683CEBEC78A715370B8AC9CF2B481FC8EC16A5206",
+            "14A8FA89BCFD0493FF755111D08572E62538C76A007B605E278D2D9B43B14C7B",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

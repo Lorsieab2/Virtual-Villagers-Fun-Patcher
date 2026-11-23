@@ -134,7 +134,7 @@
     },
     {
       "path": "data/vv5_task9_native_actions.json",
-      "sha256": "5164D66A6BB6D469CFAE2E74CEDBEF559DA3C5ED85167E64577A0A35294EF034"
+      "sha256": "E936C79E54AC5268E3133BE5AD10D30A85DC02CB01132039631BBC3828BAD5D9"
     },
     {
       "path": "assets/unicode_fonts/SOURCES.json",
@@ -142,15 +142,15 @@
     },
     {
       "path": "data/candidates/vv5_expanded_time_warp_map.json",
-      "sha256": "61738EF6BBCC48B29BA41F9256815481E1710878E2592749811C28864E7E305E"
+      "sha256": "2BB4DB9EDA98221197EE239A8BEC3491EB745B02C5245B5F51AFA173DE433EA5"
     },
     {
       "path": "data/candidates/vv5_task9_native_actions_map.json",
-      "sha256": "1DB190FAC9C95007F448C8DE702F900E0C7234EAB68634FA579B2FFD8726CE45"
+      "sha256": "E8160D3176494A5D6F4D81C34DF35973EC2C4120D6B13C81DA8F7FFE840AD9AF"
     },
     {
       "path": "data/vv5_expanded_time_warp.json",
-      "sha256": "CC2C9429832912336AF0B7D75711DC52782130AB239511EB65C1C1226E3D2C8E"
+      "sha256": "F6D3F9499C60817330BA0152F93A7198AC7065CAE8F798892833B03D0D29FE41"
     },
     {
       "path": "data/vv5_origins_feature.json",

@@ -2705,10 +2705,19 @@ static INT_PTR CALLBACK upgrade_dialog(
         vvfp_story_relabel(VV_STORY_GAME, window);
         if (!villager_menu) {
             vvfp_story_add_pick_button(VV_STORY_GAME, window);
+            /* Revive Buried/Disappeared Villagers: last, its place found among every story button. */
+            vvfp_story_add_revive_button(VV_STORY_GAME, window);
         }
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        if (command == VVFP_STORY_REVIVE_ID) {
+            /* Revive Buried/Disappeared Villagers: not an island event, no lock. */
+            if (vvfp_story_revive_clicked(VV_STORY_GAME, window)) {
+                EndDialog(window, -1);
+            }
+            return TRUE;
+        }
         if (command == VVFP_STORY_PICK_ID || command == VVFP_STORY_CUSTOM_ID
             || command == VVFP_STORY_TIME_SKIP_ID) {
             /* Pick Island Event and Custom Island Event share the Island
