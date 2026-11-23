@@ -10,6 +10,9 @@
    CAUSE per crisis, with "too few believers" a crisis too.  Four causes: starvation (food under 10), hunger (food
    10 to 250), sickness, too few believers (fewer than 12, carried babies counted).
 
+   The owner (2026-11-22, after 5 believers left in one catch-up): each cause its own chance -- starvation 1 in 20,
+   sickness 1 in 25, hunger 1 in 50, too few believers 1 in 50 (FL_ODDS_*).
+
    THE RULE.  The row's exe bytes say in ebp which losses the drift 0x468040 made (bit 0 a food loss, bit 1 the
    sickness loss; too few believers' loss, the last, complements ebp: scripts/build_apprentice_faith_puddles_
    features.py FAITH_LOSS_MARKS) and send its final FAITH_ADD through a cave that first calls a rule (the call at
@@ -20,8 +23,9 @@
      * a fall (the sum esi < 0) that takes Faith to 0 or less: the gains are taken first, then the losses one by
        one in the drift's order (the food loss -- starvation or hunger by the food now -- sickness, too few
        believers).  The loss that would take the last Faith is its cause's: a cause the believer is marked for
-       holds them at Faith 1 (that loss is not made); an unmarked one is decided now, once -- rand(10) < 1 (the
-       game's own rand, 0x403660) the drift's own sum is made and the believer becomes a Heathen as before;
+       holds them at Faith 1 (that loss is not made); an unmarked one is decided now, once -- rand(N) < 1 (the
+       game's own rand, 0x403660; N the cause's FL_ODDS_*) the drift's own sum is made and the believer becomes
+       a Heathen as before;
        otherwise the believer is marked for that cause and held at Faith 1.  A later loss of another cause in
        the same drift is decided the same way;
      * anything else is the drift's own sum: rises and falls that leave Faith above 0.
@@ -39,7 +43,8 @@
    then takes the new identity), so a renamed or re-liked villager keeps it, and a newborn or newcomer put in a
    dead villager's record (younger, or neither part the same) never inherits it.  The marks are kept per save in
        <save folder>\Virtual Villagers Fun Patcher\Save <S>\Data\Faith Loss\Believers Kept - Save <S>.dat
-   (sidecar_io.h: atomic writes, an unreadable file never replaced, an invalid one set aside).  It is read when the
+   (sidecar_io.h: atomic writes, an unreadable file never replaced, an invalid one set aside; refused only when the
+   whole path, with the set-aside name's room, would not fit in MAX_PATH).  It is read when the
    game's save slot (the save manager's own field, set before the slot's village is created or loaded:
    native/shared/game_save_slot.h) is first seen, so the load-time catch-up already has them; it is written each
    time a mark is made or cleared, with only the marks of villagers who are living believers then (matched as
@@ -71,8 +76,12 @@
 #define FL_FOOD 0x51D34Cu
 #define FL_CRISIS_FOOD 250              /* food above this: no food roll applies */
 #define FL_STARVING 10                  /* food under this: starvation (the drift's own boundary, 0x468044) */
-#define FL_DECIDE 10                    /* rand(10) < 1: the believer becomes a Heathen */
-#define FL_CONVERTS 1
+/* Each cause's odds of a Heathen when it is decided: 1 in FL_ODDS_<cause>, as rand(N) < 1 (the game's own rand).
+   The owner's (2026-11-22; all 1 in 10 before). */
+#define FL_ODDS_STARVATION 20
+#define FL_ODDS_HUNGER 50
+#define FL_ODDS_SICKNESS 25
+#define FL_ODDS_TOO_FEW 50
 #define FL_FEW 12                       /* fewer believers than this: too few (0x468174) */
 #define FL_BELIEVERS 0x4713F0u          /* the game's believer count (thiscall on the villager manager) */
 #define FL_BELIEVERS_MANAGER 0x46815Fu  /* the drift's `mov ecx, <manager>` immediate */
@@ -201,10 +210,10 @@ static int marks_path(int slot, char *out, int make) {
     static const char *const LEVELS[4] = {
         "\\Virtual Villagers Fun Patcher", "\\Save %d", "\\Data", "\\Faith Loss"
     };
-    char docs[MAX_PATH], exe[MAX_PATH], part[64];
+    char docs[MAX_PATH], exe[MAX_PATH], part[64], level[64];
     char *base = exe, *p, *dot = NULL;
     DWORD n;
-    int i;
+    int i, length;
     if (slot < 1 || slot > 5 || !SHGetSpecialFolderPathA(NULL, docs, CSIDL_PERSONAL, FALSE)) {
         return 0;
     }
@@ -223,18 +232,26 @@ static int marks_path(int slot, char *out, int make) {
     if (dot != NULL) {
         *dot = '\0';
     }
-    if (base[0] == '\0' || lstrlenA(docs) + lstrlenA(base) + 160 >= MAX_PATH - FL_RESERVE) {
+    /* The whole path's own length, with room for sidecar_io.h's set-aside name.  It was a fixed guess (160 for
+       the rest) that refused a long executable name -- "Virtual Villagers - New Believers - Modded 256" under
+       OneDrive\Documents -- though the path is far under MAX_PATH: no mark was ever read or written there, so
+       every game start rolled every held believer again. */
+    wsprintfA(part, "\\Believers Kept - Save %d.dat", slot);
+    length = lstrlenA(docs) + 5 + lstrlenA(base) + lstrlenA(part);
+    for (i = 0; i < 4; ++i) {
+        length += lstrlenA(LEVELS[i]);             /* "%d" is 2 wide, the slot's digit 1: never short */
+    }
+    if (base[0] == '\0' || length >= MAX_PATH - FL_RESERVE) {
         return 0;
     }
     wsprintfA(out, "%s\\LDW\\%s", docs, base);
     for (i = 0; i < 4; ++i) {
-        wsprintfA(part, LEVELS[i], slot);
-        lstrcatA(out, part);
+        wsprintfA(level, LEVELS[i], slot);
+        lstrcatA(out, level);
         if (make) {
             CreateDirectoryA(out, NULL);
         }
     }
-    wsprintfA(part, "\\Believers Kept - Save %d.dat", slot);
     lstrcatA(out, part);
     return 1;
 }
@@ -477,8 +494,30 @@ static unsigned int crises_over(int at, const unsigned char *rec) {
     return causes & over;
 }
 
+/* The odds of cause `cause` (one FL_ cause bit): the N of its 1 in N. */
+static int odds_of(unsigned int cause) {
+    switch (cause) {
+    case FL_STARVATION:
+        return FL_ODDS_STARVATION;
+    case FL_HUNGER:
+        return FL_ODDS_HUNGER;
+    case FL_SICKNESS:
+        return FL_ODDS_SICKNESS;
+    default:
+        return FL_ODDS_TOO_FEW;
+    }
+}
+
+/* The record of the drift last ruled on and the cause whose decision made them a Heathen there (0: none) -- what
+   VVFP Faith Notice.dll asks (VvfpFaithLossDecided), so its popup names the cause that decided, not the first loss
+   roll that hit. */
+static const unsigned char *g_decided_record;
+static unsigned int g_decided_cause;
+
 static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
     int result = sum;
+    g_decided_record = rec;
+    g_decided_cause = 0;
     __try {
         unsigned int order[3], held, made_marks = 0;
         int at, faith, index, losses = 0, level, i, too_few;
@@ -526,10 +565,11 @@ static int __cdecl faith_rule(unsigned char *rec, int sum, int lost) {
             if (level > 1) {
                 --level;                           /* not the last Faith: the loss is made */
             } else if ((held & order[i]) == 0) {
-                if (((rand_fn)(UINT_PTR)FL_RAND)(FL_DECIDE) < FL_CONVERTS) {
-                    return sum;                    /* 1 in 10: a Heathen, as before (no mark needed) */
+                if (((rand_fn)(UINT_PTR)FL_RAND)(odds_of(order[i])) < 1) {
+                    g_decided_cause = order[i];
+                    return sum;                   /* 1 in N: a Heathen, as before (no mark needed) */
                 }
-                held |= order[i];                  /* 9 in 10: marked for this cause, held at Faith 1 */
+                held |= order[i];                  /* otherwise: marked for this cause, held at Faith 1 */
                 made_marks |= order[i];
             }
         }
@@ -581,6 +621,15 @@ void __stdcall VvfpFaithLossVillageReset(int game) {
     if (game == FL_GAME) {
         forget_marks();
     }
+}
+
+/* The cause (1 starvation, 2 hunger, 4 sickness, 8 too few believers) whose decision made `record` a Heathen in the
+   drift just ruled on for it; 0 when that drift decided no conversion, or was another record's. */
+int __stdcall VvfpFaithLossDecided(int game, const void *record) {
+    if (game != FL_GAME || record == NULL || record != (const void *)g_decided_record) {
+        return 0;
+    }
+    return (int)g_decided_cause;
 }
 
 /* How many believers are marked to stay, for the save slot now. */

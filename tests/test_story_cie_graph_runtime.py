@@ -1199,9 +1199,12 @@ class SourceAndLayout(unittest.TestCase):
         self.assertIn('"From the library...", 1141', rc)
         self.assertIn("312 DIALOGEX", rc)
         queue = (src / "story_queue.inc").read_text(encoding="utf-8")
-        # Version 2 since the simple editor's text grew (2026-11-17); version 1 is still read
-        # (tests/test_unlimited_editor_text.py).  A graph's run never changes it.
-        self.assertIn("#define SQ_VERSION 2u", queue)
+        # Version 2 since the simple editor's text grew (2026-11-17); version 3 since the armed
+        # Breaking Point's log entry is kept with the queued popup (2026-11-22).  Versions 1 and 2
+        # are still read (tests/test_unlimited_editor_text.py, tests/test_faith_notice.py).
+        # A graph's run never changes it.
+        self.assertIn("#define SQ_VERSION 3u", queue)
+        self.assertIn("#define SQ_VERSION_2 2u", queue)
         self.assertIn("#define SQ_VERSION_1 1u", queue)
         self.assertIn("!cg_owns_armed(game)", queue, "a graph's page is never written into it")
         h = (src / "story_custom.h").read_text(encoding="utf-8")

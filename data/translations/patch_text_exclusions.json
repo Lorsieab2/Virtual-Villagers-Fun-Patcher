@@ -83,6 +83,11 @@
    "functions": ["cg_entry_start", "cg_log_end", "cg_log_write", "cg_resolve"]
   },
   {
+   "reason": "The Breaking Point's one Island Events log entry (its Event header and who left: \"<name>: Heathen no -> yes\", \"<name>: Faith <old> -> <new>\"): log words, which stay English as every Island Events line does.",
+   "files": ["native/vvfp_story_upgrades/story_faith_notice.inc", "native/vvfp_faith_notice/vvfp_faith_notice.c"],
+   "functions": ["faith_notice_log_take", "VvfpFaithNoticeLeftLines"]
+  },
+  {
    "reason": "The partner-carry setting's key in the installed patches' list (\"# partner_carry_percent=\"): a line of a file the patcher writes and the engine reads back, never shown.",
    "files": ["native/vvfp_story_upgrades/story_graph.inc"],
    "functions": ["cg_partner_carry_percent"]
