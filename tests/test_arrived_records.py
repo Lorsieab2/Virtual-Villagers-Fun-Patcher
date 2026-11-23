@@ -74,6 +74,9 @@ CHECKS += 1
 # + 3 per game: Unaccounted and Arrived records name the villager's own parents in every game -- A New
 # Home's from the Show Parents companion, kept in the roster file (arrival_harness.c parents_cases)
 CHECKS += 3 * 5
+# + 2 in New Believers (2026-11-22): VVFP Heathen Aging.dll's replacement Heathen gets an Arrived record
+# (VvfpCauseHeathenArrived), a believer never one from that export
+CHECKS += 2
 # + 4 per game with Birth records (The Lost Children on): a villager with the looks and the very parents
 # of a Birth record under another name nobody carries now is a CONTRADICTION for the player -- no
 # second Birth record, and nothing taken as settled (the marker waits) -- while a villager with no

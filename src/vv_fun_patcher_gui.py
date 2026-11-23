@@ -292,6 +292,11 @@ FOG_LISTENING_ID = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_RESTRICTIONS_ID = "vv5_fog_of_doom_no_restrictions"
 # Practicing Devotion Builds Faith and Divine Energy (New Believers).
 DEVOTION_FAITH_ID = "vv5_devotion_builds_faith"
+# The four Heathen aging rows (New Believers; the owner, 2026-11-22).
+FORMER_VILLAGERS_AGE_ID = "vv5_former_villagers_keep_aging"
+HEATHEN_TRIBE_AGES_ID = "vv5_heathen_tribe_ages"
+FORMER_SKELETONS_ID = "vv5_former_villager_heathens_leave_skeletons"
+ALL_SKELETONS_ID = "vv5_all_heathens_leave_skeletons"
 # What Owner's Defaults sets both sliders to (the owner, 2026-11-07: "set the sliders to 2x").
 OWNERS_DEFAULT_SLIDER = 2
 
@@ -437,6 +442,11 @@ DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # Practicing Devotion Builds Faith and Divine Energy (New Believers; the owner, 2026-11-21): a new option that hands
     # the player Faith and Divine Energy, so off here; on in Owner's Defaults and, as a normal row, in Select All.
     + [DEVOTION_FAITH_ID]
+    # Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has Children and All Heathens
+    # Leave Skeletons (New Believers; the owner, 2026-11-22): off by default, on in Owner's Defaults and, as normal
+    # rows, in Select All.  Their alternative Former Villagers Among the Heathens Leave Skeletons is off through
+    # ALTERNATIVE_OFF_FUN_PATCH_IDS and off in Owner's Defaults too (OWNERS_DEFAULT_OFF_FUN_PATCH_IDS).
+    + [FORMER_VILLAGERS_AGE_ID, HEATHEN_TRIBE_AGES_ID, ALL_SKELETONS_ID]
     # Respecting the Legacy of Isola (New Believers): off by default, on in
     # Owner's Defaults and Select All (it ticks its five pieces there too).
     + [LEGACY_OF_ISOLA_FUN_PATCH_ID]
@@ -483,6 +493,9 @@ OWNERS_DEFAULT_OFF_FUN_PATCH_IDS = frozenset(
     # The owner (2026-11-15): the island events' content filters are off everywhere, Owner's Defaults too, and so is
     # No Safeguards for Island Events (and Additional Events too).
     + ISLAND_EVENT_FILTER_IDS + ISLAND_EVENT_ANY_TIME_IDS
+    # The owner (2026-11-22): of the two exclusive skeleton rows, All Heathens Leave Skeletons is on in Owner's
+    # Defaults and Former Villagers Among the Heathens Leave Skeletons off.
+    + [FORMER_SKELETONS_ID]
     # (No Restrictions on Fog of Doom Conversions is NOT here: the owner, 2026-11-20, turned it on in Owner's
     # Defaults; it stays off by default and in Select All.)
 )
@@ -532,6 +545,10 @@ del _game
 # both move "Playing in the dirt"; ticking one unticks the other.
 UNTICKING_CONFLICT_IDS["vv5_puddles_by_the_lake"] = "vv5_playing_in_the_dirt_spot"
 UNTICKING_CONFLICT_IDS["vv5_playing_in_the_dirt_spot"] = "vv5_puddles_by_the_lake"
+# New Believers (the owner, 2026-11-22): All Heathens Leave Skeletons and Former Villagers Among the Heathens Leave
+# Skeletons decide the same bodies; ticking one unticks the other.
+UNTICKING_CONFLICT_IDS[ALL_SKELETONS_ID] = FORMER_SKELETONS_ID
+UNTICKING_CONFLICT_IDS[FORMER_SKELETONS_ID] = ALL_SKELETONS_ID
 
 # A saved selection restored with both of such a pair ticked keeps the value and unticks the key.  Before
 # 2026-11-08 Move the "Playing in the dirt" Spot and Puddle Play Moves to the Lake Shore were both on by default,

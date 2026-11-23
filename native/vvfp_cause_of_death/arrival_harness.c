@@ -377,6 +377,7 @@ static int_t departed;
 static note_t note_birth;
 static arrived_by_t arrived_by;
 static arrived_by_t arrived_parents;          /* VvfpCauseArrivedParents: the same shape */
+static arrived_by_t heathen_arrived;          /* VvfpCauseHeathenArrived (New Believers): the same shape */
 
 static int host_slot_value = 1;
 static int __stdcall host_slot(void) { return host_slot_value; }
@@ -401,8 +402,9 @@ static void load(void) {
     note_birth = (note_t)GetProcAddress(cause, "VvfpCauseNoteArrival");
     arrived_by = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedBy");
     arrived_parents = (arrived_by_t)GetProcAddress(cause, "VvfpCauseArrivedParents");
+    heathen_arrived = (arrived_by_t)GetProcAddress(cause, "VvfpCauseHeathenArrived");
     if (!ensure_village || !setup || !save_done || !reset || !scan_arrivals || !repair_arrivals || !created
-        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by || !arrived_parents
+        || !created_scoped || !arrival_tick || !vv1_births || !departed || !note_birth || !arrived_by || !arrived_parents || !heathen_arrived
         || GetProcAddress(parentage, "RecordArrivalsMissingFromLog") == NULL) {
         printf("missing exports\n");
         exit(2);
@@ -2080,6 +2082,14 @@ int main(int argc, char **argv) {
             villager(14, "Pagan", 300, 4, 4, 0);
             rec(14)[VV5_FACTION] = 1;
             created(14, 0);
+            /* VVFP Heathen Aging.dll's replacement for a Heathen who died of old age (the owner, 2026-11-22: an
+               Arrived-style record), and a believer, which that export never writes for. */
+            villager(18, "Ashen", 400, 2, 2, 0);
+            rec(18)[VV5_FACTION] = 1;
+            created(18, 0);
+            heathen_arrived(game, 18, "Replaced a Heathen who died of old age");
+            villager(19, "Notheathen", 400, 2, 3, 0);
+            heathen_arrived(game, 19, "Replaced a Heathen who died of old age");
         }
         arrival_tick();
         *(int *)(rec(9) + g->age) = 720;    /* aged since it arrived */
@@ -2107,6 +2117,13 @@ int main(int argc, char **argv) {
             CHECK(gone != NULL && record_has("Gone", "  Age at arrival: 650\r\n"),
                   "one who arrived and was buried before the save has the record too, at the burial");
             CHECK(strstr(text, "  Name: Reborn\r\n") == NULL, "...and whoever has the record now gets none");
+            if (game == 5) {
+                CHECK(record_has("Ashen", "  Age at arrival: 400\r\n")
+                      && record_has("Ashen", "  How: Replaced a Heathen who died of old age\r\n"),
+                      "a replacement Heathen (VvfpCauseHeathenArrived): an Arrived record, its age, How: in its words");
+                CHECK(strstr(text, "  Name: Notheathen\r\n") == NULL,
+                      "...never for a believer (who would be an ordinary arrival)");
+            }
             CHECK(strstr(text, "  Name: Babe\r\n") == NULL && strstr(text, "  Name: Twin\r\n") == NULL,
                   "a birth is never an arrival (its path's marker, or the Births log's note)");
             {

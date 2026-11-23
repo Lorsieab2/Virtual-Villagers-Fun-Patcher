@@ -765,6 +765,34 @@ __declspec(dllexport) void __stdcall VvfpCauseArrivedBy(int game, int index, con
     lstrcpynA(arrivals[index].how, how, ARRIVAL_HOW);
 }
 
+/* New Believers' "VVFP Heathen Aging.dll": the Heathen creator has just made the Heathen in record `index`, who
+   replaces a Heathen who died of old age.  A Heathen is never an arrival of the village (above), so the creator's
+   record makes none; the owner (2026-11-22) asked for an Arrived-style record of each replacement: one Arrived
+   record with its age and sex and "How: " `how` (at most ARRIVAL_HOW - 1 characters kept), the roster told (the
+   save-time reconciliation never calls the newcomer Unaccounted) and the tick knowing them as a Heathen. */
+__declspec(dllexport) void __stdcall VvfpCauseHeathenArrived(int game, int index, const char *how) {
+    char before[96];
+    char after[ARRIVAL_HOW + 16];
+    char words[ARRIVAL_HOW];
+    unsigned char *record;
+    if (install_state != 1 || game != g_game || game != 5 || how == NULL || index < 0 || index >= RECORDS_MAX) {
+        return;
+    }
+    record = cod_record(index);
+    if (record == NULL || !rec_present(record) || rec_health(record) <= 0 || !arrival_heathen(record)) {
+        return;
+    }
+    lstrcpynA(words, how, ARRIVAL_HOW);
+    wsprintfA(before, "  Age at arrival: %d\n  Sex: %s\n", rec_age(record),
+              roster_sex(*(const int *)(record + REC[g_game].sex)));
+    wsprintfA(after, "  How: %s\n", words);
+    arrivals[index].state = ARRIVAL_NONE;
+    roster_arrived(index);
+    faction_seen[index] = 1;
+    COD_COUNT(arrivals);
+    cod_write(LOG_ARRIVED, record, 1, before, after, 2);
+}
+
 /* ---- Birth records, backfilled (The Lost Children to New Believers) -------
 
    native/shared/arrival_backfill.h.  The same shape as the Arrived records'

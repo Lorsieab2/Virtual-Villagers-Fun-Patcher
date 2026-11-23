@@ -2,6 +2,12 @@
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
   {
+   "reason": "The Heathen aging rows (VVFP Heathen Aging.dll, New Believers): its only text is the \"How:\" words of the Arrived record it asks the Cause of Death companion to write for a replacement Heathen, and the stand-in father name \"Unknown\" the stock Heathen Mommy's infant has; logs are never translated and nothing is drawn in the game.",
+   "files": [
+    "native/vvfp_heathen_aging/*"
+   ]
+  },
+  {
    "reason": "The game-text fixes (Fix Vanilla Bugs, all five games; VVFP Text Fixes.dll): the games' own stock texts and their fixed versions (data/vanilla_text_fixes.json), and the Food Mastery line inside eTechFoodMasteryInfo. Each is the game's own string-table row, whose English src/vv_translations.py gives fixed when the companion is in the game; none is patcher text of its own (and the stock \"Harvesting blackberries\" the cutting-tool caption compares with, and the mark \"Harvesting berries with a cutting tool\" the harvest writes into the caption field, which is never shown: the Action line draws the full caption for it). Not the cutting-tool harvest caption itself (The Tree of Life): its own row is vvfp.text_fixes/vvfp_text_fixes.tf_caption.s0.",
    "files": ["native/vvfp_text_fixes/*"],
    "match": "^(?!Harvesting blackberries with a cutting tool$)"

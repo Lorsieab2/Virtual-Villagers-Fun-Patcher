@@ -44,6 +44,9 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* Practicing Devotion Builds Faith and Divine Energy (New Believers): each Devotion skill check of a believer gives
        a 1 in 10 chance of Faith +1 and a separate 1 in 10 chance of Divine Energy +1 (the owner, 2026-11-21). */
     "VVFP Devotion Faith.dll",
+    /* The four Heathen aging rows (New Believers): Heathens who age and die of old age, are replaced at once, and
+       (the tribe row) have children; each row's flag file says which (the owner, 2026-11-22). */
+    "VVFP Heathen Aging.dll",
     /* APPEND ONLY (see above). */
 };
 #define VVFP_STARTUP_COMPANION_COUNT_3 \

@@ -158,6 +158,12 @@ FILES = [
     "assets/fog_listening/VVFP Fog Listening No Restrictions.txt",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers): the companion.
     "assets/devotion_faith/VVFP Devotion Faith.dll",
+    # The four Heathen aging rows (New Believers): the companion and each row's flag file.
+    "assets/heathen_aging/VVFP Heathen Aging.dll",
+    "assets/heathen_aging/VVFP Heathen Aging Former.txt",
+    "assets/heathen_aging/VVFP Heathen Aging Tribe.txt",
+    "assets/heathen_aging/VVFP Heathen Skeletons Former.txt",
+    "assets/heathen_aging/VVFP Heathen Skeletons All.txt",
     # Louder Wind Flutes (The Tree of Life): the wind flute sounds louder (the slider).
     "assets/vv4_louder_flutes/VVFP VV4 Louder Flutes.dll",
     # Children Play Tag and Build Sandcastles (all five games): tag and sandcastles as normal play choices.
@@ -359,6 +365,11 @@ FILES = [
     "data/vv5_fog_of_doom_no_restrictions_feature.json",
     # Practicing Devotion Builds Faith and Divine Energy (New Believers).
     "data/vv5_devotion_builds_faith_feature.json",
+    # The four Heathen aging rows (New Believers).
+    "data/vv5_former_villagers_keep_aging_feature.json",
+    "data/vv5_heathen_tribe_ages_feature.json",
+    "data/vv5_former_villager_heathens_leave_skeletons_feature.json",
+    "data/vv5_all_heathens_leave_skeletons_feature.json",
     # 0.1-10x Tech Cost (all five games; scripts/build_tech_cost_multiplier_features.py).
     "data/vv1_tech_cost_multiplier_feature.json",
     "data/vv2_tech_cost_multiplier_feature.json",

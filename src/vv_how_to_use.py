@@ -26,7 +26,8 @@ GUIDES_PATH = ROOT / "data" / "how_to_use.json"
 # Guides stay short: the owner asked for "brief, simple to understand".
 # 9 since 2026-11-19: the Default Patches guide's ninth line (the v1.35.97 merge); the owner's rule is never to drop
 # text for length, and the guide window scrolls.
-MAX_LINES = 9
+# 10 since 2026-11-22: the four Heathen aging patches joined the Default Patches guide (never drop text).
+MAX_LINES = 10
 MAX_LINE_CHARS = 180
 # 1,000 since 2026-11-11: the Default Patches guide must name every default-off patch, and the list grew past 900;
 # 1,100 since 2026-11-12, when the two Island Events Scale patches joined that list; 1,150 since 2026-11-12, when
@@ -37,7 +38,8 @@ MAX_LINE_CHARS = 180
 # (and Village Solidarity, 2026-11-17; and Birth Control in The Tree of Life and New Believers, 2026-11-19.)
 # 1,450 since 2026-11-19, when the v1.35.97 merge put every PR's default-off patches into it (1,405); never drop text.
 # 1,500 since 2026-11-21, when Practicing Devotion Builds Faith and Divine Energy joined it (1,482).
-MAX_GUIDE_CHARS = 1500
+# 1,550 since 2026-11-22, when the four Heathen aging patches joined it (1,514).
+MAX_GUIDE_CHARS = 1550
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,601 @@
+"""New Believers: Heathens who age, die of old age, are replaced, and (the tribe row) have children -- the four rows
+of "VVFP Heathen Aging.dll" (the owner, 2026-11-22):
+
+* "Former Villagers Keep Aging Among the Heathens" (flag "VVFP Heathen Aging Former.txt"): only our villagers who
+  became Heathens age, and can die of old age by the believers' own rule;
+* "Heathen Tribe Ages, Dies and Has Children" (flag "VVFP Heathen Aging Tribe.txt"): every Heathen, the puzzle
+  Heathens too ("PUZZLE HEATHENS TOO (IF THEY DIE ANOTHER ONE IMMEDIATELY SPAWNS IN"), and Heathen babies;
+* "Former Villagers Among the Heathens Leave Skeletons" / "All Heathens Leave Skeletons" (flags "VVFP Heathen
+  Skeletons Former.txt" / "... All.txt"): who leaves a body the believers bury; without them a Heathen who dies
+  disappears, logged, no grave.
+
+EMULATED on the stock New Believers executable: the companion is started as the start-up chain starts it; then the
+game's own age credit (its faction test 0x470077 to the record's end 0x4700E8), its own life tick 0x472C90 (whole,
+every pass) and its own to-a-Heathen 0x4669E0 run on hand-made records.  The game routines the Heathen path calls are
+stood in for: rand 0x403660 (answers queued by the test), SetHealth 0x4758B0 (writes health and cause, and bumps the
+Village Statistics' death counter 0x51D3A0 as its hook does), the Heathen creator 0x46FD20 (the first free record),
+the conception routine 0x465E00, the carry 0x466420, the activity stop 0x473440, and the Cause of Death companion's
+two exports.
+"""
+from __future__ import annotations
+
+import collections
+import json
+import struct
+import sys
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "tests"))
+
+try:
+    from test_companion_installs_all_or_none import HAVE_EMULATOR, Machine, stock_path
+    from story_emulator import STACK_TOP
+except ImportError:  # pragma: no cover - environment dependent
+    HAVE_EMULATOR = False
+
+DLL = ROOT / "assets" / "heathen_aging" / "VVFP Heathen Aging.dll"
+FORMER, TRIBE = "VVFP Heathen Aging Former.txt", "VVFP Heathen Aging Tribe.txt"
+BONES_FORMER, BONES_ALL = "VVFP Heathen Skeletons Former.txt", "VVFP Heathen Skeletons All.txt"
+
+MANAGER = 0x554148
+RECORDS = MANAGER + 0x48
+STRIDE = 0x2F44
+AGE, SEX, LINEAGE, NAME, HEAD, BODY = 0x1B8C, 0x1B90, 0x1B98, 0x1B9C, 0x1BB8, 0x1BBC
+FATHER_NAME, MOTHER_NAME, FATHER_HEAD, FATHER_BODY, MOTHER_HEAD, MOTHER_BODY = (
+    0x1BC0, 0x1BD9, 0x1BF4, 0x1BF8, 0x1BFC, 0x1C00)
+BABY_FATHER_NAME, BABY_FATHER_BODY, BABY_FATHER_HEAD = 0x1C10, 0x1C2C, 0x1C30
+STAMP, PROCESSED, HEALTH, CAUSE, SICK, PREGNANT, LITTER, SKILLS = (
+    0x1C38, 0x1C3C, 0x1C40, 0x1C44, 0x1C48, 0x1C4C, 0x1C50, 0x1C5C)
+PRESENT, FACTION, ORANGE, RED, FAITH, ROLE = 0x1CD4, 0x1CEC, 0x1CED, 0x1CEE, 0x1CF0, 0x1CFC
+LIKES = 0x1F5C
+DEATHS_STAT, OLDEST_STAT, MEDICINE = 0x51D3A0, 0x51D378, 0x51D5D0
+TWINS, TRIPLETS = 0x51D380, 0x51D384
+PUZZLE_PROGRESS, PUZZLE_NEEDED = 0x51E008, 0x51DF30
+CREDIT_SITE, CREDIT_END, LIFE_TICK, TO_HEATHEN = 0x470077, 0x4700E8, 0x472C90, 0x4669E0
+GAME_OBJECT = 0x30000000
+COD = 0x0B200000
+# Medicine 1: old age from 1,100 units (55 years): a roll at each whole year past it.
+OLD = 1100
+
+
+class Village(Machine):
+    def __init__(self, flags: tuple[str, ...], *, statistics_form: bool = False, cod: bool = True):
+        exe = bytearray(stock_path(5).read_bytes())
+        super().__init__(bytes(exe), DLL, present=flags)
+        if statistics_form:
+            # The Village Statistics rows' Oldest Villager guard (`jne` 0C -> 38 at 0x47007F), in this emulated
+            # image only: the companion must follow the branch it finds there.
+            self.write(0x470080, b"\x38")
+        self.rand_answers: collections.deque[int] = collections.deque()
+        self.rand_calls: list[int] = []
+        self.created: list[tuple[int, list[int]]] = []
+        self.conceived: list[tuple[int, list[int]]] = []
+        self.stopped: list[int] = []
+        self.died: list[tuple[int, int, int]] = []
+        self.arrived: list[tuple[int, str]] = []
+        self.cod = cod
+        self.api_handlers["GetModuleHandleA"] = self._module
+        self.api_handlers["GetProcAddress"] = self._proc
+        stubs = self.alloc(0x40)
+        self.cod_exports = {"VvfpCauseDiedAmongHeathens": stubs, "VvfpCauseHeathenArrived": stubs + 0x10}
+        self.stub(stubs, self._cod_died)
+        self.stub(stubs + 0x10, self._cod_arrived)
+        self.stub(0x403660, self._rand)
+        self.stub(0x4758B0, self._set_health)
+        self.stub(0x46FD20, self._create)
+        self.stub(0x465E00, self._conceive)
+        self.stub(0x466420, lambda p: (0, 4))
+        self.stub(0x473440, self._stop)
+        self.stub(0x4653D0, lambda p: (0, 0))
+        self.stub(0x470800, lambda p: (0, 0))
+        self.stub(0x44EF60, lambda p: (0, 8))          # to-a-Heathen's bottom-bar message
+        self.stub(0x466880, self._faction)
+        self.stub(0x425950, lambda p: (GAME_OBJECT, 0))  # the age credit's game object (speed)
+        self.mu.mem_map(GAME_OBJECT, 0x20000)
+        self.put32(GAME_OBJECT + 0x17D7C, 6)
+        self.put32(MEDICINE, 1)
+        self.installed = self.export("VvfpStartup", 5, 0)
+        self.installed = self.export("VvfpHeathenAgingInstalled")
+
+    # ---- stand-ins ----------------------------------------------------------------------------------------
+    def _module(self, p):
+        name = p.arg(0)
+        if name == 0:
+            return 0x400000, 4
+        return (COD if self.cod and p.cstring(name) == "VVFP Cause of Death.dll" else 0), 4
+
+    def _proc(self, p):
+        if p.arg(0) == COD:
+            return self.cod_exports.get(p.cstring(p.arg(1)), 0), 8
+        return 0, 8
+
+    def _cod_died(self, p):
+        self.died.append((p.arg(0), p.arg(1), p.arg(2)))
+        return 0, 12
+
+    def _cod_arrived(self, p):
+        self.arrived.append((p.arg(1), p.cstring(p.arg(2))))
+        return 0, 12
+
+    def _rand(self, p):
+        n = p.arg(0)
+        self.rand_calls.append(n)
+        value = self.rand_answers.popleft() if self.rand_answers else n - 1
+        return value % n, 0
+
+    def _set_health(self, p):
+        block = p.reg("ecx")
+        value, cause = p.arg(0), p.arg(1)
+        if struct.unpack("<i", p.read(block + 0xC, 4))[0] > 0 and value <= 0:
+            p.put32(DEATHS_STAT, p.u32(DEATHS_STAT) + 1)
+        p.put32(block + 0xC, value)
+        p.put32(block + 0x10, cause if value <= 0 else 0xFFFFFFFF)
+        return 0, 8
+
+    def _faction(self, p):
+        p.write(p.reg("ecx") + FACTION, bytes([p.arg(0) & 0xFF]))
+        return 0, 4
+
+    def _stop(self, p):
+        self.stopped.append(p.reg("ecx"))
+        return 0, 0
+
+    def _create(self, p):
+        args = [struct.unpack("<i", p.read(p.reg("esp") + 4 + 4 * i, 4))[0] for i in range(9)]
+        for index in range(150):
+            if p.read(self.record(index) + PRESENT, 1) == b"\0":
+                break
+        else:
+            return 0xFFFFFFFF, 0x24
+        lineage, skill, value, sex, age, orange, red, role, faith = args
+        r = self.record(index)
+        self.write(r, bytes(STRIDE))
+        self.write(r + NAME, f"New{index}".encode() + b"\0")
+        self.write(r + LIKES, struct.pack("<3I", index, 7, 9))
+        self.put32(r + LINEAGE, lineage)
+        self.put32(r + SEX, 1 if sex == -1 else sex)
+        self.put32(r + AGE, age)
+        self.put32(r + PROCESSED, age)
+        self.put32(r + HEALTH, 90)
+        self.put32(r + CAUSE, 0xFFFFFFFF)
+        self.put32(r + HEAD, 11)
+        self.put32(r + FAITH, faith)
+        self.write(r + PRESENT, b"\x01")
+        self.write(r + FACTION, b"\x01")
+        self.write(r + ORANGE, bytes([orange]))
+        self.write(r + RED, bytes([red]))
+        self.put32(r + ROLE, role)
+        self.created.append((index, args))
+        return index, 0x24
+
+    def _conceive(self, p):
+        carrier = p.reg("ecx")
+        args = [p.u32(p.reg("esp") + 4 + 4 * i) for i in range(7)]
+        self.conceived.append((carrier, args))
+        p.put32(carrier + PREGNANT, p.u32(carrier + PROCESSED))
+        p.put32(carrier + LITTER, 1)
+        name = p.cstring(args[3])[:24].encode()
+        p.write(carrier + BABY_FATHER_NAME, name + b"\0")
+        p.put32(carrier + BABY_FATHER_HEAD, args[4])
+        p.put32(carrier + BABY_FATHER_BODY, args[5])
+        p.put32(TWINS, p.u32(TWINS) + 1)               # as the routine counts its roll
+        return 0, 0x1C
+
+    # ---- records ------------------------------------------------------------------------------------------
+    def record(self, index: int) -> int:
+        return RECORDS + index * STRIDE
+
+    def villager(self, index: int, *, heathen: bool, age: int = 600, role: int = 0, sex: int = 0,
+                 parents: bool = False, orange: int = 0, red: int = 0, name: str | None = None) -> int:
+        r = self.record(index)
+        self.write(r, bytes(STRIDE))
+        self.write(r + NAME, (name or f"V{index}").encode() + b"\0")
+        self.write(r + LIKES, struct.pack("<3I", 1, index, 3))
+        self.put32(r + AGE, age)
+        self.put32(r + PROCESSED, age)
+        self.put32(r + SEX, sex)
+        self.put32(r + HEALTH, 90)
+        self.put32(r + CAUSE, 0xFFFFFFFF)
+        self.put32(r + STAMP, 1)
+        self.put32(r + HEAD, 5)
+        self.write(r + PRESENT, b"\x01")
+        self.write(r + FACTION, b"\x01" if heathen else b"\x00")
+        self.write(r + ORANGE, bytes([orange]))
+        self.write(r + RED, bytes([red]))
+        self.put32(r + ROLE, role)
+        self.put32(r + FAITH, (-50 if heathen else 40) & 0xFFFFFFFF)
+        if parents:
+            self.write(r + FATHER_NAME, b"Dad\0")
+            self.write(r + MOTHER_NAME, b"Mum\0")
+        return r
+
+    def i32(self, record: int, offset: int) -> int:
+        return struct.unpack("<i", self.read(record + offset, 4))[0]
+
+    # ---- the game -----------------------------------------------------------------------------------------
+    def credit(self, record: int, units: int) -> None:
+        """The age credit from its faction test to the record's end: esi the record, eax the units, ebx 0."""
+        self.set_reg("esp", STACK_TOP - 0x2000)
+        self.set_reg("esi", record)
+        self.set_reg("eax", units)
+        self.set_reg("ebx", 0)
+        self.run(CREDIT_SITE, CREDIT_END)
+
+    def life_tick(self) -> None:
+        self.call(LIFE_TICK, ecx=MANAGER)
+
+    def turn_heathen(self, record: int) -> None:
+        self.call(TO_HEATHEN, ecx=record)
+
+    def solve(self, puzzle: int) -> None:
+        self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
+        self.put32(PUZZLE_PROGRESS + 8 * puzzle, 1)
+
+    def unsolve(self, puzzle: int) -> None:
+        self.put32(PUZZLE_NEEDED + 4 * puzzle, 1)
+        self.put32(PUZZLE_PROGRESS + 8 * puzzle, 0)
+
+
+def _skip() -> str | None:
+    if not HAVE_EMULATOR:
+        return "unicorn/pefile not installed"
+    if not stock_path(5).is_file():
+        return "stock executable not present (inputs/)"
+    if not DLL.is_file():
+        return f"{DLL} missing"
+    return None
+
+
+def _due_to_die(v: Village, record: int, *, at: int = OLD + 20) -> None:
+    """Age `at` (a whole year past old age) with that one unit still to process, and the roll answering 0."""
+    v.put32(record + AGE, at + 1)
+    v.put32(record + PROCESSED, at)
+    v.rand_answers.extend([0])
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class Installs(unittest.TestCase):
+    def test_nothing_without_an_aging_row(self):
+        for flags in ((), (BONES_ALL,), (BONES_FORMER,)):
+            with self.subTest(flags=flags):
+                v = Village(flags)
+                self.assertEqual(v.installed, 0)
+                h = v.villager(1, heathen=True)
+                v.credit(h, 5)
+                self.assertEqual(v.i32(h, AGE), 600, "the stock game: a Heathen never ages")
+
+    def test_installs_with_either_aging_row_and_either_credit_form(self):
+        for flags in ((FORMER,), (TRIBE,), (FORMER, TRIBE, BONES_ALL)):
+            for form in (False, True):
+                with self.subTest(flags=flags, statistics_form=form):
+                    self.assertEqual(Village(flags, statistics_form=form).installed, 1)
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class FormerVillagers(unittest.TestCase):
+    def _converted(self, v: Village, index: int = 3, **kw) -> int:
+        r = v.villager(index, heathen=False, **kw)
+        v.credit(r, 1)                                   # seen alive as a believer
+        self.assertEqual(v.i32(r, AGE), 601)
+        v.turn_heathen(r)                                # the game's own to-a-Heathen
+        self.assertEqual(v.read(r + FACTION, 1), b"\x01")
+        return r
+
+    def test_a_former_villager_ages_like_a_believer(self):
+        v = Village((FORMER,))
+        r = self._converted(v)
+        v.credit(r, 4)
+        self.assertEqual(v.i32(r, AGE), 605, "the age credit adds their units")
+        v.life_tick()
+        self.assertEqual(v.i32(r, PROCESSED), 605, "the life tick processes every unit")
+        self.assertEqual(v.i32(r, HEALTH), 90, "a Heathen still never eats, starves or loses health")
+
+    def test_a_camp_heathen_and_puzzle_heathens_never_age_with_the_former_row(self):
+        v = Village((FORMER,))
+        camp = v.villager(1, heathen=True)
+        doctor = v.villager(2, heathen=True, role=12)
+        chief = v.villager(4, heathen=True, role=13, age=1000)
+        for r in (camp, doctor, chief):
+            v.credit(r, 7)
+            self.assertEqual(v.i32(r, AGE), 600 if r != chief else 1000)
+        v.put32(chief + PROCESSED, 900)
+        v.life_tick()
+        self.assertEqual(v.i32(chief, PROCESSED), 1000, "the stock skip: processed age = age")
+        self.assertEqual(v.rand_calls, [])
+
+    def test_a_heathen_who_turned_before_the_row_is_known_by_the_parents_on_the_record(self):
+        v = Village((FORMER,))
+        r = v.villager(5, heathen=True, parents=True)
+        v.credit(r, 3)
+        self.assertEqual(v.i32(r, AGE), 603)
+
+    def test_a_record_the_creator_is_filling_is_never_a_former_villager(self):
+        # A new record's SetFaith runs to-a-Heathen before any frame has seen it alive.
+        v = Village((FORMER,))
+        r = v.villager(6, heathen=False)
+        v.turn_heathen(r)
+        v.credit(r, 3)
+        self.assertEqual(v.i32(r, AGE), 600)
+
+    def test_dies_of_old_age_with_a_skeleton_and_is_replaced_at_once(self):
+        v = Village((FORMER, BONES_FORMER))
+        r = self._converted(v)
+        v.put32(DEATHS_STAT, 17)
+        _due_to_die(v, r)
+        v.life_tick()
+        self.assertEqual((v.i32(r, HEALTH), v.i32(r, CAUSE)), (0, 2), "Old age, by SetHealth")
+        self.assertEqual(v.read(r + PRESENT, 1), b"\x01", "the body stays for the believers to bury")
+        self.assertEqual(v.u32(DEATHS_STAT), 17, "Heathens never count in the statistics")
+        self.assertEqual(len(v.created), 1, "replaced in the same tick")
+        index, args = v.created[0]
+        self.assertEqual(args[7], 0, "an ordinary Heathen")
+        self.assertGreater(args[8], 0, "the creator never runs to-a-Heathen on a believer record")
+        new = v.record(index)
+        self.assertTrue(-67 <= v.i32(new, FAITH) <= -38)
+        self.assertEqual(v.arrived, [(index, "Replaced a Heathen who died of old age")])
+        self.assertEqual(v.died, [], "a body: the Death record comes at the burial")
+
+    def test_without_a_skeleton_row_nothing_is_left_and_the_death_is_logged(self):
+        v = Village((FORMER,))
+        r = self._converted(v)
+        _due_to_die(v, r)
+        v.life_tick()
+        self.assertEqual(v.read(r + PRESENT, 1), b"\x00")
+        self.assertEqual(v.i32(r, HEALTH), 90, "no body: health untouched, as the game's own removals")
+        self.assertEqual(v.stopped[-1], r, "the activity stopped first (the conversion stopped it once too)")
+        self.assertEqual(v.died, [(5, 3, 2)], "Death record: Old age, no grave")
+        self.assertEqual(len(v.created), 1)
+
+    def test_the_all_heathens_skeleton_row_covers_a_former_villager_too(self):
+        v = Village((FORMER, BONES_ALL))
+        r = self._converted(v)
+        _due_to_die(v, r)
+        v.life_tick()
+        self.assertEqual(v.read(r + PRESENT, 1), b"\x01")
+
+    def test_no_roll_before_old_age_and_none_between_whole_years(self):
+        v = Village((FORMER,))
+        r = self._converted(v)
+        v.put32(r + PROCESSED, OLD - 40)
+        v.put32(r + AGE, OLD + 19)                       # 59 units: one whole year past old age (1,100)
+        v.life_tick()
+        self.assertEqual(v.i32(r, PROCESSED), OLD + 19)
+        self.assertEqual(v.rand_calls, [], "1,100 itself is not past it; 1,120 is the first roll")
+        v.put32(r + AGE, OLD + 21)
+        v.rand_answers.extend([10])                      # 10 x 1 year over: 10 is not below 10
+        v.life_tick()
+        self.assertEqual(v.rand_calls, [100])
+        self.assertEqual(v.i32(r, HEALTH), 90)
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class Tribe(unittest.TestCase):
+    def test_every_heathen_ages_and_the_camp_one_is_replaced_in_kind(self):
+        v = Village((TRIBE,))
+        camp = v.villager(1, heathen=True, role=6, orange=1)
+        v.credit(camp, 2)
+        self.assertEqual(v.i32(camp, AGE), 602)
+        _due_to_die(v, camp)
+        v.life_tick()
+        self.assertEqual(v.read(camp + PRESENT, 1), b"\x00", "no skeleton row: nothing left")
+        index, args = v.created[0]
+        self.assertEqual((args[5], args[6], args[7]), (1, 0, 6), "the same camp role and mask")
+        self.assertEqual(args[4], 400)
+
+    def test_with_both_aging_rows_there_is_no_double_aging(self):
+        v = Village((FORMER, TRIBE))
+        r = v.villager(1, heathen=True, parents=True)
+        v.credit(r, 3)
+        self.assertEqual(v.i32(r, AGE), 603)
+        v.life_tick()
+        self.assertEqual(v.i32(r, PROCESSED), 603)
+
+    def test_catch_up_processes_every_unit_with_a_roll_each_whole_year(self):
+        v = Village((TRIBE,))
+        r = v.villager(1, heathen=True, age=OLD + 100)
+        v.put32(r + PROCESSED, OLD - 100)
+        v.life_tick()                                         # the load-time catch-up: one call, every pass
+        self.assertEqual(v.i32(r, PROCESSED), OLD + 100)
+        self.assertEqual(v.rand_calls, [100] * 4, "1,120, 1,140, 1,160, 1,180 (1,200 is the last unit's age)")
+        self.assertEqual(v.i32(r, HEALTH), 90)
+
+    def test_oldest_villager_never_reads_a_heathen_where_the_statistics_say_so(self):
+        v = Village((TRIBE,), statistics_form=True)
+        r = v.villager(1, heathen=True, age=1990)
+        v.put32(OLDEST_STAT, 10)
+        v.credit(r, 10)
+        self.assertEqual(v.i32(r, AGE), 2000)
+        self.assertEqual(v.u32(OLDEST_STAT), 10)
+
+    def _puzzle_dies(self, role: int, puzzle: int, *, solved: bool, bones: tuple[str, ...] = ()) -> tuple:
+        v = Village((TRIBE,) + bones)
+        (v.solve if solved else v.unsolve)(puzzle)
+        man = v.villager(1, heathen=True, sex=0, name="Kalo")
+        r = v.villager(2, heathen=True, role=role, sex=1)
+        _due_to_die(v, r)
+        v.life_tick()
+        return v, r, man
+
+    def test_each_puzzle_heathen_is_replaced_in_the_same_role_while_the_puzzle_is_unsolved(self):
+        stock = {12: (2, 70, -1, 400, -14), 14: (3, 90, -1, 540, -74), 15: (4, 90, -1, 540, -74),
+                 16: (0, 90, 0, 540, -74), 13: (2, 90, 0, 1000, -94), 17: (1, 70, -1, 400, -25)}
+        puzzles = {12: 1, 16: 5, 15: 9, 14: 13, 13: 16, 17: 17}
+        for role, (skill, value, sex, age, faith) in stock.items():
+            with self.subTest(role=role):
+                v, r, man = self._puzzle_dies(role, puzzles[role], solved=False)
+                self.assertEqual(len(v.created), 1)
+                index, args = v.created[0]
+                self.assertEqual(args[:8], [0, skill, value, sex, age, 0, 0, role], "the stock camp's set-up")
+                new = v.record(index)
+                self.assertEqual(v.i32(new, FAITH), faith)
+                if role == 13:
+                    self.assertEqual(struct.unpack("<6f", v.read(new + SKILLS, 24)), (100.0,) * 6)
+                if role == 17:
+                    carrier, cargs = v.conceived[0]
+                    self.assertEqual(carrier, new, "the Heathen Mommy comes with her infant")
+                    self.assertEqual(v.cstring(cargs[3]), "Kalo", "its father an adult Heathen man")
+                    self.assertEqual(cargs[6], 1, "forced, as the stock set-up")
+                    self.assertNotEqual(v.i32(new, PREGNANT), 0)
+                    self.assertEqual(v.u32(TWINS), 0, "no statistics")
+
+    def test_a_solved_puzzles_role_is_never_made_again(self):
+        v, r, _ = self._puzzle_dies(13, 16, solved=True)
+        self.assertEqual(v.created[0][1][7], 0, "an ordinary Heathen instead")
+
+    def test_a_puzzle_heathens_skeleton_loses_the_role_so_the_finder_finds_the_new_one(self):
+        v, r, _ = self._puzzle_dies(12, 1, solved=False, bones=(BONES_ALL,))
+        self.assertEqual(v.read(r + PRESENT, 1), b"\x01")
+        self.assertEqual(v.i32(r, ROLE), 0)
+        self.assertEqual(v.i32(v.record(v.created[0][0]), ROLE), 12)
+
+    def test_the_mommys_infant_is_never_delivered_while_she_is_a_heathen(self):
+        v = Village((TRIBE,))
+        m = v.villager(1, heathen=True, role=17, sex=1)
+        v.put32(m + PREGNANT, 400)
+        v.put32(m + LITTER, 1)
+        v.put32(m + AGE, 700)
+        v.put32(m + PROCESSED, 600)
+        v.life_tick()
+        self.assertEqual(v.i32(m, PREGNANT), 400)
+        self.assertEqual(v.created, [])
+
+    def test_a_full_table_owes_the_replacement_until_there_is_room(self):
+        v = Village((TRIBE, BONES_ALL))
+        for i in range(150):
+            v.villager(i, heathen=True)
+        r = v.record(7)
+        _due_to_die(v, r)
+        v.life_tick()
+        self.assertEqual(v.created, [])
+        v.write(v.record(40) + PRESENT, b"\x00")
+        other = v.record(8)
+        v.put32(other + AGE, 601)
+        v.life_tick()
+        self.assertEqual([i for i, _ in v.created], [40])
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class Babies(unittest.TestCase):
+    def test_a_heathen_couple_has_a_heathen_baby_with_both_parents_recorded(self):
+        v = Village((TRIBE,))
+        man = v.villager(1, heathen=True, sex=0, name="Kalo")
+        woman = v.villager(2, heathen=True, sex=1, name="Mele")
+        v.put32(man + HEAD, 10)
+        v.put32(woman + HEAD, 20)
+        v.put32(woman + AGE, 601)
+        v.rand_answers.extend([0, 0])                  # conceive (1 in 400), pick the man
+        v.life_tick()
+        self.assertEqual(len(v.conceived), 1)
+        carrier, args = v.conceived[0]
+        self.assertEqual((carrier, v.cstring(args[3]), args[6]), (woman, "Kalo", 1))
+        self.assertEqual(v.u32(TWINS), 0, "the statistics' twins put back")
+        conceived_at = v.i32(woman, PREGNANT)
+        v.put32(woman + AGE, conceived_at + 40)
+        v.life_tick()
+        self.assertEqual(v.created, [], "not yet: the birth is 40 units after conception, as a believer's")
+        v.put32(woman + AGE, conceived_at + 42)
+        v.rand_answers.extend([0, 0, 1])               # the baby's Faith, the head roll (95%), head +-1
+        v.life_tick()
+        self.assertEqual(len(v.created), 1)
+        index, cargs = v.created[0]
+        baby = v.record(index)
+        self.assertEqual(cargs[4], 40, "born at 40 units, as the stock birth")
+        self.assertEqual(v.read(baby + FACTION, 1), b"\x01", "a Heathen")
+        self.assertEqual(v.cstring(baby + FATHER_NAME), "Kalo")
+        self.assertEqual(v.cstring(baby + MOTHER_NAME), "Mele")
+        self.assertEqual((v.i32(baby, FATHER_HEAD), v.i32(baby, MOTHER_HEAD)), (10, 20))
+        self.assertEqual(v.i32(baby, HEAD), 15)
+        self.assertEqual(v.i32(woman, PREGNANT), 0)
+        self.assertEqual(v.arrived, [], "births are never logged")
+
+    def test_no_babies_with_the_former_row_alone_or_without_a_man(self):
+        for flags, with_man in (((FORMER,), True), ((TRIBE,), False)):
+            with self.subTest(flags=flags, man=with_man):
+                v = Village(flags)
+                if with_man:
+                    v.villager(1, heathen=True, sex=0, parents=True)
+                woman = v.villager(2, heathen=True, sex=1, parents=True)
+                v.put32(woman + AGE, 601)
+                v.rand_answers.extend([0, 0])
+                v.life_tick()
+                self.assertEqual(v.conceived, [])
+
+    def test_a_pregnancy_from_before_she_turned_heathen_waits_for_her_to_rejoin(self):
+        v = Village((TRIBE,))
+        woman = v.villager(2, heathen=True, sex=1)
+        v.put32(woman + PREGNANT, 500)
+        v.put32(woman + LITTER, 1)
+        v.put32(woman + PROCESSED, 600)
+        v.put32(woman + AGE, 601)
+        v.life_tick()
+        self.assertEqual(v.i32(woman, PREGNANT), 500)
+        self.assertEqual(v.created, [])
+
+
+ROWS = {
+    "vv5_former_villagers_keep_aging": ("Former Villagers Keep Aging Among the Heathens", FORMER, True),
+    "vv5_heathen_tribe_ages": ("Heathen Tribe Ages, Dies and Has Children", TRIBE, True),
+    "vv5_former_villager_heathens_leave_skeletons": ("Former Villagers Among the Heathens Leave Skeletons",
+                                                     BONES_FORMER, False),
+    "vv5_all_heathens_leave_skeletons": ("All Heathens Leave Skeletons", BONES_ALL, False),
+}
+
+
+class TheRows(unittest.TestCase):
+    def test_registered_bundled_documented(self):
+        import patcher_files
+        import vv_fun_patcher as patcher
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        guide = json.loads((ROOT / "data" / "how_to_use.json").read_text(encoding="utf-8"))
+        how_to = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
+        log = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        ids = {p.id for p in patcher.load_public_fun_patches()}
+        self.assertEqual(patcher.STARTUP_LOADER_COMPANIONS_3.index("VVFP Heathen Aging.dll"), 14)
+        self.assertIn('"VVFP Heathen Aging.dll"',
+                      (ROOT / "native" / "shared" / "startup_companions_3.h").read_text(encoding="utf-8"))
+        self.assertIn('"assets/heathen_aging/VVFP Heathen Aging.dll"', release)
+        for row_id, (name, flag, ships_dll) in ROWS.items():
+            with self.subTest(row_id):
+                row = json.loads((ROOT / "data" / f"{row_id}_feature.json").read_text(encoding="utf-8"))
+                self.assertEqual((row["id"], row["name"], row["game_id"]), (row_id, name, "vv5"))
+                self.assertIn(row_id, ids)
+                dests = [c["destination"] for c in row["companion_files"]]
+                self.assertEqual(dests, (["VVFP Heathen Aging.dll"] if ships_dll else []) + [flag])
+                self.assertIn(flag, patcher_files.PATCHER_READS)
+                self.assertIn(f'"assets/heathen_aging/{flag}"', release)
+                self.assertIn(f'"data/{row_id}_feature.json"', release)
+                self.assertIn(f"- Patch ID: `{row_id}`", readme)
+                self.assertIn(row["description"], readme)
+                self.assertIn(f"{name.upper()} (NEW BELIEVERS)", how_to)
+                self.assertIn(f"#### {name} (`{row_id}`)", log)
+                entry = [e for e in guide["patches"] if row_id in e.get("ids", [])]
+                self.assertEqual(len(entry), 1)
+                if not ships_dll:
+                    self.assertIn("**Only matters with", row["description"], "the dependency, in bold")
+        bones_former = json.loads((ROOT / "data" / "vv5_former_villager_heathens_leave_skeletons_feature.json")
+                                  .read_text(encoding="utf-8"))
+        bones_all = json.loads((ROOT / "data" / "vv5_all_heathens_leave_skeletons_feature.json")
+                               .read_text(encoding="utf-8"))
+        self.assertEqual(bones_former["conflicts"], ["vv5_all_heathens_leave_skeletons"])
+        self.assertEqual(bones_all["conflicts"], ["vv5_former_villager_heathens_leave_skeletons"])
+
+    def test_the_dll_exports_and_the_flag_files(self):
+        try:
+            import pefile
+        except ImportError:
+            self.skipTest("pefile is not installed")
+        pe = pefile.PE(str(DLL))
+        names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
+        self.assertEqual(names, ["VvfpHeathenAgingInstalled", "VvfpStartup"])
+        for _, (name, flag, _) in ROWS.items():
+            text = (ROOT / "assets" / "heathen_aging" / flag).read_bytes()
+            self.assertTrue(text.startswith(f'Virtual Villagers Fun Patcher: "{name}" (New Believers).\n'.encode()))
+            self.assertNotIn(b"\r", text)
+
+
+if __name__ == "__main__":
+    unittest.main()

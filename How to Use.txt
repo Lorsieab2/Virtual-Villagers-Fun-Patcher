@@ -1530,6 +1530,52 @@ Faith never goes above 100 and Divine Energy never above the village's cap.
 Heathens, the Chief (and the Retired Chief), purple-masked Heathens and the
 Heathen Mommy never get it.
 
+FORMER VILLAGERS KEEP AGING AMONG THE HEATHENS (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults and Select All. A villager who leaves
+your tribe and becomes a Heathen (losing Faith, The Spa, The Cracked Mask, a
+Custom Island Event, any way) keeps growing older among the Heathens: their
+age goes up, their hair greys at the usual age, and they can die of old age
+by the believers' own rule. They still never eat, starve or fall sick. The
+camp's own Heathens and the puzzle Heathens do not age with this patch. When
+one dies a new Heathen joins the camp at once in their place. What is left
+is decided by the two skeleton patches; with neither they disappear, no
+grave. Deaths go in the Deaths log. Heathens never count in the Village
+Statistics. Villagers who left before this patch are recognised by the
+parents on their record.
+
+HEATHEN TRIBE AGES, DIES AND HAS CHILDREN (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults and Select All. Every Heathen ages
+and can die of old age by the believers' own rule: the camp's Heathens,
+villagers who left you, and the puzzle Heathens too (the Heathen Doctor, the
+Heathen Chief, the three Masters and the Heathen Mommy). When a Heathen dies
+a new one joins at once: a camp Heathen in the same camp role and mask, a
+puzzle Heathen whose puzzle is not solved in the same role, set up as the
+game sets it up (the Heathen Mommy with her infant), so every puzzle can
+still be solved; a solved puzzle's Heathen never comes back. Heathen couples
+now and then have children (about one year in 20 for each woman from 14 to
+45 with a man in the camp), only while at least 10 places stay free for your
+own village's babies; the children grow up in the camp. With Former
+Villagers Keep Aging Among the Heathens also ticked nobody ages twice.
+
+ALL HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
+
+Off by default; on in Owner's Defaults and Select All. Only matters with a
+Heathen aging patch ticked. Every Heathen who dies of old age leaves a
+skeleton; your believers bury it with Burying the dead (once The Buried
+Mausoleum is solved), which gives a normal grave. Cannot be ticked with
+Former Villagers Among the Heathens Leave Skeletons: ticking one unticks the
+other.
+
+FORMER VILLAGERS AMONG THE HEATHENS LEAVE SKELETONS (NEW BELIEVERS)
+
+Off by default and in Owner's Defaults; Select All does not tick it. Only
+matters with a Heathen aging patch ticked. Only villagers who had left your
+tribe leave a skeleton when they die among the Heathens; your believers bury
+it. Other Heathens leave nothing. Cannot be ticked with All Heathens Leave
+Skeletons: ticking one unticks the other.
+
 PUDDLE PLAY MOVES TO THE LAKE SHORE (NEW BELIEVERS)
 
 When it rains, children play in the puddles of the dry lake bed. Once The

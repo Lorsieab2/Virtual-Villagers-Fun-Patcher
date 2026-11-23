@@ -28,6 +28,8 @@ KEEP_MASKS = "vv5_heathens_keep_masks_when_converted"
 FOG_LISTENING = "vv5_fog_of_doom_every_heathen_listens"
 FOG_NO_LIMIT = "vv5_fog_of_doom_no_restrictions"
 DEVOTION_FAITH = "vv5_devotion_builds_faith"
+FORMER_AGE = "vv5_former_villagers_keep_aging"
+TRIBE_AGES = "vv5_heathen_tribe_ages"
 # No game exe and no patch log was found for the save, so whether a patch is in the game cannot be read; the player
 # can name the game with the window's Browse... button.
 UNTOLD = gm.UNTOLD
@@ -226,6 +228,18 @@ def lines(village: gm.Village) -> list[gm.Fact]:
             "Origins upgrades. Change Appearance can change it or take it off, and Reset to original gives it back "
             "(their original look is the one they had as a Heathen, mask and all). Heathens who joined before the "
             "patch are not given one.", sub=True)
+    # The Heathen aging rows (native/vvfp_heathen_aging): the age credit's Heathen test 0x470077 and the life tick's
+    # skip 0x472CB7, the believers' old-age rule 0x472FC6..0x47304A.
+    for row, who in ((TRIBE_AGES, "every Heathen, the puzzle Heathens too,"),
+                     (FORMER_AGE, "a villager who left the tribe for the Heathens")):
+        has = village.has(row)
+        if has is not False:
+            where = "in this game" if has else UNTOLD
+            add(f"With \"{gm.feature_name(row)}\" ({where}) {who} ages as believers do and can die of old age by the "
+                "believers' own rule (each whole year past 1,100 age units, 55 years, or later with Medicine: 10% for "
+                "each year over); they still never eat, starve or fall sick. Each one who dies is replaced at once by a "
+                "new Heathen (a puzzle Heathen in the same role while the puzzle is unsolved).", sub=True)
+            break
     # The drop handler 0x443BF0's mask test 0x443D4D (orange +0x1CED, red +0x1CEE turned away at 0x44402D; the rest
     # get Heathen action 6 and believer action 0x27); the sermon's end, the work event 0x468DA0.
     add("Dropping a believer of 14 or more on a Heathen in the blue mask starts preaching: the believer is "
