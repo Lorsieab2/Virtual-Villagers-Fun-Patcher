@@ -616,6 +616,16 @@ static void rekey(const unsigned int *was, int n, unsigned int from, unsigned in
     }
 }
 
+/* The believer the age credit last saw in record index is the same villager under the new identity: one whose
+   likes or name changed and who turned Heathen before the next look (a Custom Island Event's change, then its
+   "Becomes a Heathen") is still seen turning, so a founder or newcomer with no parents is still a former villager.
+   (A look, a title or a mask is no part of the identity.) */
+static void follow_seen(int index, unsigned int from, unsigned int to) {
+    if (index >= 0 && index < 256 && from != 0u && g_seen[index] == from) {
+        g_seen[index] = to;
+    }
+}
+
 static void follow_identities(void) {
     static unsigned int now[256], now_stable[256], now_keep[256];
     static int now_age[256];
@@ -642,11 +652,13 @@ static void follow_identities(void) {
         }
         if (renames == 1 && g_roster_stable[at] != 0u && g_roster_stable[at] == now_stable[at]) {
             rekey(g_roster, n, g_roster[at], now[at]);
+            follow_seen(at, g_roster[at], now[at]);
         } else if (vv_roster_changed_in_place(n, g_roster, g_roster_keep, g_roster_age, now, now_keep, now_age,
                                               same) > 0) {
             for (i = 0; i < n; ++i) {
                 if (same[i]) {
                     rekey(g_roster, n, g_roster[i], now[i]);
+                    follow_seen(i, g_roster[i], now[i]);
                 }
             }
         }

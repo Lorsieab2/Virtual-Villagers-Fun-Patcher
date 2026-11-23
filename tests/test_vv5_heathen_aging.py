@@ -833,6 +833,15 @@ class SelfReview(unittest.TestCase):
         self.assertEqual(v.i32(woman, PREGNANT), 700)
         _ = man
 
+    def test_a_parentless_founder_whose_likes_change_as_she_turns_heathen_is_still_a_former_villager(self):
+        # Codex (#850): a Custom Island Event changes her dislikes, then makes her a Heathen, before the next look.
+        v = Village((FORMER,))
+        r = self._seen_then(v, name="Founder")           # no parents: only the turning says she was ours
+        v.write(r + DISLIKES, struct.pack("<3I", 9, 9, 9))
+        v.write(r + FACTION, b"\x01")
+        v.credit(r, 1)
+        v.credit(r, 1)
+        self.assertEqual(v.i32(r, AGE), 603, "seen turning under her new identity: she ages")
     def test_a_former_villager_whose_dislikes_change_in_place_still_ages(self):
         v = Village((FORMER,))
         r = self._seen_then(v)
