@@ -57,6 +57,7 @@ PUZZLE_PROGRESS, PUZZLE_NEEDED = 0x51E008, 0x51DF30
 CREDIT_SITE, CREDIT_END, LIFE_TICK, TO_HEATHEN = 0x470077, 0x4700E8, 0x472C90, 0x4669E0
 GAME_OBJECT = 0x30000000
 COD = 0x0B200000
+PARENTAGE = 0x0B300000          # "VVFP Parentage Export.dll", as GetModuleHandleA hands it back here
 # Medicine 1: old age from 1,100 units (55 years): a roll at each whole year past it.
 OLD = 1100
 
@@ -80,9 +81,15 @@ class Village(Machine):
         self.api_handlers["GetModuleHandleA"] = self._module
         self.api_handlers["GetProcAddress"] = self._proc
         stubs = self.alloc(0x40)
-        self.cod_exports = {"VvfpCauseDiedAmongHeathens": stubs, "VvfpCauseHeathenArrived": stubs + 0x10}
+        self.cod_exports = {"VvfpCauseDiedAmongHeathens": stubs, "VvfpCauseHeathenArrived": stubs + 0x10,
+                            "VvfpCauseNoteArrival": stubs + 0x20}
+        self.parentage_exports = {"WriteParentageBirthLitter": stubs + 0x30}
+        self.noted: list[int] = []
+        self.births: list[tuple[str, list[int]]] = []
         self.stub(stubs, self._cod_died)
         self.stub(stubs + 0x10, self._cod_arrived)
+        self.stub(stubs + 0x20, self._cod_noted)
+        self.stub(stubs + 0x30, self._birth)
         self.stub(0x403660, self._rand)
         self.stub(0x4758B0, self._set_health)
         self.stub(0x46FD20, self._create)
@@ -105,12 +112,25 @@ class Village(Machine):
         name = p.arg(0)
         if name == 0:
             return 0x400000, 4
+        if self.cod and p.cstring(name) == "VVFP Parentage Export.dll":
+            return PARENTAGE, 4
         return (COD if self.cod and p.cstring(name) == "VVFP Cause of Death.dll" else 0), 4
 
     def _proc(self, p):
         if p.arg(0) == COD:
             return self.cod_exports.get(p.cstring(p.arg(1)), 0), 8
+        if p.arg(0) == PARENTAGE:
+            return self.parentage_exports.get(p.cstring(p.arg(1)), 0), 8
         return 0, 8
+
+    def _cod_noted(self, p):
+        self.noted.append(p.arg(1))
+        return 0, 8
+
+    def _birth(self, p):
+        args = [p.arg(i) for i in range(12)]
+        self.births.append((p.cstring(args[1]), args))
+        return 1, 48
 
     def _cod_died(self, p):
         self.died.append((p.arg(0), p.arg(1), p.arg(2)))
@@ -509,7 +529,17 @@ class Babies(unittest.TestCase):
         self.assertEqual((v.i32(baby, FATHER_HEAD), v.i32(baby, MOTHER_HEAD)), (10, 20))
         self.assertEqual(v.i32(baby, HEAD), 15)
         self.assertEqual(v.i32(woman, PREGNANT), 0)
-        self.assertEqual(v.arrived, [], "births are never logged")
+        self.assertEqual(v.arrived, [], "a birth is never an Arrived record")
+        # The owner, 2026-11-22: the logs record the Heathens too.  The Cause of Death companion is told it is a
+        # birth (never an arrival), and the Births log writes its Birth record (marked a Heathen by that DLL), the
+        # parents from the baby's own record, the name handed over (no believers' last-name rule), one baby.
+        self.assertEqual(v.noted, [baby], "the Cause of Death companion told: a birth")
+        self.assertEqual(len(v.births), 1)
+        name, bargs = v.births[0]
+        self.assertEqual(name, v.cstring(baby + NAME))
+        self.assertEqual(bargs[0], 5)
+        self.assertEqual((bargs[2], bargs[4], bargs[7], bargs[10], bargs[11]), (15, 0, 0, baby, 1),
+                         "the child's head, no parents given (read from the record), the record, one baby")
 
     def test_no_babies_with_the_former_row_alone_or_without_a_man(self):
         for flags, with_man in (((FORMER,), True), ((TRIBE,), False)):

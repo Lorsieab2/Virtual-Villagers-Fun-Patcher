@@ -655,14 +655,15 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             p.converted = True
         # A Heathen then (New Believers): the snapshot's Faction, an Island Events "Heathen: no -> yes", a
         # "Left the tribe: became a Heathen" record.  A status ever held, as every other (_finish_statuses).
-        if (b.value("Faction") or "").strip() == "Heathen" \
+        if additions.is_heathen_faction(b.value("Faction")) \
                 or "yes" in [v.lower() for v in _values(b.value("Heathen"))] \
                 or (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
             _add_status(p, ["Heathen"])
         if (b.value("What happened") or "").strip() == LEFT_FOR_THE_HEATHENS:
             p.left_heathen = True
         if b.heading.startswith("Villager "):
-            faction = (b.value("Faction") or "").strip() or additions._faction_of_title(b.value("Special villager"))
+            faction = additions.faction_side(b.value("Faction")) \
+                or additions._faction_of_title(b.value("Special villager"))
             when = "9999" if additions.is_population(b.path) else (b.date or "")
             if faction in ("Heathen", "Believer") and (p.faction_seen is None or when >= p.faction_seen[0]):
                 p.faction_seen = (when, faction)
@@ -678,6 +679,10 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             when = b.date or ""
             if titles and additions._faction_of_title(titles[-1]) == "Heathen" \
                     and (p.faction_seen is None or when >= p.faction_seen[0]):
+                p.faction_seen = (when, "Heathen")
+            # ...and a record marked a Heathen by its own Faction line (2026-11-22: a Heathen's Death, Arrived,
+            # Birth... record), as a title says it.
+            if additions.is_heathen_record(b) and (p.faction_seen is None or when >= p.faction_seen[0]):
                 p.faction_seen = (when, "Heathen")
         if b.heading.startswith("Death") and not p.alive:     # reanimated (New Believers): alive again
             p.gone = "died"
@@ -696,7 +701,9 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             pass
         elif b.heading.startswith("Arrived"):
             p.arrived = True
-            if (b.value("How") or "").strip() == "Founder":
+            # A Heathen of the camp, made with the founders ("How: Founder", marked a Heathen) is never one of
+            # the tribe's founders (the owner, 2026-11-21: Heathens are not founders).
+            if (b.value("How") or "").strip() == "Founder" and not additions.is_heathen_record(b):
                 p.founder_record = True
             # A backfilled "How: unknown" never replaces how a real Arrived record says they came.
             if not (is_backfilled_arrival(b) and p.how):

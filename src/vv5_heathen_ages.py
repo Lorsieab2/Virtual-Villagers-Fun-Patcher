@@ -18,7 +18,9 @@ The FULL time is added, even when it takes someone past old age; the preview nam
 HOW THE TIME IS MEASURED (age units, 20 a year; never real dates, which pauses, speeds and the time-away cap
 make meaningless).  The moments the logs know every villager's age at are
   START  the village's start: each "Arrived" record whose "How:" is "Founder" gives a founder's
-         "Age at arrival" (the Cause of Death companion writes them as the village is made);
+         "Age at arrival" (the Cause of Death companion writes them as the village is made; the camp's
+         Heathens, made with them, have one too, marked "Faction: Heathen" -- "Isolan" with Guardians of
+         Isola -- and are Heathens at the start);
   each Village History snapshot ("=== Virtual Villagers 5 -- <date> ===": every villager's Age and Faction,
          Heathens included);
   NOW    the save.
@@ -69,6 +71,7 @@ import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
+from vv_log_additions import faction_side, is_heathen_faction   # "Heathen", or Guardians of Isola's "Isolan"
 
 GAME = 5
 LABEL = "Catch up Heathen ages"
@@ -231,16 +234,18 @@ def _moments(blocks) -> tuple[list[_Moment], set, list[str]]:
                     continue
                 if ident in founders:
                     twice.add(ident)
-                founders[ident] = (age, False)
+                # A Heathen of the camp, made with the founders, has a Founder record too, marked a Heathen
+                # (2026-11-22): a Heathen at the village's start -- never a believer whose ageing measures time.
+                founders[ident] = (age, is_heathen_faction(b.value("Faction")))
         elif head.startswith("Villager ") and b.date:
-            faction = (b.value("Faction") or "").lower()
+            faction = faction_side(b.value("Faction"))     # Guardians of Isola's "Isolan" is a Heathen
             age = b.int_value("Age")
-            if faction not in ("heathen", "believer") or age is None:
+            if faction is None or age is None:
                 continue
             snap = snaps.setdefault(b.date, {})
             if ident in snap:
                 shared.setdefault(b.date, set()).add(ident)
-            snap[ident] = (age, faction == "heathen")
+            snap[ident] = (age, faction == "Heathen")
     for date, idents in shared.items():
         for ident in idents:
             snaps[date].pop(ident, None)    # two villagers alike in one snapshot: neither is used

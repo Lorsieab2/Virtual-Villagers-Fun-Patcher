@@ -36,8 +36,9 @@
         Custom Island Event"), one who arrives and is buried before the save
         (recorded at the departure); a birth is never an arrival (the Births
         log's note; A New Home's child-creation call even without it); a
-        Heathen made by the creator is not; a Heathen converted to a believer
-        is ("Converted from the Heathens").  None of them is Unaccounted.
+        Heathen made by the creator is one too, marked "Faction: Heathen"
+        (2026-11-22), and so is a Heathen converted to a believer, unmarked
+        ("Converted from the Heathens").  None of them is Unaccounted.
      4. Start Over deletes the marker; the new village's founders, made by the
         seeding, get "How: Founder" at its first save (and the seeding's
         records in a village saved before -- a load overwrites them -- never
@@ -2090,6 +2091,11 @@ int main(int argc, char **argv) {
             heathen_arrived(game, 18, "Replaced a Heathen who died of old age");
             villager(19, "Notheathen", 400, 2, 3, 0);
             heathen_arrived(game, 19, "Replaced a Heathen who died of old age");
+            /* A Heathen a stock event's path makes (Barrel O' Babies! (heathens)): an Arrived record named by the
+               event, marked a Heathen (the owner, 2026-11-22: the logs record the Heathens too). */
+            villager(21, "Barrelborn", 20, 5, 5, 0);
+            rec(21)[VV5_FACTION] = 1;
+            created(21, MARK[game - 1].event);
         }
         arrival_tick();
         *(int *)(rec(9) + g->age) = 720;    /* aged since it arrived */
@@ -2121,6 +2127,16 @@ int main(int argc, char **argv) {
                 CHECK(record_has("Ashen", "  Age at arrival: 400\r\n")
                       && record_has("Ashen", "  How: Replaced a Heathen who died of old age\r\n"),
                       "a replacement Heathen (VvfpCauseHeathenArrived): an Arrived record, its age, How: in its words");
+                CHECK(record_has("Ashen", "  Faction: Heathen\r\n"),
+                      "...marked a Heathen (the Parentage Export, from the faction byte)");
+                {
+                    char how3[96];
+                    _snprintf(how3, sizeof how3, "  How: %s\r\n", MARK[game - 1].label);
+                    CHECK(record_has("Barrelborn", "  Age at arrival: 20\r\n") && record_has("Barrelborn", how3)
+                          && record_has("Barrelborn", "  Faction: Heathen\r\n")
+                          && count_of(text, "  Name: Barrelborn\r\n") == 1,
+                          "a Heathen a stock event makes: an Arrived record named by the event, marked a Heathen");
+                }
                 CHECK(strstr(text, "  Name: Notheathen\r\n") == NULL,
                       "...never for a believer (who would be an ordinary arrival)");
             }
@@ -2143,9 +2159,13 @@ int main(int argc, char **argv) {
             CHECK(count_of(text, "  Name: Newcomer\r\n") == 1 && count_of(text, "  Name: Cie\r\n") == 1
                   && count_of(text, "  Name: Gone\r\n") == 1, "each written once");
             if (game == 5) {
-                CHECK(strstr(text, "  Name: Pagan\r\n") == NULL, "a Heathen the creator makes is not an arrival");
-                CHECK(record_has("Hea", "  How: Converted from the Heathens\r\n"),
-                      "a Heathen converted to a believer is: Converted from the Heathens");
+                CHECK(record_has("Pagan", "  How: added outside a recorded event\r\n")
+                      && record_has("Pagan", "  Faction: Heathen\r\n") && count_of(text, "  Name: Pagan\r\n") == 1,
+                      "a Heathen the creator makes gets an Arrived record, marked Faction: Heathen (the owner, "
+                      "2026-11-22: the logs record the Heathens; Heathens never count)");
+                CHECK(record_has("Hea", "  How: Converted from the Heathens\r\n")
+                      && !record_has("Hea", "  Faction: "),
+                      "a Heathen converted to a believer is: Converted from the Heathens (a believer: no Faction line)");
                 CHECK(record_has("Hea", "  Special villager: Former Heathen Master (purple mask)\r\n"),
                       "...a Former Heathen Master: the mask the tick saw, kept in the Former Heathens file");
                 {

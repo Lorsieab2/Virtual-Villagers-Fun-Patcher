@@ -125,6 +125,10 @@ CHECKS += 3
 # replaces in the same record, no roster, no Unaccounted -- and the save after the start writes exactly
 # the five chosen as Arrived 1-5 (arrival_harness.c founder_screen_cases)
 CHECKS += 7 * 2
+# + 2 in New Believers (the owner, 2026-11-22: the logs record the Heathens too): the replacement Heathen's
+# Arrived record is marked "Faction: Heathen", and a Heathen a stock event makes gets one, named by the event
+# and marked (the check that a Heathen the creator makes is no arrival now says it gets a marked one).
+CHECKS += 2
 STOCK = ROOT / "research" / "stock-executables"
 TITLES = {1: "A New Home", 2: "The Lost Children", 3: "The Secret City", 4: "The Tree of Life",
           5: "New Believers"}

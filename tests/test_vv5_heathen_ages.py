@@ -224,6 +224,27 @@ class TheSurvey(unittest.TestCase):
         self.assertEqual(self.v.backups(), [])
         self.assertEqual(self.v.repairs(), "")
 
+    def test_the_camps_own_founder_records_are_heathens_and_isolan_is_a_heathen(self):
+        """Since 2026-11-22 the camp's Heathens get Arrived records with the founders ("How: Founder"), marked a
+        Heathen ("Isolan" with Guardians of Isola): a Heathen at the start, never a believer whose ageing measures
+        the time, so the catch-up is exactly what it was without them."""
+        v = Village(self)
+        births = v.folder / LOGS / "Births and Conceptions" / "Virtual Villagers 5 Births and Conceptions Log 1.txt"
+        extra = (_record("Arrived 20", ["Name: Ca Camp", "Faction: Heathen", "Age at arrival: 400", "Sex: Male",
+                                        "How: Founder", "Head: 5", "Body: 5"])
+                 + _record("Arrived 21", ["Name: Oc Old", "Faction: Isolan", "Age at arrival: 1200", "Sex: Male",
+                                          "How: Founder", "Head: 7", "Body: 7"]))
+        births.write_bytes(births.read_bytes() + extra.replace("\n", "\r\n").encode("cp1252"))
+        history = v.folder / LOGS / "Tribe History" / "Village History 1.txt"
+        text = history.read_bytes().decode("cp1252")
+        history.write_bytes(text.replace("Name: Pm Mommy\r\n  Age: 600\r\n  Sex: Male\r\n  Faction: Heathen",
+                                         "Name: Pm Mommy\r\n  Age: 600\r\n  Sex: Male\r\n  Faction: Isolan")
+                            .encode("cp1252"))
+        found = ha.survey(v.folder, 1)
+        self.assertEqual({c.name: c.add for c in found.changes},
+                         {"Fc Charlie": 190, "Ca Camp": 320, "Pm Mommy": 320, "Oc Old": 320, "Rv Rejoined": 160})
+        self.assertEqual({c.name: c.kind for c in found.changes}["Ca Camp"], "a Heathen of the camp")
+
     def test_no_founder_records_means_camp_heathens_are_unknown(self):
         v = Village(self)
         births = v.folder / LOGS / "Births and Conceptions" / "Virtual Villagers 5 Births and Conceptions Log 1.txt"

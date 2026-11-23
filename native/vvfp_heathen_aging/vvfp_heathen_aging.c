@@ -77,7 +77,9 @@
    back as the Story upgrades' Custom Island Event does for a Heathen carrier.  The birth comes as a believer's
    does (40 units after conception): each baby is made by the Heathen creator at age 40 with the parents' names,
    heads and bodies on its record (the head the stock birth's rule: the parents' average +-1 on 95%), Faith
-   -38 - rand(30); then the pregnancy and the carry are cleared.  No room: the birth waits.  Only a pregnancy this
+   -38 - rand(30); then the pregnancy and the carry are cleared.  Each baby gets its Birth record (tell_born), marked
+   a Heathen, as the conception got its Conception record from the game's own conception routine.  No room: the
+   birth waits.  Only a pregnancy this
    companion conceived (its mother kept in the file as expecting) is delivered among the Heathens: one from before a
    believer turned Heathen, and the Heathen Mommy's infant (her puzzle shows her carrying it), wait for them to
    rejoin the tribe, as in the stock game.
@@ -697,6 +699,33 @@ static void copy_name(unsigned char *to, const unsigned char *from, unsigned int
     }
 }
 
+/* A baby born among the Heathens, in the logs as every birth (the owner, 2026-11-22: the logs record the Heathens
+   too): its Birth record in the Births and Conceptions log ("VVFP Parentage Export.dll" WriteParentageBirthLitter,
+   the parents from the baby's own record, marked "Faction: Heathen" by that DLL), and the Cause of Death
+   companion told it is a birth, never an arrival (VvfpCauseNoteArrival) -- each only when that companion is
+   already in the game (GetModuleHandleA never loads one).  The name is handed over, so the Births log's own
+   last-name rules (the believers' births) are never applied to it. */
+typedef int (__stdcall *pe_birth_fn)(int game, const char *child, int child_head, int child_body,
+                                     const char *mother, int mother_head, int mother_body,
+                                     const char *father, int father_head, int father_body,
+                                     const void *child_record, int litter);
+typedef void (__stdcall *cod_note_fn)(int game, const void *record);
+
+static void tell_born(unsigned char *baby, int litter) {
+    HMODULE cause = GetModuleHandleA("VVFP Cause of Death.dll");
+    HMODULE parentage = GetModuleHandleA("VVFP Parentage Export.dll");
+    cod_note_fn note = cause != NULL ? (cod_note_fn)(void *)GetProcAddress(cause, "VvfpCauseNoteArrival") : NULL;
+    pe_birth_fn birth = parentage != NULL
+        ? (pe_birth_fn)(void *)GetProcAddress(parentage, "WriteParentageBirthLitter") : NULL;
+    if (note != NULL) {
+        note(HA_GAME, baby);
+    }
+    if (birth != NULL && baby[R_NAME] != 0) {
+        (void)birth(HA_GAME, (const char *)(baby + R_NAME), i32(baby, R_HEAD), i32(baby, R_BODY), NULL, -1, -1, NULL,
+                    -1, -1, baby, litter);
+    }
+}
+
 /* The birth, 40 units after conception, when there is room for every baby. */
 static void deliver(unsigned char *mother) {
     int litter = i32(mother, R_LITTER), i;
@@ -727,6 +756,7 @@ static void deliver(unsigned char *mother) {
             *(int *)(baby + R_HEAD) = clamp_head((fh + mh) / 2 + ha_rand(3) - 1);
         }
         known_put(identity(baby), KIND_BORN);
+        tell_born(baby, litter);
     }
     *(int *)(mother + R_PREGNANT) = 0;
     *(int *)(mother + R_LITTER) = 0;

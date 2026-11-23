@@ -13,11 +13,20 @@
    Children's stranger, the ghosts, the stand-ins) is not one either.
    Everything else the creators make is an arrival.
 
-   New Believers: a Heathen is never a villager (the owner), so a Heathen
-   made by the creator is not an arrival.  A Heathen converted to a believer
-   IS one from that moment, and the faction byte (+0x1CEC) is cleared in place
-   (the setter 0x466880): the tick sees a record it saw as a Heathen become a
-   believer, and that is an arrival, "Converted from the Heathens".
+   New Believers: a Heathen is never a villager (the owner), but the logs
+   record the Heathens too (the owner, 2026-11-22: "do the logs log heathens
+   too? they should"): a Heathen the creator makes -- the camp with the
+   village's founders ("Founder"), Barrel O' Babies! (heathens), a Custom
+   Island Event's -- gets an Arrived record like anyone, and the Parentage
+   Export marks it "  Faction: Heathen" ("Isolan" with Guardians of Isola)
+   from the record's faction byte, so every reader that counts the village
+   leaves it out (Heathens never count).  A Heathen converted to a believer
+   IS one of the tribe from that moment, and the faction byte (+0x1CEC) is
+   cleared in place (the setter 0x466880): the tick sees a record it saw as a
+   Heathen become a believer, and that is an arrival of the tribe, "Converted
+   from the Heathens" (no Faction line: a believer).  The Heathens already in
+   a village before this record existed are not backfilled (the History
+   snapshots list them, each with its Faction line).
 
    HOW THEY CAME (the owner's words for the "How:" line).  The path's marker
    names it: "Founder" (the new-village seeding), the island event's title,
@@ -71,6 +80,7 @@ static struct {
     unsigned char state;
     unsigned char born;         /* a birth: the Births log's note, or a birth path's marker */
     unsigned char founder;      /* made by the new-village seeding */
+    unsigned char heathen;      /* New Believers: a Heathen when decided (marked a Heathen when written) */
     int age;                    /* at arrival */
     char how[ARRIVAL_HOW];
     /* The parents the Custom Island Event chose (VvfpCauseArrivedParents):
@@ -173,6 +183,7 @@ static void arrival_created(int index, unsigned int site_va, const unsigned int 
         }
     }
     arrivals[index].age = 0;
+    arrivals[index].heathen = 0;
     arrivals[index].how[0] = '\0';
     arrivals[index].parents[0] = '\0';
     if (m != NULL && m->label != NULL) {
@@ -206,22 +217,24 @@ static int arrival_born_here(int index, const unsigned char *record) {
                        : arrival_parented(record);
 }
 
-/* Decide a made record: a birth, a Heathen or gone -> nothing; otherwise an
-   arrival, aged as it is now.  A "founder" whose record keeps parents was
-   born in a village a load put there (the seeding ran ahead of it): never
-   an arrival (the owner's v1.35.58 live pass, Miki and Mem). */
+/* Decide a made record: a birth or gone -> nothing; otherwise an arrival,
+   aged as it is now -- a Heathen too, whose record the exporter marks a
+   Heathen (above).  A "founder" whose record keeps parents was born in a
+   village a load put there (the seeding ran ahead of it): never an arrival
+   (the owner's v1.35.58 live pass, Miki and Mem). */
 static void arrival_decide(int index) {
     const unsigned char *record = cod_record(index);
     if (arrivals[index].state != ARRIVAL_MADE) {
         return;
     }
-    if (arrivals[index].born || record == NULL || !roster_member(record) || arrival_heathen(record)
+    if (arrivals[index].born || record == NULL || !roster_member(record)
         || (arrivals[index].founder && arrival_parented(record))) {
         arrivals[index].state = ARRIVAL_NONE;
         return;
     }
     arrivals[index].state = ARRIVAL_PENDING;
     arrivals[index].age = rec_age(record);
+    arrivals[index].heathen = (unsigned char)arrival_heathen(record);
     if (arrivals[index].how[0] == '\0') {
         /* A creator's villager on no listed path: the game made them, and no
            path the patcher can prove says how (cod_arrival_sites.inc). */
@@ -240,6 +253,13 @@ static void arrival_write(int index) {
     }
     wsprintfA(before, "  Age at arrival: %d\n  Sex: %s\n", arrivals[index].age,
               roster_sex(*(const int *)(record + REC[g_game].sex)));
+    /* A Heathen's record the exporter marks from the faction byte; one who arrived a Heathen and has converted
+       since (arrival_tick writes that one first) is marked here, as they arrived. */
+    if (arrivals[index].heathen && !arrival_heathen(record)) {
+        lstrcatA(before, "  Faction: ");
+        lstrcatA(before, vv5_heathen_word());
+        lstrcatA(before, "\n");
+    }
     /* A New Home keeps no parents on the record: the Show Parents companion's, where it knows them,
        in the place the other games' exporter prints the record's own -- before "How:", and never
        beside the Custom Island Event's chosen ones (cod_roster.inc vv1_parents_block). */
@@ -480,10 +500,19 @@ static void arrival_tick(void) {
         if (faction_seen[i] == 0 && heathen) {
             arrival_left_for_the_heathens(i, record);
         }
+        if (faction_seen[i] == 1 && !heathen && arrivals[i].state == ARRIVAL_PENDING && arrivals[i].heathen) {
+            /* A Heathen whose own Arrived record is not written yet converted: that record first, marked a
+               Heathen, then the tribe's "Converted from the Heathens", in order. */
+            if (cod_slot() > 0 && report_counts(arrivals[i].tag, cod_slot())) {
+                arrival_write(i);
+            }
+            arrivals[i].state = ARRIVAL_NONE;
+        }
         if (faction_seen[i] == 1 && !heathen && arrivals[i].state == ARRIVAL_NONE) {
             arrivals[i].tag = report_tag();
             arrivals[i].state = ARRIVAL_PENDING;
             arrivals[i].born = 0;
+            arrivals[i].heathen = 0;          /* a believer now: the tribe's arrival, never marked */
             arrivals[i].age = rec_age(record);
             lstrcpynA(arrivals[i].how, "Converted from the Heathens", ARRIVAL_HOW);
             arrivals[i].parents[0] = '\0';
@@ -766,9 +795,10 @@ __declspec(dllexport) void __stdcall VvfpCauseArrivedBy(int game, int index, con
 }
 
 /* New Believers' "VVFP Heathen Aging.dll": the Heathen creator has just made the Heathen in record `index`, who
-   replaces a Heathen who died of old age.  A Heathen is never an arrival of the village (above), so the creator's
-   record makes none; the owner (2026-11-22) asked for an Arrived-style record of each replacement: one Arrived
-   record with its age and sex and "How: " `how` (at most ARRIVAL_HOW - 1 characters kept), the roster told (the
+   replaces a Heathen who died of old age.  The creator's record would be written as "added outside a recorded
+   event" (no marker names the companion's path); the owner (2026-11-22) asked for an Arrived record of each
+   replacement: one Arrived record with its age and sex and "How: " `how` (at most ARRIVAL_HOW - 1 characters
+   kept), written now and marked a Heathen by the exporter (above), the creator's own dropped, the roster told (the
    save-time reconciliation never calls the newcomer Unaccounted) and the tick knowing them as a Heathen. */
 __declspec(dllexport) void __stdcall VvfpCauseHeathenArrived(int game, int index, const char *how) {
     char before[96];
