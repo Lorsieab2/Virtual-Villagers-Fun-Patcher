@@ -1401,6 +1401,41 @@ static int ce_compose_in(const ce_adapter *a, const ce_layout *l, const char *ti
    title, then a blank line, then the result. */
 static const char *ce_compose_lead;
 
+/* THE OWNER (2026-11-23): "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the
+   end."  Set while an event's outcome is composed (a plain event delivered -- never a notice --, a question's result,
+   and the tallest result it is sized by): an outcome whose event changes nothing (ce_has_effects) ends with the line
+   "(no effect)" after its words, as the branching engine's (story_graph.inc cg_no_effect_mark). */
+static int ce_compose_outcome;
+static int ce_has_effects(const ce_event *e);
+static int ce_game_of(const ce_adapter *a);
+
+/* Whether `text` ends with "(no effect)" (any case, its parentheses written \( \) or not; spaces, line breaks and a
+   full stop after it allowed): it is never said twice. */
+static int ce_ends_no_effect(const char *text) {
+    static const char want[] = "(no effect)";
+    int n = lstrlenA(text), k = (int)sizeof want - 1;
+    while (n > 0 && (text[n - 1] == ' ' || text[n - 1] == '\n' || text[n - 1] == '\r' || text[n - 1] == '\t'
+                     || text[n - 1] == '.')) {
+        --n;
+    }
+    while (k > 0 && n > 0) {
+        char c = text[n - 1];
+        if (c == '\\') {
+            --n;                       /* an escape before a parenthesis */
+            continue;
+        }
+        if (c >= 'A' && c <= 'Z') {
+            c = (char)(c - 'A' + 'a');
+        }
+        if (c != want[k - 1]) {
+            return 0;
+        }
+        --n;
+        --k;
+    }
+    return k == 0;
+}
+
 static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const char *title,
                               const ce_event *e, const ce_result *r, char *out, int size) {
     ce_writer w;
@@ -1492,6 +1527,27 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
                 }
             }
             ce_line(&w, reasons);
+        }
+        if (ce_compose_outcome && !ce_has_effects(e) && !ce_ends_no_effect(e->text)) {
+            /* the owner (2026-11-23): an outcome that changes nothing says so, last, after a blank line as the
+               outcome lines are */
+            if (first) {
+                ce_newline(&w);
+            }
+            ce_tr_done(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s6", "(no effect)",
+                       "(no effect)");
+            if (ce_game_of(a) <= 2 && GetModuleHandleW(L"VVFP Unicode Text.dll") == NULL
+                && GetModuleHandleW(L"VVFP Unicode Font.dll") == NULL) {
+                /* A New Home and The Lost Children draw ( ) only through the Unicode Text companion: "-" without
+                   it, as the branching engine's glyph fallback (story_graph.inc cg_glyph_fallback) */
+                char *c;
+                for (c = line; *c != '\0'; ++c) {
+                    if (*c == '(' || *c == ')') {
+                        *c = '-';
+                    }
+                }
+            }
+            ce_line(&w, line);
         }
     }
     return !w.overflow;
@@ -2097,11 +2153,13 @@ static int ce_deliver(int game, char *text, int size) {
         (void)cg_deliver(game, text, size, &counted);   /* its page (and, on its first, every effect) */
     } else {
         ce_apply(a, &ce_armed_event, &ce_last_result);
+        ce_compose_outcome = !notice;  /* a notice (the time skip's, the faith notice) is no outcome */
         if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
             /* The outcome lines do not fit: the title and description were
                checked when the event was queued, so show those alone. */
             ce_compose(a, &ce_armed_event, NULL, text, size);
         }
+        ce_compose_outcome = 0;
     }
     if (notice || first) {
         ce_uncount_notice(game);   /* the time skip's notice is not an island event */
@@ -2712,11 +2770,13 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     l = ce_result_layout(a);
     /* One popup: the choice picked leads the result (its own line, then a blank line). */
     ce_compose_lead = ce_op_simple == game && button < 2 ? c->labels[button] : NULL;
+    ce_compose_outcome = 1;
     if (!ce_compose_in(a, &l, ce_asked_title, &o->effects, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the result text was checked when
            the event was queued, so show it alone. */
         ce_compose_in(a, &l, ce_asked_title, &o->effects, NULL, text, size);
     }
+    ce_compose_outcome = 0;
     ce_compose_lead = NULL;
     ce_last_button = button;
     ce_last_outcome = k;
@@ -2768,6 +2828,7 @@ static int ce_choice_tallest(int game, int button, char *out, int size) {
         ce_result r;
         int lines;
         int i;
+        int fits;
         int babies = 0;
         memset(&r, 0, sizeof r);
         for (i = 0; i < e->change_count; ++i) {
@@ -2793,7 +2854,10 @@ static int ce_choice_tallest(int game, int button, char *out, int size) {
         if (ce_has_effects(e)) {
             r.refused = 999;
         }
-        if (ce_compose_in(a, &l, ce_asked_title, e, &r, scratch, sizeof scratch)) {
+        ce_compose_outcome = 1;        /* its "(no effect)" counted, as ce_choice_resolve shows it */
+        fits = ce_compose_in(a, &l, ce_asked_title, e, &r, scratch, sizeof scratch);
+        ce_compose_outcome = 0;
+        if (fits) {
             lines = ce_text_lines(scratch);
         } else {
             /* ce_choice_resolve then shows the text alone; the popup must

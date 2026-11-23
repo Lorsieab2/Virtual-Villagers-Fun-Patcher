@@ -1516,3 +1516,29 @@ flags bits 3-4, the same codes, which the Story companion writes into the compos
 Custom Island Event Library's two examples (`data/cie_graphs`), and More Island Events' own endings (its DLL calls
 `VvfpVillageScoreTag` once with each ending's effects, only when the companion is loaded).
 `tests/test_solidarity_added_events.py` fails on any untagged shipped ending.
+
+## 45. "(no effect)" after an outcome that changes nothing (the owner, 2026-11-23)
+
+The owner, in capitals: "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the end."
+The engine adds it; no event's words are changed for it, and no format byte is added (every version, every .cieg as
+it is).
+
+* **An outcome** is the part of a run from an answer's first node (or, in an event with no question, from the start)
+  to the event's end. A part that ends at a question is never an outcome: the pages before a choice never get it.
+* **It changes nothing** when no node of that part (its branches too) has an effect of any kind -- one with an
+  automatic line (25) or a hidden one (an `action`, a `trait`, a like, a mood, a supply, a pay_award, ...) -- and no
+  node carries a Village Solidarity `raise` or `lower` tag (44) while "VVFP Village Solidarity.dll" is started (a
+  `neutral` tag never moves the score; without the companion no tag does anything). The effects authored decide it,
+  never what a roll made of them: an effect that came to nothing (a full store, a refused change) shows its own line
+  or none, never "(no effect)".
+* **Then** the outcome's last popup (with Scrolling Popups, the event's one popup) ends with one more line,
+  `(no effect)`, after its words and every automatic line, unless its words already end with "(no effect)" (any case,
+  `\( \)` or not, a full stop after it allowed). In a version 6 text it is written `\(no effect\)` until the page is
+  filled; before version 6 a `(...)` that is no placeholder is copied as it is.
+* Its words are `CG_AUTO_LINES`' `no_effect` (story_graph.inc `cg_part_changes`, `cg_no_effect_mark`;
+  src/vv_cie_graph.py `AUTO_LINES["no_effect"]`, `outcome_changes_nothing`, `with_no_effect`, in `walk` -- every
+  history's fit counts the line -- and `simulate`, whose `solidarity` argument is the companion), in the translation
+  template like every automatic line.
+* The old-format Custom Island Event (story_custom.inc `ce_compose_in_once`) does the same for an event or result
+  that changes nothing (`ce_has_effects`): "(no effect)" after a blank line, as its outcome lines are; never on a
+  notice (the time skip's, the faith notice).

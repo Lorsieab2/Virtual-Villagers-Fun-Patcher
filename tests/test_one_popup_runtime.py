@@ -328,7 +328,8 @@ class ThePatchersMirror(unittest.TestCase):
                     "roles": {}, "start": "q", "nodes": {
                         "q": {"type": "question", "text": "Pick one.", "choices": [
                             {"label": label, "next": "a"}, {"label": "B", "next": "b"}]},
-                        "a": {"text": body}, "b": {"text": "Short."}}}
+                        # an effect (no line): the boundary is the words' own, never "(no effect)"'s
+                        "a": {"text": body, "effects": [{"do": "tech", "amount": 1}]}, "b": {"text": "Short."}}}
         _g, problems = cg.validate(graph("A"), True)
         self.assertEqual([x for x in problems if "bytes" in x], [], "label and blank line still fit")
         _g, problems = cg.validate(graph("Open the long door"), True)

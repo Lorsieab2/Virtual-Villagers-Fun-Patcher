@@ -147,6 +147,9 @@ TEXTS: tuple[tuple[str, str], ...] = (
                       "investigations into the strange artifacts along with the mysterious cave. Their discoveries "
                       "astonish the historians and scientists greatly, yielding much information about the island's "
                       "history and previous inhabitants. Your villagers gain %d tech points."),
+    # The owner (2026-11-23): the last paragraph of an ending that changes nothing -- staying home, and falling out
+    # or making up while Village Solidarity is not loaded (cave_core.inc cave_compose, adv_add_last).
+    ("NO_EFFECT", "(no effect)"),
 )
 
 KEEP_JOIN = ", "            # "When they return home" + ", " + the ending

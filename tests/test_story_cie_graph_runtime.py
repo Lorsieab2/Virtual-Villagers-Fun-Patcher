@@ -1030,7 +1030,8 @@ class QuestionsAnywhere(unittest.TestCase):
             with self.subTest(game=game, at="answered the other way after the reload"):
                 again = self.restart(game, file, t_open - 500)
                 rest = play_answers(again, [1])
-                self.assertEqual(norm(again.strip(rest[-1][1], "Two Questions")), "Bea walks away.")
+                self.assertEqual(norm(again.strip(rest[-1][1], "Two Questions")),
+                                 "Bea walks away. (no effect)")   # an outcome that changes nothing (cie-v6-binary.md 45)
                 self.assertIn("  Choice: Leave it\n", again.log()[2])
                 self.assertNotIn("Open it", again.log()[2])
 

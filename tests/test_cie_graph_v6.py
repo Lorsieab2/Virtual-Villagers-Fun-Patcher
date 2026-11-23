@@ -597,12 +597,12 @@ class SharedVectors(unittest.TestCase):
         # No "!." or "?." after an inserted item (6, step 5); an item without the mark keeps the ".".
         self.assertEqual(by["item_end_marks_vv1"]["popups"],
                          ["Ana shouts Yikes! The echo answers Hooray! She sees a sign that says Yikes! "
-                          "What now? ends it."])
+                          "What now? ends it.\n-no effect-"])   # 45: "(no effect)", VV1's glyph fallback
         self.assertEqual(by["item_end_marks_vv2"]["popups"],
-                         ["Bo shouts What now? The echo answers Oh no? He sees a quiet path. hello there ends it."])
+                         ["Bo shouts What now? The echo answers Oh no? He sees a quiet path. hello there ends it.\n-no effect-"])
         self.assertEqual(by["item_end_marks_vv3"]["popups"],
                          ["Ana shouts hello there. The echo answers nothing. She sees a sign that says hello "
-                          "there. Yikes! ends it."])
+                          "there. Yikes! ends it.\n(no effect)"])
         for game in range(1, 6):
             for text in by[f"item_end_marks_vv{game}"]["popups"]:
                 self.assertNotIn("!.", text)
@@ -1867,12 +1867,12 @@ class FactsAndDraws(unittest.TestCase):
         g = cg.load(copy.deepcopy(LITTLE))
         b = {"subject": cg.Binding("Ana", "f")}
         r = cg.simulate(g, 3, [0], b, facts=frozenset({"age:subject:50:0", "has_living_child:subject"}))
-        self.assertEqual(r["popups"], ["Ana remembers a child who looks just like her. The years go by."])
+        self.assertEqual(r["popups"], ["Ana remembers a child who looks just like her. The years go by.\n(no effect)"])   # 45
         r = cg.simulate(g, 3, [0], b, facts=frozenset())
-        self.assertEqual(r["popups"], ["Ana remembers a song from long ago. There is time yet."])
+        self.assertEqual(r["popups"], ["Ana remembers a song from long ago. There is time yet.\n(no effect)"])
         g = cg.load(copy.deepcopy(ARBOR))
         r = cg.simulate(g, 4, [1, 0], b)
-        self.assertEqual(r["popups"][1], "It stands. The judges hold their noses.")
+        self.assertEqual(r["popups"][1], "It stands. The judges hold their noses.\n(no effect)")
 
 
 class SexWords(unittest.TestCase):
@@ -1882,11 +1882,11 @@ class SexWords(unittest.TestCase):
         g = cg.load(copy.deepcopy(LULLABY))
         r = cg.simulate(g, 4, [], {"parent": cg.Binding("Bo", "m")})
         self.assertEqual(r["popups"], ["Bo is the baby's father. Dad sings; BROTHER hums; uncle claps; Boy at heart; "
-                                       "a gentleman; Father for life."])
+                                       "a gentleman; Father for life.\n(no effect)"])   # 45
         self.assertEqual(r["titles"], ["The Father's Lullaby"])
         r = cg.simulate(g, 4, [], {"parent": cg.Binding("Ana", "f")})
         self.assertEqual(r["popups"], ["Ana is the baby's mother. Mom sings; SISTER hums; aunt claps; Girl at heart; "
-                                       "a lady; Mother for life."])
+                                       "a lady; Mother for life.\n(no effect)"])
         self.assertEqual(cg.readable_title(g["title"]), "The Mother or father's Lullaby")
         self.assertEqual(cg.worst_v6("(lady/gentleman)", cg.lower(g), cg.GAMES[3], None), "gentleman")
         d = copy.deepcopy(LULLABY)
