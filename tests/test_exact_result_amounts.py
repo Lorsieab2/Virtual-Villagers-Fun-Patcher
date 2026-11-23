@@ -103,6 +103,18 @@ def pool_awards_graph(game: int) -> dict:
                                          {"do": "pay_award"}], "auto_text": True}}}
 
 
+def shared_item_graph(game: int) -> dict:
+    """One drawn pool item shown by two nodes with different amounts: each node shows its own (the engine fills
+    the item per node)."""
+    return {"format": "vvfp-cie-graph", "version": 6, "title": "Exact Amounts", "games": [game],
+            "roles": {"subject": {"kind": "villager", "min_age": 14}}, "start": "p0",
+            "pools": {"LOSS": {"items": ["your village loses (award2) food"]}},
+            "nodes": {"p0": {"text": "Sadly, {LOSS}.", "effects": [{"do": "food", "amount": -40}],
+                             "auto_text": True, "children": [{"next": "p1"}]},
+                      "p1": {"text": "Again, {LOSS}.", "effects": [{"do": "food", "amount": -15}],
+                             "auto_text": True}}}
+
+
 def moving_graph(game: int, award: bool) -> dict:
     """Page 1, then a page whose words state its amounts: (award2) a food loss and (award) a tech award, or (`award`)
     the award alone."""
@@ -223,6 +235,16 @@ class PatcherSide(unittest.TestCase):
                 text = "\n".join(out["popups"])
                 self.assertIn("Sadly, your village loses 40 food. Your villagers gain 7 tech points.", text)
                 self.assertNotIn("The village", text, "(award2) / (award) state them")
+
+    def test_one_pool_item_shown_by_two_nodes(self):
+        for game in (1, 2, 3, 4, 5):
+            with self.subTest(game=game):
+                out = cg.simulate(cg.load(copy.deepcopy(shared_item_graph(game))), game, [0] * 8,
+                                  {"subject": cg.Binding("Adam", "m")})
+                text = "\n".join(out["popups"])
+                self.assertIn("Sadly, your village loses 40 food.", text)
+                self.assertIn("Again, your village loses 15 food.", text)
+                self.assertNotIn("The village", text)
 
     def test_award2_is_checked_and_measured(self):
         g = two_kinds_graph(3)
@@ -426,6 +448,17 @@ class GameSideAmounts(unittest.TestCase):
                 self.assertIn("Sadly, your village loses 40 food. Your villagers gain 7 tech points.", flat)
                 self.assertNotIn("The village", flat)
                 self.assertEqual(self.side.food_tech(r), (460, 17))
+
+    def test_one_pool_item_shown_by_two_nodes(self):
+        for game in self.games():
+            with self.subTest(game=game):
+                r, shown = self.run_graph(game, shared_item_graph(int(game[2])),
+                                          lambda r: self.side.set_food_tech(r, 500, 10))
+                flat = one_line(shown)
+                self.assertIn("Sadly, your village loses 40 food.", flat)
+                self.assertIn("Again, your village loses 15 food.", flat)
+                self.assertNotIn("The village", flat)
+                self.assertEqual(self.side.food_tech(r), (445, 10))
 
     def _moving(self, game, graph, food, tech, then):
         def setup(r):
