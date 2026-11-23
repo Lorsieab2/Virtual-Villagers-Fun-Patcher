@@ -83,6 +83,11 @@
 #define RV_PREFS 64                   /* likes (or dislikes) kept per person (The Secret City holds 62) */
 #define RV_NAME 32
 #define RV_FLAG_FILE "VVFP Revive From Graves.txt"
+/* New Believers: a Heathen whose Death or Disappeared record says "Faction: Heathen" / "Isolan" (every log records
+   the Heathens since PR #850) comes back as a Heathen in the camp -- the same person, their own faction -- through
+   the game's own Heathen creator 0x46FD20 as the Custom Island Event makes a Heathen (an ordinary Heathen, faith
+   -55).  0: they come back as believers.  The owner decides (2026-11-23 question). */
+#define RV_HEATHENS_STAY_HEATHENS 1
 
 enum { RV_DEATH = 1, RV_GONE = 2 };
 
@@ -111,6 +116,7 @@ typedef struct {
     char title[32];                   /* Custom title */
     char special[48];                 /* Special villager */
     int mask;                         /* 0 none, 1..5 (story_common.inc STORY_MASK_NAMES) */
+    int heathen;                      /* New Believers: the record says "Faction: Heathen" (or "Isolan") */
     short like_count, dislike_count;
     unsigned char likes[RV_PREFS], dislikes[RV_PREFS];
     int prefs_known;                  /* both lists were in the record */
@@ -295,6 +301,8 @@ static void rv_parse_deaths(const ce_adapter *a, const char *text, int length) {
             rv_copy(p->epitaph, (int)sizeof p->epitaph, v);
         } else if ((v = rv_field(line, "  Custom title: ")) != NULL) {
             rv_copy(p->title, (int)sizeof p->title, v);
+        } else if ((v = rv_field(line, "  Faction: ")) != NULL) {
+            p->heathen = lstrcmpA(v, "Heathen") == 0 || lstrcmpA(v, "Isolan") == 0;
         } else if ((v = rv_field(line, "  Special villager: ")) != NULL) {
             rv_copy(p->special, (int)sizeof p->special, v);
         } else if ((v = rv_field(line, "  Mask: ")) != NULL) {
@@ -934,8 +942,10 @@ static int rv_buy(int game, int which, int *made) {
         s.skills[k] = p->skills_known ? p->skills[k] : CE_KEEP;
     }
     rv_copy(s.title, (int)sizeof s.title, p->title);
-    s.mask = p->mask > 0 ? p->mask : CE_KEEP;
-    s.faction = CE_KEEP;
+    /* A Heathen comes back a Heathen (RV_HEATHENS_STAY_HEATHENS): the game's own Heathen creator, its own mask
+       (the game draws a Heathen's); a believer through the believer creator, with their cosmetic mask. */
+    s.faction = game == 5 && p->heathen && RV_HEATHENS_STAY_HEATHENS ? 1 : CE_KEEP;
+    s.mask = p->mask > 0 && s.faction != 1 ? p->mask : CE_KEEP;
     s.health = CE_KEEP;
     s.father_record = s.mother_record = -1;
     s.father_head = p->father_head;
@@ -1020,7 +1030,7 @@ static const char *rv_refusal_text(int why) {
 
 static void rv_years(int age, char *out) {
     if (age < 0) {
-        lstrcpyA(out, vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 40));
+        lstrcpyA(out, "unknown");
     } else {
         wsprintfA(out, vvfp_tr("vvfp.story/story_revive.rv_years.s0", "%d years (%d age units)", 80), age / 20, age);
     }
@@ -1032,13 +1042,14 @@ static void rv_row_text(const rv_person *p, char *out, int size) {
     wsprintfA(years, "%d", p->age >= 0 ? p->age / 20 : 0);
     wsprintfA(row, "%s, %s, %s %s%s",
                 p->name[0] ? p->name : vvfp_tr("vvfp.story/story_revive.rv_row_text.s0", "(no name)", 60),
-                p->sex == STORY_SEX_MALE ? vvfp_tr("vvfp.story/story_custom_ui.ui_fill_parent_choices.s4", "male", 40)
-                : p->sex == STORY_SEX_FEMALE ? vvfp_tr("vvfp.story/story_custom_ui.ui_fill_parent_choices.s5", "female", 40)
+                p->sex == STORY_SEX_MALE ? "male"
+                : p->sex == STORY_SEX_FEMALE ? "female"
                                              : vvfp_tr("vvfp.story/story_revive.rv_row_text.s1", "sex unknown", 40),
                 p->kind == RV_DEATH ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s2", "died at", 40)
                                     : vvfp_tr("vvfp.story/story_revive.rv_row_text.s3", "vanished at", 40),
                 p->age >= 0 ? years : vvfp_tr("vvfp.story/story_revive.rv_row_text.s4", "an unknown age", 60),
                 p->refusal != NULL ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s5", " - can not come back", 60)
+                : p->heathen ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - a Heathen", 40)
                 : p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - buried", 40) : "");
     lstrcpynA(out, row, size);
 }
@@ -1070,7 +1081,7 @@ static void rv_pref_words(const ce_adapter *a, const unsigned char *values, int 
         }
     }
     if (count == 0) {
-        lstrcpynA(out, vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_dialog.s0", "(none)", 40), size);
+        lstrcpynA(out, "(none)", size);
     }
 }
 
@@ -1079,9 +1090,9 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     char line[400], words[600], years[64];
     int k;
     out[0] = '\0';
-    wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s0", "Name: %s\r\nSex: %s\r\n", 400), p->name[0] ? p->name : vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 120),
-                p->sex == STORY_SEX_MALE ? vvfp_tr("vvfp.story/story_custom_ui.ui_spawn_dialog.s1", "Male", 40)
-                : p->sex == STORY_SEX_FEMALE ? vvfp_tr("vvfp.story/story_custom_ui.ui_spawn_dialog.s2", "Female", 40) : vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 120));
+    wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s0", "Name: %s\r\nSex: %s\r\n", 400), p->name[0] ? p->name : "unknown",
+                p->sex == STORY_SEX_MALE ? "Male"
+                : p->sex == STORY_SEX_FEMALE ? "Female" : "unknown");
     rv_add(out, size, line);
     rv_years(p->age, years);
     wsprintfA(line, "%s: %s\r\n", p->kind == RV_DEATH ? vvfp_tr("vvfp.story/story_revive.rv_details.s1", "Age at death", 120) : vvfp_tr("vvfp.story/story_revive.rv_details.s2", "Age when they vanished", 120),
@@ -1089,15 +1100,15 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     rv_add(out, size, line);
     if (p->kind == RV_DEATH) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s3", "Death record: Death %d\r\nCause of death: %s\r\n", 400), p->number,
-                    p->cause[0] ? p->cause : vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 120));
+                    p->cause[0] ? p->cause : "unknown");
     } else {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s4", "Record: Disappeared\r\nWhat happened: %s\r\n", 400),
-                    p->cause[0] ? p->cause : vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 120));
+                    p->cause[0] ? p->cause : "unknown");
     }
     rv_add(out, size, line);
     if (p->kind == RV_DEATH) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s5", "Grave: %s\r\nEpitaph: %s\r\nWhere: %s\r\n", 400),
-                    p->grave_line[0] ? p->grave_line : vvfp_tr("vvfp.origins/vv1_origins_icons.vv1_speed_name.s3", "unknown", 120), p->epitaph[0] ? p->epitaph : vvfp_tr("vvfp.origins/vv2_origins_icons.vv2_appearance_dialog.s0", "(none)", 40),
+                    p->grave_line[0] ? p->grave_line : "unknown", p->epitaph[0] ? p->epitaph : "(none)",
                     p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_details.s6", "buried here (the grave is removed when they come back)", 120)
                                   : vvfp_tr("vvfp.story/story_revive.rv_details.s7", "no grave in the graveyard now", 120));
         rv_add(out, size, line);
@@ -1106,6 +1117,9 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s8", "Special villager: %s%s\r\n", 400), p->special,
                     p->refusal == NULL ? vvfp_tr("vvfp.story/story_revive.rv_details.s9", " (they come back as an ordinary villager)", 120) : "");
         rv_add(out, size, line);
+    }
+    if (p->heathen) {
+        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s26", "Faction: Heathen\r\n", 100));
     }
     if (p->title[0] != '\0') {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s10", "Custom title: %s\r\n", 400), p->title);
@@ -1159,7 +1173,9 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
     if (p->refusal != NULL) {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s24", "\r\nCan not come back: %s.\r\n", 400), rv_why(p->refusal));
     } else {
-        lstrcpyA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nComes back as this same person at age 5.\r\n", 400));
+        lstrcpyA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
+                           ? vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400)
+                           : vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nComes back as this same person at age 5.\r\n", 400));
     }
     rv_add(out, size, line);
 }

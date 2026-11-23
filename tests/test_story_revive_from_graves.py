@@ -384,6 +384,42 @@ class PurchaseTests(unittest.TestCase):
 
 
 @emulated
+class HeathenTests(unittest.TestCase):
+    """New Believers: every log records the Heathens, "Faction: Heathen" / "Isolan" (the owner, 2026-11-23, PR
+    #850), "so the player can decide to resurrect them with the new upgrade"; one comes back a Heathen in the camp
+    (story_revive.inc RV_HEATHENS_STAY_HEATHENS), through the game's own Heathen creator 0x46FD20."""
+
+    def test_a_dead_heathen_is_listed_and_comes_back_a_heathen(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock executable")
+        for word in ("Heathen", "Isolan"):
+            r = Revive("vv5")
+            made = []
+
+            def heathen(q):
+                index = r.s._create(r.v.L["sex"][2] if q.arg(3) == 1 else r.v.L["sex"][1], q.arg(4))
+                made.append((index, q.arg(3), q.arg(4), q.arg(8) - (1 << 32) if q.arg(8) & 0x80000000 else q.arg(8)))
+                r.p.write(r.v.record(index) + 0x1CEC, b"\1")
+                return index, 0x24
+            r.p.stub(0x46FD20, heathen)
+            text = (gone("Tuku Old", 1500, "Female", 4, 5, what="Died of old age",
+                         extra=f"  Faction: {word}\n")
+                    + death(1, "Rua Grave", 900, "Male", 6, 7, extra=f"  Faction: {word}\n"))
+            with self.subTest(word=word):
+                self.assertEqual(r.load(text), 2)
+                self.assertIn("Faction: Heathen", r.row(0)[2])
+                self.assertIn("a Heathen in the camp", r.row(0)[2])
+                self.assertTrue(r.row(0)[1].endswith(" - a Heathen"))
+                answer, index = r.buy(0)
+                self.assertEqual(answer, 1)
+                self.assertEqual(made, [(index, 0, 100, -55)])        # the newest first: Rua, male, age 100, faith -55
+                self.assertEqual(r.s.creations[-1][0], index)
+                self.assertEqual(r.v.name(index), "Rua Grave")
+                self.assertEqual(r.tech(), 150000 - PRICE)
+                # a living Heathen with that whole identity is in the village: not listed again
+                self.assertEqual(r.load(text), 1)
+
+@emulated
 class GraveyardTests(unittest.TestCase):
     def test_the_later_games_keep_their_graves_in_one_unbroken_run(self):
         for game in ("vv3", "vv4", "vv5"):

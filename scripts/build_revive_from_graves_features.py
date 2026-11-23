@@ -44,7 +44,9 @@ SPECIAL = {
     "vv2": " An Esteemed Elder comes back as an ordinary villager (their totem stays as it is).",
     "vv3": " A Tribal Chief comes back as an ordinary villager, not the chief (the robe makes a chief).",
     "vv4": "",
-    "vv5": (" New Believers' puzzle Heathens (the Heathen Chief, the Heathen Mommy and the others) are listed but can"
+    "vv5": (" A Heathen whose death or disappearance the logs record (\"Faction: Heathen\") is listed and comes back as a"
+            " Heathen in the camp, through the game's own Heathen creator (an ordinary Heathen)."
+            " New Believers' puzzle Heathens (the Heathen Chief, the Heathen Mommy and the others) are listed but can"
             " not come back, and a believer who left to become a Heathen is listed as alive among the Heathens."),
 }
 

@@ -458,7 +458,10 @@ Show Parents in Details Screen's sidecar, without it no parents), the custom tit
 are not restored: an Esteemed Elder of The Lost Children comes back without the Elder flag (their totem stays),
 The Secret City's Tribal Chief comes back as an ordinary villager; a title the game derives from the skills (The
 Secret City's and New Believers' Esteemed Elder, The Tree of Life's Scholar) follows the skills. New Believers'
-villagers come back as believers.
+villagers come back as believers; a Heathen whose Death or Disappeared record says "Faction: Heathen" (or
+"Isolan": every log records the Heathens since PR #850) is listed too and comes back as an ordinary Heathen in the
+camp through the game's own Heathen creator 0x46FD20 (faith -55, as the Custom Island Event makes one; the game
+draws their mask) -- `RV_HEATHENS_STAY_HEATHENS`, a decision for the owner (0 makes them believers).
 
 **The grave.** Matched by name and age at death (The Tree of Life and New Believers: head and body too), each grave
 to one record in log order; one that changed since the list was made is never removed (the purchase is refused).

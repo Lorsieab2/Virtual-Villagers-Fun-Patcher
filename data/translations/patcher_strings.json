@@ -6533,8 +6533,7 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "notes": "a patcher window"
   },
   {
    "stem": "vvfp.story/story_custom_ui.ui_fill_parent_choices.s5",
@@ -6548,8 +6547,7 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "notes": "a patcher window"
   },
   {
    "stem": "vvfp.story/story_custom_ui.ui_fill_parent_choices.s6",
@@ -7445,8 +7443,7 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "notes": "a patcher window"
   },
   {
    "stem": "vvfp.story/story_custom_ui.ui_spawn_dialog.s2",
@@ -7460,8 +7457,7 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window",
-   "route": "key"
+   "notes": "a patcher window"
   },
   {
    "stem": "vvfp.story/story_custom_ui.ui_spawn_dialog.s3",
@@ -73871,6 +73867,51 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_row_text.s7",
+   "english": " - a Heathen",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s26",
+   "english": "Faction: Heathen\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.story/story_revive.rv_details.s27",
+   "english": "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window",
+   "route": "key"
   },
   {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
