@@ -86,9 +86,17 @@
    there) and sets the zero flag as the compare it replaced would, for the jump after it.  Started by VVFP
    Startup.dll (its second word, native/shared/startup_companions_2.h).  No debug output, no text shown. */
 #include <windows.h>
+#include <string.h>
 #include "../shared/install_sites.h"
 #include "../shared/former_heathens.h"
 #include "../shared/original_look.h"
+#include "../shared/sidecar_io.h"
+#include "../shared/save_folder.h"
+#include "../shared/per_save_data.h"
+#include "../shared/mask_follow.h"
+#include "../shared/foreign_sidecar.h"
+#include "../shared/game_save_slot.h"
+#include "../shared/vv5_villager_table.h"
 
 #define HK_GAME 5
 #define HK_ORIGINS "VVFP Origins Icons.dll"
@@ -145,6 +153,126 @@ static int g_installed;
 static unsigned int g_kept;             /* masks handed to the store this session (the tests read it) */
 static unsigned int g_returned;         /* masks given back to a villager going back (the tests read it) */
 
+/* ---- THE MASKS WORN: this companion's own per-villager file ---------------------------------------------------
+   The owner (2026-11-22): Keep Masks remembers the mask each convert wore as a Heathen ITSELF, so it is known when
+   they go back whatever other patch is on (the Former Heathens file is Log Every Death's).  The Head Looks' store
+   (native/vvfp_head_look/head_look_store.inc), as this DLL's own file -- the pattern of the Origins masks: the save's
+   own "Virtual Villagers Fun Patcher\Save <S>\Data\Heathens Keep Masks\Masks Worn - Save <S>.dat", following each
+   villager by identity (name, sex and the parents' names) through deaths, births, packed loads, renames in play
+   and at a load (VvfpVillagersRenamed, from "VVFP Last Names.dll") and a slot another village reuses (never
+   inherited).  The value: 1 Blue, 2 Orange, 3 Red, 4 Purple, 5 the Tribal Chief's (VV_FORMER_* + 1); 0 none.
+   Kept at every conversion while this row is installed (hk_keep), read first when they go back (hk_wore). */
+#define HL_MAX 256
+static unsigned int g_hk_records;
+static int g_hk_count;
+
+static void hl_locate(void) {
+    unsigned int rva = 0, slots = 0;
+    if (g_hk_records != 0) {
+        return;
+    }
+    vv5_villager_table((const unsigned char *)(UINT_PTR)0x400000u, &rva, &slots);
+    g_hk_records = 0x400000u + rva + 0x48u;
+    g_hk_count = (int)slots;
+}
+
+static int hl_game(void) {
+    return HK_GAME;
+}
+
+static int hl_slots(void) {
+    hl_locate();
+    return g_hk_count < HL_MAX ? g_hk_count : HL_MAX;
+}
+
+static const unsigned char *hl_record(int i) {
+    hl_locate();
+    if (g_hk_records == 0 || i < 0 || i >= g_hk_count) {
+        return NULL;
+    }
+    return (const unsigned char *)(UINT_PTR)(g_hk_records + (unsigned int)i * 0x2F44u);
+}
+
+static int hl_present(const unsigned char *r) {
+    return r[0x1CD4] != 0;
+}
+
+static unsigned int hl_text(unsigned int h, const unsigned char *text, unsigned int capacity) {
+    unsigned int k;
+    for (k = 0; k < capacity && text[k]; ++k) {
+        h = (h ^ text[k]) * 16777619u;
+    }
+    return h;
+}
+
+/* What a rename leaves of a villager's identity: the sex and the parents' names. */
+static unsigned int hl_stable(const unsigned char *r) {
+    unsigned int h = 2166136261u;
+    int k;
+    for (k = 0; k < 4; ++k) {
+        h = (h ^ r[0x1B90 + k]) * 16777619u;
+    }
+    h = hl_text(h, r + 0x1BC0, 0x19u);
+    h = (h ^ 0xFEu) * 16777619u;
+    h = hl_text(h, r + 0x1BD9, 0x19u);
+    h = (h ^ 0xFDu) * 16777619u;
+    return h ? h : 1u;
+}
+
+static unsigned int hl_identity(const unsigned char *r) {
+    unsigned int h = hl_text(2166136261u, r + 0x1B9C, 0x19u);
+    h = (h ^ 0xFFu) * 16777619u;
+    h = (h ^ hl_stable(r)) * 16777619u;
+    return h ? h : 1u;
+}
+
+static int hl_slot_now(void) {
+    return vv_game_save_slot(HK_GAME);
+}
+
+#define HL_MAGIC 0x314D4B56u            /* 'VKM1' */
+#define HL_MAGIC_V1 0u
+#define HL_READS_V1 0
+#define HL_LOOK_MAX 5                   /* VV_FORMER_CHIEF + 1 */
+#define HL_KIND "Heathens Keep Masks"
+#define HL_FILE_NAME "Masks Worn - Save 0.dat"
+#define HL_FILE_SLOT_AT (sizeof "Masks Worn - Save " - 1)
+#include "../vvfp_head_look/head_look_store.inc"
+
+/* The mask the villager in `record` wore as a Heathen, as this companion kept it (VV_FORMER_*), or -1.  The
+   village is looked at now, not a moment ago. */
+static int hk_worn_get(const unsigned char *record) {
+    int v;
+    g_sync_tick = GetTickCount() - HL_SYNC_MS;
+    v = hl_get(record);
+    return v >= 1 && v <= HL_LOOK_MAX ? v - 1 : -1;
+}
+
+/* Keep `kind` (VV_FORMER_*) as the mask the villager in `record` wore as a Heathen. */
+static void hk_worn_set(const unsigned char *record, int kind) {
+    if (kind >= VV_FORMER_BLUE && kind <= VV_FORMER_CHIEF) {
+        (void)hl_set(record, kind + 1);
+    }
+}
+
+/* Villagers renamed as the village loaded ("VVFP Last Names.dll" names Heathens with no last name): their masks
+   worn stay theirs (native/shared/villager_rekey.h). */
+int __stdcall VvfpVillagersRenamed(int game, int slot, int count, const void *const *records,
+                                   const char *const *old_names) {
+    if (game != HK_GAME || !g_installed) {
+        return 0;
+    }
+    return hl_renamed(slot, count, records, old_names, 0x2F44u, 0x1B9Cu, 0x19u);
+}
+
+/* A villager's sex changed (native/shared/sex_change.h): their mask worn stays theirs. */
+int __stdcall VvfpVillagerSexChanged(int game, int slot, const void *record, const void *before) {
+    if (game != HK_GAME || !g_installed) {
+        return 0;
+    }
+    return hl_sex_changed(slot, (const unsigned char *)record, (const unsigned char *)before);
+}
+
 typedef int (__stdcall *hk_keep_fn)(void *record, int mask);
 typedef int (__stdcall *hk_mask_of_fn)(void *record);
 typedef int (__stdcall *hk_converted_fn)(int game, const void *record, int mask);
@@ -189,9 +317,15 @@ static int hk_look(const unsigned char *record) {
 /* The mask the believer in `record` wore as a Heathen (VV_FORMER_*), or -1 when it is not known: the Former
    Heathens file's entry, else the Retired Chief's role, else the kind byte the conversion left. */
 static int hk_wore(const unsigned char *record) {
-    HMODULE cause = GetModuleHandleA(HK_CAUSE);
-    hk_former_fn former = cause != NULL ? (hk_former_fn)GetProcAddress(cause, "VvfpCauseFormerKind") : NULL;
-    int kind = former != NULL ? former(record) : -1, role;
+    HMODULE cause;
+    hk_former_fn former;
+    int kind = hk_worn_get(record), role;          /* this companion's own file first */
+    if (kind >= VV_FORMER_BLUE && kind <= VV_FORMER_CHIEF) {
+        return kind;
+    }
+    cause = GetModuleHandleA(HK_CAUSE);
+    former = cause != NULL ? (hk_former_fn)GetProcAddress(cause, "VvfpCauseFormerKind") : NULL;
+    kind = former != NULL ? former(record) : -1;
     if (kind >= VV_FORMER_BLUE && kind <= VV_FORMER_CHIEF) {
         return kind;
     }
@@ -229,6 +363,7 @@ static void hk_keep(unsigned char *record) {
             record[look == VV_FORMER_ORANGE ? VV5_ORANGE : VV5_RED] = 1;
         }
     }
+    hk_worn_set(record, mask - 1);      /* remembered by this companion for when they go back */
     if (keep(record, mask) <= 0) {
         return;                         /* refused: not a villager record the store knows */
     }
@@ -292,6 +427,7 @@ static void __stdcall hk_returning(unsigned char *record) {
 /* The render's kind tests: 1 when the orange (red) mask is drawn on `record`. */
 static int __stdcall hk_drawn_orange(const unsigned char *record) {
     __try {
+        (void)hl_sync();                /* the masks worn follow the village (throttled, HL_SYNC_MS) */
         return record[VV5_ORANGE] != 0 || hk_look(record) == VV_FORMER_ORANGE;
     } __except (EXCEPTION_EXECUTE_HANDLER) {
         return 0;

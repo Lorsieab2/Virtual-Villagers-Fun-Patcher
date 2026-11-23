@@ -225,10 +225,9 @@ class TheRow(unittest.TestCase):
         self.assertEqual(row["name"], "Heathens Keep Their Masks When Converted")
         self.assertEqual(row["game_id"], "vv5")
         self.assertEqual(row["dependencies"], ["vv5_enable_origins_exclusive_features"])
-        # The Former Heathens file (Log Every Death) remembers a purple convert's mask for going back: said in bold,
-        # not required (the Respecting the Legacy of Isola bundle ticks exactly its five pieces; Codex, #843).
-        self.assertIn("**A former Master's or Heathen Doctor's purple mask is remembered for going back only with Log "
-                      "Every Death, Disappearance and Unaccounted Villager on", row["description"])
+        # The companion remembers every convert's mask itself (the owner, 2026-11-22): no other row is needed.
+        self.assertNotIn("Log Every Death", row["description"])
+        self.assertIn("its own Masks Worn file", row["description"])
         self.assertEqual(row["patches"], [])
         from origins_base_text import ORIGINS_BASE_SENTENCE
         self.assertTrue(row["description"].startswith(ORIGINS_BASE_SENTENCE), "the dependency comes first, in bold")
@@ -277,10 +276,11 @@ class TheRow(unittest.TestCase):
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
         self.assertEqual(names, ["VvfpHeathensKeepMasksFaction", "VvfpHeathensKeepMasksInstalled",
                                  "VvfpHeathensKeepMasksKept", "VvfpHeathensKeepMasksLook",
-                                 "VvfpHeathensKeepMasksReturned", "VvfpStartup"])
+                                 "VvfpHeathensKeepMasksReturned", "VvfpStartup", "VvfpVillagerSexChanged",
+                                 "VvfpVillagersRenamed"])
         imports = {i.name.decode() for e in pe.DIRECTORY_ENTRY_IMPORT for i in e.imports if i.name}
         self.assertEqual(imports & {"LoadLibraryA", "LoadLibraryW", "OutputDebugStringA",
-                                    "OutputDebugStringW", "MessageBoxA", "MessageBoxW", "CreateFileA",
+                                    "OutputDebugStringW", "MessageBoxA", "MessageBoxW",
                                     "DeleteFileW", "MoveFileW", "RegSetValueExW", "Sleep", "CreateThread"}, set())
         for section in pe.sections:
             self.assertFalse(section.Characteristics & 0x20000000 and section.Characteristics & 0x80000000)
@@ -492,12 +492,12 @@ class GoingBack(Village):
         esp = STACK_TOP - 0x1000 - 4
         for offset, slot in ((0x30, SLOT_BLUE), (0x4C, SLOT_ORANGE), (0x54, SLOT_RED)):
             self.put32(esp + offset, slot)
-        self.call(HEAD_TEST, regs={"esi": record}, until=HEAD_DRAW, limit=5000)
+        self.call(HEAD_TEST, regs={"esi": record}, until=HEAD_DRAW, limit=5_000_000)
         return self.reg("edx")
 
     def mask_row(self, record: int) -> int:
         """The mask art row the render picks (0x4728C6..0x472919: ebx)."""
-        self.call(MASK_PICK, regs={"esi": record, "ebx": 0x77}, until=MASK_DRAW, limit=5000)
+        self.call(MASK_PICK, regs={"esi": record, "ebx": 0x77}, until=MASK_DRAW, limit=5_000_000)
         return self.reg("ebx")
 
     def listens(self, record: int) -> bool:
@@ -703,6 +703,184 @@ class GoingBackToTheHeathens(unittest.TestCase):
         self.assertEqual(v.export("VvfpHeathensKeepMasksInstalled"), 0)
         self.assertEqual(v.read(0x4669F5, 10), bytes.fromhex("C786FC1C000000000000"), "no site is written")
         self.assertEqual(v.read(0x466966, 7), bytes.fromhex("83BEFC1C00000D"))
+
+
+# ---- The masks worn: the companion's own file (the owner, 2026-11-22: "Keep Masks must remember the former Heathen
+# kind ITSELF, so purple (and every kind) works even with Log Every Death off") -----------------------------------
+DOCS = "C:\\Docs"
+GAME_MANAGER_WORD, SLOT_FIELD = 0x4DACE0, 0x17D80     # native/shared/game_save_slot.h: New Believers' save slot
+NAME = 0x1B9C
+
+
+class Disk:
+    """A small in-memory disk for the companion's file calls (the paths as it builds them)."""
+
+    def __init__(self):
+        self.files: dict[str, bytes] = {}
+        self.open: dict[int, list] = {}
+        self.next = 0x400
+
+    def install(self, p) -> None:
+        h = p.api_handlers
+
+        def path_a(q, i=0):
+            return q.cstring(q.arg(i)).lower()
+
+        def create(q):
+            name, access, disposition = path_a(q), q.arg(1), q.arg(4)
+            if disposition == 3 and name not in self.files:            # OPEN_EXISTING
+                return 0xFFFFFFFF, 28
+            if access & 0x40000000:                                      # GENERIC_WRITE: CREATE_ALWAYS
+                self.files[name] = b""
+            self.next += 4
+            self.open[self.next] = [name, 0]
+            return self.next, 28
+
+        def read(q):
+            name, at = self.open[q.arg(0)]
+            piece = self.files[name][at:at + q.arg(2)]
+            q.write(q.arg(1), piece)
+            self.open[q.arg(0)][1] = at + len(piece)
+            if q.arg(3):
+                q.put32(q.arg(3), len(piece))
+            return 1, 20
+
+        def write(q):
+            name, _at = self.open[q.arg(0)]
+            self.files[name] += q.read(q.arg(1), q.arg(2))
+            if q.arg(3):
+                q.put32(q.arg(3), q.arg(2))
+            return 1, 20
+
+        def move(q):
+            old, new = path_a(q, 0), path_a(q, 1)
+            if old not in self.files:
+                return 0, 12
+            self.files[new] = self.files.pop(old)
+            return 1, 12
+
+        def delete(q):
+            self.files.pop(path_a(q), None)
+            return 1, 4
+
+        def attributes(q):
+            return (0x80 if path_a(q) in self.files else 0xFFFFFFFF), 4
+
+        def docs(q):
+            q.write(q.arg(1), (DOCS + "\0").encode("utf-16-le"))
+            return 1, 16
+
+        def wide_to_multi(q):
+            text = q.wstring(q.arg(2)) if q.arg(3) == 0xFFFFFFFF else q.read(q.arg(2), 2 * q.arg(3)).decode("utf-16-le")
+            out = text.encode("latin-1", "replace") + (b"\0" if q.arg(3) == 0xFFFFFFFF else b"")
+            if q.arg(5):
+                q.write(q.arg(4), out[:q.arg(5)])
+            return len(out), 32
+
+        h.update({"CreateFileA": create, "ReadFile": read, "WriteFile": write, "MoveFileExA": move,
+                  "DeleteFileA": delete, "GetFileAttributesA": attributes, "SHGetSpecialFolderPathW": docs,
+                  "FlushFileBuffers": lambda q: (1, 4), "CloseHandle": lambda q: (self.open.pop(q.arg(0), None), (1, 4))[1],
+                  "CreateDirectoryW": lambda q: (1, 8), "CreateDirectoryA": lambda q: (1, 8),
+                  "GetFileAttributesExW": lambda q: (0, 12), "FindFirstFileW": lambda q: (0xFFFFFFFF, 8),
+                  "WideCharToMultiByte": wide_to_multi, "SetLastError": lambda q: (0, 4),
+                  "GetLastError": lambda q: (2, 0)})
+
+
+class Remembering(GoingBack):
+    """A village whose game knows its save slot, on a disk that outlives the process (a save and a load)."""
+
+    def __init__(self, exe: bytes, disk: Disk, **kw):
+        super().__init__(exe, **kw)
+        disk.install(self)
+        self.clock = 1000
+        self.api_handlers["GetTickCount"] = self._tick
+        manager = self.alloc(SLOT_FIELD + 0x10)
+        self.put32(manager + SLOT_FIELD, 1)
+        self.put32(GAME_MANAGER_WORD, manager)
+        self.former = None                      # Log Every Death is off: no Former Heathens file
+
+    def _tick(self, q):
+        self.clock += 300                       # time passes between the companion's looks at the village
+        return self.clock, 0
+
+
+@unittest.skipIf(_skip(), _skip() or "")
+class TheCompanionRemembersTheMaskItself(unittest.TestCase):
+    """With Log Every Death off, the masks worn are this companion's own file's: a converted purple Master or
+    Heathen Doctor goes back purple, after a save and a load, after a rename, never on a reused record."""
+    maxDiff = None
+
+    def village(self, disk: Disk, people=()) -> Remembering:
+        v = Remembering(render(5, with_requirements(5, [ROW]), "collection_progression"), disk)
+        v.export("VvfpStartup", 5, 0)
+        self.assertEqual(v.export("VvfpHeathensKeepMasksInstalled"), 1)
+        for index, name in people:
+            record = v.record(index)
+            v.write(record, bytes(STRIDE))
+            v.write(record + ACTIVE, b"\x01")
+            v.write(record + NAME, name.encode() + b"\0")
+        return v
+
+    def worn_file(self, disk: Disk) -> bytes | None:
+        found = [data for path, data in disk.files.items() if path.endswith("masks worn - save 1.dat")]
+        return found[0] if found else None
+
+    def test_a_purple_convert_goes_back_purple_without_log_every_death(self):
+        for role in (14, 12):                       # a Master, the Heathen Doctor
+            with self.subTest(role=role):
+                disk = Disk()
+                v = self.village(disk, [(0, "Kai")])
+                record = v.believer(4, role, 0, 0, filed=False)
+                self.assertIsNotNone(self.worn_file(disk), "the companion's own file is written at the conversion")
+                v.go_back(record, WAYS[0])
+                self.assertEqual((v.mask_get(record), v.mask_row(record), v.u32(record + ROLE)), (4, ROW_PURPLE, 0))
+                self.assertTrue(v.listens(record))
+
+    def test_it_survives_a_save_and_a_load(self):
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        v.believer(4, 14, 0, 0, filed=False)
+        w = self.village(disk, [(0, "Kai"), (4, "Heathen4")])     # the same village, a new process
+        record = w.record(4)
+        w.mask_set(record, 1)                       # Change Appearance chose blue for him as a believer
+        w.go_back(record, WAYS[0])
+        self.assertEqual((w.mask_get(record), w.mask_row(record)), (4, ROW_PURPLE))
+
+    def test_a_rename_in_play_keeps_it(self):
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        record = v.believer(4, 14, 0, 0, filed=False)
+        v.write(record + NAME, b"Nobu Akana\0")    # a last name given in play
+        v.go_back(record, WAYS[0])
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (4, ROW_PURPLE))
+
+    def test_a_rename_at_a_load_keeps_it(self):
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        v.believer(4, 14, 0, 0, filed=False)
+        w = self.village(disk, [(0, "Kai"), (4, "Nobu Akana")])
+        record = w.record(4)
+        old = w.alloc(32)
+        w.write(old, b"Heathen4\0")
+        records, names = w.alloc(8), w.alloc(8)
+        w.put32(records, record)
+        w.put32(names, old)
+        self.assertEqual(w.export("VvfpVillagersRenamed", 5, 1, 1, records, names), 1)
+        w.go_back(record, WAYS[0])
+        self.assertEqual((w.mask_get(record), w.mask_row(record)), (4, ROW_PURPLE))
+
+    def test_a_reused_record_never_inherits_it(self):
+        disk = Disk()
+        v = self.village(disk, [(0, "Kai")])
+        record = v.believer(4, 14, 0, 0, filed=False)
+        v.write(record + ACTIVE, b"\0")             # he passes away; the record is empty
+        v.mask_row(v.heathen(9, 0, 0, 0))           # a draw: the companion looks at the village
+        v.write(record, bytes(STRIDE))              # a newcomer in his record, a believer
+        v.write(record + ACTIVE, b"\x01")
+        v.write(record + NAME, b"Lani\0")
+        v.mask_set(record, 4)                       # who chose a purple Change Appearance mask
+        v.go_back(record, WAYS[0])
+        self.assertEqual((v.mask_get(record), v.mask_row(record)), (1, ROW_BLUE), "blue: never his")
 
 
 if __name__ == "__main__":

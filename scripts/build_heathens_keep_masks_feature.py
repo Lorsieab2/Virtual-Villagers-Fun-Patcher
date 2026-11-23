@@ -30,13 +30,6 @@ DLL_NAME = "VVFP Heathens Keep Masks.dll"
 DLL = ROOT / "assets" / "heathens_keep_masks" / DLL_NAME
 INSTALLED_BY = f"{DLL_NAME}, VvfpStartup (started by VVFP Startup.dll, second word)"
 ORIGINS = "vv5_enable_origins_exclusive_features"
-# The Former Heathens file ("VVFP Cause of Death.dll", VvfpCauseFormerKind) is what remembers a purple convert's
-# mask for when they go back (the kind bytes keep orange and red, the Retired Chief's role 13 the Chief's).  Said in bold, not required:
-# the Respecting the Legacy of Isola bundle ticks exactly its five pieces (Codex, #843).
-CAUSE_SENTENCE = ("**A former Master's or Heathen Doctor's purple mask is remembered for going back only with Log "
-                  "Every Death, Disappearance and Unaccounted Villager on (it is on by default): its Former Heathens "
-                  "file keeps it; without it they go back in the blue mask. Blue, orange, red and the Chief's mask are "
-                  "always known.**")
 
 # (site VA, stock bytes, what the site is)
 SITES = (
@@ -87,12 +80,13 @@ def description() -> str:
         "If a villager who was once a Heathen later loses their faith and goes back to the Heathens, they wear "
         "their own mask again -- the one they wore as a Heathen before, blue, orange, red, purple or the Chief's "
         "-- but act exactly like an ordinary Heathen in a blue mask: you can talk to them, they listen, and they "
-        "can be converted again like any blue one (never a Master or the Chief again). " + CAUSE_SENTENCE + " "
+        "can be converted again like any blue one (never a Master or the Chief again). "
         "**Heathens who "
         "joined the tribe before this patch keep the look they have now.** **Works the same with every other "
         "patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the "
         "stock executable). The companion is \"VVFP Heathens Keep Masks.dll\", started by VVFP Startup.dll; it "
-        "writes only the Origins upgrades' own Village Masks file, never a save. If the Origins companion is not "
+        "writes only its own Masks Worn file (the mask each convert wore, kept by the villager) and the Origins "
+        "upgrades' own Village Masks file, never a save. If the Origins companion is not "
         "loaded, a convert loses the mask as in the stock game."
     )
 
@@ -133,8 +127,13 @@ def row(dll_sha: str) -> dict:
             "-- SetFaith 0x467F90 at Faith 0 or below: the Faith drift and The Breaking Point, island events, the "
             "Custom Island Event's and Story / Cheat Upgrades' \"Becomes a Heathen\" -- spliced at its role clear "
             "0x4669F5; The Spa's own call 0x415D0C and The Cracked Mask's 0x416C5B), while the record is still a "
-            "believer: the mask they wore as a Heathen -- the Former Heathens file's entry for them (VVFP Cause of "
-            "Death.dll's new VvfpCauseFormerKind, the newest queued filing first), else the Retired Chief's role "
+            "believer: the mask they wore as a Heathen -- this companion's own Masks Worn file (the save's own "
+            "\"Virtual Villagers Fun Patcher\\Save <S>\\Data\\Heathens Keep Masks\\Masks Worn - Save <S>.dat\", magic "
+            "'VKM1': the Head Looks' store, native/vvfp_head_look/head_look_store.inc, kept at every conversion and "
+            "following each villager by name, sex and parents through births, deaths, packed loads, renames in play "
+            "and at a load -- VvfpVillagersRenamed, from VVFP Last Names.dll -- and never inherited by a reused "
+            "record), else the Former Heathens file's entry for them (VVFP Cause of Death.dll's new "
+            "VvfpCauseFormerKind, the newest queued filing first), else the Retired Chief's role "
             "13, else the orange (+0x1CED) or red (+0x1CEE) kind byte the conversion 0x4668B0 left -- is put in the "
             "Origins mask table (VvfpMaskKeep 1..5), then both kind bytes and the role (+0x1CFC) are cleared, so "
             "every behaviour the game reads from them is an ordinary blue Heathen's (the drop test 0x443D4D lets a "

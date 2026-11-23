@@ -1500,10 +1500,7 @@ ordinary Heathen in a blue mask: you can talk to them, they listen, and they can
 be converted again like any blue one (never a Master or the Chief again).
 Heathens who joined before this patch keep the look they have now; Repair Saves
 & Logs > Restore Heathen Masks... gives their own mask back to villagers who
-already went back. A former Master's or Heathen Doctor's purple mask is
-remembered for going back only with Log Every Death, Disappearance and
-Unaccounted Villager on (on by default). Runs on the Origins upgrades, which
-the patcher adds with it.
+already went back. Runs on the Origins upgrades, which the patcher adds with it.
 
 FOG OF DOOM LETS RED AND ORANGE HEATHENS LISTEN (NEW BELIEVERS)
 
