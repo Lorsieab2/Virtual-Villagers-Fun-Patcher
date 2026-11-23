@@ -2134,7 +2134,16 @@ def _generations(village: Village, snapshots: dict[str, set[int]]) -> None:
         snap = next((d for d in dates if when is not None and d[:16] >= when[:16]), None)
         converted_at = conversion_snapshot(people[pid]) if pid in converts else None
         same_time[pid] = converted_at if converted_at in snapshots else snap
-    later = {pid: descendants(pid) for pid in arrivals}
+    # Who may set an arrival's generation: never themselves or a descendant of their own, nor any arrival who came (or
+    # converted) at the same time or later.  Each arrival then rests only on the founders and on EARLIER
+    # arrivals, so nothing feeds back: two converts each with a child in the other's conversion snapshot (a
+    # Heathen father's believer child) used to push each other one generation down every round, to generation
+    # XLI and on in the owner's 256 village (2026-11-22, "WHY ARE THERE 41 GENERATIONS").
+    own = {pid: descendants(pid) for pid in arrivals}
+    later = {pid: set().union(*(own[q] | {q} for q in arrivals
+                                if same_time[q] is not None and same_time[pid] is not None
+                                and same_time[q] >= same_time[pid]))
+             for pid in arrivals}
     gens = compute()
     for _round in range(len(arrivals) + 1):
         changed = False

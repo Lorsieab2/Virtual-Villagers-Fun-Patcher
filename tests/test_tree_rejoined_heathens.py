@@ -216,6 +216,39 @@ class IslandHeathensStillJoin(Base):
         self.assertEqual(village.identity_questions, [], "nothing to ask: the living Nobu was never a Heathen")
 
 
+class ConvertsNeverPushEachOtherDown(unittest.TestCase):
+    """The owner's 256 village (2026-11-22, "WHY ARE THERE 41 GENERATIONS"): generations I-VII, then XLI-XLV.  Two
+    converts, each with a believer child the other's conversion snapshot lists (a Heathen father's child), set each
+    other's generation: every round of _generations pushed both one further down, up to the round limit."""
+
+    def village(self) -> gen.Village:
+        P = gen.Person
+        heathen_then, a_back, b_back = (T1, "Heathen"), (T2, "Believer"), (T3, "Believer")
+        people = {1: P(1, "F1", 1, 1, sex="Male", alive=True, first_seen=T1, arrived=True, how="Founder",
+                       founder_record=True),
+                  2: P(2, "F2", 2, 2, sex="Female", alive=True, first_seen=T1, arrived=True, how="Founder",
+                       founder_record=True),
+                  3: P(3, "K1", 3, 3, sex="Female", alive=True, first_seen=T1, father=1, mother=2),
+                  4: P(4, "A", 4, 4, sex="Male", alive=True, first_seen=T1, converted=True, arrived=True,
+                       how=gen.CONVERTED_HOW, factions=[heathen_then, a_back]),
+                  5: P(5, "B", 5, 5, sex="Male", alive=True, first_seen=T1, converted=True, arrived=True,
+                       how=gen.CONVERTED_HOW, factions=[heathen_then, (T2, "Heathen"), b_back]),
+                  6: P(6, "CB", 6, 6, sex="Female", alive=True, first_seen=T2, father=5, mother=2),   # B's, a Heathen then
+                  7: P(7, "CA", 7, 7, sex="Female", alive=True, first_seen=T3, father=4, mother=3)}   # A's, after converting
+        v = gen.Village(5, 1, "Test Tribe", people)
+        gen._generations(v, {T1: {1, 2, 3, 4, 5}, T2: {1, 2, 3, 4, 5, 6}, T3: {1, 2, 3, 4, 5, 6, 7}})
+        return v
+
+    def test_each_convert_rests_only_on_the_tribe_before_them(self) -> None:
+        v = self.village()
+        gens = {p.name: p.generation for p in v.people.values()}
+        self.assertEqual(gens, {"F1": 1, "F2": 1, "K1": 2, "A": 2, "B": 3, "CB": 4, "CA": 3})
+        for p in v.people.values():             # a child one below the later parent, always
+            parents = [v.people[q].generation for q in (p.father, p.mother) if q is not None]
+            if parents:
+                self.assertEqual(p.generation, 1 + max(parents), p.name)
+
+
 class HeathenEvidence(unittest.TestCase):
     def test_what_says_they_were_of_the_tribe_first(self) -> None:
         P = gen.Person
