@@ -1,0 +1,37 @@
+{
+  "id": "vv5_esteemed_elders",
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "game_id": "vv5",
+  "name": "Esteemed Elders in Every Game",
+  "description": "A current Heathen is never titled \"Esteemed Elder\": in the normal game a Heathen with three mastered skills (88 or more) and no Heathen role title of their own is shown as one on the Villager Details screen. A believer -- a Former Heathen too, once they join the tribe -- still gets the title with three mastered skills, as in the normal game, and the Heathen roles (Doctor, Chief, the three Masters, Mommy) keep their own titles. The logs' \"Special villager\" line never says it for a Heathen either; a Former Heathen's line keeps their Former Heathen title. Heathens never count as Village Elders and are never buried. **Works the same with every other patch and in every population mode.** **Not yet seen in a running game** (checked by emulation of the stock executable). The companion is \"VVFP Esteemed Elders.dll\"; it never writes a save or a file.",
+  "output_tag": "Esteemed Elders",
+  "dependencies": [],
+  "behavior_changes": [
+    "The Villager Details screen: a current Heathen with three mastered skills and no role title gets the skill-and-job label instead of \"Esteemed Elder\"; believers (Former Heathens included) are as in the stock game.",
+    "The logs' \"Special villager\" line (native/shared/special_title.h): never \"Esteemed Elder\" for a current Heathen while the companion is installed."
+  ],
+  "explicit_non_changes": [
+    "No executable byte is patched: the companion splices its sites at run time, all or none, only after verifying their stock bytes; the game goes on with the registers it reads afterwards as they were.",
+    "No skill, flag, totem, job or save field is changed; the rule only reads the villager's record.",
+    "The Secret City is left as the stock game makes it (its own Esteemed Elder rule)."
+  ],
+  "companion_files": [
+    {
+      "source": "assets/esteemed_elders/VVFP Esteemed Elders.dll",
+      "destination": "VVFP Esteemed Elders.dll",
+      "sha256": "14DFAC15F1D1F8A0EC2B971C50CBE8F758A77644A72F6A7C1F244A058132F24C"
+    }
+  ],
+  "patches": [],
+  "runtime_detours": [
+    {
+      "va": "0x442EB5",
+      "stock_bytes": "E85627030084C0743F",
+      "written_bytes": "E9XXXXXXXX90909090",
+      "routine": "the villager panel's elder test (`call 0x475610 / test al, al / je 0x442EFD`, ecx the record's skills, [esp+0x10] the record): the game's own three-mastered test, then a current Heathen (+0x1CEC set) goes on to the rank (0x442EFD) instead of \"Esteemed Elder\" (0x442EBE, string 0xCA, or the Retired Chief's 0xD3); a believer goes on as in the stock game",
+      "installed_by": "VVFP Esteemed Elders.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    }
+  ]
+}

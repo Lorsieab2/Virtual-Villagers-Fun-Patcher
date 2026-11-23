@@ -36,6 +36,17 @@
                         otherwise, with 3 or more of the six float skills
                         +0x1C5C..+0x1C70 at 88.0 or more (0x475610): Esteemed Elder
 
+   With "Esteemed Elders in Every Game" in the exe (native/shared/
+   esteemed_elder.h: its companion loaded and installed), A New Home, The Lost
+   Children and The Tree of Life also give "Esteemed Elder" by that row's
+   rule -- three or more skills at the game's Master level, never the Golden
+   Child, a totem statue or a ghost -- below their own title (Golden Child;
+   Scholar), as the Details screen then shows it; and in New Believers a
+   current Heathen is never an Esteemed Elder (the stock panel gives a
+   Heathen of no role title one), while a Former Heathen keeps the Former
+   Heathen title in the logs (the priority list) though the Details screen,
+   which has no Former Heathen title, says "Esteemed Elder".
+
    "Master <skill>" is never a title in any game: it is the ordinary
    skill-and-job label.  NULL for a villager with no special title.
 
@@ -46,6 +57,7 @@
 #include <windows.h>
 #include <stdint.h>
 #include "former_heathens.h"
+#include "esteemed_elder.h"
 
 static int vv_title_count_at_least(const unsigned char *r, unsigned int at, int count,
                                    int floats) {
@@ -69,16 +81,25 @@ static const char *vv_special_title_former(int game, const unsigned char *r, int
     }
     switch (game) {
     case 1:
-        return *(const int *)(r + 0x36C) == 0xC7 ? "Golden Child" : NULL;
+        if (*(const int *)(r + 0x36C) == 0xC7) {
+            return "Golden Child";
+        }
+        return vv_elder_rule(1, r) && vv_elders_row_on() ? VV_ELDERS_TITLE : NULL;
     case 2:
-        return r[0x7FC] != 0 ? "Esteemed Elder" : NULL;
+        if (r[0x7FC] != 0) {
+            return "Esteemed Elder";
+        }
+        return vv_elder_rule(2, r) && vv_elders_row_on() ? VV_ELDERS_TITLE : NULL;
     case 3:
         if (r[0xE80] != 0) {
             return "Tribal Chief";
         }
         return vv_title_count_at_least(r, 0xEAC, 5, 0) >= 3 ? "Esteemed Elder" : NULL;
     case 4:
-        return vv_title_count_at_least(r, 0x1C5C, 5, 1) >= 5 ? "Scholar" : NULL;
+        if (vv_title_count_at_least(r, 0x1C5C, 5, 1) >= 5) {
+            return "Scholar";
+        }
+        return vv_elder_rule(4, r) && vv_elders_row_on() ? VV_ELDERS_TITLE : NULL;
     case 5: {
         int role = *(const int *)(r + VV5_TYPE);
         if (r[VV5_FACTION] != 0) {
@@ -91,6 +112,13 @@ static const char *vv_special_title_former(int game, const unsigned char *r, int
             return vv_former_title(former);
         } else if (r[VV5_ORANGE] != 0 || r[VV5_RED] != 0) {
             return vv_former_title(r[VV5_ORANGE] != 0 ? VV_FORMER_ORANGE : VV_FORMER_RED);
+        }
+        /* A current Heathen of no role title: the stock panel says "Esteemed Elder" with three mastered; with
+           Esteemed Elders in Every Game a current Heathen never does (the owner, 2026-11-22).  A Former Heathen
+           keeps the Former Heathen title above (the owner's priority list), as a believer the panel titles
+           "Esteemed Elder". */
+        if (r[VV5_FACTION] != 0 && vv_elders_row_on()) {
+            return NULL;
         }
         return vv_title_count_at_least(r, 0x1C5C, 6, 1) >= 3 ? "Esteemed Elder" : NULL;
     }

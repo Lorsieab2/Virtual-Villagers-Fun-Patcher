@@ -303,6 +303,12 @@ def vv2_lines(village: gm.Village) -> list[gm.Fact]:
     out.append(gm.Fact(COUNTS, words, gm.RUNNING, sub=True))
     out.append(gm.Fact(COUNTS, "Esteemed Elders over time: the game's Village Elders field above counts every elder "
                                "made.", gm.RUNNING, sub=True))
+    # Esteemed Elders in Every Game (native/vvfp_esteemed_elders; native/statistics_export village_elders.c).
+    if village.has("vv2_esteemed_elders") is not False:
+        out.append(gm.Fact(COUNTS, gm.patch_words(village, "vv2_esteemed_elders", (
+            "a villager with 3 of the 5 skills at 88 or more is titled Esteemed Elder even when no totem is made (past "
+            "50 totems), and the Village Statistics' Village Elders counts every Esteemed Elder ever, kept in the "
+            "save's Village Elders file (started from the game's own count)")), gm.RUNNING, sub=True))
     return out
 
 
