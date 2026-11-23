@@ -71,7 +71,7 @@ import vv_last_names as ln
 import vv_log_tools as tools
 import vv_save_backup
 from vv_game_text import GAME_TEXT  # the games' bytes: Windows-1252, every byte kept
-from vv_log_additions import faction_side, is_heathen_faction   # "Heathen", or Guardians of Isola's "Isolan"
+from vv_log_additions import LEFT_RECORDS, faction_side, is_heathen_faction   # "Heathen", or Guardians of Isola's "Isolan"
 
 GAME = 5
 LABEL = "Catch up Heathen ages"
@@ -96,6 +96,8 @@ LEVELS, MEDICINE = 0xBC0C + 0x10, 1
 OLD_AGE_BASE, OLD_AGE_STEP = 1100, 160
 
 LEFT = "Left the tribe: became a Heathen"
+# The departures this repair reads: that, or "...became an Isolan" with Guardians of Isola (vv_log_additions).
+LEFT_WORDINGS = tuple(LEFT_RECORDS)
 CONVERTED = "Converted from the Heathens"
 
 
@@ -222,7 +224,7 @@ def _moments(blocks) -> tuple[list[_Moment], set, list[str]]:
         if None in ident:
             continue
         head = b.heading
-        if head.startswith("Disappeared") and (b.value("What happened") or "").startswith(LEFT):
+        if head.startswith("Disappeared") and (b.value("What happened") or "").startswith(LEFT_WORDINGS):
             marked.add(ident)
         elif head.startswith("Arrived"):
             how = b.value("How") or ""

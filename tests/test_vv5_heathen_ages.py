@@ -175,6 +175,29 @@ class TheFields(unittest.TestCase):
         self.assertEqual(ha.old_age_threshold(3), 1420)
 
 
+class GuardiansOfIsola(unittest.TestCase):
+    """Codex (#850): with Guardians of Isola the logs say "Isolan" -- "Faction: Isolan", "Left the tribe: became an
+    Isolan" -- and the repair reads them as it reads the Heathen wording."""
+
+    def test_an_isolan_departure_is_a_sign_of_the_heathens(self):
+        # Left and came back between S2 and S3 (frozen 50 there); no Heathen snapshot, no Converted record: the
+        # Disappeared record is the only sign.
+        people = PEOPLE + [("Ig Isolan", 12, 12, 0, 0, 0, [None, None, 100, 150, 250, 270])]
+        v = Village(self, people)
+        for rel in logs(people):
+            path = v.folder / LOGS / rel
+            text = path.read_bytes().decode("cp1252").replace("Faction: Heathen", "Faction: Isolan")
+            text = text.replace("became a Heathen", "became an Isolan")
+            if "Deaths" in rel:
+                text += _record("Disappeared", ["Name: Ig Isolan", "Age: 100", "Sex: Male",
+                                                "What happened: Left the tribe: became an Isolan",
+                                                "Head: 12", "Body: 12"]).replace("\n", "\r\n")
+            path.write_bytes(text.encode("cp1252"))
+        found = ha.survey(v.folder, 1)
+        by = {c.name: c.add for c in found.changes}
+        self.assertEqual(by.get("Ig Isolan"), 50, found.unknown)
+        self.assertEqual(by.get("Fc Charlie"), 190, "Isolan factions read as Heathens")
+
 class TheSurvey(unittest.TestCase):
     def setUp(self):
         self.v = Village(self)
