@@ -13,7 +13,8 @@ What goes (Move Player Slot's discovery, src/vv_move_slot.py slot_everything, so
       patcher file named for the slot -- logs, every data / sidecar file, repair copies, saved family trees and
       the family tree reports' text and pages.
     * The slot's repair copies whose short name lost the slot (vv_repair_copies SHORT_MAX), found by the file
-      they are a copy of in "Copies Index.txt"; each index then loses the lines of the copies that went.
+      they are a copy of in "Copies Index.txt".  The index lines stay: readers skip a copy that is not there, and
+      a copy put back from the Recycle Bin is found again.
     * In every whole-folder backup in "Backups": only that slot's files, found the same way inside the backup
       (its Long Paths folder too), so every other slot of every backup can still be restored.  And the slot's
       own "Replaced by copy/move ... - Save <S> - ..." folders.
@@ -71,7 +72,6 @@ class Group:
     where: str                                   # "" the save folder; else "Backups\\<folder>"
     files: list[Path] = field(default_factory=list)
     pictures: list[Path] = field(default_factory=list)
-    indexes: dict = field(default_factory=dict)  # Copies Index path -> its bytes without the recycled copies
     folders: list[Path] = field(default_factory=list)   # the slot's folders to remove once empty
     aside: Path | None = None                    # a whole set-aside folder (its Backups index line forgotten)
 
@@ -145,20 +145,9 @@ def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Grou
                 found.setdefault(str(kept.copy).casefold(), kept.copy)
     for path in sorted(found.values(), key=lambda p: str(p).casefold()):
         (group.pictures if is_picture(logical.get(str(path).casefold(), path)) else group.files).append(path)
-    going = {str(p).casefold() for p in group.files}
-    for index in _copies_indexes(root):
-        if str(index).casefold() in going:
-            continue                                     # the slot's own index goes with its folder
-        raw = lp.read_bytes(index)
-        kept_lines = []
-        for line in raw.splitlines(keepends=True):
-            name = line.decode("utf-8", "replace").split("\t", 1)[0]
-            if not line.startswith(b"#") and name and str(index.parent / name).casefold() in going:
-                continue
-            kept_lines.append(line)
-        new = b"".join(kept_lines)
-        if new != raw:
-            group.indexes[index] = new
+    # Every Copies Index keeps its lines for the recycled copies (Codex review on #847): its readers skip a
+    # copy that is not there (vv_repair_copies.all_kept / kept_copies), and when the player puts the files
+    # back from the Recycle Bin, the lines find them again.  The slot's own index goes with its folder.
     group.folders = [root / cs.SAVES / f"Save {slot}", root / cs.LOGS / f"Save {slot}"]
     return group
 
@@ -223,7 +212,7 @@ def plan_delete(game: rename.GameSaves, folder: Path, slot: int) -> Plan:
         plan.groups.append(_discover(game, folder, slot, ""))
         for snapshot in _snapshots(folder):
             group = _discover(game, snapshot, slot, f"{vv_save_backup.BACKUPS_FOLDER}\\{snapshot.name}")
-            if group.files or group.pictures or group.indexes:
+            if group.files or group.pictures:
                 plan.groups.append(group)
         plan.groups += _set_aside_groups(folder, slot)
     except OSError as exc:
@@ -237,10 +226,6 @@ def plan_delete(game: rename.GameSaves, folder: Path, slot: int) -> Plan:
             prints.append((str(path).casefold(), info.st_size, info.st_mtime_ns))
         except OSError:
             prints.append((str(path).casefold(), None))
-    for group in plan.groups:
-        for index in group.indexes:
-            info = lp.stat(index)
-            prints.append((str(index).casefold(), info.st_size, info.st_mtime_ns))
     import hashlib
     prints.append(("slot list", hashlib.sha256(before).hexdigest() if before is not None else None))
     plan.fingerprints = tuple(sorted(prints, key=lambda f: f[0]))
@@ -321,8 +306,6 @@ def delete_slot(game: rename.GameSaves, folder: Path, slot: int, processes=None,
                 if left:
                     raise OSError(f"{len(left)} file(s) were still there afterwards")
                 result.recycled += batch
-            for index, data in group.indexes.items():
-                _write(index, data)
             if group.aside is not None and not group.pictures:
                 _remove_empty([group.aside])
                 if not lp.exists(group.aside):

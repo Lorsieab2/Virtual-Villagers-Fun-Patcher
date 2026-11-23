@@ -46,7 +46,22 @@ class FakeBin:
         if self.fail_on is not None and len(self.calls) == self.fail_on:
             raise OSError("the Recycle Bin refused (test)")
         for path in paths:
-            os.rename(path, self.place / f"{sum(len(c) for c in self.calls)}-{len(os.listdir(self.place))}-{path.name}")
+            stored = self.place / f"{sum(len(c) for c in self.calls)}-{len(os.listdir(self.place))}-{path.name}"
+            os.rename(path, stored)
+            self.kept.append((path, stored))
+
+    @property
+    def kept(self) -> list:
+        if not hasattr(self, "_kept"):
+            self._kept = []
+        return self._kept
+
+    def restore_all(self) -> None:
+        """Windows' "Restore all items": every file back at its own place (its folder made again)."""
+        for original, stored in self.kept:
+            original.parent.mkdir(parents=True, exist_ok=True)
+            os.rename(stored, original)
+        self._kept = []
 
     @property
     def sent(self) -> list[Path]:
@@ -103,10 +118,12 @@ class DeleteTests(Base):
                     self.assertEqual(str(path).casefold() in sent, not ds.is_picture(path), path)
                 self.assertFalse(game.save_path(folder, 1).exists())
                 self.assertFalse(game.save_path(snapshot, 1).exists())
-                # The repair copy whose name lost the slot went too; its index line with it, slot 2's kept.
+                # The repair copy whose name lost the slot went too; its index line stays for a Recycle Bin
+                # restore, and the readers no longer find it (it is not there).
                 shared = folder / OLD_DATA / "Copies Made Before Repairs"
                 self.assertFalse((shared / "A very long sidecar name that is cut sh.dat.bak1").exists())
-                self.assertEqual([e.copy.name for e in rc.entries(shared)], ["Graves - Save 2.dat.bak1"])
+                self.assertEqual(sorted(e.copy.name for e in rc.all_kept(folder) if e.copy.parent == shared),
+                                 ["Graves - Save 2.dat.bak1"])
                 # Slot 1's set-aside folder and its Backups index line are gone; slot 2's stay.
                 index = backup.backups_index(folder / "Backups")
                 self.assertNotIn("2026-10-31 1200 s1", index)
@@ -126,11 +143,7 @@ class DeleteTests(Base):
                     self.assertEqual(new[at:at + game.index_stride], old_index[at:at + game.index_stride])
                 # Every other file -- every other slot's, here and in the backup -- is exactly as it was.
                 gone = {Path(p).relative_to(folder).as_posix() for p in result.recycled}
-                changed = {game.index_path(folder).name, "Backups/Backups Index.txt",
-                           f"{OLD_DATA}/Copies Made Before Repairs/{rc.INDEX}",
-                           f"Backups/{snapshot.name}/{OLD_DATA}/Copies Made Before Repairs/{rc.INDEX}"}
-                self.assertEqual([e.copy.name for e in rc.entries(snapshot / OLD_DATA / "Copies Made Before Repairs")],
-                                 ["Graves - Save 2.dat.bak1"])
+                changed = {game.index_path(folder).name, "Backups/Backups Index.txt"}   # no Copies Index changes
                 for name, data in before.items():
                     if name in gone:
                         self.assertNotIn(name, after)
@@ -239,8 +252,29 @@ class OwnershipTests(Base):
         ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
         self.assertFalse((shared / "Deaths Log 1.txt.bak1").exists())
         self.assertEqual((shared / "Deaths Log 1.txt.bak2").read_bytes(), b"theirs")
-        self.assertIn("Deaths Log 1.txt.bak2", [e.copy.name for e in rc.entries(shared)])
-        self.assertNotIn("Deaths Log 1.txt.bak1", [e.copy.name for e in rc.entries(shared)])
+        found = [e.copy.name for e in rc.all_kept(folder)]
+        self.assertIn("Deaths Log 1.txt.bak2", found)
+        self.assertNotIn("Deaths Log 1.txt.bak1", found)
+
+    def test_a_recycle_bin_restore_brings_every_copy_back_indexed(self) -> None:
+        """Codex review on #847: the Copies Index lines stay, so putting the files back from the Recycle Bin
+        makes every repair copy -- the save folder's and each backup's -- found again."""
+        for tag, number, suffix in tc.CASES[:5]:
+            with self.subTest(game=number):
+                game, folder, _old = self.make(tag, number, suffix)
+                (snapshot,) = [p for p in (folder / "Backups").iterdir()
+                               if p.is_dir() and not p.name.endswith(("S1", "S2"))]
+                before = {str(e.copy) for root in (folder, snapshot) for e in rc.all_kept(root)}
+                self.assertTrue(any("cut sh" in c for c in before))
+                bin_ = FakeBin(Path(self._tmp.name) / f"bin{number}")
+                ds.delete_slot(game, folder, 1, processes=tc.FakeProcesses(), now=NOW, recycle=bin_)
+                self.assertLess(len({str(e.copy) for root in (folder, snapshot) for e in rc.all_kept(root)}),
+                                len(before))
+                bin_.restore_all()
+                self.assertEqual({str(e.copy) for root in (folder, snapshot) for e in rc.all_kept(root)}, before)
+                titles = folder / OLD_DATA / "Custom Titles" / "Custom Titles - Save 1.dat"
+                self.assertIn("A very long sidecar name that is cut sh.dat.bak1",
+                              [p.name for p in rc.kept_copies(folder, titles)])
 
     def test_a_village_named_like_a_slot_never_claims_another_slots_set_aside_folder(self) -> None:
         game, folder, _old = self.make("huttest", 3, "Modded")
