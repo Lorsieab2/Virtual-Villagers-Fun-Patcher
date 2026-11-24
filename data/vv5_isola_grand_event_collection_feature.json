@@ -5,7 +5,7 @@
   "catalog_hidden": false,
   "game_id": "vv5",
   "name": "Isola Grand Event Collection",
-  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Events\\Credits.txt\"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). When one of these events -- or one of More Island Events' -- comes (Story / Cheat Upgrades), the game's own event does not come that time; never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers), and when none can happen, the game's own event comes. It never takes a share of the game's own draw, so the game's own events keep their chances among themselves. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 4360 events in this game in this build. The Living Event Engine adds 215 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults, Select All and Classic VV Difficulty (The Tree of Life, New Believers) tick it, with More Island Events (the \"More Island Events and Creator\" row). **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
+  "description": "Adds the Isola Grand Event Collection, the owner's large collection of island events (written with ChatGPT; the credits come with it, in \"Virtual Villagers Fun Patcher Files\\Events\\Credits.txt\"). Each natural island event has a 30-50% chance to be one of these instead (never a rescue event or the two opening events). Events that can kill a villager, make one disappear or lose a pregnancy only happen once the village has 61 or more villagers. From 61 villagers the food and tech points they give or take come in a random size each time (small, normal, large or huge, in the game's own ranges). When one of these events -- or one of More Island Events' -- comes (Story / Cheat Upgrades), the game's own event does not come that time; never while the village is in trouble (the game's own rescue rule, little food, much sickness, few grown villagers), and when none can happen, the game's own event comes. It never takes a share of the game's own draw, so the game's own events keep their chances among themselves. Each event needs the villagers it names (never the protected ones for anything harmful); when it cannot be cast, another is drawn. Pick Island Event lists them (with what each needs), and the Custom Island Event library has them in its own \"Isola Grand Event Collection\" group. 4405 events in this game in this build. The Living Event Engine adds 215 situations, each shown as one of its owner-written variants with the villagers' names (each category counts as one event in the draw). Off by default; Owner's Defaults, Select All and Classic VV Difficulty (The Tree of Life, New Believers) tick it, with More Island Events (the \"More Island Events and Creator\" row). **Needs Story / Cheat Upgrades (on by default), which runs these events; ticking this ticks it.** **Needs Scrolling Popups, which keeps every page of these events on the screen; ticking this ticks it.** **Unverified in play: the events have not been seen in a running game** (emulated).",
   "output_tag": "Isola Grand Event Collection",
   "dependencies": [
     "vv5_story_cheat_upgrades",
@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Events/Credits.txt",
-      "sha256": "BF4810DFCCCEB40FD377E6F39EA2EEDA97DE2A03941BC803D2CF4F4916D111AE"
+      "sha256": "5708C8371DB161CF1FC7388A90A51381DAE20B5503680AE2CA6759A979FEE4AB"
     },
     {
       "source": "assets/event_collection/vv5/manifest-an_age.txt",
@@ -210,6 +210,11 @@
       "source": "assets/event_collection/vv5/manifest-dr_fea.txt",
       "destination": "Events/dr_fea.lst",
       "sha256": "FF2E282B0C4EEDA08056930F42FE439A13D7E9565D5D0B2641F34D732FEB0E75"
+    },
+    {
+      "source": "assets/event_collection/vv5/manifest-dr_he.txt",
+      "destination": "Events/dr_he.lst",
+      "sha256": "42F1C11FE33409B8D8C210785687588FCF7AA3B9F72162C3A9207024AA7C7392"
     },
     {
       "source": "assets/event_collection/vv5/manifest-dr_hea.txt",
@@ -767,6 +772,11 @@
       "sha256": "268F2CB6E7231C0F77F77374F0496662CE8318A22B583E350FB4320DF59B5002"
     },
     {
+      "source": "assets/event_collection/vv5/manifest-st_heathen_.txt",
+      "destination": "Events/st_heathen_.lst",
+      "sha256": "684DE28FA08331039E953D591C0DC52045838E51CE19F6B98248FF05A82740B9"
+    },
+    {
       "source": "assets/event_collection/vv5/manifest-st_horizon.txt",
       "destination": "Events/st_horizon.lst",
       "sha256": "5877E0EBBC136D8DB2A88FD666C36A87E3071E4CB84F514F14010CCDD14D7C4C"
@@ -1230,6 +1240,11 @@
       "source": "assets/event_collection/vv5/living-st_fathers3.pak",
       "destination": "Events/st_fathers3.pak",
       "sha256": "738E1AC13A8B3750C0394D2A0A9792B7D1E6E57C0209C0DCA0846D33A91F4B4A"
+    },
+    {
+      "source": "assets/event_collection/vv5/living-st_heathen_.pak",
+      "destination": "Events/st_heathen_.pak",
+      "sha256": "421AE65C708A4F8821C00AD0EF41BBE2F0224712487305B5AF82657548AD14AD"
     },
     {
       "source": "assets/event_collection/vv5/living-st_horizon.pak",
@@ -10965,6 +10980,231 @@
       "source": "assets/event_collection/hc6_sabotage.cieg",
       "destination": "Events/1939.cieg",
       "sha256": "6C7BA37FADEB805A385F22F1E40B0592122E67429778F846EAC22EBC24B16238"
+    },
+    {
+      "source": "assets/event_collection/he01_quiet_hour_encampment.cieg",
+      "destination": "Events/4483.cieg",
+      "sha256": "D4DD8C3680345FABC14D89A9B41B4E5F7ADBA455975B23C573F0EE7CFA4BACB3"
+    },
+    {
+      "source": "assets/event_collection/he02_flowers_mud_hut.cieg",
+      "destination": "Events/4484.cieg",
+      "sha256": "D829BB4DCCEC2C5062E249087174D97E6DB1665FD2829C9EDE84A38E92857409"
+    },
+    {
+      "source": "assets/event_collection/he03_mask_hung_up_good.cieg",
+      "destination": "Events/4485.cieg",
+      "sha256": "4B259A5BEF51EBF1667C8448947C99A31E8AF62E9242B1984D9C44BE19DAFB85"
+    },
+    {
+      "source": "assets/event_collection/he04_song_ones_before.cieg",
+      "destination": "Events/4486.cieg",
+      "sha256": "7D57AE04C0517BAC1A82368B58F9652BC2EE837D9B9C7FF2B487856859F5F675"
+    },
+    {
+      "source": "assets/event_collection/he05_visit_mausoleum.cieg",
+      "destination": "Events/4487.cieg",
+      "sha256": "509E57EB36AC57839B7148DFBD42A39F3BCDBCE66F156C316337359F016BC542"
+    },
+    {
+      "source": "assets/event_collection/he06_carved_post.cieg",
+      "destination": "Events/4488.cieg",
+      "sha256": "EDEBC21A5520CD130895DE6170147E9A900A6F18D60EB3EDAEF6D53CFBDE61EF"
+    },
+    {
+      "source": "assets/event_collection/he07_child_asks_about_hut.cieg",
+      "destination": "Events/4489.cieg",
+      "sha256": "CA7D1E807F15D06BB85485E718FA5858C6347758B4746F280276F9A087E1BE42"
+    },
+    {
+      "source": "assets/event_collection/he08_stones_stream.cieg",
+      "destination": "Events/4490.cieg",
+      "sha256": "D740627D7DBE037CBEE2E620EC8A5A3CA074B6E7E68F896142D974D7787D5728"
+    },
+    {
+      "source": "assets/event_collection/he09_long_night_fire.cieg",
+      "destination": "Events/4491.cieg",
+      "sha256": "76A5D429CDAF7BBC8FEF815C27266A126005E2628AFAC52CC58E731E3EAEC7B0"
+    },
+    {
+      "source": "assets/event_collection/he10_heathen_day_honor.cieg",
+      "destination": "Events/4492.cieg",
+      "sha256": "DFE40211C3796884AC966E9E4D54321C3A64A7E2AA019116526EC6C8BC32E597"
+    },
+    {
+      "source": "assets/event_collection/he11_name_nobody_remembers.cieg",
+      "destination": "Events/4493.cieg",
+      "sha256": "2DA93306C7DA76204B52BAC329E881EE952DB1F3F9D3EB1A7FD04B03923D19E0"
+    },
+    {
+      "source": "assets/event_collection/he12_empty_place_fire.cieg",
+      "destination": "Events/4494.cieg",
+      "sha256": "DE3BF5DDF997331C63423EA795E273A288EF5DE21DD926B5B60C78FD942DC2A7"
+    },
+    {
+      "source": "assets/event_collection/he13_two_peoples_one_grief.cieg",
+      "destination": "Events/4495.cieg",
+      "sha256": "54CDF21ADDEC3C9B51EFB9A2C8C40FEA79E2C9FDA8F7FC288004B3860B3E55FC"
+    },
+    {
+      "source": "assets/event_collection/he14_bed_bugs_camp.cieg",
+      "destination": "Events/4496.cieg",
+      "sha256": "84973F84729E1F00822B008F7E7ACF950764BA8940380A3BB627E6ED98CCA759"
+    },
+    {
+      "source": "assets/event_collection/he15_heathen_daredevil.cieg",
+      "destination": "Events/4497.cieg",
+      "sha256": "AE5C6D7DC709919F6A8145D325071776DE00252604F1AACD8541BE464A584E82"
+    },
+    {
+      "source": "assets/event_collection/he16_straw_hat_encampment.cieg",
+      "destination": "Events/4498.cieg",
+      "sha256": "80DA6CD9173044F39D6476CB9580A9F744C87EB97F7DC0F7A33D3ED7527CC9E8"
+    },
+    {
+      "source": "assets/event_collection/he17_strange_nectar_camp.cieg",
+      "destination": "Events/4499.cieg",
+      "sha256": "8D78B36EAA818075402DD6682EA6F813070193F80BF4BBE9C8ACCAD4981EA393"
+    },
+    {
+      "source": "assets/event_collection/he18_heathen_children_fruit.cieg",
+      "destination": "Events/4500.cieg",
+      "sha256": "1D328FF1D9EAF0768D35160D174BE489B0FD7CE3AC53DE87102043CB2C8397BF"
+    },
+    {
+      "source": "assets/event_collection/he19_doing_their_own_way.cieg",
+      "destination": "Events/4501.cieg",
+      "sha256": "A4352277145BAB0F8CBC6D59113C4D55A827B2492A2A905D5B3457EA6552E175"
+    },
+    {
+      "source": "assets/event_collection/he20_heathen_vision.cieg",
+      "destination": "Events/4502.cieg",
+      "sha256": "109434F2E947115067AE15E7A1A090AFB9C072EEC7444BDEDA4FD30082224C3D"
+    },
+    {
+      "source": "assets/event_collection/he21_clumsy_heathen_good_turn.cieg",
+      "destination": "Events/4503.cieg",
+      "sha256": "8C853BCFC2BE9717760AC5C61EDE4F52760FB871CFD07FAC7607F09365B8EF68"
+    },
+    {
+      "source": "assets/event_collection/he22_cold_snap_camp.cieg",
+      "destination": "Events/4504.cieg",
+      "sha256": "8FDABDA295DC64220F04E7DCC8E81983AA9F82B5808AD6332D56CD0830B8A20A"
+    },
+    {
+      "source": "assets/event_collection/he23_mushroom_day_encampment.cieg",
+      "destination": "Events/4505.cieg",
+      "sha256": "AF82D0C54CF09BA4F5210D06EE932626F1908C7F4D2888D8197E84773231823F"
+    },
+    {
+      "source": "assets/event_collection/he24_heathens_remembrance.cieg",
+      "destination": "Events/4506.cieg",
+      "sha256": "6DC3784D71D6382118483E603D44A9A077D8451C35D7781939ABCF597C8A8C05"
+    },
+    {
+      "source": "assets/event_collection/he25_heathen_toy_lost_found.cieg",
+      "destination": "Events/4507.cieg",
+      "sha256": "5DCBE9369108E42545B2FD0A9146541387A62E63AB91BE1D3F050A6CCBBFDB59"
+    },
+    {
+      "source": "assets/event_collection/he26_spa_after_dark.cieg",
+      "destination": "Events/4508.cieg",
+      "sha256": "91A1E8B84208768BB0C1B41D6E40255A4D254049BA86E13A1B8589EFC80E16AF"
+    },
+    {
+      "source": "assets/event_collection/he27_missing_heathen_kids.cieg",
+      "destination": "Events/4509.cieg",
+      "sha256": "DF39B5EB2604101655D3AD2C549D77D73BD97282400D0733565F26CD8C46AF30"
+    },
+    {
+      "source": "assets/event_collection/he28_mask_doesnt_fit_anymore.cieg",
+      "destination": "Events/4510.cieg",
+      "sha256": "CABD75CE715F25C1FE3B7BA7E74892EACA7E9D45D3EF7A1F74DCDD332D15DEDD"
+    },
+    {
+      "source": "assets/event_collection/he29_roots_supper.cieg",
+      "destination": "Events/4511.cieg",
+      "sha256": "F300C0F0F7DC7456328852061353250F2497B7F5762FA5E507D413DFFCB10D2C"
+    },
+    {
+      "source": "assets/event_collection/he30_argument_about_fire_pit.cieg",
+      "destination": "Events/4512.cieg",
+      "sha256": "B18B9E7C04B89516565003D5FE94923FCF194055D72150DC15E7CF8940F2D51F"
+    },
+    {
+      "source": "assets/event_collection/he31_baby_first_mask.cieg",
+      "destination": "Events/4513.cieg",
+      "sha256": "85080730706BF90D4615DF20486C491D3A29239B7B30C905F0FD8488983C9535"
+    },
+    {
+      "source": "assets/event_collection/he32_song_across_stream.cieg",
+      "destination": "Events/4514.cieg",
+      "sha256": "A05AC6FF876EBA1DAEC5B5DFA1D23EDC1E206AB89FBC7C1DFB302EFB1A0C13C8"
+    },
+    {
+      "source": "assets/event_collection/he33_snoring_hut.cieg",
+      "destination": "Events/4515.cieg",
+      "sha256": "51E7D1FB26AC6229E038E24A492CC94F512F47D97BA9FAB615775001BC71CFB8"
+    },
+    {
+      "source": "assets/event_collection/he34_teaching_stone.cieg",
+      "destination": "Events/4516.cieg",
+      "sha256": "18D94C402C5E9E97659DA282A5A64A7FE106F714C4F95EEEC093F45F829F7BAB"
+    },
+    {
+      "source": "assets/event_collection/he35_heathen_weaver.cieg",
+      "destination": "Events/4517.cieg",
+      "sha256": "A401C6ACA2B62151179C2BB9450288883F5A76921B91ECF4C51EBDDD9BF6E07A"
+    },
+    {
+      "source": "assets/event_collection/he36_pig_camp.cieg",
+      "destination": "Events/4518.cieg",
+      "sha256": "7A920B75196DAA8F13FCAB802AE464AB34F8E0B9C5139E25277C4C3BE730858A"
+    },
+    {
+      "source": "assets/event_collection/he37_mending_day.cieg",
+      "destination": "Events/4519.cieg",
+      "sha256": "2DCA1FDC908E5C2E8F7230A16A496CBD15F1971FAF651F2DA5E55DBF60377673"
+    },
+    {
+      "source": "assets/event_collection/he38_shell_collector.cieg",
+      "destination": "Events/4520.cieg",
+      "sha256": "D71A9C6F6583CE2D1776A6EFCBD17303037608B596EF1911382ABFE1BB25FC0E"
+    },
+    {
+      "source": "assets/event_collection/he39_heathen_cook_pride.cieg",
+      "destination": "Events/4521.cieg",
+      "sha256": "030E40E30A6FD4A5F1A737C9EF39A863E76E1E5EF55574D6EADB17E64A4A7C52"
+    },
+    {
+      "source": "assets/event_collection/he40_rain_dance_worked.cieg",
+      "destination": "Events/4522.cieg",
+      "sha256": "BA624D03F0D8826C72748430066B8C4141A83948F7F19DF1672AA9FC5768FBAA"
+    },
+    {
+      "source": "assets/event_collection/he41_twins_swapped_masks.cieg",
+      "destination": "Events/4523.cieg",
+      "sha256": "B5D5C3C49A4A1E1F1D80E06A2F64421955206F8CDF3F9FCEE4177DC6CE6DD928"
+    },
+    {
+      "source": "assets/event_collection/he42_quiet_day_off.cieg",
+      "destination": "Events/4524.cieg",
+      "sha256": "1041960EC952566A9424618D90347067C1DD9F3D98F8E48983CB5E761C8243B6"
+    },
+    {
+      "source": "assets/event_collection/he43_elder_long_story.cieg",
+      "destination": "Events/4525.cieg",
+      "sha256": "E14BF75F7A880F65AFAB6792389BDE7D10713871D57D867892EEF855AA87CCB3"
+    },
+    {
+      "source": "assets/event_collection/he44_first_day_grown_up.cieg",
+      "destination": "Events/4526.cieg",
+      "sha256": "3B62A2C794E507A2F7872EA2A7752444FC3A8C12E6989B371919B4BE994A5D0F"
+    },
+    {
+      "source": "assets/event_collection/he45_camp_night.cieg",
+      "destination": "Events/4527.cieg",
+      "sha256": "0C85C3834244F7EB80C5F00548D94DF1C3F16E3DAE62025A42889BFAD6040EC4"
     },
     {
       "source": "assets/event_collection/hea01_count_four_count.cieg",

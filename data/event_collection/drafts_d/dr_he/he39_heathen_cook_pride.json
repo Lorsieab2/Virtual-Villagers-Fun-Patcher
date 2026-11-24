@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heathen Cook's Pride",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he39_heathen_cook_pride",
+  "source": "heathen_ex",
+  "lines": [
+   635,
+   649
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L635",
+  "ledger": [
+   {
+    "src": "L636",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L637",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L643",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L647",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L648",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L649",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "A Heathen has made a stew so spicy that two people had to sit in the stream afterwards.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan has made a stew so spicy that two people had to sit in the stream afterwards."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has made a stew so spicy that two people have had to sit in the stream afterwards. (He/she) is very proud. Some of the camp would like a word.",
+   "src": "L639",
+   "choices": [
+    {
+     "label": "Make It Milder Next Time",
+     "next": "o1",
+     "src": "L641"
+    },
+    {
+     "label": "Stand by the Recipe",
+     "next": "o2",
+     "src": "L645"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) makes a milder one the next night. Everyone eats it gratefully. A few people quietly ask whether there's any of the spicy one left.",
+   "src": "L642",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L643"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) stands firm. \"It's supposed to make your eyes water.\" Within a month, half the camp can't eat anything else.",
+   "src": "L646",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Hic!",
+     "src": "L647"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "cooking",
+     "src": "L647"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Isolan Cook's Pride"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

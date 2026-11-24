@@ -1,0 +1,116 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Twins Who Swapped Masks",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he41_twins_swapped_masks",
+  "source": "heathen_ex",
+  "lines": [
+   662,
+   669
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L662",
+  "ledger": [
+   {
+    "src": "L663",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L664",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L666",
+    "kind": "structural",
+    "why": "the draft's shape: one popup, no choice"
+   },
+   {
+    "src": "L668",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L669",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   }
+  ],
+  "description": "Two young Heathens discover that if they swap masks, almost nobody at camp can tell them apart.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Two young Isolans discover that if they swap masks, almost nobody at camp can tell them apart."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 17,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "max_age": 17,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(subject) and (friend) aren't twins, or even related, but they are the same height, and they have discovered that if they swap masks almost nobody at camp can tell them apart. They manage it for two whole days before (subject)'s grandmother notices that \"(subject)\" has suddenly forgotten how to whistle. They are given a long talking-to and a lot of extra washing up, and they both agree it was worth it.",
+   "src": "L667",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Washing the laundry",
+     "src": "L668"
+    },
+    {
+     "do": "action",
+     "role": "friend",
+     "action": "Washing the laundry",
+     "src": "L668"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "jokes",
+     "src": "L668"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "list": "likes",
+     "preference": "jokes",
+     "src": "L668"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

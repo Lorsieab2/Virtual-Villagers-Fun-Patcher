@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heathen Day of Honor",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he10_heathen_day_honor",
+  "source": "heathen_ex",
+  "lines": [
+   183,
+   191
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L183",
+  "ledger": [
+   {
+    "src": "L184",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L185",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L186",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L188",
+    "kind": "structural",
+    "why": "the draft's shape: one popup, no choice"
+   },
+   {
+    "src": "L190",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L191",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "The Heathens set aside a day of their own to honor their dead.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "The Isolans set aside a day of their own to honor their dead."
+   }
+  ],
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 0,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "The Heathens set aside a day of their own to honor their dead. No work is done at the encampment. People sit by the mud hut, walk by the stream, and tell each other the old names. (subject) is the one who lights the first fire of the evening, and for once even the noisiest children are quiet.",
+   "src": "L189",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "heathens": "all"
+     },
+     "action": "Honoring the dead or reflecting (at the encampment)",
+     "src": "L190"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L190"
+    }
+   ],
+   "auto_text": true,
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The Isolans set aside a day of their own to honor their dead. No work is done at the encampment. People sit by the mud hut, walk by the stream, and tell each other the old names. (subject) is the one who lights the first fire of the evening, and for once even the noisiest children are quiet.",
+     "src": "L189"
+    }
+   ]
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Isolan Day of Honor"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

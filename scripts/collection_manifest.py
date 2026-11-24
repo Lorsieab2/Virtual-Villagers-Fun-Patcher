@@ -1175,8 +1175,36 @@ def _drafts_d_rows() -> None:
             for h in heads_of(r"^\d\d\. .+ — "):
                 num, t = re.match(r"^(\d\d)\. (.+?) — ", lib.line(h)).groups()
                 event(sid, sec, f"arm{num}", lib.normalize_source_text(t).strip(), h, h, 0, one_line=True)
+    # New Believers' Heathen-Exclusive Events HE-01..HE-45 (the owner's approval, 2026-11-23): "HE-01. Title", its
+    # casting and requirement lines, the setup, "Label:" choices each with its outcome and "Effects:" line (or "(no
+    # choice; one popup)"), notes; VV5 only.  The file's headers, section introductions and engine notes are notes rows.
+    sid = "heathen_ex"
+    _name, _n, sec, topic = D[sid]
+    with lib.use_source(sid):
+        heads = heads_of(r"^HE-\d\d\. ")
+        assert len(heads) == 45, len(heads)
+        sections = heads_of(r"^[A-C]\. [A-Z]")
+        end = heads_of(r"^WHAT THE ENGINE CAN DO TODAY")[0]
+        _d_notes(sid, sec, topic, [(1, _d_end(1, sections[0] - 1), "title, casting, the owner's rules, Guardians of "
+                                                                     "Isola wording, effect tags and odds")]
+                 + [(s - 1, _d_end(s, heads_of(r"^HE-\d\d\. ")[[h > s for h in heads].index(True)] - 1),
+                     f"section {lib.line(s)[0]}: its heading and introduction") for s in sections]
+                 + [(end - 1, lib.n_lines(), "what the engine can do, the engine changes and the open questions")])
+        for i, h in enumerate(heads):
+            stop = heads[i + 1] if i + 1 < len(heads) else end - 1      # (end - 1: the "####" rule above it)
+            nxt = [s - 1 for s in sections if h < s - 1 < stop]
+            e = _d_end(h, nxt[0] if nxt else stop)
+            num, t = re.match(r"^HE-(\d\d)\. (.+)$", lib.normalize_source_text(lib.line(h))).groups()
+            nc = sum(1 for n in range(h, e + 1) if re.match(HE_LABEL_RE, lib.line(n)))
+            # A title cannot show a literal parenthesis (a title's parentheses are placeholders, vv_cie_graph
+            # title_problems): HE-40's "(Probably)" is " - Probably", the dash the engine's own glyph fallback draws for
+            # "(" -- the owner's words kept, only that punctuation changed (listed for the owner).
+            title = re.sub(r" \((\w+)\)$", r" - \1", t.strip())
+            R(f"he{num}_{companion_slug(t, ID_MAX - 5)}", title, [5], h, e, "event", sec, sec, nc, series=sec,
+              source=sid, choice_re=HE_LABEL_RE)
 
 
+HE_LABEL_RE = r"^[A-Z][^.!?:]{0,80}:$"     # a Heathen-Exclusive Event's choice label ("Sit Quietly With (Him/Her):")
 _drafts_d_rows()
 
 

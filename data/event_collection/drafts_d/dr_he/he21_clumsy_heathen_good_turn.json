@@ -1,0 +1,144 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Clumsy Heathen's Good Turn",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he21_clumsy_heathen_good_turn",
+  "source": "heathen_ex",
+  "lines": [
+   374,
+   389
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L374",
+  "ledger": [
+   {
+    "src": "L375",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L376",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L377",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L383",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L387",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L388",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L389",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "A Heathen's basket of noni rolls down the hill and into the tribe's side of the island.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan's basket of noni rolls down the hill and into the tribe's side of the island."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) trips over a root, drops a whole basket of noni, and watches it roll down the hill, past the boundary stones and right into the tribe's side of the island.",
+   "src": "L379",
+   "choices": [
+    {
+     "label": "Go and Get It Back",
+     "next": "o1",
+     "src": "L381"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L385"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) creeps down to collect it and finds two villager children already picking it up. They hand (him/her) the basket, full. Nobody says anything. (name1) leaves a few pieces behind on a rock anyway.",
+   "src": "L382",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L383"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides that whatever rolls downhill belongs to whoever is at the bottom, and goes to pick more. (He/she) is a lot more careful with the basket this time.",
+   "src": "L386",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "running",
+     "src": "L387"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Clumsy Isolan's Good Turn"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

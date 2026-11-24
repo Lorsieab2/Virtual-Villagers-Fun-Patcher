@@ -226,7 +226,9 @@ enum { CGE_FOOD = 1, CGE_TECH = 2, CGE_PAY = 3, CGE_KILL = 4, CGE_VANISH = 5, CG
 /* 34: the mode (the effect's flags byte): set to a child, a teen 14-17, 18, an adult of 20-49, 50 or an elder, or
    move by a number of years drawn in [a, b] (either may be below 0). */
 enum { CG_AGE_CHILD = 0, CG_AGE_TEEN = 1, CG_AGE_18 = 2, CG_AGE_ADULT = 3, CG_AGE_50 = 4, CG_AGE_ELDER = 5,
-       CG_AGE_ADD = 6 };
+       CG_AGE_ADD = 6,
+       CG_AGE_HALF17 = 7 };            /* 46: exactly 16 and a half (330 units), as the stock The Strange Nectar */
+#define CG_AGE_HALF17_UNITS 330
 #define CG_FX_ANY_BIRTH_SEX 1u          /* 28 / 29: flags bit 0 */
 /* 28 / 29: flags bits 1-2, the babies (the owner, 2026-11-15, "if the game allows"; every game's records hold a
    litter of 1 to 3): bit 1 alone the stock multiple-birth roll whatever the tech gate (every game's: a multiple 7 in
@@ -287,7 +289,8 @@ enum { CGC_VISITED = 1, CGC_ROLE = 2, CGC_GAME = 3, CGC_PATCH = 4, CGC_NOT = 5, 
        CGC_HAS_DEAD_RELATIVE = 17,    /* cie-v6-binary.md 21a */
        CGC_IS_SPECIAL = 18,           /* 37: the role's villager is the game's special one (the Golden Child,
                                          The Secret City's Tribal Chief) */
-       CGC_HAS_SUPPLY = 19 };         /* cie-v6-binary.md 39: a = the good's word, the next H = at least */
+       CGC_HAS_SUPPLY = 19,           /* cie-v6-binary.md 39: a = the good's word, the next H = at least */
+       CGC_MIN_GRAVES = 20 };         /* 46: at least a graves (New Believers' own count, cg_graves; else none) */
 /* story_graph_village.inc (cie-v6-binary.md 39-41), used by the loader and the walk before it is included. */
 static int cg_good_word(const char *word);
 static int cg_has_good(int game, const char *word, int n);
@@ -296,7 +299,8 @@ static int cg_village_ok(const char *s, int a, int b);
 /* A role's byte 9 (cie-v6-binary.md 2): 1-3 the role MUST be that villager; 4 and 5 (35) the role PREFERS it: when
    the Golden Child (4) or the Tribal Chief (5) may take the role, they are cast; else any villager the role takes. */
 enum { CG_SPECIAL_GOLDEN = 1, CG_SPECIAL_CHIEF = 2, CG_SPECIAL_NURSING = 3, CG_PREFER_GOLDEN = 4,
-       CG_PREFER_CHIEF = 5 };
+       CG_PREFER_CHIEF = 5,
+       CG_PREFER_OLDEST = 6 };        /* 46: the oldest of the villagers the role may take (a tie drawn) */
 #define CG_POOL_DISTINCT 1u           /* a pool's flags: distinct (cie-v6-binary.md 4) */
 #define CG_POOL_LINKED 2u             /* ... 35: a linked pool draws the item number a linked pool drew first */
 enum { CG_ROLE_VILLAGER = 0, CG_ROLE_STRANGER = 1, CG_ROLE_ALIAS = 2,
@@ -322,7 +326,11 @@ enum { CG_GROUP_ALL = 1,              /* every living, listed villager (New Beli
        CG_GROUP_ELDERS = 4,           /* ... every elder, 55 or more */
        CG_GROUP_CHILDREN = 5,         /* ... every child, under 14 */
        CG_GROUP_TEENS = 6,            /* ... every teen, 14 to 17 */
-       CG_GROUP_ADULTS = 7 };         /* ... every adult, 18 or more */
+       CG_GROUP_ADULTS = 7,           /* ... every adult, 18 or more */
+       /* 46 (E10, the owner 2026-11-23): New Believers' ordinary Heathens -- never roles 12-17, never sick, alive,
+          listed -- with the row "Heathens can be selected in Island Events/Heathen-Exclusive Events" (else nobody) */
+       CG_GROUP_HEATHENS = 8,         /* ... every one */
+       CG_GROUP_HEATHENS_RANDOM = 9 };/* ... N of them drawn (N at the last H, 1..255; fewer: all there are) */
 #define CG_GROUP_SKILL_MIN 50
 #define CG_SKILL_BEST 32u             /* skill / skill_set flags: the villager's own highest skill, not the list's */
 #define CG_HEALTH_RESTORE 1u          /* health_change flags (cie-v6-binary.md 25a): a..b PERCENT of the health this
@@ -1238,11 +1246,12 @@ static int cg_group_ok(const cg_graph *g, const unsigned char *e) {
     }
     switch (e[3]) {
     case CG_GROUP_ALL: case CG_GROUP_ELDERS: case CG_GROUP_CHILDREN: case CG_GROUP_TEENS: case CG_GROUP_ADULTS:
+    case CG_GROUP_HEATHENS:
         return value == 0u;
     case CG_GROUP_SKILL:
         return value != CG_NONE && (int)value < g->n_string
                && cg_s(g, value)[0] != '\0';
-    case CG_GROUP_RANDOM: return value >= 1u && value <= 255u;
+    case CG_GROUP_RANDOM: case CG_GROUP_HEATHENS_RANDOM: return value >= 1u && value <= 255u;
     default: return 0;
     }
 }
@@ -1365,7 +1374,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             /* Version 6: max age, the special villager, the skill requirement and its pick; an alias's members (other
                villager roles), and nothing else on an alias. */
             unsigned int members = cg_u16(r + 14);
-            if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > CG_PREFER_CHIEF || !cg_str_ok(g, cg_u16(r + 10), 1)
+            if ((r[8] != 0 && (r[8] > 120u || r[8] < r[3])) || r[9] > CG_PREFER_OLDEST || !cg_str_ok(g, cg_u16(r + 10), 1)
                 || (r[13] & ~CG_ROLE_BYTE13_BITS) > 1u || r[12] > 100u
                 || !cg_heathen_bits_ok(r[13])) {
                 return cg_bad("a role's requirement is not one this game can read");
@@ -1453,7 +1462,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
             break;
         case CGC_HARMABLE: ok = g->version >= 6 && (int)a < g->n_role; break;
         case CGC_SPECIAL_PRESENT: ok = g->version >= 6 && a >= 1u && a <= 2u; break;
-        case CGC_MIN_POPULATION: case CGC_MIN_CHILDREN: ok = g->version >= 6 && a <= 1000u; break;
+        case CGC_MIN_POPULATION: case CGC_MIN_CHILDREN: case CGC_MIN_GRAVES: ok = g->version >= 6 && a <= 1000u; break;
         case CGC_AGE:
             ok = g->version >= 6 && (int)a < g->n_role && cg_u16(c + 4) <= 120u && cg_u16(c + 6) <= 120u
                  && (cg_u16(c + 6) == 0u || cg_u16(c + 4) <= cg_u16(c + 6));
@@ -1596,7 +1605,7 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
                                     && (cg_role_at(g, a - 1)[1] & CG_STRANGER_NAMED)));
                 break;
             case CGE_CHANGE_AGE:
-                ok = str == CG_NONE && e[2] <= CG_AGE_ADD && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
+                ok = str == CG_NONE && e[2] <= CG_AGE_HALF17 && cg_u16(e + 14) <= 120u   /* the cap, years (0 none) */
                      && (e[2] == CG_AGE_ADD ? (a >= -120 && b <= 120 && a <= b) : (a == 0 && b == 0));
                 break;
             case CGE_PRESENTATION:
@@ -3503,6 +3512,22 @@ static int cg_bind(int game) {
                 n = m;
             }
         }
+        if (cg_g.version >= 6 && spec[9] == CG_PREFER_OLDEST) {
+            /* 46: the oldest the role may take ("an elder, or the oldest adult if there is none"); a tie drawn */
+            int oldest = -1, m = 0;
+            for (i = 0; i < n; ++i) {
+                int age = ce_age(a, a->record(candidates[i]));
+                if (age > oldest) {
+                    oldest = age;
+                }
+            }
+            for (i = 0; i < n; ++i) {
+                if (ce_age(a, a->record(candidates[i])) == oldest) {
+                    candidates[m++] = candidates[i];
+                }
+            }
+            n = m;
+        }
         pick = candidates[ce_random_below(a, n)];
         used[pick] = 1;
         cg_try[r] = pick;
@@ -3561,6 +3586,25 @@ static int cg_puzzle_solved(int game, const char *name) {
 }
 
 /* VERSION 6 RUNTIME FACTS. */
+
+#ifdef VVFP_TEST
+static int test_graph_graves = -1;     /* the test build: -1 the game's own count, else this many graves */
+#endif
+
+/* 46 (the owner's Heathen-Exclusive Events, E8): the graves the game counts -- New Believers' 0x464E90 on 0x5481A8, as
+   the Remembrance Ceremony and the Day of Honor's 0x414DB0 read it; 0 in the other games (the patcher refuses the
+   condition there). */
+static int cg_graves(int game) {
+#ifdef VVFP_TEST
+    if (test_graph_graves >= 0) {
+        return game == 5 ? test_graph_graves : 0;
+    }
+#endif
+    if (game != 5) {
+        return 0;
+    }
+    return TC0(0x464E90u, 0x5481A8u);
+}
 
 /* Living, listed villagers now (New Believers: believers), `children` 1: only those under 14. */
 static int cg_population(int game, int children) {
@@ -3690,6 +3734,7 @@ static int cg_holds_cond(int i, int game, int depth) {
     case CGC_SPECIAL_PRESENT: return cg_special_present(game, (int)a);
     case CGC_MIN_POPULATION: return cg_population(game, 0) >= (int)a;
     case CGC_MIN_CHILDREN: return cg_population(game, 1) >= (int)a;
+    case CGC_MIN_GRAVES: return cg_graves(game) >= (int)a;
     case CGC_AGE: case CGC_SKILL_AT_LEAST: case CGC_HAS_LIVING_CHILD: case CGC_HAS_DEAD_RELATIVE:
     case CGC_IS_SPECIAL:
         return cg_role_fact(c, game);
@@ -5979,6 +6024,38 @@ static int cg_behaviour_by_words(const ce_adapter *a, const char *words) {
     return -1;
 }
 
+/* 46 (the owner's Heathen-Exclusive Events, 2026-11-23, E9): New Believers' encampment actions, by their words
+   (src/vv_cie_graph.py ENCAMPMENT_ACTIONS): 1 Honoring the dead, 2 Reflecting, 3 either (50% each, per villager). */
+enum { CG_CAMP_HONOR = 1, CG_CAMP_REFLECT = 2, CG_CAMP_EITHER = 3 };
+#ifdef VVFP_TEST
+static int test_graph_camp_last;       /* the test build: the last start (1 / 2 at the hovel, 11 / 12 sat) */
+#endif
+
+static int cg_encampment_kind(const char *words) {
+    if (lstrcmpA(words, "Honoring the dead (at the encampment)") == 0) {
+        return CG_CAMP_HONOR;
+    }
+    if (lstrcmpA(words, "Reflecting (at the encampment)") == 0) {
+        return CG_CAMP_REFLECT;
+    }
+    if (lstrcmpA(words, "Honoring the dead or reflecting (at the encampment)") == 0) {
+        return CG_CAMP_EITHER;
+    }
+    return 0;
+}
+
+/* Started through "Memorial Actions Can Also Occur at the Heathen Hovel"'s own entries (story_c5.inc c5_encampment):
+   1 when it was, 0 when that patch is not installed. */
+static int cg_encampment_start(int index, int camp) {
+    if (!c5_encampment(index, camp == CG_CAMP_REFLECT)) {
+        return 0;
+    }
+#ifdef VVFP_TEST
+    test_graph_camp_last = camp;
+#endif
+    return 1;
+}
+
 /* The behaviour a celebrate, action or mood effect starts in `game`, -1 when the game has none. */
 static int cg_behaviour_of(const ce_adapter *a, int game, const unsigned char *e) {
     const char *words;
@@ -6751,6 +6828,8 @@ static int cg_age_target(const ce_adapter *a, int game, const unsigned char *e, 
         int lo = (int)cg_u32(e + 4), hi = (int)cg_u32(e + 8);
         years = lo + (hi > lo ? ce_random_below(a, hi - lo + 1) : 0);
         target = age + 20 * years;
+    } else if (e[2] == CG_AGE_HALF17) {
+        target = CG_AGE_HALF17_UNITS;  /* 46 */
     } else {
         years = SET[e[2]][0] + (SET[e[2]][1] > SET[e[2]][0] ? ce_random_below(a, SET[e[2]][1] - SET[e[2]][0] + 1) : 0);
         target = 20 * years;
@@ -7163,10 +7242,19 @@ static void cg_group_line(const ce_adapter *a, const unsigned char *e, int va) {
 static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, ce_result *r) {
     static int pick[CE_MAX_RECORDS];
     int n = 0, i, want, harmful = cg_effect_harmful(a, game, e);
+    int heathens = e[3] == CG_GROUP_HEATHENS || e[3] == CG_GROUP_HEATHENS_RANDOM;   /* 46 (E10) */
     const char *skill = e[3] == CG_GROUP_SKILL ? cg_s(&cg_g, cg_u16(e + 14)) : NULL;
+    if (heathens && (game != 5 || !cg_heathens_row(game))) {
+        return;                        /* 46: New Believers' Heathens, with the row only: nobody else, ever */
+    }
     for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
         unsigned char *rec = a->record(i);
-        if (rec == NULL || !a->listed(rec) || (game == 3 && rec[0xE94] != 0) || cg_heathen(game, rec)) {
+        if (rec == NULL || !a->listed(rec) || (game == 3 && rec[0xE94] != 0)) {
+            continue;
+        }
+        if (heathens ? !cg_ordinary_heathen(game, rec) || cg_heathen_barred_effect(e) : cg_heathen(game, rec)) {
+            /* 46: an ordinary Heathen only -- never roles 12-17, never sick, alive and listed -- and never what can
+               not happen to a Heathen; every other group: the tribe's (New Believers: its believers) */
             continue;
         }
         if (harmful && (cg_protected(a, game, rec) || cg_never_harmed(game, rec))) {
@@ -7185,11 +7273,11 @@ static void cg_group_effect(const ce_adapter *a, int game, const unsigned char *
         pick[n++] = i;
     }
     cg_grp.count = 0;
-    want = e[3] == CG_GROUP_RANDOM ? (int)cg_u16(e + 14) : n;
+    want = e[3] == CG_GROUP_RANDOM || e[3] == CG_GROUP_HEATHENS_RANDOM ? (int)cg_u16(e + 14) : n;
     if (want > n) {
         want = n;
     }
-    if (e[3] == CG_GROUP_RANDOM) {
+    if (e[3] == CG_GROUP_RANDOM || e[3] == CG_GROUP_HEATHENS_RANDOM) {
         for (i = 0; i < want; ++i) {   /* the first `want` drawn without repeats */
             int j = i + ce_random_below(a, n - i), t = pick[i];
             pick[i] = pick[j];
@@ -7275,8 +7363,10 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
                                           made says so again (cg_told keeps the last word) */
     }
     if (cg_g.version >= 6 && record != NULL && cg_heathen(game, record)
-        && (role >= 0 && (cg_role_at(&cg_g, role)[13] & CG_ROLE_HEATHEN_ROW) ? cg_heathen_barred_effect(e)
-                                                                           : !cg_heathen_effect_ok(e))) {
+        && ((role >= 0 && (cg_role_at(&cg_g, role)[13] & CG_ROLE_HEATHEN_ROW))
+            || (role < 0 && e[1] == CG_ROLE_GROUP
+                && (e[3] == CG_GROUP_HEATHENS || e[3] == CG_GROUP_HEATHENS_RANDOM))   /* 46: the row's group */
+            ? cg_heathen_barred_effect(e) : !cg_heathen_effect_ok(e))) {
         /* A Heathen however reached (an alias or "other" role standing for a heathen_ok one): vanilla's own list
            only, as the load checks a Heathen's own role (Codex, #771).  One cast through the row (45): everything a
            villager may have, but what can not yet happen to a Heathen (cg_heathen_barred_effect). */
@@ -7617,7 +7707,35 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
         c->sick = 1;
         break;
     case CGE_CELEBRATE: case CGE_ACTION: case CGE_MOOD: {
-        int behaviour = cg_behaviour_of(a, game, e);
+        int camp = e[0] == CGE_ACTION ? cg_encampment_kind(cg_s(&cg_g, cg_u16(e + 12))) : 0;
+        int behaviour;
+        if (camp != 0) {
+            /* 46 (E9): the encampment's honoring / reflecting -- the hovel patch's own entries, else they sit where
+               they are; the third word is the Remembrance Ceremony's split, each villager 50% one or the other */
+            if (game != 5) {
+                return;                /* New Believers' own (the patcher refuses it elsewhere): nothing */
+            }
+            if (!(a->caps & CAP_BEHAVIOUR)) {
+                ce_refuse(r, CE_WHY_OTHER);
+                return;
+            }
+            if (camp == CG_CAMP_EITHER) {
+                camp = ce_random_below(a, 100) < 50 ? CG_CAMP_HONOR : CG_CAMP_REFLECT;
+            }
+            if (cg_encampment_start(index, camp)) {
+                return;                /* started through the hovel patch: the game runs it from here */
+            }
+            behaviour = cg_behaviour_by_words(a, "Sitting");
+#ifdef VVFP_TEST
+            test_graph_camp_last = camp + 10;   /* sat: the hovel patch is not installed */
+#endif
+            if (behaviour < 0) {
+                return;
+            }
+            c->behaviour = behaviour;
+            break;
+        }
+        behaviour = cg_behaviour_of(a, game, e);
         if (behaviour < 0) {
             return;                    /* an action this game does not have: nothing (rule 8) */
         }
@@ -8952,8 +9070,10 @@ static int cg_flavor_only(const unsigned char *e) {
     case CGE_GROUP:
         return e[1] == CG_ROLE_ALIAS_ALL;
     default:
-        /* every villager of the tribe at once: everyone celebrating, a group's changes */
-        return e[1] == CG_ROLE_ALIAS_ALL || e[1] == CG_ROLE_GROUP;
+        /* every villager of the tribe at once: everyone celebrating, a group's changes (46: a group of the Heathens
+           themselves is theirs, made as always) */
+        return e[1] == CG_ROLE_ALIAS_ALL
+               || (e[1] == CG_ROLE_GROUP && e[3] != CG_GROUP_HEATHENS && e[3] != CG_GROUP_HEATHENS_RANDOM);
     }
 }
 
@@ -10190,6 +10310,9 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
     case CGC_MIN_CHILDREN:
         wsprintfA(part, "at least %d %s under 14", (int)a, a == 1u ? "child" : "children");
         break;
+    case CGC_MIN_GRAVES:
+        wsprintfA(part, "at least %d %s", (int)a, a == 1u ? "grave" : "graves");   /* 46 */
+        break;
     case CGC_SPECIAL_PRESENT:
         lstrcpynA(part, a == 1u ? "the Golden Child in the village" : "the Tribal Chief in the village", sizeof part);
         break;
@@ -10229,6 +10352,8 @@ static int cg_cond_words(int i, int game, int depth, char *out, int cap) {
             wsprintfA(part, "fewer than %d %s", (int)na, game == 5 ? cg_believers_word() : "villagers");
         } else if (n[0] == CGC_MIN_CHILDREN) {
             wsprintfA(part, "fewer than %d children under 14", (int)na);
+        } else if (n[0] == CGC_MIN_GRAVES) {
+            wsprintfA(part, "fewer than %d graves", (int)na);   /* 46 */
         } else if (n[0] == CGC_SPECIAL_PRESENT) {
             lstrcpynA(part, na == 1u ? "no Golden Child in the village" : "no Tribal Chief in the village",
                       sizeof part);
@@ -11449,6 +11574,20 @@ __declspec(dllexport) void __stdcall VvfpStoryProbeHeathenAging(int mode, int bo
     }
     if (out != NULL) {
         memcpy(out, test_ha_calls, sizeof test_ha_calls);
+    }
+}
+
+/* 46: the Heathen-Exclusive Events' engine pieces stood in for: `graves` the graves the game counts (-1 its own),
+   out[0] the last encampment start (1 / 2 at the hovel, 11 / 12 sat; then reset), out[1] whether the hovel patch's
+   bytes are in. */
+__declspec(dllexport) void __stdcall VvfpStoryProbeHeathenEvents(int graves, int *out) {
+    if (graves >= -1) {
+        test_graph_graves = graves;
+    }
+    if (out != NULL) {
+        out[0] = test_graph_camp_last;
+        out[1] = c5_hovel_patch();
+        test_graph_camp_last = 0;
     }
 }
 

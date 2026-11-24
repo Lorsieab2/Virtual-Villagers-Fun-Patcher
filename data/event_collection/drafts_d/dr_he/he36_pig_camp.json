@@ -1,0 +1,132 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Pig in the Camp",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he36_pig_camp",
+  "source": "heathen_ex",
+  "lines": [
+   593,
+   606
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L593",
+  "ledger": [
+   {
+    "src": "L594",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L595",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L601",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L605",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L606",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A wild piglet has wandered into the encampment and fallen asleep on a Heathen child's mat.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "A wild piglet has wandered into the encampment and fallen asleep on an Isolan child's mat."
+   }
+  ],
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A wild piglet has wandered into the encampment and fallen asleep in (subject)'s sleeping mat. (subject) wants to keep it. (friend) does not.",
+   "src": "L597",
+   "choices": [
+    {
+     "label": "Keep It for a Day",
+     "next": "o1",
+     "src": "L599"
+    },
+    {
+     "label": "Carry It Back Right Away",
+     "next": "o2",
+     "src": "L603"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "The piglet spends the day following (subject) everywhere. At dusk it hears its mother calling from the bushes and trots off without a backward glance. (subject) is heartbroken for an hour and talks about it for a year.",
+   "src": "L600",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "surprises",
+     "src": "L601"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) carries it gently to the edge of the scrub and sets it down. Its mother is waiting. (subject) watches them go, and decides (subject.he/she) will be a pig-carer when (subject.he/she) grows up.",
+   "src": "L604",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "nature",
+     "src": "L605"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

@@ -1,0 +1,184 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Missing Heathen Kids",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he27_missing_heathen_kids",
+  "source": "heathen_ex",
+  "lines": [
+   466,
+   481
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L466",
+  "ledger": [
+   {
+    "src": "L467",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L468",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L469",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L475",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L479",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L480",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L481",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "Two Heathen children went exploring after lunch and have not come back, and it is getting dark.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Two Isolan children went exploring after lunch and have not come back, and it is getting dark."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "heathens": "only"
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and (friend) went off exploring after lunch and haven't come back. It's getting dark. (third) goes looking.",
+   "src": "L471",
+   "text_only": [
+    {
+     "what": "\"health\"",
+     "reason": "health or an injury talked about in the story; the outcome's own effects are the draft's -- story only",
+     "src": "L475"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Follow the Trail",
+     "next": "o1",
+     "src": "L473"
+    },
+    {
+     "label": "Call the Whole Camp",
+     "next": "o2",
+     "src": "L477"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(third) finds them at the bottom of a gully, muddy, scraped and very glad to be found. One of them has a twisted ankle. (third) carries (subject.him/her) home on (third.his/her) back the whole way.",
+   "src": "L474",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -5,
+     "max": -5,
+     "src": "L475"
+    },
+    {
+     "do": "health_change",
+     "role": "friend",
+     "min": -5,
+     "max": -5,
+     "src": "L475"
+    },
+    {
+     "do": "skill",
+     "role": "third",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L475"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Everyone turns out with torches. The children are found within the hour, hiding under a fallen tree from a noise that turns out to be a very large frog. They are scolded, hugged and fed, in that order.",
+   "src": "L478",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "the dark",
+     "src": "L479"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "list": "dislikes",
+     "preference": "the dark",
+     "src": "L479"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Missing Isolan Kids"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

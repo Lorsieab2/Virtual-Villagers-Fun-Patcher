@@ -965,6 +965,23 @@
   "uncovered_lines": [],
   "overlaps": []
  },
+ "heathen_ex": {
+  "source": "docs/more-island-events/Heathen-Only Events (draft for owner).txt",
+  "source_sha256": "90b5d51abe7bcb94e1af016bc832fd298c8c247a6d55c2d89c2c09facb004d41",
+  "counts": {
+   "rows": 50,
+   "events": 45,
+   "addons": 0,
+   "banks": 0,
+   "notes": 5,
+   "events_and_addons": 45,
+   "series": {
+    "dr_he": 45
+   }
+  },
+  "uncovered_lines": [],
+  "overlaps": []
+ },
  "anthology": {
   "source": "docs/more-island-events/Isola_ALL_IN_ONE_Animals_Reptiles_Fur_Feathers_Scales_Claws_Hooves_COMPLETE.txt",
   "source_sha256": "95172b7948bc94afe35013d3ceb28092fc78790b8ba3bf67e5ac228aacbe4de2",
@@ -132186,6 +132203,1591 @@
    "source": "draft_arm2",
    "source_check": {
     "heading": "L59: 95. The Heirloom Nobody Owns  -  A ceremonial spear belongs to the whole village, and each year a different household keeps it. This year it goes to an elder who lives alone, who sets it proudly beside the door and invites everyone in to see it.",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "dr_he_notes1",
+   "title": "Heathen-Exclusive Events, HE-01 to HE-45: title, casting, the owner's rules, Guardians of Isola wording, effect tags and odds",
+   "games": [],
+   "lines": [
+    1,
+    28
+   ],
+   "kind": "notes",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L1: HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_he_notes2",
+   "title": "Heathen-Exclusive Events, HE-01 to HE-45: section A: its heading and introduction",
+   "games": [],
+   "lines": [
+    31,
+    34
+   ],
+   "kind": "notes",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L31: ################################################################################",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_he_notes3",
+   "title": "Heathen-Exclusive Events, HE-01 to HE-45: section B: its heading and introduction",
+   "games": [],
+   "lines": [
+    244,
+    247
+   ],
+   "kind": "notes",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L244: ################################################################################",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_he_notes4",
+   "title": "Heathen-Exclusive Events, HE-01 to HE-45: section C: its heading and introduction",
+   "games": [],
+   "lines": [
+    484,
+    487
+   ],
+   "kind": "notes",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L484: ################################################################################",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "dr_he_notes5",
+   "title": "Heathen-Exclusive Events, HE-01 to HE-45: what the engine can do, the engine changes and the open questions",
+   "games": [],
+   "lines": [
+    716,
+    744
+   ],
+   "kind": "notes",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": null,
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L716: ################################################################################",
+    "title_found": null,
+    "boundary": []
+   }
+  },
+  {
+   "id": "he01_quiet_hour_encampment",
+   "title": "The Quiet Hour at the Encampment",
+   "games": [
+    5
+   ],
+   "lines": [
+    37,
+    50
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L37: HE-01. The Quiet Hour at the Encampment",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he02_flowers_mud_hut",
+   "title": "Flowers on the Mud Hut",
+   "games": [
+    5
+   ],
+   "lines": [
+    53,
+    67
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L53: HE-02. Flowers on the Mud Hut",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he03_mask_hung_up_good",
+   "title": "The Mask Hung Up for Good",
+   "games": [
+    5
+   ],
+   "lines": [
+    70,
+    83
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L70: HE-03. The Mask Hung Up for Good",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he04_song_ones_before",
+   "title": "A Song for the Ones Before",
+   "games": [
+    5
+   ],
+   "lines": [
+    86,
+    99
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L86: HE-04. A Song for the Ones Before",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he05_visit_mausoleum",
+   "title": "The Visit to the Mausoleum",
+   "games": [
+    5
+   ],
+   "lines": [
+    102,
+    116
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L102: HE-05. The Visit to the Mausoleum",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he06_carved_post",
+   "title": "The Carved Post",
+   "games": [
+    5
+   ],
+   "lines": [
+    119,
+    132
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L119: HE-06. The Carved Post",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he07_child_asks_about_hut",
+   "title": "The Child Who Asks About the Hut",
+   "games": [
+    5
+   ],
+   "lines": [
+    135,
+    148
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L135: HE-07. The Child Who Asks About the Hut",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he08_stones_stream",
+   "title": "Stones in the Stream",
+   "games": [
+    5
+   ],
+   "lines": [
+    151,
+    164
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L151: HE-08. Stones in the Stream",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he09_long_night_fire",
+   "title": "The Long Night Fire",
+   "games": [
+    5
+   ],
+   "lines": [
+    167,
+    180
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L167: HE-09. The Long Night Fire",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he10_heathen_day_honor",
+   "title": "The Heathen Day of Honor",
+   "games": [
+    5
+   ],
+   "lines": [
+    183,
+    191
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L183: HE-10. The Heathen Day of Honor",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he11_name_nobody_remembers",
+   "title": "The Name Nobody Remembers",
+   "games": [
+    5
+   ],
+   "lines": [
+    194,
+    207
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L194: HE-11. The Name Nobody Remembers",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he12_empty_place_fire",
+   "title": "The Empty Place at the Fire",
+   "games": [
+    5
+   ],
+   "lines": [
+    210,
+    223
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L210: HE-12. The Empty Place at the Fire",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he13_two_peoples_one_grief",
+   "title": "Two Peoples, One Grief",
+   "games": [
+    5
+   ],
+   "lines": [
+    226,
+    241
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L226: HE-13. Two Peoples, One Grief",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he14_bed_bugs_camp",
+   "title": "The Bed Bugs at the Camp",
+   "games": [
+    5
+   ],
+   "lines": [
+    250,
+    264
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L250: HE-14. The Bed Bugs at the Camp",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he15_heathen_daredevil",
+   "title": "The Heathen Daredevil",
+   "games": [
+    5
+   ],
+   "lines": [
+    267,
+    282
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L267: HE-15. The Heathen Daredevil",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he16_straw_hat_encampment",
+   "title": "The Straw Hat at the Encampment",
+   "games": [
+    5
+   ],
+   "lines": [
+    285,
+    300
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L285: HE-16. The Straw Hat at the Encampment",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he17_strange_nectar_camp",
+   "title": "The Strange Nectar at the Camp",
+   "games": [
+    5
+   ],
+   "lines": [
+    303,
+    317
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L303: HE-17. The Strange Nectar at the Camp",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he18_heathen_children_fruit",
+   "title": "The Heathen Children and the Fruit Bats",
+   "games": [
+    5
+   ],
+   "lines": [
+    320,
+    335
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L320: HE-18. The Heathen Children and the Fruit Bats",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he19_doing_their_own_way",
+   "title": "Doing It Their Own Way",
+   "games": [
+    5
+   ],
+   "lines": [
+    338,
+    352
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L338: HE-19. Doing It Their Own Way",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he20_heathen_vision",
+   "title": "The Heathen Vision",
+   "games": [
+    5
+   ],
+   "lines": [
+    355,
+    371
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L355: HE-20. The Heathen Vision",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he21_clumsy_heathen_good_turn",
+   "title": "The Clumsy Heathen's Good Turn",
+   "games": [
+    5
+   ],
+   "lines": [
+    374,
+    389
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L374: HE-21. The Clumsy Heathen's Good Turn",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he22_cold_snap_camp",
+   "title": "The Cold Snap at the Camp",
+   "games": [
+    5
+   ],
+   "lines": [
+    392,
+    406
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L392: HE-22. The Cold Snap at the Camp",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he23_mushroom_day_encampment",
+   "title": "Mushroom Day at the Encampment",
+   "games": [
+    5
+   ],
+   "lines": [
+    409,
+    416
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L409: HE-23. Mushroom Day at the Encampment",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he24_heathens_remembrance",
+   "title": "The Heathens' Remembrance",
+   "games": [
+    5
+   ],
+   "lines": [
+    419,
+    428
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L419: HE-24. The Heathens' Remembrance",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he25_heathen_toy_lost_found",
+   "title": "The Heathen Toy, Lost and Found",
+   "games": [
+    5
+   ],
+   "lines": [
+    431,
+    446
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L431: HE-25. The Heathen Toy, Lost and Found",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he26_spa_after_dark",
+   "title": "The Spa After Dark",
+   "games": [
+    5
+   ],
+   "lines": [
+    449,
+    463
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L449: HE-26. The Spa After Dark",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he27_missing_heathen_kids",
+   "title": "The Missing Heathen Kids",
+   "games": [
+    5
+   ],
+   "lines": [
+    466,
+    481
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L466: HE-27. The Missing Heathen Kids",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he28_mask_doesnt_fit_anymore",
+   "title": "The Mask That Doesn't Fit Anymore",
+   "games": [
+    5
+   ],
+   "lines": [
+    490,
+    504
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L490: HE-28. The Mask That Doesn't Fit Anymore",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he29_roots_supper",
+   "title": "Roots for Supper",
+   "games": [
+    5
+   ],
+   "lines": [
+    507,
+    513
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L507: HE-29. Roots for Supper",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he30_argument_about_fire_pit",
+   "title": "The Argument About the Fire Pit",
+   "games": [
+    5
+   ],
+   "lines": [
+    516,
+    529
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L516: HE-30. The Argument About the Fire Pit",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he31_baby_first_mask",
+   "title": "The Baby's First Mask",
+   "games": [
+    5
+   ],
+   "lines": [
+    532,
+    539
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L532: HE-31. The Baby's First Mask",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he32_song_across_stream",
+   "title": "A Song Across the Stream",
+   "games": [
+    5
+   ],
+   "lines": [
+    542,
+    555
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L542: HE-32. A Song Across the Stream",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he33_snoring_hut",
+   "title": "The Snoring Hut",
+   "games": [
+    5
+   ],
+   "lines": [
+    558,
+    564
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L558: HE-33. The Snoring Hut",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he34_teaching_stone",
+   "title": "The Teaching Stone",
+   "games": [
+    5
+   ],
+   "lines": [
+    567,
+    580
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L567: HE-34. The Teaching Stone",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he35_heathen_weaver",
+   "title": "The Heathen Weaver",
+   "games": [
+    5
+   ],
+   "lines": [
+    583,
+    590
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L583: HE-35. The Heathen Weaver",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he36_pig_camp",
+   "title": "Pig in the Camp",
+   "games": [
+    5
+   ],
+   "lines": [
+    593,
+    606
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L593: HE-36. Pig in the Camp",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he37_mending_day",
+   "title": "Mending Day",
+   "games": [
+    5
+   ],
+   "lines": [
+    609,
+    615
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L609: HE-37. Mending Day",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he38_shell_collector",
+   "title": "The Shell Collector",
+   "games": [
+    5
+   ],
+   "lines": [
+    618,
+    632
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L618: HE-38. The Shell Collector",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he39_heathen_cook_pride",
+   "title": "The Heathen Cook's Pride",
+   "games": [
+    5
+   ],
+   "lines": [
+    635,
+    649
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L635: HE-39. The Heathen Cook's Pride",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he40_rain_dance_worked",
+   "title": "The Rain Dance That Worked - Probably",
+   "games": [
+    5
+   ],
+   "lines": [
+    652,
+    659
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L652: HE-40. The Rain Dance That Worked (Probably)",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he41_twins_swapped_masks",
+   "title": "The Twins Who Swapped Masks",
+   "games": [
+    5
+   ],
+   "lines": [
+    662,
+    669
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L662: HE-41. The Twins Who Swapped Masks",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he42_quiet_day_off",
+   "title": "A Quiet Day Off",
+   "games": [
+    5
+   ],
+   "lines": [
+    672,
+    678
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L672: HE-42. A Quiet Day Off",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he43_elder_long_story",
+   "title": "The Elder's Long Story",
+   "games": [
+    5
+   ],
+   "lines": [
+    681,
+    694
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 2,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L681: HE-43. The Elder's Long Story",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he44_first_day_grown_up",
+   "title": "First Day as a Grown-Up",
+   "games": [
+    5
+   ],
+   "lines": [
+    697,
+    704
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L697: HE-44. First Day as a Grown-Up",
+    "title_found": true,
+    "boundary": [],
+    "choices": "verified"
+   }
+  },
+  {
+   "id": "he45_camp_night",
+   "title": "The Camp at Night",
+   "games": [
+    5
+   ],
+   "lines": [
+    707,
+    713
+   ],
+   "kind": "event",
+   "section": "dr_he",
+   "credit": {
+    "who": "mixed",
+    "lines": [
+     "L1-2"
+    ],
+    "text": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life."
+   },
+   "choices": 0,
+   "pools": {},
+   "effects": [],
+   "deaths": false,
+   "series": "dr_he",
+   "source": "heathen_ex",
+   "source_check": {
+    "heading": "L707: HE-45. The Camp at Night",
     "title_found": true,
     "boundary": [],
     "choices": "verified"

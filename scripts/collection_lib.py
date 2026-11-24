@@ -173,7 +173,13 @@ DRAFTS_D = {   # source id: (file name, line count, section, topic shown in the 
                    "Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
     "fathers30": ("Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt", 645, "dr_fat",
                   "Fathers, Pregnancy and Parenthood"),
+    # The owner's approval of 2026-11-23: New Believers' Heathen-Exclusive Events HE-01..HE-45 (VV5 only, the row
+    # "Heathens can be selected in Island Events/Heathen-Exclusive Events"), built by its own generator,
+    # scripts/drafts_d/gen_heathen_events.py (docs/event-collection/cie-v6-binary.md 46).
+    "heathen_ex": ("Heathen-Only Events (draft for owner).txt", 744, "dr_he",
+                 "Heathen-Exclusive Events, HE-01 to HE-45"),
 }
+DRAFTS_D_OWN_GENERATOR = {"heathen_ex": "scripts/drafts_d/gen_heathen_events.py"}
 for _sid, (_name, _n, _sec, _topic) in DRAFTS_D.items():
     SOURCES[_sid] = (ROOT / "docs" / "more-island-events" / _name, COLLECTION_DIR / f"{_sid.upper()}.sha256", _n)
 

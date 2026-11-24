@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heathens' Remembrance",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he24_heathens_remembrance",
+  "source": "heathen_ex",
+  "lines": [
+   419,
+   428
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L419",
+  "ledger": [
+   {
+    "src": "L420",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L421",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L422",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L424",
+    "kind": "structural",
+    "why": "the draft's shape: one popup, no choice"
+   },
+   {
+    "src": "L427",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L428",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "The whole encampment gathers at the mud hut at dusk to remember the people the camp has lost.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "cast_only": [
+   "subject",
+   "friend",
+   "third"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only",
+   "prefer": "oldest"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 0,
+   "heathens": "only"
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 0,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "The whole encampment gathers at the mud hut at dusk. (subject), the eldest of those well enough to stand, says a few words about the people the camp has lost. They are not long words. Then everyone goes, one at a time, to touch the memorial post, and there is a meal afterwards, and the children are allowed to stay up late.\nThe Heathens' village shares a feast. \\(no effect\\)",
+   "src": "L425,L426",
+   "effects": [
+    {
+     "do": "action",
+     "target": {
+      "heathens": "all"
+     },
+     "action": "Honoring the dead or reflecting (at the encampment)",
+     "src": "L427"
+    }
+   ],
+   "auto_text": true,
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the owner's flavor rule (2026-11-23): only Heathens are in this event, so the Heathens' village's food is story text only -- the game is not changed, and the draft's line ends \"(no effect)\"",
+     "src": "L427"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "The whole encampment gathers at the mud hut at dusk. (subject), the eldest of those well enough to stand, says a few words about the people the camp has lost. They are not long words. Then everyone goes, one at a time, to touch the memorial post, and there is a meal afterwards, and the children are allowed to stay up late.\nThe Isolans' village shares a feast. \\(no effect\\)",
+     "src": "L425,L426"
+    }
+   ]
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Isolans' Remembrance"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

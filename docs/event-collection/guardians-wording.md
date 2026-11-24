@@ -245,3 +245,76 @@ The owner's More Island Events file (2026-11-16): the owner's own Guardians of I
 |---|---|---|---|
 | `mie_adventurer` | page (lost2_vv5) | heathens' tribe | Isolans' tribe |
 <!-- end of MIE Guardians wording -->
+
+<!-- HE Guardians rows: written by scripts/drafts_d/gen_heathen_events.py -->
+
+## New Believers' Heathen-Exclusive Events (HE-01 to HE-45)
+
+The owner's approved draft (2026-11-23): with Guardians of Isola Rewrite every text below reads with the owner's pairs, made in this order in the title, the pages, a label and the Pick Island Event sentence: a Heathen -> an Isolan, Heathens -> Isolans (Heathens' -> Isolans'), Heathen -> Isolan. Nobody is called "Guardians".
+
+| Event | Where | Before | After |
+|---|---|---|---|
+| `he01_quiet_hour_encampment` | its texts | A Heathen | An Isolan |
+| `he01_quiet_hour_encampment` | its texts | Heathen | Isolan |
+| `he02_flowers_mud_hut` | its texts | a Heathen | an Isolan |
+| `he02_flowers_mud_hut` | its texts | Heathen | Isolan |
+| `he03_mask_hung_up_good` | its texts | A Heathen | An Isolan |
+| `he04_song_ones_before` | its texts | A Heathen | An Isolan |
+| `he05_visit_mausoleum` | its texts | A Heathen | An Isolan |
+| `he06_carved_post` | its texts | A Heathen | An Isolan |
+| `he06_carved_post` | its texts | Heathen | Isolan |
+| `he07_child_asks_about_hut` | its texts | A Heathen | An Isolan |
+| `he07_child_asks_about_hut` | its texts | a Heathen | an Isolan |
+| `he08_stones_stream` | its texts | a Heathen | an Isolan |
+| `he08_stones_stream` | its texts | Heathens | Isolans |
+| `he09_long_night_fire` | its texts | Heathens | Isolans |
+| `he10_heathen_day_honor` | its texts | Heathens | Isolans |
+| `he10_heathen_day_honor` | its texts | Heathen | Isolan |
+| `he11_name_nobody_remembers` | its texts | Heathens | Isolans |
+| `he12_empty_place_fire` | its texts | A Heathen | An Isolan |
+| `he13_two_peoples_one_grief` | its texts | A Heathen | An Isolan |
+| `he13_two_peoples_one_grief` | its texts | a Heathen | an Isolan |
+| `he14_bed_bugs_camp` | its texts | a Heathen | an Isolan |
+| `he15_heathen_daredevil` | its texts | Heathens | Isolans |
+| `he15_heathen_daredevil` | its texts | Heathen | Isolan |
+| `he16_straw_hat_encampment` | its texts | Heathens | Isolans |
+| `he17_strange_nectar_camp` | its texts | A Heathen | An Isolan |
+| `he17_strange_nectar_camp` | its texts | Heathens | Isolans |
+| `he18_heathen_children_fruit` | its texts | Heathens | Isolans |
+| `he18_heathen_children_fruit` | its texts | Heathen | Isolan |
+| `he19_doing_their_own_way` | its texts | Heathen | Isolan |
+| `he20_heathen_vision` | its texts | A Heathen | An Isolan |
+| `he20_heathen_vision` | its texts | Heathen | Isolan |
+| `he21_clumsy_heathen_good_turn` | its texts | A Heathen | An Isolan |
+| `he21_clumsy_heathen_good_turn` | its texts | Heathen | Isolan |
+| `he23_mushroom_day_encampment` | its texts | Heathens | Isolans |
+| `he23_mushroom_day_encampment` | its texts | Heathen | Isolan |
+| `he24_heathens_remembrance` | its texts | Heathens | Isolans |
+| `he25_heathen_toy_lost_found` | its texts | A Heathen | An Isolan |
+| `he25_heathen_toy_lost_found` | its texts | a Heathen | an Isolan |
+| `he25_heathen_toy_lost_found` | its texts | Heathen | Isolan |
+| `he26_spa_after_dark` | its texts | A Heathen | An Isolan |
+| `he26_spa_after_dark` | its texts | Heathens | Isolans |
+| `he27_missing_heathen_kids` | its texts | Heathen | Isolan |
+| `he28_mask_doesnt_fit_anymore` | its texts | A Heathen | An Isolan |
+| `he29_roots_supper` | its texts | A Heathen | An Isolan |
+| `he30_argument_about_fire_pit` | its texts | Heathens | Isolans |
+| `he31_baby_first_mask` | its texts | A Heathen | An Isolan |
+| `he32_song_across_stream` | its texts | A Heathen | An Isolan |
+| `he33_snoring_hut` | its texts | Heathen | Isolan |
+| `he34_teaching_stone` | its texts | Heathen | Isolan |
+| `he35_heathen_weaver` | its texts | A Heathen | An Isolan |
+| `he35_heathen_weaver` | its texts | Heathens | Isolans |
+| `he35_heathen_weaver` | its texts | Heathen | Isolan |
+| `he36_pig_camp` | its texts | a Heathen | an Isolan |
+| `he37_mending_day` | its texts | Heathens | Isolans |
+| `he38_shell_collector` | its texts | A Heathen | An Isolan |
+| `he39_heathen_cook_pride` | its texts | A Heathen | An Isolan |
+| `he39_heathen_cook_pride` | its texts | Heathen | Isolan |
+| `he40_rain_dance_worked` | its texts | Heathens | Isolans |
+| `he41_twins_swapped_masks` | its texts | Heathens | Isolans |
+| `he42_quiet_day_off` | its texts | A Heathen | An Isolan |
+| `he43_elder_long_story` | its texts | Heathen | Isolan |
+| `he45_camp_night` | its texts | Heathens | Isolans |
+
+<!-- end of the HE Guardians rows -->

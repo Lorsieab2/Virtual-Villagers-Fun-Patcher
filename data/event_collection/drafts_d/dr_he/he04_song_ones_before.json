@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "A Song for the Ones Before",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he04_song_ones_before",
+  "source": "heathen_ex",
+  "lines": [
+   86,
+   99
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L86",
+  "ledger": [
+   {
+    "src": "L87",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L88",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L94",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L98",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L99",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A Heathen will lead the camp's song of names for the first time, and a friend offers to help.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan will lead the camp's song of names for the first time, and a friend offers to help."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At the encampment there is a song that only gets sung on the longest night of the dry season. It is a song with a lot of names in it. (subject) has been asked to lead it this year for the first time, and (subject.he/she) is worried about getting a name wrong. (friend) has offered to stand beside (subject.him/her) and help.",
+   "src": "L90",
+   "choices": [
+    {
+     "label": "Sing It Together",
+     "next": "o1",
+     "src": "L92"
+    },
+    {
+     "label": "Practice Alone First",
+     "next": "o2",
+     "src": "L96"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They sing it side by side. (subject) stumbles once, and (friend) carries the line until (subject) finds it again. Nobody minds. Afterwards an elder tells (subject) that the song has been sung with mistakes in it for as long as she can remember, and that the names never seem to mind either.",
+   "src": "L93",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "stories",
+     "src": "L94"
+    },
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Honoring the dead (at the encampment)",
+     "src": "L94"
+    },
+    {
+     "do": "action",
+     "role": "friend",
+     "action": "Honoring the dead (at the encampment)",
+     "src": "L94"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) spends the whole afternoon by the stream, singing the names to the water until (subject.he/she) has every one. When the night comes, (subject.he/she) sings it without a single mistake, and is surprised to find (subject.his/her) voice shaking anyway, on a name (subject.he/she) never even knew.",
+   "src": "L97",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Devotion"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L98"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

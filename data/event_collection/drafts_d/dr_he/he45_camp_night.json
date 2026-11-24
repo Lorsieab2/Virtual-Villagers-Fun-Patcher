@@ -1,0 +1,95 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Camp at Night",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he45_camp_night",
+  "source": "heathen_ex",
+  "lines": [
+   707,
+   713
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L707",
+  "ledger": [
+   {
+    "src": "L708",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L709",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L711",
+    "kind": "structural",
+    "why": "the draft's shape: one popup, no choice"
+   },
+   {
+    "src": "L713",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   }
+  ],
+  "description": "It is a still, warm night at the encampment, and two Heathens watch the fireflies.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "It is a still, warm night at the encampment, and two Isolans watch the fireflies."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "It's a still, warm night at the encampment. Somebody is playing a reed flute. Somebody else is telling a story to the children, who are pretending not to be sleepy. (subject) and (friend) sit on the step of the mud hut with their masks pushed up, watching the fireflies drift over the scrub, and agree that, all things considered, it has been a good day.",
+   "src": "L712",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Relaxing",
+     "src": "L713"
+    },
+    {
+     "do": "action",
+     "role": "friend",
+     "action": "Relaxing",
+     "src": "L713"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

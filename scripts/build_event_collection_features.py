@@ -239,6 +239,9 @@ DRAFTS_D_FILES = (
      "CC05E5ECF6FCE0252276B768107BCFF273732534F206C3D18B8CB6EBE7008E2D"),
     ("fathers30", "Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt",
      "Fathers, Pregnancy and Parenthood", "A54E14EBC5BB2CFDFDB1E05FCE3FAA304A4E7ECFB36350452D2CD6A2CBB2FCDA"),
+    # New Believers' Heathen-Exclusive Events (the owner's approval, 2026-11-23; scripts/drafts_d/gen_heathen_events.py)
+    ("heathen_ex", "Heathen-Only Events (draft for owner).txt", "Heathen-Exclusive Events, HE-01 to HE-45",
+     "90B5D51ABE7BCB94E1AF016BC832FD298C8C247A6D55C2D89C2C09FACB004D41"),
 )
 SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, _f, topic, _ in DRAFTS_D_FILES})
 
