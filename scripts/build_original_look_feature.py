@@ -38,7 +38,7 @@ DESCRIPTION = (
     "says the original look is not known. The looks are kept in the save's own Original Looks file, follow "
     "each villager (through deaths, reloads and renames) and are copied by Back Up Saves; Start Over clears "
     "them. **On by default.** Change Appearance is in the Origins upgrades: " + ORIGINS_BASE_SENTENCE + " "
-    "**Works the same with every other patch and in every population mode.** **Not yet seen in a running game.** The companion is \"" + DLL_NAME + "\", "
+    "**Works the same with every other patch and in every population mode.** The companion is \"" + DLL_NAME + "\", "
     "started by VVFP Startup.dll; it changes nothing the game does. If it cannot be loaded, Change "
     "Appearance says the original look is not known."
 )

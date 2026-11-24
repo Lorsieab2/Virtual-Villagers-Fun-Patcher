@@ -1798,7 +1798,8 @@ Elders and their totems are unchanged. For villagers and graves from before:
 Repair Saves & Logs, "Give the Esteemed Elder title retroactively" lists who
 gets it first; a grave is changed only where the save still holds that
 villager's skills at death, the others are listed and left. Not yet seen in
-a running game. In New Believers (which gives the title already) a current
+a running game in The Lost Children or The Tree of Life. In New Believers
+(which gives the title already) a current
 Heathen is never an Esteemed Elder, on the Details screen or in the logs; a
 Former Heathen who has joined the tribe is, with three mastered skills (the
 logs keep their Former Heathen title). In The Lost Children the Village

@@ -910,7 +910,7 @@
         "A look the game itself gives stays: the chief's robe, and an outfit from the game's own clothing dialog.",
         "For a village you already have, Repair Saves & Logs adds the looks the logs prove for villagers changed before; it never guesses.",
         "Where no original is known, Change Appearance says so. Start Over clears them; Back Up Saves copies them.",
-        "Needs Origins (ticked with it). On by default. Not yet seen in a running game."
+        "Needs Origins (ticked with it). On by default."
       ]
     },
     {
@@ -1115,7 +1115,7 @@
         "Reset to original gives it back: a convert's original look is the one they had, with the mask they wore.",
         "One who goes back to the Heathens wears their own Heathen mask again but acts like an ordinary blue-masked Heathen.",
         "Heathens who joined before this patch keep the look they have now.",
-        "Needs Origins (ticked with it). Not yet seen in a running game."
+        "Needs Origins (ticked with it)."
       ]
     },
     {
@@ -1147,7 +1147,7 @@
         "Never the Golden Child, a totem statue or a ghost; The Tree of Life's Scholar (all five) still wins; a custom title wins.",
         "The logs' Special villager line says it, and a new adult's grave gets the epitaph \"Esteemed Elder\".",
         "For older villagers and graves: Repair Saves & Logs, \"Give the Esteemed Elder title retroactively\".",
-        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running."
+        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running in The Lost Children or The Tree of Life."
       ]
     },
     {
@@ -1171,7 +1171,7 @@
         "A former villager who dies is not replaced, so leaving your tribe never grows the camp.",
         "What is left is decided by All Heathens Leave Skeletons or Former Villagers Among the Heathens Leave Skeletons;",
         "with neither, they disappear from the camp, no grave. Deaths are logged; Heathens never count in the Village Statistics.",
-        "Villagers who left before this patch are recognised by the parents on their record. Not yet seen in a running game."
+        "Villagers who left before this patch are recognised by the parents on their record."
       ]
     },
     {

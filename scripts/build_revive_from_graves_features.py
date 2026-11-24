@@ -51,6 +51,11 @@ SPECIAL = {
 }
 
 
+# Seen working in a running game (the owner's live tests, 2026-11-23): New Believers and A New Home.  The other
+# three keep the note.
+SEEN_LIVE = ("vv1", "vv5")
+
+
 def row(game: str, digest: str) -> dict:
     title = GAMES[game]
     description = (
@@ -71,7 +76,7 @@ def row(game: str, digest: str) -> dict:
         "Village History snapshot of them.** A villager in the village now is never listed." + SPECIAL[game]
         + " The returned villager gets an \"Arrived\" record (How: Returned from the dead) in the Births and "
         "Conceptions log at the next save; nothing is counted as a birth or a death. Off by default; on in Owner's "
-        "Defaults. **Unverified in play: not yet tested in a running game.**"
+        "Defaults." + ("" if game in SEEN_LIVE else " **Unverified in play: not yet tested in a running game.**")
     )
     return {
         "id": f"{game}_revive_from_graves",

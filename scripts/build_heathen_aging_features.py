@@ -99,7 +99,7 @@ def description(row: str) -> str:
             "Deaths log (cause: old age). **Heathens never "
             "count in the Village Statistics.** **Villagers who left before this patch are recognised by the "
             "parents on their record** (born in your village); one who never had parents there (a founder or "
-            "newcomer) is recognised only if they leave after the patch is installed. " + NOT_SEEN + " The "
+            "newcomer) is recognised only if they leave after the patch is installed. The "
             "companion is \"VVFP Heathen Aging.dll\"; it keeps its own small file per save, never writes a save."
         )
     if row == TRIBE_ID:
