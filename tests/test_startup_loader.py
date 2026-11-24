@@ -210,6 +210,11 @@ def folder_files(game: str, selection: tuple[str, ...]) -> dict[str, bytes]:
             vfp._write_village_solidarity_choice(out, features)
             vfp._write_meal_scale_choice(out, features, MEAL_MULTIPLIER)
             vfp._write_more_companions_choice(out, features)
+            # The installed patches' list the patcher writes at every patch ("Virtual Villagers Fun Patcher
+            # Files\VVFP Installed Patches.txt"): Story / Cheat Upgrades arms the New Believers stock-event sites of
+            # "Heathens can be selected in Island Events..." only when the row is on it (story_heathen_stock.inc
+            # hv_stock_install), as the real game does.
+            vfp._write_installed_patches(out, build_of(game), features, ())
             out_files.update({str(p.relative_to(out)): p.read_bytes() for p in out.rglob("*") if p.is_file()})
             return out_files
     finally:
