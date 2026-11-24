@@ -318,6 +318,8 @@ typedef struct {
     int revived;          /* skeletons brought back */
     int no_room_revives;  /* revivals refused: the village is full */
     int why[CE_WHY_COUNT]; /* `refused`, by reason (CE_WHY_*) */
+    int heathens_only;    /* New Believers: every villager changed is a Heathen -- the village's own changes were
+                             the Heathens' village's, flavor only (story_custom.inc ce_heathens_only) */
 } ce_result;
 
 #endif

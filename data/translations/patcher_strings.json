@@ -74770,6 +74770,202 @@
    "notes": "a patcher window; %1 = a number (number)"
   },
   {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s0",
+   "english": "The Heathens' village gains %d food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s1",
+   "english": "The Heathens' village loses %d food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s2",
+   "english": "The Heathens' village loses all its food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s3",
+   "english": "The Isolans' village gains %d food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s4",
+   "english": "The Isolans' village loses %d food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s5",
+   "english": "The Isolans' village loses all its food. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s6",
+   "english": "The Heathens' village gains %d tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s7",
+   "english": "The Heathens' village loses %d tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s8",
+   "english": "The Heathens' village loses all its tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s9",
+   "english": "The Isolans' village gains %d tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s10",
+   "english": "The Isolans' village loses %d tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s11",
+   "english": "The Isolans' village loses all its tech points. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s12",
+   "english": "The Isolans' village's buildings and stores change. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_custom.ce_heathens_lines.s13",
+   "english": "The Heathens' village's buildings and stores change. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.gui/rename_tribe.long_name_note",
    "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
    "games": [
