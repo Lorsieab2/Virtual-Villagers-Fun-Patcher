@@ -1742,7 +1742,9 @@ def plan_apprentice(folder: Path, game: int, slot: int, game_folders: list[Path]
                 kind.notes.append(f"{planned.unknown} grave(s): the skill preference that villager had checked when "
                                   "they died is no longer in the save (its record was reused or never kept), so "
                                   "the grave and its records are left as they are.")
-    elif preferred is None and game_folders:
+    elif preferred is None:
+        # Said whether or not any place was looked in (the live test, 2026-11-23: with no game folder for the save
+        # folder this row did nothing and said nothing).
         kind.notes.append("Whether this game has Checked Skill Preferences are listed as Jobs on Graves could not be "
                           "told (no game folder holding its exe was found, or its patches could not be read), so no "
                           "grave was given its villager's skill preference.")
@@ -1812,7 +1814,7 @@ def plan_esteemed(folder: Path, game: int, slot: int, people: list[Block], curre
         return kind
     installed = _row_in_game(_patch_source(folder, game, game_folders), game, vv_graves.ELDER_ROWS[game])
     if installed is not True:
-        if installed is None and game_folders:
+        if installed is None:                    # said even when no place could be looked in (see plan_apprentice)
             kind.notes.append("Whether this game has Esteemed Elders in Every Game could not be told (no game folder "
                               "holding its exe was found, or its patches could not be read), so no villager was "
                               "given the title.")

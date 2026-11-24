@@ -17,7 +17,9 @@ src/vv_copy_slot.py, native/shared/save_reset.c -- and here nothing of the slot 
       its Copies Made Before Repairs, ".before-..." / ".another-village-..." / ".unreadable-..." copies,
       pictures, a companion's ".tmp") and the older layout's "Virtual Villagers Fun Patcher Logs\\Save <S>\\".
     * Every file of the patcher's other folders (Data, Logs, Family Trees, an older build's "VVFP Logs")
-      whose name says " - Save <S>" (Copies Made Before Repairs too), the Family Tree Maker's saved trees of
+      whose name says " - Save <S>" (Copies Made Before Repairs too) or that sits under a "Save <S>" folder
+      (an older layout's slot folder kept whole in Copies Made Before Repairs; that folder becomes
+      "Save <T>"), the Family Tree Maker's saved trees of
       the slot (by the slot recorded in them), its reports and pictures ("... - Save <S> - Page 2.png"),
       the oldest builds' "<name>_<S>.dat" and "Village Statistics - Save <S>.txt" beside the saves.
     * The village's records in an older build's SHARED logs (no slot in their path; every village's records
@@ -100,6 +102,21 @@ def _files(root: Path, skip=None) -> list[Path]:
     return list(lp.walk(root, skip=skip, link=vv_save_backup._is_link))
 
 
+def folder_slot(folders) -> int:
+    """The slot a file's FOLDERS say it is of (the live test of #847's Delete, 2026-11-23: an older layout's
+    "...Logs\\Save <S>\\" kept whole in "Copies Made Before Repairs", its files named with no slot): the
+    "Save <S>" folder on its path -- exactly "Save 1" to "Save 5", so "Save 2" is never "Save 12" or
+    "Save 20".  0: none; -1: two different ones (never any slot's)."""
+    found = 0
+    for name in folders:
+        if _SLOT_FOLDER.fullmatch(name):
+            said = int(name[-1])
+            if found and found != said:
+                return -1
+            found = said
+    return found
+
+
 def slot_everything(game: rename.GameSaves, folder: Path, slot: int) -> list[Path]:
     """Every file tied to slot ``slot`` (see the module's notes), sorted: what a move takes from a source,
     and what it sets aside in a target.  Never anything in Backups."""
@@ -122,6 +139,11 @@ def slot_everything(game: rename.GameSaves, folder: Path, slot: int) -> list[Pat
         for path in _files(folder / top, skip=other_places):
             if cs._name_game(path.name) not in (0, game.number):
                 continue
+            by_folder = folder_slot(path.relative_to(folder).parts[1:-1])
+            if by_folder:
+                if by_folder == slot:
+                    out.append(path)              # under the slot's "Save <S>" folder, whatever its name says
+                continue
             if cs._name_slot(path.name, trees=False) == slot:
                 out.append(path)
     for root in (folder / TREES, folder / LOGS / "Genealogy"):
@@ -130,6 +152,9 @@ def slot_everything(game: rename.GameSaves, folder: Path, slot: int) -> list[Pat
             if cs._name_game(name) not in (0, game.number):
                 continue
             said = cs._name_slot(name, trees=True)
+            by_folder = folder_slot(path.relative_to(folder).parts[1:-1])
+            if by_folder:
+                said = by_folder                  # a "Save <S>" folder says whose it is
             if ".vvtree" in name.casefold():
                 record = cs._tree_record(path) if name.casefold().endswith(".vvtree") else None
                 if record is None:
@@ -193,6 +218,9 @@ def slot_of_relative(game: rename.GameSaves, relative: Path, slot: int) -> bool:
         return False
     if cs._name_game(parts[-1]) not in (0, game.number):
         return False
+    by_folder = folder_slot(parts[1:-1])
+    if by_folder:
+        return by_folder == slot
     trees = top == TREES.casefold() or (top == LOGS.casefold() and parts[1].casefold() == "genealogy")
     return cs._name_slot(parts[-1], trees=trees) == slot
 
@@ -238,7 +266,10 @@ def moved_relative(game: rename.GameSaves, relative: Path, source: int, target: 
         rest = list(parts[2:])
         rest[-1] = moved_name(rest[-1], source, target)
         return Path(parts[0], f"Save {target}", *rest)
-    return Path(*parts[:-1], moved_name(parts[-1], source, target))
+    middle = list(parts[1:-1])
+    if folder_slot(middle) == source:              # a file the slot's by its "Save <S>" folder: the folder too
+        middle = [f"Save {target}" if _SLOT_FOLDER.fullmatch(d) else d for d in middle]
+    return Path(parts[0], *middle, moved_name(parts[-1], source, target))
 
 
 def _kept_copy(name: str) -> bool:
@@ -247,6 +278,11 @@ def _kept_copy(name: str) -> bool:
     low = name.casefold()
     return (any(mark in low for mark in _KEPT_MARKS) or low.endswith(".tmp") or ".vvfp-" in low
             or bool(repair_copies.BAK.match(name)))
+
+
+def _in_copies(relative: Path) -> bool:
+    """A file kept in a Copies Made Before Repairs folder (a copy, never a live log or sidecar)."""
+    return any(p.casefold() == layout.COPIES.casefold() for p in relative.parts[:-1])
 
 
 def _base_name(name: str) -> str:
@@ -460,7 +496,7 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
                 and relative.parts[0].casefold() == SAVES.casefold():
             words_own.append(move)
         elif low.endswith(".txt"):
-            if _kept_copy(path.name):
+            if _kept_copy(path.name) or _in_copies(relative):     # a kept copy: never assembled as a live log
                 move.data, _map = cs.rewrite_log(raw, mapped, new_header, None, recon, note)
             else:
                 add_text(new_relative, 2, cs.Piece(relative, raw, [(0, len(raw))]))
@@ -597,7 +633,8 @@ def _source_boundaries(folder: Path, game: int, checker, plan: Plan) -> list[cs.
     out: list[cs.WordsAppend] = []
     for move in plan.moves:
         rel = move.source.relative_to(folder)
-        if rel.parts[0].casefold() != LOGS.casefold() or not move.source.name.casefold().endswith(".txt"):
+        if rel.parts[0].casefold() != LOGS.casefold() or not move.source.name.casefold().endswith(".txt") \
+                or _in_copies(rel):
             continue
         key = checker.word_key(cs._relative_key(rel))
         if key.casefold() in written:
