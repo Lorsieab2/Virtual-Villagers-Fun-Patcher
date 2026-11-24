@@ -73,6 +73,7 @@
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
 #include "../shared/isolan_words.h"        /* New Believers' Heathen words in the Guardians of Isola wording */
+#include "../shared/isolan_log_words.h"    /* ...and the logs' (Revive reads both wordings) */
 #include "../shared/head_look.h"           /* the old head look effect (cie-v6-binary.md 27) */
 #include "../shared/gender_presentation.h" /* the presentation effect (cie-v6-binary.md 31) */
 

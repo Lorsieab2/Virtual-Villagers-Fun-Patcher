@@ -47,6 +47,7 @@
    "reason": "Log lines, sidecar file formats and save-folder names shared by the companions (logs and files stay English; the patcher reads them back).",
    "files": ["native/shared/appearance_log.h", "native/shared/arrival_backfill.h", "native/shared/data_subfolder.h",
              "native/shared/former_heathens.h", "native/shared/former_heathens_read.h", "native/shared/special_title.h", "native/shared/esteemed_elder.h",
+             "native/shared/isolan_log_words.h", "native/shared/guardians_role_titles.h",
              "native/shared/island_timer_keep.h", "native/shared/log_words.h", "native/shared/orphan_masks.h",
              "native/shared/paid_purchases.h", "native/shared/patcher_files.h", "native/shared/per_save.h",
              "native/shared/per_save_data.h", "native/shared/repairs_log.h", "native/shared/save_layout.h",

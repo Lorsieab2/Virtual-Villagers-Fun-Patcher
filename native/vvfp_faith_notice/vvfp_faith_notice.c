@@ -69,6 +69,7 @@
 #include "../shared/install_sites.h"
 #include "../shared/sidecar_io.h"
 #include "../shared/game_save_slot.h"
+#include "../shared/heathen_word.h"   /* "Isolan no -> yes" with Guardians of Isola (the owner, 2026-11-23) */
 
 #define FN_GAME 5                          /* New Believers */
 #define FN_QUIET_MS 3000u                  /* a popup waits this long after the last conversion */
@@ -562,7 +563,7 @@ int __stdcall VvfpFaithNoticeLeftLines(int game, char *out, int cap) {
         return 0;
     }
     for (i = 0; i < g_left_count; ++i) {
-        n = wsprintfA(line, "  %s: Heathen no -> yes\n  %s: Faith %d -> %d\n", g_left[i].name, g_left[i].name,
+        n = wsprintfA(line, "  %s: %s no -> yes\n  %s: Faith %d -> %d\n", g_left[i].name, vv5_heathen_word(), g_left[i].name,
                       g_left[i].before, g_left[i].after);
         if (used + n + 1 > cap) {
             break;

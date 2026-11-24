@@ -147,6 +147,7 @@ RECORD_LINE = {"name": "Name", "age": "Age at death", "sex": "Sex", "head": "Hea
                "custom": "Custom title", "mask": "Mask"}
 # Lines a Death record may lack, put where the patcher writes them: after these.
 INSERT_AFTER = {"custom": ("Name",), "title": ("Custom title", "Name"), "mask": ("Special villager", "Custom title", "Name")}
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words
 TITLE_RANK = ("Tribal Chief", "Retired Heathen Chief", "Heathen Mommy", "Former Heathen", "Former Heathen Master",
               "Golden Child", "Esteemed Elder", "Scholar")
 
@@ -521,7 +522,7 @@ def _title_differs(game: int, grave_title: str, record_title: str | None) -> boo
     """Whether the grave's title bytes and the record's Special villager line disagree.  Only The Secret
     City's grave keeps the Tribal Chief; a record names only the highest title, so a grave's Esteemed
     Elder agrees with any title above it (special-titles-and-masks-in-logs)."""
-    record_title = record_title or ""
+    record_title = heathen_form(record_title or "")    # Guardians of Isola's titles read as the game's own
     if game == 4:
         # The Tree of Life's grave keeps only the Scholar (all five skills); its Esteemed Elder (three or four,
         # Esteemed Elders in Every Game) is kept by the epitaph and the record alone.  A record names only the

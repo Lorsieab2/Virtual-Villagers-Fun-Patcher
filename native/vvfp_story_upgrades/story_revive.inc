@@ -882,7 +882,7 @@ static void rv_settle(int game, const ce_adapter *a) {
             p->refusal = RV_WHY[RV_WHY_NAME][1];
         } else if (game == 1 && lstrcmpA(p->special, "Golden Child") == 0) {
             p->refusal = RV_WHY[RV_WHY_GOLDEN][1];
-        } else if (game == 5 && strncmp(p->special, "Heathen ", 8) == 0) {
+        } else if (game == 5 && vv5_puzzle_role_title(p->special)) {   /* either wording: shared/isolan_log_words.h */
             p->refusal = RV_WHY[RV_WHY_PUZZLE_HEATHEN][1];
         } else if (game == 5 && p->kind == RV_GONE && rv_left_for_the_heathens(p->cause)) {
             p->refusal = RV_WHY[RV_WHY_HEATHEN][1];

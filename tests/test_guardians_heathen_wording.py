@@ -240,5 +240,203 @@ class TheRewritesOwnTitles(unittest.TestCase):
         self.assertTrue(set(pairs) <= set(renamed), "a title the rewrite does not rename")
 
 
+# ---- The logs (the owner, 2026-11-23: Heathens = Isolans in the logs too) ----------------------------------------
+NATIVE = ROOT / "native"
+sys_path = str(ROOT / "src")
+import sys  # noqa: E402
+if sys_path not in sys.path:
+    sys.path.insert(0, sys_path)
+import vv_isolan_words as words  # noqa: E402
+
+# Every log word the companions write about the Heathens, in the game's own wording -> the rewrite's.
+LOG_PAIRS = {
+    "Converted from the Heathens": "Converted from the Isolans",
+    "no grave (died among the Heathens: nothing was left)": "no grave (died among the Isolans: nothing was left)",
+    "Replaced a Heathen who died of old age": "Replaced an Isolan who died of old age",
+    "Replaced a Heathen lost in an island event": "Replaced an Isolan lost in an island event",
+    "Heathens Converted": "Isolans Converted",
+    "Former Heathen (blue mask)": "Former Isolan (blue mask)",
+    "Former Heathen (orange mask)": "Former Isolan (orange mask)",
+    "Former Heathen (red mask)": "Former Isolan (red mask)",
+    "Former Heathen Master (purple mask)": "Former Isolan Master (purple mask)",
+    "Retired Heathen Chief": "Retired Isolan Chief",
+}
+
+
+def _sm(path: Path) -> dict[str, str]:
+    t = path.read_text(encoding="cp1252")
+    return {m.group(1): m.group(2).strip() for m in re.finditer(r'<Text id="([^"]+)">(.*?)</Text>', t, re.S)}
+
+
+def rewrite_role_titles() -> dict[str, str]:
+    """The puzzle Heathens' titles, the game's own -> the rewrite's own in-game name, from the rewrite's sm.xml."""
+    base = _sm(ROOT / "data/guardians_of_isola/base/Assets/sm.xml")
+    new = _sm(ROOT / "data/guardians_of_isola/new/Assets/sm.xml")
+    rows = ("eSayHeathenMasterDoctor", "eSayHeathenChief", "eSayHeathenMasterResearcher", "eSayHeathenMasterBuilder",
+            "eSayHeathenMasterFarmer", "eSayHeathenMasterParent")
+    return {base[r]: new[r] for r in rows}
+
+
+class TheLogWords(unittest.TestCase):
+    def test_the_puzzle_titles_are_the_rewrites_own_names(self):
+        titles = rewrite_role_titles()
+        self.assertEqual(titles["Heathen Doctor"], "Esteemed Isolan Doctor")
+        self.assertEqual(titles["Heathen Chief"], "Chief of the Native Isola Tribe")
+        self.assertEqual(words.PUZZLE_TITLES, titles)                      # the readers' table
+        header = (NATIVE / "shared/guardians_role_titles.h").read_text(encoding="utf-8")
+        heathen = re.findall(r'"([^"]+)",\s+/\* role', header.split("VV5_ROLE_TITLES_ISOLAN")[0])
+        isolan = re.findall(r'"([^"]+)",\s+/\* role', header.split("VV5_ROLE_TITLES_ISOLAN")[1])
+        self.assertEqual(dict(zip(heathen, isolan)), titles)               # the companions' table
+
+    def test_every_log_word_has_its_isolan_form_and_reads_back(self):
+        for heathen, isolan in {**LOG_PAIRS, **rewrite_role_titles()}.items():
+            with self.subTest(word=heathen):
+                self.assertEqual(words.isolan_form(heathen), isolan)
+                self.assertEqual(words.heathen_form(isolan), heathen)
+                self.assertEqual(words.heathen_form(heathen), heathen)
+                self.assertNotIn("heathen", isolan.lower())
+                self.assertNotIn("guardian", isolan.lower())
+
+    def test_every_writer_switches(self):
+        def src(rel: str) -> str:
+            return (NATIVE / rel).read_text(encoding="utf-8")
+        checks = {
+            "vvfp_cause_of_death/cod_arrivals.inc": "lstrcpynA(arrivals[i].how, vv5_word_converted(), ARRIVAL_HOW);",
+            "vvfp_cause_of_death/cod_cie_words.inc": "cod_log_death(record, cause, vv5_word_no_grave(), NULL);",
+            "vvfp_heathen_aging/vvfp_heathen_aging.c": "tell_arrived(index, vv5_word_replaced(g_replace_words == REPLACED_EVENT));",
+            "vvfp_faith_notice/vvfp_faith_notice.c": '"  %s: %s no -> yes\\n  %s: Faith %d -> %d\\n", g_left[i].name, vv5_heathen_word(),',
+            "statistics_export/statistics_export.c": 'fprintf(file, "%s: %d\\n", vv5_word_converted_row(),',
+            "shared/special_title.h": "return vv5_role_title(role);",
+            "vvfp_island_events/vvfp_island_events.c": '"  %s: %s -> %s\\n", log_label(f), a, b);',
+            "vvfp_story_upgrades/story_revive.inc": "game == 5 && vv5_puzzle_role_title(p->special)",
+        }
+        for rel, site in checks.items():
+            with self.subTest(writer=rel):
+                self.assertIn(site, src(rel))
+        former = src("shared/former_heathens.h")
+        for heathen, isolan in LOG_PAIRS.items():
+            if heathen.startswith(("Former", "Retired")):
+                with self.subTest(title=heathen):
+                    self.assertIn(f'isolan ? "{isolan}" : "{heathen}"', former)
+        self.assertIn('return g_game == 5 && strcmp(f->label, "Heathen") == 0 ? vv5_heathen_word() : f->label;',
+                      src("vvfp_island_events/vvfp_island_events.c"))
+        log_words = src("shared/isolan_log_words.h")
+        for heathen, isolan in LOG_PAIRS.items():
+            if not heathen.startswith(("Former", "Retired")):
+                with self.subTest(word=heathen):
+                    self.assertIn(f'"{heathen}"', log_words)
+                    self.assertIn(f'"{isolan}"', log_words)
+        # no writer keeps a bare Heathen log word of its own
+        for rel, word in (("vvfp_cause_of_death/cod_arrivals.inc", '"Converted from the Heathens"'),
+                          ("vvfp_faith_notice/vvfp_faith_notice.c", '"  %s: Heathen no -> yes'),
+                          ("statistics_export/statistics_export.c", '"Heathens Converted: %d'),
+                          ("shared/special_title.h", '"Heathen Doctor"')):
+            with self.subTest(gone=word):
+                self.assertNotIn(word, re.sub(r"/\*.*?\*/", "", src(rel), flags=re.S))     # code, not comments
+
+
+class EveryReaderTakesBoth(unittest.TestCase):
+    def block(self, *lines: str):
+        import vv_log_additions as additions
+        return additions.blocks(Path("Virtual Villagers 5 Deaths - Save 1.txt"), ["Death 1", *lines, ""])[0]
+
+    def test_the_faction_of_a_title(self):
+        import vv_log_additions as additions
+        for heathen, isolan in rewrite_role_titles().items():
+            with self.subTest(title=isolan):
+                self.assertEqual(additions._faction_of_title(isolan), "Heathen")
+                self.assertEqual(additions._faction_of_title(heathen), "Heathen")
+        for heathen, isolan in LOG_PAIRS.items():
+            if heathen.startswith(("Former", "Retired")):
+                with self.subTest(title=isolan):
+                    self.assertEqual(additions._faction_of_title(isolan), "Believer")
+                    self.assertEqual(additions._faction_of_title(heathen), "Believer")
+
+    def test_the_family_tree_reads_both(self):
+        import vv_genealogy as gen
+        for heathen, isolan in {**LOG_PAIRS, **rewrite_role_titles()}.items():
+            if heathen.startswith(("Former", "Retired", "Heathen ")) or heathen in rewrite_role_titles():
+                with self.subTest(title=isolan):
+                    self.assertEqual(gen.status_marks(isolan), gen.status_marks(heathen))
+        self.assertTrue(gen._heathen_marked(self.block("  Name: Ana", "  Isolan: no -> yes")))
+        self.assertTrue(gen._heathen_marked(self.block("  Name: Ana", "  Heathen: no -> yes")))
+        self.assertTrue(gen._heathen_marked(self.block("  Name: Ana", "  Special villager: Esteemed Isolan Parent")))
+        self.assertIn("Converted from the Isolans", gen.CONVERTED_HOWS)
+
+    def test_the_readers_route_through_the_two_wordings(self):
+        def src(name: str) -> str:
+            return (ROOT / "src" / name).read_text(encoding="utf-8")
+        for name, site in (
+                ("vv5_heathen_ages.py", "if how.startswith(CONVERTED_HOWS):"),
+                ("vv5_rejoined_masks.py", "mask = TITLE_MASK.get(heathen_form(title.strip()))"),
+                ("vv5_heathen_masks_restore.py", 'mask = TITLE_MASK.get(heathen_form(b.value("Special villager") or ""))'),
+                ("vv_graves.py", 'record_title = heathen_form(record_title or "")'),
+                ("vv_game_mechanics_counts.py", "rows[heathen_form(m.group(1))] ="),
+                ("vv_log_additions.py", '(converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer)'),
+                ("vv_log_additions.py", 'add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)'),
+                ("vv_genealogy.py", 'if (b.value("How") or "").strip() in CONVERTED_HOWS:'),
+                ("vv_genealogy.py", "if how and how not in CONVERTED_HOWS and")):
+            with self.subTest(reader=name, site=site[:40]):
+                self.assertIn(site, src(name))
+
+    def test_the_mask_repairs_read_a_former_isolan(self):
+        import vv5_heathen_masks_restore as restore
+        import vv5_rejoined_masks as rejoined
+        for heathen, isolan in LOG_PAIRS.items():
+            if heathen.startswith(("Former", "Retired")):
+                with self.subTest(title=isolan):
+                    self.assertEqual(restore.TITLE_MASK.get(words.heathen_form(isolan)), restore.TITLE_MASK[heathen])
+                    self.assertEqual(rejoined.TITLE_MASK.get(words.heathen_form(isolan)), rejoined.TITLE_MASK[heathen])
+
+    def test_revives_puzzle_check_takes_both(self):
+        self.assertNotIn('strncmp(p->special, "Heathen ", 8)', (STORY / "story_revive.inc").read_text(encoding="utf-8"))
+
+
+LOG_UNDER_TEST = r'''
+#include "isolan_log_words.h"
+__declspec(dllexport) int PuzzleTitle(const char *t) { return vv5_puzzle_role_title(t); }
+__declspec(dllexport) const char *RoleTitle(int role) { return vv5_role_title(role); }
+__declspec(dllexport) const char *Converted(void) { return vv5_word_converted(); }
+'''
+
+
+class TheCLogWords(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._tmp = tempfile.mkdtemp()
+        folder = Path(cls._tmp)
+        vcvars = _vcvars()
+        if vcvars is None:
+            raise unittest.SkipTest("needs the Visual C++ tools")
+        (folder / "l.c").write_text(LOG_UNDER_TEST, encoding="utf-8")
+        command = f'call "{vcvars}" >nul && cl /nologo /LD /O2 /I "{SHARED}" l.c /Fe:l.dll /link /NOLOGO >nul'
+        result = subprocess.run(command, shell=True, cwd=folder, capture_output=True, text=True)
+        if result.returncode != 0 or not (folder / "l.dll").is_file():
+            raise unittest.SkipTest("needs the Visual C++ tools")
+        cls.dll = ctypes.CDLL(str(folder / "l.dll"))
+        cls.dll.PuzzleTitle.argtypes = [ctypes.c_char_p]
+        cls.dll.RoleTitle.restype = ctypes.c_char_p
+        cls.dll.Converted.restype = ctypes.c_char_p
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.dll = None
+        shutil.rmtree(cls._tmp, ignore_errors=True)
+
+    def test_revives_check_knows_both_wordings_of_every_puzzle_title(self):
+        for heathen, isolan in rewrite_role_titles().items():
+            with self.subTest(title=heathen):
+                self.assertEqual(self.dll.PuzzleTitle(heathen.encode()), 1)
+                self.assertEqual(self.dll.PuzzleTitle(isolan.encode()), 1)
+        for other in ("Former Heathen (blue mask)", "Tribal Chief", "Heathen", "Esteemed Elder"):
+            with self.subTest(title=other):
+                self.assertEqual(self.dll.PuzzleTitle(other.encode()), 0)
+
+    def test_without_the_rewrite_the_games_own_words(self):
+        # A process with no New Believers image (this one) has no rewrite: the game's own words.
+        self.assertEqual(self.dll.RoleTitle(13), b"Heathen Chief")
+        self.assertEqual(self.dll.RoleTitle(11), None)
+        self.assertEqual(self.dll.Converted(), b"Converted from the Heathens")
+
 if __name__ == "__main__":
     unittest.main()

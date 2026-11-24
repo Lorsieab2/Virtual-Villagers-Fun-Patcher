@@ -800,6 +800,8 @@ FILES = [
     # the read-only checker in the patcher's own process.
     "src/vv_log_tools.py",
     "src/vv_log_additions.py",
+    "src/vv_isolan_words.py",            # New Believers' log words in both wordings (Guardians of Isola)
+    "src/vv_guardians_role_titles.py",   # the rewrite's puzzle titles (scripts/build_guardians_role_titles.py)
     "src/vv_log_decisions.py",
     "src/vv_answered_questions.py",
     "src/vv_move_old_names.py",
