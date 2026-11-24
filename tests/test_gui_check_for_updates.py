@@ -167,6 +167,8 @@ class ReleasesLinkTests(unittest.TestCase):
                "vv_original_look", "vv_misfiled_records", "vv_sex_changes",
                # The mask a Former Heathen rejoined with, given back by Repair (v1.35.98).
                "vv5_rejoined_masks",
+               # New Believers' log words in both wordings, and the rewrite's role titles (Guardians of Isola, 2026-11-23).
+               "vv_isolan_words", "vv_guardians_role_titles",
                # The Conception and Birth records the saved village never held (v1.35.97).
                "vv_not_kept",
                # The games' text bytes as Windows-1252 (every reader), and the games' fonts and the letters
