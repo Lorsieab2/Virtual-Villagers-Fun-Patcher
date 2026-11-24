@@ -26,6 +26,8 @@ try:
     HAVE_EMULATOR = True
 except ImportError:  # pragma: no cover - environment dependent
     HAVE_EMULATOR = False
+    # A stand-in so the module still defines Warp and its tests skip (_skip), as the companion tests do.
+    Process = object
 
 DLL = ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll"
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
