@@ -28,7 +28,7 @@ pregnancy lines (owner rule: the History is descent only).
 |---|---|---|---|---|---|
 | Villager n, Name, Age, Sex, Head, Body | yes | yes | yes | yes | yes |
 | Custom title | yes | yes | yes | yes | yes |
-| Special villager | yes (Golden Child) | yes (Esteemed Elder) | yes (Tribal Chief, Esteemed Elder) | yes (Scholar) | yes (Heathen roles, Former Heathen, Retired Heathen Chief, Esteemed Elder) |
+| Special villager | yes (Golden Child) | yes (Esteemed Elder) | yes (Tribal Chief, Esteemed Elder) | yes (Scholar) | yes (Heathen roles, Former Heathen, Retired Heathen Chief, Esteemed Elder; with the Guardians of Isola Rewrite the rewrite's own role names, Former Isolan, Retired Isolan Chief) |
 | Mask | yes | yes | yes | yes | yes |
 | Faction ("Heathen", "Isolan" with Guardians of Isola, or "Believer") | n/a (feature: Heathens are VV5 only) | n/a | n/a | n/a | yes |
 | Nursing / Babies nursing (Population only) | yes | yes | yes | yes | yes |
@@ -48,7 +48,7 @@ and "Tribe History\Village History n.txt" (appended each save, rolls at 4 MiB): 
 
 Rows are the owner's directive (docs/village-statistics-directive.md): the 14 common rows in every
 game, and each game's own rows on top -- VV2 Special Stews Found and Total Stews Found, VV3 Chiefs
-Robed and Stews Found, VV4 Debris Cleared and Stews Found, VV5 Heathens Converted. No GAP: every
+Robed and Stews Found, VV4 Debris Cleared and Stews Found, VV5 Heathens Converted ("Isolans Converted" with the Guardians of Isola Rewrite). No GAP: every
 common row is written in every game. A New Home has no cauldron (no stews) and New Believers' rows
 are as the directive lists them. VV2's Village Elders row is the game's own lifetime counter, which
 counts the owner's definition (once per villager at 3 or more masteries); the other games keep the

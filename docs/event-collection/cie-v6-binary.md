@@ -1556,7 +1556,7 @@ villagers and life happens to them too."
   a disappearance's record the event's own; then a camp Heathen is replaced as for an old-age death (never a former
   villager, nobody once The Last Heathen is solved, never from nothing). A replacement owed while the table is full
   keeps how the one replaced was lost (its file entry's bit 16), so its Arrived record says "Replaced a Heathen lost
-  in an island event", never "died of old age". `pregnant` / `nursing` go to
+  in an island event" ("Replaced an Isolan ..." with the Guardians of Isola Rewrite), never "died of old age". `pregnant` / `nursing` go to
   `VvfpHeathenAgingEventPregnancy(5, mother, father, litter, now)` -- two Heathens only (never a Heathen and a
   believer: a pregnancy whose other role has no Heathen bit keeps Heathens out of this one's; a believer partner is
   refused), the game's conception, the mother kept as expecting and aging until the companion's Heathen birth 40

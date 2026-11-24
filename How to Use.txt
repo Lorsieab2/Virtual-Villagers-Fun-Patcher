@@ -792,7 +792,8 @@ Isola Rewrite), as the Village History and Village Population records are:
 - Appearance changed and Name changed, for a Heathen.
 A believer's records never have the line. "Left the tribe: became a Heathen"
 is the villager's own record of leaving, so it is not marked; a Heathen who
-converts gets "How: Converted from the Heathens", unmarked. Heathens never
+converts gets "How: Converted from the Heathens" ("Converted from the
+Isolans" with the Guardians of Isola Rewrite), unmarked. Heathens never
 count: the Village Statistics (Villagers Buried too: burying a Heathen's
 skeleton is never counted), the Family Tree Maker (a camp Heathen is never a
 founder), Catch up Heathen ages and Repair Saves & Logs read the line and

@@ -57,8 +57,8 @@ Owner decisions that shape the rows:
 
 The owner (2026-09-30): Heathens never count as villagers in any row unless
 the row explicitly asks for them; a converted Heathen counts like any villager
-from the moment of conversion, never before. Heathens Converted is the one
-Heathen row. The game keeps its Heathens in the villager array beside the
+from the moment of conversion, never before. Heathens Converted ("Isolans Converted"
+with the Guardians of Isola Rewrite) is the one Heathen row. The game keeps its Heathens in the villager array beside the
 tribe; the record's faction byte `+0x1CEC` is 0 for a believer (the game's own
 population count 0x4713F0 counts only 0; conversion 0x4668B0 clears it at
 0x46697D; The Spa and The Cracked Mask set it at 0x415D0C/0x416C5B; a live read
