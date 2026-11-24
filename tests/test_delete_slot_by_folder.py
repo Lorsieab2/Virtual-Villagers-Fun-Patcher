@@ -188,6 +188,21 @@ class MoveByFolderTests(tm.Base):
         moved = folder / relative.replace("\\Save 1\\", "\\Save 3\\")
         self.assertEqual(moved.read_bytes(), f"Village: {old} (Save 3)\r\nDeath 1\r\n".encode("latin-1"))
 
+    def test_a_saved_tree_under_the_slots_folder_moves_into_the_targets_folder(self) -> None:
+        """Codex review on #858: the village's own tree file under "Family Trees\\Save 1\\" (renamed for the target)
+        goes into "Save 3", where its record (slot 3) and its folder agree, so Save 3 finds it."""
+        import json
+        from vv_genealogy_window import tree_file_name
+        game, folder, old = self.make("huttest", 1, "Modded")
+        relative = f"{TREES}\\Save 1\\{tree_file_name(old, 1)}"
+        self.put(folder, relative, json.dumps({"game": 1, "slot": 1, "people": []}).encode("utf-8"))
+        self.assertIn(folder / relative, ms.slot_everything(game, folder, 1))
+        ms.move_slot(game, folder, 1, 3, processes=tc.FakeProcesses(), now=NOW)
+        moved = folder / TREES / "Save 3" / tree_file_name(old, 3)
+        self.assertFalse((folder / relative).exists())
+        self.assertEqual(json.loads(moved.read_bytes())["slot"], 3)
+        self.assertIn(moved, ms.slot_everything(game, folder, 3))
+
     def test_the_suffix_is_the_movers_and_a_picture_copy_stays_a_picture(self) -> None:
         import vv_move_to_save_folders as mover
         self.assertEqual(ms.MOVED_COPY, mover.COPY_SUFFIX)

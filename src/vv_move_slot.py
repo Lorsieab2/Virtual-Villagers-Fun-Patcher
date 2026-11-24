@@ -482,7 +482,8 @@ def plan_move(game: rename.GameSaves, folder: Path, source: int, target: int) ->
         relative = path.relative_to(folder)
         new_relative = moved_relative(game, relative, source, target)
         if relative.parts[0].casefold() == TREES.casefold() and path.name.casefold() == canonical:
-            new_relative = Path(*relative.parts[:-1], tree_file_name(name, target))
+            # In the folder it moves to (a "Save <S>" folder becomes "Save <T>": Codex review on #858).
+            new_relative = Path(*new_relative.parts[:-1], tree_file_name(name, target))
         try:
             raw = lp.read_bytes(path)
         except OSError as exc:
