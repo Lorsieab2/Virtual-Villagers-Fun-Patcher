@@ -14,7 +14,9 @@ What this file proves (each fails without the change):
     lowers, a gathering raises, mixed results are neutral), and a raise / lower / neutral ending compiled to its node
     flags bits;
   * THE TABLE: every collection event's every ending is in data/event_collection/solidarity_tags.json; the reviewed
-    judgement calls are applied; the Living Culture drafts keep their own tags;
+    judgement calls are applied; the Living Culture drafts keep their own tags; both committed tables (the
+    collection's and the Living Event Engine's) equal a fresh run of scripts/tag_village_solidarity.py, so they
+    cannot go stale;
   * MORE ISLAND EVENTS: each ending calls "VVFP Village Solidarity.dll"'s VvfpVillageScoreTag once, with the tag its
     collection form carries (data/event_collection/mie), only when that companion is loaded -- emulated on the stock
     The Secret City with Diving for Treasure.
@@ -132,6 +134,17 @@ class TheCollection(unittest.TestCase):
                     self.assertTrue(why.startswith("read:"))
                     got = living.get(nid) if ident == "living_bank" else table[ident]["nodes"].get(nid)
                     self.assertEqual(got, tag)
+
+    def test_the_committed_tables_equal_a_fresh_tagger_run(self) -> None:
+        """Both committed tables are exactly what scripts/tag_village_solidarity.py writes now: an event or rule change
+        without a re-run fails here (b334_fever_ward's cure-everyone endings sat at "neutral" until 2026-11-24)."""
+        import tag_village_solidarity as tv
+        for path, (fresh, _rows) in ((TAGS, tv.collection_tags()), (LIVING_TAGS, tv.living_tags())):
+            committed = json.loads(path.read_text(encoding="utf-8"))
+            stale = sorted(k for k in set(committed) | set(fresh) if committed.get(k) != fresh.get(k))
+            with self.subTest(table=path.relative_to(ROOT).as_posix()):
+                self.assertEqual([(k, committed.get(k), fresh.get(k)) for k in stale[:10]], [],
+                                 f"{len(stale)} stale entries: run python scripts/tag_village_solidarity.py")
 
     def test_living_culture_keeps_its_own_tags(self) -> None:
         import tag_village_solidarity as tv
