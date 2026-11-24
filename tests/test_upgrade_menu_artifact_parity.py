@@ -427,10 +427,11 @@ class UpgradeMenuArtifactParityTests(unittest.TestCase):
         # drawn (None) / No change labels were translated (audit R1). Larger again for the Tech menu's Revive
         # Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
-        self.assertEqual(vv5_companion["size"], 1903104)
+        # Larger again: the Time Warp credits the Heathens the Heathen aging rows age (VvfpHeathenAgingAges, #850 live check).
+        self.assertEqual(vv5_companion["size"], 1903616)
         self.assertEqual(
             vv5_companion["sha256"],
-            "14A8FA89BCFD0493FF755111D08572E62538C76A007B605E278D2D9B43B14C7B",
+            "21EB62872B8AD4456AB118D7AF2EAA67AD1448A6969016A9640F10F65EB26614",
         )
 
     def test_vv3_archival_builder_binding_tamper_fails_closed(self) -> None:

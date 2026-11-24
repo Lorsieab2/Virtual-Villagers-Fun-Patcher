@@ -6,3 +6,4 @@ EXPORTS
     VvfpHeathenAgingVillageReset=_VvfpHeathenAgingVillageReset@8
     VvfpHeathenAgingEventGone=_VvfpHeathenAgingEventGone@16
     VvfpHeathenAgingEventPregnancy=_VvfpHeathenAgingEventPregnancy@20
+    VvfpHeathenAgingAges=_VvfpHeathenAgingAges@4
