@@ -258,14 +258,20 @@ static const char *cg_pref_word;      /* a preference effect's word given here i
    or each other; never a puzzle's Heathen (roles 12-17).  Without either bit the role is a believer's as before. */
 #define CG_ROLE_HEATHEN_MAY 0x20u
 #define CG_ROLE_HEATHEN_ONLY 0x10u
-#define CG_ROLE_BYTE13_BITS (CG_ROLE_SPEAKS | CG_ROLE_HEATHEN | CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_ONLY)
+/* Bit 3, only with bit 5 ("heathens": "kin", the owner 2026-11-23, the audit's SAME-FACTION): a family role -- a
+   Heathen only beside a Heathen in the role its kinship relation names (or its pregnancy's other parent), a believer
+   only beside a believer there (cg_gap_ok). */
+#define CG_ROLE_HEATHEN_KIN 0x08u
+#define CG_ROLE_BYTE13_BITS (CG_ROLE_SPEAKS | CG_ROLE_HEATHEN | CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_ONLY \
+                             | CG_ROLE_HEATHEN_KIN)
 #define CG_ROLE_HEATHEN_ROW (CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_ONLY)
 #define CG_HEATHENS_ROW "heathens_in_island_events"   /* the row's id after "vv5_" (also More Island Events') */
 
-/* A role's byte 13 holds at most one of the three Heathen bits. */
+/* A role's byte 13 holds at most one of the three Heathen bits (bit 3 only beside bit 5). */
 static int cg_heathen_bits_ok(unsigned int b) {
-    b &= CG_ROLE_HEATHEN | CG_ROLE_HEATHEN_ROW;
-    return b == 0 || b == CG_ROLE_HEATHEN || b == CG_ROLE_HEATHEN_MAY || b == CG_ROLE_HEATHEN_ONLY;
+    b &= CG_ROLE_HEATHEN | CG_ROLE_HEATHEN_ROW | CG_ROLE_HEATHEN_KIN;
+    return b == 0 || b == CG_ROLE_HEATHEN || b == CG_ROLE_HEATHEN_MAY || b == CG_ROLE_HEATHEN_ONLY
+           || b == (CG_ROLE_HEATHEN_MAY | CG_ROLE_HEATHEN_KIN);
 }
 #define CG_LOOK_RANDOM (-1)           /* an appearance effect's head / body: any row but the current one */
 #define CG_LOOK_KEEP (-2)             /* ... not changed */
@@ -2091,6 +2097,26 @@ static int cg_heathen(int game, const unsigned char *r) {
     return game == 5 && r[0x1CEC] != 0;
 }
 
+static int cg_heathens_row(int game);   /* the row installed (below) */
+
+/* 45 (the owner, 2026-11-23): "Any mention of death/bad outcomes to puzzle heathens = acceptable but flavor only
+   (Puzzle heathens are EXEMPT from any actual effects AT ALL TIMES.)"  A puzzle's Heathen -- a Heathen whose role
+   +0x1CFC is 12-17 (the Heathen Doctor, the Heathen Chief, the three Masters, the Heathen Mommy) -- may be cast in
+   a role of the row while the row is installed (never sick, alive); every effect on them is then told, never made
+   (cg_puzzle_effect): their record is only ever read.  The Retired Chief, a believer who keeps role 13, is not one. */
+static int cg_puzzle_heathen(int game, const unsigned char *r) {
+    int hrole;
+    if (!cg_heathen(game, r)) {
+        return 0;
+    }
+    hrole = *(const int *)(r + 0x1CFC);
+    return hrole >= 12 && hrole <= 17;
+}
+
+static int cg_puzzle_heathen_castable(int game, const unsigned char *r) {
+    return cg_puzzle_heathen(game, r) && cg_g.version >= 6 && cg_heathens_row(game);
+}
+
 /* "Heathens Keep Their Masks When Converted" (New Believers; the owner, 2026-11-22: a villager who goes back to
    the Heathens gets back the mask they wore as a Heathen and behaves as an ordinary blue Heathen; a Heathen who
    joins keeps theirs).  The game's own conversions are spliced by "VVFP Heathens Keep Masks.dll"; the faction
@@ -2430,18 +2456,26 @@ static int cg_ordinary_heathen(int game, const unsigned char *r) {
 static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
     const unsigned char *spec = cg_role_at(&cg_g, role);
     const unsigned char *r = a->record(index);
-    int sex, row_heathen = 0;
+    int sex, row_heathen = 0, puzzle;
     if (spec[0] != CG_ROLE_VILLAGER || r == NULL || !a->listed(r)) {
         return 0;
     }
     if (game == 3 && r[0xE94] != 0) {
         return 0;                      /* The Secret City's stand-in record */
     }
+    /* 45 (the owner, 2026-11-23): a puzzle's Heathen in a role of the row -- alive, never sick -- whom no effect ever
+       reaches (cg_puzzle_effect), so the special, protected and never-harmed rules below have nothing to keep them
+       from. */
+    puzzle = game == 5 && cg_g.version >= 6 && (spec[13] & CG_ROLE_HEATHEN_ROW) && cg_puzzle_heathen_castable(game, r)
+             && r[0x1C48] == 0 && cg_health_now(game, r) > 0
+             /* 47 (the owner's Heathen-Exclusive Events, 2026-11-23): "Special Heathens are never cast and nothing in
+                these events ever touches them" -- never in a Heathens-only role (the existing events' are allowed / kin) */
+             && !(spec[13] & CG_ROLE_HEATHEN_ONLY);
     /* Safety: never dropped. */
-    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0 && !cg_ns_cast(game)) {
+    if ((spec[1] & CG_ROLE_NURSING) && *(const int *)(r + a->off_pregnant) != 0 && !cg_ns_cast(game) && !puzzle) {
         return 0;
     }
-    if ((spec[1] & CG_ROLE_SPECIAL) && cg_special(a, game, r)) {
+    if ((spec[1] & CG_ROLE_SPECIAL) && cg_special(a, game, r) && !puzzle) {
         return 0;
     }
     if (cg_g.version >= 6 && spec[9] == 3 && ce_age(a, r) < CG_NURSING_MIN_AGE) {
@@ -2466,7 +2500,8 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
            a believer (without the row nobody: the event is not offered).  Never a puzzle's Heathen, never a role
            whose effects can not yet happen to a Heathen. */
         if (cg_heathen(game, r)) {
-            if (!cg_heathens_row(game) || !cg_ordinary_heathen(game, r) || ((cg_heathen_barred_roles() >> role) & 1u)) {
+            if (!cg_heathens_row(game)
+                || !(puzzle || (cg_ordinary_heathen(game, r) && !((cg_heathen_barred_roles() >> role) & 1u)))) {
                 return 0;
             }
             row_heathen = 1;
@@ -2488,10 +2523,10 @@ static int cg_eligible(const ce_adapter *a, int game, int role, int index) {
         && !row_heathen) {
         return 0;
     }
-    if (cg_g.version >= 6 && (spec[1] & CG_ROLE_PROTECTED) && cg_protected(a, game, r)) {
+    if (cg_g.version >= 6 && (spec[1] & CG_ROLE_PROTECTED) && cg_protected(a, game, r) && !puzzle) {
         return 0;
     }
-    if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r)) {
+    if (cg_g.version >= 6 && (spec[1] & CG_ROLE_HARM) && cg_never_harmed(game, r) && !puzzle) {
         return 0;                      /* never harmed, even with protected "allow" */
     }
     if (cg_g.version >= 6 && (spec[13] & CG_ROLE_SPEAKS) && rs_has_trait(game, r, CG_TRAIT_MUTE)) {
@@ -2854,10 +2889,76 @@ static int cg_dead_relative(int game, int x) {
     return 0;
 }
 
+/* 45 (the owner, 2026-11-23): roles that must be one faction -- both Heathens or both believers.  A "kin" role
+   (byte 13 bit 3) and the role its kinship relation names; the two parents a pregnancy or a nursing baby names
+   (pregnancy only between two Heathens, never a Heathen and a believer).  Only in New Believers with the row
+   installed (cg_faction_prepare, at each cast); bit r of cg_faction_mask[q] when r and q are such a pair. */
+static unsigned int cg_faction_mask[CG_MAX_ROLES];
+static int cg_faction_on;
+
+static void cg_faction_pair(int r, int q) {
+    if (r >= 0 && q >= 0 && r != q && r < cg_g.n_role && q < cg_g.n_role && r < CG_MAX_ROLES && q < CG_MAX_ROLES
+        && cg_role_at(&cg_g, r)[0] == CG_ROLE_VILLAGER && cg_role_at(&cg_g, q)[0] == CG_ROLE_VILLAGER) {
+        cg_faction_mask[r] |= 1u << q;
+        cg_faction_mask[q] |= 1u << r;
+    }
+}
+
+static void cg_faction_prepare(int game) {
+    int r, i;
+    memset(cg_faction_mask, 0, sizeof cg_faction_mask);
+    cg_faction_on = 0;
+    if (game != 5 || cg_g.d == NULL || cg_g.version < 6 || !cg_heathens_row(game)) {
+        return;
+    }
+    for (r = 0; r < cg_g.n_role; ++r) {
+        int other = -1;
+        if ((cg_role_at(&cg_g, r)[13] & CG_ROLE_HEATHEN_KIN) && cg_relation(r, &other) != 0) {
+            cg_faction_pair(r, other);
+        }
+    }
+    for (i = 0; i < cg_g.n_effect; ++i) {
+        const unsigned char *e = cg_effect_at(&cg_g, i);
+        unsigned int cr, pr;
+        int x, y;
+        if ((e[0] != CGE_PREGNANT && e[0] != CGE_NURSING) || cg_u32(e + 4) == 0xFFu
+            || e[1] >= (unsigned int)cg_g.n_role || cg_u32(e + 4) >= (unsigned int)cg_g.n_role) {
+            continue;
+        }
+        cr = cg_role_reach((int)e[1]);
+        pr = cg_role_reach((int)cg_u32(e + 4));
+        for (x = 0; x < cg_g.n_role && x < CG_MAX_ROLES; ++x) {
+            for (y = 0; y < cg_g.n_role && y < CG_MAX_ROLES; ++y) {
+                if (((cr >> x) & 1u) && ((pr >> y) & 1u)) {
+                    cg_faction_pair(x, y);
+                }
+            }
+        }
+    }
+    for (r = 0; r < cg_g.n_role && r < CG_MAX_ROLES; ++r) {
+        cg_faction_on |= cg_faction_mask[r] != 0u;
+    }
+}
+
+/* Record `i` as role `r` is of the faction of every role filled that must share it (cg_faction_prepare). */
+static int cg_faction_ok(const ce_adapter *a, int r, int i) {
+    int q;
+    if (!cg_faction_on || r < 0 || r >= CG_MAX_ROLES || cg_faction_mask[r] == 0u) {
+        return 1;
+    }
+    for (q = 0; q < cg_g.n_role && q < CG_MAX_ROLES; ++q) {
+        if (q != r && ((cg_faction_mask[r] >> q) & 1u) && cg_try[q] >= 0
+            && (cg_heathen(5, a->record(i)) != 0) != (cg_heathen(5, a->record(cg_try[q])) != 0)) {
+            return 0;                  /* never a Heathen beside a believer here */
+        }
+    }
+    return 1;
+}
+
 static int cg_has_gaps(void) {
     int r;
-    if (cg_g.n_rel > 0) {
-        return 1;                      /* 21: a kinship relation is a rule between two roles too */
+    if (cg_g.n_rel > 0 || cg_faction_on) {
+        return 1;                      /* 21: a kinship relation is a rule between two roles too (45: one faction) */
     }
     for (r = 0; r < cg_g.n_role; ++r) {
         if (cg_role_at(&cg_g, r)[6] != 0) {
@@ -2878,6 +2979,9 @@ static void cg_try_reset(void) {
 static int cg_gap_ok(const ce_adapter *a, int r, int i) {
     const unsigned char *spec = cg_role_at(&cg_g, r);
     int q, other = -1, kind = cg_relation(r, &other);
+    if (!cg_faction_ok(a, r, i)) {
+        return 0;                      /* 45: a safety rule, never dropped with the requirements */
+    }
     for (q = 0; q < cg_g.n_role; ++q) {
         const unsigned char *qs = cg_role_at(&cg_g, q);
         int years, diff, qother = -1, qkind;
@@ -2942,6 +3046,7 @@ static int cg_search(const ce_adapter *a, int game, unsigned int roles, unsigned
 static int cg_matchable(const ce_adapter *a, int game, unsigned int roles, const unsigned char *used) {
     unsigned char seen[CE_MAX_RECORDS];
     int r;
+    cg_faction_prepare(game);          /* 45: the roles that must be one faction */
     if (cg_has_gaps()) {
         static unsigned char copy[CE_MAX_RECORDS];
         cg_kin_fill(a, game);          /* 21: the families as they are now */
@@ -3437,6 +3542,7 @@ static int cg_bind(int game) {
     cg_relax_mask = cg.relaxed;
     cg_cast_now = cg.cast_mode;
     cg_kin_fill(a, game);
+    cg_faction_prepare(game);          /* 45 (cg_gap_ok below); cg_matchable makes it again, the same */
     if (!cg_matchable(a, game, left, used)) {
         if (!cg_plan_cast(a, game, left, used)) {
             return 0;
@@ -3649,6 +3755,12 @@ static int cg_harmable(int r, int game) {
         return 0;
     }
     record = cg_villager(a, r);
+    if (record != NULL && cg_puzzle_heathen_castable(game, record)) {
+        /* 45 (the owner, 2026-11-23: "Any mention of death/bad outcomes to puzzle heathens = acceptable but flavor
+           only"; Codex on #856): a puzzle's Heathen -- cast only through the row -- may be told a harmful branch;
+           nothing of it is ever made (cg_puzzle_effect).  Every other protected villager as before. */
+        return 1;
+    }
     return record != NULL && !cg_protected(a, game, record) && !cg_never_harmed(game, record);
 }
 
@@ -3768,17 +3880,123 @@ static void cg_visit(int node) {
     cg_visited[node >> 3] |= (unsigned char)(1u << (node & 7));
 }
 
-/* The node's text: its first variant whose condition holds, else its own. */
+/* 45 (the owner, 2026-11-23: "You may sub other words for Isolan and Believer"; the meaning kept, never
+   "Guardians"): the words that call a cast Heathen a believer are swapped automatically, never hand-edited in an
+   event -- "(friend), a believer," -> "(friend), a person of faith,", "(name1) is a believer" -> "(name1) is a
+   person of faith"; and in an event whose villager role is called "believer" (the Living Engine's), "a believer" /
+   "the believer" -- or Guardians of Isola's "a villager of faith" -- -> "a person of faith" (a Heathen is no villager
+   of the tribe).  Only for a role whose villager is an ordinary Heathen, in New Believers with the row; every other
+   "believer" (the tribe's, someone not cast) is left as written. */
+static int cg_hw_char(char c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' || c == '\'';
+}
+
+/* `from` -> `to` in `s` wherever `from` is a whole word or phrase (no letter joined on before or after it). */
+static void cg_swap_whole(char *s, int cap, const char *from, const char *to) {
+    static char out[CG_RAW_BYTES];
+    int n = 0, f = lstrlenA(from), k;
+    const char *p = s;
+    while (*p != '\0' && n < (int)sizeof out - 1) {
+        for (k = 0; k < f && p[k] == from[k]; ++k) {
+        }
+        if (k == f && (p == s || !cg_hw_char(from[0]) || !cg_hw_char(p[-1]))
+            && (!cg_hw_char(from[f - 1]) || !cg_hw_char(p[f]))) {
+            const char *q;
+            for (q = to; *q != '\0' && n < (int)sizeof out - 1; ++q) {
+                out[n++] = *q;
+            }
+            p += f;
+        } else {
+            out[n++] = *p++;
+        }
+    }
+    out[n] = '\0';
+    lstrcpynA(s, out, cap);
+}
+
+/* Role `r`'s villager is an ordinary Heathen the row cast (New Believers). */
+static int cg_cast_heathen(int game, int r) {
+    const ce_adapter *a;
+    if (game != 5 || r < 0 || r >= cg_g.n_role || r >= CG_MAX_ROLES || cg.record[r] < 0
+        || cg_role_at(&cg_g, r)[0] != CG_ROLE_VILLAGER || !(cg_role_at(&cg_g, r)[13] & CG_ROLE_HEATHEN_ROW)) {
+        return 0;
+    }
+    a = ce_adapter_for(game);
+    return a != NULL && a->record(cg.record[r]) != NULL && cg_heathen(game, a->record(cg.record[r]));
+}
+
+static void cg_heathen_believer_words(char *s, int cap, int game) {
+    static const char *const ABOUT[][2] = {
+        { ", a believer,", ", a person of faith," }, { ", the believer,", ", the person of faith," },
+        { " is a believer", " is a person of faith" }, { " was a believer", " was a person of faith" },
+    };
+    static const char *const NAMED[][2] = {
+        { "a believer", "a person of faith" }, { "A believer", "A person of faith" },
+        { "the believer", "the person of faith" }, { "The believer", "The person of faith" },
+        { "a villager of faith", "a person of faith" }, { "A villager of faith", "A person of faith" },
+        { "the villager of faith", "the person of faith" }, { "The villager of faith", "The person of faith" },
+    };
+    int r, k;
+    for (r = 0; r < cg_g.n_role && r < CG_MAX_ROLES; ++r) {
+        const char *id;
+        char tok[3][CG_NAME_BYTES + 8];
+        int t, nt = 0;
+        if (!cg_cast_heathen(game, r)) {
+            continue;
+        }
+        id = cg_s(&cg_g, cg_u16(cg_role_at(&cg_g, r) + 4));
+        if (lstrcmpA(id, "believer") == 0) {
+            for (k = 0; k < (int)(sizeof NAMED / sizeof NAMED[0]); ++k) {
+                cg_swap_whole(s, cap, NAMED[k][0], NAMED[k][1]);
+            }
+        }
+        if (lstrlenA(id) < CG_NAME_BYTES) {
+            wsprintfA(tok[nt++], "(%s)", id);
+        }
+        if (lstrcmpA(id, "subject") == 0) {
+            lstrcpyA(tok[nt++], "(name1)");
+        } else if (lstrcmpA(id, "friend") == 0) {
+            lstrcpyA(tok[nt++], "(name2)");
+        }
+        for (t = 0; t < nt; ++t) {
+            for (k = 0; k < (int)(sizeof ABOUT / sizeof ABOUT[0]); ++k) {
+                char from[CG_NAME_BYTES + 40], to[CG_NAME_BYTES + 48];
+                wsprintfA(from, "%s%s", tok[t], ABOUT[k][0]);
+                wsprintfA(to, "%s%s", tok[t], ABOUT[k][1]);
+                cg_swap_whole(s, cap, from, to);
+            }
+        }
+    }
+}
+
+/* The node's text: its first variant whose condition holds, else its own (45: a cast Heathen's "believer" words
+   swapped, cg_heathen_believer_words). */
 static const char *cg_node_text(int node, int game) {
+    static char swapped[2][CG_RAW_BYTES];
+    static int turn;
     const unsigned char *n = cg_node_at(&cg_g, node);
-    int k;
+    const char *text = cg_s(&cg_g, cg_u16(n + 6));
+    int k, r, any = 0;
     for (k = 0; k < (int)cg_u16(n + 10); ++k) {
         const unsigned char *v = cg_variant_at(&cg_g, (int)cg_u16(n + 8) + k);
         if (cg_holds_cond((int)cg_u16(v), game, 0)) {
-            return cg_s(&cg_g, cg_u16(v + 2));
+            text = cg_s(&cg_g, cg_u16(v + 2));
+            break;
         }
     }
-    return cg_s(&cg_g, cg_u16(n + 6));
+    if (game != 5 || cg_g.version < 6 || !cg_heathens_row(game)) {
+        return text;
+    }
+    for (r = 0; r < cg_g.n_role && !any; ++r) {
+        any = cg_cast_heathen(game, r);
+    }
+    if (!any) {
+        return text;
+    }
+    turn ^= 1;                         /* two callers' texts may be alive at once (a page and the next) */
+    lstrcpynA(swapped[turn], text, (int)sizeof swapped[turn]);
+    cg_heathen_believer_words(swapped[turn], (int)sizeof swapped[turn], game);
+    return swapped[turn];
 }
 
 /* #824: a tagged page's Village Solidarity change is told after its words (story_solidarity.inc), through #823's
@@ -7837,10 +8055,55 @@ static void cg_effect_on(const ce_adapter *a, int game, const unsigned char *e, 
     }
 }
 
+/* 45 (the owner, 2026-11-23: "Puzzle heathens are EXEMPT from any actual effects AT ALL TIMES"): the role of effect
+   `e` -- its villager, or a pregnancy's or nursing baby's other parent -- whose villager is a puzzle's Heathen (roles
+   12-17), else -1.  Such an effect is told, never made. */
+static int cg_puzzle_hit(const ce_adapter *a, int game, const unsigned char *e) {
+    int who[2], k;
+    const unsigned char *rec;
+    if (game != 5 || a == NULL || e[1] >= (unsigned int)cg_g.n_role) {
+        return -1;
+    }
+    who[0] = cg_resolve_role(e[1]);
+    /* Every effect that names a second villager role in its first value -- and so may write that role's record: a
+       pregnancy's or a nursing baby's other parent (who may carry instead), a body swap's "with" (Codex on #856).
+       The loader's own list (cg_load): no other effect's value is a villager role (change_name's is a stranger's;
+       a group, the newest villager and the whole village never take a Heathen, cg_group_* / cg_celebrate_all). */
+    who[1] = (e[0] == CGE_PREGNANT || e[0] == CGE_NURSING || e[0] == CGE_BODY_SWAP)
+             && cg_u32(e + 4) < (unsigned int)cg_g.n_role ? cg_resolve_role((int)cg_u32(e + 4)) : -1;
+    for (k = 0; k < 2; ++k) {
+        if (who[k] >= 0 && who[k] < CG_MAX_ROLES && (rec = cg_villager(a, who[k])) != NULL
+            && cg_puzzle_heathen(game, rec)) {
+            return who[k];
+        }
+    }
+    return -1;
+}
+
+static unsigned int cg_puzzle_told;    /* the roles whose "(no effect)" line this run has written */
+
+/* Effect `e` falls on a puzzle's Heathen: nothing is made -- their record is never written -- and the page says once
+   "Nothing really happens to <name>. (no effect)" (the Island Events log then has nothing of theirs to record: their
+   record never changed). */
+static int cg_puzzle_effect(const ce_adapter *a, int game, const unsigned char *e) {
+    int role = cg_puzzle_hit(a, game, e);
+    if (role < 0) {
+        return 0;
+    }
+    if (!((cg_puzzle_told >> role) & 1u)) {
+        cg_puzzle_told |= 1u << role;
+        cg_after_line("pz_flavor", cg.name[role], 0);
+    }
+    return 1;
+}
+
 static void cg_effect(const ce_adapter *a, int game, const unsigned char *e, int va, int vb, int *award_kind,
                       int *award, ce_result *r) {
     unsigned char *record;
     int index, role;
+    if (cg_puzzle_effect(a, game, e)) {
+        return;                        /* 45: a puzzle's Heathen -- told, never made */
+    }
     if (cg_flavor_only(e) && !((e[0] == CGE_FOOD || e[0] == CGE_TECH) && (e[2] & 2u))) {
         /* 45: the Heathens' own cast -- the tribe's effect is the Heathens' village's, and makes nothing.  The lines
            the pages lay out say so already (cg_auto_one); these are written as they would be made (cg_after_line). */
@@ -8172,6 +8435,8 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "hv_level", "The Heathens' village's technology changes. (no effect)" },
     { "hv_group", "The Heathens' village gathers together. (no effect)" },
     { "hv_celebrate_all", "Everyone in the Heathens' village celebrates. (no effect)" },
+    /* 45 (the owner, 2026-11-23): a puzzle's Heathen is exempt from every effect (cg_puzzle_effect) */
+    { "pz_flavor", "Nothing really happens to <W>. (no effect)" },
     /* The owner (2026-11-23): an outcome that changes nothing ends with this line (cg_no_effect_mark). */
     { "no_effect", "(no effect)" },
 };
@@ -8305,6 +8570,9 @@ static void cg_auto_one(int game, const cg_history *h, const unsigned char *e, i
         char word[48];
         if (e[1] == CG_ROLE_GROUP || e[1] == CG_ROLE_NEWEST || e[1] == CG_ROLE_NEWEST2) {
             return;                    /* no role to name: the group's line is written as it is made */
+        }
+        if (cg_puzzle_hit(a, game, e) >= 0) {
+            return;                    /* 45: a puzzle's Heathen -- nothing made, told once as it is made (cg_effect) */
         }
         const char *skill = a != NULL && va >= 0 && va < a->skill_count ? a->skill_names[va] : NULL;
         if (cg_flavor_only(e)) {
@@ -9147,6 +9415,7 @@ static int cg_flavor_only(const unsigned char *e) {
 static void cg_start_run(const ce_adapter *a, int game) {
     static cg_history first;
     cg.heathen_cast = cg_heathen_cast_now(a, game);   /* 45: before any page is laid out */
+    cg_puzzle_told = 0;                /* 45: no puzzle's Heathen told of yet */
     memset(&cg.path, 0, sizeof cg.path);
     cg.pick_count = cg.start_picks;    /* the start question's, drawn at the purchase (cg_queue) */
     cg.display_count = cg.display_next = cg.display_used = cg.jobs_used = 0;

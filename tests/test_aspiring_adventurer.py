@@ -1108,6 +1108,108 @@ class HeathenAdventurer(unittest.TestCase):
         self.assertIn(f"The Heathens gain {state[11]} food. (no effect)", seen)
         self.assertNotIn("Your villagers", seen)
 
+    SOL = 0x0EB00000
+
+    def watched(self, hero_heathen: bool = True) -> Village:
+        """Ana the adventurer (a Heathen, or a believer), Ben a believer, Cai a Heathen; Village Solidarity's tag
+        calls recorded in v.tags."""
+        v = self.village()
+        if not hero_heathen:
+            v.p.write(v.rec(0) + 0x1CEC, b"\x00")
+        v.villager(2, "Cai")
+        v.p.write(v.rec(2) + 0x1CEC, b"\x01")             # Cai: an ordinary Heathen
+        v.tags = []
+        p, sol = v.p, self.SOL
+        tag_stub = p.alloc(16)
+        p.write(tag_stub, b"\xC3")
+
+        def tag(pr):
+            v.tags.append(pr.arg(2))
+            return 1, 16
+        p.stub(tag_stub, tag)
+        module, proc = p.api_handlers["GetModuleHandleA"], p.api_handlers["GetProcAddress"]
+
+        def module3(pr):
+            name = pr.cstring(pr.arg(0)) if pr.arg(0) else ""
+            return (sol, 4) if name == "VVFP Village Solidarity.dll" else module(pr)
+
+        def proc3(pr):
+            if pr.arg(0) == sol:
+                return (tag_stub if pr.cstring(pr.arg(1)) == "VvfpVillageScoreTag" else 0), 8
+            return proc(pr)
+        p.api_handlers["GetModuleHandleA"] = module3
+        p.api_handlers["GetProcAddress"] = proc3
+        return v
+
+    def rescue(self, friend_heathen: bool):
+        """A8 (the friend rescues the adventurer): Ana the Heathen adventurer; the friend Ben (a believer) or Cai."""
+        v = self.watched()
+        before = v.stores()
+        seen = " ".join(v.play(rolls(game=5, hero=0, friend=1 if friend_heathen else 0, find=1, end=2), 1))
+        return v, before, seen
+
+    # Every ending: (name, rolls, answer, award) -- A1/A5/A8 the find, A2-A4/A6 the deadly half, A7/A9 a pile of dirt,
+    # choice B's lost endings L1-L6 and the way home.
+    ENDINGS = (
+        ("A1", dict(find=1, end=0), 1, True), ("A5", dict(find=1, end=1), 1, True), ("A8", dict(find=1, end=2), 1, True),
+        ("A2", dict(survive=False, end=0), 1, False), ("A3", dict(survive=False, end=1), 1, False),
+        ("A4", dict(survive=False, end=2), 1, False), ("A6", dict(survive=False, end=3), 1, False),
+        ("A7", dict(find=0, end=0), 1, False), ("A9", dict(find=0, end=1), 1, False),
+        ("B home", dict(), 2, False),
+        *((f"L{k}", dict(lost=True, lost_end=k), 2, False) for k in range(1, 7)),
+    )
+
+    def test_every_ending_leaves_the_tribe_alone_when_everyone_is_a_heathen(self) -> None:
+        """The owner (2026-11-23, "Check all events"): with every villager in it a Heathen, the tribe's food, tech and
+        Village Solidarity never change, whatever the ending; a mixed rescue (A8 with Ben) and a believer adventurer
+        are the tribe's as always."""
+        for name, kw, answer, award in self.ENDINGS:
+            for cast in ("all heathens", "mixed", "believer"):
+                with self.subTest(ending=name, cast=cast):
+                    v = self.watched(hero_heathen=cast != "believer")
+                    friend = 1 if cast == "all heathens" else 0      # Cai (a Heathen) or Ben (a believer)
+                    before = v.stores()
+                    seen = " ".join(v.play(rolls(game=5, hero=0, friend=friend, **kw), answer))
+                    tribe = cast == "believer" or (cast == "mixed" and name == "A8")
+                    if award and tribe:
+                        self.assertNotEqual(v.stores(), before, "the tribe's reward")
+                        self.assertEqual(len(v.tags), 1)
+                    else:
+                        self.assertEqual(v.stores(), before, "the tribe's stores untouched")
+                    if cast != "believer" and not tribe:
+                        self.assertEqual(v.tags, [], "Village Solidarity unchanged")
+                    if cast != "believer" and award and not tribe:
+                        self.assertEqual(seen.count("(no effect)"), 1, seen)
+                        self.assertNotIn("Your villagers", seen)
+
+    def test_a_puzzles_heathen_is_never_in_the_adventure(self) -> None:
+        v = self.watched()
+        v.p.put32(v.rec(2) + 0x1CFC, 15)                 # Cai a Master
+        self.assertEqual(v.eligible(2), 0, "never the adventurer nor the friend")
+
+    def test_an_all_heathen_rescue_is_the_heathens_own(self) -> None:
+        """Codex on #856: A8 with a Heathen adventurer AND a Heathen friend -- nothing given, no Village Solidarity, the
+        words swapped, "(no effect)"."""
+        v, before, seen = self.rescue(friend_heathen=True)
+        state = v.state()
+        self.assertEqual(state[4], 8, "A8")
+        self.assertIn("Cai", seen)
+        self.assertEqual(v.stores(), before, "nothing given to the tribe")
+        self.assertIn(f"The Heathens gain {state[11]} food. (no effect)", seen)
+        self.assertNotIn("Your villagers", seen)
+        self.assertEqual(seen.count("(no effect)"), 1)
+        self.assertEqual(v.tags, [], "the village's solidarity unchanged")
+
+    def test_a_mixed_rescue_is_the_tribes_reward(self) -> None:
+        v, before, seen = self.rescue(friend_heathen=False)
+        state = v.state()
+        self.assertEqual(state[4], 8, "A8")
+        self.assertIn("Ben", seen)
+        self.assertNotEqual(v.stores(), before, "a believer rescued them: the tribe's reward")
+        self.assertIn(f"Your villagers gain {state[11]} food.", seen)
+        self.assertNotIn("(no effect)", seen)
+        self.assertEqual(len(v.tags), 1, "Village Solidarity raised, as always")
+
 
 if __name__ == "__main__":
     unittest.main()

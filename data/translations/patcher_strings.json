@@ -74714,8 +74714,8 @@
    "route": "key"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_encampment_kind.s0",
-   "english": "Honoring the dead (at the encampment)",
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s0",
+   "english": ", a believer,",
    "games": [
     "vv1",
     "vv2",
@@ -74728,8 +74728,8 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_encampment_kind.s1",
-   "english": "Reflecting (at the encampment)",
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s1",
+   "english": ", a person of faith,",
    "games": [
     "vv1",
     "vv2",
@@ -74742,8 +74742,8 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_encampment_kind.s2",
-   "english": "Honoring the dead or reflecting (at the encampment)",
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s2",
+   "english": ", the believer,",
    "games": [
     "vv1",
     "vv2",
@@ -74756,8 +74756,8 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_graph.cg_cond_words.s7",
-   "english": "fewer than %d graves",
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s3",
+   "english": ", the person of faith,",
    "games": [
     "vv1",
     "vv2",
@@ -74767,7 +74767,245 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window; %1 = a number (number)"
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s4",
+   "english": " is a believer",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s5",
+   "english": " is a person of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s6",
+   "english": " was a believer",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s7",
+   "english": " was a person of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s8",
+   "english": "a believer",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s9",
+   "english": "a person of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s10",
+   "english": "A believer",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s11",
+   "english": "A person of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s12",
+   "english": "the believer",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s13",
+   "english": "the person of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s14",
+   "english": "The believer",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s15",
+   "english": "The person of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s16",
+   "english": "a villager of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s17",
+   "english": "A villager of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s18",
+   "english": "the villager of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s19",
+   "english": "The villager of faith",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s133",
+   "english": "Nothing really happens to <W>. (no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
   },
   {
    "stem": "vvfp.story/story_custom.ce_heathens_lines.s0",
@@ -75104,6 +75342,62 @@
    "mechanism": "b",
    "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_encampment_kind.s0",
+   "english": "Honoring the dead (at the encampment)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_encampment_kind.s1",
+   "english": "Reflecting (at the encampment)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_encampment_kind.s2",
+   "english": "Honoring the dead or reflecting (at the encampment)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.story/story_graph.cg_cond_words.s7",
+   "english": "fewer than %d graves",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window; %1 = a number (number)"
   }
  ]
 }
