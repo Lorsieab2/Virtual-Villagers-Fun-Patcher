@@ -1292,6 +1292,23 @@ int __stdcall VvfpHeathenAgingEventPregnancy(int game, int mother, int father, i
     return babies;
 }
 
+/* The Origins upgrades' Time Warp (and the Story / Cheat Upgrades' time skip, one Time Warp at a time) write the
+   ages themselves, past the age credit, and age only the faction the game ages: they ask this for a Heathen's
+   record -- 1 when this companion ages that Heathen (the same rule as the age credit's), so the warp credits
+   them too and their old age then comes, unit by unit, through the life tick (live check, #850). */
+int __stdcall VvfpHeathenAgingAges(const unsigned char *record) {
+    int answer = 0;
+    if (!g_installed || record == NULL || rec_index(record) < 0) {
+        return 0;
+    }
+    __try {
+        answer = ages(record);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        answer = 0;
+    }
+    return answer;
+}
+
 /* 1 when every site is installed, else 0. */
 int __stdcall VvfpHeathenAgingInstalled(void) {
     return g_installed;

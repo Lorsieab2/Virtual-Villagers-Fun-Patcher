@@ -894,6 +894,20 @@ class SelfReview(unittest.TestCase):
 
 
 class OfflineRenames(unittest.TestCase):
+    def test_the_time_warp_asks_which_heathens_age(self):
+        # The Origins Time Warp writes ages past the age credit and asks this (tests/test_vv5_time_warp_ages_heathens.py).
+        if _skip():
+            self.skipTest(_skip())
+        v = Village((FORMER,))
+        former = v.villager(1, heathen=True, parents=True)
+        camp = v.villager(2, heathen=True)
+        believer = v.villager(3, heathen=False)
+        self.assertEqual([v.export("VvfpHeathenAgingAges", r) for r in (former, camp, believer)], [1, 0, 0])
+        tribe = Village((TRIBE,))
+        camp = tribe.villager(2, heathen=True)
+        self.assertEqual(tribe.export("VvfpHeathenAgingAges", camp), 1, "the tribe row ages every Heathen")
+        self.assertEqual(Village(()).export("VvfpHeathenAgingAges", camp), 0, "not installed: none")
+
     def test_a_moved_slots_file_is_retagged_and_read_there(self):
         # Codex (#850): Copy / Move Player Slot retag the file's slot (offset 16) through vv_copy_slot, so the
         # companion accepts it in the new slot.
@@ -1202,8 +1216,9 @@ class TheRows(unittest.TestCase):
             self.skipTest("pefile is not installed")
         pe = pefile.PE(str(DLL))
         names = sorted(e.name.decode() for e in pe.DIRECTORY_ENTRY_EXPORT.symbols if e.name)
-        self.assertEqual(names, ["VvfpHeathenAgingEventGone", "VvfpHeathenAgingEventPregnancy", "VvfpHeathenAgingGrave",
-                                 "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset", "VvfpStartup"])
+        self.assertEqual(names, ["VvfpHeathenAgingAges", "VvfpHeathenAgingEventGone", "VvfpHeathenAgingEventPregnancy",
+                                 "VvfpHeathenAgingGrave", "VvfpHeathenAgingInstalled", "VvfpHeathenAgingVillageReset",
+                                 "VvfpStartup"])
         for _, (name, flag, _) in ROWS.items():
             text = (ROOT / "assets" / "heathen_aging" / flag).read_bytes()
             self.assertTrue(text.startswith(f'Virtual Villagers Fun Patcher: "{name}" (New Believers).\n'.encode()))
