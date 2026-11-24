@@ -726,6 +726,31 @@ class Pools(unittest.TestCase):
         lg = cg.lower(cg.load(d))
         self.assertEqual(cg.worst_v6("{X} .", lg, cg.GAMES[3], None), "abcde! .")   # no "." right after it
 
+    def test_the_walks_kept_worst_cases_are_worst_v6s(self):
+        """walk keeps each popup text's worst case (and each item's) for reuse (_WorstMemo, the collection build's
+        speed): it must be worst_v6's own for every context and path, here with items drawn only after a node was
+        visited (or not), a nested pool's too, and a game's item."""
+        d = v6(games=[1, 3], pools={
+            "X": {"items": [{"text": "something found after the long road", "if": {"visited": "k"}},
+                            {"text": "a pebble", "if": {"not": {"visited": "k"}}}, "{Y}"]},
+            "Y": {"items": [{"text": "a feather only the leaver finds, a very long one", "if": {"visited": "l"}},
+                            {"text": "a shell for the third game", "if": {"game": [3]}}, "a leaf"]}})
+        d["nodes"]["p"]["text"] = "(Hero) and (pal) find {X.1}."
+        lg = cg.lower(cg.normalize(d)[0])
+        memo = cg._WorstMemo()
+        texts = ("{X} and {X.2}.", "{Y}!", "Only {X}", "{X} and {X.2}.")      # the first again: kept
+        wants = set()
+        for _round in range(2):                                                  # the second: every one kept
+            for ctx in cg.contexts(cg.normalize(d)[0]):
+                game = cg.GAMES[ctx.game]
+                for path in (("p",), ("p", "q", "k"), ("p", "q", "l"), ("p", "k", "l")):
+                    for text in texts:
+                        with self.subTest(game=ctx.game, path=path, text=text):
+                            want = cg.worst_v6(text, lg, game, None, lambda c, p=path, x=ctx: cg.cond_holds(c, x, p))
+                            wants.add(want)
+                            self.assertEqual(memo.worst(text, lg, game, None, ctx, path, 0), want)
+        self.assertGreater(len(wants), len(texts))         # the answers do change the worst cases here
+
     def test_include_pools(self):
         shared = {"pools": {"mats": {"items": ["wood", "stone"]}}}
         d = v6(include_pools=["mats"])

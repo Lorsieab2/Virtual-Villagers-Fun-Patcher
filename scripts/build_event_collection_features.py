@@ -412,6 +412,7 @@ def compile_events(src: Path = DATA, only: set[str] | None = None) -> list[dict]
     `only`: just those collection ids (the tests)."""
     pools = shared_pools(src)
     out, seen = [], {}
+    todo = []
     for path in event_files(src):
         data = json.loads(path.read_text(encoding="utf-8"))
         if data.get("format") != "vvfp-cie-graph" or not isinstance(data.get("collection"), dict):
@@ -420,7 +421,11 @@ def compile_events(src: Path = DATA, only: set[str] | None = None) -> list[dict]
             continue
         engine = graph_for_engine(data)
         apply_heathen_roles(str(data["collection"].get("id", "")), engine)   # cie-v6-binary.md 45
-        g, problems = cie.validate(engine, scrolling=True, shared_pools=pools)   # the rows require Scrolling Popups
+        todo.append((path, data, engine))
+    # Every event validated, in worker processes (cie.validate_all: the results are validate's own, in order); the
+    # rows require Scrolling Popups.
+    checked = cie.validate_all([engine for _p, _d, engine in todo], scrolling=True, shared_pools=pools)
+    for (path, data, _engine), (g, problems) in zip(todo, checked):
         if problems:
             raise SystemExit(f"{path.relative_to(ROOT)}: " + "; ".join(problems[:5]))
         meta = data["collection"]
