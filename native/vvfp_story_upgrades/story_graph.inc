@@ -3708,6 +3708,12 @@ static int cg_harmable(int r, int game) {
         return 0;
     }
     record = cg_villager(a, r);
+    if (record != NULL && cg_puzzle_heathen_castable(game, record)) {
+        /* 45 (the owner, 2026-11-23: "Any mention of death/bad outcomes to puzzle heathens = acceptable but flavor
+           only"; Codex on #856): a puzzle's Heathen -- cast only through the row -- may be told a harmful branch;
+           nothing of it is ever made (cg_puzzle_effect).  Every other protected villager as before. */
+        return 1;
+    }
     return record != NULL && !cg_protected(a, game, record) && !cg_never_harmed(game, record);
 }
 

@@ -412,6 +412,63 @@ class Engine(unittest.TestCase):
         self.assertEqual(self.sung(r, "x"), [], "a puzzle's Heathen: nothing started")
         self.assertEqual(r.p.read(r.v.record(0), STRIDE), before)
 
+    def bridge_graph(self) -> bytes:
+        """The Rope Bridge's shape (b145_rope_bridge): a question whose answer leads only to harmful endings (the
+        compiler guards each with harmable(x))."""
+        return compiled({"format": "vvfp-cie-graph", "version": 6, "title": "Bridge", "games": [5],
+                         "roles": {"x": {"kind": "villager", "min_age": 14, "sex": "female",
+                                         "heathens": "allowed"}},   # protected: as the event has it (auto)
+                         "start": "ask",
+                         "nodes": {"ask": {"type": "question", "text": "(x) looks at the old rope bridge.",
+                                           "choices": [{"label": "Cross the Bridge", "next": "c1"},
+                                                       {"label": "Take the Long Way", "next": "c2"}]},
+                                   "c1": {"type": "branch", "children": [{"next": "fall", "weight": 50},
+                                                                         {"next": "hurt", "weight": 50}]},
+                                   "fall": {"text": "The rope snaps and (x) falls.", "auto_text": True,
+                                            "effects": [{"do": "kill", "role": "x", "cause": "unknown"}]},
+                                   "hurt": {"text": "(x) slips and is badly hurt.", "auto_text": True,
+                                            "effects": [{"do": "health_change", "role": "x", "min": -30,
+                                                         "max": -30}]},
+                                   "c2": {"text": "(x) walks the long way round."}}})
+
+    def test_a_puzzles_heathen_is_told_a_harmful_branch_never_made(self):
+        """Codex on #856: the harm guard (harmable) lets a puzzle's Heathen's harmful ending be TOLD -- the owner:
+        "Any mention of death/bad outcomes to puzzle heathens = acceptable but flavor only" -- and nothing is made;
+        a protected believer (here: expecting) still has those endings dropped, as before."""
+        # Kai, a believer man, is there to be asked (a question needs a living believer); x is a woman
+        one = [(0, "f", 30, "Mira", 0, False), (1, "m", 32, "Kai", 0, False)]
+        r = run_with(one, puzzle=(0,))
+        before = r.p.read(r.v.record(0), STRIDE)
+        self.assertIsNone(r.queue6(self.bridge_graph()))
+        said = " ".join(" ".join(s[1] for s in r.walk_through([0])).split())
+        self.assertTrue("falls." in said or "badly hurt." in said, said)
+        self.assertEqual(r.p.read(r.v.record(0), STRIDE), before, "byte for byte the same record")
+        self.assertIn("Nothing really happens to Mira. (no effect)", said)
+        self.assertEqual(said.count("(no effect)"), 1, said)
+
+    def harmable_graph(self) -> bytes:
+        """The guard itself: harmable(x) picks the told page, else the safe one (no effect of its own)."""
+        return compiled({"format": "vvfp-cie-graph", "version": 6, "title": "Guard", "games": [5],
+                         "roles": {"x": {"kind": "villager", "min_age": 14, "heathens": "allowed",
+                                         "protected": "allow"}},
+                         "start": "p",
+                         "nodes": {"p": {"type": "branch",
+                                         "children": [{"next": "told", "if": {"harmable": "x"}}], "else": "safe"},
+                                   "told": {"text": "HARM TOLD for (x)."},
+                                   "safe": {"text": "SAFE for (x)."}}})
+
+    def test_only_a_puzzles_heathen_is_exempt_from_the_harm_guard(self):
+        """The exemption is exactly the puzzles' Heathens: a protected believer (expecting a baby) is still not
+        harmable; an ordinary villager is; a puzzle's Heathen now is (flavor only)."""
+        for people, kw, want in (([(0, "f", 30, "Mira", 0, True)], {}, "SAFE"),       # protected: as before
+                                 ([(0, "f", 30, "Mira", 0, False)], {}, "HARM TOLD"),
+                                 ([(0, "f", 30, "Mira", 0, False)], {"puzzle": (0,)}, "HARM TOLD")):
+            with self.subTest(want=want, puzzle=bool(kw)):
+                r = run_with(people, **kw)
+                self.assertIsNone(r.queue6(self.harmable_graph()))
+                said = words(r)
+                self.assertIn(f"{want} for Mira.", said)
+
     def test_a_puzzles_heathen_is_never_sick_or_dead_when_cast(self):
         g = {"format": "vvfp-cie-graph", "version": 6, "title": "Omen", "games": [5],
              "roles": {"x": {"kind": "villager", "min_age": 14, "heathens": "allowed"}},

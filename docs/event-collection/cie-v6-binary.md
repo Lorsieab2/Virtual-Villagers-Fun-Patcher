@@ -1611,7 +1611,7 @@ villagers and life happens to them too."
   is 12-17 may be cast in a role of the row (alive, never sick; the special, protected and never-harmed rules have
   nothing to keep them from).  Every effect whose role -- or second role: a pregnancy's or nursing baby's other parent, a body swap's "with" (Codex on #856) -- is one is told, never made
   (`cg_puzzle_effect`, first in `cg_effect`): their record is only read, its automatic line is not written, and the
-  page says once "Nothing really happens to <name>. (no effect)" (`pz_flavor`) -- that line is the outcome's one "(no effect)" for them (section 46 counts their effect as authored, so it never adds a second).  The Island Events log then has
+  page says once "Nothing really happens to <name>. (no effect)" (`pz_flavor`) -- that line is the outcome's one "(no effect)" for them (section 46 counts their effect as authored, so it never adds a second).  The harm guard (`harmable`) passes for them (Codex on #856), so a harmful ending is told; every other protected or never-harmed villager is guarded as before.  The Island Events log then has
   nothing of theirs (their record never changed): no death is ever recorded that did not happen.  The Retired Chief
   (a believer who keeps role 13) is not one.  More Island Events and the game's own events never draw them.
 - **A "group" effect naming one cast villager** (`who: <role>`; Codex on #856): that villager's own action, so an ordinary Heathen the row cast takes it (`cg_group_fx`, `only`); a whole-village group, celebration or group effect (`who: "all"`, role byte 254) still never reaches a Heathen, and a puzzle's Heathen never (told, never made).
