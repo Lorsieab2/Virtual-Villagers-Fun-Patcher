@@ -38,10 +38,19 @@ DESCRIPTION = (
     "says the original look is not known. The looks are kept in the save's own Original Looks file, follow "
     "each villager (through deaths, reloads and renames) and are copied by Back Up Saves; Start Over clears "
     "them. **On by default.** Change Appearance is in the Origins upgrades: " + ORIGINS_BASE_SENTENCE + " "
-    "**Works the same with every other patch and in every population mode.** The companion is \"" + DLL_NAME + "\", "
+    "**Works the same with every other patch and in every population mode.** {not_seen}The companion is \""
+    + DLL_NAME + "\", "
     "started by VVFP Startup.dll; it changes nothing the game does. If it cannot be loaded, Change "
     "Appearance says the original look is not known."
 )
+# Seen working in a running game (the owner's live test, 2026-11-23): New Believers only.  The other four keep
+# the note.
+SEEN_LIVE = (5,)
+NOT_SEEN = "**Not yet seen in a running game.** "
+
+
+def description(game: int) -> str:
+    return DESCRIPTION.replace("{not_seen}", "" if game in SEEN_LIVE else NOT_SEEN)
 
 # The game's own writers of a villager's body it splices (native/vvfp_original_look/vvfp_original_look.c
 # GAME_WRITERS): (va, stock bytes, what writes there).
@@ -63,7 +72,7 @@ def row(game: int, dll_sha: str) -> dict:
         "catalog_hidden": False,
         "game_id": f"vv{game}",
         "name": "Original Looks for Reset to Original",
-        "description": DESCRIPTION,
+        "description": description(game),
         "output_tag": "Original Looks",
         "dependencies": [f"vv{game}_enable_origins_exclusive_features"],
         "behavior_changes": [
