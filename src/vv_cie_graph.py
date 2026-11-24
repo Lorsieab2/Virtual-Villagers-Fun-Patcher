@@ -421,9 +421,15 @@ ROLE_HEATHEN = 0x40           # 33c: ... New Believers: a Heathen's role (an Iso
 # (heathens_in_island_events).  A villager role's "heathens": "allowed" -- with the row an ordinary Heathen may take
 # it as well as a believer -- or "only" -- with the row only an ordinary Heathen, without it nobody (the event is not
 # offered).  Default (no key, or "never"): a believer's.  Never a puzzle's Heathen (roles 12-17).
+# "kin" (the owner, 2026-11-23, the audit's SAME-FACTION): as "allowed", but a Heathen only beside Heathen family --
+# the role its kinship relation names, or its pregnancy's other parent -- and a believer only beside believers (bit 3
+# with bit 5; story_graph.inc cg_gap_ok).
 ROLE_HEATHEN_MAY = 0x20
 ROLE_HEATHEN_ONLY = 0x10
-HEATHENS_MODES = {"never": 0, "allowed": ROLE_HEATHEN_MAY, "only": ROLE_HEATHEN_ONLY}
+ROLE_HEATHEN_KIN = 0x08
+HEATHENS_MODES = {"never": 0, "allowed": ROLE_HEATHEN_MAY, "only": ROLE_HEATHEN_ONLY,
+                  "kin": ROLE_HEATHEN_MAY | ROLE_HEATHEN_KIN}
+HEATHENS_BITS = ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY | ROLE_HEATHEN_KIN
 HEATHENS_ROW = "heathens_in_island_events"
 # What never happens to a Heathen cast through the row (story_graph.inc cg_heathen_never_effect): a birth that kills
 # its parent, a lost baby, a baby born early, a copy or a double, becoming a Heathen.  A death, a disappearance, a
@@ -450,7 +456,9 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
 NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
 ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
 # 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
-CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5}
+CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5,
+                 # 47: mode 7, exactly 16 and a half (330 units), as the stock "The Strange Nectar" sets it (HE-17)
+                 "16.5": 7}
 CHANGE_AGE_ADD = 6
 CHANGE_AGE_YEARS_MAX = 120
 CHANGE_NAME_MAX = 31          # code 33: a fixed name (the engine's rule; any other refuses the whole file)
@@ -461,6 +469,9 @@ TARGET_ROLE = 254
 TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
                   "old_look", "celebrate", "appearance")          # skill covers skill_set; appearance: 5ee2b3dc0
 TARGET_ALL, TARGET_SKILL, TARGET_RANDOM = 1, 2, 3   # every villager / every one with the skill >= 50 / N at random
+# 47 (E10, the owner 2026-11-23): New Believers' ordinary Heathens -- every one / N at random (story_graph.inc
+# CG_GROUP_HEATHENS, CG_GROUP_HEATHENS_RANDOM; the engine's 4-7 are its age groups)
+TARGET_HEATHENS, TARGET_HEATHENS_RANDOM = 8, 9
 # The villagers this event made (new_villager, clone): role bytes 253 (the newest) and 252 (the one before).
 NEW_ROLES = {"$newest": 253, "$previous": 252}
 NEW_ROLE_NAMES = {v: k for k, v in NEW_ROLES.items()}
@@ -556,12 +567,17 @@ RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
 HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
-            "has_living_child", "drew", "has_dead_relative", "is_special", "has_supply")
+            "has_living_child", "drew", "has_dead_relative", "is_special", "has_supply", "min_graves")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
                    "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
                    "has_dead_relative": 17,     # 21a (gap C3)
                    "is_special": 18,            # 37: the role's villager is the Golden Child / the Tribal Chief
-                   "has_supply": 19})           # 39: the village has at least n of a good to give (#813 had 18)
+                   "has_supply": 19,            # 39: the village has at least n of a good to give (#813 had 18)
+                   "min_graves": 20})           # 47: at least n graves (New Believers only: the game's own count)
+# 47 (the owner, 2026-11-23; Heathen-Exclusive Events, E8): "at least N graves", the game's grave count as the Remembrance
+# Ceremony reads it (New Believers: 0x464E90 on 0x5481A8).  New Believers only: an event that asks for it is VV5 only.
+GRAVES_GAMES = (5,)
+COUNT_FACTS = ("min_population", "min_children", "min_graves")   # thresholds that rise together (the facts)
 ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative",
               "is_special")                     # run-time facts of a bound role
 ONE_ROLE_FACTS = ("has_living_child", "has_dead_relative", "is_special")   # ... whose argument is the role's id
@@ -590,7 +606,10 @@ NURSING_PARENT_MIN_AGE = 18          # years: children never carry in events (ci
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
 # cie-v6-binary.md 37: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
 # may take the role, else any villager the role takes.  Allowed in every game (the owner, 2026-11-16).
-PREFER_CODES = {"golden_child": 4, "tribal_chief": 5}
+PREFER_CODES = {"golden_child": 4, "tribal_chief": 5,
+                # 47 (the owner's Heathen-Exclusive Events, 2026-11-23): "an elder 50 or older, or the oldest adult if
+                # there is none": the oldest of the villagers the role may take (a tie drawn)
+                "oldest": 6}
 POOL_LINKED = 2               # 35: a pool's flags bit: it draws the item number the first linked pool drawn drew
 # 35: the chief's title words (the owner, 2026-11-16): a game word of these names is the chief's title; each run draws
 # one title, the same on every page (linked pools): "Chief", "leader", "elder", "headman" / "headwoman" (a cast chief's
@@ -647,6 +666,15 @@ def size_range(kind: str, size: str, game: int) -> tuple[int, int]:
     lo, hi = SIZE_TABLE[kind][game]
     mul, div = SIZES[size]
     return lo * mul // div, hi * mul // div
+
+
+# 47 (the owner, 2026-11-23; Heathen-Exclusive Events, E9): the encampment's honoring and reflecting, New Believers
+# only.  With "Memorial Actions Can Also Occur at the Heathen Hovel" installed they start through that patch's own
+# entries (0x494B83 Honoring the dead, 0x494DF1 Reflecting: their walks go to the old hovel, as the Remembrance
+# Ceremony sends a villager there); without it the villager sits where they are ("Sitting").  The third is the
+# Remembrance Ceremony's own split: each villager one of the two, 50% each.  Never harmful (devotion).
+ENCAMPMENT_ACTIONS = {"Honoring the dead (at the encampment)": 1, "Reflecting (at the encampment)": 2,
+                      "Honoring the dead or reflecting (at the encampment)": 3}
 
 
 def actions(game: int) -> dict[str, dict]:
@@ -845,7 +873,7 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
         if op == "special_present" and arg not in PRESENT_CODES:
             problems.append(f"{where}: special_present is golden_child or tribal_chief")
             return None
-        if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
+        if op in COUNT_FACTS and not _int_in(arg, 1, 255):
             problems.append(f"{where}: {op} is 1..255")
             return None
         if op in ONE_ROLE_FACTS and not isinstance(arg, str):
@@ -1417,14 +1445,19 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         # A group target (role byte 254): {"all": true}, {"skill": "<name>"} (50 or more) or {"random": n}.
         known.add("target")
         tg = e["target"]
+        # 47 (E10): {"heathens": "all"} every ordinary Heathen, {"heathens": n} n of them at random (New Believers with
+        # the row "Heathens can be selected in Island Events/Heathen-Exclusive Events"; never roles 12-17, never sick).
+        hv = tg.get("heathens") if isinstance(tg, dict) else None
         ok = isinstance(tg, dict) and len(tg) == 1 and (
             tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
             or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
-                and 1 <= tg["random"] <= 255))
+                and 1 <= tg["random"] <= 255)
+            or hv == "all" or (isinstance(hv, int) and not isinstance(hv, bool) and 1 <= hv <= 255))
         if do not in TARGET_EFFECTS:
             problems.append(f"{where}: {do} takes no group target")
         elif not ok:
-            problems.append(f"{where}: target is {{\"all\": true}}, {{\"skill\": name}} or {{\"random\": 1..255}}")
+            problems.append(f"{where}: target is {{\"all\": true}}, {{\"skill\": name}}, {{\"random\": 1..255}}, "
+                            f"{{\"heathens\": \"all\"}} or {{\"heathens\": 1..255}}")
         elif do == "preference" and out.get("preference") == PREF_RANDOM:
             problems.append(f"{where}: a group target's preference names a word (not random)")
         if "role" in e or (do == "celebrate" and "who" in e):
@@ -1620,9 +1653,9 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                           "heathens"}
                 roles[rid] = _norm_role_v6(r, where, problems, sex, min_age)
                 if r.get("heathens") is not None:
-                    # 45: the row's Heathens ("allowed" / "only"; "never" is the default and is dropped)
+                    # 45: the row's Heathens ("allowed" / "kin" / "only"; "never" is the default and is dropped)
                     if not isinstance(r["heathens"], str) or r["heathens"] not in HEATHENS_MODES:
-                        problems.append(f"{where}: heathens is never, allowed or only")
+                        problems.append(f"{where}: heathens is never, allowed, kin or only")
                     elif r.get("heathen_ok"):
                         problems.append(f"{where}: give heathens or heathen_ok, not both")
                     elif r["heathens"] != "never":
@@ -1630,7 +1663,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                 if r.get("prefer") is not None:
                     # 35: the role prefers the Golden Child / the Tribal Chief (any game; cast when they may be)
                     if r["prefer"] not in PREFER_CODES:
-                        problems.append(f"{where}: prefer is golden_child or tribal_chief")
+                        problems.append(f"{where}: prefer is golden_child, tribal_chief or oldest")
                     elif r.get("special") is not None:
                         problems.append(f"{where}: give special or prefer, not both")
                     else:
@@ -2631,11 +2664,15 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
 
 
 def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _depth: int = 0,
-             pronoun_names: bool = False, label: bool = False, award2: int = 0) -> str:
+             pronoun_names: bool = False, label: bool = False, award2: int = 0, _sub=None) -> str:
     """Version 6 text at its widest in `game` (`g` lowered): the longest names, the longer pronouns, the widest
     award (and `award2` digits for (award2): award2_width), each pool instance as its longest eligible item (after
     its own worst case; the first on a tie), then the glyph fallback (VV1/VV2).  `holds(cond)` says whether an
-    item's condition can hold (default: always)."""
+    item's condition can hold (default: always).  `_sub(text, depth)`: works out an option's or item's own worst
+    case in place of calling worst_v6 again with the same arguments (_WorstMemo keeps them)."""
+    if _sub is None:
+        def _sub(t: str, depth: int) -> str:
+            return worst_v6(t, g, game, award, holds, depth, label=label, award2=award2)
     out = []
     text = sentence_case(text, item=_depth > 0, label=label)   # section 20
     tokens = list(text_tokens(text))
@@ -2678,8 +2715,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             tok = parse_brace(raw[1:-1])
             if tok[0] == "count":
                 # 33: measured by its widest option, placeholders at their widest (5ee2b3dc0)
-                out.append(max((worst_v6(o, g, game, award, holds, _depth + 1, label=label, award2=award2)
-                                for o in tok[2]), key=len))
+                out.append(max((_sub(o, _depth + 1) for o in tok[2]), key=len))
                 continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
@@ -2695,7 +2731,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             for it in pool["items"]:
                 if holds is not None and not holds(it["if"]):
                     continue
-                w = worst_v6(it["text"], g, game, award, holds, _depth + 1, label=label, award2=award2)
+                w = _sub(it["text"], _depth + 1)
                 size = len(w) + (1 if dot and not w.endswith(ITEM_END_MARKS) else 0)
                 if size > best_len:
                     best, best_len = w, size
@@ -3162,7 +3198,7 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     if op == "harmable":
         member = dict(ctx.aliases).get(arg, arg)
         return member in ctx.roles and f"harmable:{member}" in ctx.facts
-    if op in ("special_present", "min_population", "min_children", "drew", "has_supply"):
+    if op in ("special_present", "drew", "has_supply") + COUNT_FACTS:
         return fact_of(op, arg) in ctx.facts
     if op in ROLE_FACTS:
         return fact_role(op, arg) in ctx.roles and fact_of(op, arg) in ctx.facts
@@ -3277,13 +3313,16 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
                   | {fact_of(op, a) for op, a in leaves if op in ROLE_FACTS and fact_role(op, a) in bound})
     pops = sorted({a for op, a in leaves if op == "min_population"})
     kids = sorted({a for op, a in leaves if op == "min_children"})
+    graves = sorted({a for op, a in leaves if op == "min_graves"})     # 47
     out = []
     for bits in product((False, True), repeat=len(free)):
         on = {f for f, b in zip(free, bits) if b}
         for i in range(len(pops) + 1):
             for j in range(len(kids) + 1):
-                out.append(frozenset(base | on | {f"min_population:{n}" for n in pops[:i]}
-                                     | {f"min_children:{n}" for n in kids[:j]}))
+                for k in range(len(graves) + 1):
+                    out.append(frozenset(base | on | {f"min_population:{n}" for n in pops[:i]}
+                                         | {f"min_children:{n}" for n in kids[:j]}
+                                         | {f"min_graves:{n}" for n in graves[:k]}))
     return out
 
 
@@ -3293,7 +3332,7 @@ def default_facts(g: dict, bound: Iterable[str]) -> frozenset[str]:
     for c in _all_conds(g):
         _cond_leaves(c, leaves)
     return frozenset({f"harmable:{r}" for r in bound if g["roles"].get(r, {}).get("kind") == "villager"}
-                     | {f"{op}:{a}" for op, a in leaves if op in ("min_population", "min_children")})
+                     | {f"{op}:{a}" for op, a in leaves if op in COUNT_FACTS})
 
 
 @dataclass
@@ -3507,6 +3546,10 @@ AUTO_LINES = {
     "hv_level": "The Heathens' village's technology changes. (no effect)",
     "hv_group": "The Heathens' village gathers together. (no effect)",
     "hv_celebrate_all": "Everyone in the Heathens' village celebrates. (no effect)",
+    # 45 (the owner, 2026-11-23): "Puzzle heathens are EXEMPT from any actual effects AT ALL TIMES" -- a puzzle's
+    # Heathen (roles 12-17) cast with the row: the page may tell anything of them, nothing is made, and this line says
+    # so once (story_graph.inc cg_puzzle_effect).
+    "pz_flavor": "Nothing really happens to <W>. (no effect)",
     # The owner (2026-11-23): an outcome that changes nothing ends with this line (with_no_effect).  Last, in the
     # engine's order (story_graph.inc CG_AUTO_LINES; tests/test_exact_result_amounts.py).
     "no_effect": "(no effect)",
@@ -3844,10 +3887,15 @@ def with_auto_lines(text: str, lines: Iterable[str]) -> str:
     return "\n".join(([text] if text else []) + lines)
 
 
-def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[History]:
+def walk(g: dict, ctx: Context, problems: list[str] | None = None, memo: dict | None = None) -> list[History]:
     """Every history of the graph in `ctx`, with its chance (each question button counts as 1).  Problems on a
     history (an unbound role, an award never deferred, a dead end, ...) are added to `problems`.  Version 6: the
-    walk runs over the lowered graph (lower()); each alias's member is a chance split at the start."""
+    walk runs over the lowered graph (lower()); each alias's member is a chance split at the start.
+
+    `memo`: a dict the walks of ONE graph `g` may share (validate passes one for all its contexts).  It keeps what
+    the walk would otherwise work out again on every history: each popup text's worst case (worst_v6) and each
+    text's placeholders and pool tokens.  The results are exactly the same as without it: a worst case is reused
+    only where every condition it can ask about has the same answer (_WorstMemo)."""
     v6 = g.get("version", 1) >= VERSION_V6
     lg = lower(g) if v6 else g
     nodes = lg["nodes"]
@@ -3855,6 +3903,29 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
     found: list[History] = []
     seen: set[str] = set()
     ctx0 = ctx
+    memo = {} if memo is None else memo
+    worst_memo = memo.setdefault("worst", _WorstMemo())
+    text_memo = memo.setdefault("texts", {})
+    auto_memo = memo.setdefault("auto lines", {})
+    checked: set = set()               # this walk's text checks made (_walk_text_v6): say() keeps one walk's messages
+    award2_widths: dict[str, int | None] = {}
+
+    def award2_wide(nid: str) -> int | None:
+        """award2_width of node `nid`'s own food or tech change in this walk's game; None when it has none."""
+        if nid not in award2_widths:
+            fx = nodes[nid]["effects"]
+            k = award2_effect(fx)
+            award2_widths[nid] = None if k is None else award2_width(fx[k], game)
+        return award2_widths[nid]
+
+    def widest_line(nid: str, k: int, e: dict, award) -> str:
+        """widest_auto_line(lg, e, game, award) for node `nid`'s effect `k` (a pure function of them; the lowered
+        graphs of one graph's walks are the same)."""
+        key = (game.number, nid, k, repr(award))
+        out = auto_memo.get(key)
+        if out is None:
+            out = auto_memo[key] = widest_auto_line(lg, e, game, award)
+        return out
 
     def say(msg: str) -> None:
         if problems is not None and msg not in seen:
@@ -3879,8 +3950,14 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             return
         node = nodes[nid]
         path = path + (nid,)
-        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen, p.new_page) for p in popups]
+        # This history's own popups: a visit changes only the last one (or one it appends), so only that is copied;
+        # the earlier ones, never changed again, are the same objects in every history that shares them.
+        if popups:
+            p = popups[-1]
+            popups = popups[:-1] + [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers,
+                                          list(p.titles), p.chosen, p.new_page)]
+        else:
+            popups = []
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -3947,7 +4024,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             # 25: each effect's line at its widest (the engine's lines are never longer).
             # A pay_award whose amount the text says ("(award)") has none (says_award); nor has the change the
             # text's (award2) states (says_award2).
-            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for k, e in enumerate(node["effects"])
+            text = with_auto_lines(text, [widest_line(nid, k, e, award) for k, e in enumerate(node["effects"])
                                           if not (e["do"] == "pay_award" and says_award(text))
                                           and not (k == a2 and says_award2(text))])
         if node["type"] == "question":
@@ -4003,8 +4080,15 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                                     new_page=bool(node.get("new_page"))))
         title = ntitle or title
         if node["type"] != "branch" and v6:
-            _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
-                          [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
+            labels = [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)]
+            # The same check again in this walk says only what it said before, which say() drops: it is made once
+            # for each node, text, labels, context, award-or-none and answer of every "visited" condition it can ask.
+            on_path = frozenset(path)
+            check = (nid, text, tuple(labels), ctx, award is None,
+                     frozenset().union(*(worst_memo.reach(t, lg["pools"]) & on_path for t in [text] + labels)))
+            if check not in checked:
+                checked.add(check)
+                _walk_text_v6(lg, nid, text, ctx, path, award, where, say, labels, text_memo)
         elif node["type"] != "branch":
             for raw, p in placeholders(text):
                 if p is None:
@@ -4025,10 +4109,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         if node["type"] != "branch" and popups:
             if v6:
                 # (award2): the widest of the popup's nodes' own changes (each node's text states its own)
-                wide2 = max([award2_width(nodes[x]["effects"][award2_effect(nodes[x]["effects"])], game)
-                             for x in popups[-1].nodes if award2_effect(nodes[x]["effects"]) is not None] or [0])
-                popups[-1].worst = worst_v6(popups[-1].text, lg, game, award,
-                                            lambda c, _p=path: cond_holds(c, ctx, _p), award2=wide2)
+                wide2 = max([w for w in (award2_wide(x) for x in popups[-1].nodes) if w is not None] or [0])
+                popups[-1].worst = worst_memo.worst(popups[-1].text, lg, game, award, ctx, path, wide2)
             else:
                 popups[-1].worst = worst_case(popups[-1].text, game, award)
 
@@ -4101,18 +4183,112 @@ def others_drawn(roles: dict, drawn: dict[str, str], bound: Iterable[str]) -> di
     return out
 
 
+def _visited_args(c: Any, out: set) -> None:
+    """The nodes a condition's "visited" leaves name (cond_holds: the only answers it takes from the path)."""
+    if not isinstance(c, dict):
+        return
+    for op, arg in c.items():
+        if op == "visited":
+            out.add(arg)
+        elif op == "not":
+            _visited_args(arg, out)
+        elif op in ("all", "any"):
+            for x in arg:
+                _visited_args(x, out)
+
+
+def _text_pools(text: str, out: set) -> None:
+    """The pools worst_v6 can read for `text`: its {POOL} / {POOL.k} tokens, its {@word}s ("@word") and those of
+    its {#...} count options."""
+    for kind, raw in text_tokens(text):
+        if kind != "brace":
+            continue
+        tok = parse_brace(raw[1:-1])
+        if tok[0] == "count":
+            for o in tok[2]:
+                _text_pools(o, out)
+        elif tok[0] == "word":
+            out.add("@" + tok[1])
+        elif tok[0] == "pool":
+            out.add(tok[1])
+
+
+class _WorstMemo:
+    """worst_v6 of a walk's popup texts -- and of every pool item and count option inside them -- each worked out
+    once (walk's `memo`, shared by one graph's walks, whose lowered graphs are the same).
+
+    worst_v6(text, lg, game, award, holds, depth, award2=...) is a pure function of its arguments and of the answers
+    `holds` gives, and it asks `holds` only about the items of the pools it reads: the text's own, and theirs in
+    turn (_text_pools; sentence_case leaves the tokens as they are).  Here holds(c) is cond_holds(c, ctx, path), whose
+    answer depends on the context and, through "visited" alone, on which of the nodes it names are on the path.  So
+    for one text the context, the path's nodes among those its pools' items name ("visited" ones: reach), the award
+    and award2 decide every answer, and with the depth they decide the result: the key it is kept under.  (The game is
+    the context's; reach may take in more nodes than are ever asked about, which only keeps more results apart.)"""
+
+    def __init__(self) -> None:
+        self.contexts: dict[Context, int] = {}
+        self.kept: dict[tuple, str] = {}
+        self.reaches: dict[str, frozenset] = {}
+
+    def reach(self, text: str, pools: dict) -> frozenset:
+        """The nodes any "visited" condition of an item of a pool `text` can read names (pools of items, too)."""
+        hit = self.reaches.get(text)
+        if hit is not None:
+            return hit
+        names: set = set()
+        _text_pools(text, names)
+        todo, done, nodes = list(names), set(), set()
+        while todo:
+            name = todo.pop()
+            if name in done or name not in pools:
+                continue
+            done.add(name)
+            for it in pools[name]["items"]:
+                _visited_args(it.get("if"), nodes)
+                more: set = set()
+                _text_pools(it["text"], more)
+                todo.extend(more - done)
+        hit = self.reaches[text] = frozenset(nodes)
+        return hit
+
+    def worst(self, text: str, lg: dict, game: Game, award: tuple | None, ctx: Context, path: tuple,
+              award2: int) -> str:
+        """worst_v6(text, lg, game, award, lambda c: cond_holds(c, ctx, path), award2=award2)."""
+        key = (self.contexts.setdefault(ctx, len(self.contexts)), game.number, repr(award), award2)
+        kept, pools = self.kept, lg.get("pools", {})
+        on_path = frozenset(path)
+
+        def holds(c: Any) -> bool:
+            return cond_holds(c, ctx, path)
+
+        def sub(t: str, d: int) -> str:
+            k = (key, t, d, self.reach(t, pools) & on_path)
+            out = kept.get(k)
+            if out is None:
+                out = kept[k] = worst_v6(t, lg, game, award, holds, d, award2=award2, _sub=sub)
+            return out
+
+        return sub(text, 0)
+
+
 def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, award, where: str, say,
-                  labels: list[str]) -> None:
+                  labels: list[str], memo: dict | None = None) -> None:
     """A version 6 node's text (and its shown labels) on one history: every placeholder's role bound, every pool
-    used with an item that can be drawn here, the award on the way."""
+    used with an item that can be drawn here, the award on the way.  `memo` (walk's): each text's placeholders
+    and pool tokens, read once (pure functions of the text and the graph's roles)."""
     roles = lg["roles"]
     texts = [text] + labels
     done: set[str] = set()
+    memo = {} if memo is None else memo
     k = 0
     while k < len(texts):
         t = texts[k]
         k += 1
-        for raw, p in placeholders_v6(t, roles):
+        parsed = memo.get(t)
+        if parsed is None:
+            parsed = memo[t] = (placeholders_v6(t, roles), pool_refs(t))
+        phs, refs = parsed
+        for raw, p in phs:
             if p is None:
                 say(f"node {nid}: {raw} is not a placeholder (write \\( \\) for a parenthesis)")
             elif p.role is not None:
@@ -4128,7 +4304,7 @@ def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, awar
                     say(f"node {nid}: {raw} is shown, but the node has no food or tech change of its own")
             elif p.what not in MADE_PLACEHOLDERS and award is None:
                 say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
-        for name, _inst in pool_refs(t):
+        for name, _inst in refs:
             pool = lg["pools"].get(name)
             if pool is None or name in done:
                 continue
@@ -4330,9 +4506,20 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         if r["skill"] and not any(s in GAMES[gn].skills for s in r["skill"]["names"] for gn in g["games"]):
             problems.append(f"role {rid}: none of its skills is in the event's games")
     all_skills = {s for gm in GAMES.values() for s in gm.skills}
+    # 47: the grave count is New Believers' own (the game's routine 0x464E90): an event asking for it is VV5 only
+    leaves: list = []
+    for c in list(_all_conds(g)) + [g["requirement"].get("if")]:
+        _cond_leaves(c, leaves)
+    if any(op == "min_graves" for op, _a in leaves) and set(g["games"]) - set(GRAVES_GAMES):
+        problems.append("min_graves is New Believers' own (the game's grave count): the event's games are [5]")
     for nid, n in g["nodes"].items():
         for i, e in enumerate(n["effects"]):
             where = f"node {nid} effect {i + 1}"
+            if e["do"] == "action" and isinstance(e["action"], str) and e["action"] in ENCAMPMENT_ACTIONS \
+                    and set(g["games"]) - {5}:
+                problems.append(f"{where}: {e['action']!r} is New Believers' own: the event's games are [5]")
+            if (e.get("target") or {}).get("heathens") is not None and set(g["games"]) - {5}:
+                problems.append(f"{where}: a Heathens group is New Believers' own: the event's games are [5]")
             if e["do"] == "celebrate" and e.get("who", "all") not in ("all",) + tuple(NEW_ROLES) and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: celebrate's who is all or a villager role")
@@ -4341,7 +4528,7 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
             if e["do"] == "group" and e["who"] != "all" and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: group's who is all or a villager role")
-            if e["do"] == "action" and isinstance(e["action"], str) and \
+            if e["do"] == "action" and isinstance(e["action"], str) and e["action"] not in ENCAMPMENT_ACTIONS and \
                     not any(e["action"] in actions(gn) for gn in g["games"]):
                 problems.append(f"{where}: {e['action']!r} is not an action of the event's games")
             if e["do"] == "skill" and not e.get("best"):
@@ -4610,6 +4797,35 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
         _SCROLL_CAPS.reset(token)
 
 
+VALIDATE_WORKERS = 8            # validate_all's most worker processes
+_WORKER_ARGS: tuple = (False, None)
+
+
+def _validate_worker_init(scrolling: bool, shared_pools: Any) -> None:
+    global _WORKER_ARGS
+    _WORKER_ARGS = (scrolling, shared_pools)
+
+
+def _validate_worker(data: Any) -> tuple[dict, list[str]]:
+    return validate(data, *_WORKER_ARGS)
+
+
+def validate_all(graphs: list, scrolling: bool = False, shared_pools: Any = None,
+                 workers: int | None = None) -> list[tuple[dict, list[str]]]:
+    """[validate(g, scrolling, shared_pools) for g in graphs], in order -- with many graphs, in worker processes
+    (validate is a pure function of its arguments and changes none of them, so each result is the one it would be
+    here).  A big collection's build (scripts/build_event_collection_features.py) validates thousands of events, one
+    of them alone some 20 seconds.  `workers`: at most this many processes (default VALIDATE_WORKERS, never more than
+    the CPUs); 1: here, one after another."""
+    import os
+    n = min(len(graphs), workers or VALIDATE_WORKERS, os.cpu_count() or 1)
+    if n <= 1 or len(graphs) < 2 * n:
+        return [validate(g, scrolling, shared_pools) for g in graphs]
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(n, initializer=_validate_worker_init, initargs=(scrolling, shared_pools)) as pool:
+        return list(pool.map(_validate_worker, graphs, chunksize=1))
+
+
 def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list[str]]:
     g, problems = normalize(data, shared_pools)
     if problems and not g.get("nodes"):
@@ -4751,8 +4967,9 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
                                 f"may not take it")
 
     # Every history in every context.
+    memo: dict = {}                    # one graph's walks share their worked-out texts (walk)
     for ctx in contexts(g):
-        paths = walk(g, ctx, problems)
+        paths = walk(g, ctx, problems, memo)
         problems.extend(x for x in fit_problems(g, paths, scrolling) if x not in problems)
     if not problems:
         # The file the game reads: at most MAX_FILE_BYTES (the library's scan refuses a larger one).
@@ -4855,7 +5072,7 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, pidx[arg], 0, 0)
         elif op == "special_present":
             conds[at] = _COND.pack(code, 0, PRESENT_CODES[arg], 0, 0)
-        elif op in ("min_population", "min_children"):
+        elif op in COUNT_FACTS:
             conds[at] = _COND.pack(code, 0, arg, 0, 0)
         elif op == "age":
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], arg["max"] or 0)
@@ -4938,6 +5155,10 @@ def _compile_v6(g: dict) -> bytes:
                     sel = TARGET_ALL
                 elif "skill" in tg:
                     sel, last = TARGET_SKILL, s(tg["skill"])
+                elif tg.get("heathens") == "all":
+                    sel = TARGET_HEATHENS                  # 47
+                elif "heathens" in tg:
+                    sel, last = TARGET_HEATHENS_RANDOM, tg["heathens"]
                 else:
                     sel, last = TARGET_RANDOM, tg["random"]
             if do in ("food", "tech"):
@@ -5147,7 +5368,7 @@ def _decompile_v6(data: bytes) -> dict:
             return {name: patches[a]}
         if name == "special_present":
             return {name: code_present[a]}
-        if name in ("min_population", "min_children"):
+        if name in COUNT_FACTS:
             return {name: a}
         if name == "not":
             return {name: cond(a)}
@@ -5157,8 +5378,8 @@ def _decompile_v6(data: bytes) -> dict:
     for rid, raw in zip(role_ids, roles_raw):
         kind, flags, sex, min_age, _sid, gap_role, gap_years, max_age, special, skills, smin, pick, mask = raw
         speaks, heathen, pick = bool(pick & ROLE_SPEAKS), bool(pick & ROLE_HEATHEN), pick & ~(ROLE_SPEAKS | ROLE_HEATHEN)
-        heathens = {v: k for k, v in HEATHENS_MODES.items()}.get(pick & (ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY), "never")
-        pick &= ~(ROLE_HEATHEN_MAY | ROLE_HEATHEN_ONLY)
+        heathens = {v: k for k, v in HEATHENS_MODES.items()}.get(pick & HEATHENS_BITS, "never")
+        pick &= ~HEATHENS_BITS
         if kind == 1:
             roles[rid] = {"kind": "stranger", "sex": sex_names[sex]}
             if flags & 1:
@@ -5221,7 +5442,8 @@ def _decompile_v6(data: bytes) -> dict:
             target = None
             if role == TARGET_ROLE:
                 target = {"all": True} if sel == TARGET_ALL else {"skill": s(last)} if sel == TARGET_SKILL \
-                    else {"random": last}
+                    else {"heathens": "all"} if sel == TARGET_HEATHENS \
+                    else {"heathens": last} if sel == TARGET_HEATHENS_RANDOM else {"random": last}
             if do in ("food", "tech"):
                 e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
                 if b:

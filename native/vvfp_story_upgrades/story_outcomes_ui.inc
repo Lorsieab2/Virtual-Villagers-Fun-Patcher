@@ -248,7 +248,7 @@ static const char *oc_table_text(const char *table, int index, const char *field
         return english;
     }
     wsprintfA(stem, "vvfp.story/story_tables.VV%d_%s.%d.%s", chooser.gid, table, index, field);
-    return vvfp_tr(stem, english, cap);
+    return vv5_words(chooser.gid, vvfp_tr(stem, english, cap));   /* New Believers: Isolan with Guardians */
 }
 
 static const char *oc_gong_warning(void) {

@@ -73,8 +73,8 @@ NOT_EVENTS = {"manifest.json", "shared_pools.json",
               # Village Solidarity's tag table and its reviewed judgement calls (scripts/tag_village_solidarity.py),
               # not events
               "solidarity_tags.json", "solidarity_review.json",
-              # New Believers' Heathens in the collection's roles (heathen_roles below), not an event
-              "heathen_roles.json"}
+              # New Believers' Heathens in the collection's roles (heathen_roles below), not events
+              "heathen_roles.json", "heathen_roles_existing.json"}
 # The Living Event Engine (docs/event-collection/living-pack.md): its variants ship in one pack per game,
 # "Events\\<group>.pak", and its seeds are manifest rows (id living_..., one series per category).
 LIVING_NAME = "*.pak"                        # one per living series (below), in the game's Events folder
@@ -239,6 +239,9 @@ DRAFTS_D_FILES = (
      "CC05E5ECF6FCE0252276B768107BCFF273732534F206C3D18B8CB6EBE7008E2D"),
     ("fathers30", "Isola_30_Fathers_Pregnancy_Parenthood_and_Humanity_Events.txt",
      "Fathers, Pregnancy and Parenthood", "A54E14EBC5BB2CFDFDB1E05FCE3FAA304A4E7ECFB36350452D2CD6A2CBB2FCDA"),
+    # New Believers' Heathen-Exclusive Events (the owner's approval, 2026-11-23; scripts/drafts_d/gen_heathen_events.py)
+    ("heathen_ex", "Heathen-Only Events (draft for owner).txt", "Heathen-Exclusive Events, HE-01 to HE-45",
+     "90B5D51ABE7BCB94E1AF016BC832FD298C8C247A6D55C2D89C2C09FACB004D41"),
 )
 SOURCE_LINE_WORDS.update({sid: f"{topic} source lines" for sid, _f, topic, _ in DRAFTS_D_FILES})
 
@@ -356,12 +359,22 @@ def apply_solidarity_tags(ident: str, g: dict) -> str:
 # "exclusive": a Heathen-Exclusive Event -- every villager role must then be "only".  Applied to each graph before it is
 # validated and compiled (a role a Heathen may not take -- a death, a disappearance, a pregnancy -- fails the build
 # there for "only"; the engine never casts a Heathen there for "allowed").
+# The existing added events (the owner's approved audit, 2026-11-23) are GENERATED into heathen_roles_existing.json
+# (scripts/build_heathen_roles.py, "kin" for a family role: a Heathen only beside Heathen family); heathen_roles.json
+# keeps the Heathen-only events.  An event named in both fails the build.
 HEATHEN_ROLES = DATA / "heathen_roles.json"
+HEATHEN_ROLES_EXISTING = DATA / "heathen_roles_existing.json"
 
 
 def heathen_roles() -> dict:
-    data = json.loads(HEATHEN_ROLES.read_text(encoding="utf-8")) if HEATHEN_ROLES.is_file() else {}
-    return data.get("events") or {}
+    out: dict = {}
+    for path in (HEATHEN_ROLES, HEATHEN_ROLES_EXISTING):
+        data = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
+        for ident, entry in (data.get("events") or {}).items():
+            if ident in out:
+                raise SystemExit(f"{path.relative_to(ROOT)}: {ident} is also in another Heathen roles file")
+            out[ident] = entry
+    return out
 
 
 _HEATHEN_CACHE: dict | None = None
@@ -382,7 +395,7 @@ def apply_heathen_roles(ident: str, g: dict) -> None:
         if not isinstance(r, dict) or r.get("kind", "villager") != "villager":
             raise SystemExit(f"{where}: {rid} is not a villager role of the event")
         if not isinstance(mode, str) or mode not in cie.HEATHENS_MODES:
-            raise SystemExit(f"{where}: {rid} is never, allowed or only")
+            raise SystemExit(f"{where}: {rid} is never, allowed, kin or only")
         if mode == "never":
             r.pop("heathens", None)
         else:
@@ -399,6 +412,7 @@ def compile_events(src: Path = DATA, only: set[str] | None = None) -> list[dict]
     `only`: just those collection ids (the tests)."""
     pools = shared_pools(src)
     out, seen = [], {}
+    todo = []
     for path in event_files(src):
         data = json.loads(path.read_text(encoding="utf-8"))
         if data.get("format") != "vvfp-cie-graph" or not isinstance(data.get("collection"), dict):
@@ -407,7 +421,11 @@ def compile_events(src: Path = DATA, only: set[str] | None = None) -> list[dict]
             continue
         engine = graph_for_engine(data)
         apply_heathen_roles(str(data["collection"].get("id", "")), engine)   # cie-v6-binary.md 45
-        g, problems = cie.validate(engine, scrolling=True, shared_pools=pools)   # the rows require Scrolling Popups
+        todo.append((path, data, engine))
+    # Every event validated, in worker processes (cie.validate_all: the results are validate's own, in order); the
+    # rows require Scrolling Popups.
+    checked = cie.validate_all([engine for _p, _d, engine in todo], scrolling=True, shared_pools=pools)
+    for (path, data, _engine), (g, problems) in zip(todo, checked):
         if problems:
             raise SystemExit(f"{path.relative_to(ROOT)}: " + "; ".join(problems[:5]))
         meta = data["collection"]

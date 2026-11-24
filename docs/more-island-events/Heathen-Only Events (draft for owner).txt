@@ -1,0 +1,744 @@
+HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)
+New Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.
+Written in the style of the owner's own events. Edit anything and send it back; nothing ships until you approve.
+(name1)/(name2)/(name3) fill in with the cast villagers' names; (he/she), (him/her), (his/her), (himself/herself) follow the villager.
+All Isola rules apply (the 13 sensitivity rules, the 28 hard rules, the scope answers, the style guide, Stop the Overediting). Event titles and choices are in Title Case; event text is in sentence case.
+
+WHO IS CAST
+- "a Heathen" = any Heathen EXCEPT the six special Heathens (the Heathen Doctor, the Heathen Chief and the Retired Chief, the Master Scientist, the Master Builder, the Master Farmer and the Heathen Mommy, roles 12-17). Special Heathens are never cast and nothing in these events ever touches them. Also never a Heathen who is sick or at 0 health (the game's own Heathen picker rules).
+- Only Heathens are cast unless an event says otherwise. No believer is cast in sections A and C. Some events in section B cast a believer too; they say so.
+- Every event needs its Heathens to be there: if too few Heathens qualify, the event cannot happen. When every Heathen has joined the tribe, none of these events can happen any more.
+
+THE OWNER'S RULES APPLIED HERE (2026-11-23)
+- "Everything that happens to our villagers happens to heathens too." Personal outcomes (skills, looks, likes and dislikes, health, injury, moods, relationships) apply to the cast Heathens exactly as they would to villagers.
+- "Flavor only = things that raise/lower tech, damage or build structures etc when only heathens are involved." Food, tech points, structures, puzzles, research, collectibles and other tribe resources are STORY TEXT ONLY in these Heathen-only events: shown in the words, never changed in the game. Such a line says it happens to the Heathens' village and ends with "(no effect)": "The Heathens' village gains food. (no effect)" (Guardians of Isola: "The Isolans' village gains food. (no effect)").
+- Owner's global rule (2026-11-23): ANY outcome that is flavor only, or changes nothing in the game, ends with "(no effect)". Every such outcome below does.
+- Statistics never change because of these events. Heathens are never counted in any Village Statistics row.
+- No event here kills anyone, makes anyone disappear, or makes anyone join or leave the tribe. Nobody is pressured toward the tribe's faith; the Heathens' own ways are shown with the same respect as the villagers' (no villain framing, no "lesser" framing, no conversion as a reward). Their dead are mentioned plainly where the text needs it, never graphically, never with a silver lining.
+
+GUARDIANS OF ISOLA REWRITE (every event below)
+With "Guardians of Isola Rewrite" installed, every text below (title, page, choice, Pick Island Event line, log line) reads with the owner's pairs: Heathen -> Isolan, Heathens -> Isolans, Heathens' -> Isolans', a Heathen -> an Isolan, "the tribe" (meaning the believers, as against the Heathens) -> "the tribe" (unchanged), "believer(s)" -> "tribe member(s)" (faction sense). Where a title holds the word, its Guardians title is written out under the event. Nothing calls anyone "the Guardians".
+
+EFFECT TAGS
+[works today]  = the engine already lets a Heathen's role take this effect (an action, a health change of -30 or better, the sick mark, a story trait).
+[needs E2]     = a personal effect the engine refuses for Heathens today (skills, likes, dislikes, looks, larger health changes). Needs engine change E2 (end of this file). Until then it would be flavor.
+[needs E9]     = needs the encampment honoring/reflecting actions (engine change E9).
+[needs E8]     = needs a requirement the engine lacks today (at least one grave; Heathens present).
+[needs E10]    = needs a group effect over the camp's Heathens (engine change E10).
+Odds: every event takes an equal share of the island-event draw like the other added events (the owner's 30-50% replacement rule, population gate only for deadly events, and none of these is deadly). Outcome odds are given per event; "equal" means each listed outcome is equally likely.
+
+
+################################################################################
+A. THE HEATHENS HONOR THEIR DEAD (HE-01 to HE-13)
+################################################################################
+The game never makes a Heathen grave, and Heathens do not die in ordinary play, so "their dead" in these events are people the Heathens lost before or long ago: elders who passed, people lost in the years when the two peoples were at odds (implied only), a child lost long ago, a friend who joined the tribe and now rests in the mausoleum. The mausoleum events need at least one grave there [needs E8]. The encampment events send the Heathen to the camp's mud hut [needs E9]; without it the Heathen just stops and sits (Sitting) [works today].
+
+==========================================================================
+HE-01. The Quiet Hour at the Encampment
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+Every so often, when the cooking fires have burned low, (name1) goes to sit by the old mud hut at the edge of the encampment. Nobody asks why. Everyone at the camp knows. Tonight (he/she) brings a handful of white shells and lays them in a row on the ground, one for each person (he/she) remembers.
+
+Sit Quietly With (Him/Her):
+Another Heathen sits down beside (name1) without a word. They stay until the stars are out. When they finally get up, there is one more shell in the row than there was before, and neither of them mentions who put it there.
+Effects: (name1) Honoring the dead at the encampment [needs E9]; (name1) likes stars [needs E2].
+
+Leave (Him/Her) to It:
+Some hours belong to one person only. (name1) stays by the hut until long after dark, naming each shell under (his/her) breath. In the morning the shells are still there, straightened, as though someone came by in the night to make sure none had been knocked out of line.
+Effects: (name1) Reflecting at the encampment [needs E9].
+Outcome odds: equal.
+
+==========================================================================
+HE-02. Flowers on the Mud Hut
+(picks a Heathen of any age 8 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+Someone has been leaving flowers on the roof of the old mud hut. Fresh ones, every morning, tucked into the thatch. (name1) is the one who finally sees who it is, just before dawn: an old Heathen woman, reaching up on her toes with a fistful of red blossoms. She sees (name1) and does not seem at all embarrassed.
+
+Ask Who They Are For:
+"For my sister," she says. "She used to fix this roof. She was the only one who could ever get it to stop leaking." She hands (name1) half the flowers. From then on there are two bunches on the roof every morning.
+Effects: (name1) likes flowers [needs E2]; (name1) Honoring the dead at the encampment [needs E9].
+
+Help Without Asking:
+(name1) says nothing, just holds the ladder steady. The old woman tucks the flowers in, pats the thatch twice, and climbs down. "Same time tomorrow," she says, as though (name1) has always helped. (name1) is there the next morning, and the morning after that.
+Effects: (name1) +10 to +20 Parenting [needs E2].
+Outcome odds: equal.
+(The old woman is story text, never a cast villager.)
+
+==========================================================================
+HE-03. The Mask Hung Up for Good
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) has carried a second mask for as long as anyone at the camp can remember: a small one, worn smooth, too small for (his/her) own face. It belonged to someone (he/she) lost a long time ago. Today (name1) stands in front of the mud hut holding it, and seems to be deciding something.
+
+Hang It on the Hut:
+(name1) ties the little mask to the doorpost of the mud hut, where everyone who passes will see it. Some of the children stop and look at it. A few touch it, gently, the way they have been taught. (name1) walks a little lighter after that, though (he/she) still stops by the doorpost most days.
+Effects: (name1) Honoring the dead at the encampment [needs E9].
+
+Keep Carrying It:
+(name1) turns the mask over in (his/her) hands, then tucks it back where it always lives. Not yet. Maybe not ever. That is (his/her) choice to make, and nobody at the camp would dream of making it for (him/her). (no effect)
+Effects: none.
+Outcome odds: equal.
+
+==========================================================================
+HE-04. A Song for the Ones Before
+(picks two Heathens, any age 8 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+At the encampment there is a song that only gets sung on the longest night of the dry season. It is a song with a lot of names in it. (name1) has been asked to lead it this year for the first time, and (he/she) is worried about getting a name wrong. (name2) has offered to stand beside (him/her) and help.
+
+Sing It Together:
+They sing it side by side. (name1) stumbles once, and (name2) carries the line until (name1) finds it again. Nobody minds. Afterwards an elder tells (name1) that the song has been sung with mistakes in it for as long as she can remember, and that the names never seem to mind either.
+Effects: (name1) likes stories [needs E2]; (name1) and (name2) Honoring the dead at the encampment [needs E9].
+
+Practice Alone First:
+(name1) spends the whole afternoon by the stream, singing the names to the water until (he/she) has every one. When the night comes, (he/she) sings it without a single mistake, and is surprised to find (his/her) voice shaking anyway, on a name (he/she) never even knew.
+Effects: (name1) +10 to +20 Devotion [needs E2].
+Outcome odds: equal.
+
+==========================================================================
+HE-05. The Visit to the Mausoleum
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen; at least one grave in the mausoleum [needs E8]. Odds: equal.
+
+(name1) had a friend who left the camp years ago to live with the tribe. They stopped speaking after that, not out of anger, just the way people drift. Word reached the camp that the friend has since died and rests in the tribe's mausoleum. Today (name1) is standing at the edge of the encampment, looking toward it.
+
+Go and Pay (His/Her) Respects:
+(name1) walks over in the quiet of the afternoon. Nobody stops (him/her). (He/she) stands among the graves for a long time, not sure which one is the right one, and decides it doesn't much matter. On the way back (he/she) realises (he/she) has forgotten to be nervous.
+Effects: (name1) Honoring the dead (the mausoleum, the game's own Honoring the dead) [works today, UNCONFIRMED live whether a Heathen walks there].
+
+Remember From Here:
+(name1) sits on a rock where (he/she) can just see the mausoleum roof, and talks to (his/her) old friend from there. It feels like the right distance. They were always better at talking across a little space.
+Effects: (name1) Sitting [works today].
+Outcome odds: equal.
+(The friend is story text. No real grave or record is read.)
+
+==========================================================================
+HE-06. The Carved Post
+(picks a Heathen adult with Building 30 or more, or any Heathen adult)
+Requirement: at least one Heathen. Odds: equal.
+
+There is a wooden post at the centre of the encampment covered in small carvings: a fish, a hand, a crescent, a spiral. Each one stands for someone the camp has lost. (name1) has been asked to add a new one, for an elder who passed long before most of the camp's children were born and has never had a mark of (his/her) own.
+
+Carve What People Remember:
+(name1) goes round the camp asking everyone what they remember of the elder. The answers are all different. (name1) carves a bird with its wings open, because three people mentioned that she whistled. Everyone agrees it is exactly right, though nobody can say why.
+Effects: (name1) +10 to +20 Building [needs E2]; (name1) likes stories [needs E2].
+
+Carve What Feels Right:
+(name1) carves late into the night without asking anyone. In the morning there is a small, plain circle on the post. Some people think it is unfinished. The oldest Heathen at the camp looks at it for a long while and says it is the best one on the post.
+Effects: (name1) +10 to +20 Building [needs E2].
+Outcome odds: equal.
+
+==========================================================================
+HE-07. The Child Who Asks About the Hut
+(picks a Heathen child under 14 and a Heathen adult, 18 or older)
+Requirement: at least one Heathen child and one Heathen adult. Odds: equal.
+
+(name1), a Heathen child, wants to know why the grown-ups go quiet when they walk past the old mud hut. (He/she) asks (name2), who is mending a net and cannot easily get away.
+
+Tell (Him/Her) Gently:
+(name2) puts down the net. "Because some people we loved used to sit there," (he/she) says. "We think of them when we pass." (name1) thinks about this. Then (he/she) asks whether (he/she) can think of them too, even though (he/she) never met them. (name2) says yes, that is exactly how it works.
+Effects: (name2) +10 to +20 Parenting [needs E2].
+
+Show (Him/Her) Instead:
+(name2) takes (name1)'s hand and walks (him/her) to the hut. They sit on the step together without saying anything. After a while (name1) leans against (name2)'s arm. It's enough of an answer for today.
+Effects: (name1) and (name2) Sitting [works today].
+Outcome odds: equal.
+
+==========================================================================
+HE-08. Stones in the Stream
+(picks a Heathen of any age 8 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+On the first day of the rains, the Heathens have a custom: everyone drops a stone into the stream for each person they miss, and watches the water carry the ripples away. (name1) has a pocketful of stones this year. More than last year.
+
+Drop Them One by One:
+(name1) drops each stone separately, waiting for the ripples to fade before the next. It takes a long time. Nobody hurries (him/her). When (he/she) is finished (he/she) washes (his/her) face in the stream and goes to help with supper.
+Effects: (name1) Washing up in the stream [works today]; (name1) likes rain [needs E2].
+
+Keep One Back:
+(name1) drops all but one. The last stone (he/she) keeps, and carries for the rest of the season. Nobody asks about it. There is no rule that says you have to let all of them go at once. (no effect)
+Effects: none.
+Outcome odds: equal.
+
+==========================================================================
+HE-09. The Long Night Fire
+(picks three Heathens, 14 or older)
+Requirement: at least three Heathens. Odds: equal.
+
+Once a year the camp keeps a fire burning all night by the mud hut, so that, as the old people say, "nobody we've lost has to sit in the dark." (name1), (name2) and (name3) are the fire-keepers this year.
+
+Take Turns Through the Night:
+They split the night into three watches. (name1) takes the darkest one and spends it telling stories to the fire, quietly, about people (he/she) misses. In the morning the fire is still burning and all three of them are asleep beside it.
+Effects: (name1), (name2) and (name3) Resting [works today]; (name1) likes fire [needs E2].
+
+Keep Watch Together:
+They stay up together all night, and talk and laugh more than any of them expected. At one point they are laughing so hard someone shushes them from a hut. "They'd have laughed too," (name2) says, and nobody disagrees.
+Effects: (name1), (name2) and (name3) like talking [needs E2].
+Outcome odds: equal.
+
+==========================================================================
+HE-10. The Heathen Day of Honor
+(Heathen version of the game's own "Day of Honor")
+(picks every Heathen the camp has, except the special Heathens [needs E10]; names one Heathen adult, 18 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+(no choice; one popup)
+The Heathens set aside a day of their own to honor their dead. No work is done at the encampment. People sit by the mud hut, walk by the stream, and tell each other the old names. (name1) is the one who lights the first fire of the evening, and for once even the noisiest children are quiet.
+Effects: each Heathen (not the special Heathens) Honoring the dead at the encampment or Reflecting at the encampment, 50% each [needs E9, E10]; (name1) +10 to +20 Devotion [needs E2].
+Guardians of Isola title: The Isolan Day of Honor.
+
+==========================================================================
+HE-11. The Name Nobody Remembers
+(picks two Heathen adults, 18 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+One of the carvings on the camp's memorial post is so old that nobody can remember who it stands for. (name1) thinks it is wrong to keep honoring someone without a name. (name2) thinks the carving is honor enough.
+
+Try to Find Out:
+(name1) asks every elder at the camp. Nobody knows. One remembers that her own grandmother used to touch that carving every morning, "so it must have been someone she loved." (name1) decides that is enough of a name. (He/she) starts touching it every morning too.
+Effects: (name1) +10 to +20 Research [needs E2].
+
+Leave It Unnamed:
+(name1) and (name2) agree, in the end, to disagree. The carving stays nameless. (name2) points out that one day, they will be someone's unnamed carving too, and that (he/she) rather likes the idea of being loved without anybody needing to remember why. (no effect)
+Effects: none.
+Outcome odds: equal.
+
+==========================================================================
+HE-12. The Empty Place at the Fire
+(picks a Heathen adult, 18 or older, and a second Heathen of any age 8 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+At every meal (name1) leaves a space beside (him/her) at the fire, for someone who isn't coming back. Tonight (name2), new to sitting at (name1)'s fire, nearly sits in it.
+
+Let (Him/Her) Sit There:
+(name1) hesitates, then nods. (name2) sits down carefully, as if the space might mind. Over the meal (name1) tells (him/her) about the person who used to sit there. It is the first time in a long time (name1) has said the name out loud. It hurts, and (he/she) is glad (he/she) did it. (no effect)
+Effects: none.
+
+Ask (Him/Her) to Shift Over:
+"That place is kept," (name1) says, kindly. (name2) shifts over at once. Later, (he/she) brings an extra bowl of stew and sets it in the empty place without being asked. (name1) doesn't say anything. (He/she) doesn't need to.
+Effects: (name2) +10 to +20 Parenting [needs E2].
+Outcome odds: equal.
+
+==========================================================================
+HE-13. Two Peoples, One Grief
+(picks a Heathen adult, 18 or older, and a believer adult, 18 or older)
+Requirement: at least one Heathen and one believer; at least one grave in the mausoleum [needs E8]. Odds: equal.
+(The one event in section A that casts a believer. It follows the vanilla meeting events: the believer and the Heathen meet as equals; nobody joins anyone.)
+
+(name1), a Heathen, and (name2), a villager, both lost someone in the bad years before the two peoples learned to leave each other in peace. Today, by chance, they both end up at the mausoleum at the same time, and stand awkwardly a few graves apart.
+
+Stand Together a While:
+Neither of them says anything about the past. (name2) offers (name1) a flower from (his/her) own bunch. (name1) takes it and lays it down. They leave by different paths, but from then on they nod to each other when they pass.
+Effects: (name1) and (name2) Honoring the dead [works today for both; UNCONFIRMED live for the Heathen].
+
+Give Each Other Space:
+(name1) waits until (name2) has finished, then takes (his/her) turn. Neither feels they owe the other anything. Grief does not have to be shared to be respected.
+Effects: (name1) Reflecting [works today].
+Outcome odds: equal.
+Guardians of Isola: "(name1), a Heathen" -> "(name1), an Isolan".
+
+
+################################################################################
+B. HEATHEN VERSIONS OF EXISTING EVENTS (HE-14 to HE-27)
+################################################################################
+Each names the event it is based on. The originals are never changed (the stock game's events stay exactly as they are; the added events stay as they are). These are separate, new events.
+
+==========================================================================
+HE-14. The Bed Bugs at the Camp
+(based on the stock event "The Bed Bugs")
+(picks a Heathen 14 or older, not pregnant or nursing)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) has been scratching for three days. Something is living in (his/her) sleeping mat, and it is not paying rent.
+
+Search for the Bugs All Night:
+(name1) takes the mat apart, strand by strand, by firelight. By morning (he/she) has found the culprits and carried them a long way from camp. (He/she) is exhausted, and also very proud.
+Effects: (name1) -5 health [works today]; (name1) dislikes sleeping [needs E2].
+
+Let It Go:
+(name1) decides the bugs can have the mat and sleeps on the bare ground. This turns out to be a mistake. The bugs follow.
+Effects: (name1) -15 health [works today]; (name1) Itchy [works today].
+Outcome odds: one per choice (the player chooses).
+
+==========================================================================
+HE-15. The Heathen Daredevil
+(based on the stock event "The Daredevil Jump")
+(picks a Heathen 14 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+A group of young Heathens is daring each other to jump off the rocks by the waterfall. (name1) is next in line, and everyone is watching.
+
+Jump:
+(name1) jumps, whooping all the way down, and comes up laughing. From then on (he/she) is the first one in the water every time.
+Effects: (name1) likes running and jumping; dislikes work [needs E2].
+
+Don't Jump:
+(name1) steps back from the edge. "Not today." A couple of the others tease (him/her), and one of them quietly steps back too.
+Effects: (name1) dislikes jumping and dancing [needs E2].
+Outcome odds: one per choice.
+Guardians of Isola title: The Isolan Daredevil.
+
+==========================================================================
+HE-16. The Straw Hat at the Encampment
+(based on the stock event "The Straw Hat")
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+A large, beautifully woven straw hat has washed up near the encampment. Nobody knows who made it. It is, everyone agrees, far too fine to have been made by anyone on this side of the island.
+
+Wear It:
+(name1) wears it everywhere for a week. It doesn't go with (his/her) mask at all. (He/she) doesn't care.
+Effects: (name1) likes surprises [needs E2].
+
+Use It as a Cooking Strainer:
+It makes an excellent strainer. The camp's stew has never been so clear. A small amount of grumbling is heard from people who wanted a turn wearing it.
+The Heathens' village gains food. (no effect)
+Effects: none (the stock version adds 200 food; only Heathens are involved here, so by the owner's flavor rule it is text only).
+Outcome odds: one per choice.
+
+==========================================================================
+HE-17. The Strange Nectar at the Camp
+(based on the stock event "The Strange Nectar")
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) finds a gourd of sweet-smelling nectar hidden in the roots of a tree. It glows, very faintly, in the shade.
+
+Drink It:
+(name1) drinks it. (He/she) feels lighter, quicker, younger. When (he/she) looks into the stream, (he/she) is.
+Effects: (name1)'s age set to 16 and a half, as the stock event does [needs E2]; the young look [needs E2].
+
+Show It to the Others:
+(name1) carries it back to the camp. Everyone sniffs it, nobody drinks it, and it ends up on a shelf in (name1)'s hut, glowing quietly to itself, as a curiosity. The Heathens' village gains tech points. (no effect)
+Effects: none (the stock version gives 2,000 tech points; text only here, by the flavor rule).
+Outcome odds: one per choice.
+
+==========================================================================
+HE-18. The Heathen Children and the Fruit Bats
+(based on the stock event "The Migrating Fruit Bats")
+(picks a Heathen child under 14)
+Requirement: at least one Heathen child. Odds: equal.
+
+A huge cloud of fruit bats has settled on the noni bushes near the encampment. (name1) has never seen so many in (his/her) life.
+
+Watch Them:
+(name1) lies on (his/her) back under the bushes all evening, watching the bats come and go. By the end of it (he/she) can tell three kinds apart.
+Effects: (name1) +10 to +20 Farming [needs E2]; (name1) likes nature [needs E2].
+
+Scare Them Off:
+(name1) runs at the bushes, flapping (his/her) arms. The bats leave in a great rushing cloud. So, for a while, does (name1)'s hearing.
+Effects: (name1) +25 Farming, as the stock choice gives [needs E2].
+(The stock "Observe them" raises Food Mastery and empties the noni; here "Watch Them" adds the line "The Heathens' village learns more about farming. (no effect)" after its text.)
+Outcome odds: one per choice.
+
+==========================================================================
+HE-19. Doing It Their Own Way
+(based on the stock event "You're Doing It Wrong!", told from the Heathens' side)
+(picks a Heathen child under 14 and a Heathen adult, 18 or older)
+Requirement: at least one Heathen child and one Heathen adult. Odds: equal.
+
+(name1) and the other Heathen children have been mixing powders behind the camp again. There have been several bangs this morning. One of them was quite big. (name2) goes to find out what is going on.
+
+Teach Them to Do It Safely:
+(name2) sits down with them and shows them how to measure, how to stand back, and how to keep the powders apart. There are still bangs after that, but smaller ones, and fewer eyebrows lost.
+Effects: (name1) +10 to +20 Research [needs E2]; (name2) +10 to +20 Parenting [needs E2].
+
+Let Them Learn the Hard Way:
+(name2) decides they'll work it out. There is one more bang, quite a big one. Everyone is fine. (name1) has very short eyebrows for a while, and a new respect for measuring.
+Effects: (name1) -10 health [works today]; (name1) +10 to +20 Research [needs E2].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-20. The Heathen Vision
+(based on the stock event "The Vision"; the stock event raises a believer's Faith; this one never touches Faith)
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) wakes before dawn certain that (he/she) has seen something in a dream: a great turtle swimming through the sky, slowly, as if it had all the time in the world. (He/she) can't shake the feeling that it meant something.
+
+Tell the Others:
+(name1) tells the story at the morning fire. Some people think it means a good season. Some think it means nothing at all. One child insists it means turtles can fly. Everybody enjoys the argument.
+Effects: (name1) likes dreaming [needs E2].
+
+Keep It to (Himself/Herself):
+(name1) keeps the dream close. All day (he/she) catches (himself/herself) looking up at the sky, half expecting to see the turtle. It never appears. (He/she) feels oddly calm anyway.
+Effects: (name1) In a trance [works today].
+Outcome odds: one per choice.
+(Whether the vision means anything stays open, per the owner's belief rule.)
+Guardians of Isola title: The Isolan Vision.
+
+==========================================================================
+HE-21. The Clumsy Heathen's Good Turn
+(based on the stock event "The Clumsy Heathen")
+(picks a Heathen 14 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) trips over a root, drops a whole basket of noni, and watches it roll down the hill, past the boundary stones and right into the tribe's side of the island.
+
+Go and Get It Back:
+(name1) creeps down to collect it and finds two villager children already picking it up. They hand (him/her) the basket, full. Nobody says anything. (name1) leaves a few pieces behind on a rock anyway.
+Effects: (name1) +10 to +20 Farming [needs E2]. (The stock event gives the tribe 200 noni; here the noni stays story text with no line of its own, since the pieces left are a gift in the text.)
+
+Let It Go:
+(name1) decides that whatever rolls downhill belongs to whoever is at the bottom, and goes to pick more. (He/she) is a lot more careful with the basket this time.
+Effects: (name1) dislikes running [needs E2].
+Outcome odds: one per choice.
+Guardians of Isola title: The Clumsy Isolan's Good Turn.
+
+==========================================================================
+HE-22. The Cold Snap at the Camp
+(based on the stock event "The Cold Snap")
+(picks two Heathens 14 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+A cold fog rolls in from the sea overnight and the encampment's fire has gone out. (name1) and (name2) are the first ones up.
+
+Relight the Fire Together:
+It takes them all morning with damp wood, and a lot of words they wouldn't say in front of the children. When the fire finally catches, half the camp is already sitting around it, waiting, as though they had known it would.
+Effects: (name1) and (name2) Trying to get warm [works today]; (name1) likes fire [needs E2].
+
+Huddle Up and Wait It Out:
+They wrap up in every blanket they can find and wait for the sun. It comes out at midday. (name2) declares that the sun did all the work and the fire can stay out until tomorrow.
+Effects: (name1) and (name2) Trying to get warm (another way) [works today].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-23. Mushroom Day at the Encampment
+(based on the stock event "Mushroom Day!")
+(picks a Heathen child under 14)
+Requirement: at least one Heathen child. Odds: equal.
+
+(no choice; one popup)
+After a night of rain, the ground around the encampment is covered in mushrooms. (name1) and the other Heathen children run from patch to patch, shrieking every time they find a new kind. An adult follows them with a basket and a long list of which ones not to eat. The Heathens' village gains food. (no effect)
+Effects: (name1) Celebrating mushrooms [works today]; (name1) likes rain [needs E2]. (The stock event's food gain and tech loss are text only here, by the flavor rule.)
+
+==========================================================================
+HE-24. The Heathens' Remembrance
+(based on the More Island Event "The Remembrance Ceremony", which happens only after every Heathen has joined the tribe; this is the Heathens' own, while they still live at the camp)
+(picks every Heathen except the special Heathens [needs E10]; names one Heathen elder, 50 or older, or any adult if there is none)
+Requirement: at least three Heathens. Odds: equal.
+
+(no choice; one popup)
+The whole encampment gathers at the mud hut at dusk. (name1), the eldest of those well enough to stand, says a few words about the people the camp has lost. They are not long words. Then everyone goes, one at a time, to touch the memorial post, and there is a meal afterwards, and the children are allowed to stay up late.
+The Heathens' village shares a feast. (no effect)
+Effects: each Heathen Honoring the dead at the encampment or Reflecting at the encampment, 50% each [needs E9, E10]. (The Remembrance Ceremony's feast takes food; here it is text only, by the flavor rule.)
+Guardians of Isola title: The Isolans' Remembrance.
+
+==========================================================================
+HE-25. The Heathen Toy, Lost and Found
+(based on the stock event "The Heathen Toy", told from the Heathen child's side)
+(picks a Heathen child under 14 and a believer child under 14)
+Requirement: one Heathen child and one believer child. Odds: equal.
+
+(name1), a Heathen child, has lost (his/her) favourite carved toy: a little wooden pig with one ear. (He/she) has looked everywhere. Then (he/she) sees it, in the hands of (name2), a child from the village, at the edge of the boundary stones.
+
+Ask for It Back:
+(name1) walks up and holds out (his/her) hand. (name2) looks at the toy for a long moment, then gives it back. They end up comparing toys until somebody's parent calls them home.
+Effects: (name1) likes playing [needs E2]; (name2) likes playing [works today: a believer's role].
+
+Let (Him/Her) Keep It:
+(name1) decides (name2) looks like (he/she) needs it more. (He/she) goes home and carves a new one, with two ears this time. It's better than the first one, and (he/she) knows it.
+Effects: (name1) +10 to +20 Building [needs E2].
+Outcome odds: one per choice.
+Guardians of Isola title: The Isolan Toy, Lost and Found. Text: "a Heathen child" -> "an Isolan child".
+
+==========================================================================
+HE-26. The Spa After Dark
+(based on the stock event "The Spa", told from the Heathens' side; nobody is caught and nobody changes sides)
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+The warm pools are the Heathens' favourite place on the island. (name1) has had a long day and the water is steaming in the moonlight.
+
+Soak for Hours:
+(name1) soaks until (his/her) fingers wrinkle and every ache is gone. (He/she) walks back to camp so relaxed (he/she) forgets (his/her) mask on the rocks, and has to go back for it.
+Effects: (name1) +10 health [works today]; (name1) Soaking in the pools [works today].
+
+A Quick Dip:
+(name1) has a quick dip and heads back. On the way (he/she) passes a villager going the other way, with a towel and a guilty expression. They pretend not to see each other. It is, by now, a sort of tradition.
+Effects: (name1) Bathing [works today].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-27. The Missing Heathen Kids
+(based on the stock event "The Missing Kids", with Heathen children only)
+(picks two Heathen children under 14 and a Heathen adult, 18 or older)
+Requirement: at least two Heathen children and one Heathen adult. Odds: equal.
+
+(name1) and (name2) went off exploring after lunch and haven't come back. It's getting dark. (name3) goes looking.
+
+Follow the Trail:
+(name3) finds them at the bottom of a gully, muddy, scraped and very glad to be found. One of them has a twisted ankle. (name3) carries (him/her) home on (his/her) back the whole way.
+Effects: (name1) -5 health; (name2) -5 health [works today]; (name3) +10 to +20 Parenting [needs E2].
+
+Call the Whole Camp:
+Everyone turns out with torches. The children are found within the hour, hiding under a fallen tree from a noise that turns out to be a very large frog. They are scolded, hugged and fed, in that order.
+Effects: (name1) and (name2) dislike the dark [needs E2].
+Outcome odds: one per choice.
+Guardians of Isola title: The Missing Isolan Kids.
+
+
+################################################################################
+C. LIFE AT THE ENCAMPMENT (HE-28 to HE-45)
+################################################################################
+Small moments of camp life. Most have one popup or two short choices.
+
+==========================================================================
+HE-28. The Mask That Doesn't Fit Anymore
+(picks a Heathen teen, 14 to 17)
+Requirement: at least one Heathen teen. Odds: equal.
+
+(name1) has grown so much this year that (his/her) mask now sits halfway up (his/her) forehead. Everyone at the camp has noticed. Nobody has said anything, because the mask was made by (his/her) grandmother.
+
+Ask Grandmother for a New One:
+(name1) asks. Grandmother laughs until she has to sit down, and then spends three days carving a new mask, a bit too big "so you can grow into it." (name1) wears it with enormous pride.
+Effects: (name1) likes surprises [needs E2].
+
+Carve One (Himself/Herself):
+(name1) carves (his/her) own. It is lopsided and has one eye bigger than the other. Grandmother says it is the best mask she has ever seen, and keeps the old one on her wall.
+Effects: (name1) +10 to +20 Building [needs E2].
+Outcome odds: one per choice.
+(Masks are narrative only; the game's mask is never changed.)
+
+==========================================================================
+HE-29. Roots for Supper
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(no choice; one popup)
+(name1) has a gift for finding the sweet roots under the island's scrub. Today (he/she) comes back with a basketful and the whole camp eats well. (He/she) is unbearably smug about it all evening, and everybody lets (him/her) be.
+Effects: (name1) Scratching for roots (the Heathens' own action) [works today, UNCONFIRMED as safe for this use: it is marked Unsafe in the action list because it is odd for a believer; for a Heathen it is the game's own camp life]; (name1) +10 to +20 Farming [needs E2].
+
+==========================================================================
+HE-30. The Argument About the Fire Pit
+(picks two Heathen adults, 18 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+(name1) wants to move the camp's fire pit closer to the stream. (name2) says it has been in the same place for longer than either of them has been alive. They have been arguing about this for a week.
+
+Ask the Whole Camp:
+Everyone gets a say. It takes all evening. The fire pit stays where it is, by a very small margin. (name1) takes it well. Mostly. (no effect)
+Effects: none.
+
+Try It Both Ways:
+They build a second, smaller fire by the stream, and keep both for a month. In the end people use both. Nobody admits to having been wrong, and nobody needs to.
+Effects: (name1) and (name2) likes talking [needs E2].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-31. The Baby's First Mask
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen adult. Odds: equal.
+
+(no choice; one popup)
+At the camp it is the custom to carve a tiny mask for each new baby, not to wear, just to hang over the sleeping mat. (name1) has been asked to carve one for a neighbour's newborn. (He/she) spends days on it, and gives it a small, crooked smile, because the baby has one.
+Effects: (name1) +10 to +20 Building [needs E2]; (name1) likes children [needs E2].
+(The baby and the neighbour are story text; no villager is made.)
+
+==========================================================================
+HE-32. A Song Across the Stream
+(picks a Heathen 14 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) sings while (he/she) works, loudly and badly. One evening a voice from the tribe's side of the stream sings back, just as loudly and just as badly.
+
+Sing Back:
+They sing back and forth across the water until it's too dark to see. (name1) never finds out who it was. (He/she) doesn't try very hard to.
+Effects: (name1) likes talking [needs E2].
+
+Go Quiet, Embarrassed:
+(name1) stops at once and goes red under (his/her) mask. The next evening, (he/she) hums very quietly. The voice across the water hums back.
+Effects: (name1) likes quiet [needs E2].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-33. The Snoring Hut
+(picks two Heathens 14 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+(no choice; one popup)
+Nobody at the camp has slept properly in a week because (name1) has started snoring like a landslide. (name2), who shares (his/her) hut, has tried everything: rolling (him/her) over, a pillow over (his/her) own head, singing lullabies. Finally (name2) moves (his/her) mat outside. It turns out to be a lovely place to sleep.
+Effects: (name2) likes the stars [needs E2]; (name1) Resting [works today].
+
+==========================================================================
+HE-34. The Teaching Stone
+(picks a Heathen elder, 50 or older, or any Heathen adult, and a Heathen child under 14)
+Requirement: at least one Heathen adult and one Heathen child. Odds: equal.
+
+(name1) is teaching (name2) to count, using pebbles on a flat stone by the hut. (name2) keeps getting bored and building towers with the pebbles instead.
+
+Keep at the Counting:
+(name1) is patient. By the end of the week (name2) can count to twenty, and back again, and is impossible to stop.
+Effects: (name2) +10 to +20 Research [needs E2]; (name1) +10 to +20 Parenting [needs E2].
+
+Count the Towers Instead:
+(name1) gives up and starts counting the towers. Then the pebbles in each tower. Then the towers that fall down. (name2) learns to count anyway, and doesn't notice.
+Effects: (name2) likes playing [needs E2]; (name1) +10 to +20 Parenting [needs E2].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-35. The Heathen Weaver
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(no choice; one popup)
+(name1) has woven a new roof for the mud hut out of palm fronds, red vine and something shiny (he/she) found on the beach. It is, everyone agrees, the most beautiful roof the camp has ever had. It also leaks. (name1) says the leaks are part of the design. The Heathens' village has a new roof. (no effect)
+Effects: (name1) +10 to +20 Building [needs E2]. (No structure in the game changes.)
+Guardians of Isola title: The Isolan Weaver.
+
+==========================================================================
+HE-36. Pig in the Camp
+(picks a Heathen child under 14 and a Heathen adult, 18 or older)
+Requirement: at least one Heathen child and one Heathen adult. Odds: equal.
+
+A wild piglet has wandered into the encampment and fallen asleep in (name1)'s sleeping mat. (name1) wants to keep it. (name2) does not.
+
+Keep It for a Day:
+The piglet spends the day following (name1) everywhere. At dusk it hears its mother calling from the bushes and trots off without a backward glance. (name1) is heartbroken for an hour and talks about it for a year.
+Effects: (name1) likes surprises [needs E2].
+
+Carry It Back Right Away:
+(name2) carries it gently to the edge of the scrub and sets it down. Its mother is waiting. (name1) watches them go, and decides (he/she) will be a pig-carer when (he/she) grows up.
+Effects: (name1) likes nature [needs E2].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-37. Mending Day
+(picks two Heathen adults, 18 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+(no choice; one popup)
+Once a month, the camp spends a day mending: nets, mats, baskets, masks, fences, friendships. (name1) and (name2), who had a sharp word with each other last week, are given the same net to mend. By the time it's done they are talking again. Nobody is sure whether that was an accident.
+Effects: (name1) and (name2) +5 to +10 Building [needs E2].
+
+==========================================================================
+HE-38. The Shell Collector
+(picks a Heathen 8 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) has a collection of shells that takes up most of (his/her) hut. Today (he/she) has found one (he/she) has never seen before: a long spiral, pink inside, that hums when you hold it to your ear.
+
+Show It Off:
+Everyone at the camp takes a turn listening to it. The children decide it is singing. The adults decide it is the sea. (name1) decides it is both.
+Effects: (name1) likes the ocean [needs E2].
+
+Keep It Secret:
+(name1) hides it under (his/her) mat and listens to it every night before sleep. It is the best secret (he/she) has ever had.
+Effects: (name1) likes quiet [needs E2].
+Outcome odds: one per choice.
+(Collectibles in the game are not touched: the shell is story text.)
+
+==========================================================================
+HE-39. The Heathen Cook's Pride
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(name1) has made a stew so spicy that two people have had to sit in the stream afterwards. (He/she) is very proud. Some of the camp would like a word.
+
+Make It Milder Next Time:
+(name1) makes a milder one the next night. Everyone eats it gratefully. A few people quietly ask whether there's any of the spicy one left.
+Effects: (name1) +10 to +20 Farming [needs E2].
+
+Stand by the Recipe:
+(name1) stands firm. "It's supposed to make your eyes water." Within a month, half the camp can't eat anything else.
+Effects: (name1) Hic! [works today]; (name1) likes cooking [needs E2].
+Outcome odds: one per choice.
+Guardians of Isola title: The Isolan Cook's Pride.
+
+==========================================================================
+HE-40. The Rain Dance That Worked (Probably)
+(picks three Heathens, 8 or older)
+Requirement: at least three Heathens. Odds: equal.
+
+(no choice; one popup)
+It hasn't rained in weeks. (name1), (name2) and (name3) decide to try the old rain dance their grandparents used to do, mostly for fun. They dance until they're dizzy. Three hours later it rains. Nobody can agree whether the dance did it. Everybody agrees to dance again next time, just in case.
+Effects: (name1), (name2) and (name3) Rain dancing [works today].
+(Whether the dance worked stays open, per the owner's luck and omens rule.)
+
+==========================================================================
+HE-41. The Twins Who Swapped Masks
+(picks two Heathen teens or children, 8 to 17)
+Requirement: at least two Heathens 8 to 17. Odds: equal.
+
+(no choice; one popup)
+(name1) and (name2) aren't twins, or even related, but they are the same height, and they have discovered that if they swap masks almost nobody at camp can tell them apart. They manage it for two whole days before (name1)'s grandmother notices that "(name1)" has suddenly forgotten how to whistle. They are given a long talking-to and a lot of extra washing up, and they both agree it was worth it.
+Effects: (name1) and (name2) Washing the laundry [works today]; both like jokes [needs E2].
+(Mask swaps are narrative only.)
+
+==========================================================================
+HE-42. A Quiet Day Off
+(picks a Heathen adult, 18 or older)
+Requirement: at least one Heathen. Odds: equal.
+
+(no choice; one popup)
+(name1) decides, for no particular reason, to do nothing at all today. (He/she) lies in the shade, watches the clouds, eats when (he/she)'s hungry and naps when (he/she)'s tired. By the evening (he/she) feels better than (he/she) has in weeks. Nobody at the camp thinks there is anything wrong with that.
+Effects: (name1) Watching the clouds [works today]; (name1) +5 to +10 health [works today].
+
+==========================================================================
+HE-43. The Elder's Long Story
+(picks a Heathen elder, 50 or older, or the oldest Heathen adult, and a Heathen of any age 8 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+(name1) has been telling the same story at the fire for three nights in a row, and it still isn't finished. It is about a fish, or possibly a canoe, or possibly (his/her) cousin. (name2) is the only one still listening.
+
+Keep Listening:
+On the fourth night the story finally ends. It turns out it was about all three. (name2) thinks it is the best story (he/she) has ever heard, and tells it to the children the next night, getting it completely wrong.
+Effects: (name1) Telling a story [works today]; (name2) likes stories [needs E2].
+
+Ask Gently How It Ends:
+(name1) looks surprised, then laughs. "I don't know! I've never got that far." They make up an ending together. It's a good one.
+Effects: (name1) and (name2) likes talking [needs E2].
+Outcome odds: one per choice.
+
+==========================================================================
+HE-44. First Day as a Grown-Up
+(picks a Heathen who has just turned 18, or any Heathen 18 or 19)
+Requirement: at least one Heathen 18 or 19 years old. Odds: equal.
+
+(no choice; one popup)
+At the camp, the day you turn eighteen, everyone gives you one piece of advice and one small gift. (name1) ends up with a pile of shells, a fishing hook, a very old mask-string, and a great deal of advice, most of it contradictory. (He/she) decides to keep the gifts, and keep the advice for later, and see which of it turns out to be any good.
+Effects: (name1) likes surprises [needs E2].
+(Per the owner's advice rule: advice can be followed later, partly or never.)
+
+==========================================================================
+HE-45. The Camp at Night
+(picks two Heathens, any age 8 or older)
+Requirement: at least two Heathens. Odds: equal.
+
+(no choice; one popup)
+It's a still, warm night at the encampment. Somebody is playing a reed flute. Somebody else is telling a story to the children, who are pretending not to be sleepy. (name1) and (name2) sit on the step of the mud hut with their masks pushed up, watching the fireflies drift over the scrub, and agree that, all things considered, it has been a good day.
+Effects: (name1) and (name2) Relaxing [works today].
+
+
+################################################################################
+WHAT THE ENGINE CAN DO TODAY, AND THE CHANGES THESE EVENTS NEED
+################################################################################
+Read from the code (origin/main c9f42a607), not watched in a running game.
+
+ALREADY THERE
+- A Heathen's role ("heathen_ok": true; role byte 13 bit 0x40; src/vv_cie_graph.py ROLE_HEATHEN, native/vvfp_story_upgrades/story_graph.inc CG_ROLE_HEATHEN, cg_bind ~line 2213). Cast as the game's own picker 0x471870 casts a Heathen: a Heathen (+0x1CEC), never roles 12-17 (+0x1CFC), never sick (+0x1C48), health above 0, present. Exactly what "never a special Heathen" needs. Today 8 collection events use it (the Isolan visitor roles).
+- What a Heathen's role may take today (story_graph.inc cg_heathen_effect_ok, refused on load whatever is ticked): Faith up, joining, an action (stop, walk, pose), a health change of -30 or better, the sick mark, a story trait. Nothing else.
+- New Believers' actions: everyday "Honoring the dead" is behaviour 17 (the action list's "Honoring the dead [Day of Honor]"); "Reflecting" is 29; "Honoring the dead (another way)" 46. The emulated test (tests/test_cie_behaviours_emulated.py) starts every action for a Heathen too. The Remembrance Ceremony sends villagers to the hovel through the hovel patch's own entries (native/vvfp_more_island_events/ceremony_games.inc: 0x494B83 Honoring, 0x494DF1 Reflecting) when "Memorial Actions Can Also Occur at the Heathen Hovel" is installed.
+- Heathens and the life tick: the life tick skips every Heathen (0x472CB7). A Heathen never ages, eats, falls sick, recovers health, drifts in Faith, gives birth (a Heathen pregnancy waits until they join the tribe) or dies of old age. So a health loss or sick mark on a Heathen stays until they join the tribe.
+
+PROPOSED ENGINE CHANGES (design only, nothing built)
+E1. Any-faction roles. A new role bit (byte 13 bit 0x20, free) "any faction": the role may be cast among believers AND Heathens, with the same Heathen safety as heathen_ok (never roles 12-17, never sick, health above 0). Plus a condition {"heathen": role} for text variants and for the flavor rule (E3). Used by the existing-events work (second file) and by HE-13/HE-25.
+E2. Heathen personal effects. Widen cg_heathen_effect_ok, behind its own patch (the owner's "same outcomes" rule): skills, likes and dislikes, appearance and the old/young look, age, health of any size, injury effects, mood actions, and (in the existing-events work) death and disappearance. Faith-lowering and "becomes a Heathen" stay no-ops on a Heathen (they already are one). Pregnancy only with a Heathen partner. Every effect on a Heathen is left out of every statistic.
+E3. Flavor rule. When every cast villager role in a run is a Heathen, the engine skips food, tech points, supplies, trades, village effects, structures, puzzles, collectibles and the deferred award: the text is still shown and the game is not changed. In place of the usual auto line it writes the owner's line: "The Heathens' village gains <amount> food. (no effect)" / "... loses ... tech points. (no effect)" and so on (Guardians of Isola: "The Isolans' village ..."). Any outcome that ends up changing nothing ends with "(no effect)" (the owner's global rule, built separately). Mixed runs: see the second file (recommendation: apply normally).
+
+THE PATCH ROW (owner, 2026-11-23)
+One New Believers row: "Heathens can be selected in Island Events/Heathen-Exclusive Events". ON in Owner's Defaults, OFF by default otherwise. It covers both these Heathen-exclusive events and Heathens being cast in existing events (second file). Needs Story / Cheat Upgrades (the collection engine) and the Isola Grand Event Collection for the added events, stated in bold in its description. Details of the GUI fit and Select All are in the second file.
+E8. Two new requirements: "at least N graves" (the game's grave count, 0x464E90 on 0x5481A8, as the Remembrance Ceremony reads it) and "at least N Heathens who may be cast" (already implied by role counts; an explicit form makes the Pick Island Event refusal say so).
+E9. Two new actions: "Honoring the dead (at the encampment)" and "Reflecting (at the encampment)", started through the hovel patch's own entries when that patch is installed; without it, "Sitting" in place. UNCONFIRMED live: whether a Heathen's own AI (0x46E9E0) lets the action finish or pulls them back to camp at once; whether a Heathen walks to the mausoleum. Needs one live look by the owner.
+E10. A group target "every Heathen" / "N Heathens at random" (role byte 254 selector), never roles 12-17, for camp-wide events (HE-10, HE-24).
+
+OPEN QUESTIONS FOR THE OWNER (this file)
+Q1. Vanilla's own rule is "never pick a Heathen for anything that is not about them coming closer to the tribe." These events are about the Heathens' own lives instead. You asked for them; confirm this override.
+Q2. Faith: none of these events raises a Heathen's Faith (so nobody is nudged toward joining). OK, or should some (HE-13, HE-25) give a small Faith rise as vanilla's meeting events do?
+Q3. The encampment honoring (E9): with the hovel patch installed, send them to the hovel; without it, sit in place. OK?
+Q4. HE-05 and HE-13 send a Heathen to the mausoleum. Allowed, or keep Heathens at the encampment only?
+Q5. Personal effects marked [needs E2]: my recommendation is to build E2 with the patch (it is the same work the existing-events side needs), so nothing here ships as story text. If any outcome ever did ship without its effect, its text would end "(no effect)" by your global rule.
+Q6. HE-29 uses the Heathens' own "Scratching for roots" action (listed Unsafe in the action list because it looks odd for a believer). For a Heathen it is their own camp life. OK to use, or swap to "Harvesting noni"?

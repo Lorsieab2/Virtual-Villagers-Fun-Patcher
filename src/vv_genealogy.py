@@ -203,6 +203,7 @@ _FORMER_TITLE = re.compile(r"^Former Heathen( Master)? \((blue|orange|red|purple
 FORMER_FILE_TITLES = {0: "Former Heathen (blue mask)", 1: "Former Heathen (orange mask)", 2: "Former Heathen (red mask)",
                       3: "Former Heathen Master (purple mask)", 4: "Retired Heathen Chief"}
 CONVERTED_HOW = "Converted from the Heathens"
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words  # noqa: E402
 LEFT_FOR_THE_HEATHENS = "Left the tribe: became a Heathen"     # vv_log_additions.LEFT_FOR_THE_HEATHENS
 LEFT_RECORDS = (LEFT_FOR_THE_HEATHENS, "Left the tribe: became an Isolan")   # vv_log_additions.LEFT_RECORDS
 # Where the save keeps a status, from the villager's name in the saved entry (vv_last_names.FIELDS), as
@@ -218,7 +219,7 @@ MASTER = 88
 
 def status_marks(title: str | None) -> list[str]:
     """The automatic marks one "Special villager" title gives (none for no title)."""
-    t = (title or "").strip()
+    t = heathen_form((title or "").strip())          # Guardians of Isola's words read as the game's own
     if t.lower() in NO_TITLE:
         return []
     m = _FORMER_TITLE.match(t)
@@ -670,7 +671,7 @@ def _heathen_marked(b) -> bool:
     """A record that says it is a Heathen's (New Believers: "Faction: Heathen", an Island Events "Heathen: yes",
     a Heathen role title): never evidence they were one of the tribe (joined_the_tribe_first)."""
     import vv_log_additions as additions
-    heathen = _values(b.value("Heathen"))
+    heathen = _values(b.value("Heathen") or b.value("Isolan"))     # "Isolan: no -> yes" with Guardians of Isola
     titles = _values(b.value("Special villager"))
     return ((b.value("Faction") or "").strip() in ("Heathen", "Isolan") or (bool(heathen) and heathen[-1].lower() == "yes")
             or (bool(titles) and additions._faction_of_title(titles[-1]) == "Heathen"))
@@ -701,12 +702,12 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
         for title in _values(b.value("Special villager")):
             _add_status(p, status_marks(title))
         _add_status(p, _values(b.value("Custom title")))
-        if (b.value("How") or "").strip() == CONVERTED_HOW:
+        if (b.value("How") or "").strip() in CONVERTED_HOWS:
             p.converted = True
         # A Heathen then (New Believers): the snapshot's Faction, an Island Events "Heathen: no -> yes", a
         # "Left the tribe: became a Heathen" record.  A status ever held, as every other (_finish_statuses).
         if additions.is_heathen_faction(b.value("Faction")) \
-                or "yes" in [v.lower() for v in _values(b.value("Heathen"))] \
+                or "yes" in [v.lower() for v in _values(b.value("Heathen") or b.value("Isolan"))] \
                 or (b.value("What happened") or "").strip() in LEFT_RECORDS:
             _add_status(p, ["Heathen"])
         if (b.value("What happened") or "").strip() in LEFT_RECORDS:
@@ -758,7 +759,7 @@ def _log_people(reg: _Registry, folder: Path, game: int, slot: int) -> None:
             if (b.value("How") or "").strip() == "Founder" and not _heathen_marked(b):
                 p.founder_record = True         # a Heathen's own "Founder" record is one of the island's Heathens
             how =(b.value("How") or "").strip()
-            if how and how != CONVERTED_HOW and not is_backfilled_arrival(b) and not p.joined_how \
+            if how and how not in CONVERTED_HOWS and not is_backfilled_arrival(b) and not p.joined_how \
                     and not _heathen_marked(b):
                 p.joined_how = how      # how they first came (a later conversion is a return: arrival_how)
             # A backfilled "How: unknown" never replaces how a real Arrived record says they came.

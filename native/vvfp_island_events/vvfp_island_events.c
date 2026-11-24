@@ -102,6 +102,12 @@ struct game_layout {
 };
 
 static int g_game;
+
+/* A field's label in the log: New Believers' "Heathen" is "Isolan" with Guardians of Isola Rewrite (the owner,
+   2026-11-23: Heathens = Isolans in the logs too; heathen_word.h).  Every reader takes both (vv_isolan_words). */
+static const char *log_label(const struct field *f) {
+    return g_game == 5 && strcmp(f->label, "Heathen") == 0 ? vv5_heathen_word() : f->label;
+}
 static const struct game_layout *g_layout;
 
 /* ---- The record writer (VVFP Parentage Export.dll) ---------------------- */
@@ -488,7 +494,7 @@ static void compare(struct snapshot *s) {
                 continue;
             }
             if (used < sizeof changes) {
-                int n = _snprintf(changes + used, sizeof changes - used, "  %s: %s -> %s\n", f->label, a, b);
+                int n = _snprintf(changes + used, sizeof changes - used, "  %s: %s -> %s\n", log_label(f), a, b);
                 used = n < 0 ? sizeof changes : used + (size_t)n;
             }
         }

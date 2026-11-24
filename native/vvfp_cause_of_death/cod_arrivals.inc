@@ -547,7 +547,7 @@ static void arrival_tick(void) {
             arrivals[i].born = 0;
             arrivals[i].heathen = 0;          /* a believer now: the tribe's arrival, never marked */
             arrivals[i].age = rec_age(record);
-            lstrcpynA(arrivals[i].how, "Converted from the Heathens", ARRIVAL_HOW);
+            lstrcpynA(arrivals[i].how, vv5_word_converted(), ARRIVAL_HOW);   /* "...the Isolans" with Guardians of Isola */
             arrivals[i].parents[0] = '\0';
             roster_arrived(i);
         }

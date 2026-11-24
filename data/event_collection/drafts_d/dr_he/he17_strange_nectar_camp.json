@@ -1,0 +1,143 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Strange Nectar at the Camp",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he17_strange_nectar_camp",
+  "source": "heathen_ex",
+  "lines": [
+   303,
+   317
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L303",
+  "ledger": [
+   {
+    "src": "L304",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L305",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L306",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L312",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L316",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L317",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A Heathen finds a gourd of sweet-smelling nectar that glows faintly in the shade.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan finds a gourd of sweet-smelling nectar that glows faintly in the shade."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) finds a gourd of sweet-smelling nectar hidden in the roots of a tree. It glows, very faintly, in the shade.",
+   "src": "L308",
+   "choices": [
+    {
+     "label": "Drink It",
+     "next": "o1",
+     "src": "L310"
+    },
+    {
+     "label": "Show It to the Others",
+     "next": "o2",
+     "src": "L314"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) drinks it. (He/she) feels lighter, quicker, younger. When (he/she) looks into the stream, (he/she) is.",
+   "src": "L311",
+   "effects": [
+    {
+     "do": "change_age",
+     "role": "subject",
+     "to": "16.5",
+     "src": "L312"
+    },
+    {
+     "do": "young_look",
+     "role": "subject",
+     "src": "L312"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) carries it back to the camp. Everyone sniffs it, nobody drinks it, and it ends up on a shelf in (name1)'s hut, glowing quietly to itself, as a curiosity. The Heathens' village gains tech points. \\(no effect\\)",
+   "src": "L315",
+   "text_only": [
+    {
+     "what": "\"tech\"",
+     "reason": "the owner's flavor rule (2026-11-23): only Heathens are in this event, so the Heathens' village's tech points is story text only -- the game is not changed, and the draft's line ends \"(no effect)\"",
+     "src": "L315"
+    },
+    {
+     "what": "\"tech\"",
+     "reason": "the owner's flavor rule (2026-11-23): only Heathens are in this event, so the Heathens' village's tech points is story text only -- the game is not changed, and the draft's line ends \"(no effect)\"",
+     "src": "L316"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(name1) carries it back to the camp. Everyone sniffs it, nobody drinks it, and it ends up on a shelf in (name1)'s hut, glowing quietly to itself, as a curiosity. The Isolans' village gains tech points. \\(no effect\\)",
+     "src": "L315"
+    }
+   ]
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

@@ -9,7 +9,7 @@ The engine side (native/vvfp_story_upgrades/story_graph.inc), the test build of 
 Believers' rendered executable in the emulator:
 * with the row an ordinary Heathen is cast in an "allowed" or "only" role; without it never, and an "only" role is
   then never filled (the event is not offered);
-* a puzzle's Heathen (roles 12-17) is never cast, No Safeguards or not;
+* a puzzle's Heathen (roles 12-17) is cast only with the row (nothing made to them: test_heathens_in_existing_events.py);
 * a Heathen is never cast in a role a death, a disappearance or a pregnancy names;
 * the Heathens' own cast: the village's food is untouched (statistics and stores never count it) and the page says
   "The Heathens' village gains N food. (no effect)" ("the Isolans' village" with Guardians of Isola);
@@ -66,7 +66,7 @@ class Compiler(unittest.TestCase):
 
     def test_bad_values_and_the_barred_effects(self):
         _, problems = cg.validate(graph("sometimes"), scrolling=True)
-        self.assertTrue(any("heathens is never, allowed or only" in p for p in problems), problems)
+        self.assertTrue(any("heathens is never, allowed, kin or only" in p for p in problems), problems)
         g = graph("only")
         g["roles"]["isolan"]["heathen_ok"] = True
         _, problems = cg.validate(g, scrolling=True)
@@ -141,12 +141,17 @@ class Engine(unittest.TestCase):
         r.walk_through()
         self.assertEqual(r.state()["records"][0], 1, "the Heathen, never the believer")
 
-    def test_a_puzzles_heathen_is_never_cast(self):
+    def test_a_puzzles_heathen_is_cast_only_with_the_row(self):
+        """The owner (2026-11-23): "Any mention of death/bad outcomes to puzzle heathens = acceptable but flavor only
+        (Puzzle heathens are EXEMPT from any actual effects AT ALL TIMES.)" -- with the row a Master may be cast (every
+        effect on them told, never made: tests/test_heathens_in_existing_events.py); without it never."""
         data = compiled(graph("allowed"))
         for patches in ((ROW,), (ROW, "vv5_island_events_any_time")):
             with self.subTest(patches=patches):
                 r = self.run_with(self.ONE, heathens=(0,), puzzle=0, patches=patches)
-                self.assertIsNotNone(r.queue6(data, strict=True, origin=2), "a Master is never cast")
+                self.assertIsNone(r.queue6(data, strict=True, origin=2), "the row: a Master may be cast")
+        r = self.run_with(self.ONE, heathens=(0,), puzzle=0, patches=())
+        self.assertIsNotNone(r.queue6(data, strict=True, origin=2), "no row: never")
 
     def calls(self, r) -> list[int]:
         buf = r.p.alloc(128)
@@ -265,6 +270,7 @@ class Engine(unittest.TestCase):
         r, before, words = self.flavor(False)
         self.assertEqual(stores(r), before, "the village's food is untouched")
         self.assertIn("The Heathens' village gains 50 food. (no effect)", words)
+        self.assertEqual(words.count("(no effect)"), 1, "#853's mark never doubles the flavor line's own")
         self.assertNotIn("The village gains", words)
         r, before, words = self.flavor(True)
         self.assertEqual(stores(r), before)

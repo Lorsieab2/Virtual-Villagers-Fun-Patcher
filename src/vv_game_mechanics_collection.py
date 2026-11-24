@@ -85,6 +85,7 @@ SECTIONS = (
     ("dr_armor", "New Events: Armor, Weapons and Inherited Traditions"),
     ("dr_arm2", "New Events: Armor, Weapons and Heirlooms, ARM-46 to ARM-95"),
     ("dr_fat", "New Events: Fathers, Pregnancy and Parenthood"),
+    ("dr_he", "New Events: Heathen-Exclusive Events, HE-01 to HE-45"),
     # The owner's all-in-one Animals anthology, its newest volumes (data/event_collection/anthology/<section>/)
     ("an_mom", "Anthology: Living Moments"),
     ("an_rel", "Anthology: Love by Choice, Coming Out, Names and Presentation"),

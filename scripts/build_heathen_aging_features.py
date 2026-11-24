@@ -158,7 +158,7 @@ AGING_CHANGES = [
     "0x470690 finds the new one. Otherwise the activity stops (0x473440), the selection is dropped when it is "
     "theirs (0x4653D0, 0x470800), the presence byte +0x1CD4 is cleared, health untouched, and the Cause of Death "
     "companion writes the Death record (VvfpCauseDiedAmongHeathens: Old age, \"no grave (died among the Heathens: "
-    "nothing was left)\").",
+    "nothing was left)\"; \"... the Isolans ...\" with the Guardians of Isola Rewrite). Its replacement's Arrived record says \"Replaced a Heathen who died of old age\" or \"... lost in an island event\" (\"Replaced an Isolan ...\" with the Guardians of Isola Rewrite).",
     "The replacement, in the same tick, by the Heathen creator 0x46FD20 (Faith 1 there, so its SetFaith never runs "
     "to-a-Heathen; the stock camp's Faith written to +0x1CF0 after: -38 - rand(30), or the dead one's own when it "
     "was one of the five easy blue Faiths -5, -9, -16, -23, -30 of 0x470E60): an ordinary Heathen in the dead one's camp "

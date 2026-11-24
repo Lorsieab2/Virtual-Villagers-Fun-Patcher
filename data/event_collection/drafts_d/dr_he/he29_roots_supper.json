@@ -1,0 +1,94 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Roots for Supper",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he29_roots_supper",
+  "source": "heathen_ex",
+  "lines": [
+   507,
+   513
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L507",
+  "ledger": [
+   {
+    "src": "L508",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L509",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L511",
+    "kind": "structural",
+    "why": "the draft's shape: one popup, no choice"
+   },
+   {
+    "src": "L513",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   }
+  ],
+  "description": "A Heathen with a gift for finding sweet roots comes back with a basketful for the whole camp.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan with a gift for finding sweet roots comes back with a basketful for the whole camp."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "name": "The scene",
+   "text": "(name1) has a gift for finding the sweet roots under the island's scrub. Today (he/she) comes back with a basketful and the whole camp eats well. (He/she) is unbearably smug about it all evening, and everybody lets (him/her) be.",
+   "src": "L512",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Scratching for roots (Unsafe)",
+     "src": "L513"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Farming"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L513"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

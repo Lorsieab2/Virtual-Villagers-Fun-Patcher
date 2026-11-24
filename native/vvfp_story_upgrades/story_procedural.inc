@@ -933,6 +933,11 @@ static unsigned int pc_write(const pc_pick *c, const char *group, unsigned char 
         rr[8] = role->max_age;
         rr[9] = role->special;
         rr[13] = (role->flags & PC_S_SPEAKS) ? (unsigned char)CG_ROLE_SPEAKS : 0;
+        if (!(role->flags & PC_S_CONVERSION)) {
+            /* New Believers (the owner, 2026-11-23: "heathens can also go in any event"): with the row an ordinary
+               Heathen may take it too (cie-v6-binary.md 45; ignored in the other games; vv_procedural.py role_json) */
+            rr[13] |= (unsigned char)CG_ROLE_HEATHEN_MAY;
+        }
     }
     /* Nodes, children, effects, conditions. */
     child = 0;

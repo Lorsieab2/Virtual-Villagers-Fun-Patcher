@@ -1,0 +1,137 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Quiet Hour at the Encampment",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he01_quiet_hour_encampment",
+  "source": "heathen_ex",
+  "lines": [
+   37,
+   50
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L37",
+  "ledger": [
+   {
+    "src": "L38",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L39",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L45",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L49",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L50",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A Heathen sits by the old mud hut at the edge of the encampment, laying out white shells.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan sits by the old mud hut at the edge of the encampment, laying out white shells."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Every so often, when the cooking fires have burned low, (name1) goes to sit by the old mud hut at the edge of the encampment. Nobody asks why. Everyone at the camp knows. Tonight (he/she) brings a handful of white shells and lays them in a row on the ground, one for each person (he/she) remembers.",
+   "src": "L41",
+   "choices": [
+    {
+     "label": "Sit Quietly With (Him/Her)",
+     "next": "o1",
+     "src": "L43"
+    },
+    {
+     "label": "Leave (Him/Her) to It",
+     "next": "o2",
+     "src": "L47"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Another Heathen sits down beside (name1) without a word. They stay until the stars are out. When they finally get up, there is one more shell in the row than there was before, and neither of them mentions who put it there.",
+   "src": "L44",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Honoring the dead (at the encampment)",
+     "src": "L45"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "stars",
+     "src": "L45"
+    }
+   ],
+   "auto_text": true,
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "Another Isolan sits down beside (name1) without a word. They stay until the stars are out. When they finally get up, there is one more shell in the row than there was before, and neither of them mentions who put it there.",
+     "src": "L44"
+    }
+   ]
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "Some hours belong to one person only. (name1) stays by the hut until long after dark, naming each shell under (his/her) breath. In the morning the shells are still there, straightened, as though someone came by in the night to make sure none had been knocked out of line.",
+   "src": "L48",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Reflecting (at the encampment)",
+     "src": "L49"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

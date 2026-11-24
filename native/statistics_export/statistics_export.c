@@ -18,6 +18,7 @@
 #include "vv4_villager_table.h"
 #include "vv5_villager_table.h"
 #include "villager_lookalike.h"  /* statues, ghosts and stand-ins are no villagers */
+#include "isolan_log_words.h"    /* New Believers: the Guardians of Isola wording of the conversions row */
 
 enum {
     GAME_VV1 = 1,
@@ -933,7 +934,7 @@ static int write_vv5(
     return fprintf(file, "Villagers Buried: %d\n", store_counter(VVS_BURIED)) >= 0
         && fprintf(file, "Puzzles Solved: %d out of %d\n",
                    puzzles_solved, puzzle_total) >= 0
-        && fprintf(file, "Heathens Converted: %d\n",
+        && fprintf(file, "%s: %d\n", vv5_word_converted_row(),   /* "Isolans Converted" with Guardians of Isola */
                    store_counter(VVS_HEATHENS)) >= 0;
 }
 

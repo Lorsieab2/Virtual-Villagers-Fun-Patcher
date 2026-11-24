@@ -189,6 +189,9 @@ typedef struct {
     int (*behave_at)(int index, int job, int behaviour);
 } ce_adapter;
 
+static const ce_adapter C5_ADAPTER;   /* story_c5.inc: New Believers' adapter */
+static int cg_guardians_on(void);      /* story_graph.inc: New Believers with Guardians of Isola's rewrite on */
+
 /* While a work rush is applied: its job behaviour (-1 none).  Every other behaviour of that event is the busy
    state, done at the job's site through behave_at. */
 static int ce_site_job = -1;
@@ -505,7 +508,9 @@ static void ce_tr_done(char *out, int cap, const char *stem, const char *english
 static const char *ce_why_word(int k) {
     char stem[64];
     wsprintfA(stem, "vvfp.story/story_custom.CE_WHY_WORDS.%d", k);
-    return vvfp_tr(stem, CE_WHY_WORDS[k], 72);
+    /* New Believers' own reason (a Heathen) in the Guardians of Isola wording with the rewrite on */
+    return k == CE_WHY_HEATHEN ? vv5_isolan(cg_guardians_on(), vvfp_tr(stem, CE_WHY_WORDS[k], 72))
+                               : vvfp_tr(stem, CE_WHY_WORDS[k], 72);
 }
 
 static int ce_adapter_game(const ce_adapter *a);
@@ -876,7 +881,8 @@ static int ce_role(const ce_adapter *a, const unsigned char *record, const char 
     const char *said = NULL;
     int kind = a->role != NULL ? a->role(record, &said) : STORY_KIND_NONE;
     if (words != NULL) {
-        *words = said;
+        /* New Believers' list label ("Heathen, blue") in the Guardians of Isola wording with the rewrite on. */
+        *words = said != NULL && a == &C5_ADAPTER ? vv5_isolan(cg_guardians_on(), said) : said;
     }
     return kind;
 }

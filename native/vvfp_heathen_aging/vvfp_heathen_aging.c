@@ -109,6 +109,7 @@
 #include "../shared/custom_titles.h"
 #include "../shared/vv5_villager_table.h"
 #include "../shared/identity_in_place.h"
+#include "../shared/isolan_log_words.h"   /* "Replaced an Isolan ..." with Guardians of Isola (the owner, 2026-11-23) */
 
 #define HA_GAME 5
 #define HA_FLAG_FORMER "VVFP Heathen Aging Former.txt"
@@ -854,7 +855,8 @@ static int replace(int role, unsigned char orange, unsigned char red) {
     if (index < 0) {
         return 0;
     }
-    tell_arrived(index, g_replace_words != NULL ? g_replace_words : REPLACED_OLD_AGE);
+    /* the words in the Guardians of Isola wording with the rewrite on (shared/isolan_log_words.h) */
+    tell_arrived(index, vv5_word_replaced(g_replace_words == REPLACED_EVENT));
     return 1;
 }
 

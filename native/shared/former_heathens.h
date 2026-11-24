@@ -34,6 +34,7 @@
 
 #include <windows.h>
 #include <string.h>
+#include "isolan_log_words.h"   /* the Guardians of Isola wording of the logs (New Believers) */
 
 #define VV_FORMER_MAGIC 0x31484656u     /* 'VFH1' */
 #define VV_FORMER_VERSION 1u
@@ -111,14 +112,17 @@ static const char *vv_former_mask_word(int kind) {
     }
 }
 
-/* The Special villager title of a believer converted from the Heathens. */
+/* The Special villager title of a believer converted from the Heathens.  With Guardians of Isola Rewrite the
+   owner's pairs (the owner, 2026-11-23: Heathens = Isolans in the logs too; the rewrite has no name of its own for
+   these): "Former Isolan (blue mask)" ... "Retired Isolan Chief" (isolan_log_words.h; every reader takes both). */
 static const char *vv_former_title(int kind) {
+    int isolan = vv5_guardians_of_isola();
     switch (kind) {
-    case VV_FORMER_BLUE: return "Former Heathen (blue mask)";
-    case VV_FORMER_ORANGE: return "Former Heathen (orange mask)";
-    case VV_FORMER_RED: return "Former Heathen (red mask)";
-    case VV_FORMER_MASTER: return "Former Heathen Master (purple mask)";
-    case VV_FORMER_CHIEF: return "Retired Heathen Chief";
+    case VV_FORMER_BLUE: return isolan ? "Former Isolan (blue mask)" : "Former Heathen (blue mask)";
+    case VV_FORMER_ORANGE: return isolan ? "Former Isolan (orange mask)" : "Former Heathen (orange mask)";
+    case VV_FORMER_RED: return isolan ? "Former Isolan (red mask)" : "Former Heathen (red mask)";
+    case VV_FORMER_MASTER: return isolan ? "Former Isolan Master (purple mask)" : "Former Heathen Master (purple mask)";
+    case VV_FORMER_CHIEF: return isolan ? "Retired Isolan Chief" : "Retired Heathen Chief";
     default: return NULL;
     }
 }
