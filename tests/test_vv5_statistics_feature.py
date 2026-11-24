@@ -45,7 +45,13 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
             self.feature["companion_files"][0]["sha256"],
         )
         source = SOURCE.read_text(encoding="utf-8")
-        self.assertIn('"Heathens Converted: %d\\n"', source)
+        # The row is "Heathens Converted", or "Isolans Converted" with the Guardians of Isola Rewrite (the owner,
+        # 2026-11-23; native/shared/isolan_log_words.h, every reader takes both).
+        self.assertIn('fprintf(file, "%s: %d\\n", vv5_word_converted_row(),', source)
+        self.assertIn('#include "isolan_log_words.h"', source)
+        words = (ROOT / "native/shared/isolan_log_words.h").read_text(encoding="utf-8")
+        self.assertIn('#define VV5_CONVERTED_ROW_HEATHENS "Heathens Converted"', words)
+        self.assertIn('#define VV5_CONVERTED_ROW_ISOLANS "Isolans Converted"', words)
         # The total lives in the slot's statistics .dat; the frozen field
         # +0x34 an earlier build counted into is its one-time start.
         self.assertIn("store_counter(VVS_HEATHENS)", source)
