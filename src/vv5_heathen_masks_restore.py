@@ -76,6 +76,7 @@ MASK_NAMES = ("none", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask", "Tr
 # Former Heathens kinds (VV_FORMER_*) -> the Village Masks value.
 KIND_MASK = {0: 1, 1: 2, 2: 3, 3: 4, 4: 5}
 # The logs' Special villager titles of a former Heathen (native/shared/former_heathens.h vv_former_title).
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words
 TITLE_MASK = {"Former Heathen (blue mask)": 1, "Former Heathen (orange mask)": 2, "Former Heathen (red mask)": 3,
               "Former Heathen Master (purple mask)": 4, "Retired Heathen Chief": 5}
 
@@ -171,7 +172,7 @@ def _log_evidence(folder: Path, slot: int) -> tuple[dict[tuple, set[int]], set[t
         for b in found:
             if not b.of(slot, GAME, villages) or not b.heading.startswith("Villager "):
                 continue
-            mask = TITLE_MASK.get(b.value("Special villager") or "")
+            mask = TITLE_MASK.get(heathen_form(b.value("Special villager") or ""))     # "Former Isolan (...)" too
             if mask is not None and None not in b.identity:
                 titles.setdefault(b.identity, set()).add(mask)
     converted, left, _believer = additions._faction_events(folder, GAME, slot)

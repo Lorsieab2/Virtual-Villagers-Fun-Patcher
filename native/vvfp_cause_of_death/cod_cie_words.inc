@@ -451,7 +451,7 @@ __declspec(dllexport) void __stdcall VvfpCauseDiedAmongHeathens(int game, int in
     }
     seen_alive[index] = 0;
     roster_departed(index, record);
-    (void)cod_log_death(record, cause, NO_GRAVE_AMONG_HEATHENS, NULL);
+    (void)cod_log_death(record, cause, vv5_word_no_grave(), NULL);   /* "...the Isolans..." with Guardians of Isola */
 }
 
 /* The branching Custom Island Event's "baby lost" (story_graph.inc cg_tell_baby_lost): called right BEFORE it ends

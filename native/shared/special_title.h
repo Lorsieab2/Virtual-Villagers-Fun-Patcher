@@ -72,10 +72,6 @@ static int vv_title_count_at_least(const unsigned char *r, unsigned int at, int 
 /* `former` is New Believers' Former Heathens file's kind for this villager
    (VV_FORMER_*), or -1 when the file has none (or for any other game). */
 static const char *vv_special_title_former(int game, const unsigned char *r, int former) {
-    static const char *const VV5_HEATHENS[] = {
-        "Heathen Doctor", "Heathen Chief", "Heathen Master Scientist",
-        "Heathen Master Builder", "Heathen Master Farmer", "Heathen Mommy",
-    };
     if (r == NULL) {
         return NULL;
     }
@@ -104,7 +100,8 @@ static const char *vv_special_title_former(int game, const unsigned char *r, int
         int role = *(const int *)(r + VV5_TYPE);
         if (r[VV5_FACTION] != 0) {
             if (role >= 12 && role <= 17) {
-                return VV5_HEATHENS[role - 12];
+                /* with Guardians of Isola Rewrite its own in-game name (isolan_log_words.h, from its sm.xml) */
+                return vv5_role_title(role);
             }
         } else if (role == 13) {
             return vv_former_title(VV_FORMER_CHIEF);

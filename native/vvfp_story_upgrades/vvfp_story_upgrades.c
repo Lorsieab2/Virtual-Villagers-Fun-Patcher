@@ -72,6 +72,8 @@
 #include "../shared/patcher_files.h"
 #include "../shared/vvfp_dialog_kit.h"     /* resizable dialogs, wrapping lists, villager sorting */
 #include "../shared/vvfp_translate.h"      /* the game-drawn text in the player's language, by key */
+#include "../shared/isolan_words.h"        /* New Believers' Heathen words in the Guardians of Isola wording */
+#include "../shared/isolan_log_words.h"    /* ...and the logs' (Revive reads both wordings) */
 #include "../shared/head_look.h"           /* the old head look effect (cie-v6-binary.md 27) */
 #include "../shared/gender_presentation.h" /* the presentation effect (cie-v6-binary.md 31) */
 
@@ -1252,17 +1254,48 @@ static int story_charged(int game, HWND owner, story_command_fn command) {
    from where `e` sits in its game's table (the English when there is no
    translation).  `field`: EVENT_TITLE .. EVENT_REQUIRES. */
 enum { EVENT_TITLE, EVENT_VARIANT, EVENT_DESCRIPTION, EVENT_REQUIRES };
+static int cg_guardians_on(void);   /* story_graph.inc: New Believers with Guardians of Isola's rewrite on */
+
+/* New Believers with Guardians of Isola's rewrite: the game's own island events whose title the rewrite
+   changes (data/guardians_of_isola/new/Assets/sm.xml, eEvent...Title), so Pick Island Event names each as the
+   game shows it.  The English title, then the rewrite's. */
+static const char *const VV5_GUARDIANS_TITLES[][2] = {
+    { "The Clumsy Heathen", "The Demonstration" },
+    { "The Heathen Toy", "The Lost Toy" },
+    { "Spying on the Heathens", "Spying on the Isolans" },
+    { "You're Doing It Wrong!", "A Groundbreaking Discovery" },
+    { "The Aphids in the Noni Bush", "The Aphids" },
+    { "The Defector", "The Visitor" },
+    { "Innovation in Farming", "The Mysterious Storyteller" },
+};
+
+/* The patcher's own text of a New Believers table row in the Guardians of Isola wording when the rewrite is on
+   (shared/isolan_words.h: the owner's pairs, Heathen -> Isolan ...); any other game's, or without the rewrite,
+   as it is. */
+static const char *vv5_words(int game, const char *text) {
+    return game == 5 ? vv5_isolan(cg_guardians_on(), text) : text;
+}
+
 static const char *event_text(const story_event *e, int field, const char *english, unsigned int cap) {
     char stem[80];
-    int game;
+    int game, k;
     for (game = 1; game <= 5; ++game) {
         if (e >= GAMES[game].events && e < GAMES[game].events + GAMES[game].event_count) {
+            const char *text;
             wsprintfA(stem, field == EVENT_VARIANT ? "vvfp.story/story_tables.VV%d_EVENTS.%d.variant"
                             : field == EVENT_DESCRIPTION ? "vvfp.story/story_tables.VV%d_EVENTS.%d.description"
                             : field == EVENT_REQUIRES ? "vvfp.story/story_tables.VV%d_EVENTS.%d.requires"
                                                       : "vvfp.story/story_tables.VV%d_EVENTS.%d.title",
                       game, (int)(e - GAMES[game].events));
-            return vvfp_tr(stem, english, cap);
+            text = vvfp_tr(stem, english, cap);
+            if (game == 5 && field == EVENT_TITLE && text == english && cg_guardians_on()) {
+                for (k = 0; k < (int)(sizeof VV5_GUARDIANS_TITLES / sizeof VV5_GUARDIANS_TITLES[0]); ++k) {
+                    if (lstrcmpA(english, VV5_GUARDIANS_TITLES[k][0]) == 0) {
+                        return VV5_GUARDIANS_TITLES[k][1];
+                    }
+                }
+            }
+            return vv5_words(game, text);
         }
     }
     return english;

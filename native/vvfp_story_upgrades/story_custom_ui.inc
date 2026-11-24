@@ -246,12 +246,18 @@ static void ui_combo_add(HWND window, int id, const char *text, int data) {
     SendDlgItemMessageA(window, id, CB_SETITEMDATA, (WPARAM)row, (LPARAM)data);
 }
 
+/* New Believers' own table words (statuses, actions, notes) in the Guardians of Isola wording with the rewrite on (the
+   owner's pairs, shared/isolan_words.h); any other game's as they are.  Never a player's own text. */
+static const char *ui_w(const char *text) {
+    return ui.a == &C5_ADAPTER ? vv5_isolan(cg_guardians_on(), text) : text;
+}
+
 /* A list of choices with a "No change" first entry (data CE_KEEP). */
 static void ui_fill_choices(HWND window, int id, const char *const *names, int count) {
     int i;
     ui_combo_add(window, id, "No change", CE_KEEP);
     for (i = 0; i < count; ++i) {
-        ui_combo_add(window, id, names[i], i);
+        ui_combo_add(window, id, ui_w(names[i]), i);
     }
     SendDlgItemMessageA(window, id, CB_SETCURSEL, 0, 0);
 }
@@ -286,7 +292,7 @@ static void ui_fill_behaviours(HWND window, const ce_adapter *a) {
     for (i = 0; i < count; ++i) {
         const ce_action *x = &a->behaviours[order[i]];
         int group = x->group >= 0 && x->group < CE_GROUPS ? x->group : CE_GROUP_GENERAL;
-        wsprintfA(text, "%s: %s", CE_GROUP_NAMES[group], x->label);
+        wsprintfA(text, "%s: %s", CE_GROUP_NAMES[group], ui_w(x->label));
         ui_combo_add(window, IDC_CH_BEHAVIOUR, text, order[i]);
         if (lstrlenA(text) > widest) {
             widest = lstrlenA(text);
@@ -1175,7 +1181,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
             risky = kind == STORY_KIND_HEATHEN_PURPLE || kind == STORY_KIND_HEATHEN_CHIEF
                     || kind == STORY_KIND_HEATHEN_MOMMY;
         }
-        if (risky && !ui_risk(window, ui.a->status_note)) {
+        if (risky && !ui_risk(window, ui_w(ui.a->status_note))) {
             return 0;
         }
     }
@@ -1195,7 +1201,7 @@ static int ui_read_changes(HWND window, ce_change *t, const int *targets, int co
         static char reason[768];
         const ce_action *act = &ui.a->behaviours[t->behaviour];
         wsprintfA(reason, "\"%s\": %s.%s\r\n\r\nBack up the save first (Back Up Saves in the patcher).",
-                  act->label, act->unsafe,
+                  ui_w(act->label), ui_w(act->unsafe),
                   act->supply != NULL || act->kind == ACT_DROP ? " If what it needs is not there when the event happens, the "
                                                 "villager is not changed instead of the game crashing." : "");
         if (!ui_risk(window, reason)) {
@@ -1642,7 +1648,7 @@ static INT_PTR CALLBACK ui_spawn_dialog(HWND window, UINT message, WPARAM wparam
         ui_combo_add(window, IDC_SP_FACTION, "(the game's own)", CE_KEEP);
         if (a->caps & CAP_SPAWN_FACTION) {
             for (i = 0; i < a->faction_count && i < a->status_count; ++i) {
-                ui_combo_add(window, IDC_SP_FACTION, a->statuses[i], i);
+                ui_combo_add(window, IDC_SP_FACTION, ui_w(a->statuses[i]), i);
             }
         }
         SendDlgItemMessageA(window, IDC_SP_FACTION, CB_SETCURSEL, 0, 0);
@@ -2210,9 +2216,9 @@ static void ui_describe_change(const ce_change *c, char *out) {
     if (c->title_op == CE_TITLE_SET) p += wsprintfA(p, " title \"%s\"", c->title);
     if (c->title_op == CE_TITLE_CLEAR) p += wsprintfA(p, " no title");
     if (c->mask != CE_KEEP) p += wsprintfA(p, " mask");
-    if (c->status != CE_KEEP) p += wsprintfA(p, " %s", ui.a->statuses[c->status]);
+    if (c->status != CE_KEEP) p += wsprintfA(p, " %s", ui_w(ui.a->statuses[c->status]));
     if (c->faith != CE_KEEP) p += wsprintfA(p, " faith %d", c->faith);
-    if (c->behaviour != CE_KEEP) p += wsprintfA(p, " %s", ui.a->behaviours[c->behaviour].label);
+    if (c->behaviour != CE_KEEP) p += wsprintfA(p, " %s", ui_w(ui.a->behaviours[c->behaviour].label));
     if (c->health != CE_KEEP) p += wsprintfA(p, c->health == 0 ? " health 0 (dies)" : " health %d", c->health);
     if (c->parents_set) {
         char words[160];
@@ -2513,7 +2519,7 @@ static INT_PTR CALLBACK ui_main_dialog(HWND window, UINT message, WPARAM wparam,
             return TRUE;
         }
         if (id == IDC_CE_OMITTED) {
-            MessageBoxA(window, a->omitted, "Not in this game",
+            MessageBoxA(window, ui_w(a->omitted), "Not in this game",
                         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
             return TRUE;
         }

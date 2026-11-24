@@ -1134,6 +1134,9 @@ def _append_point(target: Path, slot: int, game: int, villages: set[str] | None,
 HEATHEN_ROLES = ("Heathen Doctor", "Heathen Chief", "Heathen Master Scientist", "Heathen Master Builder",
                  "Heathen Master Farmer", "Heathen Mommy")
 CONVERTED = "Converted from the Heathens"
+# With Guardians of Isola Rewrite the companions write "Converted from the Isolans", the Former Isolan titles and the
+# rewrite's own puzzle titles (the owner, 2026-11-23): every reader takes both (vv_isolan_words), as LEFT_RECORDS.
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words  # noqa: E402
 # A Birth record's heading is read by the shared scripts/vvfp_consistency_check.py is_birth_heading
 # ("Birth <n>" or an older log's plain "Birth"); the Arrived and Disappeared records' headings,
 # numbered or not, the same way.
@@ -1175,7 +1178,8 @@ def is_heathen_record(b) -> bool:
 def _faction_of_title(title: str | None) -> str | None:
     """What a record's own Special villager line says of its faction then: a Heathen role title is
     only ever a current Heathen's, a former Heathen's titles only a believer's
-    (native/shared/special_title.h)."""
+    (native/shared/special_title.h).  Either wording (vv_isolan_words)."""
+    title = heathen_form(title)
     if title in HEATHEN_ROLES:
         return "Heathen"
     if title and (title.startswith("Former Heathen") or title == "Retired Heathen Chief"):
@@ -1195,7 +1199,7 @@ def _faction_events(folder: Path, game: int, slot: int) -> tuple[set, set, set]:
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
-                (converted if b.value("How") == CONVERTED else believer).add(b.identity)
+                (converted if (b.value("How") or "").strip() in CONVERTED_HOWS else believer).add(b.identity)
             elif DISAPPEARED_HEADING.match(b.heading) and b.value("What happened") in LEFT_RECORDS:
                 left.add(b.identity)
             elif checker.is_birth_heading(b.heading) and not b.not_kept:   # src/vv_not_kept.py
@@ -1281,7 +1285,7 @@ def _side_counts(folder: Path, game: int, slot: int, villages: set[str] | None,
             if not b.of(slot, game, villages):
                 continue
             if ARRIVED_HEADING.match(b.heading):
-                add(b.identity, 1 if b.value("How") == CONVERTED else 0)
+                add(b.identity, 1 if (b.value("How") or "").strip() in CONVERTED_HOWS else 0)
             elif checker.is_birth_heading(b.heading):
                 if not b.not_kept:                # never in the saved village (src/vv_not_kept.py)
                     add(_sub_identity(b, "Child"), 0)

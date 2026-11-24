@@ -99,6 +99,7 @@ LEFT = "Left the tribe: became a Heathen"
 # The departures this repair reads: that, or "...became an Isolan" with Guardians of Isola (vv_log_additions).
 LEFT_WORDINGS = tuple(LEFT_RECORDS)
 CONVERTED = "Converted from the Heathens"
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words  # noqa: E402
 
 
 class HeathenAgesError(Exception):
@@ -228,7 +229,7 @@ def _moments(blocks) -> tuple[list[_Moment], set, list[str]]:
             marked.add(ident)
         elif head.startswith("Arrived"):
             how = b.value("How") or ""
-            if how.startswith(CONVERTED):
+            if how.startswith(CONVERTED_HOWS):
                 marked.add(ident)
             elif how == "Founder":
                 age = b.int_value("Age at arrival")

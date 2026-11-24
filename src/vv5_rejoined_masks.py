@@ -36,6 +36,7 @@ GAME = 5
 COPY_SUFFIX = ".before-rejoined-masks"
 FACTION = -0x1F                     # the save's villager entry, from the name (src/vv5_heathen_masks_restore.py)
 MASK_NAMES = ("none", "Blue Mask", "Orange Mask", "Red Mask", "Purple Mask", "Tribal Chief Mask")
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words
 TITLE_MASK = {"Former Heathen (blue mask)": 1, "Former Heathen (orange mask)": 2, "Former Heathen (red mask)": 3,
               "Former Heathen Master (purple mask)": 4, "Retired Heathen Chief": 5}
 
@@ -248,7 +249,7 @@ def survey(folder: Path, slot: int, game_folders: list[Path] | None = None, keep
         if title is None:
             out.listed.append(Found(a.name, index, None, why))
             continue
-        mask = TITLE_MASK.get(title.strip())
+        mask = TITLE_MASK.get(heathen_form(title.strip()))     # "Former Isolan (...)" too
         if mask is None:
             out.listed.append(Found(a.name, index, None, "their last conversion record does not name a mask"))
             continue
