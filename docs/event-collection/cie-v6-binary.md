@@ -1614,6 +1614,7 @@ villagers and life happens to them too."
   page says once "Nothing really happens to <name>. (no effect)" (`pz_flavor`) -- that line is the outcome's one "(no effect)" for them (section 46 counts their effect as authored, so it never adds a second).  The Island Events log then has
   nothing of theirs (their record never changed): no death is ever recorded that did not happen.  The Retired Chief
   (a believer who keeps role 13) is not one.  More Island Events and the game's own events never draw them.
+- **A "group" effect naming one cast villager** (`who: <role>`; Codex on #856): that villager's own action, so an ordinary Heathen the row cast takes it (`cg_group_fx`, `only`); a whole-village group, celebration or group effect (`who: "all"`, role byte 254) still never reaches a Heathen, and a puzzle's Heathen never (told, never made).
 - **Outsiders:** a stranger role is never a believer, so a cast of Heathens and strangers is the Heathens' own (the
   flavor rule above); an event with no villager role at all is as it always was.
 - **The Island Events log:** each record of a villager who is a Heathen at the end of the event ends

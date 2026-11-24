@@ -381,6 +381,37 @@ class Engine(unittest.TestCase):
         words(r)
         self.assertNotEqual(r.p.read(r.v.record(1), STRIDE), before, "without a puzzle's Heathen it is made")
 
+    def group_graph(self, who: str, sex: str = "any") -> bytes:
+        return compiled({"format": "vvfp-cie-graph", "version": 6, "title": "Song", "games": [5],
+                         "roles": {"x": {"kind": "villager", "min_age": 14, "sex": sex, "heathens": "allowed"}},
+                         "start": "p", "nodes": {"p": {"text": "(x) sings.",
+                                                       "effects": [{"do": "group", "kind": "song", "who": who}]}}})
+
+    def sung(self, r, who: str, sex: str = "any") -> list[int]:
+        """The records the group's song started: the behaviour starter's calls (stubbed, its villager in ECX)."""
+        from test_story_cie_graph_runtime_v6 import DO_ACTION
+        r.record(DO_ACTION["vv5"], 8)
+        self.assertIsNone(r.queue6(self.group_graph(who, sex)))
+        words(r)
+        return [c[0] for c in r.recorded.get(DO_ACTION["vv5"], [])]
+
+    def test_a_group_effect_naming_a_cast_heathen_reaches_them(self):
+        """Codex on #856 (The Welcoming Song's "Sing It Alone", The Voyage Chant's "A Few Quiet Words"): a "group"
+        effect with who: <role> is that villager's own -- an ordinary Heathen the row cast gets it; the whole village
+        (who: "all") still never a Heathen; a puzzle's Heathen never (told, never made)."""
+        one = [(0, "f", 30, "Mira", 0, False)]
+        r = run_with(one, heathens=(0,))
+        self.assertIn(r.v.record(0), self.sung(r, "x"), "the Heathen the role names sings")
+        two = [(0, "f", 30, "Mira", 0, False), (1, "m", 32, "Kai", 0, False)]
+        r = run_with(two, heathens=(0,))
+        everyone = self.sung(r, "all", "male")          # a believer cast: the village's own song
+        self.assertNotIn(r.v.record(0), everyone, "the whole village is the tribe's: never a Heathen")
+        self.assertIn(r.v.record(1), everyone, "the believer sings (the recorder sees the starts)")
+        r = run_with(one, puzzle=(0,))
+        before = r.p.read(r.v.record(0), STRIDE)
+        self.assertEqual(self.sung(r, "x"), [], "a puzzle's Heathen: nothing started")
+        self.assertEqual(r.p.read(r.v.record(0), STRIDE), before)
+
     def test_a_puzzles_heathen_is_never_sick_or_dead_when_cast(self):
         g = {"format": "vvfp-cie-graph", "version": 6, "title": "Omen", "games": [5],
              "roles": {"x": {"kind": "villager", "min_age": 14, "heathens": "allowed"}},
