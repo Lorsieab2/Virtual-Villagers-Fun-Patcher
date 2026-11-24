@@ -28,9 +28,16 @@ GAMES = (1, 2, 4, 5)
 CAUSE_ROW_VV1 = "Show Cause of Death and Epitaphs on Graves, and Log Every Death"
 REPAIR = ("**Villagers and graves from before: Repair Saves & Logs > \"Give the Esteemed Elder title "
           "retroactively\".**")
-COMMON_END = ("**Works the same with every other patch and in every population mode.** **Not yet seen in a running "
-              f"game** (checked by emulation of the stock executable). The companion is \"{DLL_NAME}\"; it never "
-              "writes a save or a file.")
+# Seen working in a running game (the owner's live tests, 2026-11-23): A New Home's title, and New Believers'
+# ("Special villager: none -> Esteemed Elder" in its log).  The Lost Children and The Tree of Life keep the note.
+SEEN_LIVE = (1, 5)
+NOT_SEEN = "**Not yet seen in a running game** (checked by emulation of the stock executable). "
+
+
+def common_end(game: int) -> str:
+    return ("**Works the same with every other patch and in every population mode.** "
+            + ("" if game in SEEN_LIVE else NOT_SEEN)
+            + f"The companion is \"{DLL_NAME}\"; it never writes a save or a file.")
 
 
 def row_id(game: int) -> str:
@@ -43,7 +50,7 @@ DESCRIPTIONS = {
         "Believers. The Golden Child keeps his own title, and a custom title (Story / Cheat Upgrades) still shows "
         "in its place. The logs' \"Special villager\" line says it too. When such a villager dies, their grave's "
         f"epitaph is \"Esteemed Elder\". **The epitaph needs \"{CAUSE_ROW_VV1}\"** (A New Home's graves have an "
-        f"epitaph only with it). {REPAIR} {COMMON_END}"),
+        f"epitaph only with it). {REPAIR} {common_end(1)}"),
     2: ("A villager who has mastered three or more skills (88 or more) gets the title \"Esteemed Elder\" on the "
         "Villager Details screen even when the game has not made them an Esteemed Elder (the normal game stops "
         "making new elders, and their totems, at 50 totems). The normal game's own Esteemed Elders, and their "
@@ -52,19 +59,19 @@ DESCRIPTIONS = {
         "when such a villager dies as an adult their grave gets the game's own \"Esteemed Elder\" epitaph. The Village "
         "Statistics' \"Village Elders\" then counts every Esteemed Elder the village ever had, kept in the save's "
         "Village Elders file (a new file starts from the game's own count). "
-        f"{REPAIR} {COMMON_END}"),
+        f"{REPAIR} {common_end(2)}"),
     4: ("A villager who has mastered three or four skills (88 or more) gets the title \"Esteemed Elder\" on the "
         "Villager Details screen, as in The Secret City and New Believers. Mastering all five is still the game's "
         "own \"Scholar\", which wins. A ghost never gets the title, and a custom title (Story / Cheat Upgrades) "
         "still shows in its place. The logs' \"Special villager\" line says it too, and when such a villager dies "
-        f"as an adult their grave's epitaph is \"Esteemed Elder\". {REPAIR} {COMMON_END}"),
+        f"as an adult their grave's epitaph is \"Esteemed Elder\". {REPAIR} {common_end(4)}"),
     5: ("A current Heathen is never titled \"Esteemed Elder\": in the normal game a Heathen with three mastered "
         "skills (88 or more) and no Heathen role title of their own is shown as one on the Villager Details screen. "
         "A believer -- a Former Heathen too, once they join the tribe -- still gets the title with three mastered "
         "skills, as in the normal game, and the Heathen roles (Doctor, Chief, the three Masters, Mommy) keep their "
         "own titles. The logs' \"Special villager\" line never says it for a Heathen either; a Former Heathen's "
         "line keeps their Former Heathen title. Heathens never count as Village Elders and are never buried. "
-        f"{COMMON_END}"),
+        f"{common_end(5)}"),
 }
 
 SITES = {

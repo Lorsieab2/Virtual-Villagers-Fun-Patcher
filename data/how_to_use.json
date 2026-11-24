@@ -910,7 +910,7 @@
         "A look the game itself gives stays: the chief's robe, and an outfit from the game's own clothing dialog.",
         "For a village you already have, Repair Saves & Logs adds the looks the logs prove for villagers changed before; it never guesses.",
         "Where no original is known, Change Appearance says so. Start Over clears them; Back Up Saves copies them.",
-        "Needs Origins (ticked with it). On by default. Not yet seen in a running game."
+        "Needs Origins (ticked with it). On by default. Seen running in New Believers; not yet in the other four games."
       ]
     },
     {
@@ -1115,7 +1115,7 @@
         "Reset to original gives it back: a convert's original look is the one they had, with the mask they wore.",
         "One who goes back to the Heathens wears their own Heathen mask again but acts like an ordinary blue-masked Heathen.",
         "Heathens who joined before this patch keep the look they have now.",
-        "Needs Origins (ticked with it). Not yet seen in a running game."
+        "Needs Origins (ticked with it)."
       ]
     },
     {
@@ -1147,7 +1147,7 @@
         "Never the Golden Child, a totem statue or a ghost; The Tree of Life's Scholar (all five) still wins; a custom title wins.",
         "The logs' Special villager line says it, and a new adult's grave gets the epitaph \"Esteemed Elder\".",
         "For older villagers and graves: Repair Saves & Logs, \"Give the Esteemed Elder title retroactively\".",
-        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running."
+        "New Believers: never a current Heathen (Former Heathens yes). The Secret City already does it. Not yet seen running in The Lost Children or The Tree of Life."
       ]
     },
     {
@@ -1164,20 +1164,20 @@
     {
       "ids": ["vv5_former_villagers_keep_aging"],
       "guide": [
-        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
+        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
         "A villager who leaves your tribe and becomes a Heathen keeps growing older among the Heathens, as believers do:",
         "their age goes up, their hair greys at the usual age, and they can die of old age by the believers' own rule.",
         "They still never eat, starve or fall sick. The camp's own Heathens and the puzzle Heathens do not age with this patch.",
         "A former villager who dies is not replaced, so leaving your tribe never grows the camp.",
         "What is left is decided by All Heathens Leave Skeletons or Former Villagers Among the Heathens Leave Skeletons;",
         "with neither, they disappear from the camp, no grave. Deaths are logged; Heathens never count in the Village Statistics.",
-        "Villagers who left before this patch are recognised by the parents on their record. Not yet seen in a running game."
+        "Villagers who left before this patch are recognised by the parents on their record."
       ]
     },
     {
       "ids": ["vv5_heathen_tribe_ages"],
       "guide": [
-        "Off by default and in Select All (Select All does not tick it); on in Owner's Defaults only. Nothing to click: it works on its own.",
+        "Off by default, in Owner's Defaults and in Select All (Select All does not tick it). Nothing to click: it works on its own.",
         "Every Heathen ages and can die of old age by the believers' own rule: the camp's Heathens, villagers who left you,",
         "and the puzzle Heathens too (the Heathen Doctor, the Heathen Chief, the three Masters and the Heathen Mommy).",
         "A camp Heathen who dies is replaced at once; a puzzle Heathen whose puzzle is not solved is replaced in the same role,",
@@ -1549,11 +1549,11 @@
         "and Use Unicode Font (overrides in-game fonts), which cannot be ticked with Render Unicode with In-Game Fonts (ticked).",
         "and Move the \"Playing in the dirt\" Spot, which cannot be ticked with Puddle Play Moves to the Lake Shore (ticked).",
         "and Island Events Scale With Stored Food and Tech Points, which cannot be ticked with Island Events Scale With Population (like The Lost Children) (ticked).",
-        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Isola Grand Event Collection, Change Sex and Gender Presentation, More Frequent Island Events,",
-        "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Birth Control in The Tree of Life and New Believers,",
-        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Esteemed Elders in Every Game,",
-        "Former Villagers Keep Aging Among the Heathens, Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons,",
-        "Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders and the island event controls (Content Notes, every Content Filter, No Safeguards) are not ticked either."
+        "0.1-10x Tech Cost (all five games), Classic VV Difficulty, Change Sex and Gender Presentation, More Frequent Island Events,",
+        "The Golden Child May Be Born Female (50:50), One-Time Collectibles Appear Again, Village Solidarity, Esteemed Elders in Every Game,",
+        "Fog of Doom Lets Red and Orange Heathens Listen, No Restrictions on Fog of Doom Conversions, Former Villagers Keep Aging Among the Heathens,",
+        "Heathen Tribe Ages, Dies and Has Children, All Heathens Leave Skeletons, Former Villagers Among the Heathens Leave Skeletons, the 0.1-10x sliders",
+        "and the island event controls (Content Notes, every Content Filter, No Safeguards, Heathens in island events) are not ticked either."
       ]
     },
     "default_patches": {
@@ -1577,7 +1577,8 @@
         "Ticks the patcher owner's own choice: every patch except Learning Skills Never Fails,",
         "and except All Fruit Trees Refill at the Same Time: Fruit Trees Take Turns Refilling is ticked instead.",
         "Use Unicode Font (overrides in-game fonts) is off too: Render Unicode with In-Game Fonts is ticked instead.",
-        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead. So is Yellow Breadfruit Refills Partially Every Time.",
+        "Move the \"Playing in the dirt\" Spot is off too: Puddle Play Moves to the Lake Shore is ticked instead.",
+        "Yellow Breadfruit Refills Partially Every Time is off too.",
         "Heathen Tribe Ages, Dies and Has Children and All Heathens Leave Skeletons are off too.",
         "That includes Story / Cheat Upgrades, Respecting the Legacy of Isola and 256 Villagers (Experimental), which uses its own save folder.",
         "It ticks the harder-game patches too, Classic VV Difficulty and 0.1-10x Tech Cost included, and sets both sliders to 2.",

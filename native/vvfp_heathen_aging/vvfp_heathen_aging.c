@@ -16,9 +16,12 @@
    THE STOCK GAME.  A Heathen never ages: the age credit 0x46FE90 (every frame, every living record) adds the
    elapsed age units to +0x1B8C only for a believer (`cmp byte [esi+0x1CEC], bl; mov edi, eax; jne` at 0x470077),
    and the life tick 0x472C90 (one age unit per pass for every believer whose processed age +0x1C3C is behind its
-   age; live, in the load-time catch-up, a Time Warp and a time skip -- all of them come through these two)
-   skips a Heathen at 0x472CB7: it copies the age into the processed age, clears the sick byte, and nothing else
-   runs (no eating, starving, sickness, health, Faith drift, old age or birth).
+   age; live and in the load-time catch-up) skips a Heathen at 0x472CB7: it copies the age into the processed age, clears the sick byte, and nothing else
+   runs (no eating, starving, sickness, health, Faith drift, old age or birth).  An Origins Time Warp, and Story /
+   Cheat Upgrades' time skip that runs it one warp at a time, do NOT go through the age credit: the Origins
+   companion (native/vv5_task9_origins vv5_time_warp_apply) writes the ages itself, so it asks this companion's
+   VvfpHeathenAgingAges(record) which Heathens it ages and credits those too (#860); their old age then comes
+   through the life tick, one unit at a time, as after live aging.
 
    WHAT THIS DOES (two run-time splices, all or none, stock bytes checked first: native/shared/install_sites.h):
      0x470077  the age credit's faction test: a believer goes on as before; an AGING Heathen (below) gets the same
