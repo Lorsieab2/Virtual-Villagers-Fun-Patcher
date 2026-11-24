@@ -1436,6 +1436,68 @@ static int ce_ends_no_effect(const char *text) {
     return k == 0;
 }
 
+/* The Heathens' own event (ce_heathens_only): what it would have done to the village, told as the Heathens' village's
+   ("the Isolans' village" with Guardians of Isola Rewrite), each line ending "(no effect)" (the owner, 2026-11-23).
+   0 when a line was written (the outcome lines' blank line is then made), else 1. */
+static int cg_guardians_on(void);
+static void ce_heathens_line(ce_writer *w, int *first, char *line, int cap, const char *stem, const char *words,
+                             int amount) {
+    if (*first) {
+        ce_newline(w);
+        *first = 0;
+    }
+    if (amount >= 0) {
+        ce_tr_printf(line, cap, stem, words, amount);
+    } else {
+        ce_tr_done(line, cap, stem, words, words);
+    }
+    ce_line(w, line);
+}
+
+static int ce_heathens_lines(const ce_adapter *a, const ce_event *e, ce_writer *w, char *line, int cap) {
+    /* [food 0 / tech 1][Isolans][gain 0 / loss 1 / all 2] */
+    static const char *const WORDS[2][2][3] = {
+        { { "The Heathens' village gains %d food. (no effect)", "The Heathens' village loses %d food. (no effect)",
+            "The Heathens' village loses all its food. (no effect)" },
+          { "The Isolans' village gains %d food. (no effect)", "The Isolans' village loses %d food. (no effect)",
+            "The Isolans' village loses all its food. (no effect)" } },
+        { { "The Heathens' village gains %d tech points. (no effect)",
+            "The Heathens' village loses %d tech points. (no effect)",
+            "The Heathens' village loses all its tech points. (no effect)" },
+          { "The Isolans' village gains %d tech points. (no effect)",
+            "The Isolans' village loses %d tech points. (no effect)",
+            "The Isolans' village loses all its tech points. (no effect)" } } };
+    static const char *const KEYS[2][2][3] = {
+        { { "vvfp.story/story_custom.ce_heathens_lines.food_gain", "vvfp.story/story_custom.ce_heathens_lines.food_loss",
+            "vvfp.story/story_custom.ce_heathens_lines.food_all" },
+          { "vvfp.story/story_custom.ce_heathens_lines.food_gain_i",
+            "vvfp.story/story_custom.ce_heathens_lines.food_loss_i",
+            "vvfp.story/story_custom.ce_heathens_lines.food_all_i" } },
+        { { "vvfp.story/story_custom.ce_heathens_lines.tech_gain", "vvfp.story/story_custom.ce_heathens_lines.tech_loss",
+            "vvfp.story/story_custom.ce_heathens_lines.tech_all" },
+          { "vvfp.story/story_custom.ce_heathens_lines.tech_gain_i",
+            "vvfp.story/story_custom.ce_heathens_lines.tech_loss_i",
+            "vvfp.story/story_custom.ce_heathens_lines.tech_all_i" } } };
+    int isolans = cg_guardians_on() != 0, first = 1, k;
+    for (k = 0; k < 2; ++k) {
+        int op = k == 0 ? e->food_op : e->tech_op, amount = k == 0 ? e->food_amount : e->tech_amount;
+        int which = op == CE_AMOUNT_ZERO ? 2 : op == CE_AMOUNT_SUBTRACT ? 1 : 0;
+        if (op == CE_AMOUNT_NONE || !(a->caps & (k == 0 ? CAP_FOOD : CAP_TECH))) {
+            continue;
+        }
+        ce_heathens_line(w, &first, line, cap, KEYS[k][isolans][which], WORDS[k][isolans][which],
+                         which == 2 ? -1 : amount);
+    }
+    if (((a->caps & CAP_REFILL) && e->refill) || ((a->caps & CAP_VILLAGE) && e->village != 0)
+        || ((a->caps & CAP_VALUES) && e->value_count > 0) || ((a->caps & CAP_PUZZLES) && e->puzzle_count > 0)) {
+        ce_heathens_line(w, &first, line, cap, isolans ? "vvfp.story/story_custom.ce_heathens_lines.village_i"
+                                                       : "vvfp.story/story_custom.ce_heathens_lines.village",
+                         isolans ? "The Isolans' village's buildings and stores change. (no effect)"
+                                 : "The Heathens' village's buildings and stores change. (no effect)", -1);
+    }
+    return first;
+}
+
 static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const char *title,
                               const ce_event *e, const ce_result *r, char *out, int size) {
     ce_writer w;
@@ -1469,6 +1531,9 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
         /* The outcome lines, after a blank line, as the stock events print
            theirs. */
         int first = 1;
+        if (r->heathens_only) {
+            first = ce_heathens_lines(a, e, &w, line, sizeof line);
+        }
         if (e->food_op != CE_AMOUNT_NONE && (a->caps & CAP_FOOD) && r->food_after != r->food_before) {
             int delta = r->food_after - r->food_before;
             ce_newline(&w);
@@ -1824,6 +1889,27 @@ static int ce_age_or_skills_changed(int game, const unsigned char *record, const
     return 0;
 }
 
+/* The owner (2026-11-23): "If only heathens or outsiders are involved in any island event ... Food and tech points
+   gain loss to the heathen tribe = acceptable but flavor text only.  Our tribe doesnt get altered."  A Custom Island
+   Event whose villagers (every change still for the villager it was queued for, `same`) are New Believers' Heathens
+   alone -- "All Heathens", a pick of Heathens -- changes the Heathens' village, never the tribe: its food, tech
+   points, refill, structures, amounts and puzzles are made nowhere, and the popup says so (ce_compose_in_once). */
+static int ce_heathens_only(const ce_adapter *a, const ce_event *e, const unsigned char *same) {
+    int i, heathens = 0;
+    for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
+        const unsigned char *record;
+        if (!same[i]) {
+            continue;                  /* gone or replaced since: nobody of the tribe either */
+        }
+        record = a->record(e->changes[i].index);
+        if (record == NULL || !story_is_heathen(ce_role(a, record, NULL))) {
+            return 0;                  /* a villager of the tribe is in it: its changes are the tribe's */
+        }
+        ++heathens;
+    }
+    return heathens > 0;
+}
+
 static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     int i;
     int j;
@@ -1841,18 +1927,20 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     memset(r, 0, sizeof *r);
     r->food_before = r->food_after = (a->caps & CAP_FOOD) ? a->food() : 0;
     r->tech_before = r->tech_after = (a->caps & CAP_TECH) ? a->tech() : 0;
+    r->heathens_only = ce_heathens_only(a, e, same);
 
-    /* The village. */
-    if ((a->caps & CAP_FOOD) && e->food_op != CE_AMOUNT_NONE) {
+    /* The village (the Heathens' own event: theirs, flavor only -- nothing of the tribe's food, tech points,
+       refill, structures, amounts or puzzles is changed; ce_compose_in_once tells them). */
+    if (!r->heathens_only && (a->caps & CAP_FOOD) && e->food_op != CE_AMOUNT_NONE) {
         a->change_food(e->food_op, e->food_amount);
     }
-    if ((a->caps & CAP_TECH) && e->tech_op != CE_AMOUNT_NONE) {
+    if (!r->heathens_only && (a->caps & CAP_TECH) && e->tech_op != CE_AMOUNT_NONE) {
         a->change_tech(e->tech_op, e->tech_amount);
     }
-    if ((a->caps & CAP_REFILL) && e->refill) {
+    if (!r->heathens_only && (a->caps & CAP_REFILL) && e->refill) {
         a->refill();
     }
-    if (a->caps & CAP_VILLAGE) {
+    if (!r->heathens_only && (a->caps & CAP_VILLAGE)) {
         for (i = 0; i < a->village_count && i < 32; ++i) {
             if ((e->village & (1u << i)) && !a->village(i)) {
                 ce_refuse_as(r, CE_WHY_VILLAGE);
@@ -1860,7 +1948,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         }
     }
     /* Amounts, after the refill so a chosen amount is what stays. */
-    if (a->caps & CAP_VALUES) {
+    if (!r->heathens_only && (a->caps & CAP_VALUES)) {
         for (i = 0; i < e->value_count && i < CE_MAX_VALUES; ++i) {
             const ce_value *v = &e->values[i];
             if (v->which < 0 || v->which >= a->value_count || v->amount < a->values[v->which].min
@@ -1869,7 +1957,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             }
         }
     }
-    if (a->caps & CAP_PUZZLES) {
+    if (!r->heathens_only && (a->caps & CAP_PUZZLES)) {
         for (i = 0; i < e->puzzle_count && i < CE_MAX_PUZZLES; ++i) {
             const ce_puzzle *p = &e->puzzles[i];
             const ce_puzzle_def *d = p->which >= 0 && p->which < a->puzzle_count
