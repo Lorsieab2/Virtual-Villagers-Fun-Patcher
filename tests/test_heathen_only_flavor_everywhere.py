@@ -100,6 +100,28 @@ class PlainCustomIslandEvent(unittest.TestCase):
         self.assertEqual(story.proc.u32(food), 1100)
 
 
+class Translations(unittest.TestCase):
+    """Codex on #859: each flavor line is looked up by the stem the translation catalog gives it
+    (data/translations/patcher_strings.json, scripts/build_patch_text_inventory.py), with that very English -- else a
+    translation never reaches the line."""
+
+    def test_every_line_uses_its_catalog_stem(self):
+        import json
+        import re
+        source = (ROOT / "native" / "vvfp_story_upgrades" / "story_custom.inc").read_text(encoding="utf-8")
+        body = source[source.index("static int ce_heathens_lines("):]
+        body = body[:body.index("\n}\n")]
+        stems = re.findall(r'"(vvfp\.story/story_custom\.ce_heathens_lines\.[^"]+)"', body)
+        words = re.findall(r'"(The (?:Heathens|Isolans)\' village[^"]*)"', body)
+        self.assertEqual(len(stems), 14)
+        self.assertEqual(len(words), 14)
+        catalog = json.loads((ROOT / "data" / "translations" / "patcher_strings.json").read_text(encoding="utf-8"))
+        rows = {r["stem"]: r["english"] for r in catalog["strings"]}
+        for stem, english in zip(stems, words):
+            with self.subTest(stem=stem):
+                self.assertIn(stem, rows, "a stem the catalog has")
+                self.assertEqual(rows[stem], english, "the catalog's English for that stem")
+
 def graph(roles: dict) -> dict:
     return {"format": "vvfp-cie-graph", "version": 6, "title": "Camp Life", "games": [5], "roles": roles,
             "start": "p",

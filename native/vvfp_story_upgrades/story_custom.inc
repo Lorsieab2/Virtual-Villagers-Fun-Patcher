@@ -1468,16 +1468,16 @@ static int ce_heathens_lines(const ce_adapter *a, const ce_event *e, ce_writer *
             "The Isolans' village loses %d tech points. (no effect)",
             "The Isolans' village loses all its tech points. (no effect)" } } };
     static const char *const KEYS[2][2][3] = {
-        { { "vvfp.story/story_custom.ce_heathens_lines.food_gain", "vvfp.story/story_custom.ce_heathens_lines.food_loss",
-            "vvfp.story/story_custom.ce_heathens_lines.food_all" },
-          { "vvfp.story/story_custom.ce_heathens_lines.food_gain_i",
-            "vvfp.story/story_custom.ce_heathens_lines.food_loss_i",
-            "vvfp.story/story_custom.ce_heathens_lines.food_all_i" } },
-        { { "vvfp.story/story_custom.ce_heathens_lines.tech_gain", "vvfp.story/story_custom.ce_heathens_lines.tech_loss",
-            "vvfp.story/story_custom.ce_heathens_lines.tech_all" },
-          { "vvfp.story/story_custom.ce_heathens_lines.tech_gain_i",
-            "vvfp.story/story_custom.ce_heathens_lines.tech_loss_i",
-            "vvfp.story/story_custom.ce_heathens_lines.tech_all_i" } } };
+        { { "vvfp.story/story_custom.ce_heathens_lines.s0", "vvfp.story/story_custom.ce_heathens_lines.s1",
+            "vvfp.story/story_custom.ce_heathens_lines.s2" },
+          { "vvfp.story/story_custom.ce_heathens_lines.s3",
+            "vvfp.story/story_custom.ce_heathens_lines.s4",
+            "vvfp.story/story_custom.ce_heathens_lines.s5" } },
+        { { "vvfp.story/story_custom.ce_heathens_lines.s6", "vvfp.story/story_custom.ce_heathens_lines.s7",
+            "vvfp.story/story_custom.ce_heathens_lines.s8" },
+          { "vvfp.story/story_custom.ce_heathens_lines.s9",
+            "vvfp.story/story_custom.ce_heathens_lines.s10",
+            "vvfp.story/story_custom.ce_heathens_lines.s11" } } };
     int isolans = cg_guardians_on() != 0, first = 1, k;
     for (k = 0; k < 2; ++k) {
         int op = k == 0 ? e->food_op : e->tech_op, amount = k == 0 ? e->food_amount : e->tech_amount;
@@ -1490,8 +1490,8 @@ static int ce_heathens_lines(const ce_adapter *a, const ce_event *e, ce_writer *
     }
     if (((a->caps & CAP_REFILL) && e->refill) || ((a->caps & CAP_VILLAGE) && e->village != 0)
         || ((a->caps & CAP_VALUES) && e->value_count > 0) || ((a->caps & CAP_PUZZLES) && e->puzzle_count > 0)) {
-        ce_heathens_line(w, &first, line, cap, isolans ? "vvfp.story/story_custom.ce_heathens_lines.village_i"
-                                                       : "vvfp.story/story_custom.ce_heathens_lines.village",
+        ce_heathens_line(w, &first, line, cap, isolans ? "vvfp.story/story_custom.ce_heathens_lines.s12"
+                                                       : "vvfp.story/story_custom.ce_heathens_lines.s13",
                          isolans ? "The Isolans' village's buildings and stores change. (no effect)"
                                  : "The Heathens' village's buildings and stores change. (no effect)", -1);
     }
