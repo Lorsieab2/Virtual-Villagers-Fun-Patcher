@@ -42,6 +42,7 @@ enum {
     ADV_L4,
     ADV_L5,
     ADV_L6,
+    ADV_NO_EFFECT,
     ADV_PIECES
 };
 
@@ -200,4 +201,8 @@ static const adv_piece_text ADV_TEXT[ADV_PIECES] = {
       { "...and he is never seen again. In the end, the villagers can only speculate about what happened to poor %s, and forbid anyone from ever going out in the jungle alone again.",
         "...and she is never seen again. In the end, the villagers can only speculate about what happened to poor %s, and forbid anyone from ever going out in the jungle alone again." },
       "n" },
+    { { "vvfp.more_island_events/adv_text.NO_EFFECT", "vvfp.more_island_events/adv_text.NO_EFFECT" },
+      { "(no effect)",
+        "(no effect)" },
+      "" },
 };

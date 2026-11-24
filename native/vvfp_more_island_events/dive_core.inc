@@ -133,6 +133,18 @@ static void dv_compose(const adv_game *g) {
     intro[1] = NULL;
     adv_popup_noted(g, &dv.intro, MIE_NOTE_DIVING, intro);       /* the question, its content note first */
     for (e = DV_E_A; e <= DV_E_C; ++e) {
+        if (e == DV_E_B) {
+            /* the chewed-up buoy changes nothing: "(no effect)" its last paragraph (adv_add_last; neutral) */
+            static char none[ADV_PIECE_BYTES];
+            const char *p[4];
+            p[0] = dv_one(0, DV_DEEPER, dv.food_award);
+            p[1] = dv_one(1, FINDS[e], dv.food_award);
+            p[2] = NULL;
+            dv_piece(none, ADV_PIECE_BYTES, DV_NO_EFFECT, 0);
+            adv_add_last(p, 4, adv_no_effect_glyphs(g->game, none));
+            adv_popup(g, &dv.endings[e], p);
+            continue;
+        }
         dv_popup(g, &dv.endings[e], DV_DEEPER, FINDS[e], e == DV_E_A ? dv.tech_award : dv.food_award);
     }
     for (e = DV_E_D1; e <= DV_E_D2C; ++e) {

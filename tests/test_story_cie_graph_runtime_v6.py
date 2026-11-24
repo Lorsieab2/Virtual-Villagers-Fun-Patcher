@@ -1342,6 +1342,7 @@ class FormatGaps(unittest.TestCase):
                     r.walk_through()
                     want = (f"{name} gathers. Ana speaks for {name}." if name
                             else "The village gathers. Ana speaks for the village.")
+                    want += " " + cg.glyph_fallback("(no effect)", int(game[2]))   # cie-v6-binary.md 46
                     self.assertEqual(self.words(r), want)
 
     def test_g6_quotes_in_the_title(self):
@@ -1452,9 +1453,11 @@ class G1LayoutParity(unittest.TestCase):
             n = int(game[2])
             plain = cg.GAMES[n].plain
             title = "The Gaps"
-            # The most one-line paragraphs one notice page holds, as Python counts it.
+            # The most one-line paragraphs one notice page holds, as Python counts it (the answer changes nothing:
+            # its "(no effect)" line last, cie-v6-binary.md 46).
             fit = max(k for k in range(1, 40)
-                      if len(cg.paginate(plain, title, "\n".join(f"Line {i + 1}." for i in range(k)))[0]) == 1)
+                      if len(cg.paginate(plain, title, cg.with_no_effect(
+                          "\n".join(f"Line {i + 1}." for i in range(k))))[0]) == 1)
             with self.subTest(game=game, lines=fit):
                 self.assertEqual(self.engine_pages(game, fit), 1, "the engine holds as many on one page")
             with self.subTest(game=game, lines=fit + 1):

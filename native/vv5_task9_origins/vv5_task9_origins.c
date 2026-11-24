@@ -2578,11 +2578,22 @@ static int vv5_village_occupied(void) {
 }
 
 
+/* New Believers' Heathen aging rows ("VVFP Heathen Aging.dll", only when already loaded): 1 when that companion
+   ages this Heathen's record (a former villager among the Heathens; every Heathen with the tribe row), so a warp
+   ages them as the age credit does -- their old age then comes through the life tick, unit by unit. */
+typedef int(__stdcall *vv5_heathen_ages_fn)(const unsigned char *record);
+
+static vv5_heathen_ages_fn vv5_heathen_ages_query(void) {
+    HMODULE aging = GetModuleHandleA("VVFP Heathen Aging.dll");
+    return aging != NULL ? (vv5_heathen_ages_fn)(void *)GetProcAddress(aging, "VvfpHeathenAgingAges") : NULL;
+}
+
 static int vv5_time_warp_apply(int speed, int years) {
     unsigned char *base = (unsigned char *)(UINT_PTR)VV5_REC_BASE;
     int units = years * VV5_TW_UNITS_PER_YEAR;   /* the base-rate credit */
     int delta = units * 60 * speed;              /* the real seconds it costs */
     int i, occupied = vv5_village_occupied(), slots = vv5_slots();
+    vv5_heathen_ages_fn heathen_ages = vv5_heathen_ages_query();
 
     if (occupied == 0) {
         return 0;
@@ -2614,8 +2625,8 @@ static int vv5_time_warp_apply(int speed, int years) {
         /* Only the faction the engine ages gets the credit (0x00470077),
            and only the living (0x0046FF63): a body holds its record but no
            longer ages -- credited, its age at death grew with every warp. */
-        if (rec[VV5_TW_FACTION_OFFSET] != 0) {
-            continue;
+        if (rec[VV5_TW_FACTION_OFFSET] != 0 && (heathen_ages == NULL || heathen_ages(rec) == 0)) {
+            continue;               /* a Heathen the Heathen aging rows do not age */
         }
         if (*(const int *)(rec + 0x1C40) <= 0) {
             continue;

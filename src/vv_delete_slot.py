@@ -11,7 +11,9 @@ What goes (Move Player Slot's discovery, src/vv_move_slot.py slot_everything, so
     * The slot save "<stem><S>.ldw", the game's older generations "<stem>2<S>.ldw" / "<stem>4<S>.ldw", the
       save's own patcher folders ("Virtual Villagers Fun Patcher\\Save <S>", "...Logs\\Save <S>") and every
       patcher file named for the slot -- logs, every data / sidecar file, repair copies, saved family trees and
-      the family tree reports' text and pages.
+      the family tree reports' text and pages.  A file under a "Save <S>" folder anywhere in the patcher's
+      folders is the slot's by that folder whatever its name says (an older layout's "...Logs\\Save <S>\\"
+      kept whole in "Copies Made Before Repairs": the live test of 2026-11-23); "Save 2" is never "Save 12".
     * The slot's repair copies whose short name lost the slot (vv_repair_copies SHORT_MAX), found by the file
       they are a copy of in "Copies Index.txt".  The index lines stay: readers skip a copy that is not there, and
       a copy put back from the Recycle Bin is found again.
@@ -169,6 +171,13 @@ def _discover(game: rename.GameSaves, root: Path, slot: int, where: str) -> Grou
     # copy that is not there (vv_repair_copies.all_kept / kept_copies), and when the player puts the files
     # back from the Recycle Bin, the lines find them again.  The slot's own index goes with its folder.
     group.folders = [root / cs.SAVES / f"Save {slot}", root / cs.LOGS / f"Save {slot}"]
+    # A "Save <S>" folder elsewhere (an older layout's slot folder kept in Copies Made Before Repairs, its
+    # files the slot's by that folder): removed too once it is empty.
+    for path in group.files:
+        parts = path.relative_to(root).parts
+        at = next((i for i in range(1, len(parts) - 1) if parts[i].casefold() == f"save {slot}"), None)
+        if at is not None and root.joinpath(*parts[:at + 1]) not in group.folders:
+            group.folders.append(root.joinpath(*parts[:at + 1]))
     return group
 
 

@@ -1401,6 +1401,103 @@ static int ce_compose_in(const ce_adapter *a, const ce_layout *l, const char *ti
    title, then a blank line, then the result. */
 static const char *ce_compose_lead;
 
+/* THE OWNER (2026-11-23): "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the
+   end."  Set while an event's outcome is composed (a plain event delivered -- never a notice --, a question's result,
+   and the tallest result it is sized by): an outcome whose event changes nothing (ce_has_effects) ends with the line
+   "(no effect)" after its words, as the branching engine's (story_graph.inc cg_no_effect_mark). */
+static int ce_compose_outcome;
+static int ce_has_effects(const ce_event *e);
+static int ce_game_of(const ce_adapter *a);
+
+/* Whether `text` ends with "(no effect)" (any case, its parentheses written \( \) or not; spaces, line breaks and a
+   full stop after it allowed): it is never said twice. */
+static int ce_ends_no_effect(const char *text) {
+    static const char want[] = "(no effect)";
+    int n = lstrlenA(text), k = (int)sizeof want - 1;
+    while (n > 0 && (text[n - 1] == ' ' || text[n - 1] == '\n' || text[n - 1] == '\r' || text[n - 1] == '\t'
+                     || text[n - 1] == '.')) {
+        --n;
+    }
+    while (k > 0 && n > 0) {
+        char c = text[n - 1];
+        if (c == '\\') {
+            --n;                       /* an escape before a parenthesis */
+            continue;
+        }
+        if (c >= 'A' && c <= 'Z') {
+            c = (char)(c - 'A' + 'a');
+        }
+        if (c != want[k - 1]) {
+            return 0;
+        }
+        --n;
+        --k;
+    }
+    return k == 0;
+}
+
+/* The Heathens' own event (ce_heathens_only): what it would have done to the village, told as the Heathens' village's
+   ("the Isolans' village" with Guardians of Isola Rewrite), each line ending "(no effect)" (the owner, 2026-11-23).
+   0 when a line was written (the outcome lines' blank line is then made), else 1. */
+static int cg_guardians_on(void);
+static void ce_heathens_line(ce_writer *w, int *first, char *line, int cap, const char *stem, const char *words,
+                             int amount) {
+    if (*first) {
+        ce_newline(w);
+        *first = 0;
+    }
+    if (amount >= 0) {
+        ce_tr_printf(line, cap, stem, words, amount);
+    } else {
+        ce_tr_done(line, cap, stem, words, words);
+    }
+    ce_line(w, line);
+}
+
+static int ce_heathens_lines(const ce_adapter *a, const ce_event *e, ce_writer *w, char *line, int cap) {
+    /* [food 0 / tech 1][Isolans][gain 0 / loss 1 / all 2] */
+    static const char *const WORDS[2][2][3] = {
+        { { "The Heathens' village gains %d food. (no effect)", "The Heathens' village loses %d food. (no effect)",
+            "The Heathens' village loses all its food. (no effect)" },
+          { "The Isolans' village gains %d food. (no effect)", "The Isolans' village loses %d food. (no effect)",
+            "The Isolans' village loses all its food. (no effect)" } },
+        { { "The Heathens' village gains %d tech points. (no effect)",
+            "The Heathens' village loses %d tech points. (no effect)",
+            "The Heathens' village loses all its tech points. (no effect)" },
+          { "The Isolans' village gains %d tech points. (no effect)",
+            "The Isolans' village loses %d tech points. (no effect)",
+            "The Isolans' village loses all its tech points. (no effect)" } } };
+    static const char *const KEYS[2][2][3] = {
+        { { "vvfp.story/story_custom.ce_heathens_lines.s0", "vvfp.story/story_custom.ce_heathens_lines.s1",
+            "vvfp.story/story_custom.ce_heathens_lines.s2" },
+          { "vvfp.story/story_custom.ce_heathens_lines.s3",
+            "vvfp.story/story_custom.ce_heathens_lines.s4",
+            "vvfp.story/story_custom.ce_heathens_lines.s5" } },
+        { { "vvfp.story/story_custom.ce_heathens_lines.s6", "vvfp.story/story_custom.ce_heathens_lines.s7",
+            "vvfp.story/story_custom.ce_heathens_lines.s8" },
+          { "vvfp.story/story_custom.ce_heathens_lines.s9",
+            "vvfp.story/story_custom.ce_heathens_lines.s10",
+            "vvfp.story/story_custom.ce_heathens_lines.s11" } } };
+    int isolans = cg_guardians_on() != 0, first = 1, k;
+    for (k = 0; k < 2; ++k) {
+        int op = k == 0 ? e->food_op : e->tech_op, amount = k == 0 ? e->food_amount : e->tech_amount;
+        int which = op == CE_AMOUNT_ZERO ? 2 : op == CE_AMOUNT_SUBTRACT ? 1 : 0;
+        if (op == CE_AMOUNT_NONE || !(a->caps & (k == 0 ? CAP_FOOD : CAP_TECH))) {
+            continue;
+        }
+        ce_heathens_line(w, &first, line, cap, KEYS[k][isolans][which], WORDS[k][isolans][which],
+                         which == 2 ? -1 : amount);
+    }
+    if (((a->caps & CAP_REFILL) && e->refill) || ((a->caps & CAP_VILLAGE) && e->village != 0)
+        || ((a->caps & CAP_VALUES) && e->value_count > 0) || ((a->caps & CAP_PUZZLES) && e->puzzle_count > 0)) {
+        ce_heathens_line(w, &first, line, cap, isolans ? "vvfp.story/story_custom.ce_heathens_lines.s12"
+                                                       : "vvfp.story/story_custom.ce_heathens_lines.s13",
+                         isolans ? "The Isolans' village's buildings and stores change. (no effect)"
+                                 : "The Heathens' village's buildings and stores change. (no effect)", -1);
+    }
+    return first;
+}
+
 static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const char *title,
                               const ce_event *e, const ce_result *r, char *out, int size) {
     ce_writer w;
@@ -1434,6 +1531,9 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
         /* The outcome lines, after a blank line, as the stock events print
            theirs. */
         int first = 1;
+        if (r->heathens_only) {
+            first = ce_heathens_lines(a, e, &w, line, sizeof line);
+        }
         if (e->food_op != CE_AMOUNT_NONE && (a->caps & CAP_FOOD) && r->food_after != r->food_before) {
             int delta = r->food_after - r->food_before;
             ce_newline(&w);
@@ -1493,6 +1593,28 @@ static int ce_compose_in_once(const ce_adapter *a, const ce_layout *l, const cha
             }
             ce_line(&w, reasons);
         }
+    }
+    if (ce_compose_outcome && !ce_has_effects(e) && !ce_ends_no_effect(e->text)) {
+        /* the owner (2026-11-23): an outcome that changes nothing says so, last, after a blank line as the outcome
+           lines are.  Whatever `r` is: an event that changes nothing has no outcome lines, so the text checked when
+           it is queued (r NULL, ce_refusal / ce_result_refusal, which set ce_compose_outcome too) is the text it
+           shows, line for line -- it always fits, and the fallback without outcome lines keeps it as well (Codex,
+           #853). */
+        ce_newline(&w);
+        ce_tr_done(line, sizeof line, "vvfp.story/story_custom.ce_compose_in_once.s6", "(no effect)",
+                   "(no effect)");
+        if (ce_game_of(a) <= 2 && GetModuleHandleW(L"VVFP Unicode Text.dll") == NULL
+            && GetModuleHandleW(L"VVFP Unicode Font.dll") == NULL) {
+            /* A New Home and The Lost Children draw ( ) only through the Unicode Text companion: "-" without it,
+               as the branching engine's glyph fallback (story_graph.inc cg_glyph_fallback) */
+            char *c;
+            for (c = line; *c != '\0'; ++c) {
+                if (*c == '(' || *c == ')') {
+                    *c = '-';
+                }
+            }
+        }
+        ce_line(&w, line);
     }
     return !w.overflow;
 }
@@ -1767,6 +1889,51 @@ static int ce_age_or_skills_changed(int game, const unsigned char *record, const
     return 0;
 }
 
+/* The owner (2026-11-23): "If only heathens or outsiders are involved in any island event ... Food and tech points
+   gain loss to the heathen tribe = acceptable but flavor text only.  Our tribe doesnt get altered."  A Custom Island
+   Event whose villagers (every change still for the villager it was queued for, `same`) are New Believers' Heathens
+   alone -- "All Heathens", a pick of Heathens -- changes the Heathens' village, never the tribe: its food, tech
+   points, refill, structures, amounts and puzzles are made nowhere, and the popup says so (ce_compose_in_once). */
+static int ce_heathens_only(const ce_adapter *a, const ce_event *e, const unsigned char *same) {
+    int i, heathens = 0;
+    for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
+        const unsigned char *record;
+        if (!same[i]) {
+            continue;                  /* gone or replaced since, or a skeleton revived first (below) */
+        }
+        record = a->record(e->changes[i].index);
+        if (record == NULL || !story_is_heathen(ce_role(a, record, NULL))) {
+            return 0;                  /* a villager of the tribe is in it: its changes are the tribe's */
+        }
+        ++heathens;
+    }
+    /* Codex on #859: the skeletons this event brings back (before its villagers' changes) are in it too, by the
+       faction they come back as -- the revive keeps it -- so a believer's skeleton revived is the tribe's own. */
+    for (i = 0; (a->caps & CAP_REVIVE) && i < e->revive_count && i < CE_MAX_REVIVES; ++i) {
+        const ce_revive *v = &e->revives[i];
+        const unsigned char *record = v->index >= 0 && v->index < a->record_count ? a->record(v->index) : NULL;
+        if (record == NULL || !a->skeleton(record) || ce_identity(a, record) != v->identity || v->health < 1
+            || v->health > 100) {
+            continue;                  /* not revived (ce_apply skips or refuses it) */
+        }
+        if (!story_is_heathen(ce_role(a, record, NULL))) {
+            return 0;
+        }
+        ++heathens;
+    }
+    /* ... and the new villagers it makes: a newcomer joins the tribe unless the event makes them a Heathen. */
+    for (i = 0; i < e->spawn_groups && i < CE_MAX_SPAWN_GROUPS; ++i) {
+        if (e->spawns[i].count <= 0) {
+            continue;
+        }
+        if (!((a->caps & CAP_SPAWN_FACTION) && e->spawns[i].faction == 1)) {
+            return 0;
+        }
+        ++heathens;
+    }
+    return heathens > 0;
+}
+
 static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     int i;
     int j;
@@ -1784,18 +1951,20 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
     memset(r, 0, sizeof *r);
     r->food_before = r->food_after = (a->caps & CAP_FOOD) ? a->food() : 0;
     r->tech_before = r->tech_after = (a->caps & CAP_TECH) ? a->tech() : 0;
+    r->heathens_only = ce_heathens_only(a, e, same);
 
-    /* The village. */
-    if ((a->caps & CAP_FOOD) && e->food_op != CE_AMOUNT_NONE) {
+    /* The village (the Heathens' own event: theirs, flavor only -- nothing of the tribe's food, tech points,
+       refill, structures, amounts or puzzles is changed; ce_compose_in_once tells them). */
+    if (!r->heathens_only && (a->caps & CAP_FOOD) && e->food_op != CE_AMOUNT_NONE) {
         a->change_food(e->food_op, e->food_amount);
     }
-    if ((a->caps & CAP_TECH) && e->tech_op != CE_AMOUNT_NONE) {
+    if (!r->heathens_only && (a->caps & CAP_TECH) && e->tech_op != CE_AMOUNT_NONE) {
         a->change_tech(e->tech_op, e->tech_amount);
     }
-    if ((a->caps & CAP_REFILL) && e->refill) {
+    if (!r->heathens_only && (a->caps & CAP_REFILL) && e->refill) {
         a->refill();
     }
-    if (a->caps & CAP_VILLAGE) {
+    if (!r->heathens_only && (a->caps & CAP_VILLAGE)) {
         for (i = 0; i < a->village_count && i < 32; ++i) {
             if ((e->village & (1u << i)) && !a->village(i)) {
                 ce_refuse_as(r, CE_WHY_VILLAGE);
@@ -1803,7 +1972,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
         }
     }
     /* Amounts, after the refill so a chosen amount is what stays. */
-    if (a->caps & CAP_VALUES) {
+    if (!r->heathens_only && (a->caps & CAP_VALUES)) {
         for (i = 0; i < e->value_count && i < CE_MAX_VALUES; ++i) {
             const ce_value *v = &e->values[i];
             if (v->which < 0 || v->which >= a->value_count || v->amount < a->values[v->which].min
@@ -1812,7 +1981,7 @@ static void ce_apply(const ce_adapter *a, const ce_event *e, ce_result *r) {
             }
         }
     }
-    if (a->caps & CAP_PUZZLES) {
+    if (!r->heathens_only && (a->caps & CAP_PUZZLES)) {
         for (i = 0; i < e->puzzle_count && i < CE_MAX_PUZZLES; ++i) {
             const ce_puzzle *p = &e->puzzles[i];
             const ce_puzzle_def *d = p->which >= 0 && p->which < a->puzzle_count
@@ -2102,11 +2271,13 @@ static int ce_deliver(int game, char *text, int size) {
         (void)cg_deliver(game, text, size, &counted);   /* its page (and, on its first, every effect) */
     } else {
         ce_apply(a, &ce_armed_event, &ce_last_result);
+        ce_compose_outcome = !notice;  /* a notice (the time skip's, the faith notice) is no outcome */
         if (!ce_compose(a, &ce_armed_event, &ce_last_result, text, size)) {
             /* The outcome lines do not fit: the title and description were
                checked when the event was queued, so show those alone. */
             ce_compose(a, &ce_armed_event, NULL, text, size);
         }
+        ce_compose_outcome = 0;
     }
     if (notice || first) {
         ce_uncount_notice(game);   /* the time skip's notice is not an island event */
@@ -2139,6 +2310,7 @@ static const char *ce_room_refusal(const ce_adapter *a, const ce_event *e) {
    the dialogs were open. */
 static const char *ce_refusal(int game, const ce_event *e) {
     const ce_adapter *a = ce_adapter_for(game);
+    int fits;
     const char *reason;
     static char text[CE_LONG_BUF];
     if (a == NULL) {
@@ -2154,7 +2326,10 @@ static const char *ce_refusal(int game, const ce_event *e) {
     if (reason != NULL) {
         return reason;
     }
-    if (!ce_compose(a, e, NULL, text, sizeof text)) {
+    ce_compose_outcome = 1;            /* its "(no effect)" checked with it, as it is delivered (ce_deliver) */
+    fits = ce_compose(a, e, NULL, text, sizeof text);
+    ce_compose_outcome = 0;
+    if (!fits) {
         return cg_scrolls() ? "The title must fit on one line. Shorten it."
                             : "The title must fit on one line and the description must fit the island event panel. "
                               "Shorten them, or install the Scrolling Popups patch: with it the popup scrolls and "
@@ -2313,6 +2488,7 @@ static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, con
     static char text[CE_LONG_BUF];
     ce_layout l = ce_result_layout(a);
     const char *why;
+    int fits;
     if (ce_word_count(e->text) == 0) {
         return "Give each outcome a result text.";
     }
@@ -2323,7 +2499,10 @@ static const char *ce_result_refusal(const ce_adapter *a, const ce_event *e, con
     if (why != NULL) {
         return why;
     }
-    if (!ce_compose_in(a, &l, title, e, NULL, text, sizeof text)) {
+    ce_compose_outcome = 1;            /* its "(no effect)" checked with it, as it is shown (ce_choice_resolve) */
+    fits = ce_compose_in(a, &l, title, e, NULL, text, sizeof text);
+    ce_compose_outcome = 0;
+    if (!fits) {
         return "The result text must fit the island event panel. Shorten it, or install the Scrolling Popups "
                "patch: with it the popup scrolls and the text can be practically unlimited.";
     }
@@ -2717,11 +2896,13 @@ static int ce_choice_resolve(int game, int button, char *text, int size) {
     l = ce_result_layout(a);
     /* One popup: the choice picked leads the result (its own line, then a blank line). */
     ce_compose_lead = ce_op_simple == game && button < 2 ? c->labels[button] : NULL;
+    ce_compose_outcome = 1;
     if (!ce_compose_in(a, &l, ce_asked_title, &o->effects, &ce_last_result, text, size)) {
         /* The outcome lines do not fit: the result text was checked when
            the event was queued, so show it alone. */
         ce_compose_in(a, &l, ce_asked_title, &o->effects, NULL, text, size);
     }
+    ce_compose_outcome = 0;
     ce_compose_lead = NULL;
     ce_last_button = button;
     ce_last_outcome = k;
@@ -2773,6 +2954,7 @@ static int ce_choice_tallest(int game, int button, char *out, int size) {
         ce_result r;
         int lines;
         int i;
+        int fits;
         int babies = 0;
         memset(&r, 0, sizeof r);
         for (i = 0; i < e->change_count; ++i) {
@@ -2798,7 +2980,10 @@ static int ce_choice_tallest(int game, int button, char *out, int size) {
         if (ce_has_effects(e)) {
             r.refused = 999;
         }
-        if (ce_compose_in(a, &l, ce_asked_title, e, &r, scratch, sizeof scratch)) {
+        ce_compose_outcome = 1;        /* its "(no effect)" counted, as ce_choice_resolve shows it */
+        fits = ce_compose_in(a, &l, ce_asked_title, e, &r, scratch, sizeof scratch);
+        ce_compose_outcome = 0;
+        if (fits) {
             lines = ce_text_lines(scratch);
         } else {
             /* ce_choice_resolve then shows the text alone; the popup must

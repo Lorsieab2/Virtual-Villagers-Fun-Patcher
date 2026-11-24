@@ -146,8 +146,9 @@ AGING_CHANGES = [
     "The age credit 0x46FE90 adds a living aging Heathen's units to its age +0x1B8C, as 0x46F7F0 does for a believer "
     "(0x470077); every other Heathen as the stock game (no age).",
     "The life tick 0x472C90 gives an aging Heathen one unit for each unit of its age not yet processed (+0x1C3C), "
-    "live and in the load-time catch-up, a Time Warp and a time skip (all of them come through the age credit and "
-    "the life tick): at each whole year of the processed age past 1,100 + 160 x (Medicine - 1) units (the tech "
+    "live and in the load-time catch-up (through the age credit and the life tick), and after an Origins Time Warp or "
+    "a Story / Cheat Upgrades time skip, which write the ages themselves and credit the Heathens this companion "
+    "ages (VvfpHeathenAgingAges): at each whole year of the processed age past 1,100 + 160 x (Medicine - 1) units (the tech "
     "level read at 0x51D5D0, as 0x423600(1) reads it), rand(100) < 10 x the years over takes them -- the believers' "
     "old-age rule (0x472FC6..0x47304A). Nothing else of a believer's unit runs: no eating, starving, sickness, "
     "health, Faith drift, job or offline job ticks.",

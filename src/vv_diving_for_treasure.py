@@ -83,6 +83,9 @@ TEXTS: tuple[tuple[str, str], ...] = (
     ("NOT", "{n} knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the "
             "ocean's patience could spell death, and {n} has a family waiting back home. {n} hangs up {his} diving "
             "equipment to be a gentle {father} to {his} spouse and children."),
+    # The owner (2026-11-23): the last paragraph of an ending that changes nothing (B, the buoy; dive_core.inc
+    # dv_compose, adv_add_last).
+    ("NO_EFFECT", "(no effect)"),
 )
 
 PRONOUNS = {
@@ -102,7 +105,9 @@ def pages_of(ending: str) -> tuple[tuple[str, ...], ...]:
     """The popups an ending shows, each a tuple of its paragraphs' keys."""
     if ending == "NOT":
         return (("NOT",),)
-    if ending in ("A", "B", "C"):
+    if ending == "B":
+        return (("DEEPER", "FIND_B", "NO_EFFECT"),)     # the buoy changes nothing (the owner, 2026-11-23)
+    if ending in ("A", "C"):
         return (("DEEPER", "FIND_" + ending),)
     first = ("DEEPER", "FIND_D")
     if ending == "D1":

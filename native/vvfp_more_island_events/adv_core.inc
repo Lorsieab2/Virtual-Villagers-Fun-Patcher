@@ -743,6 +743,44 @@ static void adv_popup_noted(const adv_game *g, adv_pages *pages, const char *not
 
 static char adv_buf[8][ADV_PIECE_BYTES];
 
+/* THE OWNER (2026-11-23): "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the
+   end."  An ending that changes nothing (no award, death, disappearance, injury, skill, joining -- and no Village
+   Solidarity raise or lower while that companion is loaded) ends with the piece NO_EFFECT, "(no effect)", as the
+   last paragraph of its last popup (`p`, NULL-ended, `cap` entries): never a page of its own, so a game without
+   Scrolling Popups lays it out with the words before it. */
+static void adv_add_last(const char **p, int cap, const char *last) {
+    int i = 0;
+    while (i < cap && p[i] != NULL) {
+        ++i;
+    }
+    if (i + 1 < cap) {
+        p[i] = last;
+        p[i + 1] = NULL;
+    }
+}
+
+/* The piece "(no effect)" (`text`, filled) as game `game` can draw it: A New Home and The Lost Children draw ( and )
+   only through the Unicode Text companion -- without it each is "-", as the branching engine's glyph fallback
+   (story_graph.inc cg_glyph_fallback). */
+static const char *adv_no_effect_glyphs(int game, char *text) {
+    char *c;
+    if (game <= 2 && GetModuleHandleW(L"VVFP Unicode Text.dll") == NULL
+        && GetModuleHandleW(L"VVFP Unicode Font.dll") == NULL) {
+        for (c = text; *c != '\0'; ++c) {
+            if (*c == '(' || *c == ')') {
+                *c = '-';
+            }
+        }
+    }
+    return text;
+}
+
+/* Whether "VVFP Village Solidarity.dll" is loaded: an ending's raise or lower tag then moves the score (adv_solidarity). */
+static int adv_sol_on(void) {
+    HMODULE module = GetModuleHandleA("VVFP Village Solidarity.dll");
+    return module != NULL && GetProcAddress(module, "VvfpVillageScoreTag") != NULL;
+}
+
 /* "<a> <b>": two pieces as one paragraph. */
 static const char *adv_join(int slot, int a, int b, int number) {
     static char second[ADV_PIECE_BYTES];
@@ -757,6 +795,12 @@ static const char *adv_join(int slot, int a, int b, int number) {
 
 static const char *adv_one(int slot, int key) {
     return adv_join(slot, key, -1, 0);
+}
+
+/* The piece NO_EFFECT, drawable in g's game (adv_add_last, adv_no_effect_glyphs). */
+static const char *adv_no_effect_piece(const adv_game *g) {
+    (void)adv_one(7, ADV_NO_EFFECT);
+    return adv_no_effect_glyphs(g->game, adv_buf[7]);
 }
 
 static int adv_award_key(void) {
@@ -833,6 +877,9 @@ static void adv_compose_a(const adv_game *g) {
     case 8: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_join(2, ADV_A8_END, adv_award_key(), adv.award); p[2] = NULL; break;
     default: p[0] = adv_one(1, ADV_A9); p[1] = NULL; break;
     }
+    if (adv.effect[0] == ADV_FX_NONE) {
+        adv_add_last(p, 6, adv_no_effect_piece(g));   /* A7, A9: Village Solidarity neutral */
+    }
     adv_popup(g, pages, p);
 }
 
@@ -843,10 +890,12 @@ static void adv_compose_b(const adv_game *g) {
     pages->count = 0;
     p[0] = adv_join(4, ADV_B_OPEN, adv.lost ? ADV_B_LOST : ADV_B_HOME, 0);
     p[1] = NULL;
-    adv_popup(g, pages, p);
     if (!adv.lost) {
+        adv_add_last(p, 4, adv_no_effect_piece(g));   /* home safe: Village Solidarity neutral */
+        adv_popup(g, pages, p);
         return;
     }
+    adv_popup(g, pages, p);
     switch (adv.lost_end) {
     case 1:                                  /* the healers' outcome is a popup of its own (the owner) */
         p[0] = adv_one(5, ADV_L1);
@@ -863,6 +912,9 @@ static void adv_compose_b(const adv_game *g) {
     case 4: p[0] = adv_one(5, ADV_L4); p[1] = NULL; break;
     case 5: p[0] = adv_one(5, ADV_L5); p[1] = NULL; break;
     default: p[0] = adv_one(5, ADV_L6); p[1] = NULL; break;
+    }
+    if (adv.effect[1] == ADV_FX_NONE) {
+        adv_add_last(p, 4, adv_no_effect_piece(g));   /* the healers' full recovery (H2): neutral */
     }
     adv_popup(g, pages, p);
 }

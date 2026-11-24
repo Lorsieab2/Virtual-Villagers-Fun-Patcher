@@ -1030,7 +1030,10 @@ class QuestionsAnywhere(unittest.TestCase):
             with self.subTest(game=game, at="answered the other way after the reload"):
                 again = self.restart(game, file, t_open - 500)
                 rest = play_answers(again, [1])
-                self.assertEqual(norm(again.strip(rest[-1][1], "Two Questions")), "Bea walks away.")
+                # an outcome that changes nothing (cie-v6-binary.md 46); A New Home and The Lost Children draw it
+                # "-no effect-" (a version 2 graph: the line's own glyph fallback, Codex on #853)
+                self.assertEqual(norm(again.strip(rest[-1][1], "Two Questions")),
+                                 "Bea walks away. " + cg.glyph_fallback("(no effect)", int(game[2])))
                 self.assertIn("  Choice: Leave it\n", again.log()[2])
                 self.assertNotIn("Open it", again.log()[2])
 

@@ -8054,6 +8054,8 @@ static const char *const CG_AUTO_LINES[][2] = {
     { "hv_level", "The Heathens' village's technology changes. (no effect)" },
     { "hv_group", "The Heathens' village gathers together. (no effect)" },
     { "hv_celebrate_all", "Everyone in the Heathens' village celebrates. (no effect)" },
+    /* The owner (2026-11-23): an outcome that changes nothing ends with this line (cg_no_effect_mark). */
+    { "no_effect", "(no effect)" },
 };
 
 /* 45: the same lines with Guardians of Isola's rewrite on: "the Isolans' village" (the owner's pair). */
@@ -8496,6 +8498,67 @@ static int cg_predicted(const ce_adapter *a, int game, const unsigned char *e, i
     return after - now;
 }
 
+/* THE OWNER (2026-11-23): "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the
+   end."  An OUTCOME is the part of a run from an answer (or, with no question, from the start) to the event's end:
+   never a part that leads to a question.  It changes nothing when none of its nodes (its branches too) has an effect
+   of any kind -- a line or a hidden one (an action, a trait, a like, a mood) -- and none carries a Village
+   Solidarity raise or lower tag while that companion is started (a neutral tag never moves the score).  Its last
+   popup then ends with the line "(no effect)", after its words and lines, unless its words already end with it.
+   What the effects authored say decides it, never what a roll made of them (src/vv_cie_graph.py
+   outcome_changes_nothing / with_no_effect). */
+static int cg_part_changes(const cg_history *h, int from) {
+    int i, k;
+    for (i = from; i < h->nodes; ++i) {
+        const unsigned char *n = cg_node_at(&cg_g, h->node[i]);
+        int tag = cg_sol_tag(n);
+        for (k = 0; k < cg_fx_count(n); ++k) {
+            /* 45: the Heathens' own cast -- the tribe's effects are the Heathens' village's, flavor only
+               (cg_flavor_only); a mixed cast makes them as always */
+            if (!cg_flavor_only(cg_effect_at(&cg_g, (int)cg_u16(n + 18) + k))) {
+                return 1;
+            }
+        }
+        /* ... and the Heathens' own cast never moves Village Solidarity (cg_make_effects) */
+        if ((tag == CG_SOL_RAISE || tag == CG_SOL_LOWER) && cg_sol_on() && !cg.heathen_cast) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* "(no effect)" after `out`'s last line (cg_auto_add's room rule: dropped only when the buffer is full).  Version 6
+   words keep a parenthesis escaped (\( \)) until the page is filled for the screen (cg_expand, whose glyph fallback
+   then draws it in A New Home and The Lost Children).  Before version 6 a "(...)" that is no placeholder is copied
+   as it is and no glyph fallback runs, so the line takes its own: "-" for each parenthesis where the game cannot
+   draw one (cg_fallback_on; Codex, #853 -- the shipped version 3 and 5 graphs). */
+static void cg_no_effect_mark(char *out, int cap) {
+    char line[64];
+    const char *t = cg_auto_text("no_effect");
+    int n = 0, dash = cg_g.version < 6 && cg_fallback_on();
+    if (t == NULL || ce_ends_no_effect(out)) {
+        return;
+    }
+    for (; *t != '\0' && n < (int)sizeof line - 2; ++t) {
+        if (*t == '(' || *t == ')') {
+            if (dash) {
+                line[n++] = '-';
+                continue;
+            }
+            if (cg_g.version >= 6) {
+                line[n++] = '\\';
+            }
+        }
+        line[n++] = *t;
+    }
+    line[n] = '\0';
+    if (lstrlenA(out) + 1 + n + 1 < cap) {
+        if (out[0] != '\0') {
+            lstrcatA(out, "\n");
+        }
+        lstrcatA(out, line);
+    }
+}
+
 /* 45 (the owner, 2026-11-23): the Heathens' own cast -- the words that make the tribe the event's home and people
    are swapped automatically, never hand-reworded: "your villagers" -> "the Heathens", "your village" -> "the
    Heathens' village" (with Guardians of Isola Rewrite "the Isolans"), each with its capital.  Nothing else of the
@@ -8688,6 +8751,10 @@ static void cg_group(int game, const cg_history *h, int from) {
         if (villager && cg_pop_count > 0) {
             cg_pops[cg_pop_count - 1].effects = 1;
         }
+    }
+    /* An outcome (no question at its end) that changes nothing: "(no effect)" last (cg_part_changes). */
+    if (cg_pop_count > 0 && cg_pops[cg_pop_count - 1].question < 0 && !cg_part_changes(h, from)) {
+        cg_no_effect_mark(cg_pops[cg_pop_count - 1].raw, (int)sizeof cg_pops[cg_pop_count - 1].raw);
     }
     /* Effects before any text: made with the first text's page. */
     for (i = from; i < h->nodes && first_text >= 0; ++i) {
@@ -8909,23 +8976,22 @@ static void cg_displays_cut(int count) {
 
 static void cg_entry_start(const char *label);
 
-/* cie-v6-binary.md 45: whether this cast is the Heathens' alone -- New Believers with the row installed, an event
-   with a role of the row, at least one villager cast, and every villager cast a Heathen (the owner, 2026-11-23: the
-   tribe's own effects -- food, tech, buildings, goods, research, the whole village -- are then the Heathens' village's,
-   flavor only; a mixed cast makes them as always). */
+/* cie-v6-binary.md 45: whether this cast is the Heathens' alone -- New Believers, at least one villager cast, and
+   every villager cast a Heathen, however the event cast them (the row's roles, a heathen_ok Isolan, a Custom Island
+   Event's or a Player Event's roles).  The owner, 2026-11-23: "If only heathens or outsiders are involved in any
+   island event ... Food and tech points gain loss to the heathen tribe = acceptable but flavor text only.  Our tribe
+   doesnt get altered."  The tribe's own effects -- food, tech, buildings, goods, research, the whole village -- are
+   then the Heathens' village's, flavor only; a mixed cast makes them as always.  (An event of strangers alone is not
+   decided here: an owner question.) */
 static int cg_heathen_cast_now(const ce_adapter *a, int game) {
-    int r, cast = 0, row_role = 0;
-    if (game != 5 || cg_g.version < 6 || !cg_heathens_row(game)) {
+    int r, cast = 0;
+    if (game != 5) {
         return 0;
     }
     for (r = 0; r < cg_g.n_role; ++r) {
         const unsigned char *spec = cg_role_at(&cg_g, r);
         const unsigned char *rec;
-        if (spec[0] != CG_ROLE_VILLAGER) {
-            continue;
-        }
-        row_role |= (spec[13] & CG_ROLE_HEATHEN_ROW) != 0;
-        if (!((cg.bound >> r) & 1u) || (rec = cg_villager(a, r)) == NULL) {
+        if (spec[0] != CG_ROLE_VILLAGER || !((cg.bound >> r) & 1u) || (rec = cg_villager(a, r)) == NULL) {
             continue;
         }
         if (!cg_heathen(game, rec)) {
@@ -8933,7 +8999,7 @@ static int cg_heathen_cast_now(const ce_adapter *a, int game) {
         }
         cast = 1;
     }
-    return cast && row_role;
+    return cast;
 }
 
 /* The village's own effects in this run are the Heathens' village's, flavor only (cg.heathen_cast). */

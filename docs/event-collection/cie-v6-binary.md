@@ -1562,8 +1562,13 @@ villagers and life happens to them too."
   refused), the game's conception, the mother kept as expecting and aging until the companion's Heathen birth 40
   units later (at once for a nursing baby), none once The Last Heathen is solved. Without that companion these never
   reach a Heathen: such a role does not cast one.
-- **The Heathens' own cast:** decided once when the roles are bound (`cg.heathen_cast`, run file version 7): the row
-  installed, a role of this section in the event, at least one villager cast and every villager cast a Heathen. Then
+- **The Heathens' own cast:** decided once when the roles are bound (`cg.heathen_cast`, run file version 7): at
+  least one villager cast and every villager cast a Heathen, however the event cast them (the row's roles, a
+  `heathen_ok` Isolan, any event's roles; the owner, 2026-11-23: "If only heathens or outsiders are involved in any
+  island event ... Our tribe doesnt get altered."). The plain Custom Island Event does the same (story_custom.inc
+  `ce_heathens_only`: every villager it changes a Heathen -- its food, tech points, refill, structures, amounts and
+  puzzles are made nowhere, each told as the Heathens' village's with "(no effect)"). An event of strangers alone is
+  an owner question. Then
   the tribe's effects -- `food`, `tech`, `pay_award`, `damage`, `repair`, `supply`, `trade`, a `village` tech level,
   a `new_villager`, `group` with "all", everyone celebrating and every group target (role byte 254) -- make nothing,
   and their automatic lines (section 25, on a page with automatic lines) say they happen to "the Heathens' village"
@@ -1592,3 +1597,36 @@ villagers and life happens to them too."
 - **UNCONFIRMED live:** a Heathen walking to an action's place and back to the camp's own routine; a Heathen's
   appearance, age or name changed by an event; the Guardians wording of the new lines in the game.
 - Tests: `tests/test_heathens_in_island_events.py`.
+
+## 46. "(no effect)" after an outcome that changes nothing (the owner, 2026-11-23)
+
+The owner, in capitals: "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the end."
+The engine adds it; no event's words are changed for it, and no format byte is added (every version, every .cieg as
+it is).
+
+* **An outcome** is the part of a run from an answer's first node (or, in an event with no question, from the start)
+  to the event's end. A part that ends at a question is never an outcome: the pages before a choice never get it.
+* **It changes nothing** when no node of that part (its branches too) has an effect of any kind -- one with an
+  automatic line (25) or a hidden one (an `action`, a `trait`, a like, a mood, a supply, a pay_award, ...) -- and no
+  node carries a Village Solidarity `raise` or `lower` tag (44) while "VVFP Village Solidarity.dll" is started (a
+  `neutral` tag never moves the score; without the companion no tag does anything). The effects authored decide it,
+  never what a roll made of them: an effect that came to nothing (a full store, a refused change) shows its own line
+  or none, never "(no effect)".
+* **The Heathens' own cast** (45): the tribe's effects that section 45 makes the Heathens' village's
+  (`cg_flavor_only`: food, tech, the award, damage and repair, goods, trades, a newcomer, research, everyone at once)
+  and the Village Solidarity tag (never passed on for that cast) are no change; a villager's own effect still is.
+  A mixed cast is as always. Its `hv_*` lines already end with "(no effect)": when one ends the outcome, nothing is
+  added (the check below), so the line is never doubled.
+* **Then** the outcome's last popup (with Scrolling Popups, the event's one popup) ends with one more line,
+  `(no effect)`, after its words and every automatic line, unless its words already end with "(no effect)" (any case,
+  `\( \)` or not, a full stop after it allowed). In a version 6 text it is written `\(no effect\)` until the page is
+  filled; before version 6 a `(...)` that is no placeholder is copied as it is, and no glyph fallback reaches it,
+  so in A New Home and The Lost Children without Unicode Text the line is written `-no effect-` itself
+  (`cg_fallback_on`; Codex on #853). The `hv_*` lines are New Believers' only, whose font draws parentheses.
+* Its words are `CG_AUTO_LINES`' `no_effect` (story_graph.inc `cg_part_changes`, `cg_no_effect_mark`;
+  src/vv_cie_graph.py `AUTO_LINES["no_effect"]`, `outcome_changes_nothing`, `with_no_effect`, in `walk` -- every
+  history's fit counts the line -- and `simulate`, whose `solidarity` argument is the companion), in the translation
+  template like every automatic line.
+* The old-format Custom Island Event (story_custom.inc `ce_compose_in_once`) does the same for an event or result
+  that changes nothing (`ce_has_effects`): "(no effect)" after a blank line, as its outcome lines are; never on a
+  notice (the time skip's, the faith notice).
