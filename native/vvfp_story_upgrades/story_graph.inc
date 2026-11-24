@@ -1687,14 +1687,14 @@ static int cg_load(cg_graph *g, const unsigned char *data, unsigned int size) {
         if (g->version >= 6 && e[1] < (unsigned int)g->n_role && (cg_role_at(g, e[1])[13] & CG_ROLE_HEATHEN)
             && !cg_heathen_effect_ok(e)) {
             /* a Heathen's role: vanilla's own list only, whatever is ticked (No Safeguards too) */
-            return cg_bad("an effect is not one a Heathen may have");
+            return cg_bad(vv5_isolan(cg_guardians_on(), "an effect is not one a Heathen may have"));
         }
         if (g->version >= 6 && cg_heathen_never_effect(e)
             && ((e[1] < (unsigned int)g->n_role && (cg_role_at(g, e[1])[13] & CG_ROLE_HEATHEN_ONLY))
                 || ((e[0] == CGE_PREGNANT || e[0] == CGE_NURSING) && (unsigned int)a < (unsigned int)g->n_role
                     && (cg_role_at(g, a)[13] & CG_ROLE_HEATHEN_ONLY)))) {
             /* 45: a Heathen-only role never takes what can not yet happen to a Heathen (it could never be cast) */
-            return cg_bad("an effect is not one a Heathen may have");
+            return cg_bad(vv5_isolan(cg_guardians_on(), "an effect is not one a Heathen may have"));
         }
     }
     for (i = 0; i < g->n_node; ++i) {

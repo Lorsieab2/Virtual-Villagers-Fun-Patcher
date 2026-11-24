@@ -35,6 +35,7 @@ COUNTS = "Village counts"
 VITALS = "Vital statistics"
 LOG_FOLDER = "Village Statistics"
 LOG_NAME = "Village Statistics v2 - Save {slot}.txt"
+from vv_isolan_words import CONVERTED_HOWS, heathen_form   # Heathen / Guardians of Isola's Isolan words
 GOLDEN = "vv{game}_super_secret_golden_mushroom"
 DUPLICATION = "vv{game}_everyone_collects_like_vv1"
 HEATHEN_MOMMY = "vv5_heathen_mommy_puzzle"
@@ -118,7 +119,8 @@ def statistics_log(village: gm.Village) -> StatisticsLog | None:
         for line in text.splitlines():
             m = _ROW.match(line.strip())
             if m:
-                rows[m.group(1)] = (int(m.group(2)), int(m.group(3)) if m.group(3) else None)
+                # "Isolans Converted" (Guardians of Isola) is the Heathens Converted row
+                rows[heathen_form(m.group(1))] = (int(m.group(2)), int(m.group(3)) if m.group(3) else None)
         return StatisticsLog(path, written, rows)
     return None
 

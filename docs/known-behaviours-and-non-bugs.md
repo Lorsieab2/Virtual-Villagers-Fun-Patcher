@@ -501,7 +501,7 @@ was given.
 - **Evidence:** A new VV5 village (v1.35.41) read Oldest Villager 50 from a
   Heathen while Highest Population counted only believers; the owner then ruled
   every row believers-only.
-- **Exceptions:** Heathens Converted is the only Heathen row.
+- **Exceptions:** Heathens Converted ("Isolans Converted" with the Guardians of Isola Rewrite) is the only Heathen row.
 - **Status:** approved behaviour.
 
 ### S4. New Believers never makes Heathen graves

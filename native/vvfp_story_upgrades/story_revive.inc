@@ -824,7 +824,9 @@ static const char *rv_why(const char *refusal) {
     int k;
     for (k = 0; k < (int)(sizeof RV_WHY / sizeof RV_WHY[0]); ++k) {
         if (refusal == RV_WHY[k][1]) {
-            return vvfp_tr(RV_WHY[k][0], RV_WHY[k][1], 200);
+            /* the two New Believers refusals in the Guardians of Isola wording with the rewrite on */
+            return k >= RV_WHY_PUZZLE_HEATHEN ? vv5_isolan(cg_guardians_on(), vvfp_tr(RV_WHY[k][0], RV_WHY[k][1], 200))
+                                              : vvfp_tr(RV_WHY[k][0], RV_WHY[k][1], 200);
         }
     }
     return refusal;
@@ -880,7 +882,7 @@ static void rv_settle(int game, const ce_adapter *a) {
             p->refusal = RV_WHY[RV_WHY_NAME][1];
         } else if (game == 1 && lstrcmpA(p->special, "Golden Child") == 0) {
             p->refusal = RV_WHY[RV_WHY_GOLDEN][1];
-        } else if (game == 5 && strncmp(p->special, "Heathen ", 8) == 0) {
+        } else if (game == 5 && vv5_puzzle_role_title(p->special)) {   /* either wording: shared/isolan_log_words.h */
             p->refusal = RV_WHY[RV_WHY_PUZZLE_HEATHEN][1];
         } else if (game == 5 && p->kind == RV_GONE && rv_left_for_the_heathens(p->cause)) {
             p->refusal = RV_WHY[RV_WHY_HEATHEN][1];
@@ -1228,7 +1230,7 @@ static void rv_row_text(const rv_person *p, char *out, int size) {
                                     : vvfp_tr("vvfp.story/story_revive.rv_row_text.s3", "vanished at", 40),
                 p->age >= 0 ? years : vvfp_tr("vvfp.story/story_revive.rv_row_text.s4", "an unknown age", 60),
                 p->refusal != NULL ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s5", " - can not come back", 60)
-                : p->heathen ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - a Heathen", 40)
+                : p->heathen ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_row_text.s6", " - a Heathen", 40))
                 : p->grave >= 0 ? vvfp_tr("vvfp.story/story_revive.rv_row_text.s7", " - buried", 40) : "");
     lstrcpynA(out, row, size);
 }
@@ -1337,7 +1339,7 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
         rv_add(out, size, line);
     }
     if (p->heathen) {
-        rv_add(out, size, vvfp_tr("vvfp.story/story_revive.rv_details.s10", "Faction: Heathen\r\n", 100));
+        rv_add(out, size, vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s10", "Faction: Heathen\r\n", 100)));
     }
     if (p->title[0] != '\0') {
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s11", "Custom title: %s\r\n", 400), p->title);
@@ -1390,7 +1392,7 @@ static void rv_details(int game, const ce_adapter *a, const rv_person *p, char *
         wsprintfA(line, vvfp_tr("vvfp.story/story_revive.rv_details.s25", "\r\nCan not come back: %s.\r\n", 400), rv_why(p->refusal));
     } else {
         lstrcpyA(line, p->heathen && RV_HEATHENS_STAY_HEATHENS
-                           ? vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400)
+                           ? vv5_isolan(cg_guardians_on(), vvfp_tr("vvfp.story/story_revive.rv_details.s26", "\r\nComes back as this same person at age 5, a Heathen in the camp.\r\n", 400))
                            : vvfp_tr("vvfp.story/story_revive.rv_details.s27", "\r\nComes back as this same person at age 5.\r\n", 400));
     }
     rv_add(out, size, line);
