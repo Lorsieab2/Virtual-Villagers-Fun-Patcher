@@ -100,6 +100,72 @@ class PlainCustomIslandEvent(unittest.TestCase):
         self.assertEqual(story.proc.u32(food), 1100)
 
 
+@emulated
+class RevivedAndNewVillagers(unittest.TestCase):
+    """Codex on #859: a skeleton the event brings back (before its villagers' changes) is in the event by the faction
+    it comes back as -- a believer's revived body is the tribe's own, a Heathen's comes back a Heathen -- and so is a
+    new villager it makes (a believer unless made a Heathen)."""
+
+    def setUp(self):
+        if not have_stock("vv5"):
+            self.skipTest("no stock New Believers")
+
+    def run_event(self, skeleton_heathen=None, spawn_faction=None):
+        from test_story_maker_additions import REVIVE, STOP, record, stub_clock, story as maker_story
+        from story_custom_fixtures import Spawn
+        s = maker_story("vv5")
+        stub_clock(s)
+        record(s, *STOP["vv5"])
+        v = s.village
+        v.put(0, sex="m", years=30, name="Romotu")
+        s.proc.write(v.record(0) + FACTION, b"\x01")
+        revives, changes = [], [s.change(0, health=80)]
+        if skeleton_heathen is not None:
+            v.put(4, sex="f", years=30, name="Bones", health=0)
+            s.proc.write(v.record(4) + REVIVE["vv5"]["sick"], b"\x01")
+            if skeleton_heathen:
+                s.proc.write(v.record(4) + FACTION, b"\x01")
+            revives = [(4, v.identity(4), 100, 1)]
+            changes.append(s.change(4, health=90))
+        spawns = [] if spawn_faction is None else [Spawn(count=1, faction=spawn_faction)]
+        food, _t, _lf, _lt = _food_tech(s)
+        s.proc.put32(food, 1000)
+        ok, r, text = s.apply(Event(food_op=ADD, food_amount=100, revives=revives, changes=changes, spawns=spawns))
+        return r, s.proc.u32(food), " ".join(text.split())
+
+    def test_a_believers_skeleton_revived_makes_it_the_tribes(self):
+        r, food, text = self.run_event(skeleton_heathen=False)
+        self.assertEqual(r["heathens_only"], 0)
+        self.assertEqual(food, 1100)
+        self.assertNotIn("(no effect)", text)
+
+    def test_a_heathens_skeleton_revived_keeps_it_the_heathens(self):
+        r, food, text = self.run_event(skeleton_heathen=True)
+        self.assertEqual(r["heathens_only"], 1)
+        self.assertEqual(food, 1000)
+        self.assertIn("The Heathens' village gains 100 food. (no effect)", text)
+
+    def test_a_new_villager_is_the_tribes_unless_made_a_heathen(self):
+        from story_custom_fixtures import KEEP, Spawn
+        for faction, heathens_only, want in ((KEEP, 0, 1100), (1, 1, 1000)):   # the game's own: a believer
+            with self.subTest(faction=faction):
+                s = Story("vv5")
+                v = s.village
+                v.put(0, sex="m", years=30, name="Romotu")
+                s.proc.write(v.record(0) + FACTION, b"\x01")
+
+                def heathen(q, s=s):            # the game's Heathen creator 0x46FD20, stood in for
+                    index = s._create(1 if q.arg(3) == 1 else 0, q.arg(4))
+                    q.write(s.village.record(index) + FACTION, b"\x01")
+                    return index, 0x24
+                s.proc.stub(0x46FD20, heathen)
+                food, _t, _lf, _lt = _food_tech(s)
+                s.proc.put32(food, 1000)
+                ok, r, _text = s.apply(Event(food_op=ADD, food_amount=100, changes=[s.change(0, health=80)],
+                                             spawns=[Spawn(count=1, faction=faction)]))
+                self.assertEqual((r["heathens_only"], s.proc.u32(food)), (heathens_only, want))
+
+
 class Translations(unittest.TestCase):
     """Codex on #859: each flavor line is looked up by the stem the translation catalog gives it
     (data/translations/patcher_strings.json, scripts/build_patch_text_inventory.py), with that very English -- else a

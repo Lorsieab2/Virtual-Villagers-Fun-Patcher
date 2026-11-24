@@ -1899,11 +1899,35 @@ static int ce_heathens_only(const ce_adapter *a, const ce_event *e, const unsign
     for (i = 0; i < e->change_count && i < CE_MAX_CHANGES; ++i) {
         const unsigned char *record;
         if (!same[i]) {
-            continue;                  /* gone or replaced since: nobody of the tribe either */
+            continue;                  /* gone or replaced since, or a skeleton revived first (below) */
         }
         record = a->record(e->changes[i].index);
         if (record == NULL || !story_is_heathen(ce_role(a, record, NULL))) {
             return 0;                  /* a villager of the tribe is in it: its changes are the tribe's */
+        }
+        ++heathens;
+    }
+    /* Codex on #859: the skeletons this event brings back (before its villagers' changes) are in it too, by the
+       faction they come back as -- the revive keeps it -- so a believer's skeleton revived is the tribe's own. */
+    for (i = 0; (a->caps & CAP_REVIVE) && i < e->revive_count && i < CE_MAX_REVIVES; ++i) {
+        const ce_revive *v = &e->revives[i];
+        const unsigned char *record = v->index >= 0 && v->index < a->record_count ? a->record(v->index) : NULL;
+        if (record == NULL || !a->skeleton(record) || ce_identity(a, record) != v->identity || v->health < 1
+            || v->health > 100) {
+            continue;                  /* not revived (ce_apply skips or refuses it) */
+        }
+        if (!story_is_heathen(ce_role(a, record, NULL))) {
+            return 0;
+        }
+        ++heathens;
+    }
+    /* ... and the new villagers it makes: a newcomer joins the tribe unless the event makes them a Heathen. */
+    for (i = 0; i < e->spawn_groups && i < CE_MAX_SPAWN_GROUPS; ++i) {
+        if (e->spawns[i].count <= 0) {
+            continue;
+        }
+        if (!((a->caps & CAP_SPAWN_FACTION) && e->spawns[i].faction == 1)) {
+            return 0;
         }
         ++heathens;
     }
