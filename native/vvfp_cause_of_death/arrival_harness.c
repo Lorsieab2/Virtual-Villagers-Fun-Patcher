@@ -2096,7 +2096,17 @@ int main(int argc, char **argv) {
             villager(21, "Barrelborn", 20, 5, 5, 0);
             rec(21)[VV5_FACTION] = 1;
             created(21, MARK[game - 1].event);
+            /* Revive Buried/Disappeared Villagers (the owner, 2026-11-23): a Heathen comes back a Heathen through the
+               game's own Heathen creator, told by the Story companion as "Returned from the dead": marked a Heathen. */
+            villager(22, "Lazaro", 100, 4, 5, 1);
+            rec(22)[VV5_FACTION] = 1;
+            created(22, 0);
+            arrived_by(game, 22, "Returned from the dead");
         }
+        /* ...and a believer revived, in every game: the How, no Faction line. */
+        villager(23, "Revived", 100, 3, 6, 0);
+        created(23, 0);
+        arrived_by(game, 23, "Returned from the dead");
         arrival_tick();
         *(int *)(rec(9) + g->age) = 720;    /* aged since it arrived */
         departed(13);                        /* buried before the save */
@@ -2139,6 +2149,14 @@ int main(int argc, char **argv) {
                 }
                 CHECK(strstr(text, "  Name: Notheathen\r\n") == NULL,
                       "...never for a believer (who would be an ordinary arrival)");
+            }
+            CHECK(record_has("Revived", "  Age at arrival: 100\r\n")
+                  && record_has("Revived", "  How: Returned from the dead\r\n") && !record_has("Revived", "  Faction: "),
+                  "Revive Buried/Disappeared Villagers' villager: How: Returned from the dead (a believer: no Faction line)");
+            if (game == 5) {
+                CHECK(record_has("Lazaro", "  How: Returned from the dead\r\n")
+                      && record_has("Lazaro", "  Faction: Heathen\r\n") && count_of(text, "  Name: Lazaro\r\n") == 1,
+                      "a revived Heathen: How: Returned from the dead, marked Faction: Heathen");
             }
             CHECK(strstr(text, "  Name: Babe\r\n") == NULL && strstr(text, "  Name: Twin\r\n") == NULL,
                   "a birth is never an arrival (its path's marker, or the Births log's note)");

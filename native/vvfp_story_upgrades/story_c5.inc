@@ -660,7 +660,7 @@ static int c5_behave(int index, int behaviour) {
     return 1;
 }
 
-/* 46 (the owner's Heathen-Exclusive Events, 2026-11-23, E9): "Honoring the dead (at the encampment)" and "Reflecting
+/* 47 (the owner's Heathen-Exclusive Events, 2026-11-23, E9): "Honoring the dead (at the encampment)" and "Reflecting
    (at the encampment)".  With "Memorial Actions Can Also Occur at the Heathen Hovel" installed -- its exact bytes, the
    two sites and both caves as scripts/build_vv5_hovel_memorial_actions.py writes them (the same check as More Island
    Events' Remembrance Ceremony, ceremony_games.inc cr_hovel_patch) -- the villager is stopped (0x473440) and started

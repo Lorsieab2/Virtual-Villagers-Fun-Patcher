@@ -191,3 +191,5 @@ docs/more-island-events/Isola[[:space:]]Grand[[:space:]]Event[[:space:]]Collecti
 assets/gender_presentation/*.txt -text
 /docs/more-island-events/(Name1)'s[[:space:]]Harshest[[:space:]]Critic*.txt -text
 assets/heathen_aging/*.txt -text
+# Revive Buried/Disappeared Villagers' flag file: pinned by raw SHA-256.
+assets/story_upgrades/*.txt -text

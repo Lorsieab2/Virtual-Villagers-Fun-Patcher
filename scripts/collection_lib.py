@@ -175,7 +175,7 @@ DRAFTS_D = {   # source id: (file name, line count, section, topic shown in the 
                   "Fathers, Pregnancy and Parenthood"),
     # The owner's approval of 2026-11-23: New Believers' Heathen-Exclusive Events HE-01..HE-45 (VV5 only, the row
     # "Heathens can be selected in Island Events/Heathen-Exclusive Events"), built by its own generator,
-    # scripts/drafts_d/gen_heathen_events.py (docs/event-collection/cie-v6-binary.md 46).
+    # scripts/drafts_d/gen_heathen_events.py (docs/event-collection/cie-v6-binary.md 47).
     "heathen_ex": ("Heathen-Only Events (draft for owner).txt", 744, "dr_he",
                  "Heathen-Exclusive Events, HE-01 to HE-45"),
 }

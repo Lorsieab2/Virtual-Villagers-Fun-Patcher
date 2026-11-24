@@ -18,7 +18,7 @@ THE OWNER'S ANSWERS (2026-11-23, every one approved):
   role is never filled, so none of these is offered; once every Heathen has joined the tribe none can be cast.  These
   events replace vanilla's "only cast a Heathen when it is about joining the tribe" rule for this row.
 - No Heathen's Faith ever rises; nobody dies, vanishes, or moves between the tribe and the Heathens.
-- The encampment's honoring and reflecting (E9, cie-v6-binary.md 46): the hovel patch's own entries when "Memorial
+- The encampment's honoring and reflecting (E9, cie-v6-binary.md 47): the hovel patch's own entries when "Memorial
   Actions Can Also Occur at the Heathen Hovel" is installed, else they sit where they are.  HE-10 and HE-24: every
   Heathen (E10), each honoring or reflecting, 50% each (the Remembrance Ceremony's split).
 - HE-05 and HE-13: the mausoleum (the game's own "Honoring the dead", behaviour 17), with at least one grave (E8).

@@ -957,6 +957,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 
 - Patch ID: `vv1_story_cheat_upgrades_cost_tech_points`
 
+**Revive Buried/Disappeared Villagers**
+
+**Needs Story / Cheat Upgrades.** The Tech screen's upgrades menu gains **Revive Buried/Disappeared Villagers** (100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked, free while it is not): it lists the village's buried and vanished villagers from its Deaths and Disappearances log, with everything the logs and graves keep about them (unknown fields say so), and the one you pick comes back as the same person - name, sex, parents, likes and dislikes, looks, mask, custom title and their last known skills - aged 5; their grave is removed. Refused, with nothing charged, at the village's maximum population. Can be bought again and again. **The list needs Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death.** Off by default; on in Owner's Defaults. **Unverified in play.**
+
+- Patch ID: `vv1_revive_from_graves`
+
 **Scrolling Popups**
 
 Popups get scrollbars when their text does not fit: a popup is never taller or wider than the screen (its buttons stay at its bottom, where they always are). A line wider than the box wraps onto the next line, as text normally does. When the text is taller than the room left, a vertical scrollbar appears; only a single word wider than the box gets a horizontal scrollbar. The bars are drawn with the game's own scrollbar pictures; every popup below can show both at once. A New Home and The Lost Children have no up/down scrollbar pictures of their own, so they borrow The Secret City's (shipped as new picture files; no game file is replaced). Scroll up and down with the mouse wheel over the popup, sideways with the wheel over the horizontal bar (or a sideways wheel or touchpad), with the arrows, by dragging the knob or handle or by clicking the bar; the text starts at the top and starts over when it changes. A popup whose text fits looks and works exactly as before. This covers the island-event popups (plain, two-choice and visitor events, and Custom Island Events from Story / Cheat Upgrades; also when the result replaces the question in a popup sized for the question), message boxes (tech and puzzle results, confirmations), tips (the tutorial and notices), the tombstone (a long name, cause of death or translation) and Statistics and Create Nickname (a long translation or name). Not covered, as the game draws them: the Options panel (each label sits beside its slider or button, which cannot scroll with it), the online-statistics notice (shown for two seconds, takes no clicks, a fixed 320 x 64 frame) and the panels with no text body (Change Player). There is no keyboard scrolling. Nothing is saved, so the patch can be ticked or unticked at any time. **Needs no other patch.** Off by default; Owner's Defaults ticks it. **Unverified in play: the effect has not been tested live.** The companion is "VVFP Scrolling Popups.dll", started by VVFP Startup.dll; if it cannot be loaded, the popups are as the game draws them.
@@ -1199,6 +1205,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 **Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event and Pick Gong of Wonder Outcome each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent; Pick Gong of Wonder Outcome is also refused, with nothing spent, while the Gong is not whole). Choose Time Skip Amount costs what the Time Warp upgrade costs: 50,000 tech points, paid when the skip starts. On by default; ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
 
 - Patch ID: `vv2_story_cheat_upgrades_cost_tech_points`
+
+**Revive Buried/Disappeared Villagers**
+
+**Needs Story / Cheat Upgrades.** The Tech screen's upgrades menu gains **Revive Buried/Disappeared Villagers** (100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked, free while it is not): it lists the village's buried and vanished villagers from its Deaths and Disappearances log, with everything the logs and graves keep about them (unknown fields say so), and the one you pick comes back as the same person - name, sex, parents, likes and dislikes, looks, mask, custom title and their last known skills - aged 5; their grave is removed. Refused, with nothing charged, at the village's maximum population. Can be bought again and again. **The list needs Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death.** Off by default; on in Owner's Defaults. **Unverified in play.**
+
+- Patch ID: `vv2_revive_from_graves`
 
 **Scrolling Popups**
 
@@ -1477,6 +1489,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 **Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Recharge Chief Powers costs the same 30,000, paid when the powers are recharged. Choose Time Skip Amount costs what the Time Warp upgrade costs: 50,000 tech points, paid when the skip starts. On by default; ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
 
 - Patch ID: `vv3_story_cheat_upgrades_cost_tech_points`
+
+**Revive Buried/Disappeared Villagers**
+
+**Needs Story / Cheat Upgrades.** The Tech screen's upgrades menu gains **Revive Buried/Disappeared Villagers** (100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked, free while it is not): it lists the village's buried and vanished villagers from its Deaths and Disappearances log, with everything the logs and graves keep about them (unknown fields say so), and the one you pick comes back as the same person - name, sex, parents, likes and dislikes, looks, mask, custom title and their last known skills - aged 5; their grave is removed. Refused, with nothing charged, at the village's maximum population. Can be bought again and again. **The list needs Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death.** Off by default; on in Owner's Defaults. **Unverified in play.**
+
+- Patch ID: `vv3_revive_from_graves`
 
 ### Virtual Villagers - The Tree of Life
 
@@ -1757,6 +1775,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 **Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Choose Time Skip Amount costs what the Time Warp upgrade costs: 50,000 tech points, paid when the skip starts. On by default; ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
 
 - Patch ID: `vv4_story_cheat_upgrades_cost_tech_points`
+
+**Revive Buried/Disappeared Villagers**
+
+**Needs Story / Cheat Upgrades.** The Tech screen's upgrades menu gains **Revive Buried/Disappeared Villagers** (100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked, free while it is not): it lists the village's buried and vanished villagers from its Deaths and Disappearances log, with everything the logs and graves keep about them (unknown fields say so), and the one you pick comes back as the same person - name, sex, parents, likes and dislikes, looks, mask, custom title and their last known skills - aged 5; their grave is removed. Refused, with nothing charged, at the village's maximum population. Can be bought again and again. **The list needs Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death.** Off by default; on in Owner's Defaults. **Unverified in play.**
+
+- Patch ID: `vv4_revive_from_graves`
 
 **Difficulty Settings**
 
@@ -2055,6 +2079,12 @@ Optional tools for custom stories, experiments, sandbox play and cheats, which d
 **Requires Story / Cheat Upgrades.** The Origins Upgrades keep their normal tech-point prices instead of costing 0, and Pick Island Event, Custom Island Event each cost what the Island Event upgrade costs: 30,000 tech points, paid when the event is queued (with too few, you are told and nothing is spent). Choose Time Skip Amount costs what the Time Warp upgrade costs: 50,000 tech points, paid when the skip starts. On by default; ticking Story / Cheat Upgrades ticks this too; untick it to keep every upgrade free.
 
 - Patch ID: `vv5_story_cheat_upgrades_cost_tech_points`
+
+**Revive Buried/Disappeared Villagers**
+
+**Needs Story / Cheat Upgrades.** The Tech screen's upgrades menu gains **Revive Buried/Disappeared Villagers** (100,000 tech points each time while Story / Cheat Upgrades cost Tech Points is ticked, free while it is not): it lists the village's buried and vanished villagers from its Deaths and Disappearances log, with everything the logs and graves keep about them (unknown fields say so), and the one you pick comes back as the same person - name, sex, parents, likes and dislikes, looks, mask, custom title and their last known skills - aged 5; their grave is removed. Refused, with nothing charged, at the village's maximum population. Can be bought again and again. **The list needs Write Births and Conceptions Log to Text File and Show Cause of Death and Epitaphs on Graves, and Log Every Death.** Off by default; on in Owner's Defaults. **Unverified in play.**
+
+- Patch ID: `vv5_revive_from_graves`
 
 
 That is 103 optional patches across the five games.

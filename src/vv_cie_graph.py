@@ -451,7 +451,7 @@ NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
 ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
 # 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
 CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5,
-                 # 46: mode 7, exactly 16 and a half (330 units), as the stock "The Strange Nectar" sets it (HE-17)
+                 # 47: mode 7, exactly 16 and a half (330 units), as the stock "The Strange Nectar" sets it (HE-17)
                  "16.5": 7}
 CHANGE_AGE_ADD = 6
 CHANGE_AGE_YEARS_MAX = 120
@@ -463,7 +463,7 @@ TARGET_ROLE = 254
 TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
                   "old_look", "celebrate", "appearance")          # skill covers skill_set; appearance: 5ee2b3dc0
 TARGET_ALL, TARGET_SKILL, TARGET_RANDOM = 1, 2, 3   # every villager / every one with the skill >= 50 / N at random
-# 46 (E10, the owner 2026-11-23): New Believers' ordinary Heathens -- every one / N at random (story_graph.inc
+# 47 (E10, the owner 2026-11-23): New Believers' ordinary Heathens -- every one / N at random (story_graph.inc
 # CG_GROUP_HEATHENS, CG_GROUP_HEATHENS_RANDOM; the engine's 4-7 are its age groups)
 TARGET_HEATHENS, TARGET_HEATHENS_RANDOM = 8, 9
 # The villagers this event made (new_villager, clone): role bytes 253 (the newest) and 252 (the one before).
@@ -567,8 +567,8 @@ COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "
                    "has_dead_relative": 17,     # 21a (gap C3)
                    "is_special": 18,            # 37: the role's villager is the Golden Child / the Tribal Chief
                    "has_supply": 19,            # 39: the village has at least n of a good to give (#813 had 18)
-                   "min_graves": 20})           # 46: at least n graves (New Believers only: the game's own count)
-# 46 (the owner, 2026-11-23; Heathen-Exclusive Events, E8): "at least N graves", the game's grave count as the Remembrance
+                   "min_graves": 20})           # 47: at least n graves (New Believers only: the game's own count)
+# 47 (the owner, 2026-11-23; Heathen-Exclusive Events, E8): "at least N graves", the game's grave count as the Remembrance
 # Ceremony reads it (New Believers: 0x464E90 on 0x5481A8).  New Believers only: an event that asks for it is VV5 only.
 GRAVES_GAMES = (5,)
 COUNT_FACTS = ("min_population", "min_children", "min_graves")   # thresholds that rise together (the facts)
@@ -601,7 +601,7 @@ SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (
 # cie-v6-binary.md 37: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
 # may take the role, else any villager the role takes.  Allowed in every game (the owner, 2026-11-16).
 PREFER_CODES = {"golden_child": 4, "tribal_chief": 5,
-                # 46 (the owner's Heathen-Exclusive Events, 2026-11-23): "an elder 50 or older, or the oldest adult if
+                # 47 (the owner's Heathen-Exclusive Events, 2026-11-23): "an elder 50 or older, or the oldest adult if
                 # there is none": the oldest of the villagers the role may take (a tie drawn)
                 "oldest": 6}
 POOL_LINKED = 2               # 35: a pool's flags bit: it draws the item number the first linked pool drawn drew
@@ -662,7 +662,7 @@ def size_range(kind: str, size: str, game: int) -> tuple[int, int]:
     return lo * mul // div, hi * mul // div
 
 
-# 46 (the owner, 2026-11-23; Heathen-Exclusive Events, E9): the encampment's honoring and reflecting, New Believers
+# 47 (the owner, 2026-11-23; Heathen-Exclusive Events, E9): the encampment's honoring and reflecting, New Believers
 # only.  With "Memorial Actions Can Also Occur at the Heathen Hovel" installed they start through that patch's own
 # entries (0x494B83 Honoring the dead, 0x494DF1 Reflecting: their walks go to the old hovel, as the Remembrance
 # Ceremony sends a villager there); without it the villager sits where they are ("Sitting").  The third is the
@@ -1439,7 +1439,7 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         # A group target (role byte 254): {"all": true}, {"skill": "<name>"} (50 or more) or {"random": n}.
         known.add("target")
         tg = e["target"]
-        # 46 (E10): {"heathens": "all"} every ordinary Heathen, {"heathens": n} n of them at random (New Believers with
+        # 47 (E10): {"heathens": "all"} every ordinary Heathen, {"heathens": n} n of them at random (New Believers with
         # the row "Heathens can be selected in Island Events/Heathen-Exclusive Events"; never roles 12-17, never sick).
         hv = tg.get("heathens") if isinstance(tg, dict) else None
         ok = isinstance(tg, dict) and len(tg) == 1 and (
@@ -2488,10 +2488,10 @@ class Binding:
 def expand(text: str, bindings: dict[str, Binding], award: tuple[str, int] | None = None) -> str:
     """The text as the player reads it: placeholders filled.  award = (kind, amount actually given)."""
     def one(m: re.Match) -> str:
+        if m.group(0) == AUTO_LINES["no_effect"]:
+            return m.group(0)       # 45, 46: the engine's own "(no effect)" (hv_ lines, with_no_effect): as it is
         p = parse_placeholder(m.group(1))
         if p is None:
-            if m.group(0) == "(no effect)":
-                return m.group(0)       # 45: the engine's own "(no effect)" (the hv_ lines): copied as it is
             raise KeyError(f"not a placeholder: {m.group(0)}")
         if p.what == "award":
             return str(award[1]) if award else ""
@@ -3304,7 +3304,7 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
                   | {fact_of(op, a) for op, a in leaves if op in ROLE_FACTS and fact_role(op, a) in bound})
     pops = sorted({a for op, a in leaves if op == "min_population"})
     kids = sorted({a for op, a in leaves if op == "min_children"})
-    graves = sorted({a for op, a in leaves if op == "min_graves"})     # 46
+    graves = sorted({a for op, a in leaves if op == "min_graves"})     # 47
     out = []
     for bits in product((False, True), repeat=len(free)):
         on = {f for f, b in zip(free, bits) if b}
@@ -3537,9 +3537,78 @@ AUTO_LINES = {
     "hv_level": "The Heathens' village's technology changes. (no effect)",
     "hv_group": "The Heathens' village gathers together. (no effect)",
     "hv_celebrate_all": "Everyone in the Heathens' village celebrates. (no effect)",
+    # The owner (2026-11-23): an outcome that changes nothing ends with this line (with_no_effect).  Last, in the
+    # engine's order (story_graph.inc CG_AUTO_LINES; tests/test_exact_result_amounts.py).
+    "no_effect": "(no effect)",
 }
 GUARDIANS_AUTO_LINES.update({k: v.replace("Heathens'", "Isolans'") for k, v in AUTO_LINES.items()
                              if k.startswith("hv_")})
+
+
+# ---- "(no effect)" (the owner, 2026-11-23, in capitals: "ANYTHING FLAVOR OR NO EFFECT outcome in an island event
+# MUST HAVE (no effect) at the end.") ---------------------------------------------------------------------------------
+#
+# An OUTCOME is the part of a run from an answer (or, with no question, from the start) to the event's end -- never
+# a part that leads to a question.  It changes nothing when none of its nodes (branches too) has an effect of any
+# kind, a line or a hidden one (an action, a trait, a like, a mood), and none carries a Village Solidarity raise or
+# lower tag while that companion is started (a neutral tag never moves the score).  Its last popup then ends with the
+# line "(no effect)", after its words and automatic lines, unless its words already end with it.  The effects
+# authored decide it, never what a roll made of them.  story_graph.inc cg_part_changes / cg_no_effect_mark.
+NO_EFFECT_LINE = "(no effect)"
+
+
+HEATHEN_FLAVOR_EFFECTS = ("food", "tech", "pay_award", "damage", "repair", "supply", "trade", "new_villager")
+
+
+def flavor_only(e: dict) -> bool:
+    """45: with the Heathens' own cast (New Believers, the row, every villager cast a Heathen), whether effect `e` is
+    the Heathens' village's -- the tribe's food, tech, award, buildings, goods, a newcomer, research, everyone at
+    once -- and so changes nothing (story_graph.inc cg_flavor_only)."""
+    do = e["do"]
+    if do in HEATHEN_FLAVOR_EFFECTS:
+        return True
+    if do == "village":
+        return e.get("what") == "tech_level"
+    if do == "trait":
+        return False
+    every = effect_role(e) is None and not e.get("target")   # the role byte 0xFF: every living, listed villager
+    return every if do == "group" else every or bool(e.get("target"))
+
+
+def outcome_changes_nothing(nodes: Iterable[dict], solidarity: bool = False, heathen_cast: bool = False) -> bool:
+    """Whether an outcome made of `nodes` (lowered nodes, the answer's first to the end) changes nothing; with
+    `solidarity` (the Village Solidarity companion started) a raise or lower tag is a change.  `heathen_cast`: the
+    Heathens' own cast (45), whose tribe-wide effects (flavor_only) and solidarity tags change nothing."""
+    for n in nodes:
+        if any(not (heathen_cast and flavor_only(e)) for e in n.get("effects") or ()):
+            return False
+        if solidarity and not heathen_cast and n.get("solidarity") in ("raise", "lower"):
+            return False
+    return True
+
+
+def ends_no_effect(text: str) -> bool:
+    """Whether `text` already ends with "(no effect)" (any case, its parentheses written \\( \\) or not; spaces, line
+    breaks and a full stop after it)."""
+    return text.rstrip(" \n\r\t.").replace("\\", "").lower().endswith(NO_EFFECT_LINE)
+
+
+def with_no_effect(text: str, escaped: bool = False, game: int | None = None) -> str:
+    """`text` with the "(no effect)" line after it (story_graph.inc cg_no_effect_mark); as it is when it ends so.
+    `escaped`: `text` is a version 6 graph's words before they are filled, where a parenthesis is written \\( \\)
+    (their glyph fallback comes with the filling).  `game`: words before version 6 shown in that game, which no
+    glyph fallback reaches -- the line takes its own (A New Home, The Lost Children: "-no effect-", without the
+    Unicode Text companion; Codex, #853)."""
+    if ends_no_effect(text):
+        return text
+    line = AUTO_LINES["no_effect"]
+    if escaped:
+        line = line.replace("(", "\\(").replace(")", "\\)")
+    elif game is not None:
+        line = glyph_fallback(line, game)
+    return text + "\n" + line if text else line
+
+
 # A good's words for one of it and for many (story_graph_village.inc cg_good_words); other goods as they are.
 GOOD_WORDS = {"tech": ("tech point", "tech points"), "collectible": ("collectible", "collectibles"),
               "cutting_tools": ("cutting tool", "cutting tools"), "berries": ("berry", "berries"),
@@ -4016,6 +4085,11 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             if v2 and not paged and (asked or changed or not popups):
                 say(f"node {nid} ({where}): " + ("an answer must show a page of its own before the event ends"
                                                  if asked else "the event must show a page"))
+            if not changed and popups and popups[-1].layout != "question":
+                # The owner (2026-11-23): an outcome that changes nothing ends with "(no effect)" (story_graph.inc
+                # cg_group).  A Village Solidarity tag is taken as no change here: the longest text.
+                popups[-1].text = with_no_effect(popups[-1].text, escaped=v6, game=None if v6 else game.number)
+                popups[-1].worst = with_no_effect(popups[-1].worst)
             n_new = len(popups)
             if n_new > max_popups:
                 say(f"the history {' > '.join(path)} shows {n_new} popups; at most {max_popups}")
@@ -4286,7 +4360,7 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         if r["skill"] and not any(s in GAMES[gn].skills for s in r["skill"]["names"] for gn in g["games"]):
             problems.append(f"role {rid}: none of its skills is in the event's games")
     all_skills = {s for gm in GAMES.values() for s in gm.skills}
-    # 46: the grave count is New Believers' own (the game's routine 0x464E90): an event asking for it is VV5 only
+    # 47: the grave count is New Believers' own (the game's routine 0x464E90): an event asking for it is VV5 only
     leaves: list = []
     for c in list(_all_conds(g)) + [g["requirement"].get("if")]:
         _cond_leaves(c, leaves)
@@ -4906,7 +4980,7 @@ def _compile_v6(g: dict) -> bytes:
                 elif "skill" in tg:
                     sel, last = TARGET_SKILL, s(tg["skill"])
                 elif tg.get("heathens") == "all":
-                    sel = TARGET_HEATHENS                  # 46
+                    sel = TARGET_HEATHENS                  # 47
                 elif "heathens" in tg:
                     sel, last = TARGET_HEATHENS_RANDOM, tg["heathens"]
                 else:
@@ -5675,11 +5749,13 @@ def partner_carry_swap(bindings: dict[str, Any], swaps: Iterable[tuple[str, str]
 
 def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Binding], answers: Iterable[int] = (),
              patches: Iterable[str] = (), facts: frozenset[str] | None = None, unicode: bool = False,
-             tribe: str | None = None) -> dict:
+             tribe: str | None = None, solidarity: bool = False, heathen_cast: bool = False) -> dict:
     """One run of a version 6 graph as the companion makes it, given the random stream `rolls` (each roll taken
     `% n`; none is taken for n <= 1, as ce_random_below), the villagers bound (`bindings`: role -> Binding; a
     villager role not listed is unbound; a stranger's Binding gives its sex) and the answer clicked at each
     question (its choice index).  The facts (default_facts) are taken to stay as they are for the whole run.
+    `solidarity`: the Village Solidarity companion is started (a raise or lower tag is then a change:
+    outcome_changes_nothing).
 
     Returns {"nodes", "fx" ([a, b] per effect made, as cg_roll_effect), "picks" ([pool, instance, item] in draw
     order; item None when nothing could be drawn), "aliases" ({alias: member}), "popups" (each popup's text as the
@@ -5977,7 +6053,12 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 titles.append(shown_title(title))
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
-    pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
+    # The owner (2026-11-23): the outcome -- after the last answer (or the whole run, with no question) -- that
+    # changes nothing ends with "(no effect)" (story_graph.inc cg_group, cg_part_changes).
+    after = max([i + 1 for i, x in enumerate(path) if lg["nodes"][x]["type"] == "question"] or [0])
+    if texts and outcome_changes_nothing((lg["nodes"][x] for x in path[after:]), solidarity, heathen_cast):
+        texts[-1] = with_no_effect(texts[-1], escaped=True)
+    pick_map ={(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
     counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
               if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}

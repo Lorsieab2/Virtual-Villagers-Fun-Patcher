@@ -149,7 +149,7 @@ def heathens_row(game: int) -> dict:
                   "then only a Heathen expecting an event's baby ages, until the birth.",
                   "More Island Events casts a Heathen only in a role its table names (none yet).",
                   "The Heathen-Exclusive Events HE-01..HE-45 (Isola Grand Event Collection, New Believers only; "
-                  "cie-v6-binary.md 46): \"at least N graves\" read from the game's own count (0x464E90 on 0x5481A8); "
+                  "cie-v6-binary.md 47): \"at least N graves\" read from the game's own count (0x464E90 on 0x5481A8); "
                   "the encampment's honoring and reflecting started through the hovel patch's own entries (0x494B83, "
                   "0x494DF1) when its bytes are in, else \"Sitting\"; a group of every ordinary Heathen (or N at "
                   "random), never roles 12-17, never sick.",

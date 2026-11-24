@@ -22,7 +22,7 @@
     "An event's pregnancy of a cast Heathen goes through the same companion (VvfpHeathenAgingEventPregnancy): the game's conception 0x465E00 with a Heathen father only (the twins counters put back), the mother kept as expecting and aging until the companion's Heathen birth 40 units later (at once for a nursing baby); none once The Last Heathen is solved.",
     "With this row \"VVFP Heathen Aging.dll\" splices its two sites even with no aging row ticked; then only a Heathen expecting an event's baby ages, until the birth.",
     "More Island Events casts a Heathen only in a role its table names (none yet).",
-    "The Heathen-Exclusive Events HE-01..HE-45 (Isola Grand Event Collection, New Believers only; cie-v6-binary.md 46): \"at least N graves\" read from the game's own count (0x464E90 on 0x5481A8); the encampment's honoring and reflecting started through the hovel patch's own entries (0x494B83, 0x494DF1) when its bytes are in, else \"Sitting\"; a group of every ordinary Heathen (or N at random), never roles 12-17, never sick.",
+    "The Heathen-Exclusive Events HE-01..HE-45 (Isola Grand Event Collection, New Believers only; cie-v6-binary.md 47): \"at least N graves\" read from the game's own count (0x464E90 on 0x5481A8); the encampment's honoring and reflecting started through the hovel patch's own entries (0x494B83, 0x494DF1) when its bytes are in, else \"Sitting\"; a group of every ordinary Heathen (or N at random), never roles 12-17, never sick.",
     "The Island Events log ends each Heathen's record with \"Faction: Heathen\" (\"Isolan\" with Guardians of Isola Rewrite)."
   ],
   "explicit_non_changes": [

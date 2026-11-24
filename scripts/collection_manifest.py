@@ -1197,9 +1197,9 @@ def _drafts_d_rows() -> None:
             num, t = re.match(r"^HE-(\d\d)\. (.+)$", lib.normalize_source_text(lib.line(h))).groups()
             nc = sum(1 for n in range(h, e + 1) if re.match(HE_LABEL_RE, lib.line(n)))
             # A title cannot show a literal parenthesis (a title's parentheses are placeholders, vv_cie_graph
-            # title_problems): HE-40's "(Probably)" is " - Probably", the dash the engine's own glyph fallback draws for
-            # "(" -- the owner's words kept, only that punctuation changed (listed for the owner).
-            title = re.sub(r" \((\w+)\)$", r" - \1", t.strip())
+            # title_problems): HE-40's title is the owner's own answer (2026-11-23), "The Rain Dance That Worked,
+            # Probably".
+            title = re.sub(r" \((\w+)\)$", r", \1", t.strip())
             R(f"he{num}_{companion_slug(t, ID_MAX - 5)}", title, [5], h, e, "event", sec, sec, nc, series=sec,
               source=sid, choice_re=HE_LABEL_RE)
 

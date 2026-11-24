@@ -51,7 +51,7 @@ patches, **pools, items**, (relations), strings. The engine must use the offsets
 | 6 | `B` | age-gap role + 1 (0 none) |
 | 7 | `B` | age-gap years |
 | 8 | `B` | max_age years, 0 = none (the villager's age in whole years must be at most this) |
-| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager); **4 prefer golden_child, 5 prefer tribal_chief** (section 35: taken when they may be cast), **6 prefer oldest** (section 46) |
+| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager); **4 prefer golden_child, 5 prefer tribal_chief** (section 35: taken when they may be cast), **6 prefer oldest** (section 47) |
 | 10 | `H` | skill requirement: the skills' names, comma separated (`NONE` = no skill requirement) |
 | 12 | `B` | skill min (the villager's value in at least one listed skill the game has is at least this) |
 | 13 | `B` | pick: 0 random, 1 highest (keep only the villagers with the top value of the listed skills, then draw); bit 7 speaks (32), bit 6 heathen_ok (33c), **bit 5 heathens allowed, bit 4 heathens only** (section 45) |
@@ -1183,7 +1183,7 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
 | 33 | change_name | role index | 0 | 0 | 0 | the fixed name (offset 12), or NONE / empty: a random default name |
-| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years, 7 exactly 16.5 (section 46) | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years, 7 exactly 16.5 (section 47) | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
 | 35 | cure | role index (or 254) | 0 | 0 | 0 | NONE |
 | 36 | repair | 0xFF | 0 | 0 | 0 | the structures, comma separated, or `any` (as damage's) |
 | 37 | young_look | role index (or 254) | 0 | 0 | 0 | NONE |
@@ -1593,7 +1593,40 @@ villagers and life happens to them too."
   appearance, age or name changed by an event; the Guardians wording of the new lines in the game.
 - Tests: `tests/test_heathens_in_island_events.py`.
 
-## 46. The Heathen-Exclusive Events' engine pieces (the owner, 2026-11-23)
+## 46. "(no effect)" after an outcome that changes nothing (the owner, 2026-11-23)
+
+The owner, in capitals: "ANYTHING FLAVOR OR NO EFFECT outcome in an island event MUST HAVE (no effect) at the end."
+The engine adds it; no event's words are changed for it, and no format byte is added (every version, every .cieg as
+it is).
+
+* **An outcome** is the part of a run from an answer's first node (or, in an event with no question, from the start)
+  to the event's end. A part that ends at a question is never an outcome: the pages before a choice never get it.
+* **It changes nothing** when no node of that part (its branches too) has an effect of any kind -- one with an
+  automatic line (25) or a hidden one (an `action`, a `trait`, a like, a mood, a supply, a pay_award, ...) -- and no
+  node carries a Village Solidarity `raise` or `lower` tag (44) while "VVFP Village Solidarity.dll" is started (a
+  `neutral` tag never moves the score; without the companion no tag does anything). The effects authored decide it,
+  never what a roll made of them: an effect that came to nothing (a full store, a refused change) shows its own line
+  or none, never "(no effect)".
+* **The Heathens' own cast** (45): the tribe's effects that section 45 makes the Heathens' village's
+  (`cg_flavor_only`: food, tech, the award, damage and repair, goods, trades, a newcomer, research, everyone at once)
+  and the Village Solidarity tag (never passed on for that cast) are no change; a villager's own effect still is.
+  A mixed cast is as always. Its `hv_*` lines already end with "(no effect)": when one ends the outcome, nothing is
+  added (the check below), so the line is never doubled.
+* **Then** the outcome's last popup (with Scrolling Popups, the event's one popup) ends with one more line,
+  `(no effect)`, after its words and every automatic line, unless its words already end with "(no effect)" (any case,
+  `\( \)` or not, a full stop after it allowed). In a version 6 text it is written `\(no effect\)` until the page is
+  filled; before version 6 a `(...)` that is no placeholder is copied as it is, and no glyph fallback reaches it,
+  so in A New Home and The Lost Children without Unicode Text the line is written `-no effect-` itself
+  (`cg_fallback_on`; Codex on #853). The `hv_*` lines are New Believers' only, whose font draws parentheses.
+* Its words are `CG_AUTO_LINES`' `no_effect` (story_graph.inc `cg_part_changes`, `cg_no_effect_mark`;
+  src/vv_cie_graph.py `AUTO_LINES["no_effect"]`, `outcome_changes_nothing`, `with_no_effect`, in `walk` -- every
+  history's fit counts the line -- and `simulate`, whose `solidarity` argument is the companion), in the translation
+  template like every automatic line.
+* The old-format Custom Island Event (story_custom.inc `ce_compose_in_once`) does the same for an event or result
+  that changes nothing (`ce_has_effects`): "(no effect)" after a blank line, as its outcome lines are; never on a
+  notice (the time skip's, the faith notice).
+
+## 47. The Heathen-Exclusive Events' engine pieces (the owner, 2026-11-23)
 
 New Believers' 45 Heathen-Exclusive Events HE-01..HE-45 (the owner's approved "Heathen-Only Events (draft for
 owner).txt", frozen as source `heathen_ex`; `data/event_collection/drafts_d/dr_he/`, built by
@@ -1629,8 +1662,8 @@ whose games are not `[5]`.
   twice (its `ends_no_effect`).
 - **The owner's answers:** these events replace vanilla's "only cast a Heathen when it is about joining the tribe" for
   this row; no Heathen's Faith rises; nobody dies, vanishes, joins or leaves; Heathens may go to the mausoleum (HE-05,
-  HE-13); HE-29 keeps "Scratching for roots"; Select All leaves the row off. HE-40's title shows " - Probably" for
-  "(Probably)" (a title cannot show a literal parenthesis).
+  HE-13); HE-29 keeps "Scratching for roots"; Select All leaves the row off. HE-40's title is the owner's
+  "The Rain Dance That Worked, Probably" (a title cannot show a literal parenthesis).
 - **UNCONFIRMED live:** whether a Heathen's own AI (`0x46E9E0`) lets an encampment action or the mausoleum's Honoring
   the dead finish, or pulls them back to the camp at once. Either way nothing is lost: the action is the game's own,
   started as the ceremony starts it, and a Heathen who is pulled back simply carries on with camp life.

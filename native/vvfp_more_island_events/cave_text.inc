@@ -44,6 +44,7 @@ enum {
     CAVE_KEEP_BOTH,
     CAVE_KEEP_ONE,
     CAVE_KEEP_RESEARCH,
+    CAVE_NO_EFFECT,
     CAVE_PIECES
 };
 
@@ -283,4 +284,10 @@ static const cave_piece_text CAVE_TEXT[CAVE_PIECES] = {
         "%s informs the researchers about the objects %s and %s found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island's history and previous inhabitants. Your villagers gain %d tech points.",
         "%s informs the researchers about the objects %s and %s found. Intrigued, they start launching investigations into the strange artifacts along with the mysterious cave. Their discoveries astonish the historians and scientists greatly, yielding much information about the island's history and previous inhabitants. Your villagers gain %d tech points." },
       "bab", "" },
+    { { "vvfp.more_island_events/cave_text.NO_EFFECT", "vvfp.more_island_events/cave_text.NO_EFFECT", "vvfp.more_island_events/cave_text.NO_EFFECT", "vvfp.more_island_events/cave_text.NO_EFFECT" },
+      { "(no effect)",
+        "(no effect)",
+        "(no effect)",
+        "(no effect)" },
+      "", "" },
 };

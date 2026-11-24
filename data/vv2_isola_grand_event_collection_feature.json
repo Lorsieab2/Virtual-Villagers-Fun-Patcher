@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Events/Credits.txt",
-      "sha256": "5708C8371DB161CF1FC7388A90A51381DAE20B5503680AE2CA6759A979FEE4AB"
+      "sha256": "1B78B2595DE972E2A828064836A6AA743EF9930009BEFD1D2599F907879F3D89"
     },
     {
       "source": "assets/event_collection/vv2/manifest-an_age.txt",

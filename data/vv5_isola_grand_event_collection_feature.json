@@ -24,7 +24,7 @@
     {
       "source": "assets/event_collection/Credits.txt",
       "destination": "Events/Credits.txt",
-      "sha256": "5708C8371DB161CF1FC7388A90A51381DAE20B5503680AE2CA6759A979FEE4AB"
+      "sha256": "1B78B2595DE972E2A828064836A6AA743EF9930009BEFD1D2599F907879F3D89"
     },
     {
       "source": "assets/event_collection/vv5/manifest-an_age.txt",
@@ -214,7 +214,7 @@
     {
       "source": "assets/event_collection/vv5/manifest-dr_he.txt",
       "destination": "Events/dr_he.lst",
-      "sha256": "42F1C11FE33409B8D8C210785687588FCF7AA3B9F72162C3A9207024AA7C7392"
+      "sha256": "A50FDFF84890C96BE1CC674E87FDC7C0DBD17DF489B730916E8C0904867E79F4"
     },
     {
       "source": "assets/event_collection/vv5/manifest-dr_hea.txt",
@@ -774,7 +774,7 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_heathen_.txt",
       "destination": "Events/st_heathen_.lst",
-      "sha256": "684DE28FA08331039E953D591C0DC52045838E51CE19F6B98248FF05A82740B9"
+      "sha256": "DEF773378FE71E0B3A9350175832A8C0527E397F105D08620530DDFD2D5649CA"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_horizon.txt",
@@ -1244,7 +1244,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_heathen_.pak",
       "destination": "Events/st_heathen_.pak",
-      "sha256": "421AE65C708A4F8821C00AD0EF41BBE2F0224712487305B5AF82657548AD14AD"
+      "sha256": "2FFDFFC4B808BDA19CB4718EC86EF564B336F0FC16C5786140701CBAA3FEF60A"
     },
     {
       "source": "assets/event_collection/vv5/living-st_horizon.pak",
@@ -11179,7 +11179,7 @@
     {
       "source": "assets/event_collection/he40_rain_dance_worked.cieg",
       "destination": "Events/4522.cieg",
-      "sha256": "BA624D03F0D8826C72748430066B8C4141A83948F7F19DF1672AA9FC5768FBAA"
+      "sha256": "E46E1143D1A53869CEA5C9A8A56E4684D7D08FB641AAF00C71340F1B7D32ED42"
     },
     {
       "source": "assets/event_collection/he41_twins_swapped_masks.cieg",

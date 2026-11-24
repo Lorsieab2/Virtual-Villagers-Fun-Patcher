@@ -402,10 +402,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         # learned to follow a sex change and Change Appearance gained "Change sex..."
         # (native/shared/sex_change.h, sex_change_ui.h), and again when it was rebuilt on the merged shared headers
         # of v1.35.97 (round 5: the gender presentation; the Golden Child option 1 leaves it as it was), and again
-        # when the integration rebuilt the companions its merges touched (181a51614).
+        # when the integration rebuilt the companions its merges touched (181a51614), and again for the Tech menu's
+        # Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
+        # Re-pinned for the Tech menu's Revive Buried/Disappeared Villagers button (native/shared/story_bridge.h).
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "6C81C2BA37051DCBC793C4D8C5C8BF6E13DAAB61168A6AEC563459CC3D63DD75",
+            "5D4AE674504D471427BCAF7A27A7197DD8E296F6E6D66AC24F73FBC161F3F56D",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

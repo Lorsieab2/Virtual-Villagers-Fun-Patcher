@@ -1107,7 +1107,7 @@ def check_effects(doc: dict, rep: Report) -> None:
                     tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
                     or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
                         and 1 <= tg["random"] <= 255)
-                    # cie-v6-binary.md 46 (E10): New Believers' ordinary Heathens, every one or N at random
+                    # cie-v6-binary.md 47 (E10): New Believers' ordinary Heathens, every one or N at random
                     or hv == "all" or (isinstance(hv, int) and not isinstance(hv, bool) and 1 <= hv <= 255))
                 if do not in TARGET_EFFECTS:
                     rep.add("e EFFECTS", f"{where}: {do} takes no group target")

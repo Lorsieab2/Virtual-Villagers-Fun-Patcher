@@ -1,5 +1,5 @@
 """New Believers' Heathen-Exclusive Events HE-01..HE-45 and their engine pieces (the owner approved them 2026-11-23;
-docs/event-collection/cie-v6-binary.md 46).
+docs/event-collection/cie-v6-binary.md 47).
 
 The compiler side (src/vv_cie_graph.py): the grave requirement "min_graves", the encampment actions, the Heathens
 group targets, the "oldest" preference and change_age "16.5" compile and read back the same; each is New Believers'
