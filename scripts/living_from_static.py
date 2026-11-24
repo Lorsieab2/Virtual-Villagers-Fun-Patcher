@@ -287,8 +287,11 @@ def build(events: list[dict], bank: mx.Bank | None = None) -> tuple[list[mx.Vari
     static_only: dict[str, str] = {}
     ids: dict[str, str] = {}
     index_in_series: dict[str, int] = {}
-    for e in sorted(events, key=lambda x: x["id"]):
-        vs, why = versions(e, bank, pers)
+    # Every event's versions first (versions() asks nothing of validation), then all of them validated at once, in
+    # worker processes (cg.validate_all: validate's own results, in order).
+    made = [(e, *versions(e, bank, pers)) for e in sorted(events, key=lambda x: x["id"])]
+    checked = iter(cg.validate_all([v["graph"] for _e, vs, _why in made for v in vs], scrolling=True))
+    for e, vs, why in made:
         if not vs:
             static_only[e["id"]] = why
             continue
@@ -300,7 +303,7 @@ def build(events: list[dict], bank: mx.Bank | None = None) -> tuple[list[mx.Vari
         si = index_in_series.get(series, 0)
         index_in_series[series] = si + 1
         for v in vs:
-            g, problems = cg.validate(v["graph"], scrolling=True)
+            g, problems = next(checked)
             if problems:
                 if v["frame"] or v.get("drop") is not None:
                     continue          # the frame does not fit this page, or the outcome left out is one a later
