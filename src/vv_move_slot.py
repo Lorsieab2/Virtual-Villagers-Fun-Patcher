@@ -81,6 +81,7 @@ SAVES, LOGS, DATA, TREES, LEGACY_LOGS = cs.SAVES, cs.LOGS, cs.DATA, cs.TREES, cs
 _SLOT_FOLDER = re.compile(r"(?i)save [1-5]")
 _PICTURES = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".html", ".htm")
 _KEPT_MARKS = (".before-", ".another-village-", ".unreadable-")
+MOVED_COPY = " (before move to save folder)"   # vv_move_to_save_folders.COPY_SUFFIX: the copy kept before that move
 
 
 class MoveError(cs.CopyError):
@@ -288,7 +289,11 @@ def _in_copies(relative: Path) -> bool:
 def _base_name(name: str) -> str:
     """The name of the file a kept copy is of (``X - Save 1.dat.before-repair`` -> ``X - Save 1.dat``;
     a repair copy ``Births and Conceptions Log 1.txt.bak2`` -> ``Births and Conceptions Log 1.txt``, Codex
-    review on #847: its type, so a log copy gets the log's slot changes, not a binary file's)."""
+    review on #847: its type, so a log copy gets the log's slot changes, not a binary file's; the copy an older
+    build's move to the save folders kept, ``Deaths Log 1.txt (before move to save folder)`` -> ``Deaths Log
+    1.txt``, Codex review on #858)."""
+    if name.casefold().endswith(MOVED_COPY.casefold()):
+        name = name[:-len(MOVED_COPY)]
     bak = repair_copies.BAK.match(name)
     if bak:
         name = bak.group("short")

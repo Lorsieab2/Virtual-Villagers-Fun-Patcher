@@ -177,6 +177,25 @@ class MoveByFolderTests(tm.Base):
             self.assertEqual((folder / relative).read_bytes(), relative.encode())
         self.assertEqual(ms.slot_everything(game, folder, 1), [])
 
+    def test_a_before_move_copy_of_a_log_gets_the_targets_slot(self) -> None:
+        """Codex review on #858: "...Deaths Log 1.txt (before move to save folder)" is a log (its type read past
+        the suffix), so its "Village: <name> (Save 1)" line names Save 3 after the move."""
+        game, folder, old = self.make("huttest", 1, "Modded")
+        relative = (f"{COPIES}\\{OLD_LOGS}\\Save 1\\Deaths and Disappearances\\"
+                    f"Virtual Villagers 1 Deaths Log 1.txt (before move to save folder)")
+        self.put(folder, relative, f"Village: {old} (Save 1)\r\nDeath 1\r\n".encode("latin-1"))
+        ms.move_slot(game, folder, 1, 3, processes=tc.FakeProcesses(), now=NOW)
+        moved = folder / relative.replace("\\Save 1\\", "\\Save 3\\")
+        self.assertEqual(moved.read_bytes(), f"Village: {old} (Save 3)\r\nDeath 1\r\n".encode("latin-1"))
+
+    def test_the_suffix_is_the_movers_and_a_picture_copy_stays_a_picture(self) -> None:
+        import vv_move_to_save_folders as mover
+        self.assertEqual(ms.MOVED_COPY, mover.COPY_SUFFIX)
+        self.assertEqual(ms._base_name(f"Village History 1.txt{BEFORE}"), "Village History 1.txt")
+        self.assertEqual(ms._base_name(f"Graves - Save 1.dat.before-x{BEFORE}"), "Graves - Save 1.dat")
+        self.assertTrue(ds.is_picture(Path(f"Virtual Villagers 1 Genealogy - Save 2.png{BEFORE}")))
+        self.assertFalse(ds.is_picture(Path(f"Virtual Villagers 1 Genealogy - Save 2.txt{BEFORE}")))
+
 
 if __name__ == "__main__":
     unittest.main()
