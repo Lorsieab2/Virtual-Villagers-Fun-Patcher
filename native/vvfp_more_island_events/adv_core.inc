@@ -199,6 +199,9 @@ static const adv_heathen_role ADV_HEATHEN_ROLES[] = {
        Heathens' own rules ("VVFP Heathen Aging.dll", adv_heathen_gone); the find, when nobody else shares it, is the
        Heathens' own (no effect). */
     { "aspiring_adventurer", ADV_ROLE_ADVENTURER, ADV_HEATHEN_ALLOWED },
+    /* The owner's approved audit (2026-11-23, part 2: "The Aspiring Adventurer | the hero, the friend | YES"): the
+       friend is named in the words only (no outcome of theirs), so an ordinary Heathen may be the friend too. */
+    { "aspiring_adventurer", ADV_ROLE_FRIEND, ADV_HEATHEN_ALLOWED },
     { "", -1, ADV_HEATHEN_NEVER }                     /* (the audit's further rows go above this one) */
 };
 static const char *adv_event_now = "aspiring_adventurer";   /* the event and role being cast */
@@ -261,6 +264,7 @@ static struct {
     int effect[2];                                    /* ADV_FX_* of each choice */
     int effects_made;                                 /* the answer's effects are made (once) */
     int hero_heathen;                                 /* New Believers: the adventurer is an ordinary Heathen */
+    int friend_heathen;                               /* ... the friend (A8's rescuer) is one */
     adv_pages intro;
     adv_pages result[2];
     int tallest;                                      /* the page with the most lines: [0] intro, 1/2 result */
@@ -807,12 +811,15 @@ static int adv_award_key(void) {
     return adv.award_kind == ADV_KIND_FOOD ? ADV_AWARD_FOOD : ADV_AWARD_TECH;
 }
 
-/* The Heathens' own find (the owner, 2026-11-23): a Heathen adventurer's award that nobody of the tribe shares (A1,
-   A5) is the Heathens' village's -- the owner's words with the automatic swaps ("Your villagers" -> "The Heathens",
-   "The Isolans" with Guardians of Isola Rewrite; "your village" -> "the Heathens' village") -- and changes nothing,
-   so it ends "(no effect)". */
+/* The Heathens' own find (the owner, 2026-11-23): an award ending whose every participant is a Heathen -- A1 and A5
+   the adventurer alone, A8 the adventurer and the friend who rescues them (Codex on #856: the friend may be a Heathen
+   too) -- is the Heathens' village's: the owner's words with the automatic swaps ("Your villagers" -> "The
+   Heathens", "The Isolans" with Guardians of Isola Rewrite; "your village" -> "the Heathens' village"), nothing
+   given, no Village Solidarity, and it ends "(no effect)".  A mixed A8 (one of them of the tribe) is the tribe's
+   reward as always.  Every other ending names the adventurer alone (A2-A4, A6, A7, A9; choice B's), and the friend
+   appears in A8 only (adv_text.inc: the only "f" name). */
 static int adv_heathens_find(void) {
-    return adv.hero_heathen && (adv.a_end == 1 || adv.a_end == 5);
+    return adv.hero_heathen && (adv.a_end == 1 || adv.a_end == 5 || (adv.a_end == 8 && adv.friend_heathen));
 }
 
 static void adv_swap_words(char *s, int cap, const char *from, const char *to) {
@@ -874,7 +881,14 @@ static void adv_compose_a(const adv_game *g) {
         break;
     case 6: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_one(2, ADV_STRANGER); p[2] = adv_one(3, ADV_A6_END); p[3] = NULL; break;
     case 7: p[0] = adv_one(1, ADV_A7); p[1] = NULL; break;
-    case 8: p[0] = adv_one(1, ADV_TRAP); p[1] = adv_join(2, ADV_A8_END, adv_award_key(), adv.award); p[2] = NULL; break;
+    case 8:
+        p[0] = adv_one(1, ADV_TRAP);
+        p[1] = adv_join(2, ADV_A8_END, adv_award_key(), adv.award);
+        if (adv_heathens_find()) {
+            adv_heathens_words(g, adv_buf[2], sizeof adv_buf[2]);
+        }
+        p[2] = NULL;
+        break;
     default: p[0] = adv_one(1, ADV_A9); p[1] = NULL; break;
     }
     if (adv.effect[0] == ADV_FX_NONE) {
@@ -1000,6 +1014,7 @@ static int adv_begin(const adv_game *g) {
         adv.friend_ = adv_eligible_at(g, adv.hero, g->rand_below(n));
         if (adv.friend_ >= 0) {
             g->name(g->record(adv.friend_), adv.friend_name, sizeof adv.friend_name);
+            adv.friend_heathen = g->game == 5 && g->record(adv.friend_)[0x1CEC] != 0;
         }
     }
     adv_role_now = ADV_ROLE_ADVENTURER;

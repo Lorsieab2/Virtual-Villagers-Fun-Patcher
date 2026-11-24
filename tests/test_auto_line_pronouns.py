@@ -68,8 +68,9 @@ class AutoLinePronouns(unittest.TestCase):
                         # words themselves, never a placeholder left unfilled
                         self.assertEqual(text, "(no effect)")
                         continue
-                    if key.startswith("hv_"):
+                    if key.startswith("hv_") or key == "pz_flavor":
                         # cie-v6-binary.md 45: the owner's literal "(no effect)" ends every Heathens' village line
+                        # and a puzzle's Heathen's (nothing is made to them)
                         self.assertTrue(text.endswith(" (no effect)"), text)
                         text = text[:-len(" (no effect)")]
                     self.assertNotIn("(", text, "no placeholder left unfilled")

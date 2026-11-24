@@ -104,6 +104,27 @@ def any_time_row(game: int) -> dict:
 
 
 HEATHENS = "heathens_in_island_events"
+# The game's own island events' sites Story / Cheat Upgrades splices with the row (story_heathen_stock.inc HV_PICKS'
+# direct sites and HV_GROUPS): (the call's VA, its stock target, what it is).
+_PICK = "the picker 0x471870's believer draw"
+_GROUP = "the believers' group routine 0x470C60"
+STOCK_SITES = (
+    (0x4150D7, 0x471870, f"Mushroom Day!: {_PICK} (a Heathen child may be drawn in proportion)"),
+    (0x4159B5, 0x471870, f"The Daredevil Jump's second villager: {_PICK}"),
+    (0x416FD9, 0x471870, f"Innovation in Farming: {_PICK}"),
+    (0x414AD1, 0x470C60, f"Isola Day Celebration: {_GROUP}, then the same behaviour for the ordinary Heathens"),
+    (0x414B4E, 0x470C60, f"Blessings Day Celebration: {_GROUP}, then the ordinary Heathens"),
+    (0x414DE1, 0x470C60, f"Day of Honor: {_GROUP}, then the ordinary Heathens"),
+    (0x414F44, 0x470C60, f"The Especially Offensive Cloud: {_GROUP}, then the ordinary Heathens"),
+    (0x414F81, 0x470C60, f"The Bottle of Spicy Juice: {_GROUP}, then the ordinary Heathens"),
+    (0x415101, 0x470C60, f"Mushroom Day!: {_GROUP}, then the ordinary Heathens"),
+    (0x4156DE, 0x470C60, f"The Bed Bugs (Let it go): {_GROUP}, then the ordinary Heathens"),
+    (0x417092, 0x470C60, f"Innovation in Farming: {_GROUP} (children), then the ordinary Heathen children"),
+)
+
+
+def call_bytes(va: int, target: int) -> str:
+    return "E8" + ((target - (va + 5)) & 0xFFFFFFFF).to_bytes(4, "little").hex().upper()
 # The owner's exact title (2026-11-23).
 HEATHENS_NAME = "Heathens can be selected in Island Events/Heathen-Exclusive Events"
 
@@ -111,10 +132,13 @@ HEATHENS_NAME = "Heathens can be selected in Island Events/Heathen-Exclusive Eve
 def heathens_row(game: int) -> dict:
     """New Believers only (the owner, 2026-11-23; docs/event-collection/cie-v6-binary.md 45)."""
     record = row(game, HEATHENS, HEATHENS_NAME,
-                 "New Believers. Ordinary Heathens can be chosen for the roles of the new island events that allow "
-                 "them, and events written for the Heathens alone (Heathen-Exclusive Events) can happen. A chief, the "
-                 "Retired Chief and the puzzles' Heathens are never chosen. Heathens get the same personal outcomes "
-                 "as your villagers. When only Heathens are in an event, the outcomes for the whole tribe (food, tech "
+                 "New Believers. Heathens can be chosen for the island events, the new ones and the game's own, "
+                 "and events written for the Heathens alone (Heathen-Exclusive Events) can happen. A sick Heathen is "
+                 "never chosen. Heathens get the same personal outcomes as your villagers; in the game's own events "
+                 "a Heathen's Faith never changes (they stay a Heathen) and the event's words are as always. The "
+                 "puzzles' Heathens (the Heathen Doctor, the Heathen Chief, the Masters, the Heathen Mommy) can be in "
+                 "a new event, but nothing in it ever really happens to them: its line says \"(no effect)\". A "
+                 "family stays one side (a Heathen with Heathen family), and a baby is only ever two Heathens'. When only Heathens are in an event, the outcomes for the whole tribe (food, tech "
                  "points, buildings, goods, research) happen to the Heathens' village instead and change nothing in "
                  "yours: their lines end \"(no effect)\". When Heathens and villagers are in an event together, those "
                  "outcomes reach your tribe as usual. Heathens never count in the Village Statistics, and the Island "
@@ -123,11 +147,30 @@ def heathens_row(game: int) -> dict:
                  "grave) unless a skeleton row covers them, a camp Heathen is replaced as when one dies of old age "
                  "(never after The Last Heathen, never a villager who left your tribe), and a baby is only ever two "
                  "Heathens' and is born a Heathen. A Heathen is never copied or made a Heathen again. Which roles "
-                 "allow Heathens is set per event; the game's own island events are unchanged. Off by default; Owner's Defaults "
+                 "allow Heathens is set per event (every role of the existing events, by the owner's audit). Off by default; Owner's Defaults "
                  f"ticks it. **Needs Story / Cheat Upgrades.** {UNVERIFIED}",
-                 ["Story / Cheat Upgrades casts an ordinary Heathen (faction set, never roles 12-17, never sick) in a "
-                  "new event's role marked \"heathens\": \"allowed\" or \"only\" while this row is installed; a role "
-                  "marked \"only\" takes no believer, and without this row nobody, so its event is not offered.",
+                 ["Story / Cheat Upgrades casts a Heathen (faction set, never sick, health above 0) in a new event's role "
+                  "marked \"heathens\": \"allowed\", \"kin\" or \"only\" while this row is installed; a role marked "
+                  "\"only\" takes no believer, and without this row nobody, so its event is not offered.  Every "
+                  "villager role of the existing added events New Believers shows is \"allowed\" or \"kin\" "
+                  "(data/event_collection/heathen_roles_existing.json, from the owner's approved audit), and the "
+                  "Living Event Engine's and the procedural events' roles are \"allowed\".",
+                  "A \"kin\" role (a family role: a kinship relation, a pregnancy's other parent) and its family are "
+                  "one faction: a Heathen only beside Heathen family, a believer only beside believers.",
+                  "A puzzle's Heathen (roles 12-17) may be cast in a new event, and nothing is ever made to them: "
+                  "every effect naming them is told, never made (their record is only read), and the page says "
+                  "\"Nothing really happens to <name>. (no effect)\"; the Island Events log has nothing of theirs.",
+                  "A cast Heathen's \"believer\" words are swapped automatically: \"(friend), a believer,\" / \"(name1) "
+                  "is a believer\" / a role called \"believer\" (and Guardians of Isola's \"a villager of faith\") "
+                  "become \"a person of faith\".",
+                  "The game's own island events (Story / Cheat Upgrades, story_heathen_stock.inc): every believer "
+                  "part may draw an ordinary Heathen in proportion (the picker 0x471870 called again for Heathens: "
+                  "never roles 12-17, never sick); a Heathen part never takes the same Heathen; The Vision, The Mask, "
+                  "Doubt, The Spa and The Cracked Mask never change a drawn Heathen's Faith or faction (their Faith "
+                  "is kept below 0 around the apply and put back); the group events Isola Day Celebration, Blessings "
+                  "Day Celebration, Day of Honor, The Especially Offensive Cloud, The Bottle of Spicy Juice, Mushroom "
+                  "Day!, The Bed Bugs and Innovation in Farming also start their behaviour on the ordinary Heathens "
+                  "(The Allergy Season and The Salty Air already do, through the game's 0x470D60).",
                   "When every villager cast is a Heathen, the event's food, tech points, award, building damage or "
                   "repair, goods, trades, tech level and whole-village effects are made nowhere: each automatic line "
                   "says it happens to the Heathens' village (the Isolans' village with Guardians of Isola Rewrite) "
@@ -143,7 +186,8 @@ def heathens_row(game: int) -> dict:
                   "birth 40 units later (at once for a nursing baby); none once The Last Heathen is solved.",
                   "With this row \"VVFP Heathen Aging.dll\" splices its two sites even with no aging row ticked; "
                   "then only a Heathen expecting an event's baby ages, until the birth.",
-                  "More Island Events casts a Heathen only in a role its table names (none yet).",
+                  "More Island Events casts a Heathen only in a role its table names: The Aspiring Adventurer's adventurer "
+                  "and friend.",
                   "The Island Events log ends each Heathen's record with \"Faction: Heathen\" (\"Isolan\" with "
                   "Guardians of Isola Rewrite)."])
     record["needs_on"] = [{"id": f"vv{game}_story_cheat_upgrades",
@@ -151,8 +195,8 @@ def heathens_row(game: int) -> dict:
     record["explicit_non_changes"] = [
         "No executable byte, game file or save is changed: the row is only a name in the installed patches' list "
         "(\"VVFP Installed Patches.txt\") that Story / Cheat Upgrades and More Island Events read.",
-        "The game's own island events, their text, their villagers and their chances are never changed.",
-        "A Heathen never counts in the Village Statistics; the puzzles' Heathens are never chosen.",
+        "The game's own island events' texts, choices and chances are never changed; only who may be drawn.",
+        "A Heathen never counts in the Village Statistics; nothing is ever made to a puzzle's Heathen.",
     ]
     sys.path.insert(0, str(ROOT / "scripts"))
     import build_heathen_aging_features as aging  # noqa: E402  (its DLL, the flag file and the two sites)
@@ -166,12 +210,20 @@ def heathens_row(game: int) -> dict:
         {"va": f"0x{va:X}", "stock_bytes": stock, "written_bytes": "E9XXXXXXXX" + "90" * (len(stock) // 2 - 5),
          "routine": what, "installed_by": aging.INSTALLED_BY}
         for va, stock, what in aging.SITES]
+    # The game's own events (story_heathen_stock.inc): the stock `call rel32` sites Story / Cheat Upgrades splices
+    # with this row (the other believer draws are its own scope calls already).
+    for va, target, what in STOCK_SITES:
+        record["runtime_detours"].append({
+            "va": f"0x{va:X}", "stock_bytes": call_bytes(va, target), "written_bytes": "E8XXXXXXXX",
+            "routine": what, "installed_by": "VVFP Story Upgrades.dll, VvfpStoryArm (New Believers, with this row)"})
     record["explicit_non_changes"][0] = (
-        "No executable byte is patched: \"VVFP Heathen Aging.dll\" splices its two sites at run time, after verifying "
-        "their stock bytes, all or none; the row is otherwise a name in the installed patches' list (\"VVFP "
-        "Installed Patches.txt\") that Story / Cheat Upgrades and More Island Events read.")
+        "No executable byte is patched: \"VVFP Heathen Aging.dll\" splices its two sites and Story / Cheat Upgrades "
+        "its game's-own-event sites at run time, after verifying their stock bytes, each all or none; the row is "
+        "otherwise a name in the installed patches' list (\"VVFP Installed Patches.txt\") that Story / Cheat "
+        "Upgrades and More Island Events read.")
     record["evidence_status"] = ("the casting, the flavor-only effects and the log line pinned in "
-                                 "tests/test_heathens_in_island_events.py (emulated); runtime/player confirmation "
+                                 "tests/test_heathens_in_island_events.py and tests/test_heathens_in_existing_events.py (emulated); "
+                                 "runtime/player confirmation "
                                  "pending")
     return record
 
