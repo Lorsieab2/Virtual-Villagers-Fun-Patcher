@@ -402,6 +402,15 @@ def role_spec(bank: Bank, rid: str, allow: bool, adults_only: bool = False) -> d
         spec["skill"] = {k: (list(v) if isinstance(v, list) else v) for k, v in spec["skill"].items()}
     if allow:
         spec["protected"] = "allow"
+    return with_heathens(spec)
+
+
+def with_heathens(spec: dict) -> dict:
+    """New Believers (the owner, 2026-11-23: "heathens can also go in any event"): with the row "Heathens can be
+    selected in Island Events/Heathen-Exclusive Events" an ordinary Heathen may take a villager role
+    (docs/event-collection/cie-v6-binary.md 45; ignored in the other games)."""
+    if spec.get("kind", "villager") == "villager" and not spec.get("heathen_ok"):
+        spec["heathens"] = "allowed"
     return spec
 
 
@@ -794,7 +803,7 @@ def mc_subject(sit: dict) -> dict:
     s = dict(sit["subject"])
     if s["kind"] == "stranger":
         return {"kind": "stranger", "sex": s.get("sex", "random")}
-    return s
+    return with_heathens(s)
 
 
 def compose_mc(bank: Bank, sit: dict, order: tuple[int, ...]) -> tuple[dict, list[tuple[str, int, int]]]:

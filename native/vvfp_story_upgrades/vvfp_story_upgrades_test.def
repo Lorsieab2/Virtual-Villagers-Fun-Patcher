@@ -211,4 +211,5 @@ EXPORTS
     VvfpStoryProbeReviveRemoveGrave=_VvfpStoryProbeReviveRemoveGrave@8
     VvfpStoryProbeReviveCharges=_VvfpStoryProbeReviveCharges@8
     VvfpStoryProbeHeathenAging=_VvfpStoryProbeHeathenAging@12
+    VvfpStoryProbeHeathenStock=_VvfpStoryProbeHeathenStock@0
     VvfpStoryProbeReviveLoadShared=_VvfpStoryProbeReviveLoadShared@20

@@ -760,8 +760,13 @@ static void cg_group_fx(const ce_adapter *a, int game, const char *kind, int onl
     for (i = 0; i < a->record_count && i < CE_MAX_RECORDS; ++i) {
         unsigned char *record = a->record(i);
         int use = behaviour;
-        if (record == NULL || !a->listed(record) || cg_heathen(game, record) || (game == 3 && record[0xE94] != 0)
-            || (only >= 0 && i != only)) {
+        if (record == NULL || !a->listed(record) || (game == 3 && record[0xE94] != 0) || (only >= 0 && i != only)) {
+            continue;
+        }
+        if (cg_heathen(game, record) && !(only >= 0 && cg_ordinary_heathen(game, record))) {
+            /* The whole village is the tribe's (never a Heathen).  45 (Codex on #856): the one villager a role names
+               (`only`) may be an ordinary Heathen the row cast -- their own action, as any personal effect; a
+               puzzle's Heathen never (told, never made: cg_puzzle_effect stops it before here). */
             continue;
         }
         if (cure) {

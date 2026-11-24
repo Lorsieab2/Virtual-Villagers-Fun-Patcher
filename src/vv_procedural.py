@@ -712,6 +712,10 @@ def role_json(m: Merged) -> dict:
     r["believers_only"] = not m.flags & SF_CONVERSION
     if m.flags & SF_SPEAKS:
         r["speaks"] = True
+    if not m.flags & SF_CONVERSION:
+        # New Believers (the owner, 2026-11-23: "heathens can also go in any event"): with the row an ordinary
+        # Heathen may take it too (cie-v6-binary.md 45; story_procedural.inc writes the same bit).
+        r["heathens"] = "allowed"
     return r
 
 
