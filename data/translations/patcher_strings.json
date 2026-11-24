@@ -64490,6 +64490,21 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_custom.ce_compose_in_once.s6",
+   "english": "(no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "the last line of a custom island event's outcome that changes nothing",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s10",
    "english": "Your last custom island event is still on its way. It arrives within seconds once you close this screen; then you can buy the next one.",
    "games": [
@@ -73489,6 +73504,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s132",
+   "english": "(no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s0",
    "english": "The Isolans' village gains <N> food. (no effect)",
    "games": [
@@ -74646,6 +74675,43 @@
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
    "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.more_island_events/adv_text.NO_EFFECT",
+   "english": "(no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Aspiring Adventurer: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.NO_EFFECT",
+   "english": "(no effect)",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.NO_EFFECT",
+   "english": "(no effect)",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
   },
   {
    "stem": "vvfp.gui/rename_tribe.long_name_note",

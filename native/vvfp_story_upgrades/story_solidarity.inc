@@ -34,6 +34,11 @@ static int cg_sol_tag(const unsigned char *n) {
     return (int)((n[3] & CG_NODE_SOL_MASK) >> CG_NODE_SOL_SHIFT);
 }
 
+/* Whether the companion is started (a raise or lower tag then moves the score: story_graph.inc cg_part_changes). */
+static int cg_sol_on(void) {
+    return cg_sol_proc("VvfpVillageScoreGet") != NULL;
+}
+
 /* The factor (per mille) of an item favoured by `favour`; 1000 without the companion. */
 static int cg_sol_factor(int game, int favour) {
     cg_sol_factor_fn f;

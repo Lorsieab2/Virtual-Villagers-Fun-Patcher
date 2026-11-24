@@ -2461,10 +2461,10 @@ class Binding:
 def expand(text: str, bindings: dict[str, Binding], award: tuple[str, int] | None = None) -> str:
     """The text as the player reads it: placeholders filled.  award = (kind, amount actually given)."""
     def one(m: re.Match) -> str:
+        if m.group(0) == AUTO_LINES["no_effect"]:
+            return m.group(0)       # 45, 46: the engine's own "(no effect)" (hv_ lines, with_no_effect): as it is
         p = parse_placeholder(m.group(1))
         if p is None:
-            if m.group(0) == "(no effect)":
-                return m.group(0)       # 45: the engine's own "(no effect)" (the hv_ lines): copied as it is
             raise KeyError(f"not a placeholder: {m.group(0)}")
         if p.what == "award":
             return str(award[1]) if award else ""
@@ -3507,9 +3507,78 @@ AUTO_LINES = {
     "hv_level": "The Heathens' village's technology changes. (no effect)",
     "hv_group": "The Heathens' village gathers together. (no effect)",
     "hv_celebrate_all": "Everyone in the Heathens' village celebrates. (no effect)",
+    # The owner (2026-11-23): an outcome that changes nothing ends with this line (with_no_effect).  Last, in the
+    # engine's order (story_graph.inc CG_AUTO_LINES; tests/test_exact_result_amounts.py).
+    "no_effect": "(no effect)",
 }
 GUARDIANS_AUTO_LINES.update({k: v.replace("Heathens'", "Isolans'") for k, v in AUTO_LINES.items()
                              if k.startswith("hv_")})
+
+
+# ---- "(no effect)" (the owner, 2026-11-23, in capitals: "ANYTHING FLAVOR OR NO EFFECT outcome in an island event
+# MUST HAVE (no effect) at the end.") ---------------------------------------------------------------------------------
+#
+# An OUTCOME is the part of a run from an answer (or, with no question, from the start) to the event's end -- never
+# a part that leads to a question.  It changes nothing when none of its nodes (branches too) has an effect of any
+# kind, a line or a hidden one (an action, a trait, a like, a mood), and none carries a Village Solidarity raise or
+# lower tag while that companion is started (a neutral tag never moves the score).  Its last popup then ends with the
+# line "(no effect)", after its words and automatic lines, unless its words already end with it.  The effects
+# authored decide it, never what a roll made of them.  story_graph.inc cg_part_changes / cg_no_effect_mark.
+NO_EFFECT_LINE = "(no effect)"
+
+
+HEATHEN_FLAVOR_EFFECTS = ("food", "tech", "pay_award", "damage", "repair", "supply", "trade", "new_villager")
+
+
+def flavor_only(e: dict) -> bool:
+    """45: with the Heathens' own cast (New Believers, the row, every villager cast a Heathen), whether effect `e` is
+    the Heathens' village's -- the tribe's food, tech, award, buildings, goods, a newcomer, research, everyone at
+    once -- and so changes nothing (story_graph.inc cg_flavor_only)."""
+    do = e["do"]
+    if do in HEATHEN_FLAVOR_EFFECTS:
+        return True
+    if do == "village":
+        return e.get("what") == "tech_level"
+    if do == "trait":
+        return False
+    every = effect_role(e) is None and not e.get("target")   # the role byte 0xFF: every living, listed villager
+    return every if do == "group" else every or bool(e.get("target"))
+
+
+def outcome_changes_nothing(nodes: Iterable[dict], solidarity: bool = False, heathen_cast: bool = False) -> bool:
+    """Whether an outcome made of `nodes` (lowered nodes, the answer's first to the end) changes nothing; with
+    `solidarity` (the Village Solidarity companion started) a raise or lower tag is a change.  `heathen_cast`: the
+    Heathens' own cast (45), whose tribe-wide effects (flavor_only) and solidarity tags change nothing."""
+    for n in nodes:
+        if any(not (heathen_cast and flavor_only(e)) for e in n.get("effects") or ()):
+            return False
+        if solidarity and not heathen_cast and n.get("solidarity") in ("raise", "lower"):
+            return False
+    return True
+
+
+def ends_no_effect(text: str) -> bool:
+    """Whether `text` already ends with "(no effect)" (any case, its parentheses written \\( \\) or not; spaces, line
+    breaks and a full stop after it)."""
+    return text.rstrip(" \n\r\t.").replace("\\", "").lower().endswith(NO_EFFECT_LINE)
+
+
+def with_no_effect(text: str, escaped: bool = False, game: int | None = None) -> str:
+    """`text` with the "(no effect)" line after it (story_graph.inc cg_no_effect_mark); as it is when it ends so.
+    `escaped`: `text` is a version 6 graph's words before they are filled, where a parenthesis is written \\( \\)
+    (their glyph fallback comes with the filling).  `game`: words before version 6 shown in that game, which no
+    glyph fallback reaches -- the line takes its own (A New Home, The Lost Children: "-no effect-", without the
+    Unicode Text companion; Codex, #853)."""
+    if ends_no_effect(text):
+        return text
+    line = AUTO_LINES["no_effect"]
+    if escaped:
+        line = line.replace("(", "\\(").replace(")", "\\)")
+    elif game is not None:
+        line = glyph_fallback(line, game)
+    return text + "\n" + line if text else line
+
+
 # A good's words for one of it and for many (story_graph_village.inc cg_good_words); other goods as they are.
 GOOD_WORDS = {"tech": ("tech point", "tech points"), "collectible": ("collectible", "collectibles"),
               "cutting_tools": ("cutting tool", "cutting tools"), "berries": ("berry", "berries"),
@@ -3986,6 +4055,11 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             if v2 and not paged and (asked or changed or not popups):
                 say(f"node {nid} ({where}): " + ("an answer must show a page of its own before the event ends"
                                                  if asked else "the event must show a page"))
+            if not changed and popups and popups[-1].layout != "question":
+                # The owner (2026-11-23): an outcome that changes nothing ends with "(no effect)" (story_graph.inc
+                # cg_group).  A Village Solidarity tag is taken as no change here: the longest text.
+                popups[-1].text = with_no_effect(popups[-1].text, escaped=v6, game=None if v6 else game.number)
+                popups[-1].worst = with_no_effect(popups[-1].worst)
             n_new = len(popups)
             if n_new > max_popups:
                 say(f"the history {' > '.join(path)} shows {n_new} popups; at most {max_popups}")
@@ -5629,11 +5703,13 @@ def partner_carry_swap(bindings: dict[str, Any], swaps: Iterable[tuple[str, str]
 
 def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Binding], answers: Iterable[int] = (),
              patches: Iterable[str] = (), facts: frozenset[str] | None = None, unicode: bool = False,
-             tribe: str | None = None) -> dict:
+             tribe: str | None = None, solidarity: bool = False, heathen_cast: bool = False) -> dict:
     """One run of a version 6 graph as the companion makes it, given the random stream `rolls` (each roll taken
     `% n`; none is taken for n <= 1, as ce_random_below), the villagers bound (`bindings`: role -> Binding; a
     villager role not listed is unbound; a stranger's Binding gives its sex) and the answer clicked at each
     question (its choice index).  The facts (default_facts) are taken to stay as they are for the whole run.
+    `solidarity`: the Village Solidarity companion is started (a raise or lower tag is then a change:
+    outcome_changes_nothing).
 
     Returns {"nodes", "fx" ([a, b] per effect made, as cg_roll_effect), "picks" ([pool, instance, item] in draw
     order; item None when nothing could be drawn), "aliases" ({alias: member}), "popups" (each popup's text as the
@@ -5931,7 +6007,12 @@ def simulate(g: dict, game: int, rolls: Iterable[int], bindings: dict[str, Bindi
                 titles.append(shown_title(title))
         room_after = n["type"] == "question" and \
             sum(1 for c in n["choices"] if cond_holds(c.get("if"), ctx, seen)) <= MAX_ANSWERS_V4
-    pick_map = {(p[0], p[1]): p[2] for p in picks if p[2] is not None}
+    # The owner (2026-11-23): the outcome -- after the last answer (or the whole run, with no question) -- that
+    # changes nothing ends with "(no effect)" (story_graph.inc cg_group, cg_part_changes).
+    after = max([i + 1 for i, x in enumerate(path) if lg["nodes"][x]["type"] == "question"] or [0])
+    if texts and outcome_changes_nothing((lg["nodes"][x] for x in path[after:]), solidarity, heathen_cast):
+        texts[-1] = with_no_effect(texts[-1], escaped=True)
+    pick_map ={(p[0], p[1]): p[2] for p in picks if p[2] is not None}
     # 33: a count token shows the count's option (1 unless the facts give "count:babies:<n>" / "count:made:<n>")
     counts = {f.split(":")[1]: int(f.split(":")[2]) for f in (facts or ())
               if f.startswith("count:") and f.count(":") == 2 and f.split(":")[2].isdigit()}

@@ -229,7 +229,8 @@ class TheWords(unittest.TestCase):
                           ("m", {"(he/she)": "he", "(He/she)": "He", "(his/her)": "his", "(His/her)": "His",
                                  "(him/her)": "him", "(himself/herself)": "himself", "(father/mother)": "father"})):
             with self.subTest(form=form):
-                filled = {key: dt.fill(key, form, "Ana", "Ben", 300) for key, _ in dt.TEXTS}
+                # (NO_EFFECT is the companion's own "(no effect)" line, the owner's rule of 2026-11-23, not the text)
+                filled = {key: dt.fill(key, form, "Ana", "Ben", 300) for key, _ in dt.TEXTS if key != "NO_EFFECT"}
                 ours = " ".join(" ".join(words(t)) for t in filled.values())
                 used = []
                 for line in body.splitlines():

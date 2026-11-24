@@ -162,7 +162,7 @@ static void cave_compose(const adv_game *g) {
     static const int WRONG[4] = { CAVE_WRONG_1, CAVE_WRONG_2, CAVE_WRONG_3, CAVE_WRONG_4 };
     static const int FINDS[4] = { CAVE_FIND_MAP, CAVE_FIND_COINS, CAVE_FIND_TREASURE, CAVE_FIND_FOOD };
     static const int KEEPS[3] = { CAVE_KEEP_RESEARCH, CAVE_KEEP_BOTH, CAVE_KEEP_ONE };
-    const char *p[4];
+    const char *p[5];
     int side;
     p[0] = cave_one(0, CAVE_INTRO); p[1] = NULL;
     adv_popup_noted(g, &cave.question[CAVE_Q_START], MIE_NOTE_CAVE, p);
@@ -174,7 +174,9 @@ static void cave_compose(const adv_game *g) {
     p[0] = cave_one(0, CAVE_STAY); p[1] = NULL;
     adv_popup(g, &cave.question[CAVE_Q_STAY], p);
 
-    p[0] = cave_one(0, CAVE_DONT); p[1] = NULL;
+    /* "(no effect)" (adv_add_last): staying home (neutral), and falling out or making up -- unless Village
+       Solidarity is loaded, whose score those move (cave_effects) */
+    p[0] = cave_one(0, CAVE_DONT); p[1] = adv_no_effect_glyphs(g->game, (char *)cave_one(3, CAVE_NO_EFFECT)); p[2] = NULL;
     adv_popup(g, &cave.endings[CAVE_E_DONT], p);
     p[0] = cave_one(0, CAVE_DEEPER); p[1] = cave_join(1, CAVE_B_SEARCH, " ", FINDS[cave.find], cave.find_award);
     p[2] = NULL;
@@ -185,6 +187,9 @@ static void cave_compose(const adv_game *g) {
             p[1] = cave_one(1, CAVE_ARGUE); p[2] = cave_one(2, CAVE_ARGUE_2); p[3] = NULL;
         } else {
             p[1] = cave_one(1, cave.a_end == CAVE_END_MAKEUP ? CAVE_MAKEUP : CAVE_CHASM); p[2] = NULL;
+        }
+        if (cave.a_end != CAVE_END_CHASM && !adv_sol_on()) {
+            adv_add_last(p, 5, adv_no_effect_glyphs(g->game, (char *)cave_one(3, CAVE_NO_EFFECT)));
         }
         adv_popup(g, &cave.endings[CAVE_E_LEFT + side], p);
     }
