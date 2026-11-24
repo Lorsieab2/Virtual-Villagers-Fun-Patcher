@@ -2,6 +2,11 @@
  "about": "Strings in the patcher's companion DLLs and exe patches that scripts/scan_patch_text.py finds but that are deliberately NOT in the translation template, each rule with its reason. tests/test_translations_patch_coverage.py fails on any found string that is neither in data/translations/patcher_strings.json nor matched here. A rule: files (globs, repo-relative), optional functions (globs on the function or array a literal is in), optional match (a regular expression on the text); patch_files for exe-patch texts.",
  "rules": [
   {
+   "reason": "Pick Island Event, New Believers with Guardians of Isola Rewrite (VV5_GUARDIANS_TITLES): the game's own island-event titles as the rewrite itself renames them (data/guardians_of_isola/new/Assets/sm.xml), shown only while no translation of the title is chosen, so the list names each event as the game shows it. They are the rewrite's words, not the patcher's own.",
+   "files": ["native/vvfp_story_upgrades/vvfp_story_upgrades.c"],
+   "functions": ["VV5_GUARDIANS_TITLES"]
+  },
+  {
    "reason": "The Heathens in the logs (New Believers, native/shared/heathen_word.h): the game's own Guardians of Isola words it looks for (\"left the tribe\", compared with the game's string 0x48 to choose the logs' \"Isolan\"), never shown; logs are never translated.",
    "files": [
     "native/shared/heathen_word.h"
