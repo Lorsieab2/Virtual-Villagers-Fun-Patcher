@@ -456,7 +456,9 @@ EFFECT_CODES.update({"celebrate": 11, "action": 12, "mood": 13, "health_change":
 NEW_VILLAGER_AGES = {"any": 0, "child": 1, "teen": 2, "adult": 3, "elder": 4}
 ANY_BIRTH_SEX_FLAG = 1        # 31: flags bit 0 of a pregnant / nursing effect
 # 31, code 34: change_age mode (the flags byte): child 1-13, teen 14-17, 18, adult 20-49, 50, elder 55-75, or 6 = add a..b years
-CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5}
+CHANGE_AGE_TO = {"child": 0, "teen": 1, "18": 2, "adult": 3, "50": 4, "elder": 5,
+                 # 47: mode 7, exactly 16 and a half (330 units), as the stock "The Strange Nectar" sets it (HE-17)
+                 "16.5": 7}
 CHANGE_AGE_ADD = 6
 CHANGE_AGE_YEARS_MAX = 120
 CHANGE_NAME_MAX = 31          # code 33: a fixed name (the engine's rule; any other refuses the whole file)
@@ -467,6 +469,9 @@ TARGET_ROLE = 254
 TARGET_EFFECTS = ("health", "preference", "skill", "sick", "action", "mood", "health_change", "cure", "young_look",
                   "old_look", "celebrate", "appearance")          # skill covers skill_set; appearance: 5ee2b3dc0
 TARGET_ALL, TARGET_SKILL, TARGET_RANDOM = 1, 2, 3   # every villager / every one with the skill >= 50 / N at random
+# 47 (E10, the owner 2026-11-23): New Believers' ordinary Heathens -- every one / N at random (story_graph.inc
+# CG_GROUP_HEATHENS, CG_GROUP_HEATHENS_RANDOM; the engine's 4-7 are its age groups)
+TARGET_HEATHENS, TARGET_HEATHENS_RANDOM = 8, 9
 # The villagers this event made (new_villager, clone): role bytes 253 (the newest) and 252 (the one before).
 NEW_ROLES = {"$newest": 253, "$previous": 252}
 NEW_ROLE_NAMES = {v: k for k, v in NEW_ROLES.items()}
@@ -562,12 +567,17 @@ RELATION_CODES = {"spouse_of": 1, "parent_of": 2, "child_of": 3, "sibling_of": 4
                   "grandparent_of": 5, "grandchild_of": 6, "aunt_or_uncle_of": 7, "cousin_of": 8}
 HEADER_BYTES_REL = 104
 V6_CONDS = ("harmable", "special_present", "min_population", "min_children", "age", "skill_at_least",
-            "has_living_child", "drew", "has_dead_relative", "is_special", "has_supply")
+            "has_living_child", "drew", "has_dead_relative", "is_special", "has_supply", "min_graves")
 COND_CODES.update({"harmable": 9, "special_present": 10, "min_population": 11, "min_children": 12,
                    "age": 13, "skill_at_least": 14, "has_living_child": 15, "drew": 16,
                    "has_dead_relative": 17,     # 21a (gap C3)
                    "is_special": 18,            # 37: the role's villager is the Golden Child / the Tribal Chief
-                   "has_supply": 19})           # 39: the village has at least n of a good to give (#813 had 18)
+                   "has_supply": 19,            # 39: the village has at least n of a good to give (#813 had 18)
+                   "min_graves": 20})           # 47: at least n graves (New Believers only: the game's own count)
+# 47 (the owner, 2026-11-23; Heathen-Exclusive Events, E8): "at least N graves", the game's grave count as the Remembrance
+# Ceremony reads it (New Believers: 0x464E90 on 0x5481A8).  New Believers only: an event that asks for it is VV5 only.
+GRAVES_GAMES = (5,)
+COUNT_FACTS = ("min_population", "min_children", "min_graves")   # thresholds that rise together (the facts)
 ROLE_FACTS = ("age", "skill_at_least", "has_living_child", "has_dead_relative",
               "is_special")                     # run-time facts of a bound role
 ONE_ROLE_FACTS = ("has_living_child", "has_dead_relative", "is_special")   # ... whose argument is the role's id
@@ -596,7 +606,10 @@ NURSING_PARENT_MIN_AGE = 18          # years: children never carry in events (ci
 SPECIAL_GAMES = {"golden_child": (1,), "tribal_chief": (3,), "nursing_parent": (1, 2, 3, 4, 5)}
 # cie-v6-binary.md 37: a role that PREFERS the Golden Child / the Tribal Chief (byte 9: 4, 5): they are cast when they
 # may take the role, else any villager the role takes.  Allowed in every game (the owner, 2026-11-16).
-PREFER_CODES = {"golden_child": 4, "tribal_chief": 5}
+PREFER_CODES = {"golden_child": 4, "tribal_chief": 5,
+                # 47 (the owner's Heathen-Exclusive Events, 2026-11-23): "an elder 50 or older, or the oldest adult if
+                # there is none": the oldest of the villagers the role may take (a tie drawn)
+                "oldest": 6}
 POOL_LINKED = 2               # 35: a pool's flags bit: it draws the item number the first linked pool drawn drew
 # 35: the chief's title words (the owner, 2026-11-16): a game word of these names is the chief's title; each run draws
 # one title, the same on every page (linked pools): "Chief", "leader", "elder", "headman" / "headwoman" (a cast chief's
@@ -653,6 +666,15 @@ def size_range(kind: str, size: str, game: int) -> tuple[int, int]:
     lo, hi = SIZE_TABLE[kind][game]
     mul, div = SIZES[size]
     return lo * mul // div, hi * mul // div
+
+
+# 47 (the owner, 2026-11-23; Heathen-Exclusive Events, E9): the encampment's honoring and reflecting, New Believers
+# only.  With "Memorial Actions Can Also Occur at the Heathen Hovel" installed they start through that patch's own
+# entries (0x494B83 Honoring the dead, 0x494DF1 Reflecting: their walks go to the old hovel, as the Remembrance
+# Ceremony sends a villager there); without it the villager sits where they are ("Sitting").  The third is the
+# Remembrance Ceremony's own split: each villager one of the two, 50% each.  Never harmful (devotion).
+ENCAMPMENT_ACTIONS = {"Honoring the dead (at the encampment)": 1, "Reflecting (at the encampment)": 2,
+                      "Honoring the dead or reflecting (at the encampment)": 3}
 
 
 def actions(game: int) -> dict[str, dict]:
@@ -851,7 +873,7 @@ def _norm_cond(c: Any, where: str, problems: list[str], version: int = 1) -> Any
         if op == "special_present" and arg not in PRESENT_CODES:
             problems.append(f"{where}: special_present is golden_child or tribal_chief")
             return None
-        if op in ("min_population", "min_children") and not _int_in(arg, 1, 255):
+        if op in COUNT_FACTS and not _int_in(arg, 1, 255):
             problems.append(f"{where}: {op} is 1..255")
             return None
         if op in ONE_ROLE_FACTS and not isinstance(arg, str):
@@ -1423,14 +1445,19 @@ def _norm_effect(e: Any, where: str, problems: list[str], version: int = 1, game
         # A group target (role byte 254): {"all": true}, {"skill": "<name>"} (50 or more) or {"random": n}.
         known.add("target")
         tg = e["target"]
+        # 47 (E10): {"heathens": "all"} every ordinary Heathen, {"heathens": n} n of them at random (New Believers with
+        # the row "Heathens can be selected in Island Events/Heathen-Exclusive Events"; never roles 12-17, never sick).
+        hv = tg.get("heathens") if isinstance(tg, dict) else None
         ok = isinstance(tg, dict) and len(tg) == 1 and (
             tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
             or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
-                and 1 <= tg["random"] <= 255))
+                and 1 <= tg["random"] <= 255)
+            or hv == "all" or (isinstance(hv, int) and not isinstance(hv, bool) and 1 <= hv <= 255))
         if do not in TARGET_EFFECTS:
             problems.append(f"{where}: {do} takes no group target")
         elif not ok:
-            problems.append(f"{where}: target is {{\"all\": true}}, {{\"skill\": name}} or {{\"random\": 1..255}}")
+            problems.append(f"{where}: target is {{\"all\": true}}, {{\"skill\": name}}, {{\"random\": 1..255}}, "
+                            f"{{\"heathens\": \"all\"}} or {{\"heathens\": 1..255}}")
         elif do == "preference" and out.get("preference") == PREF_RANDOM:
             problems.append(f"{where}: a group target's preference names a word (not random)")
         if "role" in e or (do == "celebrate" and "who" in e):
@@ -1636,7 +1663,7 @@ def normalize(data: Any, shared_pools: Any = None) -> tuple[dict, list[str]]:
                 if r.get("prefer") is not None:
                     # 35: the role prefers the Golden Child / the Tribal Chief (any game; cast when they may be)
                     if r["prefer"] not in PREFER_CODES:
-                        problems.append(f"{where}: prefer is golden_child or tribal_chief")
+                        problems.append(f"{where}: prefer is golden_child, tribal_chief or oldest")
                     elif r.get("special") is not None:
                         problems.append(f"{where}: give special or prefer, not both")
                     else:
@@ -3171,7 +3198,7 @@ def cond_holds(c: Any, ctx: Context, visited: Iterable[str]) -> bool:
     if op == "harmable":
         member = dict(ctx.aliases).get(arg, arg)
         return member in ctx.roles and f"harmable:{member}" in ctx.facts
-    if op in ("special_present", "min_population", "min_children", "drew", "has_supply"):
+    if op in ("special_present", "drew", "has_supply") + COUNT_FACTS:
         return fact_of(op, arg) in ctx.facts
     if op in ROLE_FACTS:
         return fact_role(op, arg) in ctx.roles and fact_of(op, arg) in ctx.facts
@@ -3286,13 +3313,16 @@ def _fact_sets(g: dict, bound: frozenset[str]) -> list[frozenset[str]]:
                   | {fact_of(op, a) for op, a in leaves if op in ROLE_FACTS and fact_role(op, a) in bound})
     pops = sorted({a for op, a in leaves if op == "min_population"})
     kids = sorted({a for op, a in leaves if op == "min_children"})
+    graves = sorted({a for op, a in leaves if op == "min_graves"})     # 47
     out = []
     for bits in product((False, True), repeat=len(free)):
         on = {f for f, b in zip(free, bits) if b}
         for i in range(len(pops) + 1):
             for j in range(len(kids) + 1):
-                out.append(frozenset(base | on | {f"min_population:{n}" for n in pops[:i]}
-                                     | {f"min_children:{n}" for n in kids[:j]}))
+                for k in range(len(graves) + 1):
+                    out.append(frozenset(base | on | {f"min_population:{n}" for n in pops[:i]}
+                                         | {f"min_children:{n}" for n in kids[:j]}
+                                         | {f"min_graves:{n}" for n in graves[:k]}))
     return out
 
 
@@ -3302,7 +3332,7 @@ def default_facts(g: dict, bound: Iterable[str]) -> frozenset[str]:
     for c in _all_conds(g):
         _cond_leaves(c, leaves)
     return frozenset({f"harmable:{r}" for r in bound if g["roles"].get(r, {}).get("kind") == "villager"}
-                     | {f"{op}:{a}" for op, a in leaves if op in ("min_population", "min_children")})
+                     | {f"{op}:{a}" for op, a in leaves if op in COUNT_FACTS})
 
 
 @dataclass
@@ -4476,9 +4506,20 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
         if r["skill"] and not any(s in GAMES[gn].skills for s in r["skill"]["names"] for gn in g["games"]):
             problems.append(f"role {rid}: none of its skills is in the event's games")
     all_skills = {s for gm in GAMES.values() for s in gm.skills}
+    # 47: the grave count is New Believers' own (the game's routine 0x464E90): an event asking for it is VV5 only
+    leaves: list = []
+    for c in list(_all_conds(g)) + [g["requirement"].get("if")]:
+        _cond_leaves(c, leaves)
+    if any(op == "min_graves" for op, _a in leaves) and set(g["games"]) - set(GRAVES_GAMES):
+        problems.append("min_graves is New Believers' own (the game's grave count): the event's games are [5]")
     for nid, n in g["nodes"].items():
         for i, e in enumerate(n["effects"]):
             where = f"node {nid} effect {i + 1}"
+            if e["do"] == "action" and isinstance(e["action"], str) and e["action"] in ENCAMPMENT_ACTIONS \
+                    and set(g["games"]) - {5}:
+                problems.append(f"{where}: {e['action']!r} is New Believers' own: the event's games are [5]")
+            if (e.get("target") or {}).get("heathens") is not None and set(g["games"]) - {5}:
+                problems.append(f"{where}: a Heathens group is New Believers' own: the event's games are [5]")
             if e["do"] == "celebrate" and e.get("who", "all") not in ("all",) + tuple(NEW_ROLES) and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: celebrate's who is all or a villager role")
@@ -4487,7 +4528,7 @@ def _validate_v6(g: dict, problems: list[str]) -> None:
             if e["do"] == "group" and e["who"] != "all" and \
                     g["roles"].get(e["who"], {}).get("kind") not in ("villager", "alias", "other"):
                 problems.append(f"{where}: group's who is all or a villager role")
-            if e["do"] == "action" and isinstance(e["action"], str) and \
+            if e["do"] == "action" and isinstance(e["action"], str) and e["action"] not in ENCAMPMENT_ACTIONS and \
                     not any(e["action"] in actions(gn) for gn in g["games"]):
                 problems.append(f"{where}: {e['action']!r} is not an action of the event's games")
             if e["do"] == "skill" and not e.get("best"):
@@ -5031,7 +5072,7 @@ def _compile_v6(g: dict) -> bytes:
             conds[at] = _COND.pack(code, 0, pidx[arg], 0, 0)
         elif op == "special_present":
             conds[at] = _COND.pack(code, 0, PRESENT_CODES[arg], 0, 0)
-        elif op in ("min_population", "min_children"):
+        elif op in COUNT_FACTS:
             conds[at] = _COND.pack(code, 0, arg, 0, 0)
         elif op == "age":
             conds[at] = _COND.pack(code, 0, ridx[arg["role"]], arg["min"], arg["max"] or 0)
@@ -5114,6 +5155,10 @@ def _compile_v6(g: dict) -> bytes:
                     sel = TARGET_ALL
                 elif "skill" in tg:
                     sel, last = TARGET_SKILL, s(tg["skill"])
+                elif tg.get("heathens") == "all":
+                    sel = TARGET_HEATHENS                  # 47
+                elif "heathens" in tg:
+                    sel, last = TARGET_HEATHENS_RANDOM, tg["heathens"]
                 else:
                     sel, last = TARGET_RANDOM, tg["random"]
             if do in ("food", "tech"):
@@ -5323,7 +5368,7 @@ def _decompile_v6(data: bytes) -> dict:
             return {name: patches[a]}
         if name == "special_present":
             return {name: code_present[a]}
-        if name in ("min_population", "min_children"):
+        if name in COUNT_FACTS:
             return {name: a}
         if name == "not":
             return {name: cond(a)}
@@ -5397,7 +5442,8 @@ def _decompile_v6(data: bytes) -> dict:
             target = None
             if role == TARGET_ROLE:
                 target = {"all": True} if sel == TARGET_ALL else {"skill": s(last)} if sel == TARGET_SKILL \
-                    else {"random": last}
+                    else {"heathens": "all"} if sel == TARGET_HEATHENS \
+                    else {"heathens": last} if sel == TARGET_HEATHENS_RANDOM else {"random": last}
             if do in ("food", "tech"):
                 e.update(amount=a, scaled=bool(flags & 1), defer=bool(flags & 2))
                 if b:

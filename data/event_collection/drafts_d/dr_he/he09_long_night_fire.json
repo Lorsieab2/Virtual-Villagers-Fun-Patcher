@@ -1,0 +1,165 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Long Night Fire",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he09_long_night_fire",
+  "source": "heathen_ex",
+  "lines": [
+   167,
+   180
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L167",
+  "ledger": [
+   {
+    "src": "L168",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L169",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L175",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L179",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L180",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "Three Heathens keep the camp's fire burning all night by the mud hut, for the ones they have lost.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Three Isolans keep the camp's fire burning all night by the mud hut, for the ones they have lost."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 3
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 14,
+   "heathens": "only"
+  },
+  "third": {
+   "kind": "villager",
+   "min_age": 14,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Once a year the camp keeps a fire burning all night by the mud hut, so that, as the old people say, \"nobody we've lost has to sit in the dark.\" (subject), (friend) and (third) are the fire-keepers this year.",
+   "src": "L171",
+   "choices": [
+    {
+     "label": "Take Turns Through the Night",
+     "next": "o1",
+     "src": "L173"
+    },
+    {
+     "label": "Keep Watch Together",
+     "next": "o2",
+     "src": "L177"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "They split the night into three watches. (subject) takes the darkest one and spends it telling stories to the fire, quietly, about people (subject.he/she) misses. In the morning the fire is still burning and all three of them are asleep beside it.",
+   "src": "L174",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Resting",
+     "src": "L175"
+    },
+    {
+     "do": "action",
+     "role": "friend",
+     "action": "Resting",
+     "src": "L175"
+    },
+    {
+     "do": "action",
+     "role": "third",
+     "action": "Resting",
+     "src": "L175"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "fire",
+     "src": "L175"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They stay up together all night, and talk and laugh more than any of them expected. At one point they are laughing so hard someone shushes them from a hut. \"They'd have laughed too,\" (friend) says, and nobody disagrees.",
+   "src": "L178",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L179"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L179"
+    },
+    {
+     "do": "preference",
+     "role": "third",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L179"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

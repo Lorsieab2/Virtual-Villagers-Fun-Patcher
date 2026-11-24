@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Name Nobody Remembers",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he11_name_nobody_remembers",
+  "source": "heathen_ex",
+  "lines": [
+   194,
+   207
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L194",
+  "ledger": [
+   {
+    "src": "L195",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L196",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L202",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L206",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L207",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "Two Heathens disagree about an old carving on the memorial post that nobody can name.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Two Isolans disagree about an old carving on the memorial post that nobody can name."
+   }
+  ],
+  "cast_only": [
+   "friend"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "One of the carvings on the camp's memorial post is so old that nobody can remember who it stands for. (subject) thinks it is wrong to keep honoring someone without a name. (friend) thinks the carving is honor enough.",
+   "src": "L198",
+   "choices": [
+    {
+     "label": "Try to Find Out",
+     "next": "o1",
+     "src": "L200"
+    },
+    {
+     "label": "Leave It Unnamed",
+     "next": "o2",
+     "src": "L204"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) asks every elder at the camp. Nobody knows. One remembers that her own grandmother used to touch that carving every morning, \"so it must have been someone she loved.\" (subject) decides that is enough of a name. (subject.He/she) starts touching it every morning too.",
+   "src": "L201",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L202"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) and (friend) agree, in the end, to disagree. The carving stays nameless. (friend) points out that one day, they will be someone's unnamed carving too, and that (friend.he/she) rather likes the idea of being loved without anybody needing to remember why. \\(no effect\\)",
+   "src": "L205"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

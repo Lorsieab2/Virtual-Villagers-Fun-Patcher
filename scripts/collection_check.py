@@ -1102,15 +1102,18 @@ def check_effects(doc: dict, rep: Report) -> None:
                                      "(health -5..-30, sick)")
             tg = e.get("target")
             if tg is not None:
+                hv = tg.get("heathens") if isinstance(tg, dict) else None
                 ok = isinstance(tg, dict) and len(tg) == 1 and (
                     tg.get("all") is True or (isinstance(tg.get("skill"), str) and tg["skill"])
                     or (isinstance(tg.get("random"), int) and not isinstance(tg.get("random"), bool)
-                        and 1 <= tg["random"] <= 255))
+                        and 1 <= tg["random"] <= 255)
+                    # cie-v6-binary.md 47 (E10): New Believers' ordinary Heathens, every one or N at random
+                    or hv == "all" or (isinstance(hv, int) and not isinstance(hv, bool) and 1 <= hv <= 255))
                 if do not in TARGET_EFFECTS:
                     rep.add("e EFFECTS", f"{where}: {do} takes no group target")
                 elif not ok:
-                    rep.add("e EFFECTS", f"{where}: target is {{\"all\": true}}, {{\"skill\": name}} or "
-                                         "{\"random\": 1..255}")
+                    rep.add("e EFFECTS", f"{where}: target is {{\"all\": true}}, {{\"skill\": name}}, "
+                                         "{\"random\": 1..255} or {\"heathens\": \"all\" | 1..255}")
                 elif "role" in e:
                     rep.add("e EFFECTS", f"{where}: a group target names no role")
             if do in ("food", "tech"):
@@ -1212,9 +1215,19 @@ def check_effects(doc: dict, rep: Report) -> None:
 HARMFUL = {"kill", "vanish", "sick", "die_unrecovered", "baby_lost", "birth_then_die", "deliver_early"}
 
 
-def harmful(e: dict) -> bool:
+def _action_harmful(label: str, games) -> bool:
+    """An action the Custom Island Event's own table marks a mood or "(Unsafe)" in one of `games` (data/cie_actions.json,
+    read here independently of the compiler): it can upset its villager (cie-v6-binary.md 7)."""
+    table = json.loads((lib.ROOT / "data" / "cie_actions.json").read_text(encoding="utf-8"))["games"]
+    return any(a["label"] == label and (a["group"] == "MOOD" or a["unsafe"])
+               for g in (games or range(1, 6)) for a in table.get(str(g), []))
+
+
+def harmful(e: dict, games=None) -> bool:
     do = e.get("do")
     if do in HARMFUL:
+        return True
+    if do == "action" and isinstance(e.get("action"), str) and _action_harmful(e["action"], games):
         return True
     if do == "health" and e.get("max", e.get("value", 100)) < 100:
         return True
@@ -1235,7 +1248,7 @@ def harm_roles(doc: dict) -> set[str]:
     harm: set[str] = set()
     for n in doc.get("nodes", {}).values():
         for e in n.get("effects", []) or []:
-            if harmful(e) and e.get("role"):
+            if harmful(e, doc.get("games")) and e.get("role"):
                 harm.add(e["role"])
                 harm.update(roles.get(e["role"], {}).get("of", []) or [])
     return harm

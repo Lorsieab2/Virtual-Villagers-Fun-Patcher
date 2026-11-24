@@ -1,0 +1,142 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Elder's Long Story",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he43_elder_long_story",
+  "source": "heathen_ex",
+  "lines": [
+   681,
+   694
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L681",
+  "ledger": [
+   {
+    "src": "L682",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L683",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L689",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L693",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L694",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "An old Heathen has been telling the same story at the fire for three nights, and it is not done.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An old Isolan has been telling the same story at the fire for three nights, and it is not done."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only",
+   "prefer": "oldest"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) has been telling the same story at the fire for three nights in a row, and it still isn't finished. It is about a fish, or possibly a canoe, or possibly (subject.his/her) cousin. (friend) is the only one still listening.",
+   "src": "L685",
+   "choices": [
+    {
+     "label": "Keep Listening",
+     "next": "o1",
+     "src": "L687"
+    },
+    {
+     "label": "Ask Gently How It Ends",
+     "next": "o2",
+     "src": "L691"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "On the fourth night the story finally ends. It turns out it was about all three. (friend) thinks it is the best story (friend.he/she) has ever heard, and tells it to the children the next night, getting it completely wrong.",
+   "src": "L688",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Telling a story",
+     "src": "L689"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "list": "likes",
+     "preference": "stories",
+     "src": "L689"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) looks surprised, then laughs. \"I don't know! I've never got that far.\" They make up an ending together. It's a good one.",
+   "src": "L692",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L693"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L693"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

@@ -1,0 +1,153 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Bed Bugs at the Camp",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he14_bed_bugs_camp",
+  "source": "heathen_ex",
+  "lines": [
+   250,
+   264
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L250",
+  "ledger": [
+   {
+    "src": "L251",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L252",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L253",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L259",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L263",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L264",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "Something is living in a Heathen's sleeping mat, and it is not paying rent.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Something is living in an Isolan's sleeping mat, and it is not paying rent."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has been scratching for three days. Something is living in (his/her) sleeping mat, and it is not paying rent.",
+   "src": "L255",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment; the outcome's own effects are the draft's -- story only",
+     "src": "L259"
+    },
+    {
+     "what": "\"health\"",
+     "reason": "health or an injury talked about in the story; the outcome's own effects are the draft's -- story only",
+     "src": "L259"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Search for the Bugs All Night",
+     "next": "o1",
+     "src": "L257"
+    },
+    {
+     "label": "Let It Go",
+     "next": "o2",
+     "src": "L261"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) takes the mat apart, strand by strand, by firelight. By morning (he/she) has found the culprits and carried them a long way from camp. (He/she) is exhausted, and also very proud.",
+   "src": "L258",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -5,
+     "max": -5,
+     "src": "L259"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "sleeping",
+     "src": "L259"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) decides the bugs can have the mat and sleeps on the bare ground. This turns out to be a mistake. The bugs follow.",
+   "src": "L262",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -15,
+     "max": -15,
+     "src": "L263"
+    },
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Itchy",
+     "src": "L263"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

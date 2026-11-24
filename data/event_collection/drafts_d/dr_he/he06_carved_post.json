@@ -1,0 +1,156 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Carved Post",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he06_carved_post",
+  "source": "heathen_ex",
+  "lines": [
+   119,
+   132
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L119",
+  "ledger": [
+   {
+    "src": "L120",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L121",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L127",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L131",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L132",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A Heathen is asked to carve a new mark on the camp's memorial post for an elder long gone.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan is asked to carve a new mark on the camp's memorial post for an elder long gone."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only",
+   "skill": {
+    "names": [
+     "Building"
+    ],
+    "min": 0,
+    "pick": "highest"
+   }
+  },
+  "other": {
+   "kind": "stranger",
+   "sex": "female"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "There is a wooden post at the centre of the encampment covered in small carvings: a fish, a hand, a crescent, a spiral. Each one stands for someone the camp has lost. (subject) has been asked to add a new one, for an elder who passed long before most of the camp's children were born and has never had a mark of (other.his/her) own.",
+   "src": "L123",
+   "choices": [
+    {
+     "label": "Carve What People Remember",
+     "next": "o1",
+     "src": "L125"
+    },
+    {
+     "label": "Carve What Feels Right",
+     "next": "o2",
+     "src": "L129"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) goes round the camp asking everyone what they remember of the elder. The answers are all different. (subject) carves a bird with its wings open, because three people mentioned that she whistled. Everyone agrees it is exactly right, though nobody can say why.",
+   "src": "L126",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L127"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "stories",
+     "src": "L127"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(subject) carves late into the night without asking anyone. In the morning there is a small, plain circle on the post. Some people think it is unfinished. The oldest Heathen at the camp looks at it for a long while and says it is the best one on the post.",
+   "src": "L130",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Building"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L131"
+    }
+   ],
+   "auto_text": true,
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(subject) carves late into the night without asking anyone. In the morning there is a small, plain circle on the post. Some people think it is unfinished. The oldest Isolan at the camp looks at it for a long while and says it is the best one on the post.",
+     "src": "L130"
+    }
+   ]
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

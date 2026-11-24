@@ -51,7 +51,7 @@ patches, **pools, items**, (relations), strings. The engine must use the offsets
 | 6 | `B` | age-gap role + 1 (0 none) |
 | 7 | `B` | age-gap years |
 | 8 | `B` | max_age years, 0 = none (the villager's age in whole years must be at most this) |
-| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager); **4 prefer golden_child, 5 prefer tribal_chief** (section 35: taken when they may be cast) |
+| 9 | `B` | special: 0 none, 1 golden_child, 2 tribal_chief, 3 nursing_parent (the role MUST be that villager); **4 prefer golden_child, 5 prefer tribal_chief** (section 35: taken when they may be cast), **6 prefer oldest** (section 47) |
 | 10 | `H` | skill requirement: the skills' names, comma separated (`NONE` = no skill requirement) |
 | 12 | `B` | skill min (the villager's value in at least one listed skill the game has is at least this) |
 | 13 | `B` | pick: 0 random, 1 highest (keep only the villagers with the top value of the listed skills, then draw); bit 7 speaks (32), bit 6 heathen_ok (33c), **bit 5 heathens allowed, bit 4 heathens only** (section 45) |
@@ -1183,7 +1183,7 @@ codes that a `vv_cie_graph` without them does not know.) The run-time side (stor
 | 31 | body_swap | role index | 0 | the other role's index | 0 | NONE |
 | 32 | lose_name | role index | 0 | 0 | 0 | NONE |
 | 33 | change_name | role index | 0 | 0 | 0 | the fixed name (offset 12), or NONE / empty: a random default name |
-| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
+| 34 | change_age | role index | mode: 0 child (1-13), 1 teen (14-17), 2 "18", 3 adult (20-49), 4 "50", 5 elder (55-75), 6 add years, 7 exactly 16.5 (section 47) | add: min years (-120..120); else 0 | add: max years (min <= max); else 0 | NONE; the last H = the age cap in years (0 none, at most 120) |
 | 35 | cure | role index (or 254) | 0 | 0 | 0 | NONE |
 | 36 | repair | 0xFF | 0 | 0 | 0 | the structures, comma separated, or `any` (as damage's) |
 | 37 | young_look | role index (or 254) | 0 | 0 | 0 | NONE |
@@ -1695,3 +1695,46 @@ it is).
 * The old-format Custom Island Event (story_custom.inc `ce_compose_in_once`) does the same for an event or result
   that changes nothing (`ce_has_effects`): "(no effect)" after a blank line, as its outcome lines are; never on a
   notice (the time skip's, the faith notice).
+
+## 47. The Heathen-Exclusive Events' engine pieces (the owner, 2026-11-23)
+
+New Believers' 45 Heathen-Exclusive Events HE-01..HE-45 (the owner's approved "Heathen-Only Events (draft for
+owner).txt", frozen as source `heathen_ex`; `data/event_collection/drafts_d/dr_he/`, built by
+`scripts/drafts_d/gen_heathen_events.py`; their rows in `heathen_roles.json`, `"exclusive": true` but HE-13's and
+HE-25's, which cast a believer too). Every piece below is New Believers' own: the compiler refuses it in an event
+whose games are not `[5]`.
+
+- **E8, `{"min_graves": n}`** (a condition, code 20, `a` = n, 1..255; the requirement's or any other): at least n
+  graves, the game's own count -- `0x464E90` on `0x5481A8`, as the Remembrance Ceremony and the Day of Honor's
+  `0x414DB0` read it (`cg_graves`). A threshold fact like `min_children` (`min_graves:<n>`). Pick Island Event's
+  refusal: "it needs at least n graves" / "fewer than n graves". HE-05 and HE-13 ask for one.
+- **E9, the encampment's actions** (an `action` effect's words, `ENCAMPMENT_ACTIONS`, story_graph.inc
+  `cg_encampment_kind`): "Honoring the dead (at the encampment)", "Reflecting (at the encampment)" and "Honoring the
+  dead or reflecting (at the encampment)" (the Remembrance Ceremony's split: each villager one of the two, 50% each,
+  `ce_random_below(100) < 50` honoring). With "Memorial Actions Can Also Occur at the Heathen Hovel" installed -- its
+  exact bytes, the two sites and both caves, the check More Island Events' ceremony makes (`cr_hovel_patch`; story_c5.inc
+  `c5_hovel_patch`, its byte arrays pinned equal) -- the villager is stopped (`0x473440`) and started through that
+  patch's own entries past its everyday rolls: Honoring the dead `0x494B83` (thiscall: 17, &flag) or Reflecting
+  `0x494DF1` (cdecl: the villager, with `+0x1D10` = 29); their walks go to the hovel. Without the patch the villager
+  sits where they are (the game's "Sitting"). Never harmful; no automatic line (as every action).
+- **E10, a Heathens group** (role byte 254; `"target": {"heathens": "all"}` selector 8, `{"heathens": n}` selector 9
+  with n at the last H, 1..255): every ordinary Heathen -- faction set, never roles 12-17, never sick, alive and
+  listed (`cg_ordinary_heathen`) -- or n of them drawn (fewer: all there are); only with the row "Heathens can be
+  selected in Island Events/Heathen-Exclusive Events" installed (else nobody), never a believer, never what can not
+  happen to a Heathen (`cg_heathen_barred_effect`). The flavor rule (45) never makes such a group nothing: it is the
+  Heathens' own. HE-10 and HE-24 send every Heathen honoring or reflecting.
+- **`"prefer": "oldest"`** (role byte 9 = 6): the oldest villager the role may take, a tie drawn ("an elder, 50 or
+  older, or the oldest adult if there is none": HE-24, HE-34, HE-43).
+- **`change_age` `"to": "16.5"`** (mode 7): exactly 330 age units, as the stock The Strange Nectar (HE-17).
+- **E2 and E3** are section 45's: every personal effect reaches a Heathen cast through the row; a Heathens-only cast
+  makes the tribe's effects nothing. The events' own food, tech and roof lines are story text the draft writes with
+  "(no effect)" itself; an engine that adds "(no effect)" to an outcome that changes nothing (PR #853) never adds it
+  twice (its `ends_no_effect`).
+- **The owner's answers:** these events replace vanilla's "only cast a Heathen when it is about joining the tribe" for
+  this row; no Heathen's Faith rises; nobody dies, vanishes, joins or leaves; Heathens may go to the mausoleum (HE-05,
+  HE-13); HE-29 keeps "Scratching for roots"; Select All leaves the row off. HE-40's title is the owner's
+  "The Rain Dance That Worked, Probably" (a title cannot show a literal parenthesis).
+- **UNCONFIRMED live:** whether a Heathen's own AI (`0x46E9E0`) lets an encampment action or the mausoleum's Honoring
+  the dead finish, or pulls them back to the camp at once. Either way nothing is lost: the action is the game's own,
+  started as the ceremony starts it, and a Heathen who is pulled back simply carries on with camp life.
+- Tests: `tests/test_heathen_only_events.py`.

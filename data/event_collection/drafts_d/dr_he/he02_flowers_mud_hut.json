@@ -1,0 +1,146 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Flowers on the Mud Hut",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he02_flowers_mud_hut",
+  "source": "heathen_ex",
+  "lines": [
+   53,
+   67
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L53",
+  "ledger": [
+   {
+    "src": "L54",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L55",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L61",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L65",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L66",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L67",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   }
+  ],
+  "description": "Someone has been leaving fresh flowers on the old mud hut, and a Heathen finally sees who.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Someone has been leaving fresh flowers on the old mud hut, and an Isolan finally sees who."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "Someone has been leaving flowers on the roof of the old mud hut. Fresh ones, every morning, tucked into the thatch. (name1) is the one who finally sees who it is, just before dawn: an old Heathen woman, reaching up on her toes with a fistful of red blossoms. She sees (name1) and does not seem at all embarrassed.",
+   "src": "L57",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "Someone has been leaving flowers on the roof of the old mud hut. Fresh ones, every morning, tucked into the thatch. (name1) is the one who finally sees who it is, just before dawn: an old Isolan woman, reaching up on her toes with a fistful of red blossoms. She sees (name1) and does not seem at all embarrassed.",
+     "src": "L57"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Ask Who They Are For",
+     "next": "o1",
+     "src": "L59"
+    },
+    {
+     "label": "Help Without Asking",
+     "next": "o2",
+     "src": "L63"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "\"For my sister,\" she says. \"She used to fix this roof. She was the only one who could ever get it to stop leaking.\" She hands (name1) half the flowers. From then on there are two bunches on the roof every morning.",
+   "src": "L60",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "flowers",
+     "src": "L61"
+    },
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Honoring the dead (at the encampment)",
+     "src": "L61"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) says nothing, just holds the ladder steady. The old woman tucks the flowers in, pats the thatch twice, and climbs down. \"Same time tomorrow,\" she says, as though (name1) has always helped. (name1) is there the next morning, and the morning after that.",
+   "src": "L64",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L65"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

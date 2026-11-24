@@ -1,0 +1,145 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heathen Vision",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he20_heathen_vision",
+  "source": "heathen_ex",
+  "lines": [
+   355,
+   371
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L355",
+  "ledger": [
+   {
+    "src": "L356",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L357",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L358",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L364",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L368",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L369",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L370",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L371",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "A Heathen wakes certain they dreamed of a great turtle swimming slowly through the sky.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan wakes certain they dreamed of a great turtle swimming slowly through the sky."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) wakes before dawn certain that (he/she) has seen something in a dream: a great turtle swimming through the sky, slowly, as if it had all the time in the world. (He/she) can't shake the feeling that it meant something.",
+   "src": "L360",
+   "choices": [
+    {
+     "label": "Tell the Others",
+     "next": "o1",
+     "src": "L362"
+    },
+    {
+     "label": "Keep It to (Himself/Herself)",
+     "next": "o2",
+     "src": "L366"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) tells the story at the morning fire. Some people think it means a good season. Some think it means nothing at all. One child insists it means turtles can fly. Everybody enjoys the argument.",
+   "src": "L363",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "dreaming",
+     "src": "L364"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) keeps the dream close. All day (he/she) catches (himself/herself) looking up at the sky, half expecting to see the turtle. It never appears. (He/she) feels oddly calm anyway.",
+   "src": "L367",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "In a trance",
+     "src": "L368"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Isolan Vision"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

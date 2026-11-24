@@ -1,0 +1,112 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Mask Hung Up for Good",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he03_mask_hung_up_good",
+  "source": "heathen_ex",
+  "lines": [
+   70,
+   83
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L70",
+  "ledger": [
+   {
+    "src": "L71",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L72",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L78",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L82",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L83",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A Heathen stands in front of the mud hut holding a small mask that belonged to someone they lost.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan stands in front of the mud hut holding a small mask that belonged to someone they lost."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has carried a second mask for as long as anyone at the camp can remember: a small one, worn smooth, too small for (his/her) own face. It belonged to someone (he/she) lost a long time ago. Today (name1) stands in front of the mud hut holding it, and seems to be deciding something.",
+   "src": "L74",
+   "choices": [
+    {
+     "label": "Hang It on the Hut",
+     "next": "o1",
+     "src": "L76"
+    },
+    {
+     "label": "Keep Carrying It",
+     "next": "o2",
+     "src": "L80"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) ties the little mask to the doorpost of the mud hut, where everyone who passes will see it. Some of the children stop and look at it. A few touch it, gently, the way they have been taught. (name1) walks a little lighter after that, though (he/she) still stops by the doorpost most days.",
+   "src": "L77",
+   "effects": [
+    {
+     "do": "action",
+     "role": "subject",
+     "action": "Honoring the dead (at the encampment)",
+     "src": "L78"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) turns the mask over in (his/her) hands, then tucks it back where it always lives. Not yet. Maybe not ever. That is (his/her) choice to make, and nobody at the camp would dream of making it for (him/her). \\(no effect\\)",
+   "src": "L81"
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

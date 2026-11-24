@@ -409,7 +409,9 @@ def with_heathens(spec: dict) -> dict:
     """New Believers (the owner, 2026-11-23: "heathens can also go in any event"): with the row "Heathens can be
     selected in Island Events/Heathen-Exclusive Events" an ordinary Heathen may take a villager role
     (docs/event-collection/cie-v6-binary.md 45; ignored in the other games)."""
-    if spec.get("kind", "villager") == "villager" and not spec.get("heathen_ok"):
+    # A Heathen-Exclusive Event's role ("only", cie-v6-binary.md 47) stays the Heathens' own in its mixer versions:
+    # never a believer, never a puzzle's Heathen.
+    if spec.get("kind", "villager") == "villager" and not spec.get("heathen_ok") and spec.get("heathens") != "only":
         spec["heathens"] = "allowed"
     return spec
 

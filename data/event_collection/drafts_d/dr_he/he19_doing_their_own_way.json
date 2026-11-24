@@ -1,0 +1,166 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "Doing It Their Own Way",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he19_doing_their_own_way",
+  "source": "heathen_ex",
+  "lines": [
+   338,
+   352
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L338",
+  "ledger": [
+   {
+    "src": "L339",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L340",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L341",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L347",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L351",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L352",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "The Heathen children have been mixing powders behind the camp again, and there have been bangs.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "The Isolan children have been mixing powders behind the camp again, and there have been bangs."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 3,
+   "max_age": 13,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) and the other Heathen children have been mixing powders behind the camp again. There have been several bangs this morning. One of them was quite big. (friend) goes to find out what is going on.",
+   "src": "L343",
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "(subject) and the other Isolan children have been mixing powders behind the camp again. There have been several bangs this morning. One of them was quite big. (friend) goes to find out what is going on.",
+     "src": "L343"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Teach Them to Do It Safely",
+     "next": "o1",
+     "src": "L345"
+    },
+    {
+     "label": "Let Them Learn the Hard Way",
+     "next": "o2",
+     "src": "L349"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(friend) sits down with them and shows them how to measure, how to stand back, and how to keep the powders apart. There are still bangs after that, but smaller ones, and fewer eyebrows lost.",
+   "src": "L346",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L347"
+    },
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L347"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(friend) decides they'll work it out. There is one more bang, quite a big one. Everyone is fine. (subject) has very short eyebrows for a while, and a new respect for measuring.",
+   "src": "L350",
+   "effects": [
+    {
+     "do": "health_change",
+     "role": "subject",
+     "min": -10,
+     "max": -10,
+     "src": "L351"
+    },
+    {
+     "do": "skill",
+     "role": "subject",
+     "skills": [
+      "Research"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L351"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

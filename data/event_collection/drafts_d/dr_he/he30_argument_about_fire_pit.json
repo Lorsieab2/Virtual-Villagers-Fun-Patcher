@@ -1,0 +1,125 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Argument About the Fire Pit",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he30_argument_about_fire_pit",
+  "source": "heathen_ex",
+  "lines": [
+   516,
+   529
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L516",
+  "ledger": [
+   {
+    "src": "L517",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L518",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L524",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L528",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L529",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "Two Heathens have been arguing for a week about moving the camp's fire pit.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Two Isolans have been arguing for a week about moving the camp's fire pit."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(subject) wants to move the camp's fire pit closer to the stream. (friend) says it has been in the same place for longer than either of them has been alive. They have been arguing about this for a week.",
+   "src": "L520",
+   "choices": [
+    {
+     "label": "Ask the Whole Camp",
+     "next": "o1",
+     "src": "L522"
+    },
+    {
+     "label": "Try It Both Ways",
+     "next": "o2",
+     "src": "L526"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Everyone gets a say. It takes all evening. The fire pit stays where it is, by a very small margin. (subject) takes it well. Mostly. \\(no effect\\)",
+   "src": "L523"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "They build a second, smaller fire by the stream, and keep both for a month. In the end people use both. Nobody admits to having been wrong, and nobody needs to.",
+   "src": "L527",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L528"
+    },
+    {
+     "do": "preference",
+     "role": "friend",
+     "list": "likes",
+     "preference": "talking",
+     "src": "L528"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}
