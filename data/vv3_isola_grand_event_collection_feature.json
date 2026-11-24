@@ -984,7 +984,7 @@
     {
       "source": "assets/event_collection/vv3/living-st_balance.pak",
       "destination": "Events/st_balance.pak",
-      "sha256": "52AF92CD2CAB111F96AFDFE4BD0E92B89C35CB707785A0065EF15A121B0AB39D"
+      "sha256": "55C5E0A53024A8DD88C2EA012361C0A3957502FE12C3BA0BDBBA58D22EB18236"
     },
     {
       "source": "assets/event_collection/vv3/living-st_companio.pak",
@@ -6234,7 +6234,7 @@
     {
       "source": "assets/event_collection/b334_fever_ward.cieg",
       "destination": "Events/995.cieg",
-      "sha256": "BC4B15141853DB8CD788CA982F6CE094BB17FD68C4C14E9D7036219A5E89A70B"
+      "sha256": "496CCBD9A2E5C96D6841C1B4F958A94A55AD62EB37EF17B4648F69DF2A3AFF4C"
     },
     {
       "source": "assets/event_collection/b335_ghost_crabs_night.cieg",

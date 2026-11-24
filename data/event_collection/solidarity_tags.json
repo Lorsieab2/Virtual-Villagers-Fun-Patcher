@@ -993,7 +993,7 @@
  "b331_basket_turtle": {"nodes": {"c1o1": "raise", "c1o2": "raise", "c2o1": "raise", "c2o2": "neutral"}},
  "b332_silver_web_dawn": {"nodes": {"c1o1": "neutral", "c1o2": "raise", "c2o1": "neutral", "c2o2": "neutral"}},
  "b333_two_looked_alike": {"nodes": {"c1o1": "neutral", "c1o2": "neutral", "c2o1": "neutral", "c2o2": "neutral"}},
- "b334_fever_ward": {"nodes": {"c1o1": "raise", "c1o2": "raise", "c2o1": "raise", "c2o2": "lower"}},
+ "b334_fever_ward": {"nodes": {"c1o1": "raise", "c1o2": "neutral", "c2o1": "neutral", "c2o2": "lower"}},
  "b335_ghost_crabs_night": {"nodes": {"c1o1": "neutral", "c1o2": "neutral", "c2o1": "neutral", "c2o2": "neutral"}},
  "b336_lazy_river": {"nodes": {"c1o1": "neutral", "c1o2": "raise", "c2o1": "raise", "c2o2": "raise"}},
  "b337_hut_deep_jungle": {"nodes": {"c1o1": "raise", "c1o2": "lower", "c2o1": "raise", "c2o2": "neutral"}},
