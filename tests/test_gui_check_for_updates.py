@@ -312,7 +312,10 @@ class ReleasesLinkTests(unittest.TestCase):
                                   "vv_log_decisions"}),
             # The player's "Retroactively edit records?" No answers (vv_log_decisions).
             # ...and the save slot's own log folders (vv_save_layout).
-            ("vv_log_additions", {"vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
+            # New Believers' log words in both wordings (Guardians of Isola, 2026-11-23): the generated role titles only.
+            ("vv_isolan_words", {"vv_guardians_role_titles"}),
+            ("vv_guardians_role_titles", set()),
+            ("vv_log_additions", {"vv_isolan_words", "vv_log_tools", "vv_tribe_rename", "vv_genealogy", "vv_log_decisions",
                                   # the Golden Child repair: the save's villagers as Last Names reads them
                                   "vv_last_names",
                                   # the Apprentice repair: the grave rule and which patches the exe has
@@ -361,7 +364,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # The Family Tree Maker and the Village Matchmaker.
             # The tree shows a name the Villager Details screen cut by the logs' full name.
             # ...and A New Home's parents file under either folder name (vv_save_layout).
-            ("vv_genealogy", {"vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
+            ("vv_genealogy", {"vv_isolan_words", "vv_log_tools", "vv_last_names", "vv_log_additions", "vv_tribe_rename",
                               "vv_long_names",          # whole long names (v1.35.89)
                               "vv_cut_names", "vv_save_layout", "vv_log_decisions", "vv_lost_titles", "vv_family_tree",
                               # An answered "I renamed them" joins the two records (v1.35.77); a
@@ -379,7 +382,7 @@ class ReleasesLinkTests(unittest.TestCase):
             # Restoring cut names renames through Last Names; likes compare as vv_log_tools says (v1.35.68).
             ("vv_cut_names", {"vv_last_names", "vv_save_backup", "vv_log_additions", "vv_log_tools"}),
             # Fix grave information: the graves' fingerprints and writes through Last Names.
-            ("vv_graves", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
+            ("vv_graves", {"vv_isolan_words", "vv_last_names", "vv_log_tools", "vv_save_backup", "vv_log_additions",
                            "vv_log_decisions",
                            # old graves' jobs: the save's skills where vv_corrupt_skills reads them
                            "vv_corrupt_skills"}),
@@ -393,7 +396,7 @@ class ReleasesLinkTests(unittest.TestCase):
                                      "vv_repair_copies"}),
             # Restore Heathen Masks (the owner, 2026-11-22): the save and its files through Last Names' reader and
             # writer, the logs as Repair reads them (function-level), the Repairs Made note.
-            ("vv5_heathen_masks_restore", {"vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
+            ("vv5_heathen_masks_restore", {"vv_isolan_words", "vv_last_names", "vv_log_tools", "vv_save_backup", "vv_save_layout",
                                            "vv_log_additions", "vv_game_text",
                                            "vv5_rejoined_masks"}),   # whether the game has Keep Masks
             # Reset corrupted skill values (the owner, v1.35.70): the save through Last Names' reader and writer.
@@ -578,7 +581,7 @@ class ReleasesLinkTests(unittest.TestCase):
             ("vv_game_mechanics_faith_vv5", {"vv_game_mechanics", "vv_game_mechanics_life"}),
             # Village counts: the statistics log's place, the villagers, the Esteemed Elders' totems, The Tree of
             # Life's puzzles (all function-level).
-            ("vv_game_mechanics_counts", {"vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",
+            ("vv_game_mechanics_counts", {"vv_isolan_words", "vv_game_mechanics", "vv_game_mechanics_life", "vv_last_names",
                                           "vv_save_layout", "vv_vv2_totems", "vv_vv2_totem_store",
                                           "vv_game_mechanics_vv4", "vv_game_mechanics_vv2"}),
         ):
