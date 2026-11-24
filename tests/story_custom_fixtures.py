@@ -419,13 +419,15 @@ RESULT_FIELDS = ("changed", "skipped", "died", "vanished", "conceived", "no_room
                  "no_room_spawns", "refused", "food_before", "food_after", "tech_before", "tech_after",
                  "revived", "no_room_revives")
 WHY_COUNT = 16                   # story_custom.h CE_WHY_COUNT: refusals by reason
-RESULT_SIZE = 4 * (len(RESULT_FIELDS) + WHY_COUNT)
+# ... then heathens_only (story_custom.h: every villager changed a New Believers Heathen, the village's changes flavor)
+RESULT_SIZE = 4 * (len(RESULT_FIELDS) + WHY_COUNT + 1)
 
 
 def unpack_result(raw: bytes) -> dict:
-    values = struct.unpack(f"<{len(RESULT_FIELDS) + WHY_COUNT}i", raw)
+    values = struct.unpack(f"<{len(RESULT_FIELDS) + WHY_COUNT + 1}i", raw)
     out = dict(zip(RESULT_FIELDS, values))
-    out["why"] = list(values[len(RESULT_FIELDS):])
+    out["why"] = list(values[len(RESULT_FIELDS):len(RESULT_FIELDS) + WHY_COUNT])
+    out["heathens_only"] = values[-1]
     return out
 
 

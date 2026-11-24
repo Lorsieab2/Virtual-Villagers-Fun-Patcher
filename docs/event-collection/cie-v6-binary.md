@@ -1562,8 +1562,13 @@ villagers and life happens to them too."
   refused), the game's conception, the mother kept as expecting and aging until the companion's Heathen birth 40
   units later (at once for a nursing baby), none once The Last Heathen is solved. Without that companion these never
   reach a Heathen: such a role does not cast one.
-- **The Heathens' own cast:** decided once when the roles are bound (`cg.heathen_cast`, run file version 7): the row
-  installed, a role of this section in the event, at least one villager cast and every villager cast a Heathen. Then
+- **The Heathens' own cast:** decided once when the roles are bound (`cg.heathen_cast`, run file version 7): at
+  least one villager cast and every villager cast a Heathen, however the event cast them (the row's roles, a
+  `heathen_ok` Isolan, any event's roles; the owner, 2026-11-23: "If only heathens or outsiders are involved in any
+  island event ... Our tribe doesnt get altered."). The plain Custom Island Event does the same (story_custom.inc
+  `ce_heathens_only`: every villager it changes a Heathen -- its food, tech points, refill, structures, amounts and
+  puzzles are made nowhere, each told as the Heathens' village's with "(no effect)"). An event of strangers alone is
+  an owner question. Then
   the tribe's effects -- `food`, `tech`, `pay_award`, `damage`, `repair`, `supply`, `trade`, a `village` tech level,
   a `new_villager`, `group` with "all", everyone celebrating and every group target (role byte 254) -- make nothing,
   and their automatic lines (section 25, on a page with automatic lines) say they happen to "the Heathens' village"
