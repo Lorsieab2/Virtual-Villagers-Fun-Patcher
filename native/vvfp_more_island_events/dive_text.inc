@@ -22,6 +22,7 @@ enum {
     DV_D2C_1,
     DV_D2C_2,
     DV_NOT,
+    DV_NO_EFFECT,
     DV_PIECES
 };
 
@@ -94,4 +95,8 @@ static const adv_piece_text DV_TEXT[DV_PIECES] = {
       { "%s knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean's patience could spell death, and %s has a family waiting back home. %s hangs up his diving equipment to be a gentle father to his spouse and children.",
         "%s knows that diving can be dangerous, and the sea can be both generous and cruel. Gambling with the ocean's patience could spell death, and %s has a family waiting back home. %s hangs up her diving equipment to be a gentle mother to her spouse and children." },
       "nnn" },
+    { { "vvfp.more_island_events/dive_text.NO_EFFECT", "vvfp.more_island_events/dive_text.NO_EFFECT" },
+      { "(no effect)",
+        "(no effect)" },
+      "" },
 };

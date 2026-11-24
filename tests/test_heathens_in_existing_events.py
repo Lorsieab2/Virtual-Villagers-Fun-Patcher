@@ -329,6 +329,8 @@ class Engine(unittest.TestCase):
                 said = words(r)
                 self.assertEqual(r.p.read(r.v.record(0), STRIDE), before, "byte for byte the same record")
                 self.assertIn("Nothing really happens to Mira. (no effect)", said)
+                # cie-v6-binary.md 46 (#853): that line is the outcome's one "(no effect)", never a second
+                self.assertEqual(said.count("(no effect)"), 1, said)
                 # mutation: an ordinary Heathen in the same event is changed
                 if fx["do"] in ("health_change", "skill", "kill"):
                     r = run_with(one, heathens=(0,))

@@ -270,6 +270,7 @@ class Engine(unittest.TestCase):
         r, before, words = self.flavor(False)
         self.assertEqual(stores(r), before, "the village's food is untouched")
         self.assertIn("The Heathens' village gains 50 food. (no effect)", words)
+        self.assertEqual(words.count("(no effect)"), 1, "#853's mark never doubles the flavor line's own")
         self.assertNotIn("The village gains", words)
         r, before, words = self.flavor(True)
         self.assertEqual(stores(r), before)

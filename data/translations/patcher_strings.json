@@ -64490,6 +64490,21 @@
    "route": "key"
   },
   {
+   "stem": "vvfp.story/story_custom.ce_compose_in_once.s6",
+   "english": "(no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "the last line of a custom island event's outcome that changes nothing",
+   "route": "key"
+  },
+  {
    "stem": "vvfp.story/story_custom_ui.story_custom_island_event.s10",
    "english": "Your last custom island event is still on its way. It arrives within seconds once you close this screen; then you can buy the next one.",
    "games": [
@@ -73489,6 +73504,20 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s132",
+   "english": "(no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP Story Upgrades.dll",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_graph.CG_HV_ISOLAN.s0",
    "english": "The Isolans' village gains <N> food. (no effect)",
    "games": [
@@ -74648,6 +74677,183 @@
    "notes": "a patcher window"
   },
   {
+   "stem": "vvfp.more_island_events/adv_text.NO_EFFECT",
+   "english": "(no effect)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Aspiring Adventurer: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/cave_text.NO_EFFECT",
+   "english": "(no effect)",
+   "games": [
+    "vv1"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event The Cave Explorers, A New Home: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.more_island_events/dive_text.NO_EFFECT",
+   "english": "(no effect)",
+   "games": [
+    "vv3"
+   ],
+   "mechanism": "b",
+   "context": "VVFP More Island Events.dll (the island event Diving for Treasure, The Secret City: its popups, in the game's own island-event popup)",
+   "notes": "a patcher text shown by the game in its island-event popup",
+   "route": "key"
+  },
+  {
+   "stem": "vvfp.gui/rename_tribe.long_name_note",
+   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Rename Tribe window (the note under the name box)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.title",
+   "english": "Difficulty Sliders",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (its title)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.button",
+   "english": "Difficulty Sliders...",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the main page's button that opens the Difficulty Sliders page",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.intro",
+   "english": "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One number is shared by every game that has its patch, and it is used only while that patch is ticked on the main page. Patch again after changing a slider.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (the text under its title)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.off_note",
+   "english": "(its patch is not ticked)",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Difficulty Sliders page (beside a greyed-out slider)",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_1",
+   "english": "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes, Village Solidarity and the five newer ones.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 1",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_2",
+   "english": "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 2",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_3",
+   "english": "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 3",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/difficulty_sliders.guide_4",
+   "english": "One number is shared by every game that has the patch. Patch again after changing a slider.",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "the Difficulty Sliders \"?\" guide, line 4",
+   "notes": "a patcher window"
+  },
+  {
+   "stem": "vvfp.gui/game_mechanics.minimum_detail",
+   "english": "Minimal Detail",
+   "games": [
+    "vv1",
+    "vv2",
+    "vv3",
+    "vv4",
+    "vv5"
+   ],
+   "mechanism": "b",
+   "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
+   "notes": "a patcher window"
+  },
+  {
    "stem": "vvfp.story/story_graph.cg_heathen_believer_words.s0",
    "english": ", a believer,",
    "games": [
@@ -74928,7 +75134,7 @@
    "notes": "a patcher window"
   },
   {
-   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s132",
+   "stem": "vvfp.story/story_graph.CG_AUTO_LINES.s133",
    "english": "Nothing really happens to <W>. (no effect)",
    "games": [
     "vv1",
@@ -74939,146 +75145,6 @@
    ],
    "mechanism": "b",
    "context": "VVFP Story Upgrades.dll",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/rename_tribe.long_name_note",
-   "english": "Allowed. This name is longer than the game keeps in its save, so the save keeps a short form of it. The game shows the whole name only with \"Render Unicode with In-Game Fonts\" or \"Use Unicode Font\" patched in; otherwise it shows the short form (for example \"Alexandria Montg...\").",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Rename Tribe window (the note under the name box)",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.title",
-   "english": "Difficulty Sliders",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Difficulty Sliders page (its title)",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.button",
-   "english": "Difficulty Sliders...",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "the main page's button that opens the Difficulty Sliders page",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.intro",
-   "english": "Each slider reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, in the middle, the normal game. One number is shared by every game that has its patch, and it is used only while that patch is ticked on the main page. Patch again after changing a slider.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Difficulty Sliders page (the text under its title)",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.off_note",
-   "english": "(its patch is not ticked)",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Difficulty Sliders page (beside a greyed-out slider)",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.guide_1",
-   "english": "Opens the page with every slider: Tech Cost, Hungrier Villagers, Sickness, More Frequent Island Events, Louder Wind Flutes, Village Solidarity and the five newer ones.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "the Difficulty Sliders \"?\" guide, line 1",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.guide_2",
-   "english": "They are grouped by game, with each patch's name beside its slider. A slider is used only while its patch is ticked on the main page.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "the Difficulty Sliders \"?\" guide, line 2",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.guide_3",
-   "english": "Each reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game. A number saved above 10 is 10.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "the Difficulty Sliders \"?\" guide, line 3",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/difficulty_sliders.guide_4",
-   "english": "One number is shared by every game that has the patch. Patch again after changing a slider.",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "the Difficulty Sliders \"?\" guide, line 4",
-   "notes": "a patcher window"
-  },
-  {
-   "stem": "vvfp.gui/game_mechanics.minimum_detail",
-   "english": "Minimal Detail",
-   "games": [
-    "vv1",
-    "vv2",
-    "vv3",
-    "vv4",
-    "vv5"
-   ],
-   "mechanism": "b",
-   "context": "Game Mechanics window (the tick box beside Auto-refresh: show only the vital statistics and numbers)",
    "notes": "a patcher window"
   }
  ]

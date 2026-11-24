@@ -115,6 +115,9 @@ TEXTS: tuple[tuple[str, str], ...] = (
            "again."),
     ("L6", "...and {he} is never seen again. In the end, the villagers can only speculate about what happened to "
            "poor {n}, and forbid anyone from ever going out in the jungle alone again."),
+    # The owner (2026-11-23): the last paragraph of an ending that changes nothing (EFFECTS "none": A7, A9, HOME,
+    # H2; adv_core.inc adv_compose_a / adv_compose_b, adv_add_last).
+    ("NO_EFFECT", "(no effect)"),
 )
 
 PRONOUNS = {

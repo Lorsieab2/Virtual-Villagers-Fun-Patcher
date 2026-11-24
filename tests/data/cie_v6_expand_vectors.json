@@ -268,7 +268,7 @@
     "aliases": {},
     "popups": [
      "Two skilled gardeners have developed different plans for a small community garden near the village. Ana favors a mixture of familiar plants and experimental varieties, while Bo favors a winding garden with shaded places to sit.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
-     "garden.\nA child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task."
+     "garden.\nA child draws an elaborate map featuring a \"secret frog kingdom.\" The gardeners reserve a small corner for wildlife.\nA nursing parent enjoys the shade while talking with friends; the infant is never assigned a gardening task.\n(no effect)"
     ],
     "titles": [
      "The Gardening Contest",
@@ -551,7 +551,7 @@
     "aliases": {},
     "popups": [
      "Two skilled gardeners have developed different plans for a small community garden near the village. Kai favors a traditional layout remembered by the elders, while Lea favors neat rows with carefully labeled plants.\nAn elder says that both plans have merit. A child asks whether there will be room to play. A nursing mother nearby suggests a place where parents can sit with their babies while older children explore safely.",
-     "the plan.\nThe gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest."
+     "the plan.\nThe gardeners become playful rivals and begin leaving compliments disguised as criticisms.\nThe gardeners agree to compare notes again after the next harvest.\n(no effect)"
     ],
     "titles": [
      "The Gardening Contest",
@@ -2331,7 +2331,7 @@
     "popups": [
      "Ana and Bo bring a sweet soup and a fish stew to market; the Chief watch. Bo says it is 100% ready.",
      "The trader asks him to choose. The Chief wait.",
-     "The Chief approves."
+     "The Chief approves.\n(no effect)"
     ],
     "titles": [
      "The Market Day",
@@ -2502,7 +2502,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Dee reaches the ledge. She climbs down safely."
+     "Dee reaches the ledge. She climbs down safely.\n(no effect)"
     ],
     "titles": [
      "The Ledge"
@@ -3048,7 +3048,7 @@
     "aliases": {},
     "popups": [
      "Ana builds a machine; he watches.",
-     "Ana stops. He cheers for her."
+     "Ana stops. He cheers for her.\n(no effect)"
     ],
     "titles": [
      "The Village Idiot and the Impossible Invention",
@@ -3161,7 +3161,7 @@
     "popups": [
      "A stranger lies ill on the sand; the healers gather.",
      "What do the healers do?",
-     "The village comes; the stranger is gone by morning. No one knows where."
+     "The village comes; the stranger is gone by morning. No one knows where.\n(no effect)"
     ],
     "titles": [
      "A Stranger on the Sand",
@@ -3288,7 +3288,7 @@
      "Ana builds a wondrous machine.",
      "Show the elders?",
      "The elders gather around her.",
-     "They decide to let her carry on."
+     "They decide to let her carry on.\n-no effect-"
     ],
     "titles": [
      "The Revolutionary Invention",
@@ -3416,7 +3416,7 @@
      "Bo finds a wondrous cave.",
      "Show the elders?",
      "The elders gather around him.",
-     "They decide to let him carry on."
+     "They decide to let him carry on.\n(no effect)"
     ],
     "titles": [
      "The Revolutionary Discovery",
@@ -3506,7 +3506,7 @@
     "aliases": {},
     "popups": [
      "Rosalind and Bartholomew look out to sea.",
-     "Dawn\nThey sail at dawn."
+     "Dawn\nThey sail at dawn.\n(no effect)"
     ],
     "titles": [
      "The Far Reef",
@@ -3594,7 +3594,7 @@
     "aliases": {},
     "popups": [
      "Rosalind and Bartholomew look out to sea.",
-     "Rosalind stays home."
+     "Rosalind stays home.\n(no effect)"
     ],
     "titles": [
      "The Far Reef",
@@ -3719,7 +3719,7 @@
      "Ana builds a wondrous machine.",
      "Show the elders?",
      "The elders gather around her.",
-     "They decide to let her carry on."
+     "They decide to let her carry on.\n(no effect)"
     ],
     "titles": [
      "Ana's No Good, Very Bad Day",
@@ -3846,7 +3846,7 @@
      "Bartholomew Longname Junior builds a wondrous machine.",
      "Show the elders?",
      "The elders gather around him.",
-     "They decide to let him carry on."
+     "They decide to let him carry on.\n-no effect-"
     ],
     "titles": [
      "Him's No Good, Very Bad Day",
@@ -3908,7 +3908,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo is the baby's father. Dad sings; BROTHER hums; uncle claps; Boy at heart; a gentleman; Father for life."
+     "Bo is the baby's father. Dad sings; BROTHER hums; uncle claps; Boy at heart; a gentleman; Father for life.\n(no effect)"
     ],
     "titles": [
      "The Father's Lullaby"
@@ -3962,7 +3962,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana is the baby's mother. Mom sings, SISTER hums, aunt claps, Girl at heart, a lady, Mother for life."
+     "Ana is the baby's mother. Mom sings, SISTER hums, aunt claps, Girl at heart, a lady, Mother for life.\n-no effect-"
     ],
     "titles": [
      "The Mother's Lullaby"
@@ -4083,7 +4083,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Ana remembers the first gray hair on her head. There is time yet."
+     "Ana remembers the first gray hair on her head. There is time yet.\n(no effect)"
     ],
     "titles": [
      "Little Things They Remember"
@@ -4204,7 +4204,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Bo remembers a song from long ago. There is time yet."
+     "Bo remembers a song from long ago. There is time yet.\n(no effect)"
     ],
     "titles": [
      "Little Things They Remember"
@@ -4345,7 +4345,7 @@
     "aliases": {},
     "popups": [
      "Ana builds a birdhouse with slug slime.",
-     "It glistens. The judges wipe their hands."
+     "It glistens. The judges wipe their hands.\n(no effect)"
     ],
     "titles": [
      "Arbor Day",
@@ -4487,7 +4487,7 @@
     "aliases": {},
     "popups": [
      "Bo builds a birdhouse with guano.",
-     "It stands. The judges hold their noses."
+     "It stands. The judges hold their noses.\n-no effect-"
     ],
     "titles": [
      "Arbor Day",
@@ -4582,7 +4582,7 @@
     "popups": [
      "Aipi arrives by canoe. Ana greets her; AIPI LAUGHS.",
      "What does Ana offer?",
-     "Aipi and Ana eat together."
+     "Aipi and Ana eat together.\n(no effect)"
     ],
     "titles": [
      "The Visitor",
@@ -4683,7 +4683,7 @@
     "popups": [
      "Aika arrives by canoe. Ana greets her, AIKA LAUGHS.",
      "What does Ana offer?",
-     "Aika paddles away."
+     "Aika paddles away.\n-no effect-"
     ],
     "titles": [
      "The Visitor",
@@ -4791,7 +4791,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Ana shouts Yikes! The echo answers Hooray! She sees a sign that says Yikes! What now? ends it."
+     "Ana shouts Yikes! The echo answers Hooray! She sees a sign that says Yikes! What now? ends it.\n-no effect-"
     ],
     "titles": [
      "The Echo"
@@ -4886,7 +4886,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Bo shouts What now? The echo answers Oh no? He sees a quiet path. hello there ends it."
+     "Bo shouts What now? The echo answers Oh no? He sees a quiet path. hello there ends it.\n-no effect-"
     ],
     "titles": [
      "The Echo"
@@ -4987,7 +4987,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Ana shouts hello there. The echo answers nothing. She sees a sign that says hello there. Yikes! ends it."
+     "Ana shouts hello there. The echo answers nothing. She sees a sign that says hello there. Yikes! ends it.\n(no effect)"
     ],
     "titles": [
      "The Echo"
@@ -5088,7 +5088,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Bo shouts Yikes! The echo answers Oh no? He sees a sign that says What now? hello there ends it."
+     "Bo shouts Yikes! The echo answers Oh no? He sees a sign that says What now? hello there ends it.\n(no effect)"
     ],
     "titles": [
      "The Echo"
@@ -5183,7 +5183,7 @@
     ],
     "aliases": {},
     "popups": [
-     "Ana shouts What now? The echo answers nothing. She sees a quiet path. Yikes! ends it."
+     "Ana shouts What now? The echo answers nothing. She sees a quiet path. Yikes! ends it.\n(no effect)"
     ],
     "titles": [
      "The Echo"
@@ -5256,7 +5256,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana recently came to live with our tribe and misses home."
+     "Ana recently came to live with our tribe and misses home.\n(no effect)"
     ],
     "titles": [
      "The Homesick Newcomer"
@@ -5326,7 +5326,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Ana is a recent convert who misses home."
+     "Ana is a recent convert who misses home.\n(no effect)"
     ],
     "titles": [
      "The Homesick Convert"
@@ -5399,7 +5399,7 @@
     "picks": [],
     "aliases": {},
     "popups": [
-     "Bo recently came to live with our tribe and misses home."
+     "Bo recently came to live with our tribe and misses home.\n(no effect)"
     ],
     "titles": [
      "The Homesick Newcomer"

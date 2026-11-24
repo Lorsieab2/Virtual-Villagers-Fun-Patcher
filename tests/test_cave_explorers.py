@@ -87,6 +87,10 @@ class TheWords(unittest.TestCase):
             with self.subTest(key=key):
                 self.assertTrue(template.isascii())
                 self.assertNotIn("  ", template)
+                if key == "NO_EFFECT":
+                    # the companion's own "(no effect)" (the owner, 2026-11-23): drawn "-no effect-" without the
+                    # Unicode Text companion (adv_core.inc adv_no_effect_glyphs)
+                    continue
                 self.assertNotIn("(", re.sub(r"\{[^}]*\}", "", template))      # no owner's note is shown
 
     def test_the_owners_wording(self) -> None:
@@ -552,7 +556,12 @@ class Pages(unittest.TestCase):
         self.assertEqual(sets[2], cave.fill("DEEPER", names) + " " + cave.fill("A_SCREAM", names, sexes) + " "
                          + cave.fill("WRONG_1", names) + " " + cave.fill("RUN", names, sexes))
         self.assertEqual(sets[6], cave.fill("RUN_LEFT", names) + " " + cave.fill("ARGUE", names) + " "
-                         + cave.fill("ARGUE_2", names))
+                         + cave.fill("ARGUE_2", names)
+                         # the owner (2026-11-23): an ending that changes nothing (no Village Solidarity here) ends
+                         # with "(no effect)" -- in A New Home without Unicode Text, "-no effect-"
+                         + " -no effect-")
+        self.assertTrue(sets[4].endswith(" -no effect-"), "staying home changes nothing")
+        self.assertNotIn("no effect", sets[5] + sets[8] + sets[9], "a find, a return and a keep change things")
 
 
 if __name__ == "__main__":
