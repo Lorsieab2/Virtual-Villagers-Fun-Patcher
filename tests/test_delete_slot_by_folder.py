@@ -55,10 +55,15 @@ SLOT2 = [
     *slot_tree("Save 2"),
     f"{COPIES}\\{OLD_LOGS}\\Save 2\\Genealogy\\Virtual Villagers 1 Genealogy.txt",
     f"{TREES}\\Save 2\\Virtual Villagers 1 Village Matchmaker.txt",
+    f"{COPIES}\\{OLD_LOGS}\\Save 2\\Deaths and Disappearances\\Virtual Villagers 1 Deaths Log 1.txt{BEFORE}-2",
+    f"{COPIES}\\{OLD_LOGS}\\Save 2\\Deaths and Disappearances\\Virtual Villagers 1 Deaths Log 1.txt{BEFORE}-10",
 ]
 # Pictures of slot 2: never recycled.
 SLOT2_PICTURES = [
     f"{COPIES}\\{OLD_LOGS}\\Save 2\\Genealogy\\Virtual Villagers 1 Genealogy.png",
+    f"{COPIES}\\{OLD_LOGS}\\Save 2\\Genealogy\\Virtual Villagers 1 Genealogy.png{BEFORE}",
+    f"{COPIES}\\{OLD_LOGS}\\Save 2\\Genealogy\\Virtual Villagers 1 Genealogy.png{BEFORE}-2",
+    f"{COPIES}\\{OLD_LOGS}\\Save 2\\Genealogy\\Virtual Villagers 1 Genealogy.png{BEFORE}-10",
     f"{TREES}\\Save 2\\Kalahuna family tree.png",
     f"{TREES}\\Kalahuna Tribe 1 (Save 2) family tree 2026-10-08 03-00-11.png",
 ]
@@ -181,12 +186,14 @@ class MoveByFolderTests(tm.Base):
         """Codex review on #858: "...Deaths Log 1.txt (before move to save folder)" is a log (its type read past
         the suffix), so its "Village: <name> (Save 1)" line names Save 3 after the move."""
         game, folder, old = self.make("huttest", 1, "Modded")
-        relative = (f"{COPIES}\\{OLD_LOGS}\\Save 1\\Deaths and Disappearances\\"
-                    f"Virtual Villagers 1 Deaths Log 1.txt (before move to save folder)")
-        self.put(folder, relative, f"Village: {old} (Save 1)\r\nDeath 1\r\n".encode("latin-1"))
+        relatives = [(f"{COPIES}\\{OLD_LOGS}\\Save 1\\Deaths and Disappearances\\"
+                      f"Virtual Villagers 1 Deaths Log 1.txt (before move to save folder){n}") for n in ("", "-2", "-10")]
+        for relative in relatives:
+            self.put(folder, relative, f"Village: {old} (Save 1)\r\nDeath 1\r\n".encode("latin-1"))
         ms.move_slot(game, folder, 1, 3, processes=tc.FakeProcesses(), now=NOW)
-        moved = folder / relative.replace("\\Save 1\\", "\\Save 3\\")
-        self.assertEqual(moved.read_bytes(), f"Village: {old} (Save 3)\r\nDeath 1\r\n".encode("latin-1"))
+        for relative in relatives:
+            moved = folder / relative.replace("\\Save 1\\", "\\Save 3\\")
+            self.assertEqual(moved.read_bytes(), f"Village: {old} (Save 3)\r\nDeath 1\r\n".encode("latin-1"), relative)
 
     def test_a_saved_tree_under_the_slots_folder_moves_into_the_targets_folder(self) -> None:
         """Codex review on #858: the village's own tree file under "Family Trees\\Save 1\\" (renamed for the target)
@@ -210,6 +217,12 @@ class MoveByFolderTests(tm.Base):
         self.assertEqual(ms._base_name(f"Graves - Save 1.dat.before-x{BEFORE}"), "Graves - Save 1.dat")
         self.assertTrue(ds.is_picture(Path(f"Virtual Villagers 1 Genealogy - Save 2.png{BEFORE}")))
         self.assertFalse(ds.is_picture(Path(f"Virtual Villagers 1 Genealogy - Save 2.txt{BEFORE}")))
+        # The numbered copies vv_move_to_save_folders._copy_place makes (Codex review on #858).
+        for n in ("-2", "-10"):
+            self.assertEqual(ms._base_name(f"Village History 1.txt{BEFORE}{n}"), "Village History 1.txt")
+            self.assertTrue(ds.is_picture(Path(f"Virtual Villagers 1 Genealogy.png{BEFORE}{n}")), n)
+            self.assertFalse(ds.is_picture(Path(f"Virtual Villagers 1 Genealogy.txt{BEFORE}{n}")), n)
+        self.assertEqual(ms._base_name(f"x.png{BEFORE}-"), f"x.png{BEFORE}-")     # not a number: not a copy's
 
 
 if __name__ == "__main__":

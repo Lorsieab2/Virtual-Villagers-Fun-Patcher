@@ -82,6 +82,8 @@ _SLOT_FOLDER = re.compile(r"(?i)save [1-5]")
 _PICTURES = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".html", ".htm")
 _KEPT_MARKS = (".before-", ".another-village-", ".unreadable-")
 MOVED_COPY = " (before move to save folder)"   # vv_move_to_save_folders.COPY_SUFFIX: the copy kept before that move
+# ...and the numbered ones vv_move_to_save_folders._copy_place makes when that name is taken ("...)-2", "...)-10").
+_MOVED_COPY_END = re.compile(re.escape(MOVED_COPY) + r"(?:-\d+)?$", re.I)
 
 
 class MoveError(cs.CopyError):
@@ -291,9 +293,10 @@ def _base_name(name: str) -> str:
     a repair copy ``Births and Conceptions Log 1.txt.bak2`` -> ``Births and Conceptions Log 1.txt``, Codex
     review on #847: its type, so a log copy gets the log's slot changes, not a binary file's; the copy an older
     build's move to the save folders kept, ``Deaths Log 1.txt (before move to save folder)`` -> ``Deaths Log
-    1.txt``, Codex review on #858)."""
-    if name.casefold().endswith(MOVED_COPY.casefold()):
-        name = name[:-len(MOVED_COPY)]
+    1.txt``, and its numbered copies ``... (before move to save folder)-2``, Codex review on #858)."""
+    moved = _MOVED_COPY_END.search(name)
+    if moved:
+        name = name[:moved.start()]
     bak = repair_copies.BAK.match(name)
     if bak:
         name = bak.group("short")
