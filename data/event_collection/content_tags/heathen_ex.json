@@ -1,0 +1,432 @@
+{
+ "format": "vvfp-event-content-tags",
+ "version": 1,
+ "source": "heathen_ex",
+ "filters": {
+  "F01": "Child and baby deaths",
+  "F02": "Pregnancy loss, stillbirth and death in childbirth",
+  "F03": "All deaths in events",
+  "F04": "Disappearances",
+  "F05": "Grief and bereavement",
+  "F06": "Serious injury, permanent impairment and amputation",
+  "F07": "Burns, scars and lasting visible injuries",
+  "F08": "Serious illness and medical emergencies",
+  "F09": "Epidemics and contagion",
+  "F10": "Difficult births and premature babies",
+  "F11": "Severe emotional distress",
+  "F12": "Hopelessness",
+  "F13": "Unsettling and eerie scenes",
+  "F14": "Implied past abuse",
+  "F15": "Historical war, persecution, slavery and displacement",
+  "F16": "Bullying and social cruelty",
+  "F17": "Prejudice and discrimination as a subject",
+  "F18": "Children in danger",
+  "F19": "Abandonment and orphanhood",
+  "F20": "Hunger and poverty",
+  "F21": "Serious disasters",
+  "F22": "Deep water and drowning",
+  "F23": "Fires",
+  "F24": "Animal death and serious animal injury",
+  "F25": "Hunting and fishing",
+  "F26": "Creepy-crawlies (snakes, spiders, insects)",
+  "F27": "Lasting changes to a villager",
+  "F28": "Teen romance and intimacy"
+ },
+ "events": {
+  "he01_quiet_hour_encampment": {
+   "filters": [
+    "F05",
+    "F07"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05",
+     "F07"
+    ]
+   }
+  },
+  "he02_flowers_mud_hut": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "he03_mask_hung_up_good": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "he04_song_ones_before": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "he05_visit_mausoleum": {
+   "filters": [
+    "F03",
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F03",
+     "F05"
+    ]
+   }
+  },
+  "he06_carved_post": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "he07_child_asks_about_hut": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "he08_stones_stream": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "he09_long_night_fire": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "friend"
+   ]
+  },
+  "he10_heathen_day_honor": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "he11_name_nobody_remembers": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "he12_empty_place_fire": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   },
+   "speaks": [
+    "subject"
+   ]
+  },
+  "he13_two_peoples_one_grief": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "o2": [
+     "F05"
+    ],
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "he14_bed_bugs_camp": {
+   "filters": [
+    "F26"
+   ],
+   "notes": [],
+   "nodes": {
+    "o2": [
+     "F26"
+    ],
+    "setup": [
+     "F26"
+    ]
+   }
+  },
+  "he15_heathen_daredevil": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he16_straw_hat_encampment": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he17_strange_nectar_camp": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he18_heathen_children_fruit": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he19_doing_their_own_way": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he20_heathen_vision": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he21_clumsy_heathen_good_turn": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he22_cold_snap_camp": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "he23_mushroom_day_encampment": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he24_heathens_remembrance": {
+   "filters": [
+    "F05"
+   ],
+   "notes": [
+    "Bereavement"
+   ],
+   "nodes": {
+    "setup": [
+     "F05"
+    ]
+   }
+  },
+  "he25_heathen_toy_lost_found": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he26_spa_after_dark": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he27_missing_heathen_kids": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he28_mask_doesnt_fit_anymore": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he29_roots_supper": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he30_argument_about_fire_pit": {
+   "filters": [],
+   "notes": [],
+   "nodes": {},
+   "speaks": [
+    "friend"
+   ]
+  },
+  "he31_baby_first_mask": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he32_song_across_stream": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he33_snoring_hut": {
+   "filters": [
+    "F21"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F21"
+    ]
+   }
+  },
+  "he34_teaching_stone": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he35_heathen_weaver": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he36_pig_camp": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he37_mending_day": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he38_shell_collector": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he39_heathen_cook_pride": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he40_rain_dance_worked": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he41_twins_swapped_masks": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he42_quiet_day_off": {
+   "filters": [
+    "F20"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F20"
+    ]
+   }
+  },
+  "he43_elder_long_story": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  },
+  "he44_first_day_grown_up": {
+   "filters": [
+    "F25"
+   ],
+   "notes": [],
+   "nodes": {
+    "setup": [
+     "F25"
+    ]
+   }
+  },
+  "he45_camp_night": {
+   "filters": [],
+   "notes": [],
+   "nodes": {}
+  }
+ }
+}

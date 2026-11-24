@@ -24,7 +24,16 @@ from build_event_collection_features import DATA, event_files, shared_pools  # n
 from collection_check import graph_for_engine  # noqa: E402
 
 # The writers' own tags, by source, event and node (from the build reports); added to what tag_graph finds.
-WRITER_TAGS: dict[str, dict[str, dict[str, list[str]]]] = {}
+WRITER_TAGS: dict[str, dict[str, dict[str, list[str]]]] = {
+    # New Believers' Heathen-Exclusive Events (scripts/drafts_d/gen_heathen_events.py): section A (HE-01..HE-13, the
+    # Heathens honoring their dead: elders, friends and a child lost long ago) and HE-24 (the Heathens' Remembrance)
+    # are about grief from their first page, as the collection's other honoring-the-dead events are tagged.
+    "heathen_ex": {eid: {"setup": ["F05"]} for eid in (
+        "he01_quiet_hour_encampment", "he02_flowers_mud_hut", "he03_mask_hung_up_good", "he04_song_ones_before",
+        "he05_visit_mausoleum", "he06_carved_post", "he07_child_asks_about_hut", "he08_stones_stream",
+        "he09_long_night_fire", "he10_heathen_day_honor", "he11_name_nobody_remembers", "he12_empty_place_fire",
+        "he13_two_peoples_one_grief", "he24_heathens_remembrance")},
+}
 
 
 def build() -> dict[str, dict]:

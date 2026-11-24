@@ -214,7 +214,7 @@
     {
       "source": "assets/event_collection/vv5/manifest-dr_he.txt",
       "destination": "Events/dr_he.lst",
-      "sha256": "A50FDFF84890C96BE1CC674E87FDC7C0DBD17DF489B730916E8C0904867E79F4"
+      "sha256": "3D1FACEC4A1205C376A2B4E56C56C37FC0A833FB51002BE19059632DD4C8A0E9"
     },
     {
       "source": "assets/event_collection/vv5/manifest-dr_hea.txt",
@@ -774,7 +774,7 @@
     {
       "source": "assets/event_collection/vv5/manifest-st_heathen_.txt",
       "destination": "Events/st_heathen_.lst",
-      "sha256": "DEF773378FE71E0B3A9350175832A8C0527E397F105D08620530DDFD2D5649CA"
+      "sha256": "F8D7CDD66A8591B11F1B15E96ACC010368350AB0DCCA7E653711C66DCEEBF57B"
     },
     {
       "source": "assets/event_collection/vv5/manifest-st_horizon.txt",
@@ -1004,7 +1004,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_balance.pak",
       "destination": "Events/st_balance.pak",
-      "sha256": "C69197F130E53E1DCF9ED82804D038A6EE7A0C7F0CCEAB990A163B534808AB8D"
+      "sha256": "D2F570CEED63CE2109B8573404B7F1DECBA0D2B7427D66F4731234CB06EFC52F"
     },
     {
       "source": "assets/event_collection/vv5/living-st_companio.pak",
@@ -1244,7 +1244,7 @@
     {
       "source": "assets/event_collection/vv5/living-st_heathen_.pak",
       "destination": "Events/st_heathen_.pak",
-      "sha256": "2FFDFFC4B808BDA19CB4718EC86EF564B336F0FC16C5786140701CBAA3FEF60A"
+      "sha256": "55AE8FA2DD1902FBBBE1AA129464701C8C4BCC0F7C15B6E115FE4E63CDBB5A7D"
     },
     {
       "source": "assets/event_collection/vv5/living-st_horizon.pak",
@@ -6259,7 +6259,7 @@
     {
       "source": "assets/event_collection/b334_fever_ward.cieg",
       "destination": "Events/995.cieg",
-      "sha256": "496CCBD9A2E5C96D6841C1B4F958A94A55AD62EB37EF17B4648F69DF2A3AFF4C"
+      "sha256": "BC4B15141853DB8CD788CA982F6CE094BB17FD68C4C14E9D7036219A5E89A70B"
     },
     {
       "source": "assets/event_collection/b335_ghost_crabs_night.cieg",
@@ -10984,227 +10984,227 @@
     {
       "source": "assets/event_collection/he01_quiet_hour_encampment.cieg",
       "destination": "Events/4483.cieg",
-      "sha256": "D4DD8C3680345FABC14D89A9B41B4E5F7ADBA455975B23C573F0EE7CFA4BACB3"
+      "sha256": "3D326EB71A3473D8E2E346B0F17C779118CFFDDCC3E9439C329226343A5A3C77"
     },
     {
       "source": "assets/event_collection/he02_flowers_mud_hut.cieg",
       "destination": "Events/4484.cieg",
-      "sha256": "D829BB4DCCEC2C5062E249087174D97E6DB1665FD2829C9EDE84A38E92857409"
+      "sha256": "BE0C094D5926D9933B0918B7043E8E6D9A0C4E0639C8BFDF26183A1A5F8468E5"
     },
     {
       "source": "assets/event_collection/he03_mask_hung_up_good.cieg",
       "destination": "Events/4485.cieg",
-      "sha256": "4B259A5BEF51EBF1667C8448947C99A31E8AF62E9242B1984D9C44BE19DAFB85"
+      "sha256": "0000E261C3A27E202F317B5CE9AC1EC77C1324D9AD9AB4DB1175D6675F126541"
     },
     {
       "source": "assets/event_collection/he04_song_ones_before.cieg",
       "destination": "Events/4486.cieg",
-      "sha256": "7D57AE04C0517BAC1A82368B58F9652BC2EE837D9B9C7FF2B487856859F5F675"
+      "sha256": "92D1DFCCAF24C0FE83EB5727384552C27756E6E874E43BBE3EA1EAEB1493A26F"
     },
     {
       "source": "assets/event_collection/he05_visit_mausoleum.cieg",
       "destination": "Events/4487.cieg",
-      "sha256": "509E57EB36AC57839B7148DFBD42A39F3BCDBCE66F156C316337359F016BC542"
+      "sha256": "69AD94A7BB08FD6FF6A7A7EC6D64C29B2984D49CCEA831DD23E539FDD86B93F2"
     },
     {
       "source": "assets/event_collection/he06_carved_post.cieg",
       "destination": "Events/4488.cieg",
-      "sha256": "EDEBC21A5520CD130895DE6170147E9A900A6F18D60EB3EDAEF6D53CFBDE61EF"
+      "sha256": "D864A75FEA4817255E54C3A50550CA4FBE94EB0212EFE80A0A08A16E051BA476"
     },
     {
       "source": "assets/event_collection/he07_child_asks_about_hut.cieg",
       "destination": "Events/4489.cieg",
-      "sha256": "CA7D1E807F15D06BB85485E718FA5858C6347758B4746F280276F9A087E1BE42"
+      "sha256": "C09C5F83F9F67EFF839AE3D1760149EB6EED5D977CD1647305A2D2DAF745895A"
     },
     {
       "source": "assets/event_collection/he08_stones_stream.cieg",
       "destination": "Events/4490.cieg",
-      "sha256": "D740627D7DBE037CBEE2E620EC8A5A3CA074B6E7E68F896142D974D7787D5728"
+      "sha256": "9E31C16D83B45BA2D8006B16BFE9C63AD754BCBC74614B1011D6E8625A9F9F8F"
     },
     {
       "source": "assets/event_collection/he09_long_night_fire.cieg",
       "destination": "Events/4491.cieg",
-      "sha256": "76A5D429CDAF7BBC8FEF815C27266A126005E2628AFAC52CC58E731E3EAEC7B0"
+      "sha256": "15676CEB6AE9C3E92ADEA0ECDD17982123736588FCFD39821310F858D94CA3A5"
     },
     {
       "source": "assets/event_collection/he10_heathen_day_honor.cieg",
       "destination": "Events/4492.cieg",
-      "sha256": "DFE40211C3796884AC966E9E4D54321C3A64A7E2AA019116526EC6C8BC32E597"
+      "sha256": "93D9C1779F9AEBE4C440FCCD7121DA2E06B96F1D78A3F827A67CA3B47BD4A92C"
     },
     {
       "source": "assets/event_collection/he11_name_nobody_remembers.cieg",
       "destination": "Events/4493.cieg",
-      "sha256": "2DA93306C7DA76204B52BAC329E881EE952DB1F3F9D3EB1A7FD04B03923D19E0"
+      "sha256": "0D07F33FA48575F38456E16BB2F9BD250ED2E31D604D89D089814F52702E5BDA"
     },
     {
       "source": "assets/event_collection/he12_empty_place_fire.cieg",
       "destination": "Events/4494.cieg",
-      "sha256": "DE3BF5DDF997331C63423EA795E273A288EF5DE21DD926B5B60C78FD942DC2A7"
+      "sha256": "EEE689FC63376257789FC3293FC8B26685BE6CF8C78D8D411A22B167BA51DBA0"
     },
     {
       "source": "assets/event_collection/he13_two_peoples_one_grief.cieg",
       "destination": "Events/4495.cieg",
-      "sha256": "54CDF21ADDEC3C9B51EFB9A2C8C40FEA79E2C9FDA8F7FC288004B3860B3E55FC"
+      "sha256": "DA651CCE5E28C872EAA3ECED65D3BB1D17A59011E2422D5BCE0C8193BBC5D62B"
     },
     {
       "source": "assets/event_collection/he14_bed_bugs_camp.cieg",
       "destination": "Events/4496.cieg",
-      "sha256": "84973F84729E1F00822B008F7E7ACF950764BA8940380A3BB627E6ED98CCA759"
+      "sha256": "5D21941B50CDCB34A34FFD4847B7FFDA21E7CF52A316AB7D135507ED5C6310B6"
     },
     {
       "source": "assets/event_collection/he15_heathen_daredevil.cieg",
       "destination": "Events/4497.cieg",
-      "sha256": "AE5C6D7DC709919F6A8145D325071776DE00252604F1AACD8541BE464A584E82"
+      "sha256": "CE3E297DB6E9DCCF736789F0F6098A5D78FCC10E090E2E6B70CAF38F4FA04489"
     },
     {
       "source": "assets/event_collection/he16_straw_hat_encampment.cieg",
       "destination": "Events/4498.cieg",
-      "sha256": "80DA6CD9173044F39D6476CB9580A9F744C87EB97F7DC0F7A33D3ED7527CC9E8"
+      "sha256": "CB18F1B23CF3458AAB2D1D5BE8B4422C831D5AAEF8F329D67395D71B2804EF50"
     },
     {
       "source": "assets/event_collection/he17_strange_nectar_camp.cieg",
       "destination": "Events/4499.cieg",
-      "sha256": "8D78B36EAA818075402DD6682EA6F813070193F80BF4BBE9C8ACCAD4981EA393"
+      "sha256": "DAB12459D5F40D456559904ACC63BF23293581843799C42C3405A7DEB293168A"
     },
     {
       "source": "assets/event_collection/he18_heathen_children_fruit.cieg",
       "destination": "Events/4500.cieg",
-      "sha256": "1D328FF1D9EAF0768D35160D174BE489B0FD7CE3AC53DE87102043CB2C8397BF"
+      "sha256": "EE002717A8F84C37A6B44F67F7B6475B6242F217F3D143EB2BCF6119F2C67BA1"
     },
     {
       "source": "assets/event_collection/he19_doing_their_own_way.cieg",
       "destination": "Events/4501.cieg",
-      "sha256": "A4352277145BAB0F8CBC6D59113C4D55A827B2492A2A905D5B3457EA6552E175"
+      "sha256": "08A2A574A633A15DA8F4BF3ED95AEBDD2E51630BB2FADD0B039A9380DD2B4F32"
     },
     {
       "source": "assets/event_collection/he20_heathen_vision.cieg",
       "destination": "Events/4502.cieg",
-      "sha256": "109434F2E947115067AE15E7A1A090AFB9C072EEC7444BDEDA4FD30082224C3D"
+      "sha256": "F8147DD8CF9EC555C375FCEAEBEFF148D95E80C80B7ECFCA5DE85BED4576F3ED"
     },
     {
       "source": "assets/event_collection/he21_clumsy_heathen_good_turn.cieg",
       "destination": "Events/4503.cieg",
-      "sha256": "8C853BCFC2BE9717760AC5C61EDE4F52760FB871CFD07FAC7607F09365B8EF68"
+      "sha256": "E153C1674B07AEDC93AD3DE7451C650DE1410EDAF143C4B3D513C19DE7A78C26"
     },
     {
       "source": "assets/event_collection/he22_cold_snap_camp.cieg",
       "destination": "Events/4504.cieg",
-      "sha256": "8FDABDA295DC64220F04E7DCC8E81983AA9F82B5808AD6332D56CD0830B8A20A"
+      "sha256": "622594EE252D42C5069C9F565707BA318D45152CAD26E4A3655D06DC477FE16B"
     },
     {
       "source": "assets/event_collection/he23_mushroom_day_encampment.cieg",
       "destination": "Events/4505.cieg",
-      "sha256": "AF82D0C54CF09BA4F5210D06EE932626F1908C7F4D2888D8197E84773231823F"
+      "sha256": "627AB491CD522519C3ECB64DCA64C17854124290D843BC6BD92C0E8810BB1696"
     },
     {
       "source": "assets/event_collection/he24_heathens_remembrance.cieg",
       "destination": "Events/4506.cieg",
-      "sha256": "6DC3784D71D6382118483E603D44A9A077D8451C35D7781939ABCF597C8A8C05"
+      "sha256": "6E05DC36D2F7C6CD48FDACDB8903A487D14B2861A57A6C1A0F4E8ABA9EFAA856"
     },
     {
       "source": "assets/event_collection/he25_heathen_toy_lost_found.cieg",
       "destination": "Events/4507.cieg",
-      "sha256": "5DCBE9369108E42545B2FD0A9146541387A62E63AB91BE1D3F050A6CCBBFDB59"
+      "sha256": "0458191D3B71C9505125EC3CADD4910423107779021E04C315A7153A95C1833A"
     },
     {
       "source": "assets/event_collection/he26_spa_after_dark.cieg",
       "destination": "Events/4508.cieg",
-      "sha256": "91A1E8B84208768BB0C1B41D6E40255A4D254049BA86E13A1B8589EFC80E16AF"
+      "sha256": "F3FF1B68C2226D26F493D70863ED84ACE654D0DB58301615D7494665965CE94B"
     },
     {
       "source": "assets/event_collection/he27_missing_heathen_kids.cieg",
       "destination": "Events/4509.cieg",
-      "sha256": "DF39B5EB2604101655D3AD2C549D77D73BD97282400D0733565F26CD8C46AF30"
+      "sha256": "C017F4B3114AB5907E0A5B725171F55051385CE97102A4DC9CF4A7BB29A565CD"
     },
     {
       "source": "assets/event_collection/he28_mask_doesnt_fit_anymore.cieg",
       "destination": "Events/4510.cieg",
-      "sha256": "CABD75CE715F25C1FE3B7BA7E74892EACA7E9D45D3EF7A1F74DCDD332D15DEDD"
+      "sha256": "C0881272EC1E86ABF87B072A299F863E1212C7737D7A2F28C96A9ACD7B01C255"
     },
     {
       "source": "assets/event_collection/he29_roots_supper.cieg",
       "destination": "Events/4511.cieg",
-      "sha256": "F300C0F0F7DC7456328852061353250F2497B7F5762FA5E507D413DFFCB10D2C"
+      "sha256": "01813DDCB47742A19C54B12DC935104CA236C23EBB4F5C87E103A64FD2128524"
     },
     {
       "source": "assets/event_collection/he30_argument_about_fire_pit.cieg",
       "destination": "Events/4512.cieg",
-      "sha256": "B18B9E7C04B89516565003D5FE94923FCF194055D72150DC15E7CF8940F2D51F"
+      "sha256": "161E791AD1B0B959A1B65584919AA6A81DC3E894C5DEF2BE4C3A5385E511B0D5"
     },
     {
       "source": "assets/event_collection/he31_baby_first_mask.cieg",
       "destination": "Events/4513.cieg",
-      "sha256": "85080730706BF90D4615DF20486C491D3A29239B7B30C905F0FD8488983C9535"
+      "sha256": "609076C041ECF141117B5174B0FE64E8A092409B7A1783ADE00E45C5CDE0C341"
     },
     {
       "source": "assets/event_collection/he32_song_across_stream.cieg",
       "destination": "Events/4514.cieg",
-      "sha256": "A05AC6FF876EBA1DAEC5B5DFA1D23EDC1E206AB89FBC7C1DFB302EFB1A0C13C8"
+      "sha256": "768C3EF617EEFE8EDA29BBDA1B6245C39F8A75AF7DE289249FBC27BE681588C7"
     },
     {
       "source": "assets/event_collection/he33_snoring_hut.cieg",
       "destination": "Events/4515.cieg",
-      "sha256": "51E7D1FB26AC6229E038E24A492CC94F512F47D97BA9FAB615775001BC71CFB8"
+      "sha256": "5989BA06BAFA9E1E45A780882DC1E44C4B683F20FC0E9D9C7CBEF14B652E8D27"
     },
     {
       "source": "assets/event_collection/he34_teaching_stone.cieg",
       "destination": "Events/4516.cieg",
-      "sha256": "18D94C402C5E9E97659DA282A5A64A7FE106F714C4F95EEEC093F45F829F7BAB"
+      "sha256": "828711A206A2DB184ACEC72876D94C593E0331E32EAF181CE8E11FB17060B143"
     },
     {
       "source": "assets/event_collection/he35_heathen_weaver.cieg",
       "destination": "Events/4517.cieg",
-      "sha256": "A401C6ACA2B62151179C2BB9450288883F5A76921B91ECF4C51EBDDD9BF6E07A"
+      "sha256": "40C140A134BE5D0BDCB2A7BAA9B8F8AE28CD55130D35A20EFCC486E4C469CCD9"
     },
     {
       "source": "assets/event_collection/he36_pig_camp.cieg",
       "destination": "Events/4518.cieg",
-      "sha256": "7A920B75196DAA8F13FCAB802AE464AB34F8E0B9C5139E25277C4C3BE730858A"
+      "sha256": "779CA4D606D12BF4C6973347B070992F8788883BA85C0605C1FC7E7E5CBC5613"
     },
     {
       "source": "assets/event_collection/he37_mending_day.cieg",
       "destination": "Events/4519.cieg",
-      "sha256": "2DCA1FDC908E5C2E8F7230A16A496CBD15F1971FAF651F2DA5E55DBF60377673"
+      "sha256": "89502C62DF7D3523C9E36A39EAC2099FB25AFDA6A9EE92D0A8953266E42E60DA"
     },
     {
       "source": "assets/event_collection/he38_shell_collector.cieg",
       "destination": "Events/4520.cieg",
-      "sha256": "D71A9C6F6583CE2D1776A6EFCBD17303037608B596EF1911382ABFE1BB25FC0E"
+      "sha256": "DEF1C91A47A55FD57E589A285F62B3C4DBB508F028A1D4293179A19C92DA922A"
     },
     {
       "source": "assets/event_collection/he39_heathen_cook_pride.cieg",
       "destination": "Events/4521.cieg",
-      "sha256": "030E40E30A6FD4A5F1A737C9EF39A863E76E1E5EF55574D6EADB17E64A4A7C52"
+      "sha256": "BE40481DEE0534B0CDF9361A3E68EE2AD7F1393B7AED7113F158BE64FE15CD6E"
     },
     {
       "source": "assets/event_collection/he40_rain_dance_worked.cieg",
       "destination": "Events/4522.cieg",
-      "sha256": "E46E1143D1A53869CEA5C9A8A56E4684D7D08FB641AAF00C71340F1B7D32ED42"
+      "sha256": "F36F0F08944B0E7044E2E1484D8600B4B20586A36A4FDE223F17A4C4106BBAA3"
     },
     {
       "source": "assets/event_collection/he41_twins_swapped_masks.cieg",
       "destination": "Events/4523.cieg",
-      "sha256": "B5D5C3C49A4A1E1F1D80E06A2F64421955206F8CDF3F9FCEE4177DC6CE6DD928"
+      "sha256": "55397273E538AA8C0E004A74C726B08537E95C73137AF273945B6BF9A01F65EE"
     },
     {
       "source": "assets/event_collection/he42_quiet_day_off.cieg",
       "destination": "Events/4524.cieg",
-      "sha256": "1041960EC952566A9424618D90347067C1DD9F3D98F8E48983CB5E761C8243B6"
+      "sha256": "765F0965527B18F5189320B7451CDB66DF3EA288925F4F199B0711EAD884BBCA"
     },
     {
       "source": "assets/event_collection/he43_elder_long_story.cieg",
       "destination": "Events/4525.cieg",
-      "sha256": "E14BF75F7A880F65AFAB6792389BDE7D10713871D57D867892EEF855AA87CCB3"
+      "sha256": "F51858F5B5452321D792F07174D46CD1A63D888E3B963037F8E8229EF1717145"
     },
     {
       "source": "assets/event_collection/he44_first_day_grown_up.cieg",
       "destination": "Events/4526.cieg",
-      "sha256": "3B62A2C794E507A2F7872EA2A7752444FC3A8C12E6989B371919B4BE994A5D0F"
+      "sha256": "0369B157123C6C072B2FBCADC346ECD811390F48BA44E0818A93C54BC3694A99"
     },
     {
       "source": "assets/event_collection/he45_camp_night.cieg",
       "destination": "Events/4527.cieg",
-      "sha256": "0C85C3834244F7EB80C5F00548D94DF1C3F16E3DAE62025A42889BFAD6040EC4"
+      "sha256": "3BB9B27925D110D4F6ECF2B467364CE18C8F37C4C1B1FE7899E8958BA0F616D7"
     },
     {
       "source": "assets/event_collection/hea01_count_four_count.cieg",
