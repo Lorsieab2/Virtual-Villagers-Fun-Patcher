@@ -1609,7 +1609,7 @@ villagers and life happens to them too."
 - **The puzzles' Heathens** (the owner, 2026-11-23: "Any mention of death/bad outcomes to puzzle heathens = acceptable
   but flavor only (Puzzle heathens are EXEMPT from any actual effects AT ALL TIMES.)"): a Heathen whose role +0x1CFC
   is 12-17 may be cast in a role of the row (alive, never sick; the special, protected and never-harmed rules have
-  nothing to keep them from).  Every effect whose role -- or pregnancy partner -- is one is told, never made
+  nothing to keep them from).  Every effect whose role -- or second role: a pregnancy's or nursing baby's other parent, a body swap's "with" (Codex on #856) -- is one is told, never made
   (`cg_puzzle_effect`, first in `cg_effect`): their record is only read, its automatic line is not written, and the
   page says once "Nothing really happens to <name>. (no effect)" (`pz_flavor`).  The Island Events log then has
   nothing of theirs (their record never changed): no death is ever recorded that did not happen.  The Retired Chief

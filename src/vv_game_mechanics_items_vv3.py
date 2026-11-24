@@ -83,7 +83,7 @@ DEFAULT_OFF = frozenset({"vv3_learning_never_fails", "vv3_everyone_collects_like
                          "vv3_hungrier_villagers", "vv3_sickness_multiplier", "vv3_fruit_trees_refill_to_full",
                          "vv3_collectibles_stay_collected", "vv3_more_island_events",
                          "vv3_scrolling_popups", "vv3_isola_grand_event_collection", "vv3_gender_presentation",
-                          "vv3_more_frequent_island_events", "vv3_village_solidarity",
+                          "vv3_more_frequent_island_events", "vv3_village_solidarity", "vv3_revive_from_graves",
                           # the 0.1x-10x sliders (#799), One-Time Collectibles Appear Again (#800) and Every Island
                           # Event Can Happen (#797): off by default
                           "vv3_collectible_frequency", "vv3_food_gain", "vv3_tech_gain", "vv3_skill_success",

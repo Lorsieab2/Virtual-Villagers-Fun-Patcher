@@ -7938,8 +7938,12 @@ static int cg_puzzle_hit(const ce_adapter *a, int game, const unsigned char *e) 
         return -1;
     }
     who[0] = cg_resolve_role(e[1]);
-    who[1] = (e[0] == CGE_PREGNANT || e[0] == CGE_NURSING) && cg_u32(e + 4) < (unsigned int)cg_g.n_role
-             ? cg_resolve_role((int)cg_u32(e + 4)) : -1;
+    /* Every effect that names a second villager role in its first value -- and so may write that role's record: a
+       pregnancy's or a nursing baby's other parent (who may carry instead), a body swap's "with" (Codex on #856).
+       The loader's own list (cg_load): no other effect's value is a villager role (change_name's is a stranger's;
+       a group, the newest villager and the whole village never take a Heathen, cg_group_* / cg_celebrate_all). */
+    who[1] = (e[0] == CGE_PREGNANT || e[0] == CGE_NURSING || e[0] == CGE_BODY_SWAP)
+             && cg_u32(e + 4) < (unsigned int)cg_g.n_role ? cg_resolve_role((int)cg_u32(e + 4)) : -1;
     for (k = 0; k < 2; ++k) {
         if (who[k] >= 0 && who[k] < CG_MAX_ROLES && (rec = cg_villager(a, who[k])) != NULL
             && cg_puzzle_heathen(game, rec)) {

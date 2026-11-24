@@ -1,0 +1,3 @@
+This file was put here by the Virtual Villagers Fun Patcher's row "Revive Buried/Disappeared Villagers".
+While it is here, "VVFP Story Upgrades.dll" offers that upgrade in the Tech screen's upgrades menu.
+Its contents are never read: the file being here is the setting.

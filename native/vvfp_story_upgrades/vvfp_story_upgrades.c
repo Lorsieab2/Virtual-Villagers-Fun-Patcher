@@ -1492,6 +1492,7 @@ __declspec(dllexport) int __stdcall VvfpStoryEventChosen(int game) {
 
 #include "story_custom_ui.inc"
 #include "story_time_skip.inc"
+#include "story_revive.inc"       /* Revive Buried/Disappeared Villagers (the owner, 2026-11-22) */
 #include "story_faith_notice.inc"   /* Popup When Believers Become Heathens (New Believers) */
 #include "story_fog_notice.inc"     /* Fog of Doom Lets Red and Orange Heathens Listen's notice (New Believers) */
 #include "story_queue.inc"      /* queued purchases kept across a quit */

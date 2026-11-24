@@ -412,6 +412,89 @@ population modes (tests/test_vv3_recharge_chief_powers.py), including the
 game's own food, lesson and collectible routines afterwards; not yet run in the
 game.
 
+## Revive Buried/Disappeared Villagers (v1.35.98)
+
+The owner (2026-11-22): an upgrade in the Tech screen's upgrades menu costing 100,000 tech points that lists every
+buried villager and every villager who vanished ("allow vanished people too"); the one picked comes back as the
+same person, "reset them to age.... 5? same person", and their grave is removed; refused at the village's maximum
+population; repeatable. Its own row per game, "Revive Buried/Disappeared Villagers" (`vv<N>_revive_from_graves`),
+**needs Story / Cheat Upgrades**; off by default, on in Owner's Defaults (the owner, 2026-11-22). The row ships one
+file, the flag "VVFP Revive From Graves.txt"; "VVFP Story Upgrades.dll" offers the upgrade while it is there
+(`native/vvfp_story_upgrades/story_revive.inc`), and each Origins companion adds the Tech menu's button last,
+above its other story buttons, as wide as its label needs (`native/shared/story_bridge.h`
+`vvfp_story_add_revive_button`, id 4095; the menu is widened when it is narrower than the label). No executable
+byte is written.
+
+**Price** (the owner, 2026-11-23). Like the other story upgrades: 100,000 tech points while Story / Cheat
+Upgrades cost Tech Points is ticked, free while it is not (the button and the window say which); taken only
+once the villager is back; with fewer the purchase is refused, so tech points never go below 0.
+
+**Who is listed.** The village's Deaths and Disappearances logs, in the logs' own reading order (`native/shared/log_slot.h`
+vv_log_read_folders_w): the older builds' shared folders first (`Virtual Villagers Fun Patcher Logs\Deaths` and`
+...\Deaths and Disappearances`, never moved), each record taken only under this village's own header -- read from
+the slot's save by "VVFP Save Reset.dll" (SavedVillageHeader); none when it can not be read -- then the slot's own
+folders (`Virtual Villagers Fun Patcher Logs\Save <S>\` and `Virtual Villagers Fun Patcher\Save <S>\Logs\`; Start Over
+wipes them with the village). The skills come from the Tribe History the same way. Read only: nothing is written or
+moved. Every `Death <n>` and `Disappeared` record, the newest record of each person (name,
+sex, head, body, likes and dislikes the same), newest first. A person with that whole identity in the village now
+-- living, or a body awaiting burial (Custom Island Event's Revive is the way for a body) -- is not listed. Listed
+and refused, with the reason: a record without the sex, looks or likes and dislikes (a "Recorded afterwards"
+backfill can lack them), a name longer than the game holds, A New Home's Golden Child (only his puzzle makes one),
+New Believers' puzzle Heathens ("Special villager: Heathen ..."), and New Believers' believers who "Left the tribe:
+became a Heathen" (they are alive, among the Heathens). Each person shows the name, sex, age at death (years and
+age units), the Death record's number and cause or what happened, the grave line and epitaph (the grave's own
+epitaph when the grave is still there: an edited epitaph is what shows), where they lie, the special and custom
+titles, the mask, the head and body, the likes and dislikes, the parents, and the skills -- each "unknown" when
+the logs do not hold it.
+
+**Skills.** A Death or Disappeared record has none; the newest Village History snapshot of the same name, sex,
+head and body no older than the age at death gives them ("the last Village History snapshot of them"). With none
+they are unknown and the game's creator picks a child's. (Decision for the owner: a returned villager keeps the
+skills they had -- the owner listed skills in "same person"; resetting them to a new child's is a one-line
+change.)
+
+**The revival.** Through the Custom Island Event's spawn: each game's own creator (VV1 0x43C350, VV2 0x44F580,
+VV3 0x45FF50, VV4 0x467D10, VV5 0x471E20) after the game's own room predicate and a free record, at age 100 (five
+years), then the name (the last name is part of the stored name), head, body, every like and dislike the record
+holds room for, the skills, the parents as the Custom Island Event's Parents write them (A New Home: through
+Show Parents in Details Screen's sidecar, without it no parents), the custom title and the mask. Special statuses
+are not restored: an Esteemed Elder of The Lost Children comes back without the Elder flag (their totem stays),
+The Secret City's Tribal Chief comes back as an ordinary villager; a title the game derives from the skills (The
+Secret City's and New Believers' Esteemed Elder, The Tree of Life's Scholar) follows the skills. New Believers'
+villagers come back as believers; a Heathen whose Death or Disappeared record says "Faction: Heathen" (or
+"Isolan": every log records the Heathens since PR #850) is listed too and comes back as an ordinary Heathen in the
+camp through the game's own Heathen creator 0x46FD20 (faith -55, as the Custom Island Event makes one; the game
+draws their mask) -- `RV_HEATHENS_STAY_HEATHENS`, a decision for the owner (0 makes them believers).
+
+**The grave.** Matched by name and age at death (The Tree of Life and New Believers: head and body too), each grave
+to one record in log order; one that changed since the list was made is never removed (the purchase is refused).
+
+| Game | Graveyard | Removal |
+| --- | --- | --- |
+| A New Home | world +0xA31C, 50 x 0x2C (name +0, age +0x24; age 0 empty) | the slot zeroed in place: the cemetery's 10 x 5 places go by slot, every reader treats age 0 as empty, the burial takes the first empty slot |
+| The Lost Children | world +0x2EB0C, 50 x 0x7C (name +0, epitaph +0x19, age +0x74) | the same, epitaph included |
+| The Secret City | Roster of the Dead 0x5973F0 +0x974, 500 x 0x30 (age +0x1C); gravestones 0x5973F0, 50 x 0x2C (+0 its entry or -1, +4 value, +8 epitaph) | later entries and their stones move down one place (+0 renumbered, the burial helper slots T[] at +0x6734 with them), the last emptied: the counts 0x454B10 / 0x454BC0 and the loader 0x454CB0 stop at the first empty entry; a 51st entry moving to place 49 gets the stone the writer 0x454FF0 gives (its epitaph by the writer's rule: 0x42F740 / 0x42F190, coin 0x4032D0); refused while +0x6810 (a burial under way) is not 0 |
+| The Tree of Life | 0x5025C8, 500 x 0x5C (age +0x1C, head +0x20, body +0x24, epitaph +0x38) | later entries move down one place, the last emptied (count 0x45D670, loader 0x45D6E0) |
+| New Believers | 0x5481A8, 500 x 0x5C | as The Tree of Life (count 0x464E90, loader 0x464EF0); refused while a Reanimate runs |
+
+**The logs.** The returned villager gets an "Arrived" record in the Births and Conceptions log at the next save,
+`How: Returned from the dead`, with their parents (Cause of Death's `VvfpCauseArrivedBy` /
+`VvfpCauseArrivedParents`, as a Custom Island Event's villager), so the logs match the save: a quit without saving
+leaves neither the villager nor the record, and the save still has the grave. The old Death or Disappeared record
+stays (the logs are append-only). Nothing is counted as a birth or a death; Villagers Buried is a lifetime count
+that never goes down, and a returned villager buried again is a second burial.
+
+**Known limits (reported).** Cause of Death's "Graves Logged" file keys graves by place; a removed grave makes it
+re-check every grave against the Deaths log at the next scan (it matches by name and age at death, so nothing is
+written twice). The Village Elders statistic (The Secret City to New Believers) examines graves past the count it
+saw at the last save; a revival followed by another burial before the next save can leave that one burial
+unexamined for an elder flag.
+
+Evidence: emulation of the rendered executables in all three population modes with the test build
+(`tests/test_story_revive_from_graves.py`: the list from log texts, the refusals, each game's creator, the identity
+written, the price, the Arrived record's How and parents, each game's grave removal and the game's own grave counts
+afterwards; nine mutations of story_revive.inc each caught). **Not yet seen in a running game.**
+
 ## Stock behaviour found in passing (reported, not changed)
 
 The owner's rule: no original-game behaviour is changed without being reported

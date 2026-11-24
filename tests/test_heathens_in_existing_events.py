@@ -337,6 +337,48 @@ class Engine(unittest.TestCase):
                     words(r)
                     self.assertNotEqual(r.p.read(r.v.record(0), STRIDE), before)
 
+    # Every effect that names a second villager role (Codex on #856: a body swap's "with" wrote the other record).
+    PAIR_EFFECTS = (
+        {"do": "pregnant", "role": "x", "partner": "y", "any_birth_sex": True},
+        {"do": "nursing", "role": "x", "partner": "y"},
+        {"do": "body_swap", "role": "x", "with": "y"},
+    )
+
+    def pair_graph(self, fx: dict) -> bytes:
+        return compiled({"format": "vvfp-cie-graph", "version": 6, "title": "Omen", "games": [5],
+                         "roles": {"x": {"kind": "villager", "min_age": 18, "sex": "female", "heathens": "allowed",
+                                         "protected": "allow"},
+                                   "y": {"kind": "villager", "min_age": 18, "sex": "male", "heathens": "allowed",
+                                         "protected": "allow"}},
+                         "start": "p", "nodes": {"p": {"text": "(x) and (y) meet.", "auto_text": True,
+                                                       "effects": [fx]}}})
+
+    def test_a_puzzles_heathen_is_never_written_in_any_role_position(self):
+        """The puzzle's Heathen as the first role and as the second; the other an ordinary Heathen.  Every effect of
+        EFFECTS (one role, given to the second role here) and PAIR_EFFECTS (two): the puzzle's Heathen's record is
+        byte for byte the same."""
+        two = [(0, "f", 30, "Mira", 0, False), (1, "m", 32, "Kai", 0, False)]
+        cases = [(fx, 0) for fx in self.PAIR_EFFECTS] + [(fx, 1) for fx in self.PAIR_EFFECTS]
+        cases += [(dict(fx, role="y") if "role" in fx else dict(fx, who="y"), 1) for fx in self.EFFECTS
+                  if fx["do"] != "pregnant"]
+        for fx, puzzle in cases:
+            with self.subTest(fx=fx["do"], puzzle_is="x" if puzzle == 0 else "y"):
+                ordinary = 1 - puzzle
+                r = run_with(two, heathens=(ordinary,), puzzle=(puzzle,))
+                before = r.p.read(r.v.record(puzzle), STRIDE)
+                self.assertIsNone(r.queue6(self.pair_graph(fx)), fx)
+                said = words(r)
+                self.assertEqual(r.p.read(r.v.record(puzzle), STRIDE), before, "never written, in any position")
+                self.assertIn("(no effect)", said)
+
+    def test_mutation_a_body_swap_between_two_ordinary_heathens_is_made(self):
+        two = [(0, "f", 30, "Mira", 0, False), (1, "m", 32, "Kai", 0, False)]
+        r = run_with(two, heathens=(0, 1))
+        before = r.p.read(r.v.record(1), STRIDE)
+        self.assertIsNone(r.queue6(self.pair_graph({"do": "body_swap", "role": "x", "with": "y"})))
+        words(r)
+        self.assertNotEqual(r.p.read(r.v.record(1), STRIDE), before, "without a puzzle's Heathen it is made")
+
     def test_a_puzzles_heathen_is_never_sick_or_dead_when_cast(self):
         g = {"format": "vvfp-cie-graph", "version": 6, "title": "Omen", "games": [5],
              "roles": {"x": {"kind": "villager", "min_age": 14, "heathens": "allowed"}},

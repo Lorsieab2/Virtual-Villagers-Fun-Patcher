@@ -241,6 +241,7 @@ FILES = [
     # Story / Cheat Upgrades: one companion for all five games, loaded by each
     # game's Origins companion; no executable bytes.
     "assets/story_upgrades/VVFP Story Upgrades.dll",
+    "assets/story_upgrades/VVFP Revive From Graves.txt",
     # Cause of Death: one companion for all five games, loaded by each game's
     # Origins companion; no executable bytes.
     "assets/cause_of_death/VVFP Cause of Death.dll",
@@ -695,6 +696,11 @@ FILES = [
     "data/vv3_story_cheat_upgrades_cost_tech_points_feature.json",
     "data/vv4_story_cheat_upgrades_cost_tech_points_feature.json",
     "data/vv5_story_cheat_upgrades_cost_tech_points_feature.json",
+    "data/vv1_revive_from_graves_feature.json",
+    "data/vv2_revive_from_graves_feature.json",
+    "data/vv3_revive_from_graves_feature.json",
+    "data/vv4_revive_from_graves_feature.json",
+    "data/vv5_revive_from_graves_feature.json",
     "data/vv1_cause_of_death_feature.json",
     "data/vv2_cause_of_death_feature.json",
     "data/vv3_cause_of_death_feature.json",
