@@ -147,8 +147,12 @@ def heathens_row(game: int) -> dict:
                  "grave) unless a skeleton row covers them, a camp Heathen is replaced as when one dies of old age "
                  "(never after The Last Heathen, never a villager who left your tribe), and a baby is only ever two "
                  "Heathens' and is born a Heathen. A Heathen is never copied or made a Heathen again. Which roles "
-                 "allow Heathens is set per event (every role of the existing events, by the owner's audit). Off by default; Owner's Defaults "
-                 f"ticks it. **Needs Story / Cheat Upgrades.** {UNVERIFIED}",
+                 "allow Heathens is set per event (every role of the existing events, by the owner's audit). The 45 "
+                 "Heathen-Exclusive Events are about the Heathens' own lives: no Heathen's Faith rises from them, nobody "
+                 "dies or leaves, and a Heathen honoring the dead at the encampment goes to the old hovel when "
+                 "\"Memorial Actions Can Also Occur at the Heathen Hovel\" is installed, or else sits where they are. "
+                 "Off by default; Owner's Defaults ticks it. **Needs Story / Cheat Upgrades; the Heathen-Exclusive "
+                 f"Events also need the Isola Grand Event Collection.** {UNVERIFIED}",
                  ["Story / Cheat Upgrades casts a Heathen (faction set, never sick, health above 0) in a new event's role "
                   "marked \"heathens\": \"allowed\", \"kin\" or \"only\" while this row is installed; a role marked "
                   "\"only\" takes no believer, and without this row nobody, so its event is not offered.  Every "
@@ -188,6 +192,11 @@ def heathens_row(game: int) -> dict:
                   "then only a Heathen expecting an event's baby ages, until the birth.",
                   "More Island Events casts a Heathen only in a role its table names: The Aspiring Adventurer's adventurer "
                   "and friend.",
+                  "The Heathen-Exclusive Events HE-01..HE-45 (Isola Grand Event Collection, New Believers only; "
+                  "cie-v6-binary.md 47): \"at least N graves\" read from the game's own count (0x464E90 on 0x5481A8); "
+                  "the encampment's honoring and reflecting started through the hovel patch's own entries (0x494B83, "
+                  "0x494DF1) when its bytes are in, else \"Sitting\"; a group of every ordinary Heathen (or N at "
+                  "random), never roles 12-17, never sick.",
                   "The Island Events log ends each Heathen's record with \"Faction: Heathen\" (\"Isolan\" with "
                   "Guardians of Isola Rewrite)."])
     record["needs_on"] = [{"id": f"vv{game}_story_cheat_upgrades",
@@ -222,9 +231,9 @@ def heathens_row(game: int) -> dict:
         "otherwise a name in the installed patches' list (\"VVFP Installed Patches.txt\") that Story / Cheat "
         "Upgrades and More Island Events read.")
     record["evidence_status"] = ("the casting, the flavor-only effects and the log line pinned in "
-                                 "tests/test_heathens_in_island_events.py and tests/test_heathens_in_existing_events.py (emulated); "
-                                 "runtime/player confirmation "
-                                 "pending")
+                                 "tests/test_heathens_in_island_events.py and tests/test_heathens_in_existing_events.py (emulated), "
+                                 "the Heathen-Exclusive Events and their engine pieces in "
+                                 "tests/test_heathen_only_events.py (emulated); runtime/player confirmation pending")
     return record
 
 

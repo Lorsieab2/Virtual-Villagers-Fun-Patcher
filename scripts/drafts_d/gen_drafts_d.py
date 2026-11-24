@@ -520,7 +520,7 @@ def main(argv: list[str]) -> int:
         return 0
     docs, problems = [], []
     for sid, (_name, _n, sec, _topic) in lib.DRAFTS_D.items():
-        if argv and sid not in argv:
+        if (argv and sid not in argv) or sid in lib.DRAFTS_D_OWN_GENERATOR:
             continue
         anns = read_annotations(sid)
         codes = {code_of(sid, r) for r in rows(sid)}

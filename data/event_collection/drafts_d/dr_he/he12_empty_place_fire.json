@@ -1,0 +1,124 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Empty Place at the Fire",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he12_empty_place_fire",
+  "source": "heathen_ex",
+  "lines": [
+   210,
+   223
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L210",
+  "ledger": [
+   {
+    "src": "L211",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L212",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L218",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L222",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L223",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A Heathen keeps an empty place at the fire, and a newcomer to that fire nearly sits in it.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan keeps an empty place at the fire, and a newcomer to that fire nearly sits in it."
+   }
+  ],
+  "cast_only": [
+   "subject"
+  ]
+ },
+ "requirement": {
+  "min_eligible": 2
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  },
+  "friend": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "At every meal (subject) leaves a space beside (subject.him/her) at the fire, for someone who isn't coming back. Tonight (friend), new to sitting at (subject)'s fire, nearly sits in it.",
+   "src": "L214",
+   "choices": [
+    {
+     "label": "Let (friend.Him/Her) Sit There",
+     "next": "o1",
+     "src": "L216"
+    },
+    {
+     "label": "Ask (friend.Him/Her) to Shift Over",
+     "next": "o2",
+     "src": "L220"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(subject) hesitates, then nods. (friend) sits down carefully, as if the space might mind. Over the meal (subject) tells (friend.him/her) about the person who used to sit there. It is the first time in a long time (subject) has said the name out loud. It hurts, and (subject.he/she) is glad (subject.he/she) did it. \\(no effect\\)",
+   "src": "L217"
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "\"That place is kept,\" (subject) says, kindly. (friend) shifts over at once. Later, (friend.he/she) brings an extra bowl of stew and sets it in the empty place without being asked. (subject) doesn't say anything. (subject.He/she) doesn't need to.",
+   "src": "L221",
+   "effects": [
+    {
+     "do": "skill",
+     "role": "friend",
+     "skills": [
+      "Parenting"
+     ],
+     "min": 10,
+     "max": 20,
+     "src": "L222"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

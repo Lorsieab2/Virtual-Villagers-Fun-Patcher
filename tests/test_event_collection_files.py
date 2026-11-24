@@ -345,9 +345,12 @@ class FrozenDraftsD(unittest.TestCase):
 
     def test_sha256_rows_and_files(self):
         data = json.loads(lib.MANIFEST.read_text(encoding="utf-8"))
-        self.assertEqual(set(lib.DRAFTS_D), set(self.WANT))
+        # (heathen_ex, the Heathen-Exclusive Events, is its own generator's: tests/test_heathen_only_events.py)
+        self.assertEqual(set(lib.DRAFTS_D) - set(lib.DRAFTS_D_OWN_GENERATOR), set(self.WANT))
         owner = lib.owner_titles()
         for sid, (_name, n, section, _topic) in lib.DRAFTS_D.items():
+            if sid in lib.DRAFTS_D_OWN_GENERATOR:
+                continue
             with self.subTest(sid):
                 self.assertEqual(lib.recorded_sha256(sid), lib.source_sha256(sid))
                 self.assertEqual(lib.SOURCES[sid][0].read_bytes().count(b"\n"), n)

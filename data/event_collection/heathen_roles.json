@@ -1,4 +1,296 @@
 {
   "_comment": "New Believers' Heathens in the Isola Grand Event Collection's roles (the owner, 2026-11-23; docs/event-collection/cie-v6-binary.md 45; scripts/build_event_collection_features.py apply_heathen_roles). With the row 'Heathens can be selected in Island Events/Heathen-Exclusive Events' installed, a role marked 'allowed' may cast a believer or an ordinary Heathen, 'only' an ordinary Heathen (never a puzzle's, never a believer). A role not named here stays a believer's. 'exclusive': true marks a Heathen-Exclusive Event (every villager role 'only'). The Heathen audit fills 'events'; each row needs the owner's approval before it ships. Form: {\"<event id>\": {\"roles\": {\"<role id>\": \"allowed\" | \"only\" | \"never\"}, \"exclusive\": true}}",
-  "events": {}
+  "events": {
+    "he01_quiet_hour_encampment": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he02_flowers_mud_hut": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he03_mask_hung_up_good": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he04_song_ones_before": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he05_visit_mausoleum": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he06_carved_post": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he07_child_asks_about_hut": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he08_stones_stream": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he09_long_night_fire": {
+      "roles": {
+        "subject": "only",
+        "friend": "only",
+        "third": "only"
+      },
+      "exclusive": true
+    },
+    "he10_heathen_day_honor": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he11_name_nobody_remembers": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he12_empty_place_fire": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he13_two_peoples_one_grief": {
+      "roles": {
+        "subject": "only"
+      }
+    },
+    "he14_bed_bugs_camp": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he15_heathen_daredevil": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he16_straw_hat_encampment": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he17_strange_nectar_camp": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he18_heathen_children_fruit": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he19_doing_their_own_way": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he20_heathen_vision": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he21_clumsy_heathen_good_turn": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he22_cold_snap_camp": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he23_mushroom_day_encampment": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he24_heathens_remembrance": {
+      "roles": {
+        "subject": "only",
+        "friend": "only",
+        "third": "only"
+      },
+      "exclusive": true
+    },
+    "he25_heathen_toy_lost_found": {
+      "roles": {
+        "subject": "only"
+      }
+    },
+    "he26_spa_after_dark": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he27_missing_heathen_kids": {
+      "roles": {
+        "subject": "only",
+        "friend": "only",
+        "third": "only"
+      },
+      "exclusive": true
+    },
+    "he28_mask_doesnt_fit_anymore": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he29_roots_supper": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he30_argument_about_fire_pit": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he31_baby_first_mask": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he32_song_across_stream": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he33_snoring_hut": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he34_teaching_stone": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he35_heathen_weaver": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he36_pig_camp": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he37_mending_day": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he38_shell_collector": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he39_heathen_cook_pride": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he40_rain_dance_worked": {
+      "roles": {
+        "subject": "only",
+        "friend": "only",
+        "third": "only"
+      },
+      "exclusive": true
+    },
+    "he41_twins_swapped_masks": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he42_quiet_day_off": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he43_elder_long_story": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    },
+    "he44_first_day_grown_up": {
+      "roles": {
+        "subject": "only"
+      },
+      "exclusive": true
+    },
+    "he45_camp_night": {
+      "roles": {
+        "subject": "only",
+        "friend": "only"
+      },
+      "exclusive": true
+    }
+  }
 }

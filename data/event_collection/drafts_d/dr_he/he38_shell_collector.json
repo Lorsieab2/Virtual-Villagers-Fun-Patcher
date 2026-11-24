@@ -1,0 +1,128 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Shell Collector",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he38_shell_collector",
+  "source": "heathen_ex",
+  "lines": [
+   618,
+   632
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L618",
+  "ledger": [
+   {
+    "src": "L619",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L620",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L626",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L630",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L631",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L632",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   }
+  ],
+  "description": "A Heathen has found a shell they have never seen before: a long pink spiral that hums.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "An Isolan has found a shell they have never seen before: a long pink spiral that hums."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 8,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "(name1) has a collection of shells that takes up most of (his/her) hut. Today (he/she) has found one (he/she) has never seen before: a long spiral, pink inside, that hums when you hold it to your ear.",
+   "src": "L622",
+   "choices": [
+    {
+     "label": "Show It Off",
+     "next": "o1",
+     "src": "L624"
+    },
+    {
+     "label": "Keep It Secret",
+     "next": "o2",
+     "src": "L628"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "Everyone at the camp takes a turn listening to it. The children decide it is singing. The adults decide it is the sea. (name1) decides it is both.",
+   "src": "L625",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "the ocean",
+     "src": "L626"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) hides it under (his/her) mat and listens to it every night before sleep. It is the best secret (he/she) has ever had.",
+   "src": "L629",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "quiet",
+     "src": "L630"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

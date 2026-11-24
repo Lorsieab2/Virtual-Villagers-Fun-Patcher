@@ -1,0 +1,131 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Straw Hat at the Encampment",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he16_straw_hat_encampment",
+  "source": "heathen_ex",
+  "lines": [
+   285,
+   300
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L285",
+  "ledger": [
+   {
+    "src": "L286",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L287",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L288",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L294",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L299",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L300",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   }
+  ],
+  "description": "A beautifully woven straw hat has washed up near the encampment.",
+  "label_case": "title",
+  "exact_amounts": true
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 18,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A large, beautifully woven straw hat has washed up near the encampment. Nobody knows who made it. It is, everyone agrees, far too fine to have been made by anyone on this side of the island.",
+   "src": "L290",
+   "choices": [
+    {
+     "label": "Wear It",
+     "next": "o1",
+     "src": "L292"
+    },
+    {
+     "label": "Use It as a Cooking Strainer",
+     "next": "o2",
+     "src": "L296"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) wears it everywhere for a week. It doesn't go with (his/her) mask at all. (He/she) doesn't care.",
+   "src": "L293",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "surprises",
+     "src": "L294"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "It makes an excellent strainer. The camp's stew has never been so clear. A small amount of grumbling is heard from people who wanted a turn wearing it.\nThe Heathens' village gains food. \\(no effect\\)",
+   "src": "L297,L298",
+   "text_only": [
+    {
+     "what": "\"food\"",
+     "reason": "the owner's flavor rule (2026-11-23): only Heathens are in this event, so the Heathens' village's food is story text only -- the game is not changed, and the draft's line ends \"(no effect)\"",
+     "src": "L297,L298"
+    },
+    {
+     "what": "\"food\"",
+     "reason": "the owner's flavor rule (2026-11-23): only Heathens are in this event, so the Heathens' village's food is story text only -- the game is not changed, and the draft's line ends \"(no effect)\"",
+     "src": "L299"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "It makes an excellent strainer. The camp's stew has never been so clear. A small amount of grumbling is heard from people who wanted a turn wearing it.\nThe Isolans' village gains food. \\(no effect\\)",
+     "src": "L297,L298"
+    }
+   ]
+  }
+ },
+ "patches": [
+  "guardians_of_isola"
+ ]
+}

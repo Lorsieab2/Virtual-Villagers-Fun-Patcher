@@ -1,0 +1,178 @@
+{
+ "format": "vvfp-cie-graph",
+ "version": 6,
+ "title": "The Heathen Daredevil",
+ "games": [
+  5
+ ],
+ "collection": {
+  "id": "he15_heathen_daredevil",
+  "source": "heathen_ex",
+  "lines": [
+   267,
+   282
+  ],
+  "section": "dr_he",
+  "credit": "HEATHEN-ONLY EVENTS (HE-01 to HE-45, draft for the owner, 2026-11-23, target v1.35.98)\nNew Believers only. Island events about the Heathens' own lives: honoring their dead, Heathen versions of events our villagers already have, and small moments of camp life.",
+  "draw_weight": 1,
+  "series": "dr_he",
+  "title_src": "L267",
+  "ledger": [
+   {
+    "src": "L268",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L269",
+    "kind": "note",
+    "why": "the draft's note (casting, what it is based on, what is story text), carried out as the roles and effects"
+   },
+   {
+    "src": "L270",
+    "kind": "note",
+    "why": "the requirement and odds, carried out as the roles (an ordinary Heathen each, their count), the grave requirement and the series' draw"
+   },
+   {
+    "src": "L276",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L280",
+    "kind": "instruction",
+    "why": "the draft's effects, never shown: the page's effects"
+   },
+   {
+    "src": "L281",
+    "kind": "note",
+    "why": "the outcome odds: one outcome per choice"
+   },
+   {
+    "src": "L282",
+    "kind": "note",
+    "why": "the Guardians of Isola Rewrite wording, carried out as the title / page / description variants (guardians-wording.md)"
+   }
+  ],
+  "description": "Young Heathens are daring each other to jump off the rocks by the waterfall.",
+  "label_case": "title",
+  "exact_amounts": true,
+  "description_variants": [
+   {
+    "if": {
+     "patch": "guardians_of_isola"
+    },
+    "description": "Young Isolans are daring each other to jump off the rocks by the waterfall."
+   }
+  ]
+ },
+ "requirement": {
+  "min_eligible": 1
+ },
+ "roles": {
+  "subject": {
+   "kind": "villager",
+   "min_age": 14,
+   "heathens": "only"
+  }
+ },
+ "start": "setup",
+ "nodes": {
+  "setup": {
+   "type": "question",
+   "name": "The setup",
+   "text": "A group of young Heathens is daring each other to jump off the rocks by the waterfall. (name1) is next in line, and everyone is watching.",
+   "src": "L272",
+   "text_only": [
+    {
+     "what": "\"dislikes\"",
+     "reason": "a feeling in the moment; the outcome's own effects are the draft's -- story only",
+     "src": "L276"
+    }
+   ],
+   "variants": [
+    {
+     "if": {
+      "patch": "guardians_of_isola"
+     },
+     "text": "A group of young Isolans is daring each other to jump off the rocks by the waterfall. (name1) is next in line, and everyone is watching.",
+     "src": "L272"
+    }
+   ],
+   "choices": [
+    {
+     "label": "Jump",
+     "next": "o1",
+     "src": "L274"
+    },
+    {
+     "label": "Don't Jump",
+     "next": "o2",
+     "src": "L278"
+    }
+   ]
+  },
+  "o1": {
+   "name": "Outcome A",
+   "text": "(name1) jumps, whooping all the way down, and comes up laughing. From then on (he/she) is the first one in the water every time.",
+   "src": "L275",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "running",
+     "src": "L276"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "likes",
+     "preference": "jumping",
+     "src": "L276"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "work",
+     "src": "L276"
+    }
+   ],
+   "auto_text": true
+  },
+  "o2": {
+   "name": "Outcome B",
+   "text": "(name1) steps back from the edge. \"Not today.\" A couple of the others tease (him/her), and one of them quietly steps back too.",
+   "src": "L279",
+   "effects": [
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "jumping",
+     "src": "L280"
+    },
+    {
+     "do": "preference",
+     "role": "subject",
+     "list": "dislikes",
+     "preference": "dancing",
+     "src": "L280"
+    }
+   ],
+   "auto_text": true
+  }
+ },
+ "title_variants": [
+  {
+   "if": {
+    "patch": "guardians_of_isola"
+   },
+   "title": "The Isolan Daredevil"
+  }
+ ],
+ "patches": [
+  "guardians_of_isola"
+ ]
+}
