@@ -2637,11 +2637,15 @@ def expand_v6(text: str, g: dict, bindings: dict[str, Binding], picks: dict[tupl
 
 
 def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _depth: int = 0,
-             pronoun_names: bool = False, label: bool = False, award2: int = 0) -> str:
+             pronoun_names: bool = False, label: bool = False, award2: int = 0, _sub=None) -> str:
     """Version 6 text at its widest in `game` (`g` lowered): the longest names, the longer pronouns, the widest
     award (and `award2` digits for (award2): award2_width), each pool instance as its longest eligible item (after
     its own worst case; the first on a tie), then the glyph fallback (VV1/VV2).  `holds(cond)` says whether an
-    item's condition can hold (default: always)."""
+    item's condition can hold (default: always).  `_sub(text, depth)`: works out an option's or item's own worst
+    case in place of calling worst_v6 again with the same arguments (_WorstMemo keeps them)."""
+    if _sub is None:
+        def _sub(t: str, depth: int) -> str:
+            return worst_v6(t, g, game, award, holds, depth, label=label, award2=award2)
     out = []
     text = sentence_case(text, item=_depth > 0, label=label)   # section 20
     tokens = list(text_tokens(text))
@@ -2684,8 +2688,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             tok = parse_brace(raw[1:-1])
             if tok[0] == "count":
                 # 33: measured by its widest option, placeholders at their widest (5ee2b3dc0)
-                out.append(max((worst_v6(o, g, game, award, holds, _depth + 1, label=label, award2=award2)
-                                for o in tok[2]), key=len))
+                out.append(max((_sub(o, _depth + 1) for o in tok[2]), key=len))
                 continue
             if tok[0] == "word" and tok[1] in TRIBE_WORDS:
                 out.append("W" * TRIBE_ROOM[game.number])           # G5: the longest tribe name the game makes
@@ -2701,7 +2704,7 @@ def worst_v6(text: str, g: dict, game: Game, award: tuple | None, holds=None, _d
             for it in pool["items"]:
                 if holds is not None and not holds(it["if"]):
                     continue
-                w = worst_v6(it["text"], g, game, award, holds, _depth + 1, label=label, award2=award2)
+                w = _sub(it["text"], _depth + 1)
                 size = len(w) + (1 if dot and not w.endswith(ITEM_END_MARKS) else 0)
                 if size > best_len:
                     best, best_len = w, size
@@ -3854,10 +3857,15 @@ def with_auto_lines(text: str, lines: Iterable[str]) -> str:
     return "\n".join(([text] if text else []) + lines)
 
 
-def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[History]:
+def walk(g: dict, ctx: Context, problems: list[str] | None = None, memo: dict | None = None) -> list[History]:
     """Every history of the graph in `ctx`, with its chance (each question button counts as 1).  Problems on a
     history (an unbound role, an award never deferred, a dead end, ...) are added to `problems`.  Version 6: the
-    walk runs over the lowered graph (lower()); each alias's member is a chance split at the start."""
+    walk runs over the lowered graph (lower()); each alias's member is a chance split at the start.
+
+    `memo`: a dict the walks of ONE graph `g` may share (validate passes one for all its contexts).  It keeps what
+    the walk would otherwise work out again on every history: each popup text's worst case (worst_v6) and each
+    text's placeholders and pool tokens.  The results are exactly the same as without it: a worst case is reused
+    only where every condition it can ask about has the same answer (_WorstMemo)."""
     v6 = g.get("version", 1) >= VERSION_V6
     lg = lower(g) if v6 else g
     nodes = lg["nodes"]
@@ -3865,6 +3873,29 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
     found: list[History] = []
     seen: set[str] = set()
     ctx0 = ctx
+    memo = {} if memo is None else memo
+    worst_memo = memo.setdefault("worst", _WorstMemo())
+    text_memo = memo.setdefault("texts", {})
+    auto_memo = memo.setdefault("auto lines", {})
+    checked: set = set()               # this walk's text checks made (_walk_text_v6): say() keeps one walk's messages
+    award2_widths: dict[str, int | None] = {}
+
+    def award2_wide(nid: str) -> int | None:
+        """award2_width of node `nid`'s own food or tech change in this walk's game; None when it has none."""
+        if nid not in award2_widths:
+            fx = nodes[nid]["effects"]
+            k = award2_effect(fx)
+            award2_widths[nid] = None if k is None else award2_width(fx[k], game)
+        return award2_widths[nid]
+
+    def widest_line(nid: str, k: int, e: dict, award) -> str:
+        """widest_auto_line(lg, e, game, award) for node `nid`'s effect `k` (a pure function of them; the lowered
+        graphs of one graph's walks are the same)."""
+        key = (game.number, nid, k, repr(award))
+        out = auto_memo.get(key)
+        if out is None:
+            out = auto_memo[key] = widest_auto_line(lg, e, game, award)
+        return out
 
     def say(msg: str) -> None:
         if problems is not None and msg not in seen:
@@ -3889,8 +3920,14 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             return
         node = nodes[nid]
         path = path + (nid,)
-        popups = [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers, list(p.titles),
-                        p.chosen, p.new_page) for p in popups]
+        # This history's own popups: a visit changes only the last one (or one it appends), so only that is copied;
+        # the earlier ones, never changed again, are the same objects in every history that shares them.
+        if popups:
+            p = popups[-1]
+            popups = popups[:-1] + [Popup(p.layout, p.text, p.worst, p.effects, list(p.nodes), p.room, p.answers,
+                                          list(p.titles), p.chosen, p.new_page)]
+        else:
+            popups = []
         ntitle = node.get("title", "") if node["type"] != "branch" else ""   # cie-v6-binary.md 14
         effects = list(effects)
         # Effects first: an award deferred here is the (award) of this node's own text.
@@ -3957,7 +3994,7 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
             # 25: each effect's line at its widest (the engine's lines are never longer).
             # A pay_award whose amount the text says ("(award)") has none (says_award); nor has the change the
             # text's (award2) states (says_award2).
-            text = with_auto_lines(text, [widest_auto_line(lg, e, game, award) for k, e in enumerate(node["effects"])
+            text = with_auto_lines(text, [widest_line(nid, k, e, award) for k, e in enumerate(node["effects"])
                                           if not (e["do"] == "pay_award" and says_award(text))
                                           and not (k == a2 and says_award2(text))])
         if node["type"] == "question":
@@ -4013,8 +4050,15 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
                                     new_page=bool(node.get("new_page"))))
         title = ntitle or title
         if node["type"] != "branch" and v6:
-            _walk_text_v6(lg, nid, text, ctx, path, award, where, say,
-                          [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)])
+            labels = [c["label"] for c in node["choices"] if cond_holds(c.get("if"), ctx, path)]
+            # The same check again in this walk says only what it said before, which say() drops: it is made once
+            # for each node, text, labels, context, award-or-none and answer of every "visited" condition it can ask.
+            on_path = frozenset(path)
+            check = (nid, text, tuple(labels), ctx, award is None,
+                     frozenset().union(*(worst_memo.reach(t, lg["pools"]) & on_path for t in [text] + labels)))
+            if check not in checked:
+                checked.add(check)
+                _walk_text_v6(lg, nid, text, ctx, path, award, where, say, labels, text_memo)
         elif node["type"] != "branch":
             for raw, p in placeholders(text):
                 if p is None:
@@ -4035,10 +4079,8 @@ def walk(g: dict, ctx: Context, problems: list[str] | None = None) -> list[Histo
         if node["type"] != "branch" and popups:
             if v6:
                 # (award2): the widest of the popup's nodes' own changes (each node's text states its own)
-                wide2 = max([award2_width(nodes[x]["effects"][award2_effect(nodes[x]["effects"])], game)
-                             for x in popups[-1].nodes if award2_effect(nodes[x]["effects"]) is not None] or [0])
-                popups[-1].worst = worst_v6(popups[-1].text, lg, game, award,
-                                            lambda c, _p=path: cond_holds(c, ctx, _p), award2=wide2)
+                wide2 = max([w for w in (award2_wide(x) for x in popups[-1].nodes) if w is not None] or [0])
+                popups[-1].worst = worst_memo.worst(popups[-1].text, lg, game, award, ctx, path, wide2)
             else:
                 popups[-1].worst = worst_case(popups[-1].text, game, award)
 
@@ -4111,18 +4153,112 @@ def others_drawn(roles: dict, drawn: dict[str, str], bound: Iterable[str]) -> di
     return out
 
 
+def _visited_args(c: Any, out: set) -> None:
+    """The nodes a condition's "visited" leaves name (cond_holds: the only answers it takes from the path)."""
+    if not isinstance(c, dict):
+        return
+    for op, arg in c.items():
+        if op == "visited":
+            out.add(arg)
+        elif op == "not":
+            _visited_args(arg, out)
+        elif op in ("all", "any"):
+            for x in arg:
+                _visited_args(x, out)
+
+
+def _text_pools(text: str, out: set) -> None:
+    """The pools worst_v6 can read for `text`: its {POOL} / {POOL.k} tokens, its {@word}s ("@word") and those of
+    its {#...} count options."""
+    for kind, raw in text_tokens(text):
+        if kind != "brace":
+            continue
+        tok = parse_brace(raw[1:-1])
+        if tok[0] == "count":
+            for o in tok[2]:
+                _text_pools(o, out)
+        elif tok[0] == "word":
+            out.add("@" + tok[1])
+        elif tok[0] == "pool":
+            out.add(tok[1])
+
+
+class _WorstMemo:
+    """worst_v6 of a walk's popup texts -- and of every pool item and count option inside them -- each worked out
+    once (walk's `memo`, shared by one graph's walks, whose lowered graphs are the same).
+
+    worst_v6(text, lg, game, award, holds, depth, award2=...) is a pure function of its arguments and of the answers
+    `holds` gives, and it asks `holds` only about the items of the pools it reads: the text's own, and theirs in
+    turn (_text_pools; sentence_case leaves the tokens as they are).  Here holds(c) is cond_holds(c, ctx, path), whose
+    answer depends on the context and, through "visited" alone, on which of the nodes it names are on the path.  So
+    for one text the context, the path's nodes among those its pools' items name ("visited" ones: reach), the award
+    and award2 decide every answer, and with the depth they decide the result: the key it is kept under.  (The game is
+    the context's; reach may take in more nodes than are ever asked about, which only keeps more results apart.)"""
+
+    def __init__(self) -> None:
+        self.contexts: dict[Context, int] = {}
+        self.kept: dict[tuple, str] = {}
+        self.reaches: dict[str, frozenset] = {}
+
+    def reach(self, text: str, pools: dict) -> frozenset:
+        """The nodes any "visited" condition of an item of a pool `text` can read names (pools of items, too)."""
+        hit = self.reaches.get(text)
+        if hit is not None:
+            return hit
+        names: set = set()
+        _text_pools(text, names)
+        todo, done, nodes = list(names), set(), set()
+        while todo:
+            name = todo.pop()
+            if name in done or name not in pools:
+                continue
+            done.add(name)
+            for it in pools[name]["items"]:
+                _visited_args(it.get("if"), nodes)
+                more: set = set()
+                _text_pools(it["text"], more)
+                todo.extend(more - done)
+        hit = self.reaches[text] = frozenset(nodes)
+        return hit
+
+    def worst(self, text: str, lg: dict, game: Game, award: tuple | None, ctx: Context, path: tuple,
+              award2: int) -> str:
+        """worst_v6(text, lg, game, award, lambda c: cond_holds(c, ctx, path), award2=award2)."""
+        key = (self.contexts.setdefault(ctx, len(self.contexts)), game.number, repr(award), award2)
+        kept, pools = self.kept, lg.get("pools", {})
+        on_path = frozenset(path)
+
+        def holds(c: Any) -> bool:
+            return cond_holds(c, ctx, path)
+
+        def sub(t: str, d: int) -> str:
+            k = (key, t, d, self.reach(t, pools) & on_path)
+            out = kept.get(k)
+            if out is None:
+                out = kept[k] = worst_v6(t, lg, game, award, holds, d, award2=award2, _sub=sub)
+            return out
+
+        return sub(text, 0)
+
+
 def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, award, where: str, say,
-                  labels: list[str]) -> None:
+                  labels: list[str], memo: dict | None = None) -> None:
     """A version 6 node's text (and its shown labels) on one history: every placeholder's role bound, every pool
-    used with an item that can be drawn here, the award on the way."""
+    used with an item that can be drawn here, the award on the way.  `memo` (walk's): each text's placeholders
+    and pool tokens, read once (pure functions of the text and the graph's roles)."""
     roles = lg["roles"]
     texts = [text] + labels
     done: set[str] = set()
+    memo = {} if memo is None else memo
     k = 0
     while k < len(texts):
         t = texts[k]
         k += 1
-        for raw, p in placeholders_v6(t, roles):
+        parsed = memo.get(t)
+        if parsed is None:
+            parsed = memo[t] = (placeholders_v6(t, roles), pool_refs(t))
+        phs, refs = parsed
+        for raw, p in phs:
             if p is None:
                 say(f"node {nid}: {raw} is not a placeholder (write \\( \\) for a parenthesis)")
             elif p.role is not None:
@@ -4138,7 +4274,7 @@ def _walk_text_v6(lg: dict, nid: str, text: str, ctx: Context, path: tuple, awar
                     say(f"node {nid}: {raw} is shown, but the node has no food or tech change of its own")
             elif p.what not in MADE_PLACEHOLDERS and award is None:
                 say(f"node {nid} ({where}): {raw} is shown with no award on the way here")
-        for name, _inst in pool_refs(t):
+        for name, _inst in refs:
             pool = lg["pools"].get(name)
             if pool is None or name in done:
                 continue
@@ -4620,6 +4756,35 @@ def validate(data: Any, scrolling: bool = False, shared_pools: Any = None) -> tu
         _SCROLL_CAPS.reset(token)
 
 
+VALIDATE_WORKERS = 8            # validate_all's most worker processes
+_WORKER_ARGS: tuple = (False, None)
+
+
+def _validate_worker_init(scrolling: bool, shared_pools: Any) -> None:
+    global _WORKER_ARGS
+    _WORKER_ARGS = (scrolling, shared_pools)
+
+
+def _validate_worker(data: Any) -> tuple[dict, list[str]]:
+    return validate(data, *_WORKER_ARGS)
+
+
+def validate_all(graphs: list, scrolling: bool = False, shared_pools: Any = None,
+                 workers: int | None = None) -> list[tuple[dict, list[str]]]:
+    """[validate(g, scrolling, shared_pools) for g in graphs], in order -- with many graphs, in worker processes
+    (validate is a pure function of its arguments and changes none of them, so each result is the one it would be
+    here).  A big collection's build (scripts/build_event_collection_features.py) validates thousands of events, one
+    of them alone some 20 seconds.  `workers`: at most this many processes (default VALIDATE_WORKERS, never more than
+    the CPUs); 1: here, one after another."""
+    import os
+    n = min(len(graphs), workers or VALIDATE_WORKERS, os.cpu_count() or 1)
+    if n <= 1 or len(graphs) < 2 * n:
+        return [validate(g, scrolling, shared_pools) for g in graphs]
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(n, initializer=_validate_worker_init, initargs=(scrolling, shared_pools)) as pool:
+        return list(pool.map(_validate_worker, graphs, chunksize=1))
+
+
 def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list[str]]:
     g, problems = normalize(data, shared_pools)
     if problems and not g.get("nodes"):
@@ -4761,8 +4926,9 @@ def _validate(data: Any, scrolling: bool, shared_pools: Any) -> tuple[dict, list
                                 f"may not take it")
 
     # Every history in every context.
+    memo: dict = {}                    # one graph's walks share their worked-out texts (walk)
     for ctx in contexts(g):
-        paths = walk(g, ctx, problems)
+        paths = walk(g, ctx, problems, memo)
         problems.extend(x for x in fit_problems(g, paths, scrolling) if x not in problems)
     if not problems:
         # The file the game reads: at most MAX_FILE_BYTES (the library's scan refuses a larger one).
