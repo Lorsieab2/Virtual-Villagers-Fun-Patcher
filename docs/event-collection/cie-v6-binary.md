@@ -1585,7 +1585,8 @@ villagers and life happens to them too."
 - **More Island Events, The Aspiring Adventurer** (the owner, 2026-11-23): the adventurer may be an ordinary Heathen
   (with this row and "VVFP Heathen Aging.dll"); lost ending 2 is then "... seems to have joined another tribe." and
   they disappear (the Deaths log's Disappeared record); a death or disappearance by the Heathens' own rules; a find
-  nobody of the tribe shares (A1, A5) is the Heathens' own -- its words swapped as above, "(no effect)", no award --
+  nobody of the tribe shares (A1, A5, and A8 when the rescuing friend is a Heathen too -- Codex on #856) is the
+  Heathens' own -- its words swapped as above, "(no effect)", no award --
   and the village's solidarity is not moved.
 - **The collection:** `data/event_collection/heathen_roles.json` (`{"events": {id: {"roles": {role: mode},
   "exclusive": true}}}`, the Heathen-only events) and `data/event_collection/heathen_roles_existing.json` (the

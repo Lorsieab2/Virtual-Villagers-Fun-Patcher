@@ -469,6 +469,56 @@ class Engine(unittest.TestCase):
                 said = words(r)
                 self.assertIn(f"{want} for Mira.", said)
 
+    # The tribe-wide effect kinds (the owner, 2026-11-23, "Check all events"): each alone on a page tagged to raise
+    # Village Solidarity, run with every kind of cast.
+    TRIBE_EFFECTS = (
+        ("food", [{"do": "food", "amount": 50}]),
+        ("tech", [{"do": "tech", "amount": 30}]),
+        ("award", [{"do": "tech", "size": "small", "scaled": True, "defer": True}, {"do": "pay_award"}]),
+        ("new villager", [{"do": "new_villager", "age": "adult"}]),
+        ("nothing", []),
+    )
+    CASTS = (
+        ("all heathens", {"x": {"kind": "villager", "min_age": 14, "heathens": "only"}}, {"heathens": (0,)}),
+        ("heathen and stranger", {"x": {"kind": "villager", "min_age": 14, "heathens": "only"},
+                                  "s": {"kind": "stranger", "sex": "random", "named": True}}, {"heathens": (0,)}),
+        ("puzzle heathen", {"x": {"kind": "villager", "min_age": 14, "heathens": "allowed"}}, {"puzzle": (0,)}),
+        ("mixed", {"x": {"kind": "villager", "min_age": 14, "heathens": "only"},
+                   "y": {"kind": "villager", "min_age": 14}}, {"heathens": (0,)}),
+    )
+
+    def test_every_tribe_wide_effect_with_every_cast(self):
+        """With every villager cast a Heathen (strangers or a puzzle's Heathen too), the tribe's food, tech, people
+        and Village Solidarity never change, and the outcome ends with exactly one "(no effect)"; a mixed cast is the
+        tribe's as always."""
+        from test_story_cie_graph_runtime import stores
+        from test_village_solidarity import fake_solidarity
+        two = [(0, "f", 30, "Mira", 0, False), (1, "m", 32, "Kai", 0, False)]
+        for kind, fx in self.TRIBE_EFFECTS:
+            for cast, roles, who in self.CASTS:
+                with self.subTest(effect=kind, cast=cast):
+                    g = {"format": "vvfp-cie-graph", "version": 6, "title": "Island", "games": [5],
+                         "roles": copy.deepcopy(roles), "start": "p",
+                         "nodes": {"p": {"text": "Something happens.", "auto_text": True, "solidarity": "raise",
+                                         "effects": copy.deepcopy(fx)}}}
+                    r = run_with(two if cast == "mixed" else two[:1], **who)
+                    tags: list = []
+                    fake_solidarity(r.p, 1000, 1000, tags)
+                    before = stores(r)
+                    people = sum(1 for i in range(10) if r.p.read(r.v.record(i) + r.v.L["active"], 1) == b"\1")
+                    self.assertIsNone(r.queue6(compiled(g)))
+                    said = words(r)
+                    after = sum(1 for i in range(10) if r.p.read(r.v.record(i) + r.v.L["active"], 1) == b"\1")
+                    if cast == "mixed":
+                        self.assertEqual(len(tags), 1, "the tribe's own: Village Solidarity raised")
+                        if kind in ("food", "tech", "award"):
+                            self.assertNotEqual(stores(r), before)
+                        continue
+                    self.assertEqual(stores(r), before, "the tribe's food and tech untouched")
+                    self.assertEqual(after, people, "nobody new joins the tribe")
+                    self.assertEqual(tags, [], "Village Solidarity unchanged")
+                    self.assertEqual(said.count("(no effect)"), 1, said)
+
     def test_a_puzzles_heathen_is_never_sick_or_dead_when_cast(self):
         g = {"format": "vvfp-cie-graph", "version": 6, "title": "Omen", "games": [5],
              "roles": {"x": {"kind": "villager", "min_age": 14, "heathens": "allowed"}},
