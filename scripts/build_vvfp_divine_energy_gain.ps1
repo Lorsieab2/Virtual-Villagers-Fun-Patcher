@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-# Builds "VVFP Divine Energy Gain.dll" (Divine Energy Gain Rate, New Believers) from native\vvfp_divine_energy_gain.  32-bit, static CRT, like every
+# Builds "VVFP Divine Energy Gain.dll" (0.1-10x Divine Energy Gain, New Believers) from native\vvfp_divine_energy_gain.  32-bit, static CRT, like every
 # other companion.  Re-run scripts\build_new_slider_features.py afterwards: the rows pin the DLL by SHA-256.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot

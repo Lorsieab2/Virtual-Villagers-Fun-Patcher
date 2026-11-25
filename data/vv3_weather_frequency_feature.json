@@ -4,13 +4,13 @@
   "catalog_enabled": true,
   "catalog_hidden": false,
   "game_id": "vv3",
-  "name": "Frequency of Weather Changes",
-  "description": "The weather changes more or less often: 0.1 to 10 times as often, as you choose with the Frequency of Weather Changes slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Every spell of weather lasts its normal length divided by the number: normally clear weather lasts 15 to 30 minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts 7.5 to 15 minutes and any other kind 1.5 to 3; never less than 1 second. Every spell, whatever brings it on (the weather's own turn or an island event), is shortened or lengthened the same way; which kind comes next is the game's own. A spell already under way when the game starts keeps its end. When the game makes a spell its shortest length (The Secret City does so in one state of its fruit trees), that is divided too. Rain and storms build up their strength 5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, above which mushrooms and collectibles get a second chance to appear. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Weather Frequency.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Weather Frequency.txt\"; nothing is written to a save.",
+  "name": "0.1-10x Weather Changes",
+  "description": "The weather changes on its own more or less often: 0.1 to 10 times as often, as you choose with the 0.1-10x Weather Changes slider in the patcher window (it reads -10 to 10: 10 is 10 times, -10 a tenth, -2 half, and 1, the middle, the normal game; 1 unless you move it; type it in the box beside the slider too). Every natural spell of weather (the weather's own turns: the start of a village's weather, clear weather giving way to another kind, and back to clear) lasts its normal length divided by the number: normally clear weather lasts 15 to 30 minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts 7.5 to 15 minutes and any other kind 1.5 to 3; never less than 1 second. Weather that an island event or anything else brings on, at once or next in line, lasts exactly as in the normal game. Which kind comes next is the game's own. A spell already under way when the game starts keeps its end. When the game makes a spell its shortest length (The Secret City does so in one state of its fruit trees), that is divided too. Rain and storms build up their strength 5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, above which mushrooms and collectibles get a second chance to appear. **Needs no other patch.** Off by default; Owner's Defaults ticks it, with the slider at 1. **Unverified in play** (checked by emulation of the game's own code). The companion is \"VVFP Weather Frequency.dll\", started by VVFP More Companions.dll, and the slider's number is written beside it in \"VVFP Weather Frequency.txt\"; nothing is written to a save.",
   "output_tag": "Weather Frequency",
   "dependencies": [],
   "conflicts": [],
   "behavior_changes": [
-    "Frequency of Weather Changes: the companion's sites 0x41FBF9, 0x41FBFE, 0x41FC05, 0x41FC0A (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Weather Frequency.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
+    "0.1-10x Weather Changes: the companion's sites 0x41FBF9, 0x41FBFE, 0x41FC05, 0x41FC0A, 0x41FD11, 0x41FF9C, 0x41FFAB, 0x41FFC0, 0x41FFB4 (see runtime_detours), installed only when the slider is not 1; N is read at start from \"VVFP Weather Frequency.txt\" beside the companion in tenths (0.1 to 10; none is 1)."
   ],
   "explicit_non_changes": [
     "No executable byte is patched: the companion writes its sites at run time, only after verifying their stock bytes (all of them, or none; an optional site another patch owns is left alone).",
@@ -22,7 +22,7 @@
     {
       "source": "assets/weather_frequency/VVFP Weather Frequency.dll",
       "destination": "VVFP Weather Frequency.dll",
-      "sha256": "D054B4CF78B7F63AF060E2072DA4CB55024A5FDCBF556333C53B753C54635105"
+      "sha256": "280C082F67A3D7FDBAC6B328FB77091AD60582E715868F8B0D3B1801DE7D1FAE"
     }
   ],
   "patches": [],
@@ -30,29 +30,64 @@
     {
       "va": "0x41FBF9",
       "stock_bytes": "BF84030000",
-      "written_bytes": "BFXXXXXXXX",
-      "routine": "the weather setter 0x41FB40's mov edi, 900: clear weather's least (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather setter 0x41FB40's mov edi, 900: clear weather's least (seconds on the game's clock): a call of the companion, which loads the same register with the stock seconds, or with the seconds divided by N (rounded, at least 1; the greatest kept above the least) while a natural change is being made; flags and every other register kept",
       "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x41FBFE",
       "stock_bytes": "BB08070000",
-      "written_bytes": "BBXXXXXXXX",
-      "routine": "the weather setter 0x41FB40's mov ebx, 1800: clear weather's greatest (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather setter 0x41FB40's mov ebx, 1800: clear weather's greatest (seconds on the game's clock): a call of the companion, which loads the same register with the stock seconds, or with the seconds divided by N (rounded, at least 1; the greatest kept above the least) while a natural change is being made; flags and every other register kept",
       "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x41FC05",
       "stock_bytes": "BFB4000000",
-      "written_bytes": "BFXXXXXXXX",
-      "routine": "the weather setter 0x41FB40's mov edi, 180: any other weather's least (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather setter 0x41FB40's mov edi, 180: any other weather's least (seconds on the game's clock): a call of the companion, which loads the same register with the stock seconds, or with the seconds divided by N (rounded, at least 1; the greatest kept above the least) while a natural change is being made; flags and every other register kept",
       "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     },
     {
       "va": "0x41FC0A",
       "stock_bytes": "BB68010000",
-      "written_bytes": "BBXXXXXXXX",
-      "routine": "the weather setter 0x41FB40's mov ebx, 360: any other weather's greatest (seconds on the game's clock): the companion writes the seconds divided by N (rounded, at least 1; the greatest kept above the least)",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather setter 0x41FB40's mov ebx, 360: any other weather's greatest (seconds on the game's clock): a call of the companion, which loads the same register with the stock seconds, or with the seconds divided by N (rounded, at least 1; the greatest kept above the least) while a natural change is being made; flags and every other register kept",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x41FD11",
+      "stock_bytes": "E82AFEFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather's own call of the setter 0x41FB40, the start of a village's weather: goes through the companion, which marks the change natural, calls the setter with the same arguments and clears the mark",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x41FF9C",
+      "stock_bytes": "E89FFBFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather's own call of the setter 0x41FB40, the fruit trees' rain after clear: goes through the companion, which marks the change natural, calls the setter with the same arguments and clears the mark",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x41FFAB",
+      "stock_bytes": "E890FBFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather's own call of the setter 0x41FB40, back to clear when a spell ends: goes through the companion, which marks the change natural, calls the setter with the same arguments and clears the mark",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x41FFC0",
+      "stock_bytes": "E87BFBFFFF",
+      "written_bytes": "E8XXXXXXXX",
+      "routine": "the weather's own call of the setter 0x41FB40, clear -> another kind (shared with a queued kind): goes through the companion, which marks the change natural, calls the setter with the same arguments and clears the mark",
+      "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
+    },
+    {
+      "va": "0x41FFB4",
+      "stock_bytes": "C74604FFFFFFFF",
+      "written_bytes": "E9XXXXXXXX9090",
+      "routine": "a queued kind's path (mov dword ptr [esi + 4], -1, then the call it shares with the natural change): a jump to the companion, which makes the same move and the same call of the setter unmarked (stock lengths) and goes on at 0x41FFC5",
       "installed_by": "VVFP Weather Frequency.dll, VvfpStartup (started by VVFP More Companions.dll, third word)"
     }
   ]

@@ -191,7 +191,7 @@ FILES = [
     "assets/tech_gain/VVFP Tech Gain.dll",
     "assets/skill_success/VVFP Skill Success.dll",
     "assets/age_speed/VVFP Age Speed.dll",
-    # Frequency of Weather Changes (VV3-VV5) and Divine Energy Gain Rate (VV5): 0.1x-10x sliders (v1.35.101).
+    # 0.1-10x Weather Changes (VV3-VV5) and 0.1-10x Divine Energy Gain (VV5): 0.1x-10x sliders (v1.35.101).
     "assets/weather_frequency/VVFP Weather Frequency.dll",
     "assets/divine_energy_gain/VVFP Divine Energy Gain.dll",
     # Village Solidarity (all five games): the village's score, its odds factor and the Tech screen counter.

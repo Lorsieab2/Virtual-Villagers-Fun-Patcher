@@ -11432,11 +11432,11 @@ RUNTIME_SLIDERS = (
                   "VVFP Age Speed.txt", "villagers' age clock (growing up, pregnancy, nursing, old age) runs this "
                   "many times as fast"),
     # The owner, 2026-11-25 (v1.35.101): only in the games that have weather, and only in New Believers.
-    RuntimeSlider("weather_frequency", "_weather_frequency", "Frequency of Weather Changes",
+    RuntimeSlider("weather_frequency", "_weather_frequency", "0.1-10x Weather Changes",
                   "VVFP Weather Frequency.dll", "VVFP Weather Frequency.txt",
                   "the weather changes this many times as often (each spell lasts its normal length divided by it)",
                   (3, 4, 5)),
-    RuntimeSlider("divine_energy_gain", "_divine_energy_gain", "Divine Energy Gain Rate",
+    RuntimeSlider("divine_energy_gain", "_divine_energy_gain", "0.1-10x Divine Energy Gain",
                   "VVFP Divine Energy Gain.dll", "VVFP Divine Energy Gain.txt",
                   "the believers earn this many times their normal Divine Energy", (5,)),
 )
@@ -13633,9 +13633,9 @@ STARTUP_LOADER_COMPANIONS_3 = (
     "VVFP Heathen Aging.dll",
     # X Buttons to Remove Chosen Founders (The Tree of Life, New Believers; the owner 2026-11-24): bit 16.
     "VVFP Founder X Buttons.dll",
-    # Frequency of Weather Changes (The Secret City, The Tree of Life, New Believers; the owner 2026-11-25).
+    # 0.1-10x Weather Changes (The Secret City, The Tree of Life, New Believers; the owner 2026-11-25).
     "VVFP Weather Frequency.dll",
-    # Divine Energy Gain Rate (New Believers; the owner 2026-11-25).
+    # 0.1-10x Divine Energy Gain (New Believers; the owner 2026-11-25).
     "VVFP Divine Energy Gain.dll",
 )
 MORE_COMPANIONS_DLL = "VVFP More Companions.dll"

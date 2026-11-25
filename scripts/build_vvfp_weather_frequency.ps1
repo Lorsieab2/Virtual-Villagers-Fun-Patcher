@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-# Builds "VVFP Weather Frequency.dll" (Frequency of Weather Changes; The Secret City, The Tree of Life, New Believers) from native\vvfp_weather_frequency.  32-bit, static CRT, like every
+# Builds "VVFP Weather Frequency.dll" (0.1-10x Weather Changes; The Secret City, The Tree of Life, New Believers) from native\vvfp_weather_frequency.  32-bit, static CRT, like every
 # other companion.  Re-run scripts\build_new_slider_features.py afterwards: the rows pin the DLL by SHA-256.
 
 $projectRoot = Split-Path -Parent $PSScriptRoot

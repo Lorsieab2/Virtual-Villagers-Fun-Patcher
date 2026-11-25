@@ -67,9 +67,9 @@ RULES = (
 # (data/builds.json and data/vv5_*_feature.json) that touches a God Power, searched by the powers' names, their
 # handler (0x422EB0, 0x4234A0), their table (0x4CA000) and costs (0x498840) and the Divine Energy field: only Revive's
 # record (the safety rows every patched New Believers gets, and Population 256's allocator rows at 0x46FDE0).
-PATCHED = ("Stock or patched: no patch changes a power's cost, range, duration, odds or targets, except that the "
-           "patcher's \"Frequency of Weather Changes\" (off by default; at 1 the normal game) divides every spell of "
-           "weather's length by its slider's number, Sunshine's and Tempest's weather too. Only Revive changes, "
+PATCHED = ("Stock or patched: no patch changes a power's cost, range, duration, odds or targets (the patcher's "
+           "\"0.1-10x Weather Changes\" shortens or lengthens only the weather's own changes: Sunshine's and "
+           "Tempest's weather lasts as in the normal game). Only Revive changes, "
            "and only when no villager record is free for the stand-in it makes: every game the patcher writes refuses "
            "that cast, nothing spent, where the normal game crashes; with the patcher's \"256 Villagers "
            "(Experimental)\" (off by default) the records are 256 instead of 150, so that refusal comes later (see "

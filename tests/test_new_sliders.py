@@ -112,6 +112,18 @@ class Stock(unittest.TestCase):
                          and i + 0x401000 + 5 + struct.unpack_from("<i", text, i + 1)[0] == setter]
                 self.assertEqual(len(calls), callers[game])
                 self.assertTrue(all(text[c - 0x401000] == 0xE8 for c in calls))
+                # Every call is either the weather's own (natural, divided) or left alone (stock lengths).
+                natural = [va for va, _w in gen.WEATHER_NATURAL[game]]
+                self.assertEqual(sorted(calls), sorted(natural + gen.WEATHER_LEFT_ALONE[game]))
+                self.assertEqual(set(natural) & set(gen.WEATHER_LEFT_ALONE[game]), set())
+                if game in gen.WEATHER_QUEUED:
+                    va, stock, resume = gen.WEATHER_QUEUED[game]
+                    o = va - 0x400000
+                    self.assertEqual(data[o:o + 7].hex().upper(), stock)
+                    # then push 0; push edi; mov ecx, esi; call setter (0x41FFC0), and on at 0x41FFC5
+                    self.assertEqual(data[o + 7:o + 12].hex().upper(), "6A00578BCE")
+                    self.assertEqual(o + 12 + 0x400000, 0x41FFC0)
+                    self.assertEqual(resume, 0x41FFC5)
                 least, greatest = gen.WEATHER_SITES[game][0][2], gen.WEATHER_SITES[game][1][2]
                 self.assertEqual((least, greatest), (900, 1800) if game == 3 else (480, 1800))
 
@@ -154,10 +166,15 @@ class Stock(unittest.TestCase):
         for game in (3, 4, 5):
             sites = gen.WEATHER_SITES[game]
             with self.subTest(game=game, slider="weather_frequency"):
-                self.assertIn(f"{{ {game}, {{ " + ", ".join(f"0x{va:X}u" for va, *_ in sites) + " }, { "
-                              + ", ".join(f"0x{op:02X}" for _va, op, *_ in sites) + " }, { "
-                              + ", ".join(f"{s}u" for _va, _op, s, _w in sites) + " } }",
-                              sources["weather_frequency"])
+                natural = gen.WEATHER_NATURAL[game]
+                queued = gen.WEATHER_QUEUED.get(game, (0, "", 0))
+                entry = (f"{{ {game}, 0x{gen.WEATHER_SETTER[game]:X}u, {{ "
+                         + ", ".join(f"0x{va:X}u" for va, *_ in sites) + " }, { "
+                         + ", ".join(f"0x{op:02X}" for _va, op, *_ in sites) + " },\n      { "
+                         + ", ".join(f"{s}u" for _va, _op, s, _w in sites) + f" }}, {len(natural)}, {{ "
+                         + ", ".join(f"0x{va:X}u" for va, _w in natural) + " }, "
+                         + (f"0x{queued[0]:X}u, 0x{queued[2]:X}u }}" if queued[0] else "0u, 0u }"))
+                self.assertIn(entry, sources["weather_frequency"])
         self.assertIn(f"{{ 5, 0x{gen.ENERGY_WRITER[5]:X}u, {len(gen.ENERGY_SITES[5])},", sources["divine_energy_gain"])
         for va, _w in gen.ENERGY_SITES[5]:
             self.assertIn(f"{{ 0x{va:X}u, 0 }}", sources["divine_energy_gain"])
@@ -168,6 +185,10 @@ class Stock(unittest.TestCase):
         sites = []
         for game in (3, 4, 5):
             sites += [(game, va, 5) for va, *_ in gen.WEATHER_SITES[game]]
+            sites += [(game, va, 5) for va, _w in gen.WEATHER_NATURAL[game]]
+            if game in gen.WEATHER_QUEUED:
+                va, stock, _resume = gen.WEATHER_QUEUED[game]
+                sites.append((game, va, len(stock) // 2))
         sites += [(5, va, 5) for va, _w in gen.ENERGY_SITES[5]]
         for game in GAMES:
             sites += [(game, va, 5) for va, _w, _o in gen.COLLECT_SITES[game]]
@@ -489,14 +510,25 @@ class DivineEnergyGain(GainCompanions, _Emulated, unittest.TestCase):
 
 @unittest.skipUnless(HAVE_EMULATOR, "pefile/unicorn not installed")
 class WeatherFrequency(_Emulated, unittest.TestCase):
+    """The owner (2026-11-25): only the weather's own changes are divided ("Leave powers alone"); a spell an island
+    event, a God Power or a queued kind brings lasts as in the normal game."""
     KEY = "weather_frequency"
-    # The setter's run from `cmp dword ptr [esi], 0` to just after `mov [esi + 8], eax` (the spell's end), its rand
-    # call and the game's clock.
-    RUNS = {3: (0x41FBF4, 0x41FC6F, 0x426590), 4: (0x46BD18, 0x46BD58, 0x41DB20), 5: (0x4771A6, 0x4771E6, 0x41ED40)}
     CLOCK = 1_000_000
+    # Everything the setter calls on the paths run here (clear, and rain: kind 2), with what each pops: the
+    # setter's own sound / ramp helpers (stand-ins return 0), the game's clock, The Secret City's fruit-tree tests.
+    CALLS = {
+        3: {0x41F250: 0, 0x41EDA0: 0, 0x41F260: 4, 0x41F9D0: 8, 0x434090: 4, 0x434030: 4},
+        4: {0x46B4F0: 0, 0x46B020: 0, 0x46B460: 4, 0x46BB90: 8},
+        5: {0x476550: 0, 0x475F10: 0, 0x4764C0: 4, 0x477020: 4, 0x477030: 4, 0x476F70: 8},
+    }
+    CLOCKS = {3: 0x426590, 4: 0x41DB20, 5: 0x41ED40}
 
     def sites(self, game: int) -> list[tuple[int, int]]:
-        return [(va, 5) for va, *_ in gen.WEATHER_SITES[game]]
+        out = [(va, 5) for va, *_ in gen.WEATHER_SITES[game]]
+        out += [(va, 5) for va, _w in gen.WEATHER_NATURAL[game]]
+        if game in gen.WEATHER_QUEUED:
+            out.append((gen.WEATHER_QUEUED[game][0], 7))
+        return out
 
     @staticmethod
     def expected(game: int, tenths: int) -> list[int]:
@@ -505,9 +537,11 @@ class WeatherFrequency(_Emulated, unittest.TestCase):
             out[i + 1] = max(out[i + 1], out[i] + 1)
         return out
 
-    def spell(self, m: "Machine", game: int, kind: int, r: int, trees_state: bool = False) -> tuple[list[int], int]:
-        """The setter's length step run once for `kind`: rand's ranges asked for, and the spell's end."""
-        start, end, clock = self.RUNS[game]
+    @staticmethod
+    def stock(game: int) -> list[int]:
+        return [s for _va, _op, s, _w in gen.WEATHER_SITES[game]]
+
+    def prepare(self, m: "Machine", game: int, kind: int, r: int, trees_state: bool) -> tuple[int, list[int]]:
         asked: list[int] = []
 
         def rand(p):
@@ -515,43 +549,89 @@ class WeatherFrequency(_Emulated, unittest.TestCase):
             return r, 0
 
         m.stubs[gen.RAND[game]] = rand
-        m.stubs[clock] = lambda p: (self.CLOCK, 0)
+        m.stubs[self.CLOCKS[game]] = lambda p: (self.CLOCK, 0)
+        for va, pops in self.CALLS[game].items():
+            m.stubs[va] = (lambda p, pops=pops: (0, pops))
         if game == 3:
             # The fruit-tree tests (0x434090(0), 0x434030(0), 0x434090(1)): all of them pass only in trees_state.
             m.stubs[0x434090] = lambda p: ((1 if p.arg(0) == 0 else 0) if trees_state else 0, 4)
             m.stubs[0x434030] = lambda p: (1 if trees_state else 0, 4)
         weather = m.alloc(0x100)
-        m.put32(weather, kind)
-        m.set_reg("esi", weather)
-        m.set_reg("esp", m.reg("esp") - 0x80)
-        m.run(start, end)
+        m.put32(weather, 0xFFFFFFFF)
+        m.put32(weather + 4, 0xFFFFFFFF)
+        m.put32(weather + 8, 1)                    # a spell under way: the setter skips its first-spell roll
+        return weather, asked
+
+    def call(self, m: "Machine", game: int, va: int, kind: int, r: int,
+             trees_state: bool = False) -> tuple[list[int], int]:
+        """The game's `call setter` at `va` run with (kind, 0) pushed and ecx the weather: rand's ranges asked for,
+        and the spell's end."""
+        weather, asked = self.prepare(m, game, kind, r, trees_state)
+        esp = m.reg("esp") - 0x100
+        m.set_reg("esp", esp)
+        m.put32(esp, kind)
+        m.put32(esp + 4, 0)
+        m.set_reg("ecx", weather)
+        for name, value in (("ebx", 0x11111111), ("esi", 0x44444444), ("edi", 0x55555555)):
+            m.set_reg(name, value)
+        m.run(va, va + 5)
+        self.assertEqual(m.reg("esp"), esp + 8, "the setter popped its two arguments")
+        self.assertEqual([m.reg(n) for n in ("ebx", "esi", "edi")], [0x11111111, 0x44444444, 0x55555555])
+        self.assertEqual(m.u32(weather), kind)
         return asked, m.u32(weather + 8)
+
+    def lengths(self, m: "Machine", game: int, va: int, lengths: list[int], r: int = 3) -> None:
+        least, greatest, other_least, other_greatest = lengths
+        self.assertEqual(self.call(m, game, va, 0, r), ([greatest - least], self.CLOCK + least + r))
+        self.assertEqual(self.call(m, game, va, 2, r), ([other_greatest - other_least], self.CLOCK + other_least + r))
 
     def test_stock_lengths_without_the_companion(self) -> None:
         for game in self.games:
             with self.subTest(game=game):
                 m = self.machine(game, None)
                 self.assertEqual(self.start(m, game), 0)
-                least, greatest, other_least, other_greatest = [s for _va, _op, s, _w in gen.WEATHER_SITES[game]]
-                self.assertEqual(self.spell(m, game, 0, 7), ([greatest - least], self.CLOCK + least + 7))
-                self.assertEqual(self.spell(m, game, 2, 7),
-                                 ([other_greatest - other_least], self.CLOCK + other_least + 7))
+                for va, _w in gen.WEATHER_NATURAL[game]:
+                    self.lengths(m, game, va, self.stock(game), 7)
+                self.lengths(m, game, gen.WEATHER_LEFT_ALONE[game][0], self.stock(game), 7)
 
-    def test_every_spell_lasts_its_length_divided_by_n(self) -> None:
+    def test_natural_spells_are_divided_and_every_other_keeps_the_stock_length(self) -> None:
         for game in self.games:
-            for n in ("2", "0.5", "0.1", "10", "3.7", "1.5"):
+            for n in ("2", "0.5", "0.1", "10", "3.7"):
                 tenths = round(float(n) * 10)
-                least, greatest, other_least, other_greatest = self.expected(game, tenths)
                 with self.subTest(game=game, n=n):
                     m = self.machine(game, n.encode())
                     self.assertEqual(self.start(m, game), 1)
-                    for va, op, _s, _w in gen.WEATHER_SITES[game]:
-                        self.assertEqual(m.read(va, 1)[0], op, "the mov's register is the game's own")
-                    for r in (0, 3):
-                        self.assertEqual(self.spell(m, game, 0, r), ([greatest - least], self.CLOCK + least + r))
-                        for kind in (1, 2, 3, 4):
-                            self.assertEqual(self.spell(m, game, kind, r),
-                                             ([other_greatest - other_least], self.CLOCK + other_least + r))
+                    for va, _w in gen.WEATHER_NATURAL[game]:
+                        self.lengths(m, game, va, self.expected(game, tenths))
+                    # Island events, God Powers (New Believers' Sunshine 0x41F32C and Tempest 0x4230C7), a queued
+                    # kind's own call: the normal game's lengths, also right after a natural change.
+                    for va in gen.WEATHER_LEFT_ALONE[game]:
+                        self.lengths(m, game, va, self.stock(game))
+                    if game == 5:
+                        self.assertIn(0x41F32C, gen.WEATHER_LEFT_ALONE[5])
+                        self.assertIn(0x4230C7, gen.WEATHER_LEFT_ALONE[5])
+
+    def test_the_secret_citys_queued_kind_keeps_the_stock_length(self) -> None:
+        # The update's queued path (0x41FFB4) with edi the queued kind and esi the weather: the companion's move and
+        # call, then the game's own pop edi; pop esi; pop ecx; ret.
+        for setting in (b"2", b"0.1", None):
+            with self.subTest(setting=setting):
+                m = self.machine(3, setting)
+                self.assertEqual(self.start(m, 3), 0 if setting is None else 1)
+                weather, asked = self.prepare(m, 3, 2, 5, False)
+                m.put32(weather + 4, 2)
+                back = 0x401000
+                esp = m.reg("esp") - 0x100
+                m.set_reg("esp", esp)
+                for i, value in enumerate((0x55555555, weather, 0x22222222, back)):
+                    m.put32(esp + 4 * i, value)
+                m.set_reg("esi", weather)
+                m.set_reg("edi", 2)
+                m.run(0x41FFB4, back)
+                self.assertEqual(asked, [360 - 180])
+                self.assertEqual(m.u32(weather + 8), self.CLOCK + 180 + 5)
+                self.assertEqual((m.u32(weather), m.u32(weather + 4)), (2, 0xFFFFFFFF))
+                self.assertEqual((m.reg("edi"), m.reg("esi"), m.reg("esp")), (0x55555555, weather, esp + 16))
 
     def test_the_numbers(self) -> None:
         # At 2 half as long, at 0.5 twice, at 10 a tenth; rand's range never 0.
@@ -564,11 +644,13 @@ class WeatherFrequency(_Emulated, unittest.TestCase):
                 a, b, c, d = self.expected(game, tenths)
                 self.assertTrue(1 <= a < b and 1 <= c < d)
 
-    def test_the_secret_citys_shortest_spell_is_divided_too(self) -> None:
+    def test_the_secret_citys_shortest_spell(self) -> None:
+        # In the fruit trees' state the spell is exactly the least: divided on the natural path, stock otherwise.
         m = self.machine(3, b"2")
         self.assertEqual(self.start(m, 3), 1)
-        self.assertEqual(self.spell(m, 3, 0, 5, trees_state=True), ([], self.CLOCK + 450))
-        self.assertEqual(self.spell(m, 3, 2, 5, trees_state=True), ([], self.CLOCK + 90))
+        self.assertEqual(self.call(m, 3, 0x41FFAB, 0, 5, trees_state=True), ([], self.CLOCK + 450))
+        self.assertEqual(self.call(m, 3, 0x41FF9C, 2, 5, trees_state=True), ([], self.CLOCK + 90))
+        self.assertEqual(self.call(m, 3, 0x414E67, 0, 5, trees_state=True), ([], self.CLOCK + 900))
 
 
 @unittest.skipUnless(HAVE_EMULATOR, "pefile/unicorn not installed")

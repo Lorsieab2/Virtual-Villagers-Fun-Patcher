@@ -6,8 +6,8 @@ owner, 2026-11-25, for v1.35.101) only in the games that have what they change (
   Tech Point Gain Rate                "VVFP Tech Gain.dll"              native/vvfp_tech_gain
   Skill Practice Success Chance       "VVFP Skill Success.dll"          native/vvfp_skill_success
   Age and Nursing Timer Speed         "VVFP Age Speed.dll"              native/vvfp_age_speed
-  Frequency of Weather Changes        "VVFP Weather Frequency.dll"      native/vvfp_weather_frequency  (VV3-VV5)
-  Divine Energy Gain Rate             "VVFP Divine Energy Gain.dll"     native/vvfp_divine_energy_gain (VV5)
+  0.1-10x Weather Changes        "VVFP Weather Frequency.dll"      native/vvfp_weather_frequency  (VV3-VV5)
+  0.1-10x Divine Energy Gain             "VVFP Divine Energy Gain.dll"     native/vvfp_divine_energy_gain (VV5)
 
 Each slider goes 0.1 to 10 in tenths, 1 (the normal game) unless moved; its number is written beside the companion
 (src/vv_fun_patcher.py RUNTIME_SLIDERS) and read at start (native/shared/slider_scale.h); at 1x the companion
@@ -116,6 +116,26 @@ WEATHER_SITES = {
         (0x4771B7, 0xBF, 180, "mov edi, 180: any other weather's least"),
         (0x4771BC, 0xB8, 360, "mov eax, 360: any other weather's greatest")],
 }
+# The setter's calls from the weather's own code (the natural changes, divided by N): (va, what).  Every other call
+# (island events, God Powers, a queued kind) is left alone, so those spells last as in the normal game.
+WEATHER_NATURAL = {
+    3: [(0x41FD11, "the start of a village's weather"), (0x41FF9C, "the fruit trees' rain after clear"),
+        (0x41FFAB, "back to clear when a spell ends"), (0x41FFC0, "clear -> another kind (shared with a queued kind)")],
+    4: [(0x46BDF8, "the start of a village's weather"), (0x46C103, "clear -> another kind"),
+        (0x46C113, "back to clear when a spell ends")],
+    5: [(0x477298, "the start of a village's weather"), (0x477563, "clear -> another kind"),
+        (0x477573, "back to clear when a spell ends")],
+}
+# The setter's other calls, never touched (an island event's, a God Power's, a queued kind's ...).
+WEATHER_LEFT_ALONE = {
+    3: [0x414E67, 0x414E9C, 0x4150D9, 0x415119, 0x4151E9, 0x4166BB, 0x4166CB, 0x4167AD, 0x433B76, 0x464739,
+        0x464787, 0x4647D9],
+    4: [0x414957, 0x4149BC, 0x414B99, 0x414BD9, 0x414C19, 0x41509C, 0x41FF3A, 0x432918, 0x46C129],
+    5: [0x414C37, 0x414C9C, 0x414E29, 0x41F32C, 0x41FB1D, 0x4230C7, 0x425A1E, 0x439182, 0x477589],
+}
+# The Secret City's queued kind shares the 0x41FFC0 call: its path's first instruction jumps to the companion, which
+# makes the same call unmarked and goes on at 0x41FFC5.
+WEATHER_QUEUED = {3: (0x41FFB4, "C74604FFFFFFFF", 0x41FFC5)}
 # New Believers' Divine Energy adder and the calls of it that pay the believers' earnings (native/vvfp_divine_energy_gain).
 ENERGY_WRITER = {5: 0x424F80}
 ENERGY_SITES = {
@@ -145,9 +165,9 @@ SLIDERS = {
     "age_speed": ("_age_speed", "Age and Nursing Timer Speed", "VVFP Age Speed.dll", "age_speed", "Age Speed"),
     # The owner, 2026-11-25 (v1.35.101): "Frequency of weather changes in games that have them" and "frequency of
     # divine energy gain in vv5".
-    "weather_frequency": ("_weather_frequency", "Frequency of Weather Changes", "VVFP Weather Frequency.dll",
+    "weather_frequency": ("_weather_frequency", "0.1-10x Weather Changes", "VVFP Weather Frequency.dll",
                           "weather_frequency", "Weather Frequency"),
-    "divine_energy_gain": ("_divine_energy_gain", "Divine Energy Gain Rate", "VVFP Divine Energy Gain.dll",
+    "divine_energy_gain": ("_divine_energy_gain", "0.1-10x Divine Energy Gain", "VVFP Divine Energy Gain.dll",
                            "divine_energy_gain", "Divine Energy Gain"),
 }
 # The games each slider has a row in (A New Home and The Lost Children have no weather; only New Believers has
@@ -211,15 +231,17 @@ def describe(key: str, game: int) -> str:
         clear = "15 to 30" if game == 3 else "8 to 30"
         trees = (" When the game makes a spell its shortest length (The Secret City does so in one state of its "
                  "fruit trees), that is divided too." if game == 3 else "")
-        body = (f"The weather changes more or less often: 0.1 to 10 times as often, as you choose with {words}. Every "
-                f"spell of weather lasts its normal length divided by the number: normally clear weather lasts {clear} "
-                "minutes and any other kind 3 to 6, on the game's clock (real-life minutes on Normal speed; the clock "
-                "runs twice as fast on Fast, 0.6 times on Slow, and stops while paused). So at 2 clear weather lasts "
-                f"{'7.5 to 15' if game == 3 else '4 to 15'} minutes and any other kind 1.5 to 3; never less than 1 "
-                "second. Every spell, whatever brings it on (the weather's own turn or an island event"
-                + (", or the Sunshine and Tempest God Powers" if game == 5 else "") + "), is "
-                "shortened or lengthened the same way; which kind comes next is the game's own. A spell already "
-                "under way when the game starts keeps its end." + trees + " Rain and storms build up their strength "
+        others = ("an island event, a God Power (Sunshine, Tempest) or anything else" if game == 5
+                  else "an island event or anything else")
+        body = (f"The weather changes on its own more or less often: 0.1 to 10 times as often, as you choose with "
+                f"{words}. Every natural spell of weather (the weather's own turns: the start of a village's weather, "
+                "clear weather giving way to another kind, and back to clear) lasts its normal length divided by the "
+                f"number: normally clear weather lasts {clear} minutes and any other kind 3 to 6, on the game's clock "
+                "(real-life minutes on Normal speed; the clock runs twice as fast on Fast, 0.6 times on Slow, and "
+                f"stops while paused). So at 2 clear weather lasts {'7.5 to 15' if game == 3 else '4 to 15'} minutes "
+                f"and any other kind 1.5 to 3; never less than 1 second. Weather that {others} brings on, at once or "
+                "next in line, lasts exactly as in the normal game. Which kind comes next is the game's own. A spell "
+                "already under way when the game starts keeps its end." + trees + " Rain and storms build up their strength "
                 "5 points every 6 seconds, so at high numbers spells are short and the strength rarely reaches 50, "
                 "above which mushrooms and collectibles get a second chance to appear. ")
     elif key == "divine_energy_gain":
@@ -273,12 +295,27 @@ def detours(key: str, game: int) -> list[dict]:
                             + ("; optional" if optional else ""), "installed_by": by}
                 for va, what, optional in table[game]]
     if key == "weather_frequency":
-        return [{"va": f"0x{va:X}", "stock_bytes": f"{op:02X}" + seconds.to_bytes(4, "little").hex().upper(),
-                 "written_bytes": f"{op:02X}XXXXXXXX",
-                 "routine": f"the weather setter 0x{WEATHER_SETTER[game]:X}'s {what} (seconds on the game's clock): "
-                            "the companion writes the seconds divided by N (rounded, at least 1; the greatest kept "
-                            "above the least)", "installed_by": by}
-                for va, op, seconds, what in WEATHER_SITES[game]]
+        setter = WEATHER_SETTER[game]
+        out = [{"va": f"0x{va:X}", "stock_bytes": f"{op:02X}" + seconds.to_bytes(4, "little").hex().upper(),
+                "written_bytes": "E8XXXXXXXX",
+                "routine": f"the weather setter 0x{setter:X}'s {what} (seconds on the game's clock): a call of the "
+                           "companion, which loads the same register with the stock seconds, or with the seconds "
+                           "divided by N (rounded, at least 1; the greatest kept above the least) while a natural "
+                           "change is being made; flags and every other register kept", "installed_by": by}
+               for va, op, seconds, what in WEATHER_SITES[game]]
+        out += [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, setter), "written_bytes": "E8XXXXXXXX",
+                 "routine": f"the weather's own call of the setter 0x{setter:X}, {what}: goes through the companion, "
+                            "which marks the change natural, calls the setter with the same arguments and clears the "
+                            "mark", "installed_by": by}
+                for va, what in WEATHER_NATURAL[game]]
+        if game in WEATHER_QUEUED:
+            va, stock, resume = WEATHER_QUEUED[game]
+            out.append({"va": f"0x{va:X}", "stock_bytes": stock, "written_bytes": "E9XXXXXXXX9090",
+                        "routine": f"a queued kind's path (mov dword ptr [esi + 4], -1, then the call it shares "
+                                   f"with the natural change): a jump to the companion, which makes the same move "
+                                   f"and the same call of the setter unmarked (stock lengths) and goes on at "
+                                   f"0x{resume:X}", "installed_by": by})
+        return out
     if key == "divine_energy_gain":
         writer = ENERGY_WRITER[game]
         return [{"va": f"0x{va:X}", "stock_bytes": call_bytes(va, writer), "written_bytes": "E8XXXXXXXX",

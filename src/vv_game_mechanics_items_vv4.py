@@ -75,7 +75,7 @@ DEFAULT_OFF = frozenset({"vv4_learning_never_fails", "vv4_everyone_collects_like
                           # (Birth Control is on by default, as in the other games: the owner, 2026-11-19, #829)
                           # the 0.1x-10x sliders (#799) and One-Time Collectibles Appear Again (#800): off by default
                           "vv4_collectible_frequency", "vv4_food_gain", "vv4_tech_gain", "vv4_skill_success",
-                          "vv4_weather_frequency",    # Frequency of Weather Changes (2026-11-25): off by default
+                          "vv4_weather_frequency",    # 0.1-10x Weather Changes (2026-11-25): off by default
                           "vv4_age_speed", "vv4_one_time_collectibles_again"}) | frozenset(  # the island events' content controls (the owner, 2026-11-15)
     {"vv4_island_event_content_notes", "vv4_island_events_any_time"}
     | {f"vv4_island_event_filter_f{n:02d}" for n in range(1, 29)})

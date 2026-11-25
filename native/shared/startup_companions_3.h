@@ -54,10 +54,10 @@ static const char *const VVFP_STARTUP_COMPANIONS_3[] = {
     /* X Buttons to Remove Chosen Founders (The Tree of Life, New Believers): an X beside each chosen villager on the
        Select 5 villagers screen sends them away so another can be picked (the owner, 2026-11-24). */
     "VVFP Founder X Buttons.dll",
-    /* Frequency of Weather Changes (The Secret City, The Tree of Life, New Believers): each spell of weather lasts its
+    /* 0.1-10x Weather Changes (The Secret City, The Tree of Life, New Believers): each spell of weather lasts its
        normal length divided by the slider's number (VVFP Weather Frequency.txt beside it; the owner, 2026-11-25). */
     "VVFP Weather Frequency.dll",
-    /* Divine Energy Gain Rate (New Believers): the believers' Divine Energy earnings times the slider's number (VVFP
+    /* 0.1-10x Divine Energy Gain (New Believers): the believers' Divine Energy earnings times the slider's number (VVFP
        Divine Energy Gain.txt beside it; the owner, 2026-11-25). */
     "VVFP Divine Energy Gain.dll",
     /* APPEND ONLY (see above). */

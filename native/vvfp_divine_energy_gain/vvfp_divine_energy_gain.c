@@ -1,4 +1,4 @@
-/* VVFP Divine Energy Gain -- "Divine Energy Gain Rate" (New Believers; the owner, 2026-11-25: "frequency of divine
+/* VVFP Divine Energy Gain -- "0.1-10x Divine Energy Gain" (New Believers; the owner, 2026-11-25: "frequency of divine
    energy gain in vv5").
 
    WHAT.  The Divine Energy the believers earn comes N times as fast (on average: the rest of a whole point is a
