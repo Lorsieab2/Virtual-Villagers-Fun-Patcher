@@ -3,6 +3,7 @@ gen 1. but his upcoming child I can't change from gen 3 to gen 2" / "the child k
 the player moves a villager (Move to generation, or a portrait dragged into another band), their children --
 babies on the way, born ones and grandchildren -- move with them, staying as far below as the records put them,
 unless the player moved that child themselves.  Who descends from whom (Kinship) keeps the records' generations."""
+import json
 import sys
 import unittest
 from fractions import Fraction
@@ -145,6 +146,148 @@ class ChildrenFollowTests(unittest.TestCase):
         self.assertEqual(v.people[P].generation, 3)
         self.assertEqual(v.people[K].generation, 2)     # a default father is nobody's parent here
         self.assertEqual(v.people[M].generation, 1)
+
+
+N, N2 = 20, 21
+
+
+def with_birth(v: gen.Village, twins: int = 0, lost: bool = False) -> gen.Village:
+    """The same village after D's baby on the way (F) -- or twins -- was born (N, N2), or lost."""
+    out = village()
+    for q in [q for q, p in out.people.items() if p.upcoming]:
+        del out.people[q]
+        out.base_generation.pop(q, None)
+    out.people[D].expecting = False
+    if lost:
+        return out
+    for pid in (N, N2)[:max(1, twins)]:
+        out.people[pid] = gen.Person(pid, f"P{pid}", pid, pid, sex="Female", age=0, alive=True, father=C, mother=D,
+                                     first_seen=FIRST, birth_record=pid, litter=7 if twins else None)
+        out.people[pid].generation = out.base_generation[pid] = 3
+    return out
+
+
+def twin_village() -> gen.Village:
+    v = village()
+    v.people[F].litter = -1
+    v.people[22] = gen.Person(22, "", None, -2, father=C, mother=D, upcoming=True, litter=-1)
+    v.people[22].generation = v.base_generation[22] = 3
+    return v
+
+
+def json_round(edits: ft.Edits) -> dict:
+    return json.loads(json.dumps(edits.to_data()))
+
+
+def upcoming_left(edits: ft.Edits) -> bool:
+    keys = list(edits.entries) + [k for part in edits.page_edits.values() for k in part.get("entries", {})]
+    return any(k.startswith(ft.UPCOMING) for k in keys)
+
+
+class BabyOnTheWayTests(unittest.TestCase):
+    """The owner, 2026-11-25: "Let me move the baby by hand" -- and the choice is kept when the baby is born."""
+
+    def edit(self, v, pid, page=True, **fields) -> ft.Edits:
+        return self.add(ft.Edits(), v, pid, page, **fields)
+
+    def add(self, edits, v, pid, page=True, **fields) -> ft.Edits:
+        entry = {**fields, ft.BORN_AFTER: ft.born_after(v, v.people[pid])}     # as the window keeps it
+        if page:
+            pk = str(ft.page_key(edits, v, 0))
+            edits.page_edits.setdefault(pk, {}).setdefault("entries", {})[key(v, pid)] = entry
+        else:
+            edits.entries[key(v, pid)] = entry
+        return edits
+
+    def test_moving_a_baby_on_the_way_sticks(self):
+        v = village()
+        v.people[E].birth_record = 3
+        self.assertEqual(ft.born_after(v, v.people[F]), 3)
+        self.assertEqual(ft.generation_without_own(ft.Edits(), v, 0, v.people[F]), 3)   # II is an edit of its own
+        edits = self.edit(v, F, generation=2)
+        ft.arrange(v, edits)
+        self.assertEqual(ft.page_village(edits, v, 0).people[F].generation, 2)
+
+    def test_the_born_child_keeps_the_generation(self):
+        for page in (True, False):
+            v = village()
+            edits = self.edit(v, F, page=page, generation=2, shape="star", lines=["On the way"])
+            edits = ft.Edits.from_data(json_round(edits))           # kept in the tree's file
+            self.assertTrue(upcoming_left(edits))
+            born = with_birth(v)
+            self.assertTrue(ft.carry_born_babies(edits, born))
+            ft.arrange(born, edits)
+            self.assertEqual(ft.page_village(edits, born, 0).people[N].generation, 2, page)
+            entries = ft.page_view(edits, born, 0).entries
+            self.assertEqual(entries[key(born, N)].get("shape"), "star")
+            self.assertNotIn("lines", entries[key(born, N)])           # words for the baby on the way stay behind
+            self.assertFalse(upcoming_left(edits))
+            self.assertFalse(ft.carry_born_babies(edits, born))          # once
+
+    def test_the_born_childs_own_edit_wins(self):
+        v = village()
+        edits = self.edit(v, F, generation=2)
+        born = with_birth(v)
+        pk = str(ft.page_key(edits, born, 0))
+        edits.page_edits[pk]["entries"][key(born, N)] = {"generation": 4}
+        ft.carry_born_babies(edits, born)
+        self.assertEqual(edits.page_edits[pk]["entries"][key(born, N)]["generation"], 4)
+
+    def test_still_on_the_way_is_left(self):
+        v = village()
+        edits = self.edit(v, F, generation=2)
+        self.assertFalse(ft.carry_born_babies(edits, v))
+        self.assertTrue(upcoming_left(edits))
+
+    def test_a_lost_baby_is_dropped(self):
+        v = village()
+        edits = self.edit(v, F, generation=2)
+        lost = with_birth(v, lost=True)
+        self.assertTrue(ft.carry_born_babies(edits, lost))
+        self.assertFalse(upcoming_left(edits))
+
+    def test_twins_given_the_same_both_keep_it(self):
+        v = twin_village()
+        edits = self.edit(v, F, generation=2)
+        self.add(edits, v, 22, generation=2)
+        born = with_birth(v, twins=2)
+        ft.carry_born_babies(edits, born)
+        ft.arrange(born, edits)
+        shown = ft.page_village(edits, born, 0)
+        self.assertEqual((shown.people[N].generation, shown.people[N2].generation), (2, 2))
+
+    def test_twins_given_different_edits_are_never_guessed(self):
+        for other in ({"generation": 1}, {}):            # different, or one twin given nothing
+            v = twin_village()
+            edits = self.edit(v, F, generation=2)
+            if other:
+                self.add(edits, v, 22, **other)
+            born = with_birth(v, twins=2)
+            self.assertTrue(ft.carry_born_babies(edits, born))
+            ft.arrange(born, edits)
+            shown = ft.page_village(edits, born, 0)
+            self.assertEqual((shown.people[N].generation, shown.people[N2].generation), (3, 3))
+            self.assertFalse(upcoming_left(edits))
+
+    def test_a_birth_before_the_edit_is_not_this_baby(self):
+        v = village()
+        v.people[E].birth_record = 30                    # the edit made after Birth record 30
+        edits = self.edit(v, F, generation=2)
+        born = with_birth(v)                              # N's Birth (20) is older: not this pregnancy's
+        born.people[E].birth_record = 30
+        ft.carry_born_babies(edits, born)
+        ft.arrange(born, edits)
+        self.assertEqual(ft.page_village(edits, born, 0).people[N].generation, 3)
+
+    def test_children_follow_a_moved_baby_once_born(self):
+        v = village()
+        edits = self.edit(v, C, generation=1)            # the father moved: the baby on the way follows
+        ft.arrange(v, edits)
+        self.assertEqual(ft.page_village(edits, v, 0).people[F].generation, 2)
+        born = with_birth(v)
+        ft.carry_born_babies(edits, born)
+        ft.arrange(born, edits)
+        self.assertEqual(ft.page_village(edits, born, 0).people[N].generation, 2)
 
 
 if __name__ == "__main__":

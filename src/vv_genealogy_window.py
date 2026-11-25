@@ -3193,6 +3193,13 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             self.last_state = self._state()
         # A page's own edits kept under a page the tree no longer has (its pages cut differently now) go to
         # the page that holds that generation, once, and are saved (ft.rekey_pages).
+        # A baby on the way the player moved or marked, born since: their edits go to the child (the owner,
+        # 2026-11-25: "Let me move the baby by hand"); a lost one's are dropped.  Saved, with no undo step back.
+        if ft.carry_born_babies(self.edits, getattr(self, "full_village", self.village)):
+            self.dirty = True
+            self.history.clear()
+            self.future.clear()
+            self.last_state = self._state()
         ft.arrange(self.village, self.edits)
         if ft.rekey_pages(self.edits, self.village):
             self.dirty = True
@@ -5046,9 +5053,10 @@ class TreeEditor(CanvasTools, tk.Toplevel):
         return ft.family_key(self.village, fam)
 
     def _set_entry(self, p: gen.Person, **values) -> None:
-        self._set_entry_key(ft.entry_key(self.village, p), self._entry(p), **values)
+        after = ft.born_after(self.village, p) if p.upcoming else None
+        self._set_entry_key(ft.entry_key(self.village, p), self._entry(p), _born_after=after, **values)
 
-    def _set_entry_key(self, key: str, current: dict, **values) -> None:
+    def _set_entry_key(self, key: str, current: dict, _born_after: int | None = None, **values) -> None:
         """Changes to one villager's edits, kept for the shown page alone: what differs from the tree's own
         (None: not set on this page).  Their generation and chosen look too."""
         entry = dict(current)
@@ -5057,6 +5065,14 @@ class TreeEditor(CanvasTools, tk.Toplevel):
                 entry[name] = value
             else:
                 entry.pop(name, None)
+        if key.startswith(ft.UPCOMING):
+            # A baby on the way's edits go to the child once born (ft.carry_born_babies): which birth that
+            # will be is kept with them -- the first after the mother's last one now.
+            if set(entry) - {ft.BORN_AFTER}:
+                if _born_after is not None:
+                    entry.setdefault(ft.BORN_AFTER, _born_after)
+            else:
+                entry.pop(ft.BORN_AFTER, None)
         base = dict(self.edits.entries.get(key, {}))
         over = {n: v for n, v in entry.items() if base.get(n) != v}
         over.update({n: None for n in base if n not in entry})
@@ -5528,8 +5544,8 @@ class TreeEditor(CanvasTools, tk.Toplevel):
             return
         for q in self.selected:
             p = self.village.people[q]
-            if p.upcoming:
-                continue
+            # A baby on the way too (the owner, 2026-11-25: "Let me move the baby by hand"): kept for the child
+            # once born (ft.carry_born_babies).
             # A generation the villager would have anyway -- the records', or where their moved parents take
             # them -- is no edit; any other is their own, and stays when their parents move (the owner, 2026-11-25).
             same = not back and g == ft.generation_without_own(self.edits, self.village, self.page, p)

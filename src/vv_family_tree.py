@@ -725,6 +725,9 @@ class Edits:
                 item["border"] = entry["border"]
             if isinstance(entry.get("generation"), int) and 1 <= entry["generation"] <= 99:
                 item["generation"] = entry["generation"]
+            if str(key).startswith(UPCOMING) and isinstance(entry.get(BORN_AFTER), int) \
+                    and not isinstance(entry[BORN_AFTER], bool):
+                item[BORN_AFTER] = entry[BORN_AFTER]    # which birth will be this baby's (carry_born_babies)
             for axis in ("dx", "dy"):
                 shift = _number(entry.get(axis), -STICKER_MAX, STICKER_MAX, 0.0)
                 if shift:
@@ -751,7 +754,7 @@ class Edits:
             look = entry.get("look")
             if isinstance(look, list) and len(look) == 2 and all(isinstance(v, int) for v in look):
                 item["look"] = look             # the look the player chose to show
-            if item:
+            if set(item) - {BORN_AFTER}:
                 out.entries[str(key)] = item
         for piece, shift in dict(data.get("line_moves", {})).items():
             if isinstance(shift, list) and len(shift) == 2:
@@ -1220,6 +1223,8 @@ def _clean_entry_field(name: str, value):
             and all(isinstance(v, int) and not isinstance(v, bool) for v in value) else (False, None)
     if name in ("marks", "unmarked"):
         return (True, _clean_labels(value) or None) if isinstance(value, list) else (False, None)
+    if name == BORN_AFTER:
+        return (True, value) if isinstance(value, int) and not isinstance(value, bool) else (False, None)
     return True, value
 
 
@@ -1689,6 +1694,80 @@ def entry_key(village: gen.Village, p: gen.Person) -> str:
     # no living namesake: "name|head|body", as always.
     suffix = getattr(p, "edit_suffix", "") if getattr(p, "namesake_rank", 0) else ""
     return f"{p.name}|{p.head}|{p.body}" + suffix
+
+
+UPCOMING = "upcoming|"
+BORN_AFTER = "born_after"       # a baby on the way's edits: the last Birth record of its mother's then
+# What a baby on the way's edits give the child once born (the owner, 2026-11-25: "Let me move the baby by
+# hand" -- the choice kept when the baby is born): their generation and how their portrait is drawn; never
+# words written for the baby on the way, its place on the page, a look, or being deleted from the tree.
+CARRIED = ("generation", "marks", "mark", "unmarked", "shape", "border", "fill", "detail", "flip_h", "flip_v",
+           "text_scale", "picture_scale", "w", "h", "angle")
+
+
+def born_after(village: gen.Village, p: gen.Person) -> int:
+    """For a baby on the way: the last Birth record among its mother's children now (-1: none), so the child
+    born of this pregnancy is told apart later -- the first born after it (carry_born_babies)."""
+    return max((c.birth_record for c in village.people.values()
+                if c.mother == p.mother and not c.upcoming and c.birth_record is not None), default=-1)
+
+
+def _carry_entries(entries: dict, village: gen.Village, fallback: dict) -> bool:
+    """carry_born_babies for one set of entries (the tree's, or one page's; `fallback`: the tree's, whose
+    BORN_AFTER a page's entry may share).  True when any changed."""
+    people = village.people
+    pending = {entry_key(village, p) for p in people.values() if p.upcoming}
+    groups: dict[tuple, tuple[list, list]] = {}
+    changed = False
+    for key in [k for k in entries if k.startswith(UPCOMING)]:
+        after = entries[key].get(BORN_AFTER, fallback.get(key, {}).get(BORN_AFTER))
+        if not isinstance(after, int):          # kept before births were told apart: left as it was
+            continue
+        try:
+            name, head, body, _index = key[len(UPCOMING):].rsplit("|", 3)
+        except ValueError:
+            continue
+        mothers = [m for m in people.values() if not m.upcoming and not m.placeholder
+                   and m.name == name and str(m.head) == head and str(m.body) == body]
+        if len(mothers) != 1:                   # namesakes: which mother's it was cannot be told
+            continue
+        mother = mothers[0]
+        born = sorted((c for c in people.values() if c.mother == mother.id and not c.upcoming
+                       and c.birth_record is not None and c.birth_record > after), key=lambda c: c.birth_record)
+        if not born:
+            if key not in pending:              # lost: no baby on the way of hers now, and none born
+                del entries[key]
+                changed = True
+            continue
+        first = born[0]                         # this pregnancy: the first birth since, with its twins
+        litter = [c for c in born if c is first or (first.litter is not None and c.litter == first.litter)]
+        groups.setdefault((mother.id, after), ([], litter))[0].append(key)
+    for keys, litter in groups.values():
+        given = [{f: entries[k][f] for f in CARRIED if entries[k].get(f) is not None} for k in keys]
+        # One baby, one child; twins only when every one of them was given the same (which is which cannot be
+        # told): never a guess.
+        if len(keys) == len(litter) and all(g == given[0] for g in given):
+            for child in litter:
+                target = entries.setdefault(entry_key(village, child), {})
+                for f, v in given[0].items():
+                    target.setdefault(f, v)     # the child's own edits stay theirs
+        for k in keys:
+            del entries[k]
+        changed = True
+    return changed
+
+
+def carry_born_babies(edits: Edits, village: gen.Village) -> bool:
+    """A baby on the way's edits (its generation, marks, portrait) to the child once born, the tree's and every
+    page's own; a lost one's dropped.  The child is the first born to the mother after the edit was made
+    (BORN_AFTER, by the Births log), with its twins; edits on twins that differ go to none of them.  True when
+    any changed."""
+    tree = {k: dict(v) for k, v in edits.entries.items()}
+    changed = _carry_entries(edits.entries, village, {})
+    for part in edits.page_edits.values():
+        if isinstance(part, dict) and isinstance(part.get("entries"), dict):
+            changed |= _carry_entries(part["entries"], village, tree)
+    return changed
 
 
 PARKED = "parked|"
