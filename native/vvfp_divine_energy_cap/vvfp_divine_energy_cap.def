@@ -1,0 +1,4 @@
+LIBRARY "VVFP Divine Energy Cap"
+EXPORTS
+    VvfpStartup=_VvfpStartup@8
+    VvfpDivineEnergyCapInstalled=_VvfpDivineEnergyCapInstalled@0
