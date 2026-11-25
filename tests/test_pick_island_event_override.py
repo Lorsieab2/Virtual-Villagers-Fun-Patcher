@@ -492,7 +492,7 @@ class PickerTests(unittest.TestCase):
 
     def test_the_checkbox_warns_first_and_the_gong_has_none(self):
         rc = (ROOT / "native" / "vvfp_story_upgrades" / "vvfp_story_upgrades.rc").read_text(encoding="utf-8")
-        self.assertIn('"Override: allow events that are normally not possible", 3015, "Button", BS_AUTOCHECKBOX', rc)
+        self.assertIn('CONTROL     "", 3015, "Button", BS_AUTOCHECKBOX', rc)   # its words: chooser_dialog.s7, by key
         ui = (ROOT / "native" / "vvfp_story_upgrades" / "story_outcomes_ui.inc").read_text(encoding="utf-8")
         self.assertIn("MB_OKCANCEL | MB_ICONWARNING | MB_DEFBUTTON2", ui[ui.index("IDC_PICK_OVERRIDE && code"):])
         self.assertIn("ShowWindow(GetDlgItem(window, IDC_PICK_OVERRIDE), SW_HIDE)", ui)

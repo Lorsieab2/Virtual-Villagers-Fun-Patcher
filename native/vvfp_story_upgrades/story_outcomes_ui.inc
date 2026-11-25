@@ -597,9 +597,7 @@ static void chooser_description(int index, char *out, int size) {
         if (size >= 1100) {
             char text[1100];
             wsprintfA(text, vvfp_tr("vvfp.story/story_outcomes_ui.chooser_description.s2",
-                                    "Normally not possible right now (it needs %s). With the override it happens "
-                                    "anyway, with the villagers the village has: it may not make story sense, and "
-                                    "its effects happen.", 400),
+                                    "Normally not possible right now (it needs %s). With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.", 400),
                       event_requires(ev));
             wsprintfA(out, "%s\r\n\r\n%s", description, text);
         }
@@ -901,8 +899,7 @@ static void chooser_show(HWND window) {
         if (sm_list.possible[m] && sm_list.over[m]) {
             wsprintfA(text, "%s\r\n\r\n%s", sm_list.description[m],
                       vvfp_tr("vvfp.story/story_outcomes_ui.chooser_show.s0",
-                              "Normally not possible right now. With the override it happens anyway, with the "
-                              "villagers the village has: it may not make story sense, and its effects happen.", 400));
+                              "Normally not possible right now. With the override it happens anyway, with the villagers the village has: it may not make story sense, and its effects happen.", 400));
         } else if (sm_list.possible[m]) {
             lstrcpynA(text, sm_list.description[m], sizeof text);
         } else {

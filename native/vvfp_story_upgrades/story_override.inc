@@ -219,8 +219,7 @@ static const char *ov_refusal(int game, const ov_event *e, char *why, int cap) {
     }
     if (e->room > 0 && ov_spare(game) < e->room) {
         wsprintfA(why, vvfp_tr("vvfp.story/story_override.ov_refusal.s2",
-                               "room in the game's villager records for %d more villagers (the village is at the "
-                               "most villagers the game can hold)", 300),
+                               "room in the game's villager records for %d more villagers (the village is at the most villagers the game can hold)", 300),
                   (int)e->room);
         return why;
     }
