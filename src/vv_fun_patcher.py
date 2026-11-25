@@ -535,7 +535,7 @@ GENDER_PRESENTATION_FEATURE_PATHS = tuple(ROOT / "data" / f"vv{n}_gender_present
     # the game's creator draws for a new Golden Child.
     ROOT / "data" / "vv1_golden_child_born_female_feature.json",)
 # More Frequent Island Events (all five games; off by default, on in Owner's Defaults): the game's own island events
-# N times as often (the slider, 2 to 100, 2 unless moved); companion only, "VVFP Island Frequency.dll", started by
+# N times as often (the slider, 0.1 to 10, 4 unless moved; the owner, 2026-11-25); companion only, "VVFP Island Frequency.dll", started by
 # VVFP Startup.dll from its second word; scripts/build_island_frequency_features.py.
 ISLAND_FREQUENCY_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{n}_more_frequent_island_events_feature.json" for n in range(1, 6))
@@ -11348,11 +11348,12 @@ def _write_louder_flutes_choice(output_folder: Path, fun_patches: list[FunPatch]
 
 # More Frequent Island Events (all five games): how many times as often the game's own island events come, the
 # patcher window's slider (the owner, 2026-11-15: like the other multiplier sliders, 2x to 100x; 2 unless moved;
-# 2026-11-17: down to 0.1 too, rarer than normal below 1).  Written beside "VVFP Island Frequency.dll" as one number of
-# at most one decimal place (ASCII, "2", "0.5"), which the companion reads at start (0.1 to 10; a missing or
-# unreadable file is 2).  The window's slider and --island-frequency-multiplier set it.
+# 2026-11-17: down to 0.1 too, rarer than normal below 1; 2026-11-25: "yes make it 4x default").  Written beside
+# "VVFP Island Frequency.dll" as one number of at most one decimal place (ASCII, "4", "0.5"), which the companion reads
+# at start (0.1 to 10; a missing or unreadable file is 2, the companion's own fallback, kept so no game needs patching
+# again -- the patcher always writes the file).  The window's slider and --island-frequency-multiplier set it.
 ISLAND_FREQUENCY_CHOICE_FILE = "VVFP Island Frequency.txt"
-ISLAND_FREQUENCY_MULTIPLIER_DEFAULT = 2
+ISLAND_FREQUENCY_MULTIPLIER_DEFAULT = 4
 ISLAND_FREQUENCY_MULTIPLIER_RANGE = MultiplierRange(10)
 _island_frequency_multiplier = ISLAND_FREQUENCY_MULTIPLIER_DEFAULT
 

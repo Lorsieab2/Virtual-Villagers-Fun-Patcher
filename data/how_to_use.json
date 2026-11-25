@@ -445,7 +445,7 @@
       "ids": ["vv1_more_frequent_island_events", "vv2_more_frequent_island_events", "vv3_more_frequent_island_events", "vv4_more_frequent_island_events", "vv5_more_frequent_island_events"],
       "guide": [
         "Off by default; Owner's Defaults ticks it. Select All does not tick it. The game's own island events come more or less often.",
-        "0.1 to 10 times as often, set with the More Frequent Island Events slider (2 unless you move it; 1 is the normal game).",
+        "0.1 to 10 times as often, set with the More Frequent Island Events slider (4 unless you move it; 1 is the normal game).",
         "At 2, A New Home's 12 to 23 hours between events become 6 to 11.5, The Lost Children's 10 to 19 become 5 to 9.5, and the other games' 8 to 15 become 4 to 7.5.",
         "The first events of a new village, which event comes and its rules are the game's own. A bought or picked island event still leaves the next natural one where it was.",
         "Not yet tested in play."
@@ -1627,7 +1627,7 @@
     "island_frequency_multiplier": {
       "title": "More Frequent Island Events",
       "guide": [
-        "How many times as often the game's own island events come with the More Frequent Island Events patch: 0.1 to 10 in steps of 0.1, 2 unless you move it.",
+        "How many times as often the game's own island events come with the More Frequent Island Events patch: 0.1 to 10 in steps of 0.1, 4 unless you move it.",
         "The slider reads -10 (a tenth) to 10 (10 times); 1, the middle, is the normal game, and -2 is half. Drag it or type the number in the box (then press Enter).",
         "The wait between events is divided by it: at 10, The Secret City's 8 to 15 hours become 48 to 90 minutes.",
         "It is written into each game the next time you patch with More Frequent Island Events ticked; patch again after changing it. Owner's Defaults sets it to 2.",

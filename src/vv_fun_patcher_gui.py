@@ -675,7 +675,7 @@ def saved_louder_flutes_multiplier(settings: dict):
 
 
 def saved_island_frequency_multiplier(settings: dict):
-    """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 2)."""
+    """More Frequent Island Events' multiplier a settings file holds (saved_multiplier; default 4)."""
     return saved_multiplier(settings, "island_frequency_multiplier", ISLAND_FREQUENCY_MULTIPLIER_RANGE,
                             ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
 
@@ -1743,8 +1743,8 @@ class App(tk.Tk):
             # Louder Wind Flutes' multiplier (The Tree of Life; the owner, 2026-11-15: "control how loud the wind
             # flutes are too! (same slider)"): 5 unless moved; written beside its companion.
             self.louder_flutes_var = tk.DoubleVar(value=LOUDER_FLUTES_MULTIPLIER_DEFAULT)
-            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 2 unless moved;
-            # written beside its companion.
+            # More Frequent Island Events' multiplier (all five games; the owner, 2026-11-15): 4 unless moved
+            # (the owner, 2026-11-25); written beside its companion.
             self.island_frequency_var = tk.DoubleVar(value=ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
             # "A man may carry the baby by chance" (the owner, 2026-11-16): 0 to 100 percent, 10 unless moved; the
             # slider and its box in every game's Island Events section share it.
@@ -3204,7 +3204,8 @@ class App(tk.Tk):
         # Louder Wind Flutes' slider as its row is (on, at its default 5; the owner, 2026-11-15).
         if hasattr(self, "louder_flutes_var"):
             self.louder_flutes_var.set(LOUDER_FLUTES_MULTIPLIER_DEFAULT)
-        # More Frequent Island Events' slider at its default 2 (its row is ticked there; the owner, 2026-11-15).
+        # More Frequent Island Events' slider at its default 4 (its row is ticked there; the owner, 2026-11-15;
+        # 4 since 2026-11-25).
         if hasattr(self, "island_frequency_var"):
             self.island_frequency_var.set(ISLAND_FREQUENCY_MULTIPLIER_DEFAULT)
         if hasattr(self, "partner_carry_var"):
