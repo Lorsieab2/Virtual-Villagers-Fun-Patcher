@@ -225,11 +225,27 @@ static const unsigned char *backfill_gravestone(int place) {
 
 /* Whether a grave (A New Home, The Lost Children) or a Roster of the Dead
    entry (The Secret City to New Believers) holds a villager: its name, which
-   every burial copies there first.  Never its age: a villager buried at age
-   0 has a grave too, and 0 is a real age (the owner, 2026-10-09: "0 is a
+   every burial copies there first.  Never its age here: a villager buried at
+   age 0 has a grave too, and 0 is a real age (the owner, 2026-10-09: "0 is a
    valid value for head, body and age").  A place never dug is all zeros. */
 static int backfill_dug(const unsigned char *grave) {
     return grave != NULL && grave[0] != '\0';
+}
+
+/* Whether the game itself counts a dug grave as a grave: every game calls a
+   grave or Roster of the Dead entry with age 0 free, whatever name it still
+   holds -- A New Home's recount (0x41CF10) and grave popup (0x436D62), The
+   Lost Children's allocator (0x464CD0), and the burial's writer in The Secret
+   City (0x454FF0), The Tree of Life (0x45D470) and New Believers (0x464C70,
+   with its count 0x464E90 and entry lookup 0x464E70); each burial takes the
+   first free one.  A new village keeps the last village's names there with
+   their ages zeroed (the owner, 2026-11-24, a new New Believers village whose
+   Deaths log listed 48 of them at age 0: "there should be no graves", "for
+   all 5 games"), so the backfill, which finds the deaths no hook saw, passes
+   them by.  A villager buried at age 0 still gets a Death record: the
+   burial's own hook writes it (cod_vv12.inc, cod_vv345.inc). */
+static int backfill_counted(int age) {
+    return age != 0;
 }
 
 /* Every grave the village holds into facts[], in place order, with its
@@ -247,7 +263,7 @@ static int backfill_gather(void) {
             const unsigned char *grave = cod_grave(place);
             vv_grave_fact *f = &facts[n];
             int age = *(const int *)(grave + GRV[g_game].age);
-            if (!backfill_dug(grave)) {
+            if (!backfill_dug(grave) || !backfill_counted(age)) {
                 continue;
             }
             memset(f, 0, sizeof *f);
@@ -265,7 +281,7 @@ static int backfill_gather(void) {
         vv_grave_fact *f = &facts[n];
         int age = *(const int *)(entry + V345[g_game].e_age);
         unsigned int capacity = v345_name_capacity();
-        if (!backfill_dug(entry)) {
+        if (!backfill_dug(entry) || !backfill_counted(age)) {
             continue;
         }
         memset(f, 0, sizeof *f);
